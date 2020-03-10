@@ -1,0 +1,15 @@
+To Do:
+
+Problems
+* [Currently Disabled Feature] Progressive sphere mapping for rotation still have memory leak in shell 9...
+* [Bug] Manually setting high band crashes or leads to 0 results.
+
+Development
+* Timing - are band and integration order correctly determined?
+* Timing - can it be faster?
+* Documentation and examples 
+* Get new version to CCP-EM including new interface
+
+!!!
+* Make python get and set 3D instead of 1D arrays
+* Create pip installation

@@ -1,0 +1,165 @@
+====================================
+====================================
+===== ProSHADE error messages: =====
+====================================
+====================================
+
+========
+GENERAL:
+========
+
+CODE:		Message:																												Comment:
+E000001		No task has been specified. Please see the usage options available with the -h or --help arguments.						The settings object needs to have the Task variable set for any ProSHADE run to start.
+E000005		The instance of ProSHADE_data which is trying to read in structure XXX is not empty.									Tried to read in structure into an object which already has had a structure read in (could be the same structure, does not matter).
+E000006		The structure XXX is of unknown type or does not exist.																	Could not determine the type (PDB or MAP) of the input file when attempting to read it.
+E000007		Failed to allocate memory.																								Generic error when malloc fails against nullptr.
+E000014		No task has been specified for task specific constructor.																ProSHADE_settings class constructor", "This ProSHADE_settings class constructor is intended to set the internal variables to default value given a particular taks. By supplying this task as NA, this beats the purpose of the constructor. Please use the non-argumental constructor if task is not yet known.
+
+============
+MAP READING:
+============
+
+CODE:		Message:																												Comment:
+EM00008		Failed to determine the axis order of the input map file. Please report this case.										Tested for all axis orders and yet none of them applied.
+EM00009		Cannot read from the map file. The map file mode is not supported.														The map mode must be 0 or 2, otherwise cannot read the map. This error states the map mode is neither supported value.
+EM00015		Requested resolution not set for map re-sampling.																		There is no resolution value set, but map re-sampling to this unset resolution value is required. This error occurs when a task with no resolution requirement is requested on a map data and the map resolution change is set to 'on'. Either supply a resolution value, or do not re-sample the map.
+EM00045		The map axes are not perpendicular. Only P1 cells are supported for now.												ProSHADE currently only supports map cells with perpendicular (90 degrees angled) axes. Your map seems to have differently angled axes and so cannot be processed by this ProSHADE version. This feature is coming in future update!
+
+============
+PDB READING:
+============
+
+CODE:		Message:																												Comment:
+EP00010		While attempting to open file XXX for reading, MMDB library failed to open the file. This 								Are you sure the file is not corrupted and that the path is right?
+			could be caused by not being formatted properly or by memory not being sufficient										
+
+============
+MAP MASKING:
+============
+
+CODE:		Message:																												Comment:
+EM00025		The kernel value for "fake half-map" calculation must not be negative.													The kernel value needs to be non-negative.
+EM00026		The kernel value for correlation calculation must not be negative.														The kernel value needs to be non-negative.
+
+==========
+RE-BOXING:
+==========
+
+CODE:		Message:																												Comment:
+EB00002		There is no input structure for map manipulation.																		In MapManipulation task, the check for at least a single input file has failed.
+NO LONGER IN USE !!!	EB00003		There are too many input structures for re-boxing.																		In MapManipulation task, the check for no more that one input file has failed.
+EB00011		No resolution given for PDB file re-boxing. This cannot be done - please supply a resolution value.						No resolution value when MapManipulation from a PDB file.
+EB00016		No output file name.																									There is no output file name set in the settings object. Please supply the file name to where the re-boxed map should be saved using the setOutputFilename() function.
+
+==========
+DISTANCES:
+==========
+
+CODE:		Message:																												Comment:
+ED00012		There are not enough structures for distance computation.																There needs to be at least two structures between which distances are computed. The ProSHADE_settings object contains less than two structures and therefore cannot proceed. Please supply at least two structures by repeatedly using the addStructure() function.
+ED00013		Resolution value not set.																								x
+ED00017		Attempted computing energy levels descriptors when it was not required.													Attempted to pre-compute the RRP matrices, when the user has specifically stated that these should not be computed. Unless you manipulated the code, this error should never occur; if you see this, I made a large blunder. Please let me know!
+ED00018		Attempted computing trace sigma descriptors when it was not required.													Attempted to pre-compute the E matrices, when the user has specifically stated that these should not be computed. Unless you manipulated the code, this error should never occur; if you see this, I made a large blunder. Please let me know!
+ED00023		Attempted computing rotation function descriptors when it was not required.												Attempted to compute the SO(3) transform and the rotation function descriptor when the user did not request this. Unless you manipulated the code, this error should never occur; if you see this, I made a large blunder. Please let me know!
+
+=========
+SYMMETRY:
+=========
+
+CODE:		Message:																												Comment:
+ES00028		There are not enough structures for symmetry detection.
+ES00031		Requested symmetry supplied, but not recognised																			The allowed values for requested symmetry are "", "C", "D", "T", "O" or "I". Any other value will result in this error.
+
+============
+MAP OVERLAY:
+============
+
+CODE:		Message:																												Comment:
+EO00032		There are not enough structures for map overlay computation.															ProSHADE expects exactly two structures for map overlay mode and this requirement was not met - thus the complaint.
+EO00033		Cannot zero-pad in negative direction.																					The requested padded size of a structure is smaller than the current size. If the user sees this error, there is likely a considerable bug. Please report this error.
+
+============
+INTEGRATION:
+============
+
+EI00019		The integration order is too low.																						The Gauss-Legendre integration order is less than 2. This seems very low; if you have a very small structure or very low resolution, please manually increase the integration order. Othherwise, please report this as a bug.
+EI00020		The Taylor series cap is too low.																						The Taylor series expansion limit is less than 2. This seems very low; if you have a very small structure or very low resolution, please manually increase the integration order. Otherwise, please report this as a bug.
+
+=======
+LAPACK:
+=======
+
+EL00021		The LAPACK complex SVD algorithm did not converge!																		LAPACK algorithm for computing the singular value decomposition of complex matrices did not converge and therefore it was not possible to combined SH coefficients from multiple shells. Changing the resolution may help, contact me if this error persists.
+EL00022		The LAPACK complex SVD algorithm did not converge!																		LAPACK algorithm for computing the singular value decomposition of complex matrices did not converge and therefore it was not possible to optimise the peak positions in the (self-)rotation function. Changing the resolution may help, contact me if this error persists.
+
+================
+WIGNER MATRICES:
+================ 
+
+EW00024		Attempted allocating Wigner D matrices before allocating E matrices memory.												The E matrices and Wigner matrices both require to know the bandwidth of the comparison (which may differ from the object bandwidth). This is set when allocating E matrices and therefore if it is 0 now, E matrices were not  yet allocated.
+
+=======
+PYTHON:
+=======
+
+EP00043		Structure class input map has wrong dimensions.																			The supplied map array size has different dimensions to the required map dimensions.
+EP00044		Structure class input dimensions not in line with map to/from indices.													The supplied map information does not add up. The dimensions are not in line with the indexing start/stop position distances and therefore proper map indexing cannot be done. Please check the input values.
+
+======================================
+======================================
+===== ProSHADE warning messages: =====
+======================================
+======================================
+
+==========
+RE-BOXING:
+==========
+
+CODE:		Message:																												Comment:
+WB00004		The input file is not of the MAP (MRC) format. Will output re-boxed map, but beware that this is 						This is a warning notifying the user that ProSHADE re-boxing was intended for maps and PDB will work, but I do not think one should use ProSHADE this way.
+			simple PDB->MAP conversion and REFMAC5 should be used to compute more appropriate maps.
+WB00027		Attempted making map boundaries same between dimensions, but the original sizes do not allow this. 						As described in the message, when you have boundaries 1 3 5 and you say you want all boundaries with 3 to be the same size (as per the setBoundsThreshold() function),
+			Therefore, map dimensions will not have the same size. This could be mitigated by adding more space 					ProSHADE will attempt to make the boundaries 5 5 5. However, if the original map was only 4 4 5, then this would not be possible and in this situation, you would see
+			to the computation.																										this warning.
+WB00039		The deep copy pointer is not set to NULL. Cannot proceed and returning unmodified pointer.								When the deep copy function is called, it assumes that the argument pointer is set to NULL. If it is not, it cannot know whether it points to some other allocated memory or not and thus cannot proceed. Create a new pointer and 
+																																	set it to NULL and then supply this new pointer to the deep  copy function to avoid this  warning.
+WB00040		Requested bounds for structure index which does not exist. Returning empty vector.										The requested structure index for which the boundaries are to be returned by functions getOriginalBounds(), getReBoxedBounds() or getReBoxedMap() is higher than the number of structure supplied to ProSHADE.
+
+
+=========
+SYMMETRY:
+=========
+
+CODE:		Message:																												Comment:
+WS00028		Failed to detect any symmetries. There are no reasonable peaks in the self-rotation map. If you believe 				You get to see this if there are no outliers in the peaks in the self-rotation map. This is typically due to too high resolution or very high threshold for the interquartile 
+			there should be some symmetry, you can try decreasing the resolution or changing the peak IQR threshold.				range on median for peak outlier detection. Alternatively, there could just not be any symmetry...
+WS00029		Failed to detect any symmetries. If you believe there should be one, you can try decreasing the resolution 				This is typically when there is no symmetry in the map. However, only the map rotation centre "as supplied" has been tested in this point - you can try to move the map so that
+			or checking that the map is centred on the centry of symmetry (or use map centering option in ProSHADE).				the rotation centre is correct, or use the ProSHADE option which moves map into COM.
+WS00030		Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles. 						This warning could mean that the structure is somehow similar to a polyhedral symmetry, but it does not contain it, or that ProSHADE failed. To test the present of this symmetry,
+																																	decreasing the resolution could be a good approach. However, I, O and T symmetries do look alike when missing symmetry axis detection is done and therefore if one of these symmetries
+																																	is detected, but the previous attempt gives this warning, it is likely the reported symmetry is right and the warning should be ignored.
+WS00038		Requested symmetry index does not exist. Returning empty vector.														When requesting detected symmetry axes one by one, the code has requested symmetry axis index outside of the range. Please check the code if you wrote  it, it let me know if this is something I have done.
+																																	
+																																	
+========
+OVERLAY:
+========
+
+CODE:		Message:																												Comment:
+WO00034		The progressive sphere mapping is not yet fully implemented for the map rotation. It has been turned off. 				The progressive sphere mapping was not yet implemented for map re-construction from the progressively mapped spheres. Therefore, it must be turned off for the Overlay task with phases part of the run.
+WO00041		Requested rotation/translation values for Overlay functionality without having successfully computed it. Please 		This warning happens when either the getEulerAngles() or the getTranslation() functions are called, but the results are not available. Most likely another task was selected and these were not computed.
+			check the correct task was used and no other warnings/errors were obtained.
+
+=======
+PYTHON:
+=======
+
+CODE:		Message:																												Comment:
+WP00035		The energy level distances are not available, yet already requested. Run the computation before the 					The function getEnergyLevelsDescrNumpy() in python module was called before the energy level distances computation was done. This is likely because the ProSHADE_run constructor was not run, but the distances function
+            getEnergyLevelsDescrNumpy() function is called.  																		was already called. If this was not the case, please let me know!
+WP00036		The trace sigma distances are not available, yet already requested. Run the computation before the  					The function getTraceSigmaDescrNumpy() in python module was called before the trace sigma distances computation was done. This is likely because the ProSHADE_run constructor was not run, but the distances function
+            getTraceSigmaDescrNumpy() function is called. 																			was already called. If this was not the case, please let me know!
+WP00037		The rotation function distances are not available, yet already requested. Run the computation before the 				The function getRotationFunctionDescrNumpy() in python module was called before the rotation function distances computation was done. This is likely because the ProSHADE_run constructor was not run, but the distances function
+            getRotationFunctionDescrNumpy() function is called.  																	was already called. If this was not the case, please let me know!
+WP00042		Attempted to access shell index outside of the shell range.																This warning occurs when you call the getSphericalHarmonicsForShell() function with shell number argument larger than the largest available shell (or alternatively with negative number).
+
