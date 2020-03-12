@@ -9,8 +9,13 @@
 add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS}                              )
 
 ##########################################################################################
-### Link the dependencies
-target_link_libraries   ( ${PROJECT_NAME}_LIB clipper-ccp4 clipper-cif clipper-minimol clipper-mmdb clipper-cns clipper-phs clipper-contrib clipper-core ccp4c mmdb2 )
+### Add and link the dependencies
+add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
+add_dependencies        ( ${PROJECT_NAME} mmdb2_lib                                       )
+add_dependencies        ( ${PROJECT_NAME} ccp4_lib                                        )
+add_dependencies        ( ${PROJECT_NAME} fftw2_lib                                       )
+add_dependencies        ( ${PROJECT_NAME} clipper_lib                                     )
+target_link_libraries   ( ${PROJECT_NAME}_LIB clipper-cif clipper-minimol clipper-mmdb clipper-cns clipper-phs clipper-contrib clipper-core ccp4c mmdb2 )
 target_link_libraries   ( ${PROJECT_NAME}_LIB fftw3                                       )
 target_link_libraries   ( ${PROJECT_NAME}_LIB ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
 target_link_libraries   ( ${PROJECT_NAME}_LIB lapack blas                                 )

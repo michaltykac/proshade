@@ -35,8 +35,8 @@
 extern "C" {
 #endif
     
-#include <cmaplib.h>
-#include <ccp4_errno.h>
+#include <ccp4/cmaplib.h>
+#include <ccp4/ccp4_errno.h>
     
 #ifdef __cplusplus
 }

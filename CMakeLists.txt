@@ -77,31 +77,66 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 
 ##########################################################################################
-################################### Add clipper dependency
+################################### Set targets for clipper installation from supplied sources
+
+add_custom_target (
+   mmdb2_lib
+   COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --includedir=${CMAKE_SOURCE_DIR}/extern/install/include > ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+   COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+   COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/mmdb2
+)
+
+add_custom_target (
+   ccp4_lib
+   DEPENDS mmdb2_lib
+   COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   DEPENDS mmdb2_lib
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4
+)
+
+if      ( APPLE )
+    add_custom_target (
+       fftw2_lib
+       COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --enable-shared --enable-float --includedir=${CMAKE_SOURCE_DIR}/extern/install/include > ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       COMMAND sed -i '' -e 's/SUBDIRS = fftw rfftw tests doc threads mpi/SUBDIRS = fftw rfftw tests threads mpi/' Makefile  
+       COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       DEPENDS ccp4_lib
+       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5 )
+else    ( APPLE )
+    add_custom_target (
+       fftw2_lib
+       COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --enable-shared --enable-float --includedir=${CMAKE_SOURCE_DIR}/extern/install/include > ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       COMMAND sed -i 's/SUBDIRS = fftw rfftw tests doc threads mpi/SUBDIRS = fftw rfftw tests threads mpi/' Makefile 
+       COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       DEPENDS ccp4_lib
+       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5 )
+endif   ( APPLE )
+
+add_custom_target (
+   clipper_lib
+   COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install -enable-shared --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --with-mmdb=${CMAKE_SOURCE_DIR}/extern/install --with-fftw=${CMAKE_SOURCE_DIR}/extern/install --enable-mmdb --enable-minimol --enable-cif --enable-cns > ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt 
+   COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+   COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+   DEPENDS fftw2_lib
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/clipper
+)
 
 ### Set command line accessible variable for clipper path
-set ( CLIPPER_INC    "/Users/mysak/Repositories/CCP4_devtools_clang/install/include"      CACHE STRING "path to clipper/clipper.h" )
-set ( CLIPPER_LIB    "/Users/mysak/Repositories/CCP4_devtools_clang/install/lib"          CACHE STRING "path to libclipper-core.*" )
-set ( CCP4_CMAP_INC  "/Users/mysak/Repositories/CCP4_devtools_clang/install/include/ccp4" CACHE STRING "path to cmaplib.h"         )
-
-if    ( EXISTS ${CLIPPER_INC} AND EXISTS ${CLIPPER_LIB} AND EXISTS ${CCP4_CMAP_INC} )
-	message             ( STATUS "Clipper library path is      : " ${CLIPPER_LIB}         )
-	message             ( STATUS "Clipper include path is      : " ${CLIPPER_INC}         )
-	message             ( STATUS "CCP4 CMapLib include path is : " ${CCP4_CMAP_INC}       )
-	include_directories ( ${CLIPPER_INC}                                                  )
-	include_directories ( ${CCP4_CMAP_INC}                                                )
-	link_directories    ( ${CLIPPER_LIB}                                                  )            
-	set                 ( CLIPPER_LINK ${CLIPPER_LIB} CACHE STRING "RPATH value to clipper libs" )
-else  ( EXISTS ${CLIPPER_INC} AND EXISTS ${CLIPPER_LIB} AND EXISTS ${CCP4_CMAP_INC} )
-	message             ( FATAL_ERROR "Could not find the Clipper dependency. Please use the following command line arguments to supply the required paths: \n   -DCLIPPER_INC=/path/to/CCP4_devtools/install/include\n   -DCLIPPER_LIB=/path/to/CCP4_devtools/install/lib\n   -DCCP4_CMAP_INC=/path/to/CCP4_devtools/install/include/ccp4" )
-endif ( EXISTS ${CLIPPER_INC} AND EXISTS ${CLIPPER_LIB} AND EXISTS ${CCP4_CMAP_INC} )
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/clipper                                  )
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/install/include                          )
+link_directories    ( ${CMAKE_SOURCE_DIR}/extern/install/lib                              )            
 
 ##########################################################################################
 ################################### Add fftw3 dependency
 
 ### Set command line accessible variable for clipper path
-set ( FFTW3_LIB_PATH "/qusr/local/lib"     CACHE STRING "path to libfftw3.a"               )
-set ( FFTW3_INC_PATH "/qusr/local/include" CACHE STRING "path to fftw3.h"                  )
+set ( FFTW3_LIB_PATH "/usr/local/lib"     CACHE STRING "path to libfftw3.a"              )
+set ( FFTW3_INC_PATH "/usr/local/include" CACHE STRING "path to fftw3.h"                 )
 
 if    ( EXISTS ${FFTW3_LIB_PATH} AND EXISTS ${FFTW3_INC_PATH} )
 	message                ( STATUS "FFTW3 include path is        : " ${FFTW3_INC_PATH}   )
@@ -118,8 +153,8 @@ endif ( EXISTS ${FFTW3_LIB_PATH} AND EXISTS ${FFTW3_INC_PATH} )
 
 ### Compile Soft-2.0 from supplied folder
 add_custom_target (
-   soft2.0_lib
-   COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3
+   soft2_lib
+   COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
 )
 
@@ -230,13 +265,49 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 				     DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
-  					 COMMENT "Removing all CMake created files but keeping the targets untouched."
+  					 COMMENT "Removed all CMake created files but keeping the targets untouched."
  					 VERBATIM
                    )
 add_custom_target  ( clear DEPENDS ${CLEAR_VARIABLE}                                      )
 
 #####################################################################################
-################################### Remove all non-essential files including compiled files 
+################################### Remove all files including compiled files and targets
+set                ( DELETEMMDB2_VARIABLE "${CMAKE_SOURCE_DIR}/delmeMMDB2.txt"            )
+add_custom_command ( 
+					 OUTPUT ${DELETEMMDB2_VARIABLE}
+					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+					 DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
+					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/mmdb2
+				   )
+				   
+set                ( DELETECCP4_VARIABLE "${CMAKE_SOURCE_DIR}/delmeLIBCCP4.txt"           )
+add_custom_command ( 
+					 OUTPUT ${DELETECCP4_VARIABLE}
+					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+					 DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
+					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4
+				   )
+				   
+set                ( DELETEFFTW2_VARIABLE "${CMAKE_SOURCE_DIR}/delmeFFTW2.txt"            )
+add_custom_command ( 
+					 OUTPUT ${DELETEFFTW2_VARIABLE}
+					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+					 DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
+					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5
+				   )
+				   
+set                ( DELETECLIPPER_VARIABLE "${CMAKE_SOURCE_DIR}/delmeCLIPPER.txt"        )
+add_custom_command ( 
+					 OUTPUT ${DELETECLIPPER_VARIABLE}
+					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+					 DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
+					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/clipper
+				   )
+
 set                ( DELETE_VARIABLE "${CMAKE_SOURCE_DIR}/delme.txt"                      )
 add_custom_command ( 
 					 OUTPUT ${DELETE_VARIABLE}
@@ -254,8 +325,38 @@ add_custom_command (
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/__pycache__
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade.so
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/proshade.py
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/rotate_so3_fftw.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/rotate_so3_utils.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/s2_cospmls.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/s2_legendreTransforms.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/s2_semi_fly.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/s2_semi_memo.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/so3_correlate_fftw.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/soft_fftw_nt.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/soft_fftw_pc.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/soft_fftw.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/utils_vec_cx.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/wignerTransforms_fftw.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/wrap_s2_rotate_fftw.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/wrap_soft_fftw_cor2.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/wrap_soft_fftw.o
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
+					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeMMDB2.txt"
+					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeLIBCCP4.txt"
+					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeFFTW2.txt"
 				     DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
-  					 COMMENT "Removing all CMake created files but keeping the targets untouched."
+				     DEPENDS "${CMAKE_SOURCE_DIR}/delmeCLIPPER.txt"
+  					 COMMENT "Removed all files including the targets."
  					 VERBATIM
                    )
 add_custom_target  ( remove DEPENDS ${DELETE_VARIABLE}                                    )
