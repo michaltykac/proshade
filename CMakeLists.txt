@@ -174,7 +174,12 @@ if    ( LAPACK_FOUND )
 	link_directories    ( ${LAPACK_LIBRARIES}                                             )
 	set                 ( LAPACK_LINK ${LAPACK_LIBRARIES} CACHE STRING "RPATH value to LAPACK libs" )
 else  ( LAPACK_FOUND )
-    message             ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or contact the author for help." )
+    message             ( "Default lapack detection failed. Trying manual..." )
+    set                 ( LAPACK_DIR ${CMAKE_SOURCE_DIR}/cmake/findLapack )
+    find_package        ( lapack REQUIRED                                                 )
+    if    ( LAPACK_FOUND ) 
+        message             ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or contact the author for help." )
+    endif ( LAPACK_FOUND )
 endif ( LAPACK_FOUND )
 
 ##########################################################################################
