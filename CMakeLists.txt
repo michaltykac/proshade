@@ -167,20 +167,24 @@ include_directories ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include               
 ################################### Add LAPACK dependency
  
 ### Automatic LAPACK detection
-find_package            ( lapack REQUIRED                                                 )
-
-### Check for success
-if    ( LAPACK_FOUND )    
-	link_directories    ( ${LAPACK_LIBRARIES}                                             )
-	set                 ( LAPACK_LINK ${LAPACK_LIBRARIES} CACHE STRING "RPATH value to LAPACK libs" )
-else  ( LAPACK_FOUND )
-    message             ( "Default lapack detection failed. Trying manual..." )
-    set                 ( LAPACK_DIR ${CMAKE_SOURCE_DIR}/cmake/findLapack )
+if    ( APPLE )
     find_package        ( lapack REQUIRED                                                 )
-    if    ( LAPACK_FOUND ) 
+    if    ( LAPACK_FOUND )    
+	    link_directories ( ${LAPACK_LIBRARIES}                                            )
+	    set             ( LAPACK_LINK ${LAPACK_LIBRARIES} CACHE STRING "RPATH value to LAPACK libs" )
+    else  ( LAPACK_FOUND )
         message             ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or contact the author for help." )
     endif ( LAPACK_FOUND )
-endif ( LAPACK_FOUND )
+else  ( APPLE )
+    set                 ( LAPACK_DIR ${CMAKE_SOURCE_DIR}/cmake/findLapack                 )
+    find_package        ( lapack REQUIRED                                                 )
+    if    ( LAPACK_FOUND ) 
+	    link_directories ( ${LAPACK_LIBRARIES}                                            )
+	    set             ( LAPACK_LINK ${LAPACK_LIBRARIES} CACHE STRING "RPATH value to LAPACK libs" )    
+    else  ( LAPACK_FOUND )
+        message             ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or contact the author for help." )
+    endif ( LAPACK_FOUND )
+endif ( APPLE )
 
 ##########################################################################################
 ################################### Set installation folders
