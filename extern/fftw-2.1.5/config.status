@@ -529,14 +529,14 @@ s,@am__fastdepCC_FALSE@,#,;t t
 s,@RANLIB@,ranlib,;t t
 s,@ac_ct_RANLIB@,ranlib,;t t
 s,@LN_S@,ln -s,;t t
-s,@build@,i686-apple-darwin19.3.0,;t t
+s,@build@,i686-apple-darwin19.4.0,;t t
 s,@build_cpu@,i686,;t t
 s,@build_vendor@,apple,;t t
-s,@build_os@,darwin19.3.0,;t t
-s,@host@,i686-apple-darwin19.3.0,;t t
+s,@build_os@,darwin19.4.0,;t t
+s,@host@,i686-apple-darwin19.4.0,;t t
 s,@host_cpu@,i686,;t t
 s,@host_vendor@,apple,;t t
-s,@host_os@,darwin19.3.0,;t t
+s,@host_os@,darwin19.4.0,;t t
 s,@ECHO@,/bin/echo,;t t
 s,@CPP@,cc -E,;t t
 s,@EGREP@,grep -E,;t t

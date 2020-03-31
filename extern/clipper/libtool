@@ -2,7 +2,7 @@
 
 # libtool - Provide generalized library-building support services.
 # Generated automatically by config.status (clipper) 2.1
-# Libtool was configured on host Mysak.local:
+# Libtool was configured on host mysak.home:
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
 #   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
@@ -66,13 +66,13 @@ PATH_SEPARATOR=":"
 
 # The host system.
 host_alias=
-host=x86_64-apple-darwin19.3.0
-host_os=darwin19.3.0
+host=x86_64-apple-darwin19.4.0
+host_os=darwin19.4.0
 
 # The build system.
 build_alias=
-build=x86_64-apple-darwin19.3.0
-build_os=darwin19.3.0
+build=x86_64-apple-darwin19.4.0
+build_os=darwin19.4.0
 
 # A sed program that does not truncate output.
 SED="/usr/bin/sed"
@@ -272,7 +272,7 @@ finish_eval=""
 hardcode_into_libs=no
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0  /usr/local/lib"
+sys_lib_search_path_spec="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3  /usr/local/lib"
 
 # Run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/usr/local/lib /lib /usr/lib"

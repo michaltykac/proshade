@@ -38,7 +38,7 @@ if test "X${CDPATH+set}" = Xset; then CDPATH=:; export CDPATH; fi
 
 # ### BEGIN LIBTOOL CONFIG
 
-# Libtool was configured on host Mysak.local:
+# Libtool was configured on host mysak.home:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -57,7 +57,7 @@ fast_install=needless
 
 # The host system.
 host_alias=
-host=i686-apple-darwin19.3.0
+host=i686-apple-darwin19.4.0
 
 # An echo program that does not interpret backslashes.
 echo="/bin/echo"
