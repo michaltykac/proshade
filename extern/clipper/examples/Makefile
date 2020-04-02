@@ -81,11 +81,11 @@ check_PROGRAMS = rfltest$(EXEEXT) sgtest$(EXEEXT) symtest$(EXEEXT) \
 	$(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
 	$(am__EXEEXT_4) $(am__EXEEXT_5) $(am__EXEEXT_6) \
 	$(am__EXEEXT_7) $(am__EXEEXT_8)
-#am__append_1 = ccad diffmap maptest mtztest
-#am__append_2 = cmaplocal ffttest sktest
-#am__append_3 = cnstest
-#am__append_4 = cns2mtz maketestdata sftest
-#am__append_5 = phstest
+am__append_1 = ccad diffmap maptest mtztest
+am__append_2 = cmaplocal ffttest sktest
+am__append_3 = cnstest
+am__append_4 = cns2mtz maketestdata sftest
+am__append_5 = phstest
 am__append_6 = ciftophs
 #am__append_7 = ftndemo
 #am__append_8 = cctbxtest
@@ -104,17 +104,17 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-#am__EXEEXT_1 = ccad$(EXEEXT) diffmap$(EXEEXT) \
-#	maptest$(EXEEXT) mtztest$(EXEEXT)
-#am__EXEEXT_2 =  \
-#	cmaplocal$(EXEEXT) \
-#	ffttest$(EXEEXT) \
-#	sktest$(EXEEXT)
-#am__EXEEXT_3 = cnstest$(EXEEXT)
-#am__EXEEXT_4 = cns2mtz$(EXEEXT) \
-#	maketestdata$(EXEEXT) \
-#	sftest$(EXEEXT)
-#am__EXEEXT_5 = phstest$(EXEEXT)
+am__EXEEXT_1 = ccad$(EXEEXT) diffmap$(EXEEXT) \
+	maptest$(EXEEXT) mtztest$(EXEEXT)
+am__EXEEXT_2 =  \
+	cmaplocal$(EXEEXT) \
+	ffttest$(EXEEXT) \
+	sktest$(EXEEXT)
+am__EXEEXT_3 = cnstest$(EXEEXT)
+am__EXEEXT_4 = cns2mtz$(EXEEXT) \
+	maketestdata$(EXEEXT) \
+	sftest$(EXEEXT)
+am__EXEEXT_5 = phstest$(EXEEXT)
 am__EXEEXT_6 = ciftophs$(EXEEXT)
 #am__EXEEXT_7 = ftndemo$(EXEEXT)
 #am__EXEEXT_8 = cctbxtest$(EXEEXT)
@@ -312,8 +312,8 @@ AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CLIPPER_LIBS = -lclipper-cif -lclipper-minimol -lclipper-mmdb -lclipper-cns -lclipper-phs -lclipper-contrib -lclipper-core
-CLIPPER_REQUIRES = mmdb2
+CLIPPER_LIBS = -lclipper-ccp4 -lclipper-cif -lclipper-minimol -lclipper-mmdb -lclipper-cns -lclipper-phs -lclipper-contrib -lclipper-core
+CLIPPER_REQUIRES = libccp4c mmdb2
 CPP = gcc -E
 CPPFLAGS = -I/Users/mysak/BioCEV/proshade/master/extern/install/include
 CXX = g++
@@ -414,7 +414,7 @@ htmldir = ${docdir}
 includedir = /Users/mysak/BioCEV/proshade/master/extern/install/include
 infodir = ${datarootdir}/info
 install_sh = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/clipper/build-aux/install-sh
-libdir = ${exec_prefix}/lib
+libdir = /Users/mysak/BioCEV/proshade/master/extern/install/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var

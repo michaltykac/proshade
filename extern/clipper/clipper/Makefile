@@ -84,7 +84,7 @@ am__append_2 = mmdb/libclipper-mmdb.la
 am__append_3 = minimol/libclipper-minimol.la
 am__append_4 = phs/libclipper-phs.la
 am__append_5 = cif/libclipper-cif.la
-#am__append_6 = ccp4/libclipper-ccp4.la
+am__append_6 = ccp4/libclipper-ccp4.la
 #am__append_7 = cctbx/libclipper-cctbx.la
 am__append_8 = cns/libclipper-cns.la
 #am__append_9 = fortran/libclipper-fortran.la
@@ -144,14 +144,14 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(ccp4_includedir)" \
 	"$(DESTDIR)$(mmdb_includedir)" "$(DESTDIR)$(phs_includedir)" \
 	"$(DESTDIR)$(pkgincludedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
-#ccp4_libclipper_ccp4_la_DEPENDENCIES =  \
-#	core/libclipper-core.la
+ccp4_libclipper_ccp4_la_DEPENDENCIES =  \
+	core/libclipper-core.la
 am__ccp4_libclipper_ccp4_la_SOURCES_DIST = ccp4/ccp4_mtz_types.cpp \
 	ccp4/ccp4_mtz_io.cpp ccp4/ccp4_map_io.cpp ccp4/ccp4_utils.cpp
 am__dirstamp = $(am__leading_dot)dirstamp
-#am_ccp4_libclipper_ccp4_la_OBJECTS =  \
-#	ccp4/ccp4_mtz_types.lo ccp4/ccp4_mtz_io.lo \
-#	ccp4/ccp4_map_io.lo ccp4/ccp4_utils.lo
+am_ccp4_libclipper_ccp4_la_OBJECTS =  \
+	ccp4/ccp4_mtz_types.lo ccp4/ccp4_mtz_io.lo \
+	ccp4/ccp4_map_io.lo ccp4/ccp4_utils.lo
 ccp4_libclipper_ccp4_la_OBJECTS =  \
 	$(am_ccp4_libclipper_ccp4_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
@@ -162,7 +162,7 @@ ccp4_libclipper_ccp4_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) $(ccp4_libclipper_ccp4_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-#am_ccp4_libclipper_ccp4_la_rpath = -rpath $(libdir)
+am_ccp4_libclipper_ccp4_la_rpath = -rpath $(libdir)
 #cctbx_libclipper_cctbx_la_DEPENDENCIES =  \
 #	core/libclipper-core.la
 am__cctbx_libclipper_cctbx_la_SOURCES_DIST = cctbx/clipper_cctbx.cpp
@@ -399,8 +399,8 @@ AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CLIPPER_LIBS = -lclipper-cif -lclipper-minimol -lclipper-mmdb -lclipper-cns -lclipper-phs -lclipper-contrib -lclipper-core
-CLIPPER_REQUIRES = mmdb2
+CLIPPER_LIBS = -lclipper-ccp4 -lclipper-cif -lclipper-minimol -lclipper-mmdb -lclipper-cns -lclipper-phs -lclipper-contrib -lclipper-core
+CLIPPER_REQUIRES = libccp4c mmdb2
 CPP = gcc -E
 CPPFLAGS = -I/Users/mysak/BioCEV/proshade/master/extern/install/include
 CXX = g++
@@ -501,7 +501,7 @@ htmldir = ${docdir}
 includedir = /Users/mysak/BioCEV/proshade/master/extern/install/include
 infodir = ${datarootdir}/info
 install_sh = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/clipper/build-aux/install-sh
-libdir = ${exec_prefix}/lib
+libdir = /Users/mysak/BioCEV/proshade/master/extern/install/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var
@@ -561,16 +561,16 @@ cif_libclipper_cif_la_LIBADD = core/libclipper-core.la -lmmdb2
 cif_libclipper_cif_la_SOURCES = cif/cif_data_io.cpp
 cif_includedir = $(pkgincludedir)/cif
 cif_include_HEADERS = cif/cif_data_io.h
-#ccp4_libclipper_ccp4_la_LDFLAGS = -version-info 2:1
-#ccp4_libclipper_ccp4_la_LIBADD = core/libclipper-core.la -lccp4c
-#ccp4_libclipper_ccp4_la_SOURCES = \
-#        ccp4/ccp4_mtz_types.cpp         ccp4/ccp4_mtz_io.cpp \
-#        ccp4/ccp4_map_io.cpp            ccp4/ccp4_utils.cpp
+ccp4_libclipper_ccp4_la_LDFLAGS = -version-info 2:1
+ccp4_libclipper_ccp4_la_LIBADD = core/libclipper-core.la -lccp4c
+ccp4_libclipper_ccp4_la_SOURCES = \
+        ccp4/ccp4_mtz_types.cpp         ccp4/ccp4_mtz_io.cpp \
+        ccp4/ccp4_map_io.cpp            ccp4/ccp4_utils.cpp
 
-#ccp4_includedir = $(pkgincludedir)/ccp4
-#ccp4_include_HEADERS = \
-#        ccp4/ccp4_map_io.h              ccp4/ccp4_mtz_io.h \
-#        ccp4/ccp4_mtz_types.h           ccp4/ccp4_utils.h
+ccp4_includedir = $(pkgincludedir)/ccp4
+ccp4_include_HEADERS = \
+        ccp4/ccp4_map_io.h              ccp4/ccp4_mtz_io.h \
+        ccp4/ccp4_mtz_types.h           ccp4/ccp4_utils.h
 
 #cctbx_libclipper_cctbx_la_LDFLAGS = -version-info 2:1
 #cctbx_libclipper_cctbx_la_LIBADD = core/libclipper-core.la -lsgtbx -luctbx

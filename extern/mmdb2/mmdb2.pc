@@ -1,7 +1,7 @@
 prefix=/Users/mysak/BioCEV/proshade/master/extern/install
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
-includedir=/Users/mysak/BioCEV/proshade/master/extern/install/include
+includedir=${prefix}/include
 
 Name: mmdb2
 Description: Macromolecular coordinate library
