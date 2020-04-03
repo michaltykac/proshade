@@ -82,7 +82,7 @@ endif()
 ### MMDB2
 add_custom_command (
    OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildMMDB2
-   COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --disable-Werror --enable-silent-rules --enable-shared --disable-static > ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
+   COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib --disable-Werror --enable-silent-rules --enable-shared --disable-static > ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
    COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
    COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
    COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildMMDB2
@@ -95,27 +95,15 @@ add_custom_target (
 )
 
 ### CCP4LIB
-if    ( EXISTS ${CMAKE_SOURCE_DIR}/extern/install/lib64 )
-    add_custom_command (
-       OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildCCP4LIB
-       DEPENDS mmdb2_lib
-       COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib64 -L${CMAKE_SOURCE_DIR}/extern/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib64 --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-       COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-       COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-       COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildCCP4LIB
-       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
-    )
-else  ( EXISTS ${CMAKE_SOURCE_DIR}/extern/install/lib64 )
-    add_custom_command (
-       OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildCCP4LIB
-       DEPENDS mmdb2_lib
-       COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib --enable-silent-rules --enable-shared --disable-static > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-       COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-       COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-       COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildCCP4LIB
-       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
-    )
-endif ( EXISTS ${CMAKE_SOURCE_DIR}/extern/install/lib64 )
+add_custom_command (
+   OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildCCP4LIB
+   DEPENDS mmdb2_lib
+   COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildCCP4LIB
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
+)
 
 add_custom_target (
    ccp4_lib
@@ -126,7 +114,7 @@ add_custom_target (
 if      ( APPLE )
     add_custom_command (
        OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildFFTW2
-       COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --disable-Werror --enable-float --enable-silent-rules --enable-shared --disable-static --includedir=${CMAKE_SOURCE_DIR}/extern/install/include > ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --disable-Werror --enable-float --enable-silent-rules --enable-shared --disable-static --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib > ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
        COMMAND sed -i '' -e 's/SUBDIRS = fftw rfftw tests doc threads mpi/SUBDIRS = fftw rfftw tests threads mpi/' Makefile  
        COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
        COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
@@ -136,7 +124,7 @@ if      ( APPLE )
 else    ( APPLE )
     add_custom_command (
        OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildFFTW2
-       COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --disable-Werror --enable-float --enable-silent-rules --enable-shared --disable-static --includedir=${CMAKE_SOURCE_DIR}/extern/install/include > ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
+       COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install --disable-Werror --enable-float --enable-silent-rules --enable-shared --disable-static --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib > ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
        COMMAND sed -i 's/SUBDIRS = fftw rfftw tests doc threads mpi/SUBDIRS = fftw rfftw tests threads mpi/' Makefile 
        COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
        COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
@@ -150,29 +138,16 @@ add_custom_target (
    )
 
 ### CLIPPER
-if    ( EXISTS ${CMAKE_SOURCE_DIR}/extern/install/lib64 )
-    add_custom_command (
-       OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
-       DEPENDS fftw2_lib
-       DEPENDS ccp4_lib
-       COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib -L${CMAKE_SOURCE_DIR}/extern/install/lib64' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install -enable-shared --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib64 --with-mmdb=${CMAKE_SOURCE_DIR}/extern/install --with-fftw=${CMAKE_SOURCE_DIR}/extern/install --enable-mmdb --enable-minimol --enable-cif --enable-cns --enable-ccp4 --with-ccp4=${CMAKE_SOURCE_DIR}/extern/install > ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt 
-       COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
-       COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
-       COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
-       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/clipper
-    )
-else  ( EXISTS ${CMAKE_SOURCE_DIR}/extern/install/lib64 )
-    add_custom_command (
-       OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
-       DEPENDS fftw2_lib
-       DEPENDS ccp4_lib
-       COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install -enable-shared --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib --with-mmdb=${CMAKE_SOURCE_DIR}/extern/install --with-fftw=${CMAKE_SOURCE_DIR}/extern/install --enable-mmdb --enable-minimol --enable-cif --enable-cns --enable-ccp4 --with-ccp4=${CMAKE_SOURCE_DIR}/extern/install > ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt 
-       COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
-       COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
-       COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
-       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/clipper
-    )
-endif ( EXISTS ${CMAKE_SOURCE_DIR}/extern/install/lib64 )
+add_custom_command (
+   OUTPUT ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
+   DEPENDS fftw2_lib
+   DEPENDS ccp4_lib
+   COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/extern/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/extern/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/extern/install -enable-shared --includedir=${CMAKE_SOURCE_DIR}/extern/install/include --libdir=${CMAKE_SOURCE_DIR}/extern/install/lib --with-mmdb=${CMAKE_SOURCE_DIR}/extern/install --with-fftw=${CMAKE_SOURCE_DIR}/extern/install --enable-mmdb --enable-minimol --enable-cif --enable-cns --enable-ccp4 --with-ccp4=${CMAKE_SOURCE_DIR}/extern/install > ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt 
+   COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+   COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/clipper/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/clipper/install.err.txt
+   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/clipper
+)
 
 add_custom_target (
    clipper_lib
