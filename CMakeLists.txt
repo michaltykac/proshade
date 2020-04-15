@@ -47,7 +47,7 @@ endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.1 LANGUAGES CXX                                            )     
+project ( proshade VERSION 0.7.1 LANGUAGES CXX C                                          )     
 
 ##########################################################################################
 ################################### Disable C++11
@@ -162,19 +162,48 @@ link_directories    ( ${CMAKE_SOURCE_DIR}/extern/install/lib                    
 ##########################################################################################
 ################################### Add fftw3 dependency
 
-### Set command line accessible variable for clipper path
-set ( FFTW3_LIB_PATH "/usr/local/lib"     CACHE STRING "path to libfftw3.a"              )
-set ( FFTW3_INC_PATH "/usr/local/include" CACHE STRING "path to fftw3.h"                 )
+### Automatic FFTW3 detection
+set ( CUSTOM_FFTW3_LIB_PATH ""     CACHE STRING "path to libfftw3.a"                      )
+set ( CUSTOM_FFTW3_INC_PATH ""     CACHE STRING "path to fftw3.h"                         )
 
-if    ( EXISTS ${FFTW3_LIB_PATH} AND EXISTS ${FFTW3_INC_PATH} )
-	message                ( STATUS "FFTW3 include path is        : " ${FFTW3_INC_PATH}   )
-	include_directories    ( ${FFTW3_INC_PATH}                                            )
-	message                ( STATUS "FFTW3 library path is        : " ${FFTW3_LIB_PATH}   )
-	link_directories       ( ${FFTW3_LIB_PATH}                                            )
-	set                    ( FFTW_LINK ${FFTW3_LIB_PATH} CACHE STRING "RPATH value to FFTW libs" )
-else  ( EXISTS ${FFTW3_LIB_PATH} AND EXISTS ${FFTW3_INC_PATH} )
-	message             ( FATAL_ERROR "Could not find the FFTW3 dependency. Please use the following command line arguments to supply the required paths: \n   -DFFTW3_LIB_PATH=/path/to/libfftw3.a\n   -DFFTW3_INC_PATH=/path/to/fftw3.h" )
-endif ( EXISTS ${FFTW3_LIB_PATH} AND EXISTS ${FFTW3_INC_PATH} )
+if    ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
+    message         ( STATUS "Custom FFTW3 path was supplied. Checking for the paths containing the library and the include files." )
+    
+    file            ( GLOB TESTED_FFTW3_LIB_PATH ${CUSTOM_LAPACK_LIB_PATH}/libfftw3*      )
+    if    ( TESTED_FFTW3_LIB_PATH )
+        list            ( GET TESTED_FFTW3_LIB_PATH 0 TESTED_FFTW3_LIB_PATH_HEAD          )
+        link_directories ( ${TESTED_FFTW3_LIB_PATH_HEAD}                                  )
+        set             ( FFTW_LINK ${TESTED_FFTW3_LIB_PATH_HEAD} CACHE STRING "RPATH value to FFTW3 lib" )
+        set             ( FFTW3_LIB_PATH ${TESTED_FFTW3_LIB_PATH_HEAD} CACHE STRING "internal fftw3 library path" )
+        message         ( STATUS "FFTW3 library path is        : " ${FFTW3_LIB_PATH}      )
+    else  ( TESTED_LAPACK_PATH )
+        message             ( FATAL_ERROR "Cannot find LAPACK lib in: " ${CUSTOM_LAPACK_LIB_PATH} )
+    endif ( TESTED_LAPACK_PATH )
+    
+    file            ( GLOB TESTED_FFTW3_INC_PATH ${CUSTOM_FFTW3_INC_PATH}/fftw3.h         )
+    if    ( TESTED_FFTW3_INC_PATH )
+        list            ( GET TESTED_FFTW3_INC_PATH 0 TESTED_FFTW3_INC_PATH_HEAD          )
+        include_directories ( ${TESTED_FFTW3_INC_PATH_HEAD}                               )
+        set             ( FFTW3_INC_PATH ${TESTED_FFTW3_INC_PATH_HEAD} CACHE STRING "internal fftw3 include path" )
+        message         ( STATUS "FFTW3 include path is        : " ${FFTW3_INC_PATH}      )
+    else  ( TESTED_FFTW3_INC_PATH )
+        message             ( FATAL_ERROR "Cannot find LAPACK inc in: " ${TESTED_FFTW3_INC_PATH} )
+    endif ( TESTED_FFTW3_INC_PATH )
+else  ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
+    set                 ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/findFFTW            )
+    find_package        ( FFTW REQUIRED                                                   )
+    if    ( FFTW_FOUND )    
+        link_directories ( ${FFTW_LIBRARIES}                                              )
+        set             ( FFTW_LINK ${FFTW_LIBRARIES} CACHE STRING "RPATH value to FFTW3 lib" )
+        include_directories ( ${FFTW_INCLUDES}                                            )
+        set             ( FFTW3_LIB_PATH ${FFTW_LIBRARIES} CACHE STRING "internal fftw3 library path" )
+        set             ( FFTW3_INC_PATH ${FFTW_INCLUDES} CACHE STRING "internal fftw3 include path" )
+        message         ( STATUS "FFTW3 library path is        : " ${FFTW3_LIB_PATH}      )
+        message         ( STATUS "FFTW3 include path is        : " ${FFTW3_INC_PATH}      )
+    else  ( FFTW_FOUND )    
+        message         ( FATAL_ERROR "Could not find the FFTW3 dependency. Please install FFTW3 to a standard location or use the cmake -DCUSTOM_FFTW3_LIB_PATH=/path/to/libfftw3.a/so/dylib and the -DCUSTOM_FFTW3_INC_PATH=/path/to/fftw3.h command line arguments to supply the paths to the locations of the libfftw3.a/so/dylib library and its header file. Alternatively, contact the author for help." )
+    endif ( FFTW_FOUND ) 
+endif  ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
 
 ##########################################################################################
 ################################### Add SOFT dependency
@@ -195,7 +224,7 @@ add_custom_target (
 ### Report SOFT related info
 message                ( STATUS "SOFT library path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0 )
 message                ( STATUS "SOFT include path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include )
-include_directories ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include                         )
+include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include                      )
 
 ##########################################################################################
 ################################### Add LAPACK dependency
@@ -204,7 +233,7 @@ include_directories ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include               
 set                    ( CUSTOM_LAPACK_LIB_PATH "" CACHE STRING "Custom path to LAPACK libs" )
 
 if    ( CUSTOM_LAPACK_LIB_PATH )
-    message            ( STATUS "Custom LAPACK path was supplied. Checking for the paths containing the library and the include files." )
+    message            ( STATUS "Custom LAPACK path was supplied. Checking for the paths containing the library." )
     file               ( GLOB TESTED_LAPACK_PATH ${CUSTOM_LAPACK_LIB_PATH}/liblapack* )
     if    ( TESTED_LAPACK_PATH )
         list                ( GET TESTED_LAPACK_PATH 0 TESTED_LAPACK_PATH_HEAD            )
@@ -215,24 +244,17 @@ if    ( CUSTOM_LAPACK_LIB_PATH )
         message             ( FATAL_ERROR "Cannot find LAPACK in   : " ${CUSTOM_LAPACK_LIB_PATH} )
     endif ( TESTED_LAPACK_PATH )
 else  ( CUSTOM_LAPACK_LIB_PATH )
-    if    ( APPLE )
-        find_package        ( lapack REQUIRED                                             )
-        if    ( LAPACK_FOUND )    
-    	    link_directories ( ${LAPACK_LIBRARIES}                                        )
-    	    set             ( LAPACK_LINK ${LAPACK_LIBRARIES} CACHE STRING "RPATH value to LAPACK libs" )
-        else  ( LAPACK_FOUND )
-            message         ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or use the cmake -DCUSTOM_LAPACK_LIB_PATH=/path/to/liblapack command line argument to supply the path to the location of the liblapack.a/so/dylib library. Alternatively, contact the author for help." )
-        endif ( LAPACK_FOUND )
-    else  ( APPLE ) 
-        set                 ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/findLapack      )
-        find_package        ( lapack REQUIRED                                             )
-        if    ( LAPACK_FOUND ) 
-    	    link_directories ( ${LAPACK_LIBRARIES}                                        )
-    	    set             ( LAPACK_LINK ${LAPACK_LIBRARIES} CACHE STRING "RPATH value to LAPACK libs" ) 
-        else  ( LAPACK_FOUND )
-            message         ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or use the cmake -DCUSTOM_LAPACK_LIB_PATH=/path/to/liblapack command line argument to supply the path to the location of the liblapack.a/so/dylib library. Alternatively, contact the author for help." )
-        endif ( LAPACK_FOUND )
-    endif ( APPLE )
+    set                 ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/findLapack          )
+    find_package        ( lapack REQUIRED                                                 )
+    if    ( LAPACK_FOUND )    
+        list            ( GET LAPACK_LIBRARIES 0 LAPACK_LIBRARIES_HEAD                    )
+        get_filename_component  (LAPACK_LIBRARIES_FOLDER ${LAPACK_LIBRARIES_HEAD} DIRECTORY )
+        link_directories ( ${LAPACK_LIBRARIES_FOLDER}                                     )
+        message         ( STATUS "Found LAPACK library in      : " ${LAPACK_LIBRARIES_FOLDER} )
+        set             ( LAPACK_LINK ${LAPACK_LIBRARIES_FOLDER} CACHE STRING "RPATH value to LAPACK libs" )
+    else  ( LAPACK_FOUND )
+        message         ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or use the cmake -DCUSTOM_LAPACK_LIB_PATH=/path/to/liblapack command line argument to supply the path to the location of the liblapack.a/so/dylib library. Alternatively, contact the author for help." )
+    endif ( LAPACK_FOUND )
 endif  ( CUSTOM_LAPACK_LIB_PATH )
 
 ##########################################################################################

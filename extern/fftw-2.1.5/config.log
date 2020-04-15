@@ -30,8 +30,8 @@ Kernel configured for up to 16 processors.
 Processor type: x86_64h (Intel x86-64h Haswell)
 Processors active: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 Primary memory available: 64.00 gigabytes
-Default processor set: 533 tasks, 2263 threads, 16 processors
-Load average: 2.18, Mach factor: 13.80
+Default processor set: 493 tasks, 2377 threads, 16 processors
+Load average: 1.79, Mach factor: 14.20
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -48,6 +48,7 @@ PATH: /usr/bin
 PATH: /bin
 PATH: /usr/sbin
 PATH: /sbin
+PATH: /Library/TeX/texbin
 PATH: /opt/X11/bin
 PATH: /Library/Apple/usr/bin
 
@@ -699,8 +700,8 @@ configure:11023: checking for BSDgettimeofday
 configure:11087: cc -o conftest    conftest.c -lm  >&5
 Undefined symbols for architecture x86_64:
   "_BSDgettimeofday", referenced from:
-      _main in conftest-b976f0.o
-      _f in conftest-b976f0.o
+      _main in conftest-e205b5.o
+      _f in conftest-e205b5.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:11090: $? = 1
@@ -793,8 +794,8 @@ configure:11121: checking for gethrtime
 configure:11185: cc -o conftest    conftest.c -lm  >&5
 Undefined symbols for architecture x86_64:
   "_gethrtime", referenced from:
-      _main in conftest-6c0c68.o
-      _f in conftest-6c0c68.o
+      _main in conftest-d88bfa.o
+      _f in conftest-d88bfa.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:11188: $? = 1
