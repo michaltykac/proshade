@@ -30,8 +30,8 @@ Kernel configured for up to 16 processors.
 Processor type: x86_64h (Intel x86-64h Haswell)
 Processors active: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 Primary memory available: 64.00 gigabytes
-Default processor set: 494 tasks, 2303 threads, 16 processors
-Load average: 2.30, Mach factor: 13.69
+Default processor set: 548 tasks, 2837 threads, 16 processors
+Load average: 11.90, Mach factor: 5.27
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -77,7 +77,7 @@ configure:3051: found /usr/bin/gcc
 configure:3062: result: gcc
 configure:3291: checking for C compiler version
 configure:3300: gcc --version >&5
-Apple clang version 11.0.3 (clang-1103.0.32.29)
+Apple clang version 11.0.3 (clang-1103.0.32.59)
 Target: x86_64-apple-darwin19.4.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -85,7 +85,7 @@ Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-
 configure:3311: $? = 0
 configure:3300: gcc -v >&5
 Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
-Apple clang version 11.0.3 (clang-1103.0.32.29)
+Apple clang version 11.0.3 (clang-1103.0.32.59)
 Target: x86_64-apple-darwin19.4.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -379,7 +379,7 @@ configure:11986: checking for gcc
 configure:12013: result: gcc
 configure:12242: checking for C compiler version
 configure:12251: gcc --version >&5
-Apple clang version 11.0.3 (clang-1103.0.32.29)
+Apple clang version 11.0.3 (clang-1103.0.32.59)
 Target: x86_64-apple-darwin19.4.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -387,7 +387,7 @@ Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-
 configure:12262: $? = 0
 configure:12251: gcc -v >&5
 Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
-Apple clang version 11.0.3 (clang-1103.0.32.29)
+Apple clang version 11.0.3 (clang-1103.0.32.59)
 Target: x86_64-apple-darwin19.4.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -413,7 +413,7 @@ configure:12679: found /usr/bin/g++
 configure:12690: result: g++
 configure:12717: checking for C++ compiler version
 configure:12726: g++ --version >&5
-Apple clang version 11.0.3 (clang-1103.0.32.29)
+Apple clang version 11.0.3 (clang-1103.0.32.59)
 Target: x86_64-apple-darwin19.4.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -421,7 +421,7 @@ Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-
 configure:12737: $? = 0
 configure:12726: g++ -v >&5
 Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
-Apple clang version 11.0.3 (clang-1103.0.32.29)
+Apple clang version 11.0.3 (clang-1103.0.32.59)
 Target: x86_64-apple-darwin19.4.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin

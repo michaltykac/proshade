@@ -6,8 +6,8 @@
 
 ##########################################################################################
 ################################### Decide version of CMake and use appropriate fn calls
-set ( PRODUCE_PYTHON_BINDINGS   “0”                                                       )
-set ( USE_MODERN_PATHS          “0”                                                       )
+set ( PRODUCE_PYTHON_BINDINGS   "0"                                                       )
+set ( USE_MODERN_PATHS          "0"                                                       )
 
 if    ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
 	message ( FATAL_ERROR "Your CMake version is less than 2.6. ProSHADE requires a newer version and cannot be installed using the current version. Please update your CMake and try again." )
@@ -16,24 +16,24 @@ endif ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
 if    ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 	if    ( ${CMAKE_MINOR_VERSION} GREATER 7 )
 		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
-		set ( PRODUCE_PYTHON_BINDINGS   “0”                                               )
-		set ( USE_MODERN_PATHS          “1”                                               )
+		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
+		set ( USE_MODERN_PATHS          "1"                                               )
 	else  ( ${CMAKE_MINOR_VERSION} GREATER 7 )
 		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
-		set ( PRODUCE_PYTHON_BINDINGS   “0”                                               )
-		set ( USE_MODERN_PATHS          “0”                                               )
+		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
+		set ( USE_MODERN_PATHS          "0"                                               )
 	endif ( ${CMAKE_MINOR_VERSION} GREATER 7 )
 endif ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 
 if    ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
 	if    ( ${CMAKE_MINOR_VERSION} LESS 1 )
 		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
-		set ( PRODUCE_PYTHON_BINDINGS   “0”                                               )
-		set ( USE_MODERN_PATHS          “1”                                               )
+		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
+		set ( USE_MODERN_PATHS          "1"                                               )
 	else  ( ${CMAKE_MINOR_VERSION} LESS 1 )
 		message ( "Your CMake version is at least the recommended version. Allowing fast build and Python language binding to be created." )
-		set ( PRODUCE_PYTHON_BINDINGS   “1”                                               )
-		set ( USE_MODERN_PATHS          “1”                                               )
+		set ( PRODUCE_PYTHON_BINDINGS   "1"                                               )
+		set ( USE_MODERN_PATHS          "1"                                               )
 	endif ( ${CMAKE_MINOR_VERSION} LESS 1 )
 endif ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
 
@@ -56,18 +56,18 @@ set ( CMAKE_CXX_STANDARD_REQUIRED ON                                            
 
 ##########################################################################################
 ################################### Find the source files
-file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                       )
-file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                            )
+file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                          )
+file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                               )
 
 ##########################################################################################
 ################################### Set flags depending on compiler
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   ################################# Using Clang
-  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined"           )
+  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"     )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   ################################# Using GCC
-  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat"                                )
+  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"        )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   ################################# Using Intel C++
   ### TO BE COMPLETED
@@ -153,6 +153,8 @@ add_custom_target (
    clipper_lib
    DEPENDS ${PROJECT_SOURCE_DIR}/extern/install/buildCLIPPER
 )
+
+set               ( CLIPPER_LINK ${CMAKE_SOURCE_DIR}/extern/install/lib CACHE STRING "RPATH value to MMDB2/CMAPLIB/CLIPPER libs" )
 
 ### Set command line accessible variable for clipper path
 include_directories ( ${CMAKE_SOURCE_DIR}/extern/clipper                                  )

@@ -1282,7 +1282,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
     }
     
     //======================================== If this is ProSHADE exception, give all available info and terminate gracefully :-)
-    catch ( ProSHADE_exception err )
+    catch ( ProSHADE_exception& err )
     {
         std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
         std::cerr << "Error Code          : " << err.get_errc() << std::endl << std::flush;
