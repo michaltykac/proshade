@@ -51,7 +51,7 @@ project ( proshade VERSION 0.7.1 LANGUAGES CXX C                                
 
 ##########################################################################################
 ################################### Disable C++11
-set ( CMAKE_CXX_STANDARD 98                                                               )
+set ( CMAKE_CXX_STANDARD 11                                                               )
 set ( CMAKE_CXX_STANDARD_REQUIRED ON                                                      )
 
 ##########################################################################################
@@ -216,6 +216,7 @@ add_custom_command (
    COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
    COMMAND touch ${PROJECT_SOURCE_DIR}/extern/install/buildSOFT2
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
+   DEPENDS mmdb2_lib
 )
 
 add_custom_target (
