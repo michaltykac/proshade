@@ -9,6 +9,8 @@ Standard dependencies:
 =============
 Ubuntu 18.4.4 
 =============
+
+APT INSTALL:
 * cmake
 * gcc
 * g++
@@ -17,3 +19,8 @@ Ubuntu 18.4.4
 * libblas-dev
 * liblapack-dev
 * m4
+* swig
+* python3-pip
+
+PIP3 INSTALL:
+* numpy

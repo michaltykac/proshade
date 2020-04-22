@@ -30,8 +30,8 @@ Kernel configured for up to 16 processors.
 Processor type: x86_64h (Intel x86-64h Haswell)
 Processors active: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 Primary memory available: 64.00 gigabytes
-Default processor set: 422 tasks, 2045 threads, 16 processors
-Load average: 1.81, Mach factor: 14.18
+Default processor set: 486 tasks, 2313 threads, 16 processors
+Load average: 3.53, Mach factor: 12.45
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -700,8 +700,8 @@ configure:11023: checking for BSDgettimeofday
 configure:11087: cc -o conftest    conftest.c -lm  >&5
 Undefined symbols for architecture x86_64:
   "_BSDgettimeofday", referenced from:
-      _main in conftest-80fe91.o
-      _f in conftest-80fe91.o
+      _main in conftest-6095dd.o
+      _f in conftest-6095dd.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:11090: $? = 1
@@ -794,8 +794,8 @@ configure:11121: checking for gethrtime
 configure:11185: cc -o conftest    conftest.c -lm  >&5
 Undefined symbols for architecture x86_64:
   "_gethrtime", referenced from:
-      _main in conftest-dbc2e9.o
-      _f in conftest-dbc2e9.o
+      _main in conftest-80e62a.o
+      _f in conftest-80e62a.o
 ld: symbol(s) not found for architecture x86_64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:11188: $? = 1
