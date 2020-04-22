@@ -42,7 +42,7 @@ foreach    ( SUFFIX ${SEARCH_LIBRARY_SUFFIXES} )
   find_path   ( FFTW_LIBRARIES
                NAMES "libfftw3${SUFFIX}"
                HINTS ${FFTW_HINTS}
-               PATH_SUFFIXES "lib" "lib64" "lib/x86_64" "lib/x64" "lib/x86"
+               PATH_SUFFIXES "lib" "lib64" "lib/x86_64" "lib/x64" "lib/x86" "lib/x86_64-linux-gnu"
                PATHS ${FFTW_PATHS}
                DOC "FFTW3 library full path (libfftw3.a/so/dyblib)"
                NO_DEFAULT_PATH

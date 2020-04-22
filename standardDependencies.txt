@@ -1,0 +1,19 @@
+Standard dependencies:
+======================
+
+  This is a list of dependencies which are assumed to be already installed on the machine.
+  
+  This list is not exhaustive, but with these ProSHADE did install and run on clean system
+  installations.
+
+=============
+Ubuntu 18.4.4 
+=============
+* cmake
+* gcc
+* g++
+* gfortran
+* fftw3-dev
+* libblas-dev
+* liblapack-dev
+* m4
