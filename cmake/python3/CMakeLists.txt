@@ -85,13 +85,22 @@ set_source_files_properties ( ${CMAKE_BINARY_DIR}/python3/proshade.i PROPERTIES 
 
 ### Create target using SWIG
 if     ( ${CMAKE_MINOR_VERSION} LESS 8 )
-	swig_add_module         ( ${PROJECT_NAME} LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python3/proshade.i )
+	swig_add_module         ( ${PROJECT_NAME}_py3Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python3/proshade.i )
 else   ( ${CMAKE_MINOR_VERSION} LESS 8 )
-	swig_add_library        ( ${PROJECT_NAME} LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python3/proshade.i )
+	swig_add_library        ( ${PROJECT_NAME}_py3Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python3/proshade.i )
 endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 
+
+### Link the libraries to the module
+#set_property            (  TARGET _${PROJECT_NAME}_py3Module
+#                           PROPERTY INSTALL_RPATH
+#                                 "${CLIPPER_LINK}"
+#                                 "${FFTW_LINK}"
+#                                 "${SOFT_LINK}"
+#                                 "${LAPACK_LINK}" )
+
 ### Link the dynamic library to the target
-swig_link_libraries ( ${PROJECT_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}             )
+target_link_libraries ( _${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}           )
 
 ### Change compiler flags to remove SWIG caused warnings
 if     ( "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" )
@@ -110,18 +119,18 @@ endif ( )
 
 ### Deal with MacOS rpath
 if (APPLE) 
-   # Use rpath for _${PROJECT_NAME}.so
-   set_target_properties ( _${PROJECT_NAME} PROPERTIES MACOSX_RPATH TRUE                  )
+   # Use rpath for _Py${PROJECT_NAME}.so
+   set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES MACOSX_RPATH TRUE                 )
 
    # append directories in the linker search path and outside the project to the INSTALL_RPATH
-   set_target_properties ( _${PROJECT_NAME} PROPERTIES CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
+   set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
 endif()
 
 ### Set installation locations
-set_target_properties ( _${PROJECT_NAME} PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
-set_target_properties ( _${PROJECT_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE     )
+set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
+set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE     )
 
 ### Install rules
-install               ( TARGETS _${PROJECT_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION}  ) 
+install               ( TARGETS _${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION}  ) 
 install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python3/proshade.py DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 
