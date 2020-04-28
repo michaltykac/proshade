@@ -240,10 +240,10 @@ ccp4/ccp4_mtz_io.lo: ccp4/ccp4_mtz_io.cpp ccp4/ccp4_mtz_io.h \
   ccp4/../core/hkl_lookup.h ccp4/../core/hkl_datatypes.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/complex \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/sstream \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/cmtzlib.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_utils.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_types.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_sysdep.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/cmtzlib.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_utils.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_types.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_sysdep.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stat.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_s_ifmt.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_filesec_t.h \
@@ -264,11 +264,11 @@ ccp4/ccp4_mtz_io.lo: ccp4/ccp4_mtz_io.cpp ccp4/ccp4_mtz_io.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/fcntl.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_sync.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_dsync.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/library_file.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/mtzdata.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/csymlib.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_spg.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_parser.h
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/library_file.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/mtzdata.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/csymlib.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_spg.h \
+  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_parser.h
 
 ccp4/ccp4_mtz_io.h:
 
@@ -774,13 +774,13 @@ ccp4/../core/hkl_datatypes.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/sstream:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/cmtzlib.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/cmtzlib.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_utils.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_utils.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_types.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_types.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_sysdep.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_sysdep.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stat.h:
 
@@ -822,12 +822,12 @@ ccp4/../core/hkl_datatypes.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_dsync.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/library_file.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/library_file.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/mtzdata.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/mtzdata.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/csymlib.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/csymlib.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_spg.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_spg.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_parser.h:
+/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_parser.h:

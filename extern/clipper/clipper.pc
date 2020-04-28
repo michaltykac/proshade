@@ -1,7 +1,7 @@
-prefix=/Users/mysak/BioCEV/proshade/master/extern/install
+prefix=/Users/mysak/BioCEV/proshade/development/extern/install
 exec_prefix=${prefix}
-libdir=/Users/mysak/BioCEV/proshade/master/extern/install/lib
-includedir=/Users/mysak/BioCEV/proshade/master/extern/install/include
+libdir=/Users/mysak/BioCEV/proshade/development/extern/install/lib
+includedir=/Users/mysak/BioCEV/proshade/development/extern/install/include
 
 Name: clipper
 Description: crystallographic automation and complex data manipulation libraries
