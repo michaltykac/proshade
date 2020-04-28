@@ -241,10 +241,10 @@ ccp4/ccp4_map_io.lo: ccp4/ccp4_map_io.cpp ccp4/ccp4_map_io.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/sstream \
   ccp4/../core/fftmap_sparse.h ccp4/../core/derivs.h \
   ccp4/../core/nxmap.h \
-  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/cmaplib.h \
-  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_utils.h \
-  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_types.h \
-  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_sysdep.h \
+  /Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/cmaplib.h \
+  /Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/ccp4_utils.h \
+  /Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/ccp4_types.h \
+  /Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/ccp4_sysdep.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stat.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_s_ifmt.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_filesec_t.h \
@@ -265,7 +265,7 @@ ccp4/ccp4_map_io.lo: ccp4/ccp4_map_io.cpp ccp4/ccp4_map_io.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/fcntl.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_sync.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_dsync.h \
-  /Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/library_file.h
+  /Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/library_file.h
 
 ccp4/ccp4_map_io.h:
 
@@ -773,13 +773,13 @@ ccp4/../core/derivs.h:
 
 ccp4/../core/nxmap.h:
 
-/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/cmaplib.h:
+/Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/cmaplib.h:
 
-/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_utils.h:
+/Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/ccp4_utils.h:
 
-/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_types.h:
+/Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/ccp4_types.h:
 
-/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/ccp4_sysdep.h:
+/Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/ccp4_sysdep.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stat.h:
 
@@ -821,4 +821,4 @@ ccp4/../core/nxmap.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_dsync.h:
 
-/Users/mysak/BioCEV/proshade/development/extern/install/include/ccp4/library_file.h:
+/Users/mysak/BioCEV/proshade/experimental/install/include/ccp4/library_file.h:
