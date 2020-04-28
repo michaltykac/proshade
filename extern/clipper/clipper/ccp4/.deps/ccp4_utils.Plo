@@ -147,11 +147,11 @@ ccp4/ccp4_utils.lo: ccp4/ccp4_utils.cpp ccp4/ccp4_utils.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/wctype.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/wctype.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_wctrans_t.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_general.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_parser.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_utils.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_types.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_sysdep.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_general.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_parser.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_utils.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_types.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_sysdep.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/types.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_char.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_short.h \
@@ -209,9 +209,9 @@ ccp4/ccp4_utils.lo: ccp4/ccp4_utils.cpp ccp4/ccp4_utils.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/fcntl.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_sync.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_dsync.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/library_file.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_spg.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_program.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/library_file.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_spg.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_program.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/iostream \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/ios \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/__locale \
@@ -551,15 +551,15 @@ ccp4/ccp4_utils.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_wctrans_t.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_general.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_general.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_parser.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_parser.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_utils.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_utils.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_types.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_types.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_sysdep.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_sysdep.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/types.h:
 
@@ -675,11 +675,11 @@ ccp4/ccp4_utils.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_o_dsync.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/library_file.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/library_file.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_spg.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_spg.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/ccp4/ccp4_program.h:
+/Users/mysak/BioCEV/proshade/development/install/include/ccp4/ccp4_program.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/iostream:
 

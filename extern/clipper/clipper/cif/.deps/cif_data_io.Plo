@@ -242,10 +242,10 @@ cif/cif_data_io.lo: cif/cif_data_io.cpp cif/cif_data_io.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/stack \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/deque \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/iomanip \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mmcif_.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_stream.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_file.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mattype.h
+  /Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_mmcif_.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_io_stream.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_io_file.h \
+  /Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_mattype.h
 
 cif/cif_data_io.h:
 
@@ -753,10 +753,10 @@ cif/../core/clipper_stats.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/iomanip:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mmcif_.h:
+/Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_mmcif_.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_stream.h:
+/Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_io_stream.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_file.h:
+/Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_io_file.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mattype.h:
+/Users/mysak/BioCEV/proshade/development/install/include/mmdb2/mmdb_mattype.h:
