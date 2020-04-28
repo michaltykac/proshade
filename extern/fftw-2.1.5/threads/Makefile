@@ -40,18 +40,18 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = i686-apple-darwin19.4.0
-ACLOCAL = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/fftw-2.1.5/missing --run aclocal-1.7
+ACLOCAL = ${SHELL} /Users/mysak/BioCEV/proshade/experimental/extern/fftw-2.1.5/missing --run aclocal-1.7
 ALLOCA = 
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/fftw-2.1.5/missing --run tar
-AUTOCONF = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/fftw-2.1.5/missing --run autoconf
+AMTAR = ${SHELL} /Users/mysak/BioCEV/proshade/experimental/extern/fftw-2.1.5/missing --run tar
+AUTOCONF = ${SHELL} /Users/mysak/BioCEV/proshade/experimental/extern/fftw-2.1.5/missing --run autoconf
 
 # for some reason, automake tries to use autoheader in order to
 # generate config.h.in, and fails because config.h.in is GNU-lly
 # incorrect.  Just disable autoheader
 AUTOHEADER = echo
-AUTOMAKE = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/fftw-2.1.5/missing --run automake-1.7
+AUTOMAKE = ${SHELL} /Users/mysak/BioCEV/proshade/experimental/extern/fftw-2.1.5/missing --run automake-1.7
 AWK = gawk
 CC = cc
 CCDEPMODE = depmode=gcc3
@@ -88,7 +88,7 @@ LIBS = -lm
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /Users/mysak/BioCEV/proshade/master/extern/fftw-2.1.5/missing --run makeinfo
+MAKEINFO = ${SHELL} /Users/mysak/BioCEV/proshade/experimental/extern/fftw-2.1.5/missing --run makeinfo
 MPICC = cc
 MPILIBS = 
 OBJEXT = o
@@ -133,15 +133,15 @@ host_alias =
 host_cpu = i686
 host_os = darwin19.4.0
 host_vendor = apple
-includedir = /Users/mysak/BioCEV/proshade/master/extern/install/include
+includedir = /Users/mysak/BioCEV/proshade/experimental/extern/install/include
 infodir = ${prefix}/info
-install_sh = /Users/mysak/BioCEV/proshade/master/extern/fftw-2.1.5/install-sh
-libdir = /Users/mysak/BioCEV/proshade/master/extern/install/lib
+install_sh = /Users/mysak/BioCEV/proshade/experimental/extern/fftw-2.1.5/install-sh
+libdir = /Users/mysak/BioCEV/proshade/experimental/extern/install/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
 mandir = ${prefix}/man
 oldincludedir = /usr/include
-prefix = /Users/mysak/BioCEV/proshade/master/extern/install
+prefix = /Users/mysak/BioCEV/proshade/experimental/extern/install
 program_transform_name = s,x,x,
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com

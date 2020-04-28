@@ -238,25 +238,25 @@ minimol/minimol_io.lo: minimol/minimol_io.cpp minimol/minimol_io.h \
   minimol/../mmdb/../core/spacegroup.h minimol/../mmdb/../core/symop.h \
   minimol/../mmdb/../core/spacegroup_data.h \
   minimol/../mmdb/../core/clipper_stats.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_manager.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_bondmngr.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_selmngr.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_coormngr.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_root.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_file.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mattype.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_uddata.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mask.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_stream.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_title.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_defs.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_utils.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mmcif_.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_cryst.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_symop.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_chain.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_atom.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_model.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_manager.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_bondmngr.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_selmngr.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_coormngr.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_root.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_io_file.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_mattype.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_uddata.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_mask.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_io_stream.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_title.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_defs.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_utils.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_mmcif_.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_cryst.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_symop.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_chain.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_atom.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_model.h \
   minimol/minimol_seq.h minimol/minimol.h minimol/../core/coords.h \
   minimol/minimol_data.h minimol/../core/clipper_precision.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/fstream \
@@ -752,43 +752,43 @@ minimol/../mmdb/../core/spacegroup_data.h:
 
 minimol/../mmdb/../core/clipper_stats.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_manager.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_manager.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_bondmngr.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_bondmngr.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_selmngr.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_selmngr.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_coormngr.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_coormngr.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_root.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_root.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_file.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_io_file.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mattype.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_mattype.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_uddata.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_uddata.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mask.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_mask.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_io_stream.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_io_stream.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_title.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_title.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_defs.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_defs.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_utils.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_utils.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_mmcif_.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_mmcif_.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_cryst.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_cryst.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_symop.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_symop.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_chain.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_chain.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_atom.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_atom.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/mmdb2/mmdb_model.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/mmdb2/mmdb_model.h:
 
 minimol/minimol_seq.h:
 

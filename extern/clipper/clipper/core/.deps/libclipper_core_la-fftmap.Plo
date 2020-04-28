@@ -233,8 +233,8 @@ libclipper_core_la-fftmap.lo: fftmap.cpp fftmap.h coords.h cell.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/complex \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1/sstream \
   hkl_datatypes.h hkl_data.h hkl_info.h hkl_lookup.h ../../config.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/rfftw.h \
-  /Users/mysak/BioCEV/proshade/master/extern/install/include/fftw.h
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/rfftw.h \
+  /Users/mysak/BioCEV/proshade/experimental/extern/install/include/fftw.h
 
 fftmap.h:
 
@@ -734,6 +734,6 @@ hkl_lookup.h:
 
 ../../config.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/rfftw.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/rfftw.h:
 
-/Users/mysak/BioCEV/proshade/master/extern/install/include/fftw.h:
+/Users/mysak/BioCEV/proshade/experimental/extern/install/include/fftw.h:

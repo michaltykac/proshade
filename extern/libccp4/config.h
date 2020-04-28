@@ -54,7 +54,7 @@
 #define PACKAGE_NAME "libccp4"
 
 /* package install directory */
-#define PACKAGE_ROOT "/Users/mysak/BioCEV/proshade/master/extern/install"
+#define PACKAGE_ROOT "/Users/mysak/BioCEV/proshade/experimental/extern/install"
 
 /* Define to the full name and version of this package. */
 #define PACKAGE_STRING "libccp4 7.0.0"
