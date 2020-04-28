@@ -413,7 +413,7 @@ add_custom_command (
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/include/ProSHADE.hpp
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/lib/libproshade.dylib
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/__pycache__
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade_py3Module.so
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade.so
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/proshade.py
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/rotate_so3_fftw.o
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/rotate_so3_utils.o

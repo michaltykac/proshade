@@ -11,12 +11,12 @@ find_package         ( SWIG REQUIRED                                            
 ##########################################################################################
 ################################### Set swig module name with the new naming policy
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    cmake_policy     ( SET CMP0078 OLD                                                    )
+    cmake_policy     ( SET CMP0078 NEW                                                    )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 if    ( ${CMAKE_VERSION} GREATER "3.13" )
     cmake_policy     ( SET CMP0086 NEW                                                    )
-    set ( SWIG_MODULE_NAME _${PROJECT_NAME}                                               )
+    set ( SWIG_MODULE_NAME ${PROJECT_NAME}_py3Module                                     )
 endif ( ${CMAKE_VERSION} GREATER "3.13" )
 
 ##########################################################################################
@@ -125,7 +125,7 @@ endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 
 ##########################################################################################
 ################################### Link the dynamic library to the target
-target_link_libraries ( _${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}           )
+target_link_libraries ( ${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}           )
 
 ##########################################################################################
 ################################### Change compiler flags to remove SWIG caused warnings
@@ -146,20 +146,21 @@ endif ( )
 ##########################################################################################
 ################################### Deal with MacOS rpath
 if (APPLE) 
-   # Use rpath for _Py${PROJECT_NAME}.so
-   set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES MACOSX_RPATH TRUE                 )
+   # Use rpath for ${PROJECT_NAME}_py3Module target
+   set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES MACOSX_RPATH TRUE         )
 
    # append directories in the linker search path and outside the project to the INSTALL_RPATH
-   set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
+   set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
 endif()
 
 ##########################################################################################
-################################### Set installation locations
-set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
-set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE     )
+################################### Set installation locations and names
+set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
+set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES OUTPUT_NAME ${PROJECT_NAME} )
 
 ##########################################################################################
 ################################### Install rules
-install               ( TARGETS _${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION}  ) 
+install               ( TARGETS ${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION}  ) 
 install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python3/proshade.py DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 
