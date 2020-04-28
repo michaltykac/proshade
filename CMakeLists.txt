@@ -377,7 +377,6 @@ set                ( DELETEFFTW2_VARIABLE "${CMAKE_SOURCE_DIR}/delmeFFTW2.txt"  
 add_custom_command ( 
 					 OUTPUT ${DELETEFFTW2_VARIABLE}
 					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
-					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/install.err.txt
 					 DEPENDS ${PROJECT_SOURCE_DIR}/CMakeLists.txt
 					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5
 				   )
@@ -451,6 +450,33 @@ add_custom_command (
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/install/lib
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/install/lib64
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/install/share
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/clipper/core/.deps/libclipper_core_la-fftmap.Plo
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/clipper/core/.deps/libclipper_core_la-fftmap_sparse.Plo
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/clipper/core/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/clipper/minimol/.deps/minimol_io.Plo
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/clipper/mmdb/.deps/clipper_mmdb.Plo
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/config.log
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/config.status
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/clipper/examples/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/config.log
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/config.status
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/doc/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/fftw/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/mpi/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/rfftw/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/tests/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/fftw-2.1.5/threads/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/config.h
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/config.log
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/config.status
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/libccp4c.pc
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/libccp4f.pc
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/Makefile
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.log
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.status
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/mmdb2.pc
 					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeMMDB2.txt"
 					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeLIBCCP4.txt"
 					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeFFTW2.txt"

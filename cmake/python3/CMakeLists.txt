@@ -113,16 +113,6 @@ else   ( ${CMAKE_MINOR_VERSION} LESS 8 )
 	swig_add_library        ( ${PROJECT_NAME}_py3Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python3/proshade.i )
 endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 
-
-##########################################################################################
-################################### TEST ! Link the libraries to the module
-#set_property            (  TARGET _${PROJECT_NAME}_py3Module
-#                           PROPERTY INSTALL_RPATH
-#                                 "${CLIPPER_LINK}"
-#                                 "${FFTW_LINK}"
-#                                 "${SOFT_LINK}"
-#                                 "${LAPACK_LINK}" )
-
 ##########################################################################################
 ################################### Link the dynamic library to the target
 target_link_libraries ( _${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}           )
