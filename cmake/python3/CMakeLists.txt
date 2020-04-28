@@ -12,12 +12,17 @@ find_package         ( SWIG REQUIRED                                            
 ################################### Set swig module name with the new naming policy
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
     cmake_policy     ( SET CMP0078 NEW                                                    )
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    set              ( UseSWIG_TARGET_NAME_PREFERENCE "${PROJECT_NAME}_py3Module"         )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 if    ( ${CMAKE_VERSION} GREATER "3.13" )
     cmake_policy     ( SET CMP0086 NEW                                                    )
-    set ( SWIG_MODULE_NAME ${PROJECT_NAME}_py3Module                                     )
 endif ( ${CMAKE_VERSION} GREATER "3.13" )
+
+##########################################################################################
+################################### Set swig module name with the new naming policy
+set ( SWIG_MODULE_NAME ${PROJECT_NAME}_py3Module                                          )
 
 ##########################################################################################
 ################################### Include the swig locations
@@ -28,9 +33,9 @@ include              ( ${SWIG_USE_FILE}                                         
 execute_process      ( COMMAND bash -c "mkdir python3" )
 execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_typedefs.hpp ${CMAKE_BINARY_DIR}/python3/ProSHADE_typedefs.hpp" )
 execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_settings.hpp ${CMAKE_BINARY_DIR}/python3/ProSHADE_settings.hpp" )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp          ${CMAKE_BINARY_DIR}/python3/ProSHADE.hpp" )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade.i              ${CMAKE_BINARY_DIR}/python3/proshade.i" )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/numpy.i                 ${CMAKE_BINARY_DIR}/python3/numpy.i" )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp          ${CMAKE_BINARY_DIR}/python3/ProSHADE.hpp"          )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade.i              ${CMAKE_BINARY_DIR}/python3/proshade.i"            )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/numpy.i                 ${CMAKE_BINARY_DIR}/python3/numpy.i"               )
 
 ##########################################################################################
 ################################### Find the python include locations
@@ -79,9 +84,9 @@ foreach    ( POS_PATH ${REAL_PYTHON_LIB} )
 
     # Add the correct extension
     if    ( APPLE )
-        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".dylib"        )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".dylib"    )
     else  ( APPLE )
-        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".so"           )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".so"       )
     endif ( APPLE )
 
     # Remove the trailing endline
@@ -102,7 +107,7 @@ endif ( NOT EXISTS ${PYTHON_LIBRARIES} )
 
 ##########################################################################################
 ################################### Define language and specific swig flags
-set_source_files_properties ( ${CMAKE_BINARY_DIR}/python3/proshade.i PROPERTIES CPLUSPLUS ON )
+set_source_files_properties ( ${CMAKE_BINARY_DIR}/python3/proshade.i PROPERTIES CPLUSPLUS ON      )
 set_source_files_properties ( ${CMAKE_BINARY_DIR}/python3/proshade.i PROPERTIES SWIG_FLAGS "-py3" )
 
 ##########################################################################################
@@ -113,19 +118,13 @@ else   ( ${CMAKE_MINOR_VERSION} LESS 8 )
 	swig_add_library        ( ${PROJECT_NAME}_py3Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python3/proshade.i )
 endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 
-
-##########################################################################################
-################################### TEST ! Link the libraries to the module
-#set_property            (  TARGET _${PROJECT_NAME}_py3Module
-#                           PROPERTY INSTALL_RPATH
-#                                 "${CLIPPER_LINK}"
-#                                 "${FFTW_LINK}"
-#                                 "${SOFT_LINK}"
-#                                 "${LAPACK_LINK}" )
-
 ##########################################################################################
 ################################### Link the dynamic library to the target
-target_link_libraries ( ${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}           )
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    target_link_libraries (  ${SWIG_MODULE_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    target_link_libraries ( _${SWIG_MODULE_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 ##########################################################################################
 ################################### Change compiler flags to remove SWIG caused warnings
@@ -155,12 +154,22 @@ endif()
 
 ##########################################################################################
 ################################### Set installation locations and names
-set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
-set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
-set_target_properties ( ${PROJECT_NAME}_py3Module PROPERTIES OUTPUT_NAME ${PROJECT_NAME} )
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
+    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
+    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 ##########################################################################################
 ################################### Install rules
-install               ( TARGETS ${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION}  ) 
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    install           ( TARGETS  ${SWIG_MODULE_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    install           ( TARGETS _${SWIG_MODULE_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
 install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python3/proshade.py DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 
