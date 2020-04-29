@@ -97,6 +97,22 @@ foreach    ( POS_PATH ${REAL_PYTHON_LIB} )
 	set              ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
         break            ( )
     endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+    
+    # Try the same library name, except with 'm' after the version
+	if    ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} "m.dylib"    )
+    else  ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} "m.so"       )
+    endif ( APPLE )
+
+    # Remove the trailing endline
+    string               ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP2 "${REAL_PYTHON_LIB_HLP2}" )
+
+    # Found?
+    if    ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+	set              ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
+        break            ( )
+    endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
 endforeach ( POS_PATH ${REAL_PYTHON_LIB} )
 
 # Check for fails
