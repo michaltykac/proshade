@@ -328,11 +328,15 @@ add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/lib                           
 
 ##########################################################################################
 ################################### Link python module
-#add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/python                                  )
+if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+    add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python                                  )
+endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Link python3 module
-add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/python3                                 )
+if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+    add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python3                                 )
+endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 #####################################################################################
 ################################### Remove all the ugly files 
@@ -345,6 +349,7 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeCache.txt
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeFiles
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/Makefile
+					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 				     DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
@@ -407,11 +412,15 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeCache.txt
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeFiles
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/Makefile
+					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/include/ProSHADE.hpp
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/lib/libproshade.dylib
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade_py2.pyc
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/_proshade.so
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade_py2.py
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/__pycache__
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade.so
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/proshade.py

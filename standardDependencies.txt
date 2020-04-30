@@ -11,16 +11,112 @@ Ubuntu 18.4.4
 =============
 
 APT INSTALL:
-* cmake
 * gcc
 * g++
 * gfortran
+* make
+* cmake
+* m4
 * fftw3-dev
 * libblas-dev
 * liblapack-dev
-* m4
 * swig
 * python3-pip
+* python3-dev
+* git
 
 PIP3 INSTALL:
 * numpy
+
+COMMAND LINE:
+$ sudo apt-get update && sudo apt-get upgrade -y
+$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev swig python3-pip python3-dev git
+$ sudo pip3 install numpy
+
+===============
+Centos 8.1.1911 
+===============
+
+YUM SETUP:
+sudo yum install dnf-plugins-core
+sudo yum config-manager --set-enabled PowerTools
+
+YUM INSTALL:
+* gcc
+* gcc-c++
+* gcc-gfortran
+* make
+* cmake
+* m4
+* fftw3-devel
+* blas-devel
+* lapack-devel
+* swig
+* python3-pip
+* python3-devel
+* git
+
+PIP3 INSTALL:
+* numpy
+
+COMMAND LINE:
+$ sudo yum install dnf-plugins-core
+$ sudo yum config-manager --set-enabled PowerTools
+$ sudo yum update -y
+$ sudo yum install gcc gcc-c++ gcc-gfortran make cmake m4 fftw3-devel blas-devel lapack-devel swig python3-pip python3-devel git -y
+$ sudo pip3 install numpy
+
+=============
+Debian 10.3.0 
+=============
+
+APT INSTALL:
+* gcc
+* g++
+* gfortran
+* make
+* cmake
+* m4
+* fftw3-dev
+* libblas-dev
+* liblapack-dev
+* swig
+* python3-pip
+* python3-dev
+* git
+
+PIP3 INSTALL:
+* numpy
+
+COMMAND LINE:
+$ sudo apt-get update && sudo apt-get upgrade -y
+$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev swig python3-pip python3-dev git 
+$ sudo pip3 install numpy
+
+==================
+openSUSE-Leap 15.1 
+==================
+
+APT INSTALL:
+* gcc
+* gcc-c++
+* gcc-fortran
+* make
+* cmake
+* m4
+* fftw3-dev
+* blas-dev
+* lapack-dev
+* swig
+* python3-pip
+* python3-dev
+* git
+
+PIP3 INSTALL:
+* numpy
+
+COMMAND LINE:
+$ sudo apt-get update && sudo apt-get upgrade -y
+$ sudo apt-get install -y gcc gcc-c++ gcc-fortran make cmake m4 fftw3-dev blas-dev lapack-dev swig python3-pip git
+$ sudo pip3 install numpy
+
