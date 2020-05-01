@@ -22,7 +22,7 @@ endif ( ${CMAKE_VERSION} GREATER "3.13" )
 
 ##########################################################################################
 ################################### Set swig module name with the new naming policy
-set ( SWIG_MODULE_NAME ${PROJECT_NAME}_py2Module                                          )
+set ( SWIG_MODULE_NAME ${PROJECT_NAME}_py2                                                )
 
 ##########################################################################################
 ################################### Include the swig locations
@@ -34,7 +34,7 @@ execute_process      ( COMMAND bash -c "mkdir python"                           
 execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_typedefs.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_typedefs.hpp" )
 execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_settings.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_settings.hpp" )
 execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp          ${CMAKE_BINARY_DIR}/python/ProSHADE.hpp"          )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade_py2.i          ${CMAKE_BINARY_DIR}/python/proshade_py2.i"        )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade.i              ${CMAKE_BINARY_DIR}/python/proshade.i"            )
 execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/numpy.i                 ${CMAKE_BINARY_DIR}/python/numpy.i"               )
 
 ##########################################################################################
@@ -44,20 +44,18 @@ execute_process      ( COMMAND python -c "import sys; print ( str ( sys.version_
 execute_process      ( COMMAND python -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY2_INCLUDE_LOC )
 
 ##########################################################################################
-################################### Find python site packages location
-execute_process      ( COMMAND python -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
-string               ( REGEX REPLACE "\n$" "" PY_PREFIX "${PY_PREFIX}"                    )
-string               ( CONCAT PYTHON_INSTALL ${PY_PREFIX} "/lib/python"                   )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"          )
-string               ( CONCAT PYTHON_INSTALL ${PYTHON_INSTALL} ${PY_VERSION}              )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"          )
-string               ( CONCAT PYTHON_INSTALL2 ${PYTHON_INSTALL} "/site-packages"          )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL2 "${PYTHON_INSTALL2}"        )
-if    ( EXISTS ${PYTHON_INSTALL2} )
-	set ( PY2_INSTALL_LOCATION ${PYTHON_INSTALL2}                                         )
-else  ( EXISTS ${PYTHON_INSTALL2} )
-	set ( PY2_INSTALL_LOCATION ${PYTHON_INSTALL}                                          )
-endif ( EXISTS ${PYTHON_INSTALL2} )
+################################### Check if python2 is installed as python, terminate this target otherwise
+string               ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                  )
+
+if    ( "${PY_VERSION}" STREQUAL "" )
+    message          ( WARNING "Python2 was not detected (i.e. command \"python\" was not found). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
+    return           (                                                                    )
+endif ( "${PY_VERSION}" STREQUAL "" )
+
+if     ( ${PY_VERSION} GREATER "3" )
+    message          ( WARNING "Python2 was not found (i.e. command \"python --version\" returns version >= 3). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
+    return           (                                                                    )
+endif  ( ${PY_VERSION} GREATER "3" )
 
 ##########################################################################################
 ################################### Include the source code and the python include
@@ -123,14 +121,15 @@ endif ( NOT EXISTS ${PYTHON_LIBRARIES} )
 
 ##########################################################################################
 ################################### Define language and specific swig flags
-set_source_files_properties ( ${CMAKE_BINARY_DIR}/python/proshade_py2.i PROPERTIES CPLUSPLUS ON      )
+set_source_files_properties ( ${CMAKE_BINARY_DIR}/python/proshade.i PROPERTIES CPLUSPLUS ON      )
+set_source_files_properties ( ${CMAKE_BINARY_DIR}/python/proshade.i PROPERTIES SWIG_MODULE_NAME ${PROJECT_NAME} )
 
 ##########################################################################################
 ################################### Create target using SWIG
 if     ( ${CMAKE_MINOR_VERSION} LESS 8 )
-	swig_add_module         ( ${PROJECT_NAME}_py2Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python/proshade_py2.i )
+	swig_add_module         ( ${PROJECT_NAME}_py2Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python/proshade.i )
 else   ( ${CMAKE_MINOR_VERSION} LESS 8 )
-	swig_add_library        ( ${PROJECT_NAME}_py2Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python/proshade_py2.i )
+	swig_add_library        ( ${PROJECT_NAME}_py2Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python/proshade.i )
 endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 
 ##########################################################################################
@@ -186,5 +185,5 @@ if    ( ${CMAKE_VERSION} GREATER "3.12" )
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
     install           ( TARGETS _${PROJECT_NAME}_py2Module DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
-install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python/proshade_py2.py DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
+install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python/proshade.py DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
 

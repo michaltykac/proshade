@@ -31,7 +31,7 @@ import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
 sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python2" )
-import proshade_py2 as proshade
+import proshade
 
 ### Create the settings object
 pSet                                          = proshade.ProSHADE_settings ()

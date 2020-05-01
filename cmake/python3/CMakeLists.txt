@@ -44,20 +44,18 @@ execute_process      ( COMMAND python3 -c "import sys; print ( str ( sys.version
 execute_process      ( COMMAND python3 -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY3_INCLUDE_LOC )
 
 ##########################################################################################
-################################### Find python site packages location
-execute_process      ( COMMAND python3 -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
-string               ( REGEX REPLACE "\n$" "" PY_PREFIX "${PY_PREFIX}"                    )
-string               ( CONCAT PYTHON_INSTALL ${PY_PREFIX} "/lib/python"                   )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"          )
-string               ( CONCAT PYTHON_INSTALL ${PYTHON_INSTALL} ${PY_VERSION}              )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"          )
-string               ( CONCAT PYTHON_INSTALL2 ${PYTHON_INSTALL} "/site-packages"          )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL2 "${PYTHON_INSTALL2}"        )
-if    ( EXISTS ${PYTHON_INSTALL2} )
-	set ( PY3_INSTALL_LOCATION ${PYTHON_INSTALL2}                                         )
-else  ( EXISTS ${PYTHON_INSTALL2} )
-	set ( PY3_INSTALL_LOCATION ${PYTHON_INSTALL}                                          )
-endif ( EXISTS ${PYTHON_INSTALL2} )
+################################### Check if python3 is installed as python3, terminate this target otherwise
+string               ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                  )
+
+if    ( "${PY_VERSION}" STREQUAL "" )
+    message          ( WARNING "Python3 was not detected (i.e. command \"python3\" was not found). ProSHADE installation will assume no python3 is installed and will therefore not produce python3 module." )
+    return           (                                                                    )
+endif ( "${PY_VERSION}" STREQUAL "" )
+
+if     ( ${PY_VERSION} LESS "3" )
+    message          ( WARNING "Python3 was not found (i.e. command \"python3 --version\" returns version < 3). ProSHADE installation will assume no python3 is installed and will therefore not produce python3 module." )
+    return           (                                                                    )
+endif  ( ${PY_VERSION} LESS "3" )
 
 ##########################################################################################
 ################################### Include the source code and the python include

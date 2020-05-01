@@ -20,9 +20,13 @@ APT INSTALL:
 * fftw3-dev
 * libblas-dev
 * liblapack-dev
-* swig
+* python
+* python-pip
+* python-dev
+* python3
 * python3-pip
 * python3-dev
+* swig
 * git
 
 PIP3 INSTALL:
@@ -30,7 +34,8 @@ PIP3 INSTALL:
 
 COMMAND LINE:
 $ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev swig python3-pip python3-dev git
+$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git
+$ sudo pip install numpy
 $ sudo pip3 install numpy
 
 ===============

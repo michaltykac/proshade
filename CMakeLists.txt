@@ -50,7 +50,7 @@ endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 project ( proshade VERSION 0.7.1 LANGUAGES CXX C                                          )     
 
 ##########################################################################################
-################################### Disable C++11
+################################### Force C++11
 set ( CMAKE_CXX_STANDARD 11                                                               )
 set ( CMAKE_CXX_STANDARD_REQUIRED ON                                                      )
 
@@ -301,11 +301,11 @@ else  ( INSTALL_LOCALLY )
 	else  ( EXISTS ${PYTHON3_INSTALL2} )
 		set ( MY_PY3_INSTALL_LOCATION ${PYTHON3_INSTALL} CACHE PATH "Python3 install location" )
 	endif ( EXISTS ${PYTHON3_INSTALL2} )
-	
 endif ( INSTALL_LOCALLY )
-message                 ( STATUS "Installation is set to       : " ${MY_INSTALL_LOCATION}         )
-message                 ( STATUS "Python 2 Installation        : " ${MY_PY2_INSTALL_LOCATION} )
-message                 ( STATUS "Python 3 Installation        : " ${MY_PY3_INSTALL_LOCATION} )
+
+message              ( STATUS "Installation is set to       : " ${MY_INSTALL_LOCATION}    )
+message              ( STATUS "Python 2 Installation        : " ${MY_PY2_INSTALL_LOCATION})
+message              ( STATUS "Python 3 Installation        : " ${MY_PY3_INSTALL_LOCATION})
 
 ##########################################################################################
 ################################### Build the OBJECTS
@@ -418,9 +418,9 @@ add_custom_command (
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/include/ProSHADE.hpp
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/lib/libproshade.dylib
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade_py2.pyc
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.pyc
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/_proshade.so
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade_py2.py
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.py
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/__pycache__
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade.so
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/proshade.py
