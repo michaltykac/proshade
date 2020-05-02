@@ -49,19 +49,10 @@ string               ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"        
 
 if    ( "${PY_VERSION}" STREQUAL "" )
     ##########################################################################################
-    ################################### Copy the files to be pythonised into the building folder
-    execute_process      ( COMMAND bash -c "mkdir python"                                     )
-    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_typedefs.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_typedefs.hpp" )
-    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_settings.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_settings.hpp" )
-    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp          ${CMAKE_BINARY_DIR}/python/ProSHADE.hpp"          )
-    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade.i              ${CMAKE_BINARY_DIR}/python/proshade.i"            )
-    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/numpy.i                 ${CMAKE_BINARY_DIR}/python/numpy.i"               )
-    
-    ##########################################################################################
     ################################### Find the python include locations
-    execute_process      ( COMMAND python -c "import sysconfig as sysconfig; import sys; sys.stdout.write (sysconfig.get_path(scheme='posix_prefix',name='include'))" OUTPUT_VARIABLE REAL_PYTHON_INC )
-    execute_process      ( COMMAND python -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
-    execute_process      ( COMMAND python -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY2_INCLUDE_LOC )
+    execute_process      ( COMMAND python2 -c "import sysconfig as sysconfig; import sys; sys.stdout.write (sysconfig.get_path(scheme='posix_prefix',name='include'))" OUTPUT_VARIABLE REAL_PYTHON_INC )
+    execute_process      ( COMMAND python2 -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+    execute_process      ( COMMAND python2 -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY2_INCLUDE_LOC )
     
     if    ( "${PY_VERSION}" STREQUAL "" )
         message          ( WARNING "Python2 was not detected (i.e. neither commands \"python\" and \"python2\" were not found). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
@@ -83,7 +74,11 @@ include_directories  ( ${PY2_INCLUDE_LOC}/numpy                                 
 ##########################################################################################
 ################################### Get the libpython library location
 # Find the python library containing folder options 
-execute_process      ( COMMAND python -c "import distutils.sysconfig as sysconfig; fpaths = [sysconfig.get_config_var(pv) for pv in ('LIBDIR', 'LIBPL')]; print(' '.join(str(x) for x in fpaths))" OUTPUT_VARIABLE REAL_PYTHON_LIB )
+execute_process      ( COMMAND python  -c "import distutils.sysconfig as sysconfig; fpaths = [sysconfig.get_config_var(pv) for pv in ('LIBDIR', 'LIBPL')]; print(' '.join(str(x) for x in fpaths))" OUTPUT_VARIABLE REAL_PYTHON_LIB )
+
+if    ( NOT REAL_PYTHON_LIB )
+    execute_process  ( COMMAND python2 -c "import distutils.sysconfig as sysconfig; fpaths = [sysconfig.get_config_var(pv) for pv in ('LIBDIR', 'LIBPL')]; print(' '.join(str(x) for x in fpaths))" OUTPUT_VARIABLE REAL_PYTHON_LIB )
+endif ( NOT REAL_PYTHON_LIB )
 
 # Split the results into a list
 separate_arguments ( REAL_PYTHON_LIB )
