@@ -48,8 +48,25 @@ execute_process      ( COMMAND python -c "import numpy; print ( numpy.get_includ
 string               ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                  )
 
 if    ( "${PY_VERSION}" STREQUAL "" )
-    message          ( WARNING "Python2 was not detected (i.e. command \"python\" was not found). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
-    return           (                                                                    )
+    ##########################################################################################
+    ################################### Copy the files to be pythonised into the building folder
+    execute_process      ( COMMAND bash -c "mkdir python"                                     )
+    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_typedefs.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_typedefs.hpp" )
+    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_settings.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_settings.hpp" )
+    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp          ${CMAKE_BINARY_DIR}/python/ProSHADE.hpp"          )
+    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade.i              ${CMAKE_BINARY_DIR}/python/proshade.i"            )
+    execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/numpy.i                 ${CMAKE_BINARY_DIR}/python/numpy.i"               )
+    
+    ##########################################################################################
+    ################################### Find the python include locations
+    execute_process      ( COMMAND python -c "import sysconfig as sysconfig; import sys; sys.stdout.write (sysconfig.get_path(scheme='posix_prefix',name='include'))" OUTPUT_VARIABLE REAL_PYTHON_INC )
+    execute_process      ( COMMAND python -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+    execute_process      ( COMMAND python -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY2_INCLUDE_LOC )
+    
+    if    ( "${PY_VERSION}" STREQUAL "" )
+        message          ( WARNING "Python2 was not detected (i.e. neither commands \"python\" and \"python2\" were not found). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
+        return           (                                                                )
+    endif ( "${PY_VERSION}" STREQUAL "" )
 endif ( "${PY_VERSION}" STREQUAL "" )
 
 if     ( ${PY_VERSION} GREATER "3" )

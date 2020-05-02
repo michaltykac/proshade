@@ -72,7 +72,7 @@ set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK lib
 ##########################################################################################
 ################################### Warn if non-local installation - sudo may be needed
 if    ( NOT INSTALL_LOCALLY )
-    message ( WARNING "You have requested installation to system folders. This may require running the 'make install' command with sudo in order to give the makefile the rights required to write into the system folders." )
+    message ( WARNING "You have requested installation to system folders. This has two implications:\n 1) You may want to set the -DINSTALL_BIN_DIR=/binary/install/path,\n                        the -DINSTALL_LIB_DIR=/library/install/path\n                    and the -DINSTALL_INC_DIR=/include/install/path\n    to the correct paths on your system, as the defaults are /usr/loca/lib, /usr/local/bin and /usr/local/include.\n 2) You may need to use sudo for 'make install' as well as 'make remove' as this may be required in order to write into the system folders." )
 endif ( NOT INSTALL_LOCALLY )
 
 ##########################################################################################
