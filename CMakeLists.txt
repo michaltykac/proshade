@@ -51,8 +51,8 @@ project ( proshade VERSION 0.7.1 LANGUAGES CXX C                                
 
 ##########################################################################################
 ################################### Force C++11
-set ( CMAKE_CXX_STANDARD 11                                                               )
-set ( CMAKE_CXX_STANDARD_REQUIRED ON                                                      )
+set     ( CMAKE_CXX_STANDARD 11                                                           )
+set     ( CMAKE_CXX_STANDARD_REQUIRED ON                                                  )
 
 ##########################################################################################
 ################################### Find the source files
@@ -60,21 +60,36 @@ file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                
 file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                               )
 
 ##########################################################################################
-################################### Set flags depending on compiler
+################################### Define the command line options variables and defaults
+set     ( INSTALL_LOCALLY        ON      CACHE BOOL   "Should installation be done locally?"   )
+set     ( INSTALL_BIN_DIR        bin     CACHE PATH   "Installation directory for executables" )
+set     ( INSTALL_LIB_DIR        lib     CACHE PATH   "Installation directory for libraries"   )
+set     ( INSTALL_INC_DIR        include CACHE PATH   "Installation directory for headers"     )
+set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"                     )
+set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
+set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
 
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+##########################################################################################
+################################### Warn if non-local installation - sudo may be needed
+if    ( NOT INSTALL_LOCALLY )
+    message ( WARNING "You have requested installation to system folders. This may require running the 'make install' command with sudo in order to give the makefile the rights required to write into the system folders." )
+endif ( NOT INSTALL_LOCALLY )
+
+##########################################################################################
+################################### Set flags depending on compiler
+if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
   ################################# Using Clang
-  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"     )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"   )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   ################################# Using GCC
-  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"        )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"      )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
   ################################# Using Intel C++
   ### TO BE COMPLETED
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
   ################################# Using Visual Studio C++
   ### TO BE COMPLETED
-endif()
+endif  ( )
 
 ##########################################################################################
 ################################### Set targets for clipper installation from supplied sources
@@ -165,9 +180,6 @@ link_directories    ( ${CMAKE_SOURCE_DIR}/install/lib                           
 ################################### Add fftw3 dependency
 
 ### Automatic FFTW3 detection
-set ( CUSTOM_FFTW3_LIB_PATH ""     CACHE STRING "path to libfftw3.a"                      )
-set ( CUSTOM_FFTW3_INC_PATH ""     CACHE STRING "path to fftw3.h"                         )
-
 if    ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
     message         ( STATUS "Custom FFTW3 path was supplied. Checking for the paths containing the library and the include files." )
     
@@ -233,8 +245,6 @@ include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include            
 ################################### Add LAPACK dependency
  
 ### Automatic LAPACK detection
-set                    ( CUSTOM_LAPACK_LIB_PATH "" CACHE STRING "Custom path to LAPACK libs" )
-
 if    ( CUSTOM_LAPACK_LIB_PATH )
     message            ( STATUS "Custom LAPACK path was supplied. Checking for the paths containing the library." )
     file               ( GLOB TESTED_LAPACK_PATH ${CUSTOM_LAPACK_LIB_PATH}/liblapack* )
@@ -262,9 +272,8 @@ endif  ( CUSTOM_LAPACK_LIB_PATH )
 
 ##########################################################################################
 ################################### Set installation folders
-set ( INSTALL_LOCALLY ON CACHE BOOL "Should installation be done locally?" )
 if    ( INSTALL_LOCALLY )
-	set ( MY_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install CACHE STRING "Installation path" )
+	set ( MY_INSTALL_LOCATION     ${CMAKE_SOURCE_DIR}/install         CACHE STRING "Installation path"        )
 	set ( MY_PY2_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install/python2 CACHE STRING "Python2 install location" )
 	set ( MY_PY3_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install/python3 CACHE STRING "Python3 install location" )
 else  ( INSTALL_LOCALLY )
