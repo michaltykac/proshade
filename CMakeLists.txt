@@ -61,7 +61,7 @@ file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                     
 
 ##########################################################################################
 ################################### Define the command line options variables and defaults
-set     ( INSTALL_LOCALLY        ON      CACHE BOOL   "Should installation be done locally?"   )
+set     ( INSTALL_LOCALLY        OFF     CACHE BOOL   "Should installation be done locally?"   )
 set     ( INSTALL_BIN_DIR        bin     CACHE PATH   "Installation directory for executables" )
 set     ( INSTALL_LIB_DIR        lib     CACHE PATH   "Installation directory for libraries"   )
 set     ( INSTALL_INC_DIR        include CACHE PATH   "Installation directory for headers"     )
