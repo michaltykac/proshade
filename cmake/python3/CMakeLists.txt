@@ -135,9 +135,9 @@ endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 ##########################################################################################
 ################################### Link the dynamic library to the target
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    target_link_libraries (  ${SWIG_MODULE_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
+    target_link_libraries (  ${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    target_link_libraries ( _${SWIG_MODULE_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
+    target_link_libraries ( _${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 ##########################################################################################
@@ -171,21 +171,21 @@ endif()
 set   ( PYTHON_INSTALL_RPATH "${MY_INSTALL_LOCATION}/${INSTALL_LIB_DIR}"  "${CMAKE_SOURCE_DIR}/install/lib" )
 
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH "PYTHON_INSTALL_RPATH" )
-    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
-    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
+    set_target_properties (  ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
+    set_target_properties (  ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties (  ${PROJECT_NAME}_py3Module PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH "PYTHON_INSTALL_RPATH" )
-    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
-    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
+    set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
+    set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 ##########################################################################################
 ################################### Install rules
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    install           ( TARGETS  ${SWIG_MODULE_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
+    install           ( TARGETS  ${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    install           ( TARGETS _${SWIG_MODULE_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
+    install           ( TARGETS _${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python3/proshade.py DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 
