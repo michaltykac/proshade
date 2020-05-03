@@ -1,88 +1,203 @@
 ##########################################################################################
 ##########################################################################################
-################################ ProSHADE python cmake file ##############################
+############################### ProSHADE python2 cmake file ##############################
 ##########################################################################################
 ##########################################################################################
 
-### Find the SWIG package
+##########################################################################################
+################################### Find the SWIG package 
 find_package         ( SWIG REQUIRED                                                      )
 
-### Include the swig location 
+##########################################################################################
+################################### Set swig module name with the new naming policy
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    cmake_policy     ( SET CMP0078 NEW                                                    )
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    set              ( UseSWIG_TARGET_NAME_PREFERENCE "${PROJECT_NAME}_py3Module"         )
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
+
+if    ( ${CMAKE_VERSION} GREATER "3.13" )
+    cmake_policy     ( SET CMP0086 NEW                                                    )
+endif ( ${CMAKE_VERSION} GREATER "3.13" )
+
+##########################################################################################
+################################### Set swig module name with the new naming policy
+set ( SWIG_MODULE_NAME ${PROJECT_NAME}_py2                                                )
+
+##########################################################################################
+################################### Include the swig locations
 include              ( ${SWIG_USE_FILE}                                                   )
 
-### Copy the files to be pythonised into the building folder
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/../src/proshade/ProSHADE_typedefs.hpp ${CMAKE_SOURCE_DIR}/python/ProSHADE_typedefs.hpp" )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/../src/proshade/ProSHADE_settings.hpp ${CMAKE_SOURCE_DIR}/python/ProSHADE_settings.hpp" )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/../src/proshade/ProSHADE.hpp          ${CMAKE_SOURCE_DIR}/python/ProSHADE.hpp" )
-execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/../src/python/proshade.i              ${CMAKE_SOURCE_DIR}/python/proshade.i" )
+##########################################################################################
+################################### Copy the files to be pythonised into the building folder
+execute_process      ( COMMAND bash -c "mkdir python"                                     )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_typedefs.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_typedefs.hpp" )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE_settings.hpp ${CMAKE_BINARY_DIR}/python/ProSHADE_settings.hpp" )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp          ${CMAKE_BINARY_DIR}/python/ProSHADE.hpp"          )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/proshade.i              ${CMAKE_BINARY_DIR}/python/proshade.i"            )
+execute_process      ( COMMAND bash -c "cp ${CMAKE_SOURCE_DIR}/src/python/numpy.i                 ${CMAKE_BINARY_DIR}/python/numpy.i"               )
 
-### Find the python include location
+##########################################################################################
+################################### Find the python include locations
 execute_process      ( COMMAND python -c "import sysconfig as sysconfig; import sys; sys.stdout.write (sysconfig.get_path(scheme='posix_prefix',name='include'))" OUTPUT_VARIABLE REAL_PYTHON_INC )
-execute_process      ( COMMAND python -c "import distutils.sysconfig as sysconfig; import sys; sys.stdout.write(sysconfig.get_config_var('LIBDIR'))" OUTPUT_VARIABLE REAL_PYTHON_LIB )
 execute_process      ( COMMAND python -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+execute_process      ( COMMAND python -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY2_INCLUDE_LOC )
 
-### Include the source code and the python include
-include_directories  ( ${PROJECT_SOURCE_DIR}/../src/proshade                              )
+##########################################################################################
+################################### Check if python2 is installed as python, terminate this target otherwise
+string               ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                  )
+
+if    ( "${PY_VERSION}" STREQUAL "" )
+    ##########################################################################################
+    ################################### Find the python include locations
+    execute_process      ( COMMAND python2 -c "import sysconfig as sysconfig; import sys; sys.stdout.write (sysconfig.get_path(scheme='posix_prefix',name='include'))" OUTPUT_VARIABLE REAL_PYTHON_INC )
+    execute_process      ( COMMAND python2 -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+    execute_process      ( COMMAND python2 -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY2_INCLUDE_LOC )
+    
+    if    ( "${PY_VERSION}" STREQUAL "" )
+        message          ( WARNING "Python2 was not detected (i.e. neither commands \"python\" and \"python2\" were not found). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
+        return           (                                                                )
+    endif ( "${PY_VERSION}" STREQUAL "" )
+endif ( "${PY_VERSION}" STREQUAL "" )
+
+if     ( ${PY_VERSION} GREATER "3" )
+    message          ( WARNING "Python2 was not found (i.e. command \"python --version\" returns version >= 3). ProSHADE installation will assume no python2 is installed and will therefore not produce python2 module." )
+    return           (                                                                    )
+endif  ( ${PY_VERSION} GREATER "3" )
+
+##########################################################################################
+################################### Include the source code and the python include
+include_directories  ( ${CMAKE_SOURCE_DIR}/src/proshade                                   )
 include_directories  ( ${REAL_PYTHON_INC}                                                 )
+include_directories  ( ${PY2_INCLUDE_LOC}/numpy                                           )
 
-### Paste all info together to get the proper paths to the python library
-if     ( APPLE ) 
-	string ( CONCAT REAL_PYTHON_LIB_HLP ${REAL_PYTHON_LIB} "/libpython" ${PY_VERSION}     )
-	string ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP "${REAL_PYTHON_LIB_HLP}"          )
-	string ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".dylib"                  )
-	string ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP2 "${REAL_PYTHON_LIB_HLP2}"        )
-	if    ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
-		set          ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
-	else  ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
-		set          ( PYTHON_LIBRARIES ""                                                )
-	endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
-else   ( APPLE )
-	message ( FATAL_ERROR "Pythonisation of ProSHADE not yet implemented outside MacOS" )
-endif  ( APPLE )
+##########################################################################################
+################################### Get the libpython library location
+# Find the python library containing folder options 
+execute_process      ( COMMAND python  -c "import distutils.sysconfig as sysconfig; fpaths = [sysconfig.get_config_var(pv) for pv in ('LIBDIR', 'LIBPL')]; print(' '.join(str(x) for x in fpaths))" OUTPUT_VARIABLE REAL_PYTHON_LIB )
 
-### Define language
-set_source_files_properties ( proshade.i PROPERTIES CPLUSPLUS ON                          )
+if    ( NOT REAL_PYTHON_LIB )
+    execute_process  ( COMMAND python2 -c "import distutils.sysconfig as sysconfig; fpaths = [sysconfig.get_config_var(pv) for pv in ('LIBDIR', 'LIBPL')]; print(' '.join(str(x) for x in fpaths))" OUTPUT_VARIABLE REAL_PYTHON_LIB )
+endif ( NOT REAL_PYTHON_LIB )
 
-### Create target using SWIG
+# Split the results into a list
+separate_arguments ( REAL_PYTHON_LIB )
+
+# For each possible path
+foreach    ( POS_PATH ${REAL_PYTHON_LIB} )
+    # Remove the trailing endline
+    string               ( REGEX REPLACE "\n$" "" POS_PATH "${POS_PATH}" )
+
+    # Manipulate the path to include the libpython name, including the version
+    string               ( CONCAT REAL_PYTHON_LIB_HLP ${POS_PATH} "/libpython" ${PY_VERSION} )
+    string               ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP "${REAL_PYTHON_LIB_HLP}" )
+
+    # Add the correct extension
+    if    ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".dylib"    )
+    else  ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} ".so"       )
+    endif ( APPLE )
+
+    # Remove the trailing endline
+    string               ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP2 "${REAL_PYTHON_LIB_HLP2}" )
+
+    # Found?
+    if    ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+	set              ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
+        break            ( )
+    endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+    
+    # Try the same library name, except with 'm' after the version
+	if    ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} "m.dylib"    )
+    else  ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} "m.so"       )
+    endif ( APPLE )
+
+    # Remove the trailing endline
+    string               ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP2 "${REAL_PYTHON_LIB_HLP2}" )
+
+    # Found?
+    if    ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+	set              ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
+        break            ( )
+    endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+endforeach ( POS_PATH ${REAL_PYTHON_LIB} )
+
+# Check for fails
+if    ( NOT EXISTS ${PYTHON_LIBRARIES} )
+	set              ( PYTHON_LIBRARIES ""                                                )
+	message          ( FATAL_ERROR "Failed to find the libpython library in " ${REAL_PYTHON_LIB} " Please report this case to the author ..." )
+endif ( NOT EXISTS ${PYTHON_LIBRARIES} )
+
+##########################################################################################
+################################### Define language and specific swig flags
+set_source_files_properties ( ${CMAKE_BINARY_DIR}/python/proshade.i PROPERTIES CPLUSPLUS ON      )
+set_source_files_properties ( ${CMAKE_BINARY_DIR}/python/proshade.i PROPERTIES SWIG_MODULE_NAME ${PROJECT_NAME} )
+
+##########################################################################################
+################################### Create target using SWIG
 if     ( ${CMAKE_MINOR_VERSION} LESS 8 )
-	swig_add_module         ( ${PROJECT_NAME}2 LANGUAGE python SOURCES proshade.i         )
+	swig_add_module         ( ${PROJECT_NAME}_py2Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python/proshade.i )
 else   ( ${CMAKE_MINOR_VERSION} LESS 8 )
-	swig_add_library        ( ${PROJECT_NAME}2 LANGUAGE python SOURCES proshade.i         )
+	swig_add_library        ( ${PROJECT_NAME}_py2Module LANGUAGE python SOURCES ${CMAKE_BINARY_DIR}/python/proshade.i )
 endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 
-### Link the dynamic library to the target
-swig_link_libraries ( ${PROJECT_NAME}2 ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}            )
+##########################################################################################
+################################### Link the dynamic library to the target
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    target_link_libraries (  ${PROJECT_NAME}_py2Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES} )
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    target_link_libraries ( _${PROJECT_NAME}_py2Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES} )
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
-### Change compiler flags to remove SWIG caused warnings
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+##########################################################################################
+################################### Change compiler flags to remove SWIG caused warnings
+if     ( "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" )
   ################################# Using Clang
   set ( CMAKE_CXX_FLAGS "-O3 -g -Wall -Wno-macro-redefined"                               )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
   ################################# Using GCC
   set ( CMAKE_CXX_FLAGS "-O3 -g -Wall -Wno-c++11-compat"                                  )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
   ################################# Using Intel C++
   ### TO BE COMPLETED
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" )
   ################################# Using Visual Studio C++
   ### TO BE COMPLETED
-endif()
+endif ( )
 
-### Deal with MacOS rpath
+##########################################################################################
+################################### Deal with MacOS rpath
 if (APPLE) 
-   # Use rpath for _${PROJECT_NAME}.so
-   set_target_properties ( _${PROJECT_NAME}2 PROPERTIES MACOSX_RPATH TRUE                 )
+   # Use rpath for ${PROJECT_NAME}_py3Module target
+   set_target_properties ( ${PROJECT_NAME}_py2Module PROPERTIES MACOSX_RPATH TRUE         )
 
    # append directories in the linker search path and outside the project to the INSTALL_RPATH
-   set_target_properties ( _${PROJECT_NAME}2 PROPERTIES CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
-
+   set_target_properties ( ${PROJECT_NAME}_py2Module PROPERTIES CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE )
 endif()
 
-### Set installation locations
-set_target_properties ( _${PROJECT_NAME}2 PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
-set_target_properties ( _${PROJECT_NAME}2 PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE     )
+##########################################################################################
+################################### Set installation runpath value, settings and output names
+set   ( PYTHON_INSTALL_RPATH "${MY_INSTALL_LOCATION}/${INSTALL_LIB_DIR}"  "${CMAKE_SOURCE_DIR}/install/lib" )
 
-### Install rules
-install               ( TARGETS _${PROJECT_NAME}2 DESTINATION ${MY_PY2_INSTALL_LOCATION}  ) 
-install               ( FILES   ${CMAKE_SOURCE_DIR}/python/proshade.py DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
+    set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
+    set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
+
+##########################################################################################
+################################### Install rules
+if    ( ${CMAKE_VERSION} GREATER "3.12" )
+    install           ( TARGETS  ${PROJECT_NAME}_py2Module DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
+else  ( ${CMAKE_VERSION} GREATER "3.12" )
+    install           ( TARGETS _${PROJECT_NAME}_py2Module DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
+endif ( ${CMAKE_VERSION} GREATER "3.12" )
+install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python/proshade.py DESTINATION ${MY_PY2_INSTALL_LOCATION} ) 
 

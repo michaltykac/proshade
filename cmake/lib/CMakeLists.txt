@@ -24,6 +24,7 @@ target_link_libraries   ( ${PROJECT_NAME}_LIB lapack blas                       
 ################################### Set RPATH for the installed library
 set_property            (  TARGET ${PROJECT_NAME}_LIB
                            PROPERTY INSTALL_RPATH
+                                 "${CMAKE_SOURCE_DIR}/install"
                                  "${CLIPPER_LINK}"
                                  "${FFTW_LINK}"
                                  "${SOFT_LINK}"
@@ -38,11 +39,10 @@ endif()
 
 ##########################################################################################
 ################################### Set paths
-set_target_properties ( ${PROJECT_NAME}_LIB PROPERTIES INSTALL_RPATH ${MY_INSTALL_LOCATION}/lib )
 set_target_properties ( ${PROJECT_NAME}_LIB PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE   )
 
 ##########################################################################################
 ################################### Set installation
 set_target_properties ( ${PROJECT_NAME}_LIB PROPERTIES OUTPUT_NAME "${PROJECT_NAME}"      )
-install               ( TARGETS ${PROJECT_NAME}_LIB DESTINATION ${MY_INSTALL_LOCATION}/lib ) 
-install               ( FILES   ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp DESTINATION ${MY_INSTALL_LOCATION}/include ) 
+install               ( TARGETS ${PROJECT_NAME}_LIB DESTINATION ${MY_INSTALL_LOCATION}/${INSTALL_LIB_DIR} ) 
+install               ( FILES   ${CMAKE_SOURCE_DIR}/src/proshade/ProSHADE.hpp DESTINATION ${MY_INSTALL_LOCATION}/${INSTALL_INC_DIR} ) 

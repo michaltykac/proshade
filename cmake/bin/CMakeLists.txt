@@ -25,10 +25,11 @@ target_link_libraries   ( ${PROJECT_NAME} lapack blas                           
 set_property            (
               				TARGET ${PROJECT_NAME}
                 			PROPERTY INSTALL_RPATH
+                			        "${CMAKE_SOURCE_DIR}/install"
                 			        "${CLIPPER_LINK}"
                 			        "${FFTW_LINK}"
                 			        "${LAPACK_LINK}" )
 
 ##########################################################################################
 ################################### Install to bin
-install                 ( TARGETS ${PROJECT_NAME} DESTINATION ${MY_INSTALL_LOCATION}/bin  )
+install                 ( TARGETS ${PROJECT_NAME} DESTINATION ${MY_INSTALL_LOCATION}/${INSTALL_BIN_DIR}  )

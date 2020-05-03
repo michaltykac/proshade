@@ -50,9 +50,9 @@ endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 project ( proshade VERSION 0.7.1 LANGUAGES CXX C                                          )     
 
 ##########################################################################################
-################################### Disable C++11
-set ( CMAKE_CXX_STANDARD 11                                                               )
-set ( CMAKE_CXX_STANDARD_REQUIRED ON                                                      )
+################################### Force C++11
+set     ( CMAKE_CXX_STANDARD 11                                                           )
+set     ( CMAKE_CXX_STANDARD_REQUIRED ON                                                  )
 
 ##########################################################################################
 ################################### Find the source files
@@ -60,21 +60,36 @@ file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                
 file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                               )
 
 ##########################################################################################
-################################### Set flags depending on compiler
+################################### Define the command line options variables and defaults
+set     ( INSTALL_LOCALLY        ON      CACHE BOOL   "Should installation be done locally?"   )
+set     ( INSTALL_BIN_DIR        bin     CACHE PATH   "Installation directory for executables" )
+set     ( INSTALL_LIB_DIR        lib     CACHE PATH   "Installation directory for libraries"   )
+set     ( INSTALL_INC_DIR        include CACHE PATH   "Installation directory for headers"     )
+set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"                     )
+set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
+set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
 
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+##########################################################################################
+################################### Warn if non-local installation - sudo may be needed
+if    ( NOT INSTALL_LOCALLY )
+    message ( WARNING "You have requested installation to system folders. This has two implications:\n 1) You may want to set the -DINSTALL_BIN_DIR=/binary/install/path,\n                        the -DINSTALL_LIB_DIR=/library/install/path\n                    and the -DINSTALL_INC_DIR=/include/install/path\n    to the correct paths on your system, as the defaults are /usr/loca/lib, /usr/local/bin and /usr/local/include.\n 2) You may need to use sudo for 'make install' as well as 'make remove' as this may be required in order to write into the system folders." )
+endif ( NOT INSTALL_LOCALLY )
+
+##########################################################################################
+################################### Set flags depending on compiler
+if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
   ################################# Using Clang
-  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"     )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"   )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   ################################# Using GCC
-  set ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"        )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"      )
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
   ################################# Using Intel C++
   ### TO BE COMPLETED
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
   ################################# Using Visual Studio C++
   ### TO BE COMPLETED
-endif()
+endif  ( )
 
 ##########################################################################################
 ################################### Set targets for clipper installation from supplied sources
@@ -165,9 +180,6 @@ link_directories    ( ${CMAKE_SOURCE_DIR}/install/lib                           
 ################################### Add fftw3 dependency
 
 ### Automatic FFTW3 detection
-set ( CUSTOM_FFTW3_LIB_PATH ""     CACHE STRING "path to libfftw3.a"                      )
-set ( CUSTOM_FFTW3_INC_PATH ""     CACHE STRING "path to fftw3.h"                         )
-
 if    ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
     message         ( STATUS "Custom FFTW3 path was supplied. Checking for the paths containing the library and the include files." )
     
@@ -233,8 +245,6 @@ include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include            
 ################################### Add LAPACK dependency
  
 ### Automatic LAPACK detection
-set                    ( CUSTOM_LAPACK_LIB_PATH "" CACHE STRING "Custom path to LAPACK libs" )
-
 if    ( CUSTOM_LAPACK_LIB_PATH )
     message            ( STATUS "Custom LAPACK path was supplied. Checking for the paths containing the library." )
     file               ( GLOB TESTED_LAPACK_PATH ${CUSTOM_LAPACK_LIB_PATH}/liblapack* )
@@ -262,17 +272,22 @@ endif  ( CUSTOM_LAPACK_LIB_PATH )
 
 ##########################################################################################
 ################################### Set installation folders
-set ( INSTALL_LOCALLY ON CACHE BOOL "Should installation be done locally?" )
 if    ( INSTALL_LOCALLY )
-	set ( MY_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install CACHE STRING "Installation path" )
+	set ( MY_INSTALL_LOCATION     ${CMAKE_SOURCE_DIR}/install         CACHE STRING "Installation path"        )
 	set ( MY_PY2_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install/python2 CACHE STRING "Python2 install location" )
 	set ( MY_PY3_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install/python3 CACHE STRING "Python3 install location" )
 else  ( INSTALL_LOCALLY )
 	set ( MY_INSTALL_LOCATION ${CMAKE_INSTALL_PREFIX} CACHE STRING "Installation path"    )
 	
-	execute_process      ( COMMAND python -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+	execute_process      ( COMMAND python  -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+	if    ( NOT PY_VERSION )
+	    execute_process  ( COMMAND python2 -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
+	endif ( NOT PY_VERSION )
 	string ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                            )
-	execute_process      ( COMMAND python -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
+	execute_process      ( COMMAND python  -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
+	if    ( NOT PY_PREFIX )
+	    execute_process  ( COMMAND python2 -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
+	endif ( NOT PY_PREFIX )
 	string ( REGEX REPLACE "\n$" "" PY_PREFIX "${PY_PREFIX}"                              )
 	string ( CONCAT PYTHON_INSTALL ${PY_PREFIX} "/lib/python"                             )
 	string ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"                    )
@@ -301,11 +316,11 @@ else  ( INSTALL_LOCALLY )
 	else  ( EXISTS ${PYTHON3_INSTALL2} )
 		set ( MY_PY3_INSTALL_LOCATION ${PYTHON3_INSTALL} CACHE PATH "Python3 install location" )
 	endif ( EXISTS ${PYTHON3_INSTALL2} )
-	
 endif ( INSTALL_LOCALLY )
-message                 ( STATUS "Installation is set to       : " ${MY_INSTALL_LOCATION}         )
-message                 ( STATUS "Python 2 Installation        : " ${MY_PY2_INSTALL_LOCATION} )
-message                 ( STATUS "Python 3 Installation        : " ${MY_PY3_INSTALL_LOCATION} )
+
+message              ( STATUS "Installation is set to       : " ${MY_INSTALL_LOCATION}    )
+message              ( STATUS "Python 2 Installation        : " ${MY_PY2_INSTALL_LOCATION})
+message              ( STATUS "Python 3 Installation        : " ${MY_PY3_INSTALL_LOCATION})
 
 ##########################################################################################
 ################################### Build the OBJECTS
@@ -328,11 +343,15 @@ add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/lib                           
 
 ##########################################################################################
 ################################### Link python module
-#add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/python                                  )
+if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+    add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python                                  )
+endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Link python3 module
-add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/python3                                 )
+if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+    add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python3                                 )
+endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 #####################################################################################
 ################################### Remove all the ugly files 
@@ -345,6 +364,7 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeCache.txt
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeFiles
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/Makefile
+					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 				     DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
@@ -407,11 +427,15 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeCache.txt
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeFiles
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/Makefile
+					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/include/ProSHADE.hpp
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/lib/libproshade.dylib
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.pyc
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/_proshade.so
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.py
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/__pycache__
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade.so
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/proshade.py
