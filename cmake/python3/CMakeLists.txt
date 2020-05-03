@@ -44,20 +44,18 @@ execute_process      ( COMMAND python3 -c "import sys; print ( str ( sys.version
 execute_process      ( COMMAND python3 -c "import numpy; print ( numpy.get_include() )" OUTPUT_VARIABLE PY3_INCLUDE_LOC )
 
 ##########################################################################################
-################################### Find python site packages location
-execute_process      ( COMMAND python3 -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
-string               ( REGEX REPLACE "\n$" "" PY_PREFIX "${PY_PREFIX}"                    )
-string               ( CONCAT PYTHON_INSTALL ${PY_PREFIX} "/lib/python"                   )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"          )
-string               ( CONCAT PYTHON_INSTALL ${PYTHON_INSTALL} ${PY_VERSION}              )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"          )
-string               ( CONCAT PYTHON_INSTALL2 ${PYTHON_INSTALL} "/site-packages"          )
-string               ( REGEX REPLACE "\n$" "" PYTHON_INSTALL2 "${PYTHON_INSTALL2}"        )
-if    ( EXISTS ${PYTHON_INSTALL2} )
-	set ( PY3_INSTALL_LOCATION ${PYTHON_INSTALL2}                                         )
-else  ( EXISTS ${PYTHON_INSTALL2} )
-	set ( PY3_INSTALL_LOCATION ${PYTHON_INSTALL}                                          )
-endif ( EXISTS ${PYTHON_INSTALL2} )
+################################### Check if python3 is installed as python3, terminate this target otherwise
+string               ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                  )
+
+if    ( "${PY_VERSION}" STREQUAL "" )
+    message          ( WARNING "Python3 was not detected (i.e. command \"python3\" was not found). ProSHADE installation will assume no python3 is installed and will therefore not produce python3 module." )
+    return           (                                                                    )
+endif ( "${PY_VERSION}" STREQUAL "" )
+
+if     ( ${PY_VERSION} LESS "3" )
+    message          ( WARNING "Python3 was not found (i.e. command \"python3 --version\" returns version < 3). ProSHADE installation will assume no python3 is installed and will therefore not produce python3 module." )
+    return           (                                                                    )
+endif  ( ${PY_VERSION} LESS "3" )
 
 ##########################################################################################
 ################################### Include the source code and the python include
@@ -97,6 +95,22 @@ foreach    ( POS_PATH ${REAL_PYTHON_LIB} )
 	set              ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
         break            ( )
     endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+    
+    # Try the same library name, except with 'm' after the version
+	if    ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} "m.dylib"    )
+    else  ( APPLE )
+        string           ( CONCAT REAL_PYTHON_LIB_HLP2 ${REAL_PYTHON_LIB_HLP} "m.so"       )
+    endif ( APPLE )
+
+    # Remove the trailing endline
+    string               ( REGEX REPLACE "\n$" "" REAL_PYTHON_LIB_HLP2 "${REAL_PYTHON_LIB_HLP2}" )
+
+    # Found?
+    if    ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
+	set              ( PYTHON_LIBRARIES ${REAL_PYTHON_LIB_HLP2}                           )
+        break            ( )
+    endif ( EXISTS ${REAL_PYTHON_LIB_HLP2} )
 endforeach ( POS_PATH ${REAL_PYTHON_LIB} )
 
 # Check for fails
@@ -121,9 +135,9 @@ endif  ( ${CMAKE_MINOR_VERSION} LESS 8 )
 ##########################################################################################
 ################################### Link the dynamic library to the target
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    target_link_libraries (  ${SWIG_MODULE_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
+    target_link_libraries (  ${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    target_link_libraries ( _${SWIG_MODULE_NAME} ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
+    target_link_libraries ( _${PROJECT_NAME}_py3Module ${PROJECT_NAME}_LIB ${PYTHON_LIBRARIES}  )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 ##########################################################################################
@@ -153,23 +167,25 @@ if (APPLE)
 endif()
 
 ##########################################################################################
-################################### Set installation locations and names
+################################### Set installation runpath value, settings and output names
+set   ( PYTHON_INSTALL_RPATH "${MY_INSTALL_LOCATION}/${INSTALL_LIB_DIR}"  "${CMAKE_SOURCE_DIR}/install/lib" )
+
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
-    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
-    set_target_properties (  ${SWIG_MODULE_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
+    set_target_properties (  ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
+    set_target_properties (  ${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties (  ${PROJECT_NAME}_py3Module PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
-    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
-    set_target_properties ( _${SWIG_MODULE_NAME} PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
+    set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
+    set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
+    set_target_properties ( _${PROJECT_NAME}_py3Module PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 
 ##########################################################################################
 ################################### Install rules
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    install           ( TARGETS  ${SWIG_MODULE_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
+    install           ( TARGETS  ${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    install           ( TARGETS _${SWIG_MODULE_NAME} DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
+    install           ( TARGETS _${PROJECT_NAME}_py3Module DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
 install               ( FILES   ${CMAKE_BINARY_DIR}/cmake/python3/proshade.py DESTINATION ${MY_PY3_INSTALL_LOCATION} ) 
 
