@@ -179,13 +179,15 @@ if (APPLE)
 endif()
 
 ##########################################################################################
-################################### Set installation locations and names
+################################### Set installation runpath value, settings and output names
+set   ( PYTHON_INSTALL_RPATH "${MY_INSTALL_LOCATION}/${INSTALL_LIB_DIR}"  "${CMAKE_SOURCE_DIR}/install/lib" )
+
 if    ( ${CMAKE_VERSION} GREATER "3.12" )
-    set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
+    set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
     set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
     set_target_properties (  ${PROJECT_NAME}_py2Module PROPERTIES OUTPUT_NAME ${PROJECT_NAME}  )
 else  ( ${CMAKE_VERSION} GREATER "3.12" )
-    set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH "${MY_INSTALL_LOCATION}/lib" )
+    set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH "${PYTHON_INSTALL_RPATH}" )
     set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE )
     set_target_properties ( _${PROJECT_NAME}_py2Module PROPERTIES OUTPUT_NAME _${PROJECT_NAME}  )
 endif ( ${CMAKE_VERSION} GREATER "3.12" )
