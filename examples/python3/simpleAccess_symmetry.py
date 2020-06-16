@@ -20,8 +20,8 @@
 #
 # \author    Michal Tykac
 # \author    Garib N. Murshudov
-# \version   0.7.1
-# \date      NOV 2019
+# \version   0.7.3
+# \date      MAY 2020
 ##############################################
 ##############################################
 

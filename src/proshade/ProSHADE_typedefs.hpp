@@ -1,26 +1,28 @@
 /*! \file ProSHADE_typedefs.hpp
-  \brief This header contains the type definitions for ProSHADE.
+    \brief This header contains the type definitions for ProSHADE.
  
- The types deined here are used throughout ProSHADE. The use of this is that should
- different type prove to be more appropriate or have different size on different
- platforms, all types can be changed in a single file.
+    The types deined in this header file are used throughout ProSHADE instead of C++ native typees. The use of this is that should
+    different type prove to be more appropriate or have different size on different platforms, all types can be changed in a single file.
  
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    This software is provided by the copyright holder and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
  
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_version.hpp"
 
-//============================================ Standard library
+//==================================================== Standard library
 #include <iostream>
 #include <ctime>
 #include <cmath>
@@ -33,20 +35,20 @@
 #include <tgmath.h>
 #include <getopt.h>
 
-//============================================ Overinclusion protection
+//==================================================== Overinclusion protection
 #ifndef __PROSHADE_TYPEDEFS__
 #define __PROSHADE_TYPEDEFS__
 
-//======================================== The Task data type
+//==================================================== The Task data type
 enum ProSHADE_Task { NA, Distances, Symmetry, OverlayMap, MapManip };
 
-//============================================ ProSHADE Typedefs
-typedef float                                 proshade_single;
-typedef double                                proshade_double;
-typedef signed long int                       proshade_signed;
-typedef unsigned long int                     proshade_unsign;
-typedef double                                proshade_complex[2];
-typedef double                                proshade_triplet[3];
+//==================================================== ProSHADE Typedefs
+typedef float                                         proshade_single;
+typedef double                                        proshade_double;
+typedef signed long int                               proshade_signed;
+typedef unsigned long int                             proshade_unsign;
+typedef double                                        proshade_complex[2];
+typedef double                                        proshade_triplet[3];
 
 #endif
 

@@ -1,22 +1,25 @@
 /*! \file ProSHADE_messages.cpp
- \brief This source contains all message functions.
+    \brief This source file contains all user message functions.
  
- The functions defined in here are used by ProSHADE to report various things to the user either using stdout (for progress messages) or the stderr
- (for error messages).
+    The functions defined in this source file are used by ProSHADE to report various things to the user either using stdout (for progress messages) or the stderr
+    (for error messages).
  
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
- 
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
- */
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
 
-//============================================ ProSHADE
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    This software is provided by the copyright holder and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
+    
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+       \date      JUN 2020
+*/
+
+//==================================================== ProSHADE
 #include "ProSHADE_messages.hpp"
 
 /*! \brief Wellcome message printing.
@@ -32,7 +35,8 @@ void ProSHADE_internal_messages::printWellcomeMessage ( proshade_signed verbose 
         std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
     }
     
-    //======================================== Done
+    //================================================ Done
+    return ;
     
 }
 
@@ -49,7 +53,8 @@ void ProSHADE_internal_messages::printTerminateMessage ( proshade_signed verbose
         std::cout << std::endl << "======================" << std::endl << "ProSHADE run complete." << std::endl << "Time taken: " << std::clock() / CLOCKS_PER_SEC << " seconds." << std::endl << "======================" << std::endl << std::endl << std::flush;
     }
     
-    //======================================== Done
+    //================================================ Done
+    return ;
     
 }
 
@@ -79,7 +84,8 @@ void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose,
         std::cout << message << std::endl << std::flush;
     }
     
-    //======================================== Done
+    //================================================ Done
+    return ;
     
 }
 
@@ -101,7 +107,8 @@ void ProSHADE_internal_messages::printWarningMessage ( proshade_signed verbose, 
         
     }
     
-    //======================================== Done
+    //================================================ Done
+    return ;
     
 }
 
@@ -110,7 +117,7 @@ void ProSHADE_internal_messages::printWarningMessage ( proshade_signed verbose, 
  */
 void ProSHADE_internal_messages::printHelp ( void )
 {
-    //======================================== Print the help screen
+    //================================================ Print the help screen
     std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
     std::cout << "                                                                                " << std::endl << std::flush;
     std::cout << "DESCRIPTION:                                                                    " << std::endl;
@@ -325,7 +332,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "                                                                                " << std::endl;
     std::cout << std::endl << std::flush;
     
-    //======================================== Done
-    exit                                      ( 0 );
+    //================================================ Done
+    exit                                              ( EXIT_SUCCESS );
     
 }

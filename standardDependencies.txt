@@ -6,6 +6,12 @@ Standard dependencies:
   This list is not exhaustive, but with these ProSHADE did install and run on clean system
   installations.
 
+==========
+Windows 10 
+==========
+
+Not supported yet.
+
 =============
 Ubuntu 18.4.4 
 =============
