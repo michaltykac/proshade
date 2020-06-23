@@ -1,21 +1,27 @@
 /*! \file ProSHADE_data.cpp
- \brief ...
+    \brief This is the source file containing internal data representation and manipulation structures and functions.
  
- ...
- 
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
- 
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    This source file contains the ProSHADE_data class definitions as well as the code for simple manipulations with the data
+    (more complex manipulations are done in dedicated source files) and caller functions for the more complex manipulations.
+    The class described here is how ProSHADE stores the structural data internally; however, the user should not need to access
+    any of this code manually, as changes to this structure may have large consequences unforseen by the user.
+   
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+     
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+     
+    This software is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In     no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data     or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility     of such damage.
+     
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_data.hpp"
 
 /*! \brief Constructor for getting empty ProSHADE_data class.
@@ -28,68 +34,71 @@
  */
 ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settings )
 {
-    //======================================== Initialise variables
+    //================================================ Initialise variables
     // ... Variables regarding input file
-    this->fileName                            = "";
-    this->fileType                            = ProSHADE_internal_io::UNKNOWN;
+    this->fileName                                    = "";
+    this->fileType                                    = ProSHADE_internal_io::UNKNOWN;
     
     // ... Variables regarding map
-    this->internalMap                         = NULL;
+    this->internalMap                                 = NULL;
     
     // ... Variables regarding map information
-    this->xDimSize                            = 0.0;
-    this->yDimSize                            = 0.0;
-    this->zDimSize                            = 0.0;
-    this->aAngle                              = 0.0;
-    this->bAngle                              = 0.0;
-    this->cAngle                              = 0.0;
-    this->xDimIndices                         = 0;
-    this->yDimIndices                         = 0;
-    this->zDimIndices                         = 0;
-    this->xGridIndices                        = 0;
-    this->yGridIndices                        = 0;
-    this->zGridIndices                        = 0;
-    this->xAxisOrder                          = 1;
-    this->yAxisOrder                          = 2;
-    this->zAxisOrder                          = 3;
-    this->xAxisOrigin                         = 0;
-    this->yAxisOrigin                         = 0;
-    this->zAxisOrigin                         = 0;
-    this->comMovX                             = 0.0;
-    this->comMovY                             = 0.0;
-    this->comMovZ                             = 0.0;
+    this->xDimSize                                    = 0.0;
+    this->yDimSize                                    = 0.0;
+    this->zDimSize                                    = 0.0;
+    this->aAngle                                      = 0.0;
+    this->bAngle                                      = 0.0;
+    this->cAngle                                      = 0.0;
+    this->xDimIndices                                 = 0;
+    this->yDimIndices                                 = 0;
+    this->zDimIndices                                 = 0;
+    this->xGridIndices                                = 0;
+    this->yGridIndices                                = 0;
+    this->zGridIndices                                = 0;
+    this->xAxisOrder                                  = 1;
+    this->yAxisOrder                                  = 2;
+    this->zAxisOrder                                  = 3;
+    this->xAxisOrigin                                 = 0;
+    this->yAxisOrigin                                 = 0;
+    this->zAxisOrigin                                 = 0;
+    this->comMovX                                     = 0.0;
+    this->comMovY                                     = 0.0;
+    this->comMovZ                                     = 0.0;
+    this->xCom                                        = 0.0;
+    this->yCom                                        = 0.0;
+    this->zCom                                        = 0.0;
     
     // ... Variables regarding iterator positions
-    this->xFrom                               = 0;
-    this->yFrom                               = 0;
-    this->zFrom                               = 0;
-    this->xTo                                 = 0;
-    this->yTo                                 = 0;
-    this->zTo                                 = 0;
+    this->xFrom                                       = 0;
+    this->yFrom                                       = 0;
+    this->zFrom                                       = 0;
+    this->xTo                                         = 0;
+    this->yTo                                         = 0;
+    this->zTo                                         = 0;
     
     // ... Variables regarding SH mapping spheres
-    this->spherePos                           = std::vector<proshade_single> ( );
-    this->noSpheres                           = 0;
-    this->spheres                             = NULL;
-    this->sphericalHarmonics                  = NULL;
-    this->rotSphericalHarmonics               = NULL;
-    this->maxShellBand                        = 0;
+    this->spherePos                                   = std::vector<proshade_single> ( );
+    this->noSpheres                                   = 0;
+    this->spheres                                     = NULL;
+    this->sphericalHarmonics                          = NULL;
+    this->rotSphericalHarmonics                       = NULL;
+    this->maxShellBand                                = 0;
     
     // ... Variables regarding shape distance computations
-    this->rrpMatrices                         = NULL;
-    this->eMatrices                           = NULL;
-    this->so3Coeffs                           = NULL;
-    this->so3CoeffsInverse                    = NULL;
-    this->wignerMatrices                      = NULL;
-    this->integrationWeight                   = 0.0;
-    this->maxCompBand                         = 0;
-    this->translationMap                      = NULL;
+    this->rrpMatrices                                 = NULL;
+    this->eMatrices                                   = NULL;
+    this->so3Coeffs                                   = NULL;
+    this->so3CoeffsInverse                            = NULL;
+    this->wignerMatrices                              = NULL;
+    this->integrationWeight                           = 0.0;
+    this->maxCompBand                                 = 0;
+    this->translationMap                              = NULL;
     
     
     // ... Control variables
-    this->isEmpty                             = true;
+    this->isEmpty                                     = true;
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -121,99 +130,102 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
  */
 ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settings, std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz, proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr, proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT, proshade_unsign inputO )
 {
-    //======================================== Initialise variables
+    //================================================ Initialise variables
     // ... Variables regarding input file
-    this->fileName                            = strName;
-    this->fileType                            = ProSHADE_internal_io::MAP;
+    this->fileName                                    = strName;
+    this->fileType                                    = ProSHADE_internal_io::MAP;
     
     // ... Variables regarding map
-    this->internalMap                         = NULL;
+    this->internalMap                                 = NULL;
     
     // ... Variables regarding map information
-    this->xDimSize                            = xDmSz;
-    this->yDimSize                            = yDmSz;
-    this->zDimSize                            = zDmSz;
-    this->aAngle                              = 90.0;
-    this->bAngle                              = 90.0;
-    this->cAngle                              = 90.0;
-    this->xDimIndices                         = xDmInd;
-    this->yDimIndices                         = yDmInd;
-    this->zDimIndices                         = zDmInd;
-    this->xGridIndices                        = xDmInd;
-    this->yGridIndices                        = yDmInd;
-    this->zGridIndices                        = zDmInd;
-    this->xAxisOrder                          = 1;
-    this->yAxisOrder                          = 2;
-    this->zAxisOrder                          = 3;
-    this->xAxisOrigin                         = xFr;
-    this->yAxisOrigin                         = yFr;
-    this->zAxisOrigin                         = zFr;
-    this->comMovX                             = 0.0;
-    this->comMovY                             = 0.0;
-    this->comMovZ                             = 0.0;
+    this->xDimSize                                    = xDmSz;
+    this->yDimSize                                    = yDmSz;
+    this->zDimSize                                    = zDmSz;
+    this->aAngle                                      = 90.0;
+    this->bAngle                                      = 90.0;
+    this->cAngle                                      = 90.0;
+    this->xDimIndices                                 = xDmInd;
+    this->yDimIndices                                 = yDmInd;
+    this->zDimIndices                                 = zDmInd;
+    this->xGridIndices                                = xDmInd;
+    this->yGridIndices                                = yDmInd;
+    this->zGridIndices                                = zDmInd;
+    this->xAxisOrder                                  = 1;
+    this->yAxisOrder                                  = 2;
+    this->zAxisOrder                                  = 3;
+    this->xAxisOrigin                                 = xFr;
+    this->yAxisOrigin                                 = yFr;
+    this->zAxisOrigin                                 = zFr;
+    this->comMovX                                     = 0.0;
+    this->comMovY                                     = 0.0;
+    this->comMovZ                                     = 0.0;
+    this->xCom                                        = 0.0;
+    this->yCom                                        = 0.0;
+    this->zCom                                        = 0.0;
     
     // ... Variables regarding iterator positions
-    this->xFrom                               = xFr;
-    this->yFrom                               = yFr;
-    this->zFrom                               = zFr;
-    this->xTo                                 = xT;
-    this->yTo                                 = yT;
-    this->zTo                                 = zT;
+    this->xFrom                                       = xFr;
+    this->yFrom                                       = yFr;
+    this->zFrom                                       = zFr;
+    this->xTo                                         = xT;
+    this->yTo                                         = yT;
+    this->zTo                                         = zT;
     
     // ... Variables regarding SH mapping spheres
-    this->spherePos                           = std::vector<proshade_single> ( );
-    this->noSpheres                           = 0;
-    this->spheres                             = NULL;
-    this->sphericalHarmonics                  = NULL;
-    this->rotSphericalHarmonics               = NULL;
-    this->maxShellBand                        = 0;
+    this->spherePos                                   = std::vector<proshade_single> ( );
+    this->noSpheres                                   = 0;
+    this->spheres                                     = NULL;
+    this->sphericalHarmonics                          = NULL;
+    this->rotSphericalHarmonics                       = NULL;
+    this->maxShellBand                                = 0;
     
     // ... Variables regarding shape distance computations
-    this->rrpMatrices                         = NULL;
-    this->eMatrices                           = NULL;
-    this->so3Coeffs                           = NULL;
-    this->so3CoeffsInverse                    = NULL;
-    this->wignerMatrices                      = NULL;
-    this->integrationWeight                   = 0.0;
-    this->maxCompBand                         = 0;
-    this->translationMap                      = NULL;
-    
+    this->rrpMatrices                                 = NULL;
+    this->eMatrices                                   = NULL;
+    this->so3Coeffs                                   = NULL;
+    this->so3CoeffsInverse                            = NULL;
+    this->wignerMatrices                              = NULL;
+    this->integrationWeight                           = 0.0;
+    this->maxCompBand                                 = 0;
+    this->translationMap                              = NULL;
+        
     // ... Control variables
-    this->isEmpty                             = false;
-    this->inputOrder                          = inputO;
+    this->isEmpty                                     = false;
+    this->inputOrder                                  = inputO;
     
-    //======================================== Sanity checks
+    //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( len ) != ( xDmInd * yDmInd * zDmInd ) )
     {
-        throw ProSHADE_exception ( "Structure class input map has wrong dimensions.", "EP00043", "ProSHADE_data.cpp", 125, "ProSHADE_data class constructor", "The supplied map array size has different dimensions to\n                    : the required map dimensions." );
+        throw ProSHADE_exception ( "Structure class input map has wrong dimensions.", "EP00043", __FILE__, __LINE__, __func__, "The supplied map array size has different dimensions to\n                    : the required map dimensions." );
     }
     
     if ( ( static_cast<proshade_signed> ( xT - xFr ) != static_cast<proshade_signed> ( xDmInd - 1 ) ) ||
          ( static_cast<proshade_signed> ( yT - yFr ) != static_cast<proshade_signed> ( yDmInd - 1 ) ) ||
          ( static_cast<proshade_signed> ( zT - zFr ) != static_cast<proshade_signed> ( zDmInd - 1 ) ) )
     {
-        throw ProSHADE_exception ( "Structure class input dimensions not in line with map\n                    : to/from indices.", "EP00044", "ProSHADE_data.cpp", 130, "ProSHADE_data class constructor", "The supplied map information does not add up. The\n                    : dimensions are not in line with the indexing start/stop\n                    : position distances and therefore proper map indexing\n                    : cannot be done. Please check the input values." );
+        throw ProSHADE_exception ( "Structure class input dimensions not in line with map\n                    : to/from indices.", "EP00044", __FILE__, __LINE__, __func__, "The supplied map information does not add up. The\n                    : dimensions are not in line with the indexing start/stop\n                    : position distances and therefore proper map indexing\n                    : cannot be done. Please check the input values." );
     }
     
-    //======================================== Allocate the map memory
-    this->internalMap                         = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->internalMap, "ProSHADE_data.cpp", 197, "ProSHADE_data constructor" );
+    //================================================ Allocate the map memory
+    this->internalMap                                 = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->internalMap, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy the values into the map
-    proshade_unsign arrPos                    = 0;
+    //================================================ Copy the values into the map
+    proshade_unsign arrPos                            = 0;
     for ( proshade_unsign xIt = 0; xIt < this->xDimIndices; xIt++ )
     {
         for ( proshade_unsign yIt = 0; yIt < this->yDimIndices; yIt++ )
         {
             for ( proshade_unsign zIt = 0; zIt < this->zDimIndices; zIt++ )
             {
-                arrPos                        = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
-                this->internalMap[arrPos]     = static_cast<proshade_double> ( mapVals[arrPos] );
+                arrPos                                = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
+                this->internalMap[arrPos]             = static_cast<proshade_double> ( mapVals[arrPos] );
             }
         }
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -225,13 +237,13 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
  */
 ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
 {
-    //======================================== Release the internal map
+    //================================================ Release the internal map
     if ( this->internalMap != NULL )
     {
         delete[] this->internalMap;
     }
     
-    //======================================== Release the sphere mapping
+    //================================================ Release the sphere mapping
     if ( this->spheres != NULL )
     {
         for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
@@ -239,13 +251,13 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
             if ( this->spheres[iter] != NULL )
             {
                 delete this->spheres[iter];
-                this->spheres[iter]           = NULL;
+                this->spheres[iter]                   = NULL;
             }
         }
         delete[] this->spheres;
     }
     
-    //======================================== Release the spherical harmonics
+    //================================================ Release the spherical harmonics
     if ( this->sphericalHarmonics != NULL )
     {
         for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
@@ -253,13 +265,13 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
             if ( this->sphericalHarmonics[iter] != NULL )
             {
                 delete[] this->sphericalHarmonics[iter];
-                this->sphericalHarmonics[iter] = NULL;
+                this->sphericalHarmonics[iter]        = NULL;
             }
         }
         delete[] this->sphericalHarmonics;
     }
     
-    //======================================== Release the rotated spherical harmonics
+    //================================================ Release the rotated spherical harmonics
     if ( this->rotSphericalHarmonics != NULL )
     {
         for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
@@ -267,13 +279,13 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
             if ( this->rotSphericalHarmonics[iter] != NULL )
             {
                 delete[] this->rotSphericalHarmonics[iter];
-                this->rotSphericalHarmonics[iter] = NULL;
+                this->rotSphericalHarmonics[iter]     = NULL;
             }
         }
         delete[] this->rotSphericalHarmonics;
     }
     
-    //======================================== Release the RRP matrices (pre-computation for the energy levels descriptor)
+    //================================================ Release the RRP matrices (pre-computation for the energy levels descriptor)
     if ( this->rrpMatrices != NULL )
     {
         for ( proshade_unsign bwIt = 0; bwIt < this->maxShellBand; bwIt++ )
@@ -295,7 +307,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
         delete[] this->rrpMatrices;
     }
     
-    //======================================== Release the E matrices
+    //================================================ Release the E matrices
     if ( this->eMatrices != NULL )
     {
         for ( proshade_unsign bandIter = 0; bandIter < this->maxCompBand; bandIter++ )
@@ -317,7 +329,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
         delete[] this->eMatrices;
     }
     
-    //======================================== Release SOFT and inverse SOFT coefficients
+    //================================================ Release SOFT and inverse SOFT coefficients
     if ( this->so3Coeffs != NULL )
     {
         delete[] this->so3Coeffs;
@@ -327,7 +339,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
         delete[] this->so3CoeffsInverse;
     }
     
-    //======================================== Release Wigner matrices
+    //================================================ Release Wigner matrices
     if ( this->wignerMatrices != NULL )
     {
         for ( proshade_unsign bandIter = 1; bandIter < this->maxCompBand; bandIter++ )
@@ -347,13 +359,13 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
         delete[] wignerMatrices;
     }
     
-    //======================================== Release translation map
+    //================================================ Release translation map
     if ( this->translationMap != NULL )
     {
         delete[] this->translationMap;
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -368,47 +380,47 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
  */
 void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting to read the structure: " + fName );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting to read the structure: " + fName );
     
-    //======================================== Check if instance is empty
+    //================================================ Check if instance is empty
     if ( !this->isEmpty )
     {
-        throw ProSHADE_exception ( "Structure data class not empty.", "E000005", "ProSHADE_data.cpp", 108, "ProSHADE_data class function readInStructure()", "Attempted to read in structure into a ProSHADE_data\n                    : object which already does have structure read in\n                    : i.e. " + this->fileName );
+        throw ProSHADE_exception ( "Structure data class not empty.", "E000005", __FILE__, __LINE__, __func__, "Attempted to read in structure into a ProSHADE_data\n                    : object which already does have structure read in\n                    : i.e. " + this->fileName );
     }
     
-    //======================================== Save the filename
-    this->fileName                            = fName;
+    //================================================ Save the filename
+    this->fileName                                    = fName;
     
-    //======================================== Check what is the input format
-    this->fileType                            = ProSHADE_internal_io::figureDataType ( this->fileName );
+    //================================================ Check what is the input format
+    this->fileType                                    = ProSHADE_internal_io::figureDataType ( this->fileName );
     
-    //======================================== Save input order
-    this->inputOrder                          = inputO;
+    //================================================ Save input order
+    this->inputOrder                                  = inputO;
     
-    //======================================== Decide how to proceed
+    //================================================ Decide how to proceed
     switch ( this->fileType )
     {
         case ProSHADE_internal_io::UNKNOWN:
-            throw ProSHADE_exception ( "Unknown file type.", "E000006", "ProSHADE_data.cpp", 121, "ProSHADE_data class function readInStructure()", "When attempting to read the file\n                    : " + this->fileName + "\n                    : the file extension was determined as unknown. This could\n                    : mean either that the file does not exist, or that it is\n                    : not one of the supported extensions." );
+            throw ProSHADE_exception ( "Unknown file type.", "E000006", __FILE__, __LINE__, __func__, "When attempting to read the file\n                    : " + this->fileName + "\n                    : the file extension was determined as unknown. This could\n                    : mean either that the file does not exist, or that it is\n                    : not one of the supported extensions." );
             break;
         
         case ProSHADE_internal_io::PDB:
-            this->readInPDB                   ( settings );
+            this->readInPDB                           ( settings );
             break;
         
         case ProSHADE_internal_io::MAP:
-            this->readInMAP                   ( settings );
+            this->readInMAP                           ( settings );
             break;
     }
     
-    //======================================== This structure is now full
-    this->isEmpty                             = false;
+    //================================================ This structure is now full
+    this->isEmpty                                     = false;
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Structure read in successfully." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -422,50 +434,50 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
  */
 void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
 {
-    //======================================== Initialise local variables
-    CMap_io::CMMFile *mapFile                 = NULL;
-    int myMapMode                             = O_RDONLY;
+    //================================================ Initialise local variables
+    CMap_io::CMMFile *mapFile                         = NULL;
+    int myMapMode                                     = O_RDONLY;
     
-    //======================================== Open file for reading and check
-    mapFile                                   = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( this->fileName.c_str() , myMapMode ) );
-    ProSHADE_internal_misc::checkMemoryAllocation ( mapFile, "ProSHADE_data.cpp", 159, "ProSHADE_data class function readInMap()" );
+    //================================================ Open file for reading and check
+    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( this->fileName.c_str() , myMapMode ) );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mapFile, __FILE__, __LINE__, __func__ );
     
-    //======================================== Read in header
-    ProSHADE_internal_io::readInMapCell       ( mapFile, &this->xDimSize, &this->yDimSize, &this->zDimSize, &this->aAngle, &this->bAngle, &this->cAngle );
-    ProSHADE_internal_io::readInMapDim        ( mapFile, &this->xDimIndices, &this->yDimIndices, &this->zDimIndices );
-    ProSHADE_internal_io::readInMapGrid       ( mapFile, &this->xGridIndices, &this->yGridIndices, &this->zGridIndices );
-    ProSHADE_internal_io::readInMapOrder      ( mapFile, &this->xAxisOrder, &this->yAxisOrder, &this->zAxisOrder );
-    ProSHADE_internal_io::readInMapOrigin     ( mapFile, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
+    //================================================ Read in header
+    ProSHADE_internal_io::readInMapCell               ( mapFile, &this->xDimSize, &this->yDimSize, &this->zDimSize, &this->aAngle, &this->bAngle, &this->cAngle );
+    ProSHADE_internal_io::readInMapDim                ( mapFile, &this->xDimIndices, &this->yDimIndices, &this->zDimIndices );
+    ProSHADE_internal_io::readInMapGrid               ( mapFile, &this->xGridIndices, &this->yGridIndices, &this->zGridIndices );
+    ProSHADE_internal_io::readInMapOrder              ( mapFile, &this->xAxisOrder, &this->yAxisOrder, &this->zAxisOrder );
+    ProSHADE_internal_io::readInMapOrigin             ( mapFile, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
     
-    //======================================== Read in data
-    ProSHADE_internal_io::readInMapData       ( mapFile, this->internalMap, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin,
-                                                this->xDimIndices, this->yDimIndices, this->zDimIndices,
-                                                this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    //================================================ Read in data
+    ProSHADE_internal_io::readInMapData               ( mapFile, this->internalMap, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                        this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
-    //======================================== Close the map file
-    CMap_io::ccp4_cmap_close                  ( mapFile );
+    //================================================ Close the map file
+    CMap_io::ccp4_cmap_close                          ( mapFile );
     
-    //======================================== Switch axes to XYZ order
-    this->switchAxes                          ( );
-    
-    //======================================== Set resolution if need be
+    //================================================ Switch axes to XYZ order
+    this->switchAxes                                  ( );
+     
+    //================================================ Set resolution if need be
     if ( settings->requestedResolution < 0.0 )
     {
-        settings->setResolution               ( std::min ( static_cast<proshade_double> ( this->xDimSize ) / static_cast<proshade_double> ( this->xDimIndices ),
-                                                std::min ( static_cast<proshade_double> ( this->yDimSize ) / static_cast<proshade_double> ( this->yDimIndices ),
-                                                           static_cast<proshade_double> ( this->zDimSize ) / static_cast<proshade_double> ( this->zDimIndices ) ) ) * 2.0 );
+        settings->setResolution                       ( std::min ( static_cast<proshade_double> ( this->xDimSize ) / static_cast<proshade_double> ( this->xDimIndices ),
+                                                        std::min ( static_cast<proshade_double> ( this->yDimSize ) / static_cast<proshade_double> ( this->yDimIndices ),
+                                                                   static_cast<proshade_double> ( this->zDimSize ) / static_cast<proshade_double> ( this->zDimIndices ) ) ) * 2.0 );
     }
     
-    //======================================== Set iterators from and to
-    this->figureIndexStartStop                ( );
+    //================================================ Set iterators from and to
+    this->figureIndexStartStop                        ( );
     
-    //======================================== If specific resolution is requested, make sure the map has it
+    //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution )
     {
-        this->reSampleMap                     ( settings );
+        this->reSampleMap                             ( settings );
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -478,61 +490,64 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
  */
 void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* settings )
 {
-    //======================================== Set resolution if need be
+    //================================================ Set resolution if need be
     if ( settings->requestedResolution < 0.0 )
     {
-        settings->setResolution               ( 8.0 );
+        settings->setResolution                       ( 8.0 );
     }
     
-    //======================================== Open PDB file for reading
-    clipper::mmdb::CMMDBManager *pdbFile      = new clipper::mmdb::CMMDBManager ( );
+    //================================================ Open PDB file for reading
+    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
     if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
     {
-        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", "ProSHADE_data.cpp", 199, "ProSHADE_data class  function readInPDB()", "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
+        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
     }
     
-    //======================================== Find the ranges
+    //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
     int noAtoms;
-    ProSHADE_internal_mapManip::determinePDBRanges  ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, &noAtoms );
+    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, &noAtoms );
     
-    //======================================== Change B-factors if need be
+    //================================================ Change B-factors if need be
     if ( settings->pdbBFactorNewVal >= 0.0 )
     {
         ProSHADE_internal_mapManip::changePDBBFactors ( pdbFile, settings->pdbBFactorNewVal );
     }
     
-    //======================================== Move ranges to have all FROM values 20
-    proshade_single xMov                      = 20.0 - xF;
-    proshade_single yMov                      = 20.0 - yF;
-    proshade_single zMov                      = 20.0 - zF;
-    ProSHADE_internal_mapManip::movePDBForClipper ( pdbFile, xMov, yMov, zMov );
+    //================================================ Move ranges to have all FROM values 20
+    proshade_single xMov                              = 20.0 - xF;
+    proshade_single yMov                              = 20.0 - yF;
+    proshade_single zMov                              = 20.0 - zF;
+    ProSHADE_internal_mapManip::movePDBForClipper     ( pdbFile, xMov, yMov, zMov );
     
-    //======================================== Set the angstrom sizes
-    this->xDimSize                            = xT - xF + 40.0;
-    this->yDimSize                            = yT - yF + 40.0;
-    this->zDimSize                            = zT - zF + 40.0;
+    //================================================ Set the angstrom sizes
+    this->xDimSize                                    = xT - xF + 40.0;
+    this->yDimSize                                    = yT - yF + 40.0;
+    this->zDimSize                                    = zT - zF + 40.0;
     
-    //======================================== Generate map from nicely placed atoms (cell size will be range + 40)
-    ProSHADE_internal_mapManip::generateMapFromPDB ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, noAtoms, &this->xTo, &this->yTo, &this->zTo );
+    //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
+    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, noAtoms, &this->xTo, &this->yTo, &this->zTo );
     
-    //======================================== Set the internal variables to correct values
-    this->setPDBMapValues                     ( );
+    //================================================ Set the internal variables to correct values
+    this->setPDBMapValues                             ( );
     
-    //======================================== Move map back to the original PDB location
-    ProSHADE_internal_mapManip::moveMapByIndices ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
-    ProSHADE_internal_mapManip::moveMapByFourier ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    //================================================ Move map back to the original PDB location
+    ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
+                                                        &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices );
     
-    //======================================== Release the PDB file
+    //================================================ Release the PDB file
     delete pdbFile;
     
-    //======================================== If specific resolution is requested, make sure the map has it
+    //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution )
     {
-        this->reSampleMap                     ( settings );
+        this->reSampleMap                             ( settings );
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -542,37 +557,37 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
  */
 void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 {
-    //======================================== Set starts to 0 (all clipper maps have this)
-    this->xFrom                               = 0;
-    this->yFrom                               = 0;
-    this->zFrom                               = 0;
+    //================================================ Set starts to 0 (all clipper maps have this)
+    this->xFrom                                       = 0;
+    this->yFrom                                       = 0;
+    this->zFrom                                       = 0;
     
-    //======================================== Set angles to 90 degrees
-    this->aAngle                              = 90.0;
-    this->bAngle                              = 90.0;
-    this->cAngle                              = 90.0;
+    //================================================ Set angles to 90 degrees
+    this->aAngle                                      = 90.0;
+    this->bAngle                                      = 90.0;
+    this->cAngle                                      = 90.0;
     
-    //======================================== Set dimension sizes in indices
-    this->xDimIndices                         = this->xTo + 1;
-    this->yDimIndices                         = this->yTo + 1;
-    this->zDimIndices                         = this->zTo + 1;
+    //================================================ Set dimension sizes in indices
+    this->xDimIndices                                 = this->xTo + 1;
+    this->yDimIndices                                 = this->yTo + 1;
+    this->zDimIndices                                 = this->zTo + 1;
     
-    //======================================== Set grid indexing to cell indexing
-    this->xGridIndices                        = this->xDimIndices;
-    this->yGridIndices                        = this->yDimIndices;
-    this->zGridIndices                        = this->zDimIndices;
+    //================================================ Set grid indexing to cell indexing
+    this->xGridIndices                                = this->xDimIndices;
+    this->yGridIndices                                = this->yDimIndices;
+    this->zGridIndices                                = this->zDimIndices;
     
-    //======================================== Set axis order
-    this->xAxisOrder                          = 1;
-    this->yAxisOrder                          = 2;
-    this->zAxisOrder                          = 3;
+    //================================================ Set axis order
+    this->xAxisOrder                                  = 1;
+    this->yAxisOrder                                  = 2;
+    this->zAxisOrder                                  = 3;
     
-    //======================================== Set origin to the first index
-    this->xAxisOrigin                         = this->xFrom;
-    this->yAxisOrigin                         = this->yFrom;
-    this->zAxisOrigin                         = this->zFrom;
+    //================================================ Set origin to the first index
+    this->xAxisOrigin                                 = this->xFrom;
+    this->yAxisOrigin                                 = this->yFrom;
+    this->zAxisOrigin                                 = this->zFrom;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -583,17 +598,17 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
  */
 void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
 {
-    //======================================== Set starts to origin
-    this->xFrom                               = this->xAxisOrigin;
-    this->yFrom                               = this->yAxisOrigin;
-    this->zFrom                               = this->zAxisOrigin;
+    //================================================ Set starts to origin
+    this->xFrom                                       = this->xAxisOrigin;
+    this->yFrom                                       = this->yAxisOrigin;
+    this->zFrom                                       = this->zAxisOrigin;
     
-    //======================================== Set ends to origin + size - 1
-    this->xTo                                 = this->xFrom + this->xDimIndices - 1;
-    this->yTo                                 = this->yFrom + this->yDimIndices - 1;
-    this->zTo                                 = this->zFrom + this->zDimIndices - 1;
+    //================================================ Set ends to origin + size - 1
+    this->xTo                                         = this->xFrom + this->xDimIndices - 1;
+    this->yTo                                         = this->yFrom + this->yDimIndices - 1;
+    this->zTo                                         = this->zFrom + this->zDimIndices - 1;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -604,173 +619,172 @@ void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
  */
 void ProSHADE_internal_data::ProSHADE_data::switchAxes ( void )
 {
-    //======================================== Establish the axes order
+    //================================================ Establish the axes order
     if ( ( this->xAxisOrder == 1 ) && ( this->yAxisOrder == 2 ) )
     {
-        //==================================== Order is XYZ - Nothing to be done
+        //============================================ Order is XYZ - Nothing to be done
         return ;
     }
     
     if ( ( this->xAxisOrder == 1 ) && ( this->yAxisOrder == 3 ) )
     {
-        //==================================== Order is XZY
-        proshade_single tmp                   = this->yDimSize;
-        this->yDimSize                        = this->zDimSize;
-        this->zDimSize                        = tmp;
-        
-        tmp                                   = this->bAngle;
-        this->bAngle                          = this->cAngle;
-        this->cAngle                          = tmp;
-        
-        proshade_signed tmps                  = this->yDimIndices;
-        this->yDimIndices                     = this->zDimIndices;
-        this->zDimIndices                     = tmps;
-        
-        tmps                                  = this->yGridIndices;
-        this->yGridIndices                    = this->zGridIndices;
-        this->zGridIndices                    = tmps;
-        
-        tmps                                  = this->yAxisOrigin;
-        this->yAxisOrigin                     = this->zAxisOrigin;
-        this->zAxisOrigin                     = tmps;
-        
-        this->yAxisOrder                      = 2;
-        this->zAxisOrder                      = 3;
+        //============================================ Order is XZY
+        proshade_single tmp                           = this->yDimSize;
+        this->yDimSize                                = this->zDimSize;
+        this->zDimSize                                = tmp;
+                
+        tmp                                           = this->bAngle;
+        this->bAngle                                  = this->cAngle;
+        this->cAngle                                  = tmp;
+                
+        proshade_signed tmps                          = this->yDimIndices;
+        this->yDimIndices                             = this->zDimIndices;
+        this->zDimIndices                             = tmps;
+                
+        tmps                                          = this->yGridIndices;
+        this->yGridIndices                            = this->zGridIndices;
+        this->zGridIndices                            = tmps;
+                
+        tmps                                          = this->yAxisOrigin;
+        this->yAxisOrigin                             = this->zAxisOrigin;
+        this->zAxisOrigin                             = tmps;
+                
+        this->yAxisOrder                              = 2;
+        this->zAxisOrder                              = 3;
         
         return ;
     }
     
     if ( ( this->xAxisOrder == 2 ) && ( this->yAxisOrder == 1 ) )
     {
-        //==================================== Order is YXZ
-        proshade_single tmp                   = this->xDimSize;
-        this->xDimSize                        = this->yDimSize;
-        this->yDimSize                        = tmp;
-        
-        tmp                                   = this->aAngle;
-        this->aAngle                          = this->bAngle;
-        this->bAngle                          = tmp;
-        
-        proshade_signed tmps                  = this->xDimIndices;
-        this->xDimIndices                     = this->yDimIndices;
-        this->yDimIndices                     = tmps;
-        
-        tmps                                  = this->xGridIndices;
-        this->xGridIndices                    = this->yGridIndices;
-        this->yGridIndices                    = tmps;
-        
-        tmps                                  = this->xAxisOrigin;
-        this->xAxisOrigin                     = this->yAxisOrigin;
-        this->yAxisOrigin                     = tmps;
-        
-        this->xAxisOrder                      = 1;
-        this->yAxisOrder                      = 2;
+        //============================================ Order is YXZ
+        proshade_single tmp                           = this->xDimSize;
+        this->xDimSize                                = this->yDimSize;
+        this->yDimSize                                = tmp;
+                
+        tmp                                           = this->aAngle;
+        this->aAngle                                  = this->bAngle;
+        this->bAngle                                  = tmp;
+                
+        proshade_signed tmps                          = this->xDimIndices;
+        this->xDimIndices                             = this->yDimIndices;
+        this->yDimIndices                             = tmps;
+                
+        tmps                                          = this->xGridIndices;
+        this->xGridIndices                            = this->yGridIndices;
+        this->yGridIndices                            = tmps;
+                
+        tmps                                          = this->xAxisOrigin;
+        this->xAxisOrigin                             = this->yAxisOrigin;
+        this->yAxisOrigin                             = tmps;
+                
+        this->xAxisOrder                              = 1;
+        this->yAxisOrder                              = 2;
         
         return ;
     }
     
     if ( ( this->xAxisOrder == 2 ) && ( this->yAxisOrder == 3 ) )
     {
-        //==================================== Order is YZX
-        proshade_single tmp                   = this->yDimSize;
-        this->yDimSize                        = this->xDimSize;
-        this->xDimSize                        = this->zDimSize;
-        this->zDimSize                        = tmp;
-        
-        tmp                                   = this->bAngle;
-        this->bAngle                          = this->aAngle;
-        this->aAngle                          = this->cAngle;
-        this->cAngle                          = tmp;
-        
-        proshade_signed tmps                  = this->yDimIndices;
-        this->yDimIndices                     = this->xDimIndices;
-        this->xDimIndices                     = this->zDimIndices;
-        this->zDimIndices                     = tmps;
-        
-        tmps                                  = this->yGridIndices;
-        this->yGridIndices                    = this->xGridIndices;
-        this->xGridIndices                    = this->zGridIndices;
-        this->zGridIndices                    = tmps;
-        
-        tmps                                  = this->yAxisOrigin;
-        this->yAxisOrigin                     = this->xAxisOrigin;
-        this->xAxisOrigin                     = this->zAxisOrigin;
-        this->zAxisOrigin                     = tmps;
-        
-        this->xAxisOrder                      = 1;
-        this->yAxisOrder                      = 2;
-        this->yAxisOrder                      = 3;
+        //============================================ Order is YZX
+        proshade_single tmp                           = this->yDimSize;
+        this->yDimSize                                = this->xDimSize;
+        this->xDimSize                                = this->zDimSize;
+        this->zDimSize                                = tmp;
+                
+        tmp                                           = this->bAngle;
+        this->bAngle                                  = this->aAngle;
+        this->aAngle                                  = this->cAngle;
+        this->cAngle                                  = tmp;
+                
+        proshade_signed tmps                          = this->yDimIndices;
+        this->yDimIndices                             = this->xDimIndices;
+        this->xDimIndices                             = this->zDimIndices;
+        this->zDimIndices                             = tmps;
+                
+        tmps                                          = this->yGridIndices;
+        this->yGridIndices                            = this->xGridIndices;
+        this->xGridIndices                            = this->zGridIndices;
+        this->zGridIndices                            = tmps;
+                
+        tmps                                          = this->yAxisOrigin;
+        this->yAxisOrigin                             = this->xAxisOrigin;
+        this->xAxisOrigin                             = this->zAxisOrigin;
+        this->zAxisOrigin                             = tmps;
+                
+        this->xAxisOrder                              = 1;
+        this->yAxisOrder                              = 2;
+        this->yAxisOrder                              = 3;
         
         return ;
     }
     
     if ( ( this->xAxisOrder == 3 ) && ( this->yAxisOrder == 1 ) )
     {
-        //==================================== Order is ZXY
-        proshade_single tmp                   = this->zDimSize;
-        this->xDimSize                        = this->yDimSize;
-        this->yDimSize                        = this->zDimSize;
-        this->zDimSize                        = tmp;
-        
-        tmp                                   = this->cAngle;
-        this->aAngle                          = this->bAngle;
-        this->bAngle                          = this->cAngle;
-        this->cAngle                          = tmp;
-        
-        proshade_signed tmps                  = this->zDimIndices;
-        this->xDimIndices                     = this->yDimIndices;
-        this->yDimIndices                     = this->zDimIndices;
-        this->zDimIndices                     = tmps;
-        
-        tmps                                  = this->zGridIndices;
-        this->xGridIndices                    = this->yGridIndices;
-        this->yGridIndices                    = this->zGridIndices;
-        this->zGridIndices                    = tmps;
-        
-        tmps                                  = this->zAxisOrigin;
-        this->xAxisOrigin                     = this->yAxisOrigin;
-        this->yAxisOrigin                     = this->zAxisOrigin;
-        this->zAxisOrigin                     = tmps;
-        
-        this->xAxisOrder                      = 1;
-        this->yAxisOrder                      = 2;
-        this->yAxisOrder                      = 3;
+        //============================================ Order is ZXY
+        proshade_single tmp                           = this->zDimSize;
+        this->xDimSize                                = this->yDimSize;
+        this->yDimSize                                = this->zDimSize;
+        this->zDimSize                                = tmp;
+                
+        tmp                                           = this->cAngle;
+        this->aAngle                                  = this->bAngle;
+        this->bAngle                                  = this->cAngle;
+        this->cAngle                                  = tmp;
+                
+        proshade_signed tmps                          = this->zDimIndices;
+        this->xDimIndices                             = this->yDimIndices;
+        this->yDimIndices                             = this->zDimIndices;
+        this->zDimIndices                             = tmps;
+                
+        tmps                                          = this->zGridIndices;
+        this->xGridIndices                            = this->yGridIndices;
+        this->yGridIndices                            = this->zGridIndices;
+        this->zGridIndices                            = tmps;
+                
+        tmps                                          = this->zAxisOrigin;
+        this->xAxisOrigin                             = this->yAxisOrigin;
+        this->yAxisOrigin                             = this->zAxisOrigin;
+        this->zAxisOrigin                             = tmps;
+                
+        this->xAxisOrder                              = 1;
+        this->yAxisOrder                              = 2;
+        this->yAxisOrder                              = 3;
         
         return ;
     }
     
     if ( ( this->xAxisOrder == 3 ) && ( this->yAxisOrder == 2 ) )
     {
-        //==================================== Order is ZYX
-        proshade_single tmp                   = this->xDimSize;
-        this->xDimSize                        = this->zDimSize;
-        this->zDimSize                        = tmp;
-        
-        tmp                                   = this->aAngle;
-        this->aAngle                          = this->cAngle;
-        this->cAngle                          = tmp;
-        
-        proshade_signed tmps                  = this->xDimIndices;
-        this->xDimIndices                     = this->zDimIndices;
-        this->zDimIndices                     = tmps;
-        
-        tmps                                  = this->xGridIndices;
-        this->xGridIndices                    = this->zGridIndices;
-        this->zGridIndices                    = tmps;
-        
-        tmps                                  = this->xAxisOrigin;
-        this->xAxisOrigin                     = this->zAxisOrigin;
-        this->zAxisOrigin                     = tmps;
-        
-        this->xAxisOrder                      = 1;
-        this->zAxisOrder                      = 3;
+        //============================================ Order is ZYX
+        proshade_single tmp                           = this->xDimSize;
+        this->xDimSize                                = this->zDimSize;
+        this->zDimSize                                = tmp;
+                
+        tmp                                           = this->aAngle;
+        this->aAngle                                  = this->cAngle;
+        this->cAngle                                  = tmp;
+                
+        proshade_signed tmps                          = this->xDimIndices;
+        this->xDimIndices                             = this->zDimIndices;
+        this->zDimIndices                             = tmps;
+                
+        tmps                                          = this->xGridIndices;
+        this->xGridIndices                            = this->zGridIndices;
+        this->zGridIndices                            = tmps;
+                
+        tmps                                          = this->xAxisOrigin;
+        this->xAxisOrigin                             = this->zAxisOrigin;
+        this->zAxisOrigin                             = tmps;
+                
+        this->xAxisOrder                              = 1;
+        this->zAxisOrder                              = 3;
         
         return ;
     }
     
-    //======================================== Done
-    
-    throw ProSHADE_exception ( "Failed to determine the axis order of the input map file.", "EM00008", "ProSHADE_data.cpp", 471, "ProSHADE_data class function switchAxes()", "This is more of a debugging check and the code execution\n                    : should never reach here. If you see this message,\n                    : something is clearly very wrong. Please report this case." );
+    //================================================ Done
+    throw ProSHADE_exception ( "Failed to determine the axis order of the input map file.", "EM00008", __FILE__, __LINE__, __func__, "This is more of a debugging check and the code execution\n                    : should never reach here. If you see this message,\n                    : something is clearly very wrong. Please report this case." );
     
 }
 
@@ -780,34 +794,97 @@ void ProSHADE_internal_data::ProSHADE_data::switchAxes ( void )
  and proceeds to write all this information in MRC MAP format for visualisation and further processing by other software.
  It is dependent on the internal information being correct.
  
- \param[in] fileName The filename (including path) to where the output should be saved.
+ \param[in] fName The filename (including path) to where the output MAP file should be saved.
  \param[in] title String with the map title to be written into the header - default value is "ProSHADE generated map"
  */
 void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title )
 {
-    //======================================== Open output file for writing
-    int myMapMode                             = O_WRONLY;
-    CMap_io::CMMFile *mapFile                 = NULL;
-    mapFile                                   = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , myMapMode ) );
-    ProSHADE_internal_misc::checkMemoryAllocation ( mapFile, "ProSHADE_data.cpp", 555, "ProSHADE_data class function writeMap()" );
+    //================================================ Open output file for writing
+    int myMapMode                                     = O_WRONLY;
+    CMap_io::CMMFile *mapFile                         = NULL;
+    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , myMapMode ) );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mapFile, __FILE__, __LINE__, __func__ );
     
-    //======================================== Write map header
-    ProSHADE_internal_io::writeMapCell        ( mapFile, this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
-    ProSHADE_internal_io::writeMapGrid        ( mapFile, this->xGridIndices, this->yGridIndices, this->zGridIndices );
-    ProSHADE_internal_io::writeMapOrder       ( mapFile, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
-    ProSHADE_internal_io::writeMapDims        ( mapFile, this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    ProSHADE_internal_io::writeMapOrigin      ( mapFile, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin );
-    ProSHADE_internal_io::writeMapTitleEtc    ( mapFile, title, 2, 1 );
+    //================================================ Write map header
+    ProSHADE_internal_io::writeMapCell                ( mapFile, this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
+    ProSHADE_internal_io::writeMapGrid                ( mapFile, this->xGridIndices, this->yGridIndices, this->zGridIndices );
+    ProSHADE_internal_io::writeMapOrder               ( mapFile, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    ProSHADE_internal_io::writeMapDims                ( mapFile, this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    ProSHADE_internal_io::writeMapOrigin              ( mapFile, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin );
+    ProSHADE_internal_io::writeMapTitleEtc            ( mapFile, title, 2, 1 );
     
-    //======================================== Write out the data
-    ProSHADE_internal_io::writeMapData        ( mapFile, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    //================================================ Write out the data
+    ProSHADE_internal_io::writeMapData                ( mapFile, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
-    //======================================== Close the file
-    CMap_io::ccp4_cmap_close                  ( mapFile );
+    //================================================ Close the file
+    CMap_io::ccp4_cmap_close                          ( mapFile );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
+}
+
+/*! \brief This function writes out the PDB formatted file coresponding to the structure.
+
+This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
+it will proceed to
+
+\param[in] fName The filename (including path) to where the output PDB file should be saved.
+\param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+\param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+\param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+\param[in] transX The translation to be done along the X-axis in Angstroms.
+\param[in] transY The translation to be done along the Y-axis in Angstroms.
+\param[in] transZ The translation to be done along the Z-axis in Angstroms.
+*/
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ )
+{
+    //================================================ Check for co-ordinate origin
+    if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
+    {
+        throw ProSHADE_exception ( "Cannot write co-ordinate file if the input file did not contain co-ordinates.", "EP00045", __FILE__, __LINE__, __func__, "You have called the WritePDB function on structure which\n                    : was created by reading in a map. This is not allowed as\n                    : ProSHADE cannot create co-ordinates from map file." );
+    }
+    
+    //================================================ Open the original PDB file
+    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
+    if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
+    {
+        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
+    }
+    
+    //================================================ Save original PDB COM position
+    proshade_double xCOMOriginal = 0.0, yCOMOriginal = 0.0, zCOMOriginal = 0.0;
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMOriginal, &yCOMOriginal, &zCOMOriginal );
+    
+    //================================================ Rotate the PDB file co-ordinates if required
+    if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
+    {
+        ProSHADE_internal_mapManip::rotatePDBCoordinates  ( pdbFile, euA, euB, euG, 0.0, 0.0, 0.0 );
+    }
+    
+    //================================================ Compute the after rotation PDB COM position
+    proshade_double xCOMRotated = 0.0, yCOMRotated = 0.0, zCOMRotated = 0.0;
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated );
+    
+    //================================================ Compute the required translation, taking into account the different rotation origins between PDB and MAP and the required translation. The map centering COM change is already included in the translation, assuming the translation was computed by getOptimalTranslation() function.
+    proshade_double xPDBTrans                         = ( xCOMOriginal - xCOMRotated ) + transX;
+    proshade_double yPDBTrans                         = ( yCOMOriginal - yCOMRotated ) + transY;
+    proshade_double zPDBTrans                         = ( zCOMOriginal - zCOMRotated ) + transZ;
+    ProSHADE_internal_mapManip::translatePDBCoordinates  ( pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
+    
+    //================================================ Write the PDB file
+    if ( pdbFile->WritePDBASCII ( fName.c_str() ) )
+    {
+        std::stringstream hlpMessage;
+        hlpMessage << "Failed to open the PDB file " << fName << " for output.";
+        throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00046", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
+    }
+    
+    //================================================ Release memory
+    delete pdbFile;
+    
+    //================================================ Done
+    return ;
 }
 
 /*! \brief Function for writing out a mask in MRC MAP format.
@@ -820,30 +897,30 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
  */
 void ProSHADE_internal_data::ProSHADE_data::writeMask ( std::string fName, proshade_double* mask )
 {
-    //======================================== Allocate the memory
-    proshade_double* hlpMap                   = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( hlpMap, "ProSHADE_data.cpp", 646, "writeMask()" );
+    //================================================ Allocate the memory
+    proshade_double* hlpMap                           = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation ( hlpMap, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy original map and over-write with the mask
+    //================================================ Copy original map and over-write with the mask
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        hlpMap[iter]                          = this->internalMap[iter];
-        this->internalMap[iter]               = mask[iter];
+        hlpMap[iter]                                  = this->internalMap[iter];
+        this->internalMap[iter]                       = mask[iter];
     }
     
-    //======================================== Write out the mask
-    this->writeMap                            ( fName );
+    //================================================ Write out the mask
+    this->writeMap                                    ( fName );
     
-    //======================================== Copy the original map values back
+    //================================================ Copy the original map values back
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        this->internalMap[iter]               = hlpMap[iter];
+        this->internalMap[iter]                       = hlpMap[iter];
     }
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] hlpMap;
     
-    //======================================== Done
+    //================================================ Done
     return ;
 }
 
@@ -857,46 +934,46 @@ void ProSHADE_internal_data::ProSHADE_data::writeMask ( std::string fName, prosh
  */
 void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings* settings )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Map inversion." );
     
-    //======================================== Initialise variables
+    //================================================ Initialise variables
     proshade_signed arrayPos, invPos;
     
-    //======================================== Create helper map
-    proshade_double* hlpMap                   = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( hlpMap, "ProSHADE_data.cpp", 686, "invertMirrorMap()" );
+    //================================================ Create helper map
+    proshade_double* hlpMap                           = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( hlpMap, __FILE__, __LINE__, __func__ );
     
-    //======================================== Save map values to the helper map
+    //================================================ Save map values to the helper map
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        hlpMap[iter]                          = this->internalMap[iter];
+        hlpMap[iter]                                  = this->internalMap[iter];
     }
     
-    //======================================== Invert the values
+    //================================================ Invert the values
     for ( proshade_signed xIt = 0; xIt < static_cast<proshade_signed> ( this->xDimIndices ); xIt++ )
     {
         for ( proshade_signed yIt = 0; yIt < static_cast<proshade_signed> ( this->yDimIndices ); yIt++ )
         {
             for ( proshade_signed zIt = 0; zIt < static_cast<proshade_signed> ( this->zDimIndices ); zIt++ )
             {
-                //============================ Var init
-                arrayPos                      = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
-                invPos                        = ( (this->zDimIndices-1) - zIt ) + this->zDimIndices * ( ( (this->yDimIndices-1) - yIt ) + this->yDimIndices * ( (this->xDimIndices-1) - xIt ) );
+                //==================================== Var init
+                arrayPos                              = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
+                invPos                                = ( (this->zDimIndices-1) - zIt ) + this->zDimIndices * ( ( (this->yDimIndices-1) - yIt ) + this->yDimIndices * ( (this->xDimIndices-1) - xIt ) );
                 
-                //============================ And save
-                this->internalMap[invPos]     = hlpMap[arrayPos];
+                //==================================== And save
+                this->internalMap[invPos]             = hlpMap[arrayPos];
             }
         }
     }
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] hlpMap;
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Map inversion completed." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map inversion completed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -911,38 +988,38 @@ void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings*
  */
 void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* settings )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Map normalisation." );
     
-    //======================================== Initialise vector of map values
-    std::vector<proshade_double> mapVals      ( this->xDimIndices * this->yDimIndices * this->zDimIndices, 0.0 );
+    //================================================ Initialise vector of map values
+    std::vector<proshade_double> mapVals              ( this->xDimIndices * this->yDimIndices * this->zDimIndices, 0.0 );
     
-    //======================================== Get all map values
+    //================================================ Get all map values
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        mapVals.at(iter)                      = this->internalMap[iter];
+        mapVals.at(iter)                              = this->internalMap[iter];
     }
     
-    //======================================== Get mean and sd
-    proshade_double* meanSD                   = new proshade_double[2];
-    ProSHADE_internal_maths::vectorMeanAndSD  ( &mapVals, meanSD );
+    //================================================ Get mean and sd
+    proshade_double* meanSD                           = new proshade_double[2];
+    ProSHADE_internal_maths::vectorMeanAndSD          ( &mapVals, meanSD );
     
-    //======================================== Normalise the values
+    //================================================ Normalise the values
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        this->internalMap[iter]               = ( this->internalMap[iter] - meanSD[0] ) / meanSD[1];
+        this->internalMap[iter]                       = ( this->internalMap[iter] - meanSD[0] ) / meanSD[1];
     }
     
-    //======================================== Clear the vector
-    mapVals.clear                             ( );
+    //================================================ Clear the vector
+    mapVals.clear                                     ( );
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] meanSD;
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Map normalisation completed." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map normalisation completed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -958,29 +1035,30 @@ void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* se
  */
 void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* settings )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Computing mask." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Computing mask." );
     
-    //======================================== Initialise the blurred map
-    proshade_double* blurredMap               = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( blurredMap, "ProSHADE_data.cpp", 577, "maskMap()" );
+    //================================================ Initialise the blurred map
+    proshade_double* blurredMap                       = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation ( blurredMap, __FILE__, __LINE__, __func__ );
     
-    //======================================== Compute blurred map
-    ProSHADE_internal_mapManip::blurSharpenMap ( this->internalMap, blurredMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, settings->blurFactor );
+    //================================================ Compute blurred map
+    ProSHADE_internal_mapManip::blurSharpenMap        ( this->internalMap, blurredMap, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize, settings->blurFactor );
     
-    //======================================== Compute mask from blurred map and save it into the original map
-    ProSHADE_internal_mapManip::getMaskFromBlurr ( blurredMap, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->maskingThresholdIQRs );
+    //================================================ Compute mask from blurred map and save it into the original map
+    ProSHADE_internal_mapManip::getMaskFromBlurr      ( blurredMap, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->maskingThresholdIQRs );
     
-    //======================================== Print the mask if need be
+    //================================================ Print the mask if need be
     if ( settings->saveMask ) {  if ( settings->maskFileName == "" ) { this->writeMask ( "proshade_mask.map", blurredMap ); } else { std::stringstream ss; ss << settings->maskFileName << "_" << this->inputOrder << ".map"; this->writeMask ( ss.str(), blurredMap ); } }
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] blurredMap;
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Mask computed." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Mask computed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -997,42 +1075,44 @@ void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* setting
  */
 void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settings* settings, proshade_signed*& ret )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Finding new boundaries." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Finding new boundaries." );
     
-    //======================================== If same bounds as first one are required, test if possible and return these instead
+    //================================================ If same bounds as first one are required, test if possible and return these instead
     if ( settings->useSameBounds && ( this->inputOrder != 0 ) )
     {
         for ( proshade_unsign iter = 0; iter < 6; iter++ ) { ret[iter] = settings->forceBounds[iter]; }
     }
-    //======================================== In this case, bounds need to be found de novo
+    //================================================ In this case, bounds need to be found de novo
     else
     {
-        //==================================== Find the non-zero bounds
-        ProSHADE_internal_mapManip::getNonZeroBounds ( this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, ret );
+        //============================================ Find the non-zero bounds
+        ProSHADE_internal_mapManip::getNonZeroBounds  ( this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize, ret );
         
-        //==================================== Add the extra space
-        ProSHADE_internal_mapManip::addExtraBoundSpace ( this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, ret, settings->boundsExtraSpace );
+        //============================================ Add the extra space
+        ProSHADE_internal_mapManip::addExtraBoundSpace ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                         this->xDimSize, this->yDimSize, this->zDimSize, ret, settings->boundsExtraSpace );
         
-        //======================================== Beautify boundaries
+        //============================================ Beautify boundaries
         ProSHADE_internal_mapManip::beautifyBoundaries ( ret, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->boundsSimilarityThreshold, settings->verbose );
         
-        //======================================== Report function results
+        //============================================ Report function results
         std::stringstream ssHlp;
         ssHlp << "New boundaries are: " << ret[1] - ret[0] + 1 << " x " << ret[3] - ret[2] + 1 << " x " << ret[5] - ret[4] + 1;
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, ssHlp.str() );
         
-        //======================================== If need be, save boundaries to be used for all other structure
+        //============================================ If need be, save boundaries to be used for all other structure
         if ( settings->useSameBounds && ( this->inputOrder == 0 ) )
         {
             for ( proshade_unsign iter = 0; iter < 6; iter++ ) { settings->forceBounds[iter] = ret[iter]; }
         }
     }
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "New boundaries determined." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New boundaries determined." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1051,58 +1131,58 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
  */
 void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundariesPy ( ProSHADE_settings* settings, int* reBoxBounds, int len )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Finding new boundaries." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Finding new boundaries." );
     
-    //======================================== Initialise internal variables
-    proshade_signed* ret                      = NULL;
-    ret                                       = new proshade_signed[6];
-    ProSHADE_internal_misc::checkMemoryAllocation ( ret, "ProSHADE_data.cpp", 1060, "getReBoxBoundariesPy()" );
+    //================================================ Initialise internal variables
+    proshade_signed* ret                              = NULL;
+    ret                                               = new proshade_signed[6];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
     
-    //======================================== If same bounds as first one are required, test if possible and return these instead
+    //================================================ If same bounds as first one are required, test if possible and return these instead
     if ( settings->useSameBounds && ( this->inputOrder != 0 ) )
     {
         for ( proshade_unsign iter = 0; iter < 6; iter++ ) { ret[iter] = settings->forceBounds[iter]; }
     }
-    //======================================== In this case, bounds need to be found de novo
+    //================================================ In this case, bounds need to be found de novo
     else
     {
-        //==================================== Find the non-zero bounds
+        //============================================ Find the non-zero bounds
         ProSHADE_internal_mapManip::getNonZeroBounds ( this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, ret );
         
-        //==================================== Add the extra space
+        //============================================ Add the extra space
         ProSHADE_internal_mapManip::addExtraBoundSpace ( this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, ret, settings->boundsExtraSpace );
         
-        //======================================== Beautify boundaries
+        //============================================ Beautify boundaries
         ProSHADE_internal_mapManip::beautifyBoundaries ( ret, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->boundsSimilarityThreshold, settings->verbose );
         
-        //======================================== Report function results
+        //============================================ Report function results
         std::stringstream ssHlp;
         ssHlp << "New boundaries are: " << ret[1] - ret[0] + 1 << " x " << ret[3] - ret[2] + 1 << " x " << ret[5] - ret[4] + 1;
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, ssHlp.str() );
         
-        //======================================== If need be, save boundaries to be used for all other structure
+        //============================================ If need be, save boundaries to be used for all other structure
         if ( settings->useSameBounds && ( this->inputOrder == 0 ) )
         {
             for ( proshade_unsign iter = 0; iter < 6; iter++ ) { settings->forceBounds[iter] = ret[iter]; }
         }
     }
     
-    //======================================== Copy internal to output array
-    reBoxBounds[0]                            = static_cast<int> ( ret[0] );
-    reBoxBounds[1]                            = static_cast<int> ( ret[1] );
-    reBoxBounds[2]                            = static_cast<int> ( ret[2] );
-    reBoxBounds[3]                            = static_cast<int> ( ret[3] );
-    reBoxBounds[4]                            = static_cast<int> ( ret[4] );
-    reBoxBounds[5]                            = static_cast<int> ( ret[5] );
+    //================================================ Copy internal to output array
+    reBoxBounds[0]                                    = static_cast<int> ( ret[0] );
+    reBoxBounds[1]                                    = static_cast<int> ( ret[1] );
+    reBoxBounds[2]                                    = static_cast<int> ( ret[2] );
+    reBoxBounds[3]                                    = static_cast<int> ( ret[3] );
+    reBoxBounds[4]                                    = static_cast<int> ( ret[4] );
+    reBoxBounds[5]                                    = static_cast<int> ( ret[5] );
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] ret;
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "New boundaries determined." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New boundaries determined." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1120,57 +1200,59 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundariesPy ( ProSHADE_sett
  */
 void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
     
-    //======================================== Fill in basic info
-    newStr->fileName                          = "N/A";
-    newStr->fileType                          = ProSHADE_internal_io::MAP;
+    //================================================ Fill in basic info
+    newStr->fileName                                  = "N/A";
+    newStr->fileType                                  = ProSHADE_internal_io::MAP;
     
-    //======================================== Fill in new structure values
-    newStr->xDimIndices                       = static_cast<proshade_signed> ( newBounds[1] ) - static_cast<proshade_signed> ( newBounds[0] ) + 1;
-    newStr->yDimIndices                       = static_cast<proshade_signed> ( newBounds[3] ) - static_cast<proshade_signed> ( newBounds[2] ) + 1;
-    newStr->zDimIndices                       = static_cast<proshade_signed> ( newBounds[5] ) - static_cast<proshade_signed> ( newBounds[4] ) + 1;
+    //================================================ Fill in new structure values
+    newStr->xDimIndices                               = static_cast<proshade_signed> ( newBounds[1] ) - static_cast<proshade_signed> ( newBounds[0] ) + 1;
+    newStr->yDimIndices                               = static_cast<proshade_signed> ( newBounds[3] ) - static_cast<proshade_signed> ( newBounds[2] ) + 1;
+    newStr->zDimIndices                               = static_cast<proshade_signed> ( newBounds[5] ) - static_cast<proshade_signed> ( newBounds[4] ) + 1;
+            
+    newStr->aAngle                                    = this->aAngle;
+    newStr->bAngle                                    = this->aAngle;
+    newStr->cAngle                                    = this->aAngle;
+            
+    newStr->xDimSize                                  = static_cast<proshade_single> ( newStr->xDimIndices ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) );
+    newStr->yDimSize                                  = static_cast<proshade_single> ( newStr->yDimIndices ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) );
+    newStr->zDimSize                                  = static_cast<proshade_single> ( newStr->zDimIndices ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) );
+            
+    newStr->xGridIndices                              = newStr->xDimIndices;
+    newStr->yGridIndices                              = newStr->yDimIndices;
+    newStr->zGridIndices                              = newStr->zDimIndices;
+            
+    newStr->xAxisOrder                                = this->xAxisOrder;
+    newStr->yAxisOrder                                = this->yAxisOrder;
+    newStr->zAxisOrder                                = this->zAxisOrder;
+            
+    newStr->xAxisOrigin                               = this->xAxisOrigin + newBounds[0];
+    newStr->yAxisOrigin                               = this->yAxisOrigin + newBounds[2];
+    newStr->zAxisOrigin                               = this->zAxisOrigin + newBounds[4];
+            
+    newStr->xFrom                                     = this->xFrom + newBounds[0];
+    newStr->yFrom                                     = this->yFrom + newBounds[2];
+    newStr->zFrom                                     = this->zFrom + newBounds[4];
+            
+    newStr->xTo                                       = this->xTo - ( (this->xDimIndices-1) - newBounds[1] );
+    newStr->yTo                                       = this->yTo - ( (this->yDimIndices-1) - newBounds[3] );
+    newStr->zTo                                       = this->zTo - ( (this->zDimIndices-1) - newBounds[5] );
     
-    newStr->aAngle                            = this->aAngle;
-    newStr->bAngle                            = this->aAngle;
-    newStr->cAngle                            = this->aAngle;
+    //================================================ Allocate new structure map
+    newStr->internalMap                               = new proshade_double[newStr->xDimIndices * newStr->yDimIndices * newStr->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newStr->internalMap, __FILE__, __LINE__, __func__ );
     
-    newStr->xDimSize                          = static_cast<proshade_single> ( newStr->xDimIndices ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) );
-    newStr->yDimSize                          = static_cast<proshade_single> ( newStr->yDimIndices ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) );
-    newStr->zDimSize                          = static_cast<proshade_single> ( newStr->zDimIndices ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) );
+    //================================================ Copy the map
+    ProSHADE_internal_mapManip::copyMapByBounds       ( newStr->xFrom, newStr->xTo, newStr->yFrom, newStr->yTo, newStr->zFrom, newStr->zTo,
+                                                        this->xFrom, this->yFrom, this->zFrom, newStr->yDimIndices, newStr->zDimIndices,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices, newStr->internalMap, this->internalMap );
     
-    newStr->xGridIndices                      = newStr->xDimIndices;
-    newStr->yGridIndices                      = newStr->yDimIndices;
-    newStr->zGridIndices                      = newStr->zDimIndices;
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New structure created." );
     
-    newStr->xAxisOrder                        = this->xAxisOrder;
-    newStr->yAxisOrder                        = this->yAxisOrder;
-    newStr->zAxisOrder                        = this->zAxisOrder;
-    
-    newStr->xAxisOrigin                       = this->xAxisOrigin + newBounds[0];
-    newStr->yAxisOrigin                       = this->yAxisOrigin + newBounds[2];
-    newStr->zAxisOrigin                       = this->zAxisOrigin + newBounds[4];
-    
-    newStr->xFrom                             = this->xFrom + newBounds[0];
-    newStr->yFrom                             = this->yFrom + newBounds[2];
-    newStr->zFrom                             = this->zFrom + newBounds[4];
-    
-    newStr->xTo                               = this->xTo - ( (this->xDimIndices-1) - newBounds[1] );
-    newStr->yTo                               = this->yTo - ( (this->yDimIndices-1) - newBounds[3] );
-    newStr->zTo                               = this->zTo - ( (this->zDimIndices-1) - newBounds[5] );
-    
-    //======================================== Allocate new structure map
-    newStr->internalMap                       = new proshade_double[newStr->xDimIndices * newStr->yDimIndices * newStr->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( newStr->internalMap, "ProSHADE_data.cpp", 684, "createNewMapFromBounds()" );
-    
-    //======================================== Copy the map
-    ProSHADE_internal_mapManip::copyMapByBounds ( newStr->xFrom, newStr->xTo, newStr->yFrom, newStr->yTo, newStr->zFrom, newStr->zTo, this->xFrom, this->yFrom, this->zFrom, newStr->yDimIndices, newStr->zDimIndices, this->xDimIndices, this->yDimIndices, this->zDimIndices, newStr->internalMap, this->internalMap );
-    
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "New structure created." );
-    
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1190,57 +1272,59 @@ void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_se
  */
 void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBoundsPy ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
     
-    //======================================== Fill in basic info
-    newStr->fileName                          = "N/A";
-    newStr->fileType                          = ProSHADE_internal_io::MAP;
+    //================================================ Fill in basic info
+    newStr->fileName                                  = "N/A";
+    newStr->fileType                                  = ProSHADE_internal_io::MAP;
     
-    //======================================== Fill in new structure values
-    newStr->xDimIndices                       = static_cast<proshade_signed> ( newBounds[1] ) - static_cast<proshade_signed> ( newBounds[0] ) + 1;
-    newStr->yDimIndices                       = static_cast<proshade_signed> ( newBounds[3] ) - static_cast<proshade_signed> ( newBounds[2] ) + 1;
-    newStr->zDimIndices                       = static_cast<proshade_signed> ( newBounds[5] ) - static_cast<proshade_signed> ( newBounds[4] ) + 1;
+    //================================================ Fill in new structure values
+    newStr->xDimIndices                               = static_cast<proshade_signed> ( newBounds[1] ) - static_cast<proshade_signed> ( newBounds[0] ) + 1;
+    newStr->yDimIndices                               = static_cast<proshade_signed> ( newBounds[3] ) - static_cast<proshade_signed> ( newBounds[2] ) + 1;
+    newStr->zDimIndices                               = static_cast<proshade_signed> ( newBounds[5] ) - static_cast<proshade_signed> ( newBounds[4] ) + 1;
+            
+    newStr->aAngle                                    = this->aAngle;
+    newStr->bAngle                                    = this->aAngle;
+    newStr->cAngle                                    = this->aAngle;
+            
+    newStr->xDimSize                                  = static_cast<proshade_single> ( newStr->xDimIndices ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) );
+    newStr->yDimSize                                  = static_cast<proshade_single> ( newStr->yDimIndices ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) );
+    newStr->zDimSize                                  = static_cast<proshade_single> ( newStr->zDimIndices ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) );
+            
+    newStr->xGridIndices                              = newStr->xDimIndices;
+    newStr->yGridIndices                              = newStr->yDimIndices;
+    newStr->zGridIndices                              = newStr->zDimIndices;
+            
+    newStr->xAxisOrder                                = this->xAxisOrder;
+    newStr->yAxisOrder                                = this->yAxisOrder;
+    newStr->zAxisOrder                                = this->zAxisOrder;
+            
+    newStr->xAxisOrigin                               = this->xAxisOrigin + newBounds[0];
+    newStr->yAxisOrigin                               = this->yAxisOrigin + newBounds[2];
+    newStr->zAxisOrigin                               = this->zAxisOrigin + newBounds[4];
+            
+    newStr->xFrom                                     = this->xFrom + newBounds[0];
+    newStr->yFrom                                     = this->yFrom + newBounds[2];
+    newStr->zFrom                                     = this->zFrom + newBounds[4];
+            
+    newStr->xTo                                       = this->xTo - ( (this->xDimIndices-1) - newBounds[1] );
+    newStr->yTo                                       = this->yTo - ( (this->yDimIndices-1) - newBounds[3] );
+    newStr->zTo                                       = this->zTo - ( (this->zDimIndices-1) - newBounds[5] );
     
-    newStr->aAngle                            = this->aAngle;
-    newStr->bAngle                            = this->aAngle;
-    newStr->cAngle                            = this->aAngle;
+    //================================================ Allocate new structure map
+    newStr->internalMap                               = new proshade_double[newStr->xDimIndices * newStr->yDimIndices * newStr->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newStr->internalMap, __FILE__, __LINE__, __func__ );
     
-    newStr->xDimSize                          = static_cast<proshade_single> ( newStr->xDimIndices ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) );
-    newStr->yDimSize                          = static_cast<proshade_single> ( newStr->yDimIndices ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) );
-    newStr->zDimSize                          = static_cast<proshade_single> ( newStr->zDimIndices ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) );
+    //================================================ Copy the map
+    ProSHADE_internal_mapManip::copyMapByBounds       ( newStr->xFrom, newStr->xTo, newStr->yFrom, newStr->yTo, newStr->zFrom, newStr->zTo,
+                                                        this->xFrom, this->yFrom, this->zFrom, newStr->yDimIndices, newStr->zDimIndices,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices, newStr->internalMap, this->internalMap );
     
-    newStr->xGridIndices                      = newStr->xDimIndices;
-    newStr->yGridIndices                      = newStr->yDimIndices;
-    newStr->zGridIndices                      = newStr->zDimIndices;
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New structure created." );
     
-    newStr->xAxisOrder                        = this->xAxisOrder;
-    newStr->yAxisOrder                        = this->yAxisOrder;
-    newStr->zAxisOrder                        = this->zAxisOrder;
-    
-    newStr->xAxisOrigin                       = this->xAxisOrigin + newBounds[0];
-    newStr->yAxisOrigin                       = this->yAxisOrigin + newBounds[2];
-    newStr->zAxisOrigin                       = this->zAxisOrigin + newBounds[4];
-    
-    newStr->xFrom                             = this->xFrom + newBounds[0];
-    newStr->yFrom                             = this->yFrom + newBounds[2];
-    newStr->zFrom                             = this->zFrom + newBounds[4];
-    
-    newStr->xTo                               = this->xTo - ( (this->xDimIndices-1) - newBounds[1] );
-    newStr->yTo                               = this->yTo - ( (this->yDimIndices-1) - newBounds[3] );
-    newStr->zTo                               = this->zTo - ( (this->zDimIndices-1) - newBounds[5] );
-    
-    //======================================== Allocate new structure map
-    newStr->internalMap                       = new proshade_double[newStr->xDimIndices * newStr->yDimIndices * newStr->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( newStr->internalMap, "ProSHADE_data.cpp", 684, "createNewMapFromBounds()" );
-    
-    //======================================== Copy the map
-    ProSHADE_internal_mapManip::copyMapByBounds ( newStr->xFrom, newStr->xTo, newStr->yFrom, newStr->yTo, newStr->zFrom, newStr->zTo, this->xFrom, this->yFrom, this->zFrom, newStr->yDimIndices, newStr->zDimIndices, this->xDimIndices, this->yDimIndices, this->zDimIndices, newStr->internalMap, this->internalMap );
-    
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "New structure created." );
-    
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1254,46 +1338,49 @@ void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBoundsPy ( ProSHADE_
  */
 void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* settings )
 {
-    //======================================== Initialise the return variable
-    proshade_single* changeVals               = new proshade_single[6];
+    //================================================ Initialise the return variable
+    proshade_single* changeVals                       = new proshade_single[6];
 
-    //======================================== Now re-sample the map
-    ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+    //================================================ Now re-sample the map
+    ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                   this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
     
-    //======================================== Set the internal values to reflect the new map size
-    this->xDimIndices                        += static_cast<proshade_unsign>  ( changeVals[0] );
-    this->yDimIndices                        += static_cast<proshade_unsign>  ( changeVals[1] );
-    this->zDimIndices                        += static_cast<proshade_unsign>  ( changeVals[2] );
-    
-    this->xGridIndices                        = this->xDimIndices;
-    this->yGridIndices                        = this->yDimIndices;
-    this->zGridIndices                        = this->zDimIndices;
-    
-    this->xTo                                += static_cast<proshade_unsign>  ( changeVals[0] );
-    this->yTo                                += static_cast<proshade_unsign>  ( changeVals[1] );
-    this->zTo                                += static_cast<proshade_unsign>  ( changeVals[2] );
-    
-    this->xDimSize                            = changeVals[3];
-    this->yDimSize                            = changeVals[4];
-    this->zDimSize                            = changeVals[5];
+    //================================================ Set the internal values to reflect the new map size
+    this->xDimIndices                                += static_cast<proshade_unsign>  ( changeVals[0] );
+    this->yDimIndices                                += static_cast<proshade_unsign>  ( changeVals[1] );
+    this->zDimIndices                                += static_cast<proshade_unsign>  ( changeVals[2] );
+            
+    this->xGridIndices                                = this->xDimIndices;
+    this->yGridIndices                                = this->yDimIndices;
+    this->zGridIndices                                = this->zDimIndices;
+            
+    this->xTo                                        += static_cast<proshade_unsign>  ( changeVals[0] );
+    this->yTo                                        += static_cast<proshade_unsign>  ( changeVals[1] );
+    this->zTo                                        += static_cast<proshade_unsign>  ( changeVals[2] );
+            
+    this->xDimSize                                    = changeVals[3];
+    this->yDimSize                                    = changeVals[4];
+    this->zDimSize                                    = changeVals[5];
 
-    //======================================== Figure how much the new map moved
-    proshade_single xMov                      = -( ( this->xFrom * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices - changeVals[0] ) ) ) -
-                                                   ( this->xFrom * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
-    proshade_single yMov                      = -( ( this->yFrom * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices - changeVals[1] ) ) ) -
-                                                   ( this->yFrom * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) ) );
-    proshade_single zMov                      = -( ( this->zFrom * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices - changeVals[2] ) ) ) -
-                                                   ( this->zFrom * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) ) );
+    //================================================ Figure how much the new map moved
+    proshade_single xMov                              = -( ( this->xFrom * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices - changeVals[0] ) ) ) -
+                                                           ( this->xFrom * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
+    proshade_single yMov                              = -( ( this->yFrom * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices - changeVals[1] ) ) ) -
+                                                           ( this->yFrom * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) ) );
+    proshade_single zMov                              = -( ( this->zFrom * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices - changeVals[2] ) ) ) -
+                                                           ( this->zFrom * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) ) );
 
-    //======================================== Move by indices (this should be sufficient)
-    ProSHADE_internal_mapManip::moveMapByIndices ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
+    //================================================ Move by indices (this should be sufficient)
+    ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo,
+                                                        &this->yFrom, &this->yTo, &this->zFrom, &this->zTo, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
     
-    ProSHADE_internal_mapManip::moveMapByFourier ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices );
 
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] changeVals;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1309,58 +1396,58 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
  */
 void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* settings )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Centering map onto its COM." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Centering map onto its COM." );
     
-    //======================================== Initialise local variables
-    proshade_unsign arrPos                    = 0;
-    proshade_single xCOM                      = 0.0;
-    proshade_single yCOM                      = 0.0;
-    proshade_single zCOM                      = 0.0;
-    proshade_single totDens                   = 0.0;
+    //================================================ Initialise local variables
+    proshade_unsign arrPos                            = 0;
+    proshade_single xCOM                              = 0.0;
+    proshade_single yCOM                              = 0.0;
+    proshade_single zCOM                              = 0.0;
+    proshade_single totDens                           = 0.0;
     
-    //======================================== Find the COM location
+    //================================================ Find the COM location
     for ( proshade_unsign xIt = 0; xIt < this->xDimIndices; xIt++ )
     {
         for ( proshade_unsign yIt = 0; yIt < this->yDimIndices; yIt++ )
         {
             for ( proshade_unsign zIt = 0; zIt < this->zDimIndices; zIt++ )
             {
-                //============================ Get index
-                arrPos                        = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
+                //==================================== Get index
+                arrPos                                = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
                 
-                //============================ Get COM
+                //==================================== Get COM
                 if ( this->internalMap[arrPos] > 0.0 )
                 {
-                    xCOM                     += static_cast<proshade_single> ( this->internalMap[arrPos] * xIt );
-                    yCOM                     += static_cast<proshade_single> ( this->internalMap[arrPos] * yIt );
-                    zCOM                     += static_cast<proshade_single> ( this->internalMap[arrPos] * zIt );
-                    totDens                  += static_cast<proshade_single> ( this->internalMap[arrPos] );
+                    xCOM                             += static_cast<proshade_single> ( this->internalMap[arrPos] * xIt );
+                    yCOM                             += static_cast<proshade_single> ( this->internalMap[arrPos] * yIt );
+                    zCOM                             += static_cast<proshade_single> ( this->internalMap[arrPos] * zIt );
+                    totDens                          += static_cast<proshade_single> ( this->internalMap[arrPos] );
                 }
             }
         }
     }
-    xCOM                                     /= totDens;
-    yCOM                                     /= totDens;
-    zCOM                                     /= totDens;
+    xCOM                                             /= totDens;
+    yCOM                                             /= totDens;
+    zCOM                                             /= totDens;
     
-    //======================================== Find distance from COM to map centre in Angstroms
-    proshade_single xDist                     = ( static_cast<proshade_single> ( this->xDimIndices / 2.0 ) - xCOM ) * static_cast<proshade_single> ( this->xDimSize / this->xDimIndices );
-    proshade_single yDist                     = ( static_cast<proshade_single> ( this->yDimIndices / 2.0 ) - yCOM ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
-    proshade_single zDist                     = ( static_cast<proshade_single> ( this->zDimIndices / 2.0 ) - zCOM ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
+    //================================================ Find distance from COM to map centre in Angstroms
+    proshade_single xDist                             = ( static_cast<proshade_single> ( this->xDimIndices / 2.0 ) - xCOM ) * static_cast<proshade_single> ( this->xDimSize / this->xDimIndices );
+    proshade_single yDist                             = ( static_cast<proshade_single> ( this->yDimIndices / 2.0 ) - yCOM ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
+    proshade_single zDist                             = ( static_cast<proshade_single> ( this->zDimIndices / 2.0 ) - zCOM ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
     
-    //======================================== Move the map within the box
-    ProSHADE_internal_mapManip::moveMapByFourier ( this->internalMap, xDist, yDist, zDist, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    //================================================ Save COM movement
+    this->comMovX                                     = static_cast<proshade_double> ( xDist );
+    this->comMovY                                     = static_cast<proshade_double> ( yDist );
+    this->comMovZ                                     = static_cast<proshade_double> ( zDist );
     
-    //======================================== Save COM movement
-    this->comMovX                             = static_cast<proshade_double> ( xDist );
-    this->comMovY                             = static_cast<proshade_double> ( yDist );
-    this->comMovZ                             = static_cast<proshade_double> ( zDist );
+    //================================================ Move the map within the box
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xDist, yDist, zDist, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Map centered." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map centered." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1375,95 +1462,95 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
  */
 void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* settings )
 {
-    //======================================== Report function start
+    //================================================ Report function start
     std::stringstream hlpSS;
     hlpSS << "Adding extra " << settings->addExtraSpace << " angstroms.";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1,  hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1,  hlpSS.str() );
     
-    //======================================== Figure how much indices need to change
-    proshade_unsign xAddIndices               = ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->xDimSize / this->xDimIndices ) );
-    proshade_unsign yAddIndices               = ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->yDimSize / this->yDimIndices ) );
-    proshade_unsign zAddIndices               = ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->zDimSize / this->zDimIndices ) );
+    //================================================ Figure how much indices need to change
+    proshade_unsign xAddIndices                       = ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->xDimSize / this->xDimIndices ) );
+    proshade_unsign yAddIndices                       = ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->yDimSize / this->yDimIndices ) );
+    proshade_unsign zAddIndices                       = ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->zDimSize / this->zDimIndices ) );
     
-    //======================================== Update internal data variables
-    this->xDimSize                           += static_cast<proshade_single> ( 2 * xAddIndices ) * static_cast<proshade_single> ( this->xDimSize / this->xDimIndices );
-    this->yDimSize                           += static_cast<proshade_single> ( 2 * yAddIndices ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
-    this->zDimSize                           += static_cast<proshade_single> ( 2 * zAddIndices ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
+    //================================================ Update internal data variables
+    this->xDimSize                                   += static_cast<proshade_single> ( 2 * xAddIndices ) * static_cast<proshade_single> ( this->xDimSize / this->xDimIndices );
+    this->yDimSize                                   += static_cast<proshade_single> ( 2 * yAddIndices ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
+    this->zDimSize                                   += static_cast<proshade_single> ( 2 * zAddIndices ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
+            
+    this->xDimIndices                                += 2 * xAddIndices;
+    this->yDimIndices                                += 2 * yAddIndices;
+    this->zDimIndices                                += 2 * zAddIndices;
+            
+    this->xGridIndices                                = this->xDimIndices;
+    this->yGridIndices                                = this->yDimIndices;
+    this->zGridIndices                                = this->zDimIndices;
+            
+    this->xAxisOrigin                                -= xAddIndices;
+    this->yAxisOrigin                                -= yAddIndices;
+    this->zAxisOrigin                                -= zAddIndices;
+            
+    this->xFrom                                      -= xAddIndices;
+    this->yFrom                                      -= yAddIndices;
+    this->zFrom                                      -= zAddIndices;
+            
+    this->xTo                                        += xAddIndices;
+    this->yTo                                        += yAddIndices;
+    this->zTo                                        += zAddIndices;
     
-    this->xDimIndices                        += 2 * xAddIndices;
-    this->yDimIndices                        += 2 * yAddIndices;
-    this->zDimIndices                        += 2 * zAddIndices;
+    //================================================ Allocate new map
+    proshade_double* newMap                           = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newMap, __FILE__, __LINE__, __func__ );
     
-    this->xGridIndices                        = this->xDimIndices;
-    this->yGridIndices                        = this->yDimIndices;
-    this->zGridIndices                        = this->zDimIndices;
-    
-    this->xAxisOrigin                        -= xAddIndices;
-    this->yAxisOrigin                        -= yAddIndices;
-    this->zAxisOrigin                        -= zAddIndices;
-    
-    this->xFrom                              -= xAddIndices;
-    this->yFrom                              -= yAddIndices;
-    this->zFrom                              -= zAddIndices;
-    
-    this->xTo                                += xAddIndices;
-    this->yTo                                += yAddIndices;
-    this->zTo                                += zAddIndices;
-    
-    //======================================== Allocate new map
-    proshade_double* newMap                   = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( newMap, "ProSHADE_data.cpp", 874, "addExtraSpace()" );
-    
-    //======================================== Set new map to zeroes
+    //================================================ Set new map to zeroes
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        newMap[iter]                          = 0.0;
+        newMap[iter]                                  = 0.0;
     }
     
-    //======================================== Update the map
+    //================================================ Update the map
     proshade_unsign newMapIndex, oldMapIndex;
     for ( proshade_unsign xIt = 0; xIt < (this->xDimIndices - xAddIndices); xIt++ )
     {
-        //==================================== Check if point is applicable
+        //============================================ Check if point is applicable
         if ( xIt < xAddIndices ) { continue; }
         
         for ( proshade_unsign yIt = 0; yIt < (this->yDimIndices - yAddIndices); yIt++ )
         {
-            //================================ Check if point is applicable
+            //======================================== Check if point is applicable
             if ( yIt < yAddIndices ) { continue; }
             
             for ( proshade_unsign zIt = 0; zIt < (this->zDimIndices - zAddIndices); zIt++ )
             {
-                //============================ Check if point is applicable
+                //==================================== Check if point is applicable
                 if ( zIt < zAddIndices ) { continue; }
                 
-                //============================ Var init
-                newMapIndex                   = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
-                oldMapIndex                   = (zIt - zAddIndices) + (this->zDimIndices - ( 2 * zAddIndices ) ) * ( (yIt - yAddIndices) + (this->yDimIndices - ( 2 * yAddIndices ) ) * (xIt - xAddIndices) );
+                //==================================== Var init
+                newMapIndex                           = zIt + this->zDimIndices * ( yIt + this->yDimIndices * xIt );
+                oldMapIndex                           = (zIt - zAddIndices) + (this->zDimIndices - ( 2 * zAddIndices ) ) * ( (yIt - yAddIndices) + (this->yDimIndices - ( 2 * yAddIndices ) ) * (xIt - xAddIndices) );
                 
-                newMap[newMapIndex]           = this->internalMap[oldMapIndex];
+                newMap[newMapIndex]                   = this->internalMap[oldMapIndex];
             }
         }
     }
     
-    //======================================== Copy new to old
+    //================================================ Copy new to old
     delete[] this->internalMap;
     
-    this->internalMap                         = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->internalMap, "ProSHADE_data.cpp", 912, "addExtraSpace()" );
+    this->internalMap                                 = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->internalMap, __FILE__, __LINE__, __func__ );
     
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        this->internalMap[iter]               = newMap[iter];
+        this->internalMap[iter]                       = newMap[iter];
     }
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] newMap;
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Extra space added." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Extra space added." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1478,32 +1565,35 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
  */
 void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settings* settings )
 {
-    //======================================== Invert map
+    //================================================ Invert map
     if ( settings->invertMap ) { this->invertMirrorMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion (mirror image) not requested." ); }
  
-    //======================================== Normalise map
+    //================================================ Normalise map
     if ( settings->normaliseMap ) { this->normaliseMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested." ); }
 
-    //======================================== Compute mask
+    //================================================ Compute mask
     //if ( settings->maskMap ) { if ( settings->useCorrelationMasking ) { this->maskMapCorrelation ( settings ); } else { this->maskMap ( settings ); } }
     if ( settings->maskMap ) { this->maskMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested." ); }
 
-    //======================================== Centre map
+    //================================================ Centre map
     if ( settings->moveToCOM ) { this->centreMapOnCOM ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested." ); }
-
-    //======================================== Add extra space
+    
+    //================================================ Add extra space
     if ( settings->addExtraSpace != 0.0 ) { this->addExtraSpace ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Extra space not requested." ); }
   
-    //======================================== Remove phase, if required
+    //================================================ Remove phase, if required
     if ( !settings->usePhase ) { this->removePhaseInormation ( settings ); ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information removed from the data." ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information retained in the data." ); }
     
-    //======================================== Done
+    //================================================ Compute and save COM
+    this->findMapCOM                                  ( );
+    
+    //================================================ Done
     return ;
     
 }
@@ -1519,7 +1609,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
  */
 void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settings* settings )
 {
-    //======================================== Check the current settings value is set to auto
+    //================================================ Check the current settings value is set to auto
     if ( this->spherePos.size() != 0 )
     {
         std::stringstream hlpSS;
@@ -1530,34 +1620,34 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
         return ;
     }
     
-    //======================================== Find maximum diagonal
-    proshade_unsign maxDim                    = std::max ( this->xDimSize, std::max ( this->yDimSize, this->zDimSize ) );
-    proshade_unsign minDim                    = std::min ( this->xDimSize, std::min ( this->yDimSize, this->zDimSize ) );
-    proshade_unsign midDim                    = 0;
+    //================================================ Find maximum diagonal
+    proshade_unsign maxDim                            = std::max ( this->xDimSize, std::max ( this->yDimSize, this->zDimSize ) );
+    proshade_unsign minDim                            = std::min ( this->xDimSize, std::min ( this->yDimSize, this->zDimSize ) );
+    proshade_unsign midDim                            = 0;
     if      ( ( this->xDimSize < maxDim ) && ( this->xDimSize > minDim ) ) { midDim = this->xDimSize; }
     else if ( ( this->yDimSize < maxDim ) && ( this->yDimSize > minDim ) ) { midDim = this->yDimSize; }
     else                                                                   { midDim = this->zDimSize; }
     
-    proshade_single maxDiag                   = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ), 2.0 ) +
-                                                            std::pow ( static_cast<proshade_single> ( midDim ), 2.0 ) );
+    proshade_single maxDiag                           = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ), 2.0 ) +
+                                                                    std::pow ( static_cast<proshade_single> ( midDim ), 2.0 ) );
     
-    //======================================== Set between the points
+    //================================================ Set between the points
     for ( proshade_single iter = 0.5; ( iter * settings->maxSphereDists ) < ( maxDiag / 2.0 ); iter += 1.0 )
     {
-        ProSHADE_internal_misc::addToSingleVector  ( &this->spherePos, ( iter * settings->maxSphereDists ) );
+        ProSHADE_internal_misc::addToSingleVector     ( &this->spherePos, ( iter * settings->maxSphereDists ) );
     }
     
-    //======================================== Save the number of spheres
-    this->noSpheres                           = static_cast<proshade_unsign> ( this->spherePos.size() );
+    //================================================ Save the number of spheres
+    this->noSpheres                                   = static_cast<proshade_unsign> ( this->spherePos.size() );
     
-    //======================================== Report progress
+    //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The sphere distances were determined as " << this->spherePos.at(0);
     for ( proshade_unsign iter = 1; iter < static_cast<proshade_unsign> ( this->spherePos.size() ); iter++ ) { hlpSS << "; " << this->spherePos.at(iter); }
     hlpSS << " Angstroms.";
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
 
 }
@@ -1573,32 +1663,35 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
  */
 void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting sphere mapping procedure." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting sphere mapping procedure." );
     
-    //======================================== Determine spherical harmonics variables
-    settings->determineAllSHValues            ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Sphere settings determined." );
+    //================================================ Determine spherical harmonics variables
+    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere settings determined." );
     
-    //======================================== Find number of spheres supported
-    this->getSpherePositions                  ( settings );
+    //================================================ Find number of spheres supported
+    this->getSpherePositions                          ( settings );
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Sphere positions obtained." );
     
-    //======================================== Create sphere objects and map the density
-    this->spheres                             = new ProSHADE_internal_spheres::ProSHADE_sphere* [ this->noSpheres ];
+    //================================================ Create sphere objects and map the density
+    this->spheres                                     = new ProSHADE_internal_spheres::ProSHADE_sphere* [ this->noSpheres ];
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->spherePos.size() ); iter++ )
     {
         std::stringstream ss;
         ss << "Now mapping sphere " << iter << " .";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss.str() );
         
-        this->spheres[iter]                   = new ProSHADE_internal_spheres::ProSHADE_sphere ( this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, iter, &this->spherePos, settings->progressiveSphereMapping, settings->maxBandwidth, settings->maxAngRes, this->internalMap, &this->maxShellBand );
+        this->spheres[iter]                           = new ProSHADE_internal_spheres::ProSHADE_sphere ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                                                         this->xDimSize, this->yDimSize, this->zDimSize, iter,
+                                                                                                        &this->spherePos, settings->progressiveSphereMapping, settings->maxBandwidth,
+                                                                                                        settings->maxAngRes, this->internalMap, &this->maxShellBand );
     }
     
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Sphere mapping procedure completed." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere mapping procedure completed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1613,31 +1706,31 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
  */
 void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting spherical harmonics decomposition." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting spherical harmonics decomposition." );
     
-    //======================================== Initialise memory
-    this->sphericalHarmonics                  = new proshade_complex* [this->noSpheres];
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->sphericalHarmonics,  "ProSHADE_data.cpp", 1133, "computeSphericalHarmonics()" );
+    //================================================ Initialise memory
+    this->sphericalHarmonics                          = new proshade_complex* [this->noSpheres];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->sphericalHarmonics, __FILE__, __LINE__, __func__ );
     for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
     {
-        this->sphericalHarmonics[iter]        = new proshade_complex [(this->spheres[iter]->getLocalBandwidth() * 2) * (this->spheres[iter]->getLocalBandwidth() * 2)];
-        ProSHADE_internal_misc::checkMemoryAllocation ( this->sphericalHarmonics[iter],  "ProSHADE_data.cpp", 1137, "computeSphericalHarmonics()" );
+        this->sphericalHarmonics[iter]                = new proshade_complex [(this->spheres[iter]->getLocalBandwidth() * 2) * (this->spheres[iter]->getLocalBandwidth() * 2)];
+        ProSHADE_internal_misc::checkMemoryAllocation ( this->sphericalHarmonics[iter], __FILE__, __LINE__, __func__ );
     }
     
-    //======================================== Compute the spherical harmonics
+    //================================================ Compute the spherical harmonics
     for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
     {
-        //==================================== Report progress
+        //============================================ Report progress
         std::stringstream ss;
         ss << "Now decomposing sphere " << iter << ". " << "( Band is: " << this->spheres[iter]->getLocalBandwidth() << ").";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss.str() );
         
-        //==================================== Compute
+        //============================================ Compute
         ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( this->spheres[iter]->getLocalBandwidth(), this->spheres[iter]->getMappedData(), this->sphericalHarmonics[iter] );
     }
     
-    //======================================== Report completion
+    //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Spherical harmonics decomposition complete." );
     
     //======================================== Done
@@ -1656,77 +1749,77 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes )
 {
-    //======================================== Initialise variables
+    //================================================ Initialise variables
     std::vector< proshade_double* > CSyms;
     
-    //======================================== Was any particular symmetry requested?
+    //================================================ Was any particular symmetry requested?
     if ( settings->requestedSymmetryType == "" )
     {
-        //==================================== Run the symmetry detection functions for C, D, T, O and I symmetries
-        CSyms                                 = this->getCyclicSymmetriesList ( settings );
-        std::vector< proshade_double* > DSyms = this->getDihedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > ISyms = this->getIcosahedralSymmetriesList ( settings, &CSyms );
+        //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
+        CSyms                                         = this->getCyclicSymmetriesList ( settings );
+        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
         if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
         
-        //======================================== Decide on recommended symmetry
-        this->saveRecommendedSymmetry         ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
+        //============================================ Decide on recommended symmetry
+        this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
     }
     
     if ( settings->requestedSymmetryType == "C" )
     {
-        //==================================== Run only the C symmetry detection and search for requested fold
-        CSyms                                 = this->getCyclicSymmetriesList ( settings );
-        this->saveRequestedSymmetryC          ( settings, &CSyms, axes );
+        //============================================ Run only the C symmetry detection and search for requested fold
+        CSyms                                         = this->getCyclicSymmetriesList ( settings );
+        this->saveRequestedSymmetryC                  ( settings, &CSyms, axes );
     }
     
     if ( settings->requestedSymmetryType == "D" )
     {
-        //==================================== Run only the D symmetry detection and search for requested fold
-        CSyms                                 = this->getCyclicSymmetriesList ( settings );
-        std::vector< proshade_double* > DSyms = this->getDihedralSymmetriesList ( settings, &CSyms );
-        this->saveRequestedSymmetryD          ( settings, &DSyms, axes );
+        //============================================ Run only the D symmetry detection and search for requested fold
+        CSyms                                         = this->getCyclicSymmetriesList ( settings );
+        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
+        this->saveRequestedSymmetryD                  ( settings, &DSyms, axes );
     }
     
     if ( settings->requestedSymmetryType == "T" )
     {
-        //==================================== Run only the T symmetry detection and search for requested fold
-        CSyms                                 = this->getCyclicSymmetriesList ( settings );
-        std::vector< proshade_double* > TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms );
-        settings->setRecommendedFold          ( 0 );
+        //============================================ Run only the T symmetry detection and search for requested fold
+        CSyms                                         = this->getCyclicSymmetriesList ( settings );
+        std::vector< proshade_double* > TSyms         = this->getTetrahedralSymmetriesList ( settings, &CSyms );
+        settings->setRecommendedFold                  ( 0 );
         if ( TSyms.size() == 7 )              { settings->setRecommendedSymmetry ( "T" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSyms.size() ); it++ ) { settings->setDetectedSymmetry ( TSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSyms.at(it) ); } }
         else                                  { settings->setRecommendedSymmetry ( "" ); }
     }
     
     if ( settings->requestedSymmetryType == "O" )
     {
-        //==================================== Run only the O symmetry detection and search for requested fold
-        CSyms                                 = this->getCyclicSymmetriesList ( settings );
-        std::vector< proshade_double* > OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms );
-        settings->setRecommendedFold          ( 0 );
+        //============================================ Run only the O symmetry detection and search for requested fold
+        CSyms                                         = this->getCyclicSymmetriesList ( settings );
+        std::vector< proshade_double* > OSyms         = this->getOctahedralSymmetriesList ( settings, &CSyms );
+        settings->setRecommendedFold                  ( 0 );
         if ( OSyms.size() == 13 )             { settings->setRecommendedSymmetry ( "O" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSyms.size() ); it++ ) { settings->setDetectedSymmetry ( OSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSyms.at(it) ); } }
         else                                  { settings->setRecommendedSymmetry ( "" ); }
     }
     
     if ( settings->requestedSymmetryType == "I" )
     {
-        //==================================== Run only the T symmetry detection and search for requested fold
-        CSyms                                 = this->getCyclicSymmetriesList ( settings );
-        std::vector< proshade_double* > ISyms = this->getIcosahedralSymmetriesList ( settings, &CSyms );
-        settings->setRecommendedFold          ( 0 );
+        //============================================ Run only the T symmetry detection and search for requested fold
+        CSyms                                         = this->getCyclicSymmetriesList ( settings );
+        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
+        settings->setRecommendedFold                  ( 0 );
         if ( ISyms.size() == 31 )             { settings->setRecommendedSymmetry ( "I" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISyms.size() ); it++ ) { settings->setDetectedSymmetry ( ISyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISyms.at(it) ); } }
         else                                  { settings->setRecommendedSymmetry ( "" ); }
     }
     
     if ( ( settings->requestedSymmetryType != "" ) && ( settings->requestedSymmetryType != "C" ) && ( settings->requestedSymmetryType != "D" ) && ( settings->requestedSymmetryType != "T" ) && ( settings->requestedSymmetryType != "O" ) && ( settings->requestedSymmetryType != "I" ) )
     {
-        throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00031", "ProSHADE_data.cpp", 1566, "detectSymmetryInStructure()", "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
+        throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00031", __FILE__, __LINE__, __func__, "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
     }
 
-    //======================================== Release memory
+    //================================================ Release memory
     for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( CSyms.size() ); it++ ) { delete[] CSyms.at(it); }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1740,13 +1833,13 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( ProSHADE_settings* settings )
 {
-    //======================================== Initialise variables
+    //================================================ Initialise variables
     std::vector< proshade_double* > axes;
     
-    //======================================== Run the algorithm
-    this->detectSymmetryInStructure           ( settings, &axes );
+    //================================================ Run the algorithm
+    this->detectSymmetryInStructure                   ( settings, &axes );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1762,38 +1855,38 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( CSym->size() == 0 ) { *symInd = 0; return ( 0.0 ); }
     
-    //======================================== Sort the vector
-    std::sort                                 ( CSym->begin(), CSym->end(), ProSHADE_internal_misc::sortSymHlpInv );
+    //================================================ Sort the vector
+    std::sort                                         ( CSym->begin(), CSym->end(), ProSHADE_internal_misc::sortSymHlpInv );
     
-    //======================================== Initalise variables
-    proshade_double ret                       = CSym->at(0)[5];
-   *symInd                                    = 0;
-    proshade_double frac                      = 0.0;
+    //================================================ Initalise variables
+    proshade_double ret                               = CSym->at(0)[5];
+   *symInd                                            = 0;
+    proshade_double frac                              = 0.0;
     
-    //======================================== Check all other axes
+    //================================================ Check all other axes
     for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym->size() ); ind++ )
     {
-        //==================================== If higher fold than already leading one (do not care for lower fold and lower average height axes)
+        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
         if ( CSym->at(ind)[0] > CSym->at(*symInd)[0] )
         {
-            //================================ How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-            frac                              = std::max ( std::min ( ( CSym->at(*symInd)[0] / CSym->at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
+            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
+            frac                                      = std::max ( std::min ( ( CSym->at(*symInd)[0] / CSym->at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
             
-            //================================ Check if the new is "better" according to this criteria.
+            //======================================== Check if the new is "better" according to this criteria.
             if ( ( CSym->at(*symInd)[5] * frac ) < CSym->at(ind)[5] )
             {
-                //============================ And it is! Save and try next one.
-               *symInd                        = ind;
-                ret                           = CSym->at(ind)[5];
+                //==================================== And it is! Save and try next one.
+               *symInd                                = ind;
+                ret                                   = CSym->at(ind)[5];
             }
         }
     }
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -1808,40 +1901,40 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vec
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findBestDScore ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd )
 {
-    //======================================== Sort the vector
-    std::sort                                 ( DSym->begin(), DSym->end(), ProSHADE_internal_misc::sortDSymHlpInv );
+    //================================================ Sort the vector
+    std::sort                                         ( DSym->begin(), DSym->end(), ProSHADE_internal_misc::sortDSymHlpInv );
     
-    //======================================== Initalise variables
-    proshade_double ret                       = 0.0;
-    proshade_double frac                      = 0.0;
+    //================================================ Initalise variables
+    proshade_double ret                               = 0.0;
+    proshade_double frac                              = 0.0;
     if ( DSym->size() > 0 )
     {
-        ret                                   = ( ( DSym->at(0)[0] * DSym->at(0)[5] ) + ( DSym->at(0)[6] * DSym->at(0)[11] ) ) / ( DSym->at(0)[0] + DSym->at(0)[6] );
-       *symInd                                = 0;
+        ret                                           = ( ( DSym->at(0)[0] * DSym->at(0)[5] ) + ( DSym->at(0)[6] * DSym->at(0)[11] ) ) / ( DSym->at(0)[0] + DSym->at(0)[6] );
+       *symInd                                        = 0;
     }
     else { return ( ret ); }
 
-    //======================================== Check all other axes
+    //================================================ Check all other axes
     for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( DSym->size() ); ind++ )
     {
-        //==================================== If higher fold than already leading one (do not care for lower fold and lower average height axes)
+        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
         if ( ( DSym->at(ind)[0] + DSym->at(ind)[6] ) > ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) )
         {
-            //================================ How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-            frac                              = std::max ( std::min ( ( ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) ) * 1.5, 0.9 ), 0.6 );
+            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
+            frac                                      = std::max ( std::min ( ( ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) ) * 1.5, 0.9 ), 0.6 );
             
-            //================================ Check if the new is "better" according to this criteria.
+            //======================================== Check if the new is "better" according to this criteria.
             if ( ( ( ( DSym->at(*symInd)[0] * DSym->at(*symInd)[5] ) + ( DSym->at(*symInd)[6] * DSym->at(*symInd)[11] ) ) / ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) * frac ) < ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) )
             {
-                //============================ And it is! Save and try next one.
-               *symInd                        = ind;
-                ret                           = ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] );
+                //==================================== And it is! Save and try next one.
+               *symInd                                = ind;
+                ret                                   = ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] );
             }
         }
     }
 
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -1855,26 +1948,26 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestDScore ( std::vec
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findTScore ( std::vector< proshade_double* >* TSym )
 {
-    //======================================== Initialise variables
-    proshade_double ret                       = 0.0;
-    proshade_double foldSum                   = 0.0;
+    //================================================ Initialise variables
+    proshade_double ret                               = 0.0;
+    proshade_double foldSum                           = 0.0;
 
-    //======================================== Check the T symmetry for being complete
+    //================================================ Check the T symmetry for being complete
     if ( TSym->size() == 7 )
     {
-        //==================================== Compute the weighted fold
+        //============================================ Compute the weighted fold
         for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( TSym->size() ); cIt++ )
         {
-            ret                              += TSym->at(cIt)[0] * TSym->at(cIt)[5];
-            foldSum                          += TSym->at(cIt)[0];
+            ret                                      += TSym->at(cIt)[0] * TSym->at(cIt)[5];
+            foldSum                                  += TSym->at(cIt)[0];
         }
         
-        //==================================== Weight
-        ret                                  /= foldSum;
+        //============================================ Weight
+        ret                                          /= foldSum;
     }
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -1888,26 +1981,26 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findTScore ( std::vector<
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findOScore ( std::vector< proshade_double* >* OSym )
 {
-    //======================================== Initialise variables
-    proshade_double ret                       = 0.0;
-    proshade_double foldSum                   = 0.0;
+    //================================================ Initialise variables
+    proshade_double ret                               = 0.0;
+    proshade_double foldSum                           = 0.0;
     
-    //======================================== Check the O symmetry for being complete
+    //================================================ Check the O symmetry for being complete
     if ( OSym->size() == 13 )
     {
-        //==================================== Compute the weighted fold
+        //============================================ Compute the weighted fold
         for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( OSym->size() ); cIt++ )
         {
-            ret                              += OSym->at(cIt)[0] * OSym->at(cIt)[5];
-            foldSum                          += OSym->at(cIt)[0];
+            ret                                      += OSym->at(cIt)[0] * OSym->at(cIt)[5];
+            foldSum                                  += OSym->at(cIt)[0];
         }
         
-        //==================================== Weight
-        ret                                  /= foldSum;
+        //============================================ Weight
+        ret                                          /= foldSum;
     }
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -1921,26 +2014,26 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findOScore ( std::vector<
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector< proshade_double* >* ISym )
 {
-    //======================================== Initialise variables
-    proshade_double ret                       = 0.0;
-    proshade_double foldSum                   = 0.0;
+    //================================================ Initialise variables
+    proshade_double ret                               = 0.0;
+    proshade_double foldSum                           = 0.0;
     
-    //======================================== Check the T symmetry for being complete
+    //================================================ Check the T symmetry for being complete
     if ( ISym->size() == 31 )
     {
-        //==================================== Compute the weighted fold
+        //============================================ Compute the weighted fold
         for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( ISym->size() ); cIt++ )
         {
-            ret                              += ISym->at(cIt)[0] * ISym->at(cIt)[5];
-            foldSum                          += ISym->at(cIt)[0];
+            ret                                      += ISym->at(cIt)[0] * ISym->at(cIt)[5];
+            foldSum                                  += ISym->at(cIt)[0];
         }
         
-        //==================================== Weight
-        ret                                  /= foldSum;
+        //============================================ Weight
+        ret                                          /= foldSum;
     }
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -1960,56 +2053,56 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector<
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
 {
-    //======================================== Initialise variables
+    //================================================ Initialise variables
     proshade_double cScore = 0.0, dScore = 0.0, tScore = 0.0, oScore = 0.0, iScore = 0.0;
     proshade_unsign bestCIndex, bestDIndex;
     
-    //======================================== Find a score for each input symmetry type.
-    cScore                                    = this->findBestCScore ( CSym, &bestCIndex );
-    dScore                                    = this->findBestDScore ( DSym, &bestDIndex );
-    tScore                                    = this->findTScore     ( TSym );
-    oScore                                    = this->findOScore     ( OSym );
-    iScore                                    = this->findIScore     ( ISym );
+    //================================================ Find a score for each input symmetry type.
+    cScore                                            = this->findBestCScore ( CSym, &bestCIndex );
+    dScore                                            = this->findBestDScore ( DSym, &bestDIndex );
+    tScore                                            = this->findTScore     ( TSym );
+    oScore                                            = this->findOScore     ( OSym );
+    iScore                                            = this->findIScore     ( ISym );
     
-    //======================================== Find the best available score
-    proshade_double bestWeightedScore         = std::max ( cScore, std::max ( dScore * 2.0, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
+    //================================================ Find the best available score
+    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 2.0, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
     
     
-    //======================================== No score? Well, no symmetry.
+    //================================================ No score? Well, no symmetry.
     if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
     
     if ( bestWeightedScore == cScore )
     {
-        settings->setRecommendedSymmetry      ( "C" );
-        settings->setRecommendedFold          ( CSym->at(bestCIndex)[0] );
-        settings->setDetectedSymmetry         ( CSym->at(bestCIndex) );
+        settings->setRecommendedSymmetry              ( "C" );
+        settings->setRecommendedFold                  ( CSym->at(bestCIndex)[0] );
+        settings->setDetectedSymmetry                 ( CSym->at(bestCIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestCIndex) );
     }
     if ( bestWeightedScore == dScore * 2.0 )
     {
-        settings->setRecommendedSymmetry      ( "D" );
-        settings->setRecommendedFold          ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) );
-        settings->setDetectedSymmetry         ( DSym->at(bestDIndex) );
-        settings->setDetectedSymmetry         ( &DSym->at(bestDIndex)[6] );
+        settings->setRecommendedSymmetry              ( "D" );
+        settings->setRecommendedFold                  ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) );
+        settings->setDetectedSymmetry                 ( DSym->at(bestDIndex) );
+        settings->setDetectedSymmetry                 ( &DSym->at(bestDIndex)[6] );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, DSym->at(bestDIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestDIndex)[6] );
     }
     if ( bestWeightedScore == tScore * 3.0 )
     {
-        settings->setRecommendedSymmetry      ( "T" );
-        settings->setRecommendedFold          ( 0 );
+        settings->setRecommendedSymmetry              ( "T" );
+        settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
     }
     if ( bestWeightedScore == oScore * 4.0 )
     {
-        settings->setRecommendedSymmetry      ( "O" );
-        settings->setRecommendedFold          ( 0 );
+        settings->setRecommendedSymmetry              ( "O" );
+        settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
     }
     if ( bestWeightedScore == iScore * 5.0 )
     {
-        settings->setRecommendedSymmetry      ( "I" );
-        settings->setRecommendedFold          ( 0 );
+        settings->setRecommendedSymmetry              ( "I" );
+        settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
     }
     
@@ -2031,39 +2124,39 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes )
 {
-    //======================================== Initialise variables
-    proshade_unsign bestIndex                 = 0;
-    proshade_double highestSym                = 0.0;
+    //================================================ Initialise variables
+    proshade_unsign bestIndex                         = 0;
+    proshade_double highestSym                        = 0.0;
     
-    //======================================== Search for best fold
+    //================================================ Search for best fold
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( CSym->size() ); iter++ )
     {
-        //==================================== Check if it is tbe correct fold
+        //============================================ Check if it is tbe correct fold
         if ( CSym->at(iter)[0] != settings->requestedSymmetryFold ) { continue; }
         
-        //==================================== If correct, is it the highest found?
+        //============================================ If correct, is it the highest found?
         if ( CSym->at(iter)[5] > highestSym )
         {
-            highestSym                        = CSym->at(iter)[5];
-            bestIndex                         = iter;
+            highestSym                                = CSym->at(iter)[5];
+            bestIndex                                 = iter;
         }
     }
     
-    //======================================== Found?
+    //================================================ Found?
     if ( highestSym  > 0.0 )
     {
-        settings->setRecommendedSymmetry      ( "C" );
-        settings->setRecommendedFold          ( CSym->at(bestIndex)[0] );
-        settings->setDetectedSymmetry         ( CSym->at(bestIndex) );
+        settings->setRecommendedSymmetry              ( "C" );
+        settings->setRecommendedFold                  ( CSym->at(bestIndex)[0] );
+        settings->setDetectedSymmetry                 ( CSym->at(bestIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestIndex) );
     }
     else
     {
-        settings->setRecommendedSymmetry      ( "" );
-        settings->setRecommendedFold          ( 0 );
+        settings->setRecommendedSymmetry              ( "" );
+        settings->setRecommendedFold                  ( 0 );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2081,41 +2174,41 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes )
 {
-    //======================================== Initialise variables
-    proshade_unsign bestIndex                 = 0;
-    proshade_double highestSym                = 0.0;
+    //================================================ Initialise variables
+    proshade_unsign bestIndex                         = 0;
+    proshade_double highestSym                        = 0.0;
     
-    //======================================== Search for best fold
+    //================================================ Search for best fold
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( DSym->size() ); iter++ )
     {
-        //==================================== Check if it is tbe correct fold
+        //============================================ Check if it is tbe correct fold
         if ( std::max ( DSym->at(iter)[0], DSym->at(iter)[6] ) != settings->requestedSymmetryFold ) { continue; }
 
-        //==================================== If correct, is it the highest found?
+        //============================================ If correct, is it the highest found?
         if ( ( DSym->at(iter)[5] + DSym->at(iter)[11] ) > highestSym )
         {
-            highestSym                        = ( DSym->at(iter)[5] + DSym->at(iter)[11] );
-            bestIndex                         = iter;
+            highestSym                                = ( DSym->at(iter)[5] + DSym->at(iter)[11] );
+            bestIndex                                 = iter;
         }
     }
     
-    //======================================== Found?
+    //================================================ Found?
     if ( highestSym  > 0.0 )
     {
-        settings->setRecommendedSymmetry      ( "D" );
-        settings->setRecommendedFold          ( std::max ( DSym->at(bestIndex)[0], DSym->at(bestIndex)[6] ) );
-        settings->setDetectedSymmetry         ( DSym->at(bestIndex) );
-        settings->setDetectedSymmetry         ( &DSym->at(bestIndex)[6] );
+        settings->setRecommendedSymmetry              ( "D" );
+        settings->setRecommendedFold                  ( std::max ( DSym->at(bestIndex)[0], DSym->at(bestIndex)[6] ) );
+        settings->setDetectedSymmetry                 ( DSym->at(bestIndex) );
+        settings->setDetectedSymmetry                 ( &DSym->at(bestIndex)[6] );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes,  DSym->at(bestIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestIndex)[6] );
     }
     else
     {
-        settings->setRecommendedSymmetry      ( "" );
-        settings->setRecommendedFold          ( 0 );
+        settings->setRecommendedSymmetry              ( "" );
+        settings->setRecommendedFold                  ( 0 );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2129,26 +2222,26 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
  */
 void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& saveTo, proshade_unsign verbose )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( saveTo != NULL )
     {
         ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! The deep copy pointer is not set to NULL. Cannot proceed and returning unmodified pointer.", "WB00039" );
         return ;
     }
     
-    //======================================== Allocate the memory
-    saveTo                                    = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    //================================================ Allocate the memory
+    saveTo                                            = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( saveTo, "ProSHADE_data.cpp", 2003, "deepCopyMap()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation ( saveTo, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy internal map to the new pointer
+    //================================================ Copy internal map to the new pointer
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
     {
-        saveTo[iter]                          = this->internalMap[iter];
+        saveTo[iter]                                  = this->internalMap[iter];
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2161,13 +2254,61 @@ void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& save
  */
 void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_settings* settings )
 {
-    //======================================== Improve this!
+    //================================================ Improve this!
     if ( settings->recommendedSymmetryType == "" ) { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!" ); }
     else { std::stringstream ssHlp; ssHlp << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " ."; ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() ); }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
+}
+
+/*! \brief This function finds the centre of mass of the internal map representation.
+
+This function simply computes the centre of mass for the given ProSHADE_data object map in the "real space" (i.e. the space that counts Angstroms from the bottom left further corner). These are then saved into the ProSHADE_data object.
+*/
+void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
+{
+    //================================================ Initialise variables
+    this->xCom                                        = 0.0;
+    this->yCom                                        = 0.0;
+    this->zCom                                        = 0.0;
+    proshade_double totNonZeroPoints                  = 0.0;
+    proshade_signed mapIt                             = 0;
+    
+    //================================================ Compute COM from 0 ; 0 ; 0
+    for ( proshade_signed xIt = 0; xIt < static_cast<proshade_signed> ( this->xDimIndices ); xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < static_cast<proshade_signed> ( this->yDimIndices ); yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < static_cast<proshade_signed> ( this->zDimIndices ); zIt++ )
+            {
+                //==================================== Find map index
+                mapIt                                 = zIt  + this->zDimIndices * ( yIt  + this->yDimIndices * xIt  );
+                
+                //==================================== Use only positive density
+                if ( this->internalMap[mapIt] <= 0.0 ) { continue; }
+                
+                //==================================== Compute Index COM
+                this->xCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( xIt );
+                this->yCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( yIt );
+                this->zCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( zIt );
+                totNonZeroPoints                     += 1.0;
+            }
+        }
+    }
+    
+    this->xCom                                       /= totNonZeroPoints;
+    this->yCom                                       /= totNonZeroPoints;
+    this->zCom                                       /= totNonZeroPoints;
+    
+    //================================================ Convert to real world
+    this->xCom                                        = ( this->xCom - this->xFrom ) * ( this->xDimSize / ( this->xTo - this->xFrom ) );
+    this->yCom                                        = ( this->yCom - this->yFrom ) * ( this->yDimSize / ( this->yTo - this->yFrom ) );
+    this->zCom                                        = ( this->zCom - this->zFrom ) * ( this->zDimSize / ( this->zTo - this->zFrom ) );
+    
+    //================================================ Done
+    return ;
 }
 
 /*! \brief This function returns the number of spheres which contain the whole object.
@@ -2176,8 +2317,8 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxSpheres ( )
 {
-    //======================================== Return the value
-    return                                    ( this->noSpheres );
+    //================================================ Return the value
+    return                                            ( this->noSpheres );
 }
 
 /*! \brief This function returns the internal map representation value of a particular array position.
@@ -2187,8 +2328,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxSpheres ( )
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getMapValue ( proshade_unsign pos )
 {
-    //======================================== Return the value
-    return                                    ( this->internalMap[pos] );
+    //================================================ Return the value
+    return                                            ( this->internalMap[pos] );
 }
 
 /*! \brief This function returns the maximum band value for the object.
@@ -2197,8 +2338,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getMapValue ( proshade_un
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxBand ( )
 {
-    //======================================== Return the value
-    return                                    ( this->maxShellBand );
+    //================================================ Return the value
+    return                                            ( this->maxShellBand );
 }
 
 /*! \brief This function allows access to the priva internal RRP matrices.
@@ -2207,8 +2348,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxBand ( )
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getRRPValue ( proshade_unsign band, proshade_unsign sh1, proshade_unsign sh2 )
 {
-    //======================================== Return the value
-    return                                    ( this->rrpMatrices[band][sh1][sh2] );
+    //================================================ Return the value
+    return                                            ( this->rrpMatrices[band][sh1][sh2] );
 }
 
 /*! \brief This function checks if particular shell has a  particular band.
@@ -2225,11 +2366,11 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
 {
     if ( this->spheres[shell]->getLocalBandwidth( ) >= bandVal )
     {
-        return                                ( true );
+        return                                        ( true );
     }
     else
     {
-        return                                ( false );
+        return                                        ( false );
     }
 }
 
@@ -2243,38 +2384,40 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
  */
 void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_settings* settings )
 {
-    //======================================== Report function start
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Centering map onto its COM." );
+    //================================================ Report function start
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Centering map onto its COM." );
     
-    //======================================== Copy map for processing
-    fftw_complex* mapCoeffs                   = new fftw_complex[this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    fftw_complex* pattersonMap                = new fftw_complex[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    //================================================ Copy map for processing
+    fftw_complex* mapCoeffs                           = new fftw_complex[this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    fftw_complex* pattersonMap                        = new fftw_complex[this->xDimIndices * this->yDimIndices * this->zDimIndices];
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( mapCoeffs, "ProSHADE_data.cpp", 1237, "removePhaseInormation()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( pattersonMap, "ProSHADE_data.cpp", 1238, "removePhaseInormation()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mapCoeffs, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( pattersonMap, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy data to mask
+    //================================================ Copy data to mask
     for ( proshade_unsign iter = 0; iter < (this->xDimIndices * this->yDimIndices * this->zDimIndices); iter++ )
     {
-        pattersonMap[iter][0]                      = this->internalMap[iter];
-        pattersonMap[iter][1]                      = 0.0;
+        pattersonMap[iter][0]                         = this->internalMap[iter];
+        pattersonMap[iter][1]                         = 0.0;
     }
     
-    //======================================== Prepare FFTW plans
-    fftw_plan forward                         = fftw_plan_dft_3d ( this->xDimIndices, this->yDimIndices, this->zDimIndices, pattersonMap, mapCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
-    fftw_plan inverse                         = fftw_plan_dft_3d ( this->xDimIndices, this->yDimIndices, this->zDimIndices, mapCoeffs, pattersonMap, FFTW_BACKWARD, FFTW_ESTIMATE );
+    //================================================ Prepare FFTW plans
+    fftw_plan forward                                 = fftw_plan_dft_3d ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                           pattersonMap, mapCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    fftw_plan inverse                                 = fftw_plan_dft_3d ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                           mapCoeffs, pattersonMap, FFTW_BACKWARD, FFTW_ESTIMATE );
     
-    //======================================== Run forward Fourier
-    fftw_execute                              ( forward );
+    //================================================ Run forward Fourier
+    fftw_execute                                      ( forward );
     
-    //======================================== Remove the phase
-    ProSHADE_internal_mapManip::removeMapPhase ( mapCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    //================================================ Remove the phase
+    ProSHADE_internal_mapManip::removeMapPhase        ( mapCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices );
     
-    //======================================== Run inverse Fourier
-    fftw_execute                              ( inverse );
+    //================================================ Run inverse Fourier
+    fftw_execute                                      ( inverse );
     
-    //======================================== Save the results
+    //================================================ Save the results
     proshade_signed mapIt, patIt, patX, patY, patZ;
     for ( proshade_signed xIt = 0; xIt < static_cast<proshade_signed> ( this->xDimIndices ); xIt++ )
     {
@@ -2282,33 +2425,33 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
         {
             for ( proshade_signed zIt = 0; zIt < static_cast<proshade_signed> ( this->zDimIndices ); zIt++ )
             {
-                //============================ Centre patterson map
+                //==================================== Centre patterson map
                 patX = xIt - ( static_cast<proshade_signed> ( this->xDimIndices ) / 2 ); if ( patX < 0 ) { patX += this->xDimIndices; }
                 patY = yIt - ( static_cast<proshade_signed> ( this->yDimIndices ) / 2 ); if ( patY < 0 ) { patY += this->yDimIndices; }
                 patZ = zIt - ( static_cast<proshade_signed> ( this->zDimIndices ) / 2 ); if ( patZ < 0 ) { patZ += this->zDimIndices; }
                 
-                //============================ Find indices
-                mapIt                         = zIt  + this->zDimIndices * ( yIt  + this->yDimIndices * xIt  );
-                patIt                         = patZ + this->zDimIndices * ( patY + this->yDimIndices * patX );
+                //==================================== Find indices
+                mapIt                                 = zIt  + this->zDimIndices * ( yIt  + this->yDimIndices * xIt  );
+                patIt                                 = patZ + this->zDimIndices * ( patY + this->yDimIndices * patX );
                 
-                //============================ Copy
-                this->internalMap[mapIt]      = pattersonMap[patIt][0];
+                //==================================== Copy
+                this->internalMap[mapIt]              = pattersonMap[patIt][0];
             }
         }
     }
     
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] pattersonMap;
     delete[] mapCoeffs;
     
-    //======================================== Delete FFTW plans
-    fftw_destroy_plan                         ( forward );
-    fftw_destroy_plan                         ( inverse );
+    //================================================ Delete FFTW plans
+    fftw_destroy_plan                                 ( forward );
+    fftw_destroy_plan                                 ( inverse );
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Phase information removed." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Phase information removed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2319,10 +2462,10 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
 {
-    //======================================== Done
-    return                                    ( &this->sphericalHarmonics[shell][seanindex ( static_cast<proshade_signed> ( order ) - static_cast<proshade_signed> ( band ),
-                                                                                             band,
-                                                                                             this->spheres[shell]->getLocalBandwidth() )][0] );
+    //================================================ Done
+    return                                            ( &this->sphericalHarmonics[shell][seanindex ( static_cast<proshade_signed> ( order ) - static_cast<proshade_signed> ( band ),
+                                                                                                     band,
+                                                                                                     this->spheres[shell]->getLocalBandwidth() )][0] );
     
 }
 
@@ -2332,10 +2475,10 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( pr
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getImagSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
 {
-    //======================================== Done
-    return                                    ( &this->sphericalHarmonics[shell][seanindex ( static_cast<proshade_signed> ( order ) - static_cast<proshade_signed> ( band ),
-                                                                                            band,
-                                                                                            this->spheres[shell]->getLocalBandwidth() )][1] );
+    //================================================ Done
+    return                                            ( &this->sphericalHarmonics[shell][seanindex ( static_cast<proshade_signed> ( order ) - static_cast<proshade_signed> ( band ),
+                                                                                                     band,
+                                                                                                     this->spheres[shell]->getLocalBandwidth() )][1] );
     
 }
 
@@ -2345,8 +2488,8 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::getImagSphHarmValue ( pr
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getAnySphereRadius ( proshade_unsign shell )
 {
-    //======================================== Done
-    return                                    ( this->spheres[shell]->getShellRadius() );
+    //================================================ Done
+    return                                            ( this->spheres[shell]->getShellRadius() );
     
 }
 
@@ -2356,8 +2499,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getAnySphereRadius ( pros
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getIntegrationWeight  ( void )
 {
-    //======================================== Done
-    return                                    ( this->integrationWeight );
+    //================================================ Done
+    return                                            ( this->integrationWeight );
     
 }
 
@@ -2368,8 +2511,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getIntegrationWeight  ( v
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getShellBandwidth ( proshade_unsign shell )
 {
-    //======================================== Done
-    return                                    ( this->spheres[shell]->getLocalBandwidth ( ) );
+    //================================================ Done
+    return                                            ( this->spheres[shell]->getLocalBandwidth ( ) );
     
 }
 
@@ -2380,8 +2523,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getShellBandwidth ( prosh
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getSpherePosValue ( proshade_unsign shell )
 {
-    //======================================== Done
-    return                                    ( this->spherePos.at(shell) );
+    //================================================ Done
+    return                                            ( this->spherePos.at(shell) );
     
 }
 
@@ -2392,8 +2535,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getSpherePosValue ( prosh
  */
 proshade_complex** ProSHADE_internal_data::ProSHADE_data::getEMatrixByBand ( proshade_unsign band )
 {
-    //======================================== Done
-    return                                    ( this->eMatrices[band] );
+    //================================================ Done
+    return                                            ( this->eMatrices[band] );
     
 }
 
@@ -2407,11 +2550,11 @@ proshade_complex** ProSHADE_internal_data::ProSHADE_data::getEMatrixByBand ( pro
  */
 void ProSHADE_internal_data::ProSHADE_data::getEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag )
 {
-    //======================================== Set pointer
-   *valueReal                                 = this->eMatrices[band][order1][order2][0];
-   *valueImag                                 = this->eMatrices[band][order1][order2][1];
+    //================================================ Set pointer
+   *valueReal                                         = this->eMatrices[band][order1][order2][0];
+   *valueImag                                         = this->eMatrices[band][order1][order2][1];
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2422,8 +2565,8 @@ void ProSHADE_internal_data::ProSHADE_data::getEMatrixValue ( proshade_unsign ba
  */
 proshade_complex* ProSHADE_internal_data::ProSHADE_data::getInvSO3Coeffs ( )
 {
-    //======================================== Done
-    return                                    ( this->so3CoeffsInverse );
+    //================================================ Done
+    return                                            ( this->so3CoeffsInverse );
     
 }
 
@@ -2433,8 +2576,8 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getInvSO3Coeffs ( )
  */
 proshade_complex* ProSHADE_internal_data::ProSHADE_data::getSO3Coeffs ( )
 {
-    //======================================== Done
-    return                                    ( this->so3Coeffs );
+    //================================================ Done
+    return                                            ( this->so3Coeffs );
     
 }
 
@@ -2444,8 +2587,8 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getSO3Coeffs ( )
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getComparisonBand ( )
 {
-    //======================================== Done
-    return                                    ( this->maxCompBand );
+    //================================================ Done
+    return                                            ( this->maxCompBand );
     
 }
 
@@ -2459,11 +2602,11 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getComparisonBand ( )
  */
 void ProSHADE_internal_data::ProSHADE_data::getWignerMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag )
 {
-    //======================================== Set pointer
-    *valueReal                                 = this->wignerMatrices[band][order1][order2][0];
-    *valueImag                                 = this->wignerMatrices[band][order1][order2][1];
+    //================================================ Set pointer
+    *valueReal                                        = this->wignerMatrices[band][order1][order2][0];
+    *valueImag                                        = this->wignerMatrices[band][order1][order2][1];
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2474,8 +2617,8 @@ void ProSHADE_internal_data::ProSHADE_data::getWignerMatrixValue ( proshade_unsi
  */
 proshade_single ProSHADE_internal_data::ProSHADE_data::getXDimSize ( )
 {
-    //======================================== Return the requested value
-    return ( this->xDimSize );
+    //================================================ Return the requested value
+    return                                            ( this->xDimSize );
 }
 
 /*! \brief This function allows access to the map size in angstroms along the Y axis.
@@ -2484,8 +2627,8 @@ proshade_single ProSHADE_internal_data::ProSHADE_data::getXDimSize ( )
  */
 proshade_single ProSHADE_internal_data::ProSHADE_data::getYDimSize ( )
 {
-    //======================================== Return the requested value
-    return ( this->yDimSize );
+    //================================================ Return the requested value
+    return                                            ( this->yDimSize );
 }
 
 /*! \brief This function allows access to the map size in angstroms along the Z axis.
@@ -2494,8 +2637,8 @@ proshade_single ProSHADE_internal_data::ProSHADE_data::getYDimSize ( )
  */
 proshade_single ProSHADE_internal_data::ProSHADE_data::getZDimSize ( )
 {
-    //======================================== Return the requested value
-    return ( this->zDimSize );
+    //================================================ Return the requested value
+    return                                            ( this->zDimSize );
 }
 
 /*! \brief This function allows access to the map size in indices along the X axis.
@@ -2504,8 +2647,8 @@ proshade_single ProSHADE_internal_data::ProSHADE_data::getZDimSize ( )
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getXDim ( )
 {
-    //======================================== Return the requested value
-    return ( this->xDimIndices );
+    //================================================ Return the requested value
+    return                                            ( this->xDimIndices );
 }
 
 /*! \brief This function allows access to the map size in indices along the Y axis.
@@ -2514,8 +2657,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getXDim ( )
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getYDim ( )
 {
-    //======================================== Return the requested value
-    return ( this->yDimIndices );
+    //================================================ Return the requested value
+    return                                            ( this->yDimIndices );
 }
 
 /*! \brief This function allows access to the map size in indices along the Z axis.
@@ -2524,8 +2667,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getYDim ( )
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getZDim ( )
 {
-    //======================================== Return the requested value
-    return ( this->zDimIndices );
+    //================================================ Return the requested value
+    return                                            ( this->zDimIndices );
 }
 
 /*! \brief This function allows access to the map start along the X axis.
@@ -2534,8 +2677,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getZDim ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXFromPtr ( )
 {
-    //======================================== Return the requested value
-    return ( &this->xFrom );
+    //================================================ Return the requested value
+    return                                            ( &this->xFrom );
 }
 
 /*! \brief This function allows access to the map start along the Y axis.
@@ -2544,8 +2687,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXFromPtr ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYFromPtr ( )
 {
-    //======================================== Return the requested value
-    return ( &this->yFrom );
+    //================================================ Return the requested value
+    return                                            ( &this->yFrom );
 }
 
 /*! \brief This function allows access to the map start along the Z axis.
@@ -2554,8 +2697,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYFromPtr ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZFromPtr ( )
 {
-    //======================================== Return the requested value
-    return ( &this->zFrom );
+    //================================================ Return the requested value
+    return                                            ( &this->zFrom );
 }
 
 /*! \brief This function allows access to the map last position along the X axis.
@@ -2564,8 +2707,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZFromPtr ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXToPtr ( )
 {
-    //======================================== Return the requested value
-    return ( &this->xTo );
+    //================================================ Return the requested value
+    return                                            ( &this->xTo );
 }
 
 /*! \brief This function allows access to the map last position along the Y axis.
@@ -2574,8 +2717,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXToPtr ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYToPtr ( )
 {
-    //======================================== Return the requested value
-    return ( &this->yTo );
+    //================================================ Return the requested value
+    return                                            ( &this->yTo );
 }
 
 /*! \brief This function allows access to the map last position along the Z axis.
@@ -2584,8 +2727,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYToPtr ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZToPtr ( )
 {
-    //======================================== Return the requested value
-    return ( &this->zTo );
+    //================================================ Return the requested value
+    return                                            ( &this->zTo );
 }
 
 /*! \brief This function allows access to the map X axis origin value.
@@ -2594,8 +2737,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZToPtr ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXAxisOrigin ( )
 {
-    //======================================== Return the requested value
-    return ( &this->xAxisOrigin );
+    //================================================ Return the requested value
+    return                                            ( &this->xAxisOrigin );
 }
 
 /*! \brief This function allows access to the map Y axis origin value.
@@ -2604,8 +2747,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXAxisOrigin ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYAxisOrigin ( )
 {
-    //======================================== Return the requested value
-    return ( &this->yAxisOrigin );
+    //================================================ Return the requested value
+    return                                            ( &this->yAxisOrigin );
 }
 
 /*! \brief This function allows access to the map Z axis origin value.
@@ -2614,8 +2757,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYAxisOrigin ( )
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZAxisOrigin ( )
 {
-    //======================================== Return the requested value
-    return ( &this->zAxisOrigin );
+    //================================================ Return the requested value
+    return                                            ( &this->zAxisOrigin );
 }
 
 /*! \brief This function allows access to the first map array value address.
@@ -2624,8 +2767,8 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZAxisOrigin ( )
 */
 proshade_double*& ProSHADE_internal_data::ProSHADE_data::getInternalMap ( )
 {
-    //======================================== Return the requested value
-    return ( this->internalMap );
+    //================================================ Return the requested value
+    return                                            ( this->internalMap );
 }
 
 /*! \brief This function allows access to the translation function through a pointer.
@@ -2634,7 +2777,8 @@ proshade_double*& ProSHADE_internal_data::ProSHADE_data::getInternalMap ( )
 */
 proshade_complex* ProSHADE_internal_data::ProSHADE_data::getTranslationFnPointer ( void )
 {
-    return ( this->translationMap );
+    //================================================ Return the requested value
+    return                                            ( this->translationMap );
 }
 
 /*! \brief This function allows setting the integration weight for the object.
@@ -2643,10 +2787,10 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getTranslationFnPointer
  */
 void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeight ( proshade_double intW )
 {
-    //======================================== Mutate
-    this->integrationWeight                   = intW;
+    //================================================ Mutate
+    this->integrationWeight                           = intW;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2657,10 +2801,10 @@ void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeight ( proshade_doub
  */
 void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeightCumul ( proshade_double intW )
 {
-    //======================================== Mutate
-    this->integrationWeight                  += intW;
+    //================================================ Mutate
+    this->integrationWeight                          += intW;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2674,11 +2818,11 @@ void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeightCumul ( proshade
  */
 void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_complex val )
 {
-    //======================================== Mutate
-    this->eMatrices[band][order1][order2][0]  = val[0];
-    this->eMatrices[band][order1][order2][1]  = val[1];
+    //================================================ Mutate
+    this->eMatrices[band][order1][order2][0]          = val[0];
+    this->eMatrices[band][order1][order2][1]          = val[1];
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2692,11 +2836,11 @@ void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( proshade_unsign ba
  */
 void ProSHADE_internal_data::ProSHADE_data::normaliseEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double normF )
 {
-    //======================================== Mutate
-    this->eMatrices[band][order1][order2][0] /= normF;
-    this->eMatrices[band][order1][order2][1] /= normF;
+    //================================================ Mutate
+    this->eMatrices[band][order1][order2][0]         /= normF;
+    this->eMatrices[band][order1][order2][1]         /= normF;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2708,11 +2852,11 @@ void ProSHADE_internal_data::ProSHADE_data::normaliseEMatrixValue ( proshade_uns
  */
 void ProSHADE_internal_data::ProSHADE_data::setSO3CoeffValue ( proshade_unsign position, proshade_complex val )
 {
-    //======================================== Mutate
-    this->so3Coeffs[position][0]              = val[0];
-    this->so3Coeffs[position][1]              = val[1];
+    //================================================ Mutate
+    this->so3Coeffs[position][0]                      = val[0];
+    this->so3Coeffs[position][1]                      = val[1];
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2726,11 +2870,11 @@ void ProSHADE_internal_data::ProSHADE_data::setSO3CoeffValue ( proshade_unsign p
  */
 void ProSHADE_internal_data::ProSHADE_data::setWignerMatrixValue ( proshade_complex val, proshade_unsign band, proshade_unsign order1, proshade_unsign order2 )
 {
-    //======================================== Mutate
-    this->wignerMatrices[band][order1][order2][0] = val[0];
-    this->wignerMatrices[band][order1][order2][1] = val[1];
+    //================================================ Mutate
+    this->wignerMatrices[band][order1][order2][0]     = val[0];
+    this->wignerMatrices[band][order1][order2][1]     = val[1];
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2741,8 +2885,8 @@ void ProSHADE_internal_data::ProSHADE_data::setWignerMatrixValue ( proshade_comp
  */
 int ProSHADE_internal_data::ProSHADE_data::getMapArraySizePython ( void )
 {
-    //======================================== Done
-    return                                    ( static_cast<int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ) );
+    //================================================ Done
+    return                                            ( static_cast<int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ) );
     
 }
 
@@ -2753,13 +2897,13 @@ int ProSHADE_internal_data::ProSHADE_data::getMapArraySizePython ( void )
 */
 void ProSHADE_internal_data::ProSHADE_data::getMapPython ( double *mapArrayPython, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        mapArrayPython[iter]                  = static_cast<double> ( this->internalMap[iter] );
+        mapArrayPython[iter]                          = static_cast<double> ( this->internalMap[iter] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2771,13 +2915,13 @@ void ProSHADE_internal_data::ProSHADE_data::getMapPython ( double *mapArrayPytho
 */
 void ProSHADE_internal_data::ProSHADE_data::setMapPython ( double *mapChangedInPython, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        this->internalMap[iter]               = static_cast<proshade_double> ( mapChangedInPython[iter] );
+        this->internalMap[iter]                       = static_cast<proshade_double> ( mapChangedInPython[iter] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2789,21 +2933,21 @@ void ProSHADE_internal_data::ProSHADE_data::setMapPython ( double *mapChangedInP
 */
 void ProSHADE_internal_data::ProSHADE_data::setNewMapPython ( double *mapChangedInPython, int len )
 {
-    //======================================== Delete the old map data
+    //================================================ Delete the old map data
     delete[] this->internalMap;
-    this->internalMap                         = NULL;
+    this->internalMap                                 = NULL;
     
-    //======================================== Allocate new map space
-    this->internalMap                         = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->internalMap, "ProSHADE_data.cpp", 2497, "setNewMapPython()" );
+    //================================================ Allocate new map space
+    this->internalMap                                 = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->internalMap, __FILE__, __LINE__, __func__ );
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        this->internalMap[iter]               = static_cast<proshade_double> ( mapChangedInPython[iter] );
+        this->internalMap[iter]                       = static_cast<proshade_double> ( mapChangedInPython[iter] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2817,20 +2961,20 @@ void ProSHADE_internal_data::ProSHADE_data::setNewMapPython ( double *mapChanged
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealSphericalHarmonicsForShell ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( shellNo >= this->noSpheres )
     {
         ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00042" );
         return ;
     }
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        sphericalHarmsReal[iter]              = static_cast<double> ( this->sphericalHarmonics[shellNo][iter][0] );
+        sphericalHarmsReal[iter]                      = static_cast<double> ( this->sphericalHarmonics[shellNo][iter][0] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2844,20 +2988,20 @@ void ProSHADE_internal_data::ProSHADE_data::getRealSphericalHarmonicsForShell ( 
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagSphericalHarmonicsForShell ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( shellNo >= this->noSpheres )
     {
         ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00042" );
         return ;
     }
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        sphericalHarmsImag[iter]              = static_cast<double> ( this->sphericalHarmonics[shellNo][iter][1] );
+        sphericalHarmsImag[iter]                      = static_cast<double> ( this->sphericalHarmonics[shellNo][iter][1] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2870,15 +3014,15 @@ void ProSHADE_internal_data::ProSHADE_data::getImagSphericalHarmonicsForShell ( 
 */
 int ProSHADE_internal_data::ProSHADE_data::getSphericalHarmonicsLenForShell  ( proshade_unsign shellNo, proshade_signed verbose )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( shellNo >= this->noSpheres )
     {
         ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00042" );
-        return                                ( 0 );
+        return                                        ( 0 );
     }
     
-    //======================================== Return the value
-    return                                    ( static_cast<int> ( (this->spheres[shellNo]->getLocalBandwidth() * 2) * (this->spheres[shellNo]->getLocalBandwidth() * 2) ) );
+    //================================================ Return the value
+    return                                            ( static_cast<int> ( (this->spheres[shellNo]->getLocalBandwidth() * 2) * (this->spheres[shellNo]->getLocalBandwidth() * 2) ) );
 }
 
 /*! \brief This function gets the spherical harmonics array index for a particular spherical harmonics band and order.
@@ -2890,8 +3034,8 @@ int ProSHADE_internal_data::ProSHADE_data::getSphericalHarmonicsLenForShell  ( p
 */
 int ProSHADE_internal_data::ProSHADE_data::sphericalHarmonicsIndex ( proshade_signed order, proshade_signed band, proshade_signed shell )
 {
-    //======================================== Return the value
-    return ( static_cast<int> ( seanindex ( order, band, this->spheres[shell]->getLocalBandwidth() ) ) );
+    //================================================ Return the value
+    return                                            ( static_cast<int> ( seanindex ( order, band, this->spheres[shell]->getLocalBandwidth() ) ) );
 }
 
 /*! \brief This function fills the input array with the real E matrix values for particular band and order1 (l as opposed to l').
@@ -2903,13 +3047,13 @@ int ProSHADE_internal_data::ProSHADE_data::sphericalHarmonicsIndex ( proshade_si
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealEMatrixValuesForLM ( proshade_signed band, proshade_signed order1, double *eMatsLMReal, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        eMatsLMReal[iter]                     = static_cast<double> ( this->eMatrices[band][order1][iter][0] );
+        eMatsLMReal[iter]                             = static_cast<double> ( this->eMatrices[band][order1][iter][0] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2923,13 +3067,13 @@ void ProSHADE_internal_data::ProSHADE_data::getRealEMatrixValuesForLM ( proshade
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagEMatrixValuesForLM ( proshade_signed band, proshade_signed order1, double *eMatsLMImag, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        eMatsLMImag[iter]                     = static_cast<double> ( this->eMatrices[band][order1][iter][1] );
+        eMatsLMImag[iter]                             = static_cast<double> ( this->eMatrices[band][order1][iter][1] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2941,13 +3085,13 @@ void ProSHADE_internal_data::ProSHADE_data::getImagEMatrixValuesForLM ( proshade
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealSO3Coeffs ( double *so3CoefsReal, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        so3CoefsReal[iter]                    = static_cast<double> ( this->so3Coeffs[iter][0] );
+        so3CoefsReal[iter]                            = static_cast<double> ( this->so3Coeffs[iter][0] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2959,13 +3103,13 @@ void ProSHADE_internal_data::ProSHADE_data::getRealSO3Coeffs ( double *so3CoefsR
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagSO3Coeffs ( double *so3CoefsImag, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        so3CoefsImag[iter]                    = static_cast<double> ( this->so3Coeffs[iter][1] );
+        so3CoefsImag[iter]                            = static_cast<double> ( this->so3Coeffs[iter][1] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2981,8 +3125,8 @@ void ProSHADE_internal_data::ProSHADE_data::getImagSO3Coeffs ( double *so3CoefsI
 */
 int ProSHADE_internal_data::ProSHADE_data::so3CoeffsArrayIndex ( proshade_signed order1, proshade_signed order2, proshade_signed band )
 {
-    //======================================== Return the value
-    return                                    ( static_cast<int> ( so3CoefLoc ( order1, order2, band, this->getMaxBand() ) ) );
+    //================================================ Return the value
+    return                                            ( static_cast<int> ( so3CoefLoc ( order1, order2, band, this->getMaxBand() ) ) );
 }
 
 /*! \brief This function fills the input array with the real rotation function values.
@@ -2992,13 +3136,13 @@ int ProSHADE_internal_data::ProSHADE_data::so3CoeffsArrayIndex ( proshade_signed
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealRotFunction ( double *rotFunReal, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        rotFunReal[iter]                      = static_cast<double> ( this->so3CoeffsInverse[iter][0] );
+        rotFunReal[iter]                              = static_cast<double> ( this->so3CoeffsInverse[iter][0] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -3010,13 +3154,13 @@ void ProSHADE_internal_data::ProSHADE_data::getRealRotFunction ( double *rotFunR
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagRotFunction ( double *rotFunImag, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        rotFunImag[iter]                      = static_cast<double> ( this->so3CoeffsInverse[iter][1] );
+        rotFunImag[iter]                              = static_cast<double> ( this->so3CoeffsInverse[iter][1] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -3028,13 +3172,13 @@ void ProSHADE_internal_data::ProSHADE_data::getImagRotFunction ( double *rotFunI
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealTranslationFunction ( double *trsFunReal, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        trsFunReal[iter]                      = static_cast<double> ( this->translationMap[iter][0] );
+        trsFunReal[iter]                              = static_cast<double> ( this->translationMap[iter][0] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -3046,13 +3190,13 @@ void ProSHADE_internal_data::ProSHADE_data::getRealTranslationFunction ( double 
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagTranslationFunction ( double *trsFunImag, int len )
 {
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        trsFunImag[iter]                      = static_cast<double> ( this->translationMap[iter][1] );
+        trsFunImag[iter]                              = static_cast<double> ( this->translationMap[iter][1] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -3067,28 +3211,28 @@ void ProSHADE_internal_data::ProSHADE_data::getImagTranslationFunction ( double 
 */
 void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshade_signed aI, proshade_signed bI, proshade_signed gI, double *rotMat, int len )
 {
-    //======================================== Get Euler angles
+    //================================================ Get Euler angles
     proshade_double eA, eB, eG;
     ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( this->getMaxBand(), aI, bI, gI, &eA, &eB, &eG );
     
-    //======================================== Prepare internal rotation matrix memory
-    proshade_double* rMat                     = NULL;
-    rMat                                      = new proshade_double[9];
-    ProSHADE_internal_misc::checkMemoryAllocation ( rMat, "ProSHADE_data.cpp", 2740, "getRotMatrixFromRotFunInds()" );
+    //================================================ Prepare internal rotation matrix memory
+    proshade_double* rMat                             = NULL;
+    rMat                                              = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
     
-    //======================================== Convert to rotation matrix
+    //================================================ Convert to rotation matrix
     ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eA, eB, eG, rMat );
     
-    //======================================== Copy to output
+    //================================================ Copy to output
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
     {
-        rotMat[iter]                          = static_cast<double> ( rMat[iter] );
+        rotMat[iter]                                  = static_cast<double> ( rMat[iter] );
     }
     
-    //======================================== Release internal memory
+    //================================================ Release internal memory
     delete[] rMat;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -3099,8 +3243,8 @@ void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshad
 */
 std::string ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType ( ProSHADE_settings* settings )
 {
-    //======================================== Return the value
-    return                                    ( settings->recommendedSymmetryType );
+    //================================================ Return the value
+    return                                            ( settings->recommendedSymmetryType );
     
 }
 
@@ -3110,8 +3254,8 @@ std::string ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType ( 
 */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold ( ProSHADE_settings* settings )
 {
-    //======================================== Return the value
-    return                                    ( settings->recommendedSymmetryFold );
+    //================================================ Return the value
+    return                                            ( settings->recommendedSymmetryFold );
     
 }
 
@@ -3122,8 +3266,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFol
 */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoSymmetryAxes ( ProSHADE_settings* settings )
 {
-    //======================================== Return the value
-    return                                    ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) );
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) );
 }
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.
@@ -3134,43 +3278,43 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoSymmetryAxes ( ProSH
 */
 std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxis ( ProSHADE_settings* settings, proshade_unsign axisNo )
 {
-    //======================================== Sanity checks
+    //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) <= axisNo )
     {
         ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00038" );
-        return                                ( std::vector< std::string > ( ) );
+        return                                        ( std::vector< std::string > ( ) );
     }
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     std::vector< std::string > ret;
     
-    //======================================== Input the axis data as strings
+    //================================================ Input the axis data as strings
     std::stringstream ssHlp;
     ssHlp << settings->detectedSymmetry.at(axisNo)[0];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
     ssHlp << settings->detectedSymmetry.at(axisNo)[1];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
     ssHlp << settings->detectedSymmetry.at(axisNo)[2];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
     ssHlp << settings->detectedSymmetry.at(axisNo)[3];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
     ssHlp << settings->detectedSymmetry.at(axisNo)[4];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
     ssHlp << settings->detectedSymmetry.at(axisNo)[5];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }

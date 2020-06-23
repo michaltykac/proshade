@@ -1,21 +1,25 @@
 /*! \file ProSHADE_io.cpp
- \brief ...
+    \brief This source file contains the functions required for specifc data format manipulations.
  
- ...
+    The functions in this source file are required for detection of supported input and output formats as well as reading and writing into the
+    supported formats. They are the lowest level functions ProSHADE has for disk access.
  
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    This software is provided by the copyright holder and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
  
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_io.hpp"
 
 /*! \brief Function determining if the input data type is PDB.
@@ -27,24 +31,24 @@
  */
 bool ProSHADE_internal_io::isFilePDB ( std::string fName )
 {
-    //======================================== Create MMDBManager object
-    clipper::mmdb::CMMDBManager *mfile        = new clipper::mmdb::CMMDBManager ( );
+    //================================================ Create MMDBManager object
+    clipper::mmdb::CMMDBManager *mfile                = new clipper::mmdb::CMMDBManager ( );
     
-    //======================================== Try reading the file
+    //================================================ Try reading the file
     if ( mfile->ReadCoorFile ( fName.c_str() ) )
     {
-        //==================================== The file is not PDB
+        //============================================ The file is not PDB
         delete mfile;
-        return                                ( false );
+        return                                        ( false );
     }
     else
     {
-        //==================================== The file is PDB
+        //============================================ The file is PDB
         delete mfile;
-        return                                ( true );
+        return                                        ( true );
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -57,27 +61,27 @@ bool ProSHADE_internal_io::isFilePDB ( std::string fName )
  */
 bool ProSHADE_internal_io::isFileMAP ( std::string fName )
 {
-    //======================================== Create CCP4MAPfile object
-    CMap_io::CMMFile *mapFile                 = NULL;
+    //================================================ Create CCP4MAPfile object
+    CMap_io::CMMFile *mapFile                         = NULL;
     
-    //======================================== Read in the file, if possible
-    CCP4::ccp4_liberr_verbosity               ( 0 );
-    mapFile                                   = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , O_RDONLY ) );
+    //================================================ Read in the file, if possible
+    CCP4::ccp4_liberr_verbosity                       ( 0 );
+    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , O_RDONLY ) );
     
-    //======================================== Catch for fail
+    //================================================ Catch for fail
     if ( mapFile == NULL )
     {
-        //==================================== The file is not MAP format
-        CMap_io::ccp4_cmap_close              ( mapFile );
+        //============================================ The file is not MAP format
+        CMap_io::ccp4_cmap_close                      ( mapFile );
         
-        //==================================== Done testing
-        return ( false );
+        //============================================ Done testing
+        return                                        ( false );
     }
-    //======================================== The file is MAP format
-    CMap_io::ccp4_cmap_close                  ( mapFile );
-    return ( true );
+    //================================================ The file is MAP format
+    CMap_io::ccp4_cmap_close                          ( mapFile );
+    return                                            ( true );
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -96,36 +100,36 @@ bool ProSHADE_internal_io::isFileMAP ( std::string fName )
  */
 void ProSHADE_internal_io::readInMapCell ( CMap_io::CMMFile* mapFile, proshade_single* xDim, proshade_single* yDim, proshade_single* zDim, proshade_single* aAng, proshade_single* bAng, proshade_single* cAng )
 {
-    //======================================== Initialise variables
-    float *cell                               = NULL;
+    //================================================ Initialise variables
+    float *cell                                       = NULL;
     
-    //======================================== Allocate memory
-    cell                                      = (float*) malloc ( 6 * sizeof ( float ) );
+    //================================================ Allocate memory
+    cell                                              = (float*) malloc ( 6 * sizeof ( float ) );
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( cell, "ProSHADE_io.cpp", 112, "readInMapCell()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( cell, __FILE__, __LINE__, __func__ );
     
-    //======================================== Read the data
-    CMap_io::ccp4_cmap_get_cell               ( mapFile, cell );
+    //================================================ Read the data
+    CMap_io::ccp4_cmap_get_cell                       ( mapFile, cell );
     
-    //======================================== Save the data
-   *xDim                                      = static_cast<proshade_single> ( cell[0] );
-   *yDim                                      = static_cast<proshade_single> ( cell[1] );
-   *zDim                                      = static_cast<proshade_single> ( cell[2] );
-   *aAng                                      = static_cast<proshade_single> ( cell[3] );
-   *bAng                                      = static_cast<proshade_single> ( cell[4] );
-   *cAng                                      = static_cast<proshade_single> ( cell[5] );
+    //================================================ Save the data
+   *xDim                                              = static_cast<proshade_single> ( cell[0] );
+   *yDim                                              = static_cast<proshade_single> ( cell[1] );
+   *zDim                                              = static_cast<proshade_single> ( cell[2] );
+   *aAng                                              = static_cast<proshade_single> ( cell[3] );
+   *bAng                                              = static_cast<proshade_single> ( cell[4] );
+   *cAng                                              = static_cast<proshade_single> ( cell[5] );
     
-    //======================================== Check for perpendicular axes - only P1 is supported for now.
+    //================================================ Check for perpendicular axes - only P1 is supported for now.
     if ( ( *aAng != 90.0 ) || ( *bAng != 90.0 ) || ( *cAng != 90.0 ) )
     {
-        throw ProSHADE_exception ( "The map axes are not perpendicular. Only P1 cells are\n                    : supported for now.", "EM00045", "ProSHADE_io.cpp", 122, "readInMapCell", "ProSHADE currently only supports map cells with\n                    : perpendicular (90 degrees angled) axes. Your map seems to\n                    : have differently angled axes and so cannot be processed by\n                    : this ProSHADE version. This feature is coming in future\n                    : update!" );
+        throw ProSHADE_exception ( "The map axes are not perpendicular. Only P1 cells are\n                    : supported for now.", "EM00045", __FILE__, __LINE__, __func__, "ProSHADE currently only supports map cells with\n                    : perpendicular (90 degrees angled) axes. Your map seems to\n                    : have differently angled axes and so cannot be processed by\n                    : this ProSHADE version. This feature is coming in future\n                    : update!" );
     }
     
-    //======================================== Release memory
-    free                                      ( cell );
+    //================================================ Release memory
+    free                                              ( cell );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -142,27 +146,27 @@ void ProSHADE_internal_io::readInMapCell ( CMap_io::CMMFile* mapFile, proshade_s
  */
 void ProSHADE_internal_io::readInMapDim ( CMap_io::CMMFile* mapFile, proshade_unsign* xDim, proshade_unsign* yDim, proshade_unsign* zDim )
 {
-    //======================================== Initialise variables
-    int *dim                                  = NULL;
+    //================================================ Initialise variables
+    int *dim                                          = NULL;
     
-    //======================================== Allocate memory
-    dim                                       = (int*) malloc (3 * sizeof ( int ) );
+    //================================================ Allocate memory
+    dim                                               = (int*) malloc (3 * sizeof ( int ) );
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( dim, "ProSHADE_io.cpp", 152, "readInMapDim()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( dim, __FILE__, __LINE__, __func__ );
     
-    //======================================== Read the data
-    CMap_io::ccp4_cmap_get_dim                ( mapFile, dim );
+    //================================================ Read the data
+    CMap_io::ccp4_cmap_get_dim                        ( mapFile, dim );
     
-    //======================================== Save the data
-   *xDim                                      = static_cast<proshade_signed> ( dim[0] );
-   *yDim                                      = static_cast<proshade_signed> ( dim[1] );
-   *zDim                                      = static_cast<proshade_signed> ( dim[2] );
+    //================================================ Save the data
+   *xDim                                              = static_cast<proshade_signed> ( dim[0] );
+   *yDim                                              = static_cast<proshade_signed> ( dim[1] );
+   *zDim                                              = static_cast<proshade_signed> ( dim[2] );
     
-    //======================================== Release memory
-    free                                      ( dim );
+    //================================================ Release memory
+    free                                              ( dim );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -179,27 +183,27 @@ void ProSHADE_internal_io::readInMapDim ( CMap_io::CMMFile* mapFile, proshade_un
  */
 void ProSHADE_internal_io::readInMapGrid ( CMap_io::CMMFile* mapFile, proshade_unsign* xGrid, proshade_unsign* yGrid, proshade_unsign* zGrid )
 {
-    //======================================== Initialise variables
-    int *grid                                 = NULL;
+    //================================================ Initialise variables
+    int *grid                                         = NULL;
     
-    //======================================== Allocate memory
-    grid                                      = (int*) malloc (3 * sizeof ( int ) );
+    //================================================ Allocate memory
+    grid                                              = (int*) malloc (3 * sizeof ( int ) );
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( grid, "ProSHADE_io.cpp", 189, "readInMapGrid()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( grid, __FILE__, __LINE__, __func__ );
     
-    //======================================== Read the data
-    CMap_io::ccp4_cmap_get_grid               ( mapFile, grid );
+    //================================================ Read the data
+    CMap_io::ccp4_cmap_get_grid                       ( mapFile, grid );
     
-    //======================================== Save the data
-   *xGrid                                     = static_cast<proshade_signed> ( grid[0] );
-   *yGrid                                     = static_cast<proshade_signed> ( grid[1] );
-   *zGrid                                     = static_cast<proshade_signed> ( grid[2] );
+    //================================================ Save the data
+   *xGrid                                             = static_cast<proshade_signed> ( grid[0] );
+   *yGrid                                             = static_cast<proshade_signed> ( grid[1] );
+   *zGrid                                             = static_cast<proshade_signed> ( grid[2] );
     
-    //======================================== Release memory
-    free                                      ( grid );
+    //================================================ Release memory
+    free                                              ( grid );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -216,27 +220,27 @@ void ProSHADE_internal_io::readInMapGrid ( CMap_io::CMMFile* mapFile, proshade_u
  */
 void ProSHADE_internal_io::readInMapOrder ( CMap_io::CMMFile* mapFile, proshade_unsign* xAxisOrder, proshade_unsign* yAxisOrder, proshade_unsign* zAxisOrder )
 {
-    //======================================== Initialise variables
-    int *order                                = NULL;
+    //================================================ Initialise variables
+    int *order                                        = NULL;
     
-    //======================================== Allocate memory
-    order                                     = (int*) malloc (3 * sizeof ( int ) );
+    //================================================ Allocate memory
+    order                                             = (int*) malloc (3 * sizeof ( int ) );
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( order, "ProSHADE_io.cpp", 226, "readInMapOrder()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( order, __FILE__, __LINE__, __func__ );
     
-    //======================================== Read the data
-    CMap_io::ccp4_cmap_get_order              ( mapFile, order );
+    //================================================ Read the data
+    CMap_io::ccp4_cmap_get_order                      ( mapFile, order );
     
-    //======================================== Save the data
-   *xAxisOrder                                = static_cast<proshade_signed> ( order[0] );
-   *yAxisOrder                                = static_cast<proshade_signed> ( order[1] );
-   *zAxisOrder                                = static_cast<proshade_signed> ( order[2] );
+    //================================================ Save the data
+   *xAxisOrder                                        = static_cast<proshade_signed> ( order[0] );
+   *yAxisOrder                                        = static_cast<proshade_signed> ( order[1] );
+   *zAxisOrder                                        = static_cast<proshade_signed> ( order[2] );
     
-    //======================================== Release memory
-    free                                      ( order );
+    //================================================ Release memory
+    free                                              ( order );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -253,27 +257,27 @@ void ProSHADE_internal_io::readInMapOrder ( CMap_io::CMMFile* mapFile, proshade_
  */
 void ProSHADE_internal_io::readInMapOrigin ( CMap_io::CMMFile* mapFile, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
 {
-    //======================================== Initialise variables
-    int *origin                               = NULL;
+    //================================================ Initialise variables
+    int *origin                                       = NULL;
     
-    //======================================== Allocate memory
-    origin                                    = (int*) malloc (3 * sizeof ( int ) );
+    //================================================ Allocate memory
+    origin                                            = (int*) malloc (3 * sizeof ( int ) );
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( origin, "ProSHADE_io.cpp", 263, "readInMapOrigin()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( origin, __FILE__, __LINE__, __func__ );
     
-    //======================================== Read the data
-    CMap_io::ccp4_cmap_get_origin             ( mapFile, origin );
+    //================================================ Read the data
+    CMap_io::ccp4_cmap_get_origin                     ( mapFile, origin );
     
-    //======================================== Save the data
-   *xOrigin                                   = static_cast<proshade_signed> ( origin[0] );
-   *yOrigin                                   = static_cast<proshade_signed> ( origin[1] );
-   *zOrigin                                   = static_cast<proshade_signed> ( origin[2] );
+    //================================================ Save the data
+   *xOrigin                                           = static_cast<proshade_signed> ( origin[0] );
+   *yOrigin                                           = static_cast<proshade_signed> ( origin[1] );
+   *zOrigin                                           = static_cast<proshade_signed> ( origin[2] );
     
-    //======================================== Release memory
-    free                                      ( origin );
+    //================================================ Release memory
+    free                                              ( origin );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -296,20 +300,20 @@ void ProSHADE_internal_io::readInMapOrigin ( CMap_io::CMMFile* mapFile, proshade
  */
 void ProSHADE_internal_io::readInMapData ( CMap_io::CMMFile* mapFile, proshade_double*& map, proshade_signed xIndexStart, proshade_signed yIndexStart, proshade_signed zIndexStart, proshade_signed xDimInIndices, proshade_signed yDimInIndices, proshade_signed zDimInIndices, proshade_signed xAxisOrder, proshade_signed yAxisOrder, proshade_signed zAxisOrder )
 {
-    //======================================== Allocate map memory
-    map                                       = new proshade_double [xDimInIndices * yDimInIndices * zDimInIndices];
+    //================================================ Allocate map memory
+    map                                               = new proshade_double [xDimInIndices * yDimInIndices * zDimInIndices];
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( map, "ProSHADE_io.cpp", 303, "readInMapData()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
     
-    //======================================== Check the map mode
-    int mapMode                               = CMap_io::ccp4_cmap_get_datamode ( mapFile );
+    //================================================ Check the map mode
+    int mapMode                                       = CMap_io::ccp4_cmap_get_datamode ( mapFile );
     if ( ( mapMode != 0 ) && ( mapMode != 2 ) )
     {
-        throw ProSHADE_exception ( "The map file mode is not supported.", "EM00009", "ProSHADE_io.cpp", 309, "readInMapData", "ProSHADE currently only supports map modes 0 and 2. The\n                    : supplied map seems to have different map mode and\n                    : therefore cannot be read in." );
+        throw ProSHADE_exception ( "The map file mode is not supported.", "EM00009", __FILE__, __LINE__, __func__, "ProSHADE currently only supports map modes 0 and 2. The\n                    : supplied map seems to have different map mode and\n                    : therefore cannot be read in." );
     }
     
-    //======================================== Read in map data
+    //================================================ Read in map data
     // ... Prepare the variables
     proshade_signed index;
     proshade_signed iters[3];
@@ -334,26 +338,26 @@ void ProSHADE_internal_io::readInMapData ( CMap_io::CMMFile* mapFile, proshade_d
     // ... Set the XYZ indexing order and indices
     for ( proshade_signed iter = 0; iter < 3; iter++ )
     {
-        maxLim[iter]                          = orig[iter] + dim[iter] - 1;
-        XYZOrder[order[iter]-1]               = iter;
+        maxLim[iter]                                  = orig[iter] + dim[iter] - 1;
+        XYZOrder[order[iter]-1]                       = iter;
     }
     
     // ... Solve the dimensions and sizes for reading
-    proshade_signed fastDimSize               = ( maxLim[0] - orig[0] + 1 );
-    proshade_signed midDimSize                = ( maxLim[1] - orig[1] + 1 ) * fastDimSize;
-    std::vector < float > section             ( midDimSize );
+    proshade_signed fastDimSize                       = ( maxLim[0] - orig[0] + 1 );
+    proshade_signed midDimSize                        = ( maxLim[1] - orig[1] + 1 ) * fastDimSize;
+    std::vector < float > section                     ( midDimSize );
     
     // ... Read in the map data
     for ( iters[2] = orig[2]; iters[2] <= maxLim[2]; iters[2]++ )
     {
-        index                                 = 0;
+        index                                         = 0;
         CMap_io::ccp4_cmap_read_section( mapFile, &section[0] );
         
         if ( mapMode == 0 )
         {
             for ( int iter = ( midDimSize - 1 ); iter >= 0; iter-- )
             {
-                section[iter]             = static_cast < float > ( ( reinterpret_cast<unsigned char*> (&section[0]) )[iter] );
+                section[iter]                         = static_cast < float > ( ( reinterpret_cast<unsigned char*> (&section[0]) )[iter] );
             }
         }
         
@@ -361,16 +365,16 @@ void ProSHADE_internal_io::readInMapData ( CMap_io::CMMFile* mapFile, proshade_d
         {
             for ( iters[0] = orig[0]; iters[0] <= maxLim[0]; iters[0]++ )
             {
-                newU                          = iters[XYZOrder[0]] - orig[XYZOrder[0]];
-                newV                          = iters[XYZOrder[1]] - orig[XYZOrder[1]];
-                newW                          = iters[XYZOrder[2]] - orig[XYZOrder[2]];
-                arrPos                        = newW + ( maxMapW + 1) * ( newV + ( maxMapV + 1) * newU );
-                map[arrPos]                   = static_cast < proshade_double > ( section[ index++ ] );
+                newU                                  = iters[XYZOrder[0]] - orig[XYZOrder[0]];
+                newV                                  = iters[XYZOrder[1]] - orig[XYZOrder[1]];
+                newW                                  = iters[XYZOrder[2]] - orig[XYZOrder[2]];
+                arrPos                                = newW + ( maxMapW + 1) * ( newV + ( maxMapV + 1) * newU );
+                map[arrPos]                           = static_cast < proshade_double > ( section[ index++ ] );
             }
         }
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -389,21 +393,21 @@ void ProSHADE_internal_io::readInMapData ( CMap_io::CMMFile* mapFile, proshade_d
  */
 void ProSHADE_internal_io::writeMapCell ( CMap_io::CMMFile* mapFile, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single aAngle, proshade_single bAngle, proshade_single cAngle )
 {
-    //======================================== Declare local variables
+    //================================================ Declare local variables
     float cell[6];
 
-    //======================================== Initialise writen veriable to correct values
-    cell[0]                                   = static_cast<float> ( xAngs );
-    cell[1]                                   = static_cast<float> ( yAngs );
-    cell[2]                                   = static_cast<float> ( zAngs );
-    cell[3]                                   = static_cast<float> ( aAngle );
-    cell[4]                                   = static_cast<float> ( bAngle );
-    cell[5]                                   = static_cast<float> ( cAngle );
+    //================================================ Initialise writen veriable to correct values
+    cell[0]                                           = static_cast<float> ( xAngs );
+    cell[1]                                           = static_cast<float> ( yAngs );
+    cell[2]                                           = static_cast<float> ( zAngs );
+    cell[3]                                           = static_cast<float> ( aAngle );
+    cell[4]                                           = static_cast<float> ( bAngle );
+    cell[5]                                           = static_cast<float> ( cAngle );
     
-    //======================================== Write data to header
-    CMap_io::ccp4_cmap_set_cell               ( mapFile, cell );
+    //================================================ Write data to header
+    CMap_io::ccp4_cmap_set_cell                       ( mapFile, cell );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -419,18 +423,18 @@ void ProSHADE_internal_io::writeMapCell ( CMap_io::CMMFile* mapFile, proshade_si
  */
 void ProSHADE_internal_io::writeMapGrid ( CMap_io::CMMFile* mapFile, proshade_unsign xGrid, proshade_unsign yGrid, proshade_unsign zGrid )
 {
-    //======================================== Declare local variables
+    //================================================ Declare local variables
     int grid[3];
     
-    //======================================== Initialise writen veriable to correct values
-    grid[0]                                   = static_cast<int> ( xGrid );
-    grid[1]                                   = static_cast<int> ( yGrid );
-    grid[2]                                   = static_cast<int> ( zGrid );
+    //================================================ Initialise writen veriable to correct values
+    grid[0]                                           = static_cast<int> ( xGrid );
+    grid[1]                                           = static_cast<int> ( yGrid );
+    grid[2]                                           = static_cast<int> ( zGrid );
     
-    //======================================== Write data to header
-    CMap_io::ccp4_cmap_set_grid               ( mapFile, grid );
+    //================================================ Write data to header
+    CMap_io::ccp4_cmap_set_grid                       ( mapFile, grid );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -446,18 +450,18 @@ void ProSHADE_internal_io::writeMapGrid ( CMap_io::CMMFile* mapFile, proshade_un
  */
 void ProSHADE_internal_io::writeMapOrder ( CMap_io::CMMFile* mapFile, proshade_unsign xAxisOrder, proshade_unsign yAxisOrder, proshade_unsign zAxisOrder )
 {
-    //======================================== Declare local variables
+    //================================================ Declare local variables
     int order[3];
     
-    //======================================== Initialise writen veriable to correct values
-    order[0]                                  = static_cast<int> ( xAxisOrder );
-    order[1]                                  = static_cast<int> ( yAxisOrder );
-    order[2]                                  = static_cast<int> ( zAxisOrder );
+    //================================================ Initialise writen veriable to correct values
+    order[0]                                          = static_cast<int> ( xAxisOrder );
+    order[1]                                          = static_cast<int> ( yAxisOrder );
+    order[2]                                          = static_cast<int> ( zAxisOrder );
     
-    //======================================== Write data to header
-    CMap_io::ccp4_cmap_set_order               ( mapFile, order );
+    //================================================ Write data to header
+    CMap_io::ccp4_cmap_set_order                      ( mapFile, order );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -473,18 +477,18 @@ void ProSHADE_internal_io::writeMapOrder ( CMap_io::CMMFile* mapFile, proshade_u
  */
 void ProSHADE_internal_io::writeMapDims ( CMap_io::CMMFile* mapFile, proshade_unsign xDims, proshade_unsign yDims, proshade_unsign zDims )
 {
-    //======================================== Declare local variables
+    //================================================ Declare local variables
     int dims[3];
     
-    //======================================== Initialise writen veriable to correct values
-    dims[0]                                   = static_cast<int> ( xDims );
-    dims[1]                                   = static_cast<int> ( yDims );
-    dims[2]                                   = static_cast<int> ( zDims );
+    //================================================ Initialise writen veriable to correct values
+    dims[0]                                           = static_cast<int> ( xDims );
+    dims[1]                                           = static_cast<int> ( yDims );
+    dims[2]                                           = static_cast<int> ( zDims );
     
-    //======================================== Write data to header
+    //================================================ Write data to header
     CMap_io::ccp4_cmap_set_dim                ( mapFile, dims );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -500,18 +504,18 @@ void ProSHADE_internal_io::writeMapDims ( CMap_io::CMMFile* mapFile, proshade_un
  */
 void ProSHADE_internal_io::writeMapOrigin ( CMap_io::CMMFile* mapFile, proshade_unsign xOrigin, proshade_unsign yOrigin, proshade_unsign zOrigin )
 {
-    //======================================== Declare local variables
+    //================================================ Declare local variables
     int orig[3];
     
-    //======================================== Initialise writen veriable to correct values
-    orig[0]                                   = static_cast<int> ( xOrigin );
-    orig[1]                                   = static_cast<int> ( yOrigin );
-    orig[2]                                   = static_cast<int> ( zOrigin );
+    //================================================ Initialise writen veriable to correct values
+    orig[0]                                           = static_cast<int> ( xOrigin );
+    orig[1]                                           = static_cast<int> ( yOrigin );
+    orig[2]                                           = static_cast<int> ( zOrigin );
     
-    //======================================== Write data to header
-    CMap_io::ccp4_cmap_set_origin             ( mapFile, orig );
+    //================================================ Write data to header
+    CMap_io::ccp4_cmap_set_origin                     ( mapFile, orig );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -527,24 +531,24 @@ void ProSHADE_internal_io::writeMapOrigin ( CMap_io::CMMFile* mapFile, proshade_
  */
 void ProSHADE_internal_io::writeMapTitleEtc ( CMap_io::CMMFile* mapFile, std::string title, proshade_unsign mode, proshade_unsign spaceGroup )
 {
-    //======================================== Write obvious data to header
-    CMap_io::ccp4_cmap_set_spacegroup         ( mapFile, static_cast<int> ( spaceGroup ) );
-    CMap_io::ccp4_cmap_set_datamode           ( mapFile, static_cast<int> ( mode ) );
+    //================================================ Write obvious data to header
+    CMap_io::ccp4_cmap_set_spacegroup                 ( mapFile, static_cast<int> ( spaceGroup ) );
+    CMap_io::ccp4_cmap_set_datamode                   ( mapFile, static_cast<int> ( mode ) );
     
-    //======================================== Deal with the title
+    //================================================ Deal with the title
     if ( title == "" )
     {
-        const char* titl                      = "ProSHADE genrated map                                                           ";
-        CMap_io::ccp4_cmap_set_title          ( mapFile, titl );
+        const char* titl                              = "ProSHADE genrated map                                                           ";
+        CMap_io::ccp4_cmap_set_title                  ( mapFile, titl );
     }
     else
     {
         char buff[80];
-        snprintf ( buff, sizeof ( buff ), "%s", title.c_str() );
-        CMap_io::ccp4_cmap_set_title          ( mapFile, buff );
+        snprintf                                      ( buff, sizeof ( buff ), "%s", title.c_str() );
+        CMap_io::ccp4_cmap_set_title                  ( mapFile, buff );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -565,7 +569,7 @@ void ProSHADE_internal_io::writeMapTitleEtc ( CMap_io::CMMFile* mapFile, std::st
 void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_double* map, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_unsign xAxisOrder, proshade_unsign yAxisOrder, proshade_unsign zAxisOrder )
 {
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     proshade_unsign dims[3];      dims[0]      = xDim;       dims[1]      = yDim;       dims[2]      = zDim;
     proshade_unsign axisOrder[3]; axisOrder[0] = xAxisOrder; axisOrder[1] = yAxisOrder; axisOrder[2] = zAxisOrder;
     std::vector<float> section                ( dims[axisOrder[0]-1] * dims[axisOrder[1]-1] );
@@ -573,6 +577,7 @@ void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_do
     proshade_unsign iters[3];
     proshade_unsign arrPos;
     
+    //================================================ Write out the map data
     for ( iters[2] = 0; iters[2] < dims[axisOrder[2]-1]; iters[2]++ )
     {
         index = 0;
@@ -581,16 +586,15 @@ void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_do
         {
             for ( iters[0] = 0; iters[0] < dims[axisOrder[0]-1]; iters[0]++ )
             {
-                arrPos                        = iters[2]  + (dims[axisOrder[2]-1]) * ( iters[1]  + (dims[axisOrder[1]-1]) * iters[0] );
-                
-                section[ index++ ]            = static_cast<float> ( map[arrPos] );
+                arrPos                                = iters[2]  + (dims[axisOrder[2]-1]) * ( iters[1]  + (dims[axisOrder[1]-1]) * iters[0] );
+                section[ index++ ]                    = static_cast<float> ( map[arrPos] );
             }
         }
         
-        CMap_io::ccp4_cmap_write_section( mapFile, &section[0] );
+        CMap_io::ccp4_cmap_write_section              ( mapFile, &section[0] );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -605,21 +609,21 @@ void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_do
  */
 ProSHADE_internal_io::InputType ProSHADE_internal_io::figureDataType ( std::string fName )
 {
-    //======================================== Try readin as PDB
+    //================================================ Try readin as PDB
     if ( isFilePDB ( fName ) )
     {
-        return                                ( PDB );
+        return                                        ( PDB );
     }
     
-    //======================================== If not, try readin as MAP
+    //================================================ If not, try readin as MAP
     if ( isFileMAP ( fName ) )
     {
-        return                                ( MAP );
+        return                                        ( MAP );
     }
     
-    //======================================== No luck? UNKNOWN it is ...
-    return                                    ( UNKNOWN );
+    //================================================ No luck? UNKNOWN it is ...
+    return                                            ( UNKNOWN );
     
-    //======================================== Done
+    //================================================ Done
     
 }

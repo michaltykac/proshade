@@ -1,7 +1,8 @@
 /*! \file testLib.cpp
- \brief This code is the same as the main function for the executable, but uses the dynamic library instead.
+ \brief This code is the same as the main function for the executable, but it uses the dynamic library linking instead.
  
- ...
+ This is a test file, which was created to test how ProSHADE could be used in the case where its
+  dynamic library is linked to the code instead of it being compiled directly from the code.
  
  This file is part of the ProSHADE library for calculating
  shape descriptors and symmetry operators of protein structures.
@@ -11,8 +12,8 @@
  
  \author    Michal Tykac
  \author    Garib N. Murshudov
- \version   0.7.0
- \date      OCT 2018
+ \version   0.7.3
+ \date      MAY 2020
  */
 
 //============================================ ProSHADE
