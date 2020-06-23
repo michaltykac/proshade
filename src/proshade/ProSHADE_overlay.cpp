@@ -102,10 +102,11 @@ void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings
     
 }
 
-/*! \brief This function finds the optimal translation between two structures as described by the settings object.
+/*! \brief This function finds the optimal translation between two structures as described by the settings object given a rotation between the two objects.
  
  This function starts by loading and processing the structures according to the settings object (keeping phase is assumed, but callers
- responsibility). It then padds zeroes to make sure the structures have the same dimensions (again, it assumes map re-sampling was done,
+ responsibility). It then applies the required rotation to the second (moing) strucutre and then it follows with zero padding to make sure
+ the structures have the same dimensions (again, it assumes map re-sampling was done,
  but setting to is callers responsibility). It then computes the translation function, finds the highest peak and returns the positions
  as well as height of this peak.
  
@@ -118,8 +119,11 @@ void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings
  \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
  \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
  \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
+ \param[in] mapComChangeX Variable pointer to which the change in the map COM after rotation along the X-axis will be saved.
+ \param[in] mapComChangeY Variable pointer to which the change in the map COM after rotation along the Y-axis will be saved.
+ \param[in] mapComChangeZ Variable pointer to which the change in the map COM after rotation along the Z-axis will be saved.
  */
-void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG )
+void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double* mapComChangeX, proshade_double* mapComChangeY, proshade_double* mapComChangeZ )
 {
     //================================================ Disable speed-up - mem. leak still not solved.
     if ( settings->progressiveSphereMapping )
@@ -140,8 +144,19 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->mapToSpheres                     ( settings );
     movingStructure->computeSphericalHarmonics        ( settings );
     
+    //================================================ Save the pre-rotation COM map value
+   *mapComChangeX                                     = movingStructure->xCom;
+   *mapComChangeY                                     = movingStructure->yCom;
+   *mapComChangeZ                                     = movingStructure->zCom;
+    
     //================================================ Rotate map and write it out
     movingStructure->rotateMap                        ( settings, -eulA, eulB, -eulG );
+    
+    //================================================ Save the pre-rotation and post-rotation COM map change
+    movingStructure->findMapCOM ();
+   *mapComChangeX                                    -= movingStructure->xCom;
+   *mapComChangeY                                    -= movingStructure->yCom;
+   *mapComChangeZ                                    -= movingStructure->zCom;
     
     //================================================ Zero padding for smaller structure
     staticStructure->zeroPaddToDims                   ( std::max ( staticStructure->getXDim(), movingStructure->getXDim() ),
@@ -183,6 +198,16 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     proshade_single zMov                              = staticStructure->comMovZ - zCor -
                                                         ( *trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
     
+    //================================================ Save translation vector back
+   *trsX                                              = -xMov;
+   *trsY                                              = -yMov;
+   *trsZ                                              = -zMov;
+    
+    //================================================ Report progress
+    std::stringstream hlpSS;
+    hlpSS << "Optimal map translation distances are " << *trsX << " ; " << *trsY << " ; " << *trsZ << " Angstroms with peak height " << mapPeak / ( xDimS * yDimS * zDimS );
+
+    //================================================ Move the map
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, movingStructure->getXDimSize(), movingStructure->getYDimSize(), movingStructure->getZDimSize(),
                                                         movingStructure->getXFromPtr(), movingStructure->getXToPtr(),
                                                         movingStructure->getYFromPtr(), movingStructure->getYToPtr(),
@@ -193,19 +218,9 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
                                                         movingStructure->getXDimSize(), movingStructure->getYDimSize(), movingStructure->getZDimSize(),
                                                         movingStructure->getXDim(), movingStructure->getYDim(), movingStructure->getZDim() );
     
-    //================================================ Write out rotated map
-    movingStructure->writeMap                         ( settings->overlayStructureName );
-    
     //================================================ Report progress
-    std::stringstream hlpSS;
-    hlpSS << "Optimal translation distances are " << xMov << " ; " << yMov << " ; " << zMov << " Angstroms with peak height " << mapPeak / ( xDimS * yDimS * zDimS );
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Translation function computation complete." );
-    
-    //================================================ Save translation vector back
-   *trsX                                              = xMov;
-   *trsY                                              = yMov;
-   *trsZ                                              = zMov;
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Translation function computation complete." );
     
     //================================================ Done
     return ;
@@ -215,6 +230,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
 /*! \brief This function gets the optimal translation vector and returns it as a standard library vector.
 
 \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
+\param[out] X A vector of doubles with the optimal translation vector in Angstroms.
 */
 std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure )
 {
@@ -628,7 +644,8 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     
     //================================================ Allocate memory for the rotated map
     proshade_double *densityMapRotated                = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    for ( unsigned int iter = 0; iter < static_cast<unsigned int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { densityMapRotated[iter]               = 0.0; }
+    ProSHADE_internal_misc::checkMemoryAllocation     ( densityMapRotated, __FILE__, __LINE__, __func__ );
+    for ( unsigned int iter = 0; iter < static_cast<unsigned int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { densityMapRotated[iter] = 0.0; }
     
     //================================================ Interpolate onto cartesian grid
     this->interpolateMapFromSpheres                   ( settings, densityMapRotated);

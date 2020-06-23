@@ -62,7 +62,6 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( clipper::mmdb::CMMDBManage
     clipper::mmdb::PPCChain chain;
     clipper::mmdb::PPCResidue residue;
     clipper::mmdb::PPCAtom atom;
-    
     bool firstAtom                                    = true;
     
     //================================================ Get all chains
@@ -113,6 +112,222 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( clipper::mmdb::CMMDBManage
                                 
                                 *noAt                += 1;
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function finds the Centre of Mass for the PDB file.
+
+This function takes the MMDB Manager object open on a PDB file and procceds to compute the Centre of Mass of this object.
+
+\param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+\param[in] xCom A pointer to proshade_double variable where the PDB file COM along the X-axis will be saved.
+\param[in] yCom A pointer to proshade_double variable where the PDB file COM along the Y-axis will be saved.
+\param[in] zCom A pointer to proshade_double variable where the PDB file COM along the Z-axis will be saved.
+*/
+void ProSHADE_internal_mapManip::findPDBCOMValues ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom )
+{
+    //================================================ Initialise MMDB crawl
+    int noChains                                      = 0;
+    int noResidues                                    = 0;
+    int noAtoms                                       = 0;
+    proshade_double totAtoms                          = 0.0;
+   *xCom                                              = 0.0;
+   *yCom                                              = 0.0;
+   *zCom                                              = 0.0;
+    
+    clipper::mmdb::PPCChain chain;
+    clipper::mmdb::PPCResidue residue;
+    clipper::mmdb::PPCAtom atom;
+    
+    //================================================ Get all chains
+    pdbFile->GetChainTable                            ( 1, chain, noChains );
+    for ( int nCh = 0; nCh < noChains; nCh++ )
+    {
+        if ( chain[nCh] )
+        {
+            //======================================== Get all residues
+            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            
+            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            {
+                if ( residue[nRes] )
+                {
+                    //================================ Get all atoms
+                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    totAtoms                         += static_cast<proshade_double> ( noAtoms );
+                    
+                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
+                    {
+                        if ( atom[aNo] )
+                        {
+                            //======================== Check for termination 'residue'
+                            if ( atom[aNo]->Ter )     { continue; }
+                            
+                            //======================== Translate the atom position
+                           *xCom                     += atom[aNo]->x;
+                           *yCom                     += atom[aNo]->y;
+                           *zCom                     += atom[aNo]->z;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+   *xCom                                             /= totAtoms;
+   *yCom                                             /= totAtoms;
+   *zCom                                             /= totAtoms;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function for rotating the PDB file co-ordinates by Euler angles.
+ 
+ This function takes the three Euler angles and a pointer to an open MMDB2 manager and it then proceeds to compute the rotation matrix from the Euler angles. This matrix is then applied to
+ the co-ordinates in the MMDB2 manager in a way so that the rotation is done over the centre of the co-ordinates, but the co-ordinate positions stay unchanged.
+ 
+ \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated.
+ \param[in] euB The Euler angle beta by which the co-ordinates should be rotated.
+ \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated.
+ */
+void ProSHADE_internal_mapManip::rotatePDBCoordinates ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
+proshade_double yCom, proshade_double zCom )
+{
+    //================================================ Convert Euler angles to rotation matrix
+    proshade_double *rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
+    
+    //================================================ Determine PDB ranges
+    proshade_single xFrom, xTo, yFrom, yTo, zFrom, zTo, xTmp, yTmp, zTmp;
+    int noAt;
+    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xFrom, &xTo, &yFrom, &yTo, &zFrom, &zTo, &noAt );
+    
+    //================================================ Determine mid-point translations
+    proshade_single xMid                              = ( xTo - xFrom ) / 2.0;
+    proshade_single yMid                              = ( yTo - yFrom ) / 2.0;
+    proshade_single zMid                              = ( zTo - zFrom ) / 2.0;
+    
+    //================================================ Initialise MMDB crawl
+    int noChains                                      = 0;
+    int noResidues                                    = 0;
+    int noAtoms                                       = 0;
+    
+    clipper::mmdb::PPCChain chain;
+    clipper::mmdb::PPCResidue residue;
+    clipper::mmdb::PPCAtom atom;
+    
+    //================================================ Get all chains
+    pdbFile->GetChainTable                            ( 1, chain, noChains );
+    for ( int nCh = 0; nCh < noChains; nCh++ )
+    {
+        if ( chain[nCh] )
+        {
+            //======================================== Get all residues
+            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            
+            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            {
+                if ( residue[nRes] )
+                {
+                    //================================ Get all atoms
+                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    
+                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
+                    {
+                        if ( atom[aNo] )
+                        {
+                            //======================== Check for termination 'residue'
+                            if ( atom[aNo]->Ter )     { continue; }
+                            
+                            //======================== Move to mid-point
+                            xTmp                      = atom[aNo]->x - xCom;
+                            yTmp                      = atom[aNo]->y - yCom;
+                            zTmp                      = atom[aNo]->z - zCom;
+                            
+                            //======================== Rotate the atom position
+                            atom[aNo]->x              = ( xTmp * rotMat[0] ) + ( yTmp * rotMat[1] ) + ( zTmp * rotMat[2] );
+                            atom[aNo]->y              = ( xTmp * rotMat[3] ) + ( yTmp * rotMat[4] ) + ( zTmp * rotMat[5] );
+                            atom[aNo]->z              = ( xTmp * rotMat[6] ) + ( yTmp * rotMat[7] ) + ( zTmp * rotMat[8] );
+                            
+                            //======================== Move back
+                            atom[aNo]->x              = atom[aNo]->x + xCom;
+                            atom[aNo]->y              = atom[aNo]->y + yCom;
+                            atom[aNo]->z              = atom[aNo]->z + zCom;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //================================================ Release memory
+    delete[] rotMat;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function for translating the PDB file co-ordinates by Euler angles..
+ 
+ ...
+ 
+ \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] transX The
+ \param[in] transY The
+ \param[in] transZ The
+ */
+void ProSHADE_internal_mapManip::translatePDBCoordinates ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ )
+{
+    //================================================ Initialise MMDB crawl
+    int noChains                                      = 0;
+    int noResidues                                    = 0;
+    int noAtoms                                       = 0;
+    
+    clipper::mmdb::PPCChain chain;
+    clipper::mmdb::PPCResidue residue;
+    clipper::mmdb::PPCAtom atom;
+    
+    //================================================ Get all chains
+    pdbFile->GetChainTable                            ( 1, chain, noChains );
+    for ( int nCh = 0; nCh < noChains; nCh++ )
+    {
+        if ( chain[nCh] )
+        {
+            //======================================== Get all residues
+            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            
+            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            {
+                if ( residue[nRes] )
+                {
+                    //================================ Get all atoms
+                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    
+                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
+                    {
+                        if ( atom[aNo] )
+                        {
+                            //======================== Check for termination 'residue'
+                            if ( atom[aNo]->Ter )     { continue; }
+                            
+                            //======================== Translate the atom position
+                            atom[aNo]->x             += transX;
+                            atom[aNo]->y             += transY;
+                            atom[aNo]->z             += transZ;
                         }
                     }
                 }

@@ -31,7 +31,10 @@ PDB READING:
 
 CODE:		Message:																												Comment:
 EP00010		While attempting to open file XXX for reading, MMDB library failed to open the file. This 								Are you sure the file is not corrupted and that the path is right?
-			could be caused by not being formatted properly or by memory not being sufficient										
+			could be caused by not being formatted properly or by memory not being sufficient	
+EP00045		Cannot write co-ordinate file if the input file did not contain co-ordinates.											You have called the WritePDB function on structure which was created by reading in a map. This is not allowed as ProSHADE cannot create co-ordinates from map file.									
+EP00046		Failed to open the PDB file XXX for output.																				ProSHADE has failed to open the PDB output file. This is likely caused by either not having the write privileges to the required output path, or by making a mistake in the path.									
+
 
 ============
 MAP MASKING:

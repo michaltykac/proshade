@@ -77,6 +77,9 @@ namespace ProSHADE_internal_data
         proshade_double comMovX;                      //!< How much the map was moved along the X-axis to achieve COM centering.
         proshade_double comMovY;                      //!< How much the map was moved along the X-axis to achieve COM centering.
         proshade_double comMovZ;                      //!< How much the map was moved along the X-axis to achieve COM centering.
+        proshade_double xCom;                         //!< The COM of the map after processing along the X-axis.
+        proshade_double yCom;                         //!< The COM of the map after processing along the Y-axis.
+        proshade_double zCom;                         //!< The COM of the map after processing along the Z-axis.
 
         //============================================ Variables regarding iterator positions
         proshade_signed xFrom;                        //!< This is the starting index along the x axis.
@@ -128,6 +131,8 @@ namespace ProSHADE_internal_data
         //============================================ Data I/O functions
         void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "" );
+        void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0, proshade_double transX = 0.0,
+                                                        proshade_double transY = 0.0, proshade_double transZ = 0.0 );
         void writeMask                                ( std::string fName, proshade_double* mask );
         int getMapArraySizePython                     ( void );
         void getMapPython                             ( double *mapArrayPython, int len );
@@ -211,6 +216,7 @@ namespace ProSHADE_internal_data
         void inverseSHCoefficients                    ( void );
         void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
+        void findMapCOM                               ( void );
         
         //============================================ Python access functions
         void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );

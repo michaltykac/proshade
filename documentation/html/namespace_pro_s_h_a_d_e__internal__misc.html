@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.3 (MAY 2020)</span>
+   &#160;<span id="projectnumber">0.7.3 (JUN 2020)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -180,19 +180,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00140">140</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;{</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    </div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00143">143</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;{</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    </div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;}</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    return ;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    </div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -232,19 +232,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00074">74</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;{</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00077">77</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;{</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    return ;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -284,19 +284,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00118">118</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;{</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    </div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00121">121</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;{</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    </div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;}</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    return ;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    </div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -336,19 +336,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00163">163</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;{</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    </div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00166">166</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;{</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    </div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;}</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    return ;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    </div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -388,19 +388,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00052">52</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;{</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00055">55</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;{</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    return ;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -440,19 +440,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00030">30</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;{</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00033">33</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;{</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;}</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    return ;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -492,19 +492,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00096">96</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;{</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    </div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00099">99</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;{</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    </div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;}</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    return ;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    </div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -544,19 +544,19 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00185">185</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;{</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="comment">//======================================== Based on the compiler C++11 support, use the correct vector addition function.</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    vecToAddTo-&gt;emplace_back                   ( elementToAdd );</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    vecToAddTo-&gt;push_back                      ( elementToAdd );</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    </div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    return ;</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00188">188</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;{</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="comment">//================================================ Based on the compiler C++11 support, use the correct vector addition function.</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    vecToAddTo-&gt;emplace_back                          ( elementToAdd );</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    vecToAddTo-&gt;push_back                             ( elementToAdd );</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    </div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;}</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    return ;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    </div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -623,19 +623,19 @@ template&lt;class chVar &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8hpp_source.html#l00059">59</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8hpp_source.html">ProSHADE_misc.hpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                                                                                                                                                                                                                                       : allocated to it and <span class="keyword">this</span> operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes <span class="keyword">using</span> a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : <span class="keywordflow">if</span> <span class="keyword">this</span> problem persists.<span class="stringliteral">&quot; )</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="stringliteral">    {</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="stringliteral">        //======================================== Check against NULL</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="stringliteral">        if ( checkVar == NULL )</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="stringliteral">        {</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="stringliteral">            throw ProSHADE_exception ( &quot;</span>Failed to allocate memory.<span class="stringliteral">&quot;, &quot;</span>E000007<span class="stringliteral">&quot;, fileP, lineP, funcP, infoP );</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="stringliteral">        }</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="stringliteral">        </span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="stringliteral">        //======================================== Done</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="stringliteral">        return ;</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="stringliteral">        </span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="stringliteral">    }</span></div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8hpp_source.html#l00063">63</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8hpp_source.html">ProSHADE_misc.hpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                                                                                                                                                                                                                                       : allocated to it and <span class="keyword">this</span> operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes <span class="keyword">using</span> a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : <span class="keywordflow">if</span> <span class="keyword">this</span> problem persists.<span class="stringliteral">&quot; )</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="stringliteral">    {</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="stringliteral">        //============================================ Check against NULL</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="stringliteral">        if ( checkVar == NULL )</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="stringliteral">        {</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="stringliteral">            throw ProSHADE_exception                  ( &quot;</span>Failed to allocate memory.<span class="stringliteral">&quot;, &quot;</span>E000007<span class="stringliteral">&quot;, fileP, lineP, funcP, infoP );</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="stringliteral">        }</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="stringliteral">        </span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="stringliteral">        //============================================ Done</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="stringliteral">        return ;</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="stringliteral">        </span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="stringliteral">    }</span></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -675,30 +675,30 @@ template&lt;class chVar &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00249">249</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;{</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="comment">//======================================== Allocate new memory</span></div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    proshade_double* symAx                    = NULL;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    symAx                                     = <span class="keyword">new</span> proshade_double[6];</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="comment">//======================================== Check memory allocation</span></div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a> ( symAx, __FILE__, __LINE__, __func__ );</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00252">252</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;{</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="comment">//================================================ Allocate new memory</span></div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    proshade_double* symAx                            = NULL;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    symAx                                             = <span class="keyword">new</span> proshade_double[6];</div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    </div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="comment">//======================================== Copy the 6 values</span></div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    symAx[0]                                  = axis[0];</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    symAx[1]                                  = axis[1];</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    symAx[2]                                  = axis[2];</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    symAx[3]                                  = axis[3];</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    symAx[4]                                  = axis[4];</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    symAx[5]                                  = axis[5];</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    </div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="comment">//======================================== Save</span></div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#aa3103c7b5e2dc2cbf1778705c7693334">ProSHADE_internal_misc::addToDblPtrVector</a> ( dblPtrVec, symAx );</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="comment">//================================================ Check memory allocation</span></div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a>     ( symAx, __FILE__, __LINE__, __func__ );</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    </div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="comment">//================================================ Copy the 6 values</span></div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    symAx[0]                                          = axis[0];</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    symAx[1]                                          = axis[1];</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    symAx[2]                                          = axis[2];</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    symAx[3]                                          = axis[3];</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    symAx[4]                                          = axis[4];</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    symAx[5]                                          = axis[5];</div>
 <div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    </div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    return ;</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="comment">//================================================ Save</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#aa3103c7b5e2dc2cbf1778705c7693334">ProSHADE_internal_misc::addToDblPtrVector</a>         ( dblPtrVec, symAx );</div>
 <div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    </div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;}</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    return ;</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    </div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -773,30 +773,30 @@ template&lt;class chVar &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00286">286</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;{</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="comment">//======================================== Allocate new memory</span></div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    proshade_signed* bounds                   = NULL;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    bounds                                    = <span class="keyword">new</span> proshade_signed[6];</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    </div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="comment">//======================================== Check memory allocation</span></div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a> ( bounds, __FILE__, __LINE__, __func__ );</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00289">289</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;{</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="comment">//================================================ Allocate new memory</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    proshade_signed* bounds                           = NULL;</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    bounds                                            = <span class="keyword">new</span> proshade_signed[6];</div>
 <div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    </div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="comment">//======================================== Copy the 6 values</span></div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    bounds[0]                                 = *xFrom;</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    bounds[1]                                 = *xTo;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    bounds[2]                                 = *yFrom;</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    bounds[3]                                 = *yTo;</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    bounds[4]                                 = *zFrom;</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    bounds[5]                                 = *zTo;</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="comment">//======================================== Save</span></div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a58f65a0980ed91146891e6c33ab7383a">ProSHADE_internal_misc::addToSigPtrVector</a> ( sigPtrVec, bounds );</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="comment">//================================================ Check memory allocation</span></div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a>     ( bounds, __FILE__, __LINE__, __func__ );</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    </div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="comment">//================================================ Copy the 6 values</span></div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    bounds[0]                                         = *xFrom;</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    bounds[1]                                         = *xTo;</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    bounds[2]                                         = *yFrom;</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    bounds[3]                                         = *yTo;</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    bounds[4]                                         = *zFrom;</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    bounds[5]                                         = *zTo;</div>
 <div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    </div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    return ;</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="comment">//================================================ Save</span></div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a58f65a0980ed91146891e6c33ab7383a">ProSHADE_internal_misc::addToSigPtrVector</a>         ( sigPtrVec, bounds );</div>
 <div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    </div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;}</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    return ;</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    </div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -836,16 +836,16 @@ template&lt;class chVar &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00231">231</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;{</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="comment">//======================================== Get weighted averages</span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    proshade_double aScore                    = ( ( a[0] * a[5] ) + ( a[6] * a[11] ) ) / ( a[0] + a[6] );</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    proshade_double bScore                    = ( ( b[0] * b[5] ) + ( b[6] * b[11] ) ) / ( b[0] + b[6] );</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    </div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="comment">//======================================== Compare</span></div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keywordflow">return</span>                                    ( aScore &gt; bScore );</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00234">234</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;{</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="comment">//================================================ Get weighted averages</span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    proshade_double aScore                            = ( ( a[0] * a[5] ) + ( a[6] * a[11] ) ) / ( a[0] + a[6] );</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    proshade_double bScore                            = ( ( b[0] * b[5] ) + ( b[6] * b[11] ) ) / ( b[0] + b[6] );</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    </div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;}</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="comment">//================================================ Compare</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <span class="keywordflow">return</span>                                            ( aScore &gt; bScore );</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    </div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -885,12 +885,12 @@ template&lt;class chVar &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00205">205</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;{</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="comment">//======================================== Compare</span></div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordflow">return</span>                                    ( a[5] &lt; b[5] );</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    </div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00208">208</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;{</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <span class="comment">//================================================ Compare</span></div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keywordflow">return</span>                                            ( a[5] &lt; b[5] );</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    </div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -930,20 +930,20 @@ template&lt;class chVar &gt; </div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00218">218</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;{</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="comment">//======================================== Compare</span></div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordflow">return</span>                                    ( a[5] &gt; b[5] );</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    </div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00221">221</a> of file <a class="el" href="_pro_s_h_a_d_e__misc_8cpp_source.html">ProSHADE_misc.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;{</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="comment">//======================================== Compare</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordflow">return</span>                                    ( a[5] &gt; b[5] );</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    </div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_aa3103c7b5e2dc2cbf1778705c7693334"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#aa3103c7b5e2dc2cbf1778705c7693334">ProSHADE_internal_misc::addToDblPtrVector</a></div><div class="ttdeci">void addToDblPtrVector(std::vector&lt; proshade_double * &gt; *vecToAddTo, proshade_double *elementToAdd)</div><div class="ttdoc">Adds the element to the vector.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00140">ProSHADE_misc.cpp:140</a></div></div>
-<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_a58f65a0980ed91146891e6c33ab7383a"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#a58f65a0980ed91146891e6c33ab7383a">ProSHADE_internal_misc::addToSigPtrVector</a></div><div class="ttdeci">void addToSigPtrVector(std::vector&lt; proshade_signed * &gt; *vecToAddTo, proshade_signed *elementToAdd)</div><div class="ttdoc">Adds the element to the vector.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00163">ProSHADE_misc.cpp:163</a></div></div>
-<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_af556836aa9286c1571196de442a6b493"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a></div><div class="ttdeci">void checkMemoryAllocation(chVar checkVar, std::string fileP, unsigned int lineP, std::string funcP, std::string infoP=&quot;This error may occurs when ProSHADE requests memory to be\n                    : allocated to it and this operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes using a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : if this problem persists.&quot;)</div><div class="ttdoc">Checks if memory was allocated properly.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8hpp_source.html#l00059">ProSHADE_misc.hpp:59</a></div></div>
+<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_aa3103c7b5e2dc2cbf1778705c7693334"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#aa3103c7b5e2dc2cbf1778705c7693334">ProSHADE_internal_misc::addToDblPtrVector</a></div><div class="ttdeci">void addToDblPtrVector(std::vector&lt; proshade_double * &gt; *vecToAddTo, proshade_double *elementToAdd)</div><div class="ttdoc">Adds the element to the vector.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00143">ProSHADE_misc.cpp:143</a></div></div>
+<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_a58f65a0980ed91146891e6c33ab7383a"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#a58f65a0980ed91146891e6c33ab7383a">ProSHADE_internal_misc::addToSigPtrVector</a></div><div class="ttdeci">void addToSigPtrVector(std::vector&lt; proshade_signed * &gt; *vecToAddTo, proshade_signed *elementToAdd)</div><div class="ttdoc">Adds the element to the vector.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00166">ProSHADE_misc.cpp:166</a></div></div>
+<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_af556836aa9286c1571196de442a6b493"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a></div><div class="ttdeci">void checkMemoryAllocation(chVar checkVar, std::string fileP, unsigned int lineP, std::string funcP, std::string infoP=&quot;This error may occurs when ProSHADE requests memory to be\n                    : allocated to it and this operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes using a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : if this problem persists.&quot;)</div><div class="ttdoc">Checks if memory was allocated properly.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8hpp_source.html#l00063">ProSHADE_misc.hpp:63</a></div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

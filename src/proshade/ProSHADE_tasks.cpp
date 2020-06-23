@@ -358,7 +358,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     checkOverlaySettings                              ( settings );
     
     //================================================ Initialise variables
-    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ;
+    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ, xComChange, yComChange, zComChange;
     
     //================================================ Create the data objects initially (this time without phase)
     ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
@@ -379,7 +379,18 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;
     settings->changeMapResolution                     = true;
-    ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG );
+    ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG, &xComChange, &yComChange, &zComChange );
+    
+    //================================================ Write out rotated map and PDB (if possible)
+    std::stringstream fNameHlp;
+    fNameHlp << settings->overlayStructureName << ".map";
+    movingStructure->writeMap                         ( fNameHlp.str() );
+    if ( ProSHADE_internal_io::isFilePDB ( movingStructure->fileName ) )
+    {
+        fNameHlp.str("");
+        fNameHlp << settings->overlayStructureName << ".pdb";
+        movingStructure->writePdb                     ( fNameHlp.str(), eulA, eulB, eulG, trsX + xComChange, trsY + yComChange, trsZ + zComChange );
+    }
     
     //================================================ Release memory
     delete staticStructure;

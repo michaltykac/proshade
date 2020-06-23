@@ -28,13 +28,26 @@ var NAVTREE =
     [ "ProSHADE Documentation", "index.html", [
       [ "Introduction", "index.html#intro", null ],
       [ "Index", "index.html#index", null ],
-      [ "Installation", "index.html#install", null ]
+      [ "Installation", "index.html#install", [
+        [ "Standard System Dependencies", "index.html#stdSys", null ],
+        [ "CMake options", "index.html#installBehaviour", null ],
+        [ "Other dependencies", "index.html#otherDependencies", null ],
+        [ "Install", "index.html#installcode", null ],
+        [ "Uninstall", "index.html#uninstall", null ]
+      ] ],
+      [ "Using the ProSHADE binary", "index.html#proshadeBinary", [
+        [ "Symmetry Detection", "index.html#symDetection", null ],
+        [ "Shape similarity distances", "index.html#distDetection", null ],
+        [ "Re-boxing structures", "index.html#reboxingUsage", null ],
+        [ "Optimal rotation and translation", "index.html#overlayExample", null ]
+      ] ],
+      [ "Using the ProSHADE library", "index.html#libuse", null ]
     ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
-        [ "All", "namespacemembers.html", null ],
-        [ "Functions", "namespacemembers_func.html", null ]
+        [ "All", "namespacemembers.html", "namespacemembers_dup" ],
+        [ "Functions", "namespacemembers_func.html", "namespacemembers_func" ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [
@@ -60,8 +73,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_pro_s_h_a_d_e_8cpp.html",
-"_pro_s_h_a_d_e__symmetry_8hpp.html#ad44ed609e8a3d59674b2b2256aec41f8",
-"class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#aca3c4a9ccce4508de9e292c4628d703e"
+"_pro_s_h_a_d_e__symmetry_8hpp.html#ab0ac919dd609bc6bded806c0f78201fd",
+"class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a6b6390d13016df4578022665b87ad441",
+"namespacemembers_t.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

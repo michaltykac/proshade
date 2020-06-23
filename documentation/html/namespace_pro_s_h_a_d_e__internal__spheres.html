@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.3 (MAY 2020)</span>
+   &#160;<span id="projectnumber">0.7.3 (JUN 2020)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -145,11 +145,11 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00518">518</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00519"></a><span class="lineno">  519</span>&#160;{</div>
-<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;    <span class="comment">//======================================== Determine and return</span></div>
-<div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;    <span class="keywordflow">return</span>                                    ( circumference );</div>
-<div class="line"><a name="l00522"></a><span class="lineno">  522</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00532">532</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00533"></a><span class="lineno">  533</span>&#160;{</div>
+<div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;    <span class="comment">//================================================ Determine and return</span></div>
+<div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;    <span class="keywordflow">return</span>                                            ( circumference );</div>
+<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -178,11 +178,11 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00505">505</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00506"></a><span class="lineno">  506</span>&#160;{</div>
-<div class="line"><a name="l00507"></a><span class="lineno">  507</span>&#160;    <span class="comment">//======================================== Determine and return</span></div>
-<div class="line"><a name="l00508"></a><span class="lineno">  508</span>&#160;    <span class="keywordflow">return</span>                                    ( std::ceil ( circumference / 2 ) );</div>
-<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00519">519</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;{</div>
+<div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;    <span class="comment">//================================================ Determine and return</span></div>
+<div class="line"><a name="l00522"></a><span class="lineno">  522</span>&#160;    <span class="keywordflow">return</span>                                            ( std::ceil ( circumference / 2 ) );</div>
+<div class="line"><a name="l00523"></a><span class="lineno">  523</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -222,25 +222,25 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00557">557</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;{</div>
-<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;    <span class="comment">//======================================== Initialise local variables</span></div>
-<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;    proshade_double sphereDistanceAsFractionOfTotal = <span class="keyword">static_cast&lt;</span>proshade_double<span class="keyword">&gt;</span> ( sphereDist ) / ( maxMapRange / 2.0 );</div>
-<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;    proshade_unsign ret                       = 0;</div>
-<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;    </div>
-<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;    <span class="comment">//======================================== Compare to precomputed values</span></div>
-<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 2; iter &lt; static_cast&lt;proshade_unsign&gt; ( 10000 ); iter++ )</div>
-<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;    {</div>
-<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160;        <span class="keywordflow">if</span> ( ProSHADE_internal_precomputedVals::glIntMaxDists[iter] &gt;= sphereDistanceAsFractionOfTotal )</div>
-<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;        {</div>
-<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160;            ret                               = iter;</div>
-<div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;        }</div>
-<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;    }</div>
-<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160;    </div>
-<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;    <span class="comment">//======================================== Return largest passing value</span></div>
-<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;    <span class="keywordflow">return</span>                                    ( ret );</div>
-<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    </div>
-<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00571">571</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;{</div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;    proshade_double sphereDistanceAsFractionOfTotal = <span class="keyword">static_cast&lt;</span>proshade_double<span class="keyword">&gt;</span> ( sphereDist ) / ( maxMapRange / 2.0 );</div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;    proshade_unsign ret                               = 0;</div>
+<div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;    </div>
+<div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;    <span class="comment">//================================================ Compare to precomputed values</span></div>
+<div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 2; iter &lt; static_cast&lt;proshade_unsign&gt; ( 10000 ); iter++ )</div>
+<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;    {</div>
+<div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;        <span class="keywordflow">if</span> ( ProSHADE_internal_precomputedVals::glIntMaxDists[iter] &gt;= sphereDistanceAsFractionOfTotal )</div>
+<div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;        {</div>
+<div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160;            ret                                       = iter;</div>
+<div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;        }</div>
+<div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;    }</div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;    </div>
+<div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;    <span class="comment">//================================================ Return largest passing value</span></div>
+<div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
+<div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;    </div>
+<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -280,20 +280,20 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00533">533</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;{</div>
-<div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;    <span class="comment">//======================================== Get starting point</span></div>
-<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;    proshade_single ret                       = <span class="keyword">static_cast&lt;</span>proshade_single<span class="keyword">&gt;</span> ( resolution / 2.0 );</div>
-<div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;    </div>
-<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;    <span class="comment">//======================================== Make sure at least 10 shells will exist</span></div>
-<div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;    <span class="keywordflow">while</span> ( std::floor ( maxMapRange / ret ) &lt; 10 )</div>
-<div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;    {</div>
-<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;        ret                                  /= 2.0;</div>
-<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;    }</div>
-<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;    </div>
-<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;    <span class="comment">//======================================== Done</span></div>
-<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;    <span class="keywordflow">return</span>                                    ( ret );</div>
-<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00547">547</a> of file <a class="el" href="_pro_s_h_a_d_e__spheres_8cpp_source.html">ProSHADE_spheres.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;{</div>
+<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160;    <span class="comment">//================================================ Get starting point</span></div>
+<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;    proshade_single ret                               = <span class="keyword">static_cast&lt;</span>proshade_single<span class="keyword">&gt;</span> ( resolution / 2.0 );</div>
+<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;    </div>
+<div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;    <span class="comment">//================================================ Make sure at least 10 shells will exist</span></div>
+<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;    <span class="keywordflow">while</span> ( std::floor ( maxMapRange / ret ) &lt; 10 )</div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;    {</div>
+<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;        ret                                          /= 2.0;</div>
+<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;    }</div>
+<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;    </div>
+<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
+<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>

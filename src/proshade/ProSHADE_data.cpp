@@ -64,6 +64,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->comMovX                                     = 0.0;
     this->comMovY                                     = 0.0;
     this->comMovZ                                     = 0.0;
+    this->xCom                                        = 0.0;
+    this->yCom                                        = 0.0;
+    this->zCom                                        = 0.0;
     
     // ... Variables regarding iterator positions
     this->xFrom                                       = 0;
@@ -157,6 +160,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->comMovX                                     = 0.0;
     this->comMovY                                     = 0.0;
     this->comMovZ                                     = 0.0;
+    this->xCom                                        = 0.0;
+    this->yCom                                        = 0.0;
+    this->zCom                                        = 0.0;
     
     // ... Variables regarding iterator positions
     this->xFrom                                       = xFr;
@@ -788,7 +794,7 @@ void ProSHADE_internal_data::ProSHADE_data::switchAxes ( void )
  and proceeds to write all this information in MRC MAP format for visualisation and further processing by other software.
  It is dependent on the internal information being correct.
  
- \param[in] fileName The filename (including path) to where the output should be saved.
+ \param[in] fName The filename (including path) to where the output MAP file should be saved.
  \param[in] title String with the map title to be written into the header - default value is "ProSHADE generated map"
  */
 void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title )
@@ -816,6 +822,69 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     //================================================ Done
     return ;
     
+}
+
+/*! \brief This function writes out the PDB formatted file coresponding to the structure.
+
+This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
+it will proceed to
+
+\param[in] fName The filename (including path) to where the output PDB file should be saved.
+\param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+\param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+\param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+\param[in] transX The translation to be done along the X-axis in Angstroms.
+\param[in] transY The translation to be done along the Y-axis in Angstroms.
+\param[in] transZ The translation to be done along the Z-axis in Angstroms.
+*/
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ )
+{
+    //================================================ Check for co-ordinate origin
+    if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
+    {
+        throw ProSHADE_exception ( "Cannot write co-ordinate file if the input file did not contain co-ordinates.", "EP00045", __FILE__, __LINE__, __func__, "You have called the WritePDB function on structure which\n                    : was created by reading in a map. This is not allowed as\n                    : ProSHADE cannot create co-ordinates from map file." );
+    }
+    
+    //================================================ Open the original PDB file
+    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
+    if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
+    {
+        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
+    }
+    
+    //================================================ Save original PDB COM position
+    proshade_double xCOMOriginal = 0.0, yCOMOriginal = 0.0, zCOMOriginal = 0.0;
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMOriginal, &yCOMOriginal, &zCOMOriginal );
+    
+    //================================================ Rotate the PDB file co-ordinates if required
+    if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
+    {
+        ProSHADE_internal_mapManip::rotatePDBCoordinates  ( pdbFile, euA, euB, euG, 0.0, 0.0, 0.0 );
+    }
+    
+    //================================================ Compute the after rotation PDB COM position
+    proshade_double xCOMRotated = 0.0, yCOMRotated = 0.0, zCOMRotated = 0.0;
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated );
+    
+    //================================================ Compute the required translation, taking into account the different rotation origins between PDB and MAP and the required translation. The map centering COM change is already included in the translation, assuming the translation was computed by getOptimalTranslation() function.
+    proshade_double xPDBTrans                         = ( xCOMOriginal - xCOMRotated ) + transX;
+    proshade_double yPDBTrans                         = ( yCOMOriginal - yCOMRotated ) + transY;
+    proshade_double zPDBTrans                         = ( zCOMOriginal - zCOMRotated ) + transZ;
+    ProSHADE_internal_mapManip::translatePDBCoordinates  ( pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
+    
+    //================================================ Write the PDB file
+    if ( pdbFile->WritePDBASCII ( fName.c_str() ) )
+    {
+        std::stringstream hlpMessage;
+        hlpMessage << "Failed to open the PDB file " << fName << " for output.";
+        throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00046", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
+    }
+    
+    //================================================ Release memory
+    delete pdbFile;
+    
+    //================================================ Done
+    return ;
 }
 
 /*! \brief Function for writing out a mask in MRC MAP format.
@@ -1367,13 +1436,13 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
     proshade_single yDist                             = ( static_cast<proshade_single> ( this->yDimIndices / 2.0 ) - yCOM ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
     proshade_single zDist                             = ( static_cast<proshade_single> ( this->zDimIndices / 2.0 ) - zCOM ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
     
-    //================================================ Move the map within the box
-    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xDist, yDist, zDist, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    
     //================================================ Save COM movement
     this->comMovX                                     = static_cast<proshade_double> ( xDist );
     this->comMovY                                     = static_cast<proshade_double> ( yDist );
     this->comMovZ                                     = static_cast<proshade_double> ( zDist );
+    
+    //================================================ Move the map within the box
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xDist, yDist, zDist, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
     
     //================================================ Report function completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map centered." );
@@ -1512,7 +1581,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Centre map
     if ( settings->moveToCOM ) { this->centreMapOnCOM ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested." ); }
-
+    
     //================================================ Add extra space
     if ( settings->addExtraSpace != 0.0 ) { this->addExtraSpace ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Extra space not requested." ); }
@@ -1520,6 +1589,9 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Remove phase, if required
     if ( !settings->usePhase ) { this->removePhaseInormation ( settings ); ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information removed from the data." ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information retained in the data." ); }
+    
+    //================================================ Compute and save COM
+    this->findMapCOM                                  ( );
     
     //================================================ Done
     return ;
@@ -2189,6 +2261,54 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     //================================================ Done
     return ;
     
+}
+
+/*! \brief This function finds the centre of mass of the internal map representation.
+
+This function simply computes the centre of mass for the given ProSHADE_data object map in the "real space" (i.e. the space that counts Angstroms from the bottom left further corner). These are then saved into the ProSHADE_data object.
+*/
+void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
+{
+    //================================================ Initialise variables
+    this->xCom                                        = 0.0;
+    this->yCom                                        = 0.0;
+    this->zCom                                        = 0.0;
+    proshade_double totNonZeroPoints                  = 0.0;
+    proshade_signed mapIt                             = 0;
+    
+    //================================================ Compute COM from 0 ; 0 ; 0
+    for ( proshade_signed xIt = 0; xIt < static_cast<proshade_signed> ( this->xDimIndices ); xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < static_cast<proshade_signed> ( this->yDimIndices ); yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < static_cast<proshade_signed> ( this->zDimIndices ); zIt++ )
+            {
+                //==================================== Find map index
+                mapIt                                 = zIt  + this->zDimIndices * ( yIt  + this->yDimIndices * xIt  );
+                
+                //==================================== Use only positive density
+                if ( this->internalMap[mapIt] <= 0.0 ) { continue; }
+                
+                //==================================== Compute Index COM
+                this->xCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( xIt );
+                this->yCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( yIt );
+                this->zCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( zIt );
+                totNonZeroPoints                     += 1.0;
+            }
+        }
+    }
+    
+    this->xCom                                       /= totNonZeroPoints;
+    this->yCom                                       /= totNonZeroPoints;
+    this->zCom                                       /= totNonZeroPoints;
+    
+    //================================================ Convert to real world
+    this->xCom                                        = ( this->xCom - this->xFrom ) * ( this->xDimSize / ( this->xTo - this->xFrom ) );
+    this->yCom                                        = ( this->yCom - this->yFrom ) * ( this->yDimSize / ( this->yTo - this->yFrom ) );
+    this->zCom                                        = ( this->zCom - this->zFrom ) * ( this->zDimSize / ( this->zTo - this->zFrom ) );
+    
+    //================================================ Done
+    return ;
 }
 
 /*! \brief This function returns the number of spheres which contain the whole object.

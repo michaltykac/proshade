@@ -7,7 +7,7 @@ var _pro_s_h_a_d_e__overlay_8hpp =
     [ "findHighestValueInMap", "_pro_s_h_a_d_e__overlay_8hpp.html#a75e695f0a6b627e6a670c5e379230f4c", null ],
     [ "freeTranslationFunctionMemory", "_pro_s_h_a_d_e__overlay_8hpp.html#a448b6438ea9979e18af75f419f175603", null ],
     [ "getOptimalRotation", "_pro_s_h_a_d_e__overlay_8hpp.html#a92cc970ba9d1e6ab220a0c947ebd5567", null ],
-    [ "getOptimalTranslation", "_pro_s_h_a_d_e__overlay_8hpp.html#a96c978e561ed489efc681f640332256a", null ],
+    [ "getOptimalTranslation", "_pro_s_h_a_d_e__overlay_8hpp.html#a883816b7f3988b0d68c2f83de1ee9cac", null ],
     [ "initialiseInverseSHComputation", "_pro_s_h_a_d_e__overlay_8hpp.html#ac173210899aeeae2e207f9acdd7670a7", null ],
     [ "paddMapWithZeroes", "_pro_s_h_a_d_e__overlay_8hpp.html#a1e7fa43107bc9a9fce49d5954a93c962", null ]
 ];

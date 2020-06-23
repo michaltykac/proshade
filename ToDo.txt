@@ -14,5 +14,3 @@ Development
 !!!
 * Make python get and set 3D instead of 1D arrays
 * Create pip installation
-
-
