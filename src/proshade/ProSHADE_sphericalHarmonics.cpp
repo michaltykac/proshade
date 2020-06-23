@@ -1,21 +1,25 @@
 /*! \file ProSHADE_sphericalHarmonics.cpp
- \brief ...
+    \brief This source file contains the function required to compute the spherical harmonics decompostion in ProSHADE.
  
- ...
+    The functions in this source file are all required to run the spherical harmonic decomposition of a ProSHADE_sphere objet. They make use of the SOFT2.0 library in order to get the
+    compuation done. This file also contains the support, memory allocation and similar functions, all related to the main task.
  
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    This software is provided by the copyright holder and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
  
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_sphericalHarmonics.hpp"
 
 /*! \brief This function determines the integration order for the between spheres integration.
@@ -34,33 +38,33 @@
  */
 void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, proshade_double*& shWeights, proshade_double*& tableSpaceHelper, fftw_complex*& workspace )
 {
-    //======================================== Initialise local variables
-    proshade_unsign oneDimmension             = 2 * band;
+    //================================================ Initialise local variables
+    proshade_unsign oneDimmension                     = 2 * band;
     
-    //======================================== Allocate Input Memory
-    inputReal                                 = new proshade_double [oneDimmension * oneDimmension];
-    inputImag                                 = new proshade_double [oneDimmension * oneDimmension];
+    //================================================ Allocate Input Memory
+    inputReal                                         = new proshade_double [oneDimmension * oneDimmension];
+    inputImag                                         = new proshade_double [oneDimmension * oneDimmension];
     
-    //======================================== Allocate Output Memory
-    outputReal                                = new proshade_double [oneDimmension * oneDimmension];
-    outputImag                                = new proshade_double [oneDimmension * oneDimmension];
+    //================================================ Allocate Output Memory
+    outputReal                                        = new proshade_double [oneDimmension * oneDimmension];
+    outputImag                                        = new proshade_double [oneDimmension * oneDimmension];
     
-    //======================================== Allocate Working Memory
-    shWeights                                 = new proshade_double [band * 4];
-    tableSpaceHelper                          = new proshade_double [static_cast<proshade_unsign> ( Reduced_Naive_TableSize ( band, band ) +
-                                                                                                    Reduced_SpharmonicTableSize ( band, band ) )];
-    workspace                                 = new fftw_complex    [(  8 * band * band ) +  ( 10 * band )];
+    //================================================ Allocate Working Memory
+    shWeights                                         = new proshade_double [band * 4];
+    tableSpaceHelper                                  = new proshade_double [static_cast<proshade_unsign> ( Reduced_Naive_TableSize ( band, band ) +
+                                                                                                            Reduced_SpharmonicTableSize ( band, band ) )];
+    workspace                                         = new fftw_complex    [(  8 * band * band ) +  ( 10 * band )];
     
-    //======================================== Check memory allocation success
-    ProSHADE_internal_misc::checkMemoryAllocation ( inputReal,  "ProSHADE_sphericalHHarmonics.cpp", 41, "allocateComputationMemory()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( inputImag,  "ProSHADE_sphericalHHarmonics.cpp", 42, "allocateComputationMemory()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( outputReal, "ProSHADE_sphericalHHarmonics.cpp", 45, "allocateComputationMemory()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( outputImag, "ProSHADE_sphericalHHarmonics.cpp", 46, "allocateComputationMemory()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( shWeights,  "ProSHADE_sphericalHHarmonics.cpp", 49, "allocateComputationMemory()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( tableSpaceHelper, "ProSHADE_sphericalHHarmonics.cpp", 50, "allocateComputationMemory()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( workspace,  "ProSHADE_sphericalHHarmonics.cpp", 51, "allocateComputationMemory()" );
+    //================================================ Check memory allocation success
+    ProSHADE_internal_misc::checkMemoryAllocation     ( inputReal,        __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( inputImag,        __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( outputReal,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( outputImag,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( shWeights,        __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( tableSpaceHelper, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( workspace,        __FILE__, __LINE__, __func__ );
     
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }
@@ -79,13 +83,13 @@ void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_
  */
 void ProSHADE_internal_sphericalHarmonics::placeWithinWorkspacePointers ( fftw_complex*& workspace, proshade_unsign oDim, proshade_double*& rres, proshade_double*& ires, proshade_double*& fltres, proshade_double*& scratchpad )
 {
-    //======================================== Place pointers as required by SOFT2.0
-    rres                                      = reinterpret_cast<proshade_double*> ( workspace );
-    ires                                      = rres + ( oDim * oDim );
-    fltres                                    = ires + ( oDim * oDim );
-    scratchpad                                = fltres + ( oDim / 2 );
+    //================================================ Place pointers as required by SOFT2.0
+    rres                                              = reinterpret_cast<proshade_double*> ( workspace );
+    ires                                              = rres + ( oDim * oDim );
+    fltres                                            = ires + ( oDim * oDim );
+    scratchpad                                        = fltres + ( oDim / 2 );
     
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }
@@ -106,40 +110,40 @@ void ProSHADE_internal_sphericalHarmonics::placeWithinWorkspacePointers ( fftw_c
  */
 void ProSHADE_internal_sphericalHarmonics::initialiseFFTWPlans ( proshade_unsign band, fftw_plan& fftPlan, fftw_plan& dctPlan, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& rres, proshade_double*& ires, proshade_double*& scratchpad )
 {
-    //======================================== Initialize fft plan along phi angles
+    //================================================ Initialize fft plan along phi angles
     fftw_iodim dims[1];
     fftw_iodim howmany_dims[1];
     
-    int rank                                  = 1;
-    int howmany_rank                          = 1;
+    int rank                                          = 1;
+    int howmany_rank                                  = 1;
+            
+    dims[0].n                                         = static_cast<int> ( band * 2 );
+    dims[0].is                                        = 1;
+    dims[0].os                                        = static_cast<int> ( band * 2 );
+            
+    howmany_dims[0].n                                 = static_cast<int> ( band * 2 );
+    howmany_dims[0].is                                = static_cast<int> ( band * 2 );
+    howmany_dims[0].os                                = 1;
     
-    dims[0].n                                 = static_cast<int> ( band * 2 );
-    dims[0].is                                = 1;
-    dims[0].os                                = static_cast<int> ( band * 2 );
+    //================================================ Plan fft transform
+    fftPlan                                           = fftw_plan_guru_split_dft ( rank,
+                                                                                   dims,
+                                                                                   howmany_rank,
+                                                                                   howmany_dims,
+                                                                                   inputReal,
+                                                                                   inputImag,
+                                                                                   rres,
+                                                                                   ires,
+                                                                                   FFTW_ESTIMATE  );
     
-    howmany_dims[0].n                         = static_cast<int> ( band * 2 );
-    howmany_dims[0].is                        = static_cast<int> ( band * 2 );
-    howmany_dims[0].os                        = 1;
+    //================================================ Initialize dct plan for SHT
+    dctPlan                                           = fftw_plan_r2r_1d ( static_cast<int> ( band * 2 ),
+                                                                           scratchpad,
+                                                                           scratchpad + static_cast<int> ( band * 2 ),
+                                                                           FFTW_REDFT10,
+                                                                           FFTW_ESTIMATE ) ;
     
-    //======================================== Plan fft transform
-    fftPlan                                   = fftw_plan_guru_split_dft ( rank,
-                                                                           dims,
-                                                                           howmany_rank,
-                                                                           howmany_dims,
-                                                                           inputReal,
-                                                                           inputImag,
-                                                                           rres,
-                                                                           ires,
-                                                                           FFTW_ESTIMATE  );
-    
-    //======================================== Initialize dct plan for SHT
-    dctPlan                                   = fftw_plan_r2r_1d ( static_cast<int> ( band * 2 ),
-                                                                   scratchpad,
-                                                                   scratchpad + static_cast<int> ( band * 2 ),
-                                                                   FFTW_REDFT10,
-                                                                   FFTW_ESTIMATE ) ;
-    
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }
@@ -163,6 +167,7 @@ void ProSHADE_internal_sphericalHarmonics::initialiseFFTWPlans ( proshade_unsign
  */
 void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, double*& tableSpaceHelper, double**& tableSpace, double*& shWeights, fftw_complex*& workspace, fftw_plan& fftPlan, fftw_plan& dctPlan )
 {
+    //================================================ Release all memory related to SH
     delete[] inputReal;
     delete[] inputImag;
     delete[] outputReal;
@@ -172,17 +177,17 @@ void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_dou
     delete[] tableSpace;
     delete[] shWeights;
     
-    fftw_free                                 ( workspace );
+    fftw_free                                         ( workspace );
+            
+    tableSpaceHelper                                  = NULL;
+    tableSpace                                        = NULL;
+    shWeights                                         = NULL;
+    workspace                                         = NULL;
+            
+    fftw_destroy_plan                                 ( dctPlan );
+    fftw_destroy_plan                                 ( fftPlan );
     
-    tableSpaceHelper                          = NULL;
-    tableSpace                                = NULL;
-    shWeights                                 = NULL;
-    workspace                                 = NULL;
-    
-    fftw_destroy_plan                         ( dctPlan );
-    fftw_destroy_plan                         ( fftPlan );
-    
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }
@@ -210,25 +215,25 @@ void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_dou
  */
 void ProSHADE_internal_sphericalHarmonics::initialiseAllMemory ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, double*& shWeights, double**& tableSpace, double*& tableSpaceHelper, fftw_complex*& workspace, proshade_double*& rres, proshade_double*& ires, proshade_double*& fltres, proshade_double*& scratchpad, fftw_plan& fftPlan, fftw_plan& dctPlan )
 {
-    //======================================== Initialise local variables
-    proshade_unsign oneDim                    = band * 2;
+    //================================================ Initialise local variables
+    proshade_unsign oneDim                            = band * 2;
     
-    //======================================== Allocate memory for local pointers
-    allocateComputationMemory                 ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tableSpaceHelper, workspace );
+    //================================================ Allocate memory for local pointers
+    allocateComputationMemory                         ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tableSpaceHelper, workspace );
     
-    //======================================== Within workspace pointers
-    placeWithinWorkspacePointers              ( workspace, oneDim, rres, ires, fltres, scratchpad );
+    //================================================ Within workspace pointers
+    placeWithinWorkspacePointers                      ( workspace, oneDim, rres, ires, fltres, scratchpad );
     
-    //======================================== Generate Seminaive and naive tables for Legendre Polynomials
-    tableSpace                                = SemiNaive_Naive_Pml_Table ( band, band, tableSpaceHelper, reinterpret_cast<double*> ( workspace ) );
+    //================================================ Generate Seminaive and naive tables for Legendre Polynomials
+    tableSpace                                        = SemiNaive_Naive_Pml_Table ( band, band, tableSpaceHelper, reinterpret_cast<double*> ( workspace ) );
     
-    //======================================== Make weights for spherical transform
-    makeweights                               ( band, shWeights );
+    //================================================ Make weights for spherical transform
+    makeweights                                       ( band, shWeights );
     
-    //======================================== Initialize FFTW Plans
-    initialiseFFTWPlans                       ( band, fftPlan, dctPlan, inputReal, inputImag, rres, ires, scratchpad );
+    //================================================ Initialize FFTW Plans
+    initialiseFFTWPlans                               ( band, fftPlan, dctPlan, inputReal, inputImag, rres, ires, scratchpad );
     
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }
@@ -250,24 +255,24 @@ void ProSHADE_internal_sphericalHarmonics::initialiseAllMemory ( proshade_unsign
  */
 void ProSHADE_internal_sphericalHarmonics::initialSplitDiscreteTransform ( proshade_unsign oneDim, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& rres, proshade_double*& ires, proshade_double* mappedData, fftw_plan& fftPlan, proshade_double normCoeff )
 {
-    //======================================== Load mapped data to decomposition array
+    //================================================ Load mapped data to decomposition array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( oneDim * oneDim ); iter++ )
     {
-        inputReal[iter]                       = mappedData[iter];
-        inputImag[iter]                       = 0.0;
+        inputReal[iter]                               = mappedData[iter];
+        inputImag[iter]                               = 0.0;
     }
     
-    //======================================== Execute fft plan along phi
-    fftw_execute_split_dft                    ( fftPlan, inputReal, inputImag, rres, ires ) ;
+    //================================================ Execute fft plan along phi
+    fftw_execute_split_dft                            ( fftPlan, inputReal, inputImag, rres, ires ) ;
     
-    //======================================== Normalize
+    //================================================ Normalize
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( oneDim * oneDim ); iter++ )
     {
-        rres[iter]                           *= normCoeff;
-        ires[iter]                           *= normCoeff;
+        rres[iter]                                   *= normCoeff;
+        ires[iter]                                   *= normCoeff;
     }
     
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }
@@ -293,41 +298,41 @@ void ProSHADE_internal_sphericalHarmonics::initialSplitDiscreteTransform ( prosh
  */
 void ProSHADE_internal_sphericalHarmonics::computeSphericalTransformCoeffs ( proshade_unsign band, proshade_double*& rdataptr, proshade_double*& idataptr, proshade_double*& outputReal, proshade_double*& outputImag, proshade_double*& rres, proshade_double*& ires, proshade_double*& fltres, proshade_double*& scratchpad, double**& tablePml, double*& shWeights, fftw_plan& dctPlan )
 {
-    //======================================== Calculate the coefficients for each band
-    rdataptr                                  = outputReal;
-    idataptr                                  = outputImag;
+    //================================================ Calculate the coefficients for each band
+    rdataptr                                          = outputReal;
+    idataptr                                          = outputImag;
     for ( proshade_unsign bandIter = 0; bandIter < band; bandIter++ )
     {
-        //==================================== Real part calculation
-        SemiNaiveReduced                      ( rres + ( bandIter * ( band * 2 ) ),
-                                                band,
-                                                bandIter,
-                                                fltres,
-                                                scratchpad,
-                                                tablePml[bandIter],
-                                                shWeights,
-                                               &dctPlan);
+        //============================================ Real part calculation
+        SemiNaiveReduced                              ( rres + ( bandIter * ( band * 2 ) ),
+                                                        band,
+                                                        bandIter,
+                                                        fltres,
+                                                        scratchpad,
+                                                        tablePml[bandIter],
+                                                        shWeights,
+                                                       &dctPlan);
         
-        //==================================== Save the real results to temporary holder
-        memcpy                                ( rdataptr, fltres, sizeof(proshade_double) * ( band - bandIter ) );
-        rdataptr                             += band - bandIter;
+        //============================================ Save the real results to temporary holder
+        memcpy                                        ( rdataptr, fltres, sizeof(proshade_double) * ( band - bandIter ) );
+        rdataptr                                     += band - bandIter;
         
-        //==================================== Imaginary part calculation
-        SemiNaiveReduced                      ( ires + ( bandIter * ( band * 2 ) ),
-                                                band,
-                                                bandIter,
-                                                fltres,
-                                                scratchpad,
-                                                tablePml[bandIter],
-                                                shWeights,
-                                               &dctPlan );
+        //============================================ Imaginary part calculation
+        SemiNaiveReduced                              ( ires + ( bandIter * ( band * 2 ) ),
+                                                        band,
+                                                        bandIter,
+                                                        fltres,
+                                                        scratchpad,
+                                                        tablePml[bandIter],
+                                                        shWeights,
+                                                       &dctPlan );
         
-        //==================================== Save the imaginary results
-        memcpy                                ( idataptr, fltres, sizeof(proshade_double) * ( band - bandIter ) );
-        idataptr                             += band - bandIter;
+        //============================================ Save the imaginary results
+        memcpy                                        ( idataptr, fltres, sizeof(proshade_double) * ( band - bandIter ) );
+        idataptr                                     += band - bandIter;
     }
     
-    //======================================== DONE
+    //================================================ DONE
     return ;
     
 }
@@ -345,31 +350,31 @@ void ProSHADE_internal_sphericalHarmonics::computeSphericalTransformCoeffs ( pro
  */
 void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_unsign band, proshade_double* outputReal, proshade_double* outputImag, proshade_complex*& shArray )
 {
-    //======================================== Copy the results into the final holder
+    //================================================ Copy the results into the final holder
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( (band * 2) * (band * 2) ); iter++ )
     {
-        shArray[iter][0]                      = outputReal[iter];
-        shArray[iter][1]                      = outputImag[iter];
+        shArray[iter][0]                              = outputReal[iter];
+        shArray[iter][1]                              = outputImag[iter];
     }
     
-    //======================================== Apply the Condon-Shortley phase sign
-    proshade_double powerOne                  = 1.0;
-    proshade_unsign hlp1                      = 0;
-    proshade_unsign hlp2                      = 0;
+    //================================================ Apply the Condon-Shortley phase sign
+    proshade_double powerOne                          = 1.0;
+    proshade_unsign hlp1                              = 0;
+    proshade_unsign hlp2                              = 0;
     for ( proshade_signed order = 1; order < static_cast<proshade_signed> ( band ); order++)
     {
-        powerOne                             *= -1.0;
+        powerOne                                     *= -1.0;
         for ( proshade_signed bandIter = order; bandIter < static_cast<proshade_signed> ( band ); bandIter++)
         {
-            hlp1                              = seanindex (  order, bandIter, band );
-            hlp2                              = seanindex ( -order, bandIter, band );
-            
-            shArray[hlp2][0]                  =  powerOne * static_cast<proshade_double> ( outputReal[hlp1] );
-            shArray[hlp2][1]                  = -powerOne * static_cast<proshade_double> ( outputImag[hlp1] );
+            hlp1                                      = seanindex (  order, bandIter, band );
+            hlp2                                      = seanindex ( -order, bandIter, band );
+                    
+            shArray[hlp2][0]                          =  powerOne * static_cast<proshade_double> ( outputReal[hlp1] );
+            shArray[hlp2][1]                          = -powerOne * static_cast<proshade_double> ( outputImag[hlp1] );
         }
     }
     
-    //======================================== DONE
+    //================================================ DONE
     return ;
     
 }
@@ -387,45 +392,45 @@ void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_u
  */
 void ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( proshade_unsign band, proshade_double* sphereMappedData, proshade_complex*& shArray )
 {
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     proshade_double *inputReal = NULL, *inputImag = NULL, *outputReal = NULL, *outputImag = NULL;
     double *shWeights = NULL, *tableSpaceHelper = NULL;
-    double** tablePml                         = NULL;
-    fftw_complex* workspace                   = NULL;
-    proshade_unsign oneDim                    = static_cast<proshade_unsign> ( band * 2 );
-    proshade_double normCoeff                 = ( 1.0 / ( static_cast<proshade_double> ( band * 2 ) ) ) * sqrt( 2.0 * M_PI );
+    double** tablePml                                 = NULL;
+    fftw_complex* workspace                           = NULL;
+    proshade_unsign oneDim                            = static_cast<proshade_unsign> ( band * 2 );
+    proshade_double normCoeff                         = ( 1.0 / ( static_cast<proshade_double> ( band * 2 ) ) ) * sqrt( 2.0 * M_PI );
     
-    //======================================== Set output to zeroes (so that all unfilled data are not random)
+    //================================================ Set output to zeroes (so that all unfilled data are not random)
     for ( proshade_unsign i = 0; i < ( 2 * band * 2 * band); i++ )
     {
-        shArray[i][0] = 0.0;
-        shArray[i][1] = 0.0;
+        shArray[i][0]                                 = 0.0;
+        shArray[i][1]                                 = 0.0;
     }
     
-    //======================================== Within workspace pointers
+    //================================================ Within workspace pointers
     proshade_double *rres = NULL, *ires = NULL, *fltres = NULL, *scratchpad = NULL, *rdataptr = NULL, *idataptr = NULL;
     
-    //======================================== FFTW Plans
-    fftw_plan fftPlan = NULL;
-    fftw_plan dctPlan = NULL;
+    //================================================ FFTW Plans
+    fftw_plan fftPlan                                 = NULL;
+    fftw_plan dctPlan                                 = NULL;
     
-    //======================================== Initialise all memory
-    initialiseAllMemory                       ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tablePml, tableSpaceHelper, workspace,
-                                                rres, ires, fltres, scratchpad, fftPlan, dctPlan );
+    //================================================ Initialise all memory
+    initialiseAllMemory                               ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tablePml, tableSpaceHelper, workspace,
+                                                        rres, ires, fltres, scratchpad, fftPlan, dctPlan );
     
-    //======================================== Do the initial discrete split transform
-    initialSplitDiscreteTransform             ( oneDim, inputReal, inputImag, rres, ires, sphereMappedData, fftPlan, normCoeff );
+    //================================================ Do the initial discrete split transform
+    initialSplitDiscreteTransform                     ( oneDim, inputReal, inputImag, rres, ires, sphereMappedData, fftPlan, normCoeff );
     
-    //======================================== Complete the spherical harmonics transform
-    computeSphericalTransformCoeffs           ( band, rdataptr, idataptr, outputReal, outputImag, rres, ires, fltres, scratchpad, tablePml, shWeights, dctPlan );
+    //================================================ Complete the spherical harmonics transform
+    computeSphericalTransformCoeffs                   ( band, rdataptr, idataptr, outputReal, outputImag, rres, ires, fltres, scratchpad, tablePml, shWeights, dctPlan );
     
-    //======================================== Apply the Condon-Shortley phase and save result to the final array
-    applyCondonShortleyPhase                  ( band, outputReal, outputImag, shArray );
+    //================================================ Apply the Condon-Shortley phase and save result to the final array
+    applyCondonShortleyPhase                          ( band, outputReal, outputImag, shArray );
     
-    //======================================== Free memory
-    releaseSphericalMemory                    ( inputReal, inputImag, outputReal, outputImag, tableSpaceHelper, tablePml, shWeights, workspace, fftPlan, dctPlan );
+    //================================================ Free memory
+    releaseSphericalMemory                            ( inputReal, inputImag, outputReal, outputImag, tableSpaceHelper, tablePml, shWeights, workspace, fftPlan, dctPlan );
     
-    //======================================== DONE
+    //================================================ Done
     return ;
     
 }

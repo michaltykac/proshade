@@ -1,21 +1,28 @@
 /*! \file ProSHADE.cpp
- \brief ...
+    \brief This is the main source file providing the main access class and its functions.
+    
+    This file contains the definitions for the main access class (ProSHADE_run), which the user can use to
+    start a run of the ProSHADE tool. This is generally done by firstly creating and setting a ProSHADE_settings class
+    instance, which is then supplied to the constructor of the ProSHADE_run class defined here. Once the class constructor
+    is run, ProSHADE run with the supplied settings will also be complete and the resulting instance of ProSHADE_run class
+    will contain the results. To access these results, the ProSHADE_run class provides accessor functions.
+    
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    This software is provided by the copyright holder and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
  
- ...
- 
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
- 
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE.hpp"
 
 /*! \brief Contructor for the ProSHADE_settings class.
@@ -26,97 +33,97 @@
  */
 ProSHADE_settings::ProSHADE_settings ( )
 {
-    //======================================== Settings regarding the task at hand
-    this->task                                = NA;
+    //================================================ Settings regarding the task at hand
+    this->task                                        = NA;
     
-    //======================================== Settings regarding the resolution of calculations
-    this->requestedResolution                 = -1.0;
-    this->changeMapResolution                 = true;
+    //================================================ Settings regarding the resolution of calculations
+    this->requestedResolution                         = -1.0;
+    this->changeMapResolution                         = true;
     
-    //======================================== Settings regarding the PDB B-factor change
-    this->pdbBFactorNewVal                    = -1.0;
+    //================================================ Settings regarding the PDB B-factor change
+    this->pdbBFactorNewVal                            = -1.0;
     
-    //======================================== Settings regarding the bandwidth of calculations
-    this->maxBandwidth                        = 0;
-    this->rotationUncertainty                 = 0;
+    //================================================ Settings regarding the bandwidth of calculations
+    this->maxBandwidth                                = 0;
+    this->rotationUncertainty                         = 0;
     
-    //======================================== Settings regarding the angular resolution of calculations
-    this->maxAngRes                           = 0;
+    //================================================ Settings regarding the angular resolution of calculations
+    this->maxAngRes                                   = 0;
     
-    //======================================== Settings regarding the phase
-    this->usePhase                            = true;
+    //================================================ Settings regarding the phase
+    this->usePhase                                    = true;
     
-    //======================================== Settings regarding the spheres
-    this->maxSphereDists                      = 0.0;
+    //================================================ Settings regarding the spheres
+    this->maxSphereDists                              = 0.0;
     
-    //======================================== Settings regarding the Gauss-Legendre integration
-    this->integOrder                          = 0;
-    this->taylorSeriesCap                     = 10;
+    //================================================ Settings regarding the Gauss-Legendre integration
+    this->integOrder                                  = 0;
+    this->taylorSeriesCap                             = 10;
     
-    //======================================== Settings regarding map normalisation
-    this->normaliseMap                        = false;
+    //================================================ Settings regarding map normalisation
+    this->normaliseMap                                = false;
     
-    //======================================== Settings regarding map inversion
-    this->invertMap                           = false;
+    //================================================ Settings regarding map inversion
+    this->invertMap                                   = false;
     
-    //======================================== Settings regarding map masking
-    this->blurFactor                          = 350.0;
-    this->maskingThresholdIQRs                = 3.0;
-    this->maskMap                             = false;
-    this->useCorrelationMasking               = false;
-    this->halfMapKernel                       = 0.0;
-    this->correlationKernel                   = 0.0;
-    this->saveMask                            = false;
-    this->maskFileName                        = "maskFile";
+    //================================================ Settings regarding map masking
+    this->blurFactor                                  = 350.0;
+    this->maskingThresholdIQRs                        = 3.0;
+    this->maskMap                                     = false;
+    this->useCorrelationMasking                       = false;
+    this->halfMapKernel                               = 0.0;
+    this->correlationKernel                           = 0.0;
+    this->saveMask                                    = false;
+    this->maskFileName                                = "maskFile";
     
-    //======================================== Settings regarding re-boxing
-    this->reBoxMap                            = false;
-    this->boundsExtraSpace                    = 3.0;
-    this->boundsSimilarityThreshold           = 0;
-    this->useSameBounds                       = false;
-    this->forceBounds                         = new proshade_signed [6];
+    //================================================ Settings regarding re-boxing
+    this->reBoxMap                                    = false;
+    this->boundsExtraSpace                            = 3.0;
+    this->boundsSimilarityThreshold                   = 0;
+    this->useSameBounds                               = false;
+    this->forceBounds                                 = new proshade_signed [6];
     
-    //======================================== Settings regarding COM
-    this->moveToCOM                           = false;
+    //================================================ Settings regarding COM
+    this->moveToCOM                                   = false;
     
-    //======================================== Settings regarding extra cell space
-    this->addExtraSpace                       = 10.0;
+    //================================================ Settings regarding extra cell space
+    this->addExtraSpace                               = 10.0;
     
-    //======================================== Settings regarding shell settings
-    this->progressiveSphereMapping            = false;
+    //================================================ Settings regarding shell settings
+    this->progressiveSphereMapping                    = false;
     
-    //======================================== Settings regarding output file name
-    this->outName                             = "reBoxed";
+    //================================================ Settings regarding output file name
+    this->outName                                     = "reBoxed";
     
-    //======================================== Settings regarding distances computation
-    this->computeEnergyLevelsDesc             = true;
-    this->computeTraceSigmaDesc               = true;
-    this->computeRotationFuncDesc             = true;
-    this->enLevMatrixPowerWeight              = 1.0;
+    //================================================ Settings regarding distances computation
+    this->computeEnergyLevelsDesc                     = true;
+    this->computeTraceSigmaDesc                       = true;
+    this->computeRotationFuncDesc                     = true;
+    this->enLevMatrixPowerWeight                      = 1.0;
     
-    //======================================== Settings regarding peak searching
-    this->peakNeighbours                      = 1;
-    this->noIQRsFromMedianNaivePeak           = 5.0;
+    //================================================ Settings regarding peak searching
+    this->peakNeighbours                              = 1;
+    this->noIQRsFromMedianNaivePeak                   = 5.0;
     
-    //======================================== Settings regarding 1D grouping
-    this->smoothingFactor                     =  15.0;
+    //================================================ Settings regarding 1D grouping
+    this->smoothingFactor                             =  15.0;
     
-    //======================================== Settings regarding the symmetry detection
-    this->symMissPeakThres                    = 0.3;
-    this->axisErrTolerance                    = 0.05;
-    this->recommendedSymmetryType             = "";
-    this->recommendedSymmetryFold             = 0;
-    this->requestedSymmetryType               = "";
-    this->requestedSymmetryFold               = 0;
-    this->detectedSymmetry.clear              ( );
+    //================================================ Settings regarding the symmetry detection
+    this->symMissPeakThres                            = 0.3;
+    this->axisErrTolerance                            = 0.05;
+    this->recommendedSymmetryType                     = "";
+    this->recommendedSymmetryFold                     = 0;
+    this->requestedSymmetryType                       = "";
+    this->requestedSymmetryFold                       = 0;
+    this->detectedSymmetry.clear                      ( );
     
-    //======================================== Settings regarding the structure overlay
-    this->overlayStructureName                = "moved.map";
+    //================================================ Settings regarding the structure overlay
+    this->overlayStructureName                        = "moved.map";
     
-    //======================================== Settings regarding verbosity of the program
-    this->verbose                             = 1;
+    //================================================ Settings regarding verbosity of the program
+    this->verbose                                     = 1;
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -130,93 +137,93 @@ ProSHADE_settings::ProSHADE_settings ( )
  */
 ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
 {
-    //======================================== Settings regarding the task at hand
-    this->task                                = taskToPerform;
+    //================================================ Settings regarding the task at hand
+    this->task                                        = taskToPerform;
     
-    //======================================== Settings regarding the resolution of calculations
-    this->requestedResolution                 = -1.0;
+    //================================================ Settings regarding the resolution of calculations
+    this->requestedResolution                         = -1.0;
     
-    //======================================== Settings regarding the PDB B-factor change
-    this->pdbBFactorNewVal                    = -1.0;
+    //================================================ Settings regarding the PDB B-factor change
+    this->pdbBFactorNewVal                            = -1.0;
     
-    //======================================== Settings regarding the bandwidth of calculations
-    this->maxBandwidth                        = 0;
-    this->rotationUncertainty                 = 0;
+    //================================================ Settings regarding the bandwidth of calculations
+    this->maxBandwidth                                = 0;
+    this->rotationUncertainty                         = 0;
     
-    //======================================== Settings regarding the angular resolution of calculations
-    this->maxAngRes                           = 0;
+    //================================================ Settings regarding the angular resolution of calculations
+    this->maxAngRes                                   = 0;
     
-    //======================================== Settings regarding the phase
-    this->usePhase                            = true;
+    //================================================ Settings regarding the phase
+    this->usePhase                                    = true;
     
-    //======================================== Settings regarding the spheres
-    this->maxSphereDists                      = 0.0;
+    //================================================ Settings regarding the spheres
+    this->maxSphereDists                              = 0.0;
     
-    //======================================== Settings regarding the Gauss-Legendre integration
-    this->integOrder                          = 0;
-    this->taylorSeriesCap                     = 10;
+    //================================================ Settings regarding the Gauss-Legendre integration
+    this->integOrder                                  = 0;
+    this->taylorSeriesCap                             = 10;
     
-    //======================================== Settings regarding map normalisation
-    this->normaliseMap                        = false;
+    //================================================ Settings regarding map normalisation
+    this->normaliseMap                                = false;
     
-    //======================================== Settings regarding map inversion
-    this->invertMap                           = false;
+    //================================================ Settings regarding map inversion
+    this->invertMap                                   = false;
     
-    //======================================== Settings regarding map masking
-    this->blurFactor                          = 350.0;
-    this->maskingThresholdIQRs                = 3.0;
-    this->maskMap                             = false;
-    this->useCorrelationMasking               = false;
-    this->halfMapKernel                       = 0.0;
-    this->correlationKernel                   = 0.0;
-    this->saveMask                            = false;
-    this->maskFileName                        = "maskFile";
-    this->detectedSymmetry.clear              ( );
+    //================================================ Settings regarding map masking
+    this->blurFactor                                  = 350.0;
+    this->maskingThresholdIQRs                        = 3.0;
+    this->maskMap                                     = false;
+    this->useCorrelationMasking                       = false;
+    this->halfMapKernel                               = 0.0;
+    this->correlationKernel                           = 0.0;
+    this->saveMask                                    = false;
+    this->maskFileName                                = "maskFile";
+    this->detectedSymmetry.clear                      ( );
     
-    //======================================== Settings regarding re-boxing
-    this->reBoxMap                            = false;
-    this->boundsExtraSpace                    = 3.0;
-    this->boundsSimilarityThreshold           = 0;
-    this->useSameBounds                       = false;
-    this->forceBounds                         = new proshade_signed [6];
+    //================================================ Settings regarding re-boxing
+    this->reBoxMap                                    = false;
+    this->boundsExtraSpace                            = 3.0;
+    this->boundsSimilarityThreshold                   = 0;
+    this->useSameBounds                               = false;
+    this->forceBounds                                 = new proshade_signed [6];
     
-    //======================================== Settings regarding extra cell space
-    this->addExtraSpace                       = 10.0;
+    //================================================ Settings regarding extra cell space
+    this->addExtraSpace                               = 10.0;
     
-    //======================================== Settings regarding shell settings
-    this->progressiveSphereMapping            = false;
+    //================================================ Settings regarding shell settings
+    this->progressiveSphereMapping                    = false;
     
-    //======================================== Settings regarding output file name
-    this->outName                             = "reBoxed";
+    //================================================ Settings regarding output file name
+    this->outName                                     = "reBoxed";
     
-    //======================================== Settings regarding distances computation
-    this->computeEnergyLevelsDesc             = true;
-    this->computeTraceSigmaDesc               = true;
-    this->computeRotationFuncDesc             = true;
-    this->enLevMatrixPowerWeight              = 1.0;
+    //================================================ Settings regarding distances computation
+    this->computeEnergyLevelsDesc                     = true;
+    this->computeTraceSigmaDesc                       = true;
+    this->computeRotationFuncDesc                     = true;
+    this->enLevMatrixPowerWeight                      = 1.0;
     
-    //======================================== Settings regarding peak searching
-    this->peakNeighbours                      = 1;
-    this->noIQRsFromMedianNaivePeak           = 5.0;
+    //================================================ Settings regarding peak searching
+    this->peakNeighbours                              = 1;
+    this->noIQRsFromMedianNaivePeak                   = 5.0;
     
-    //======================================== Settings regarding 1D grouping
-    this->smoothingFactor                     =  15.0;
+    //================================================ Settings regarding 1D grouping
+    this->smoothingFactor                             =  15.0;
     
-    //======================================== Settings regarding the symmetry detection
-    this->symMissPeakThres                    = 0.3;
-    this->axisErrTolerance                    = 0.05;
-    this->recommendedSymmetryType             = "";
-    this->recommendedSymmetryFold             = 0;
-    this->requestedSymmetryType               = "";
-    this->requestedSymmetryFold               = 0;
+    //================================================ Settings regarding the symmetry detection
+    this->symMissPeakThres                            = 0.3;
+    this->axisErrTolerance                            = 0.05;
+    this->recommendedSymmetryType                     = "";
+    this->recommendedSymmetryFold                     = 0;
+    this->requestedSymmetryType                       = "";
+    this->requestedSymmetryFold                       = 0;
     
-    //======================================== Settings regarding the structure overlay
-    this->overlayStructureName                = "moved.map";
+    //================================================ Settings regarding the structure overlay
+    this->overlayStructureName                        = "moved.map";
     
-    //======================================== Settings regarding verbosity of the program
-    this->verbose                             = 1;
+    //================================================ Settings regarding verbosity of the program
+    this->verbose                                     = 1;
     
-    //======================================== Task specific settings
+    //================================================ Task specific settings
     switch ( this->task )
     {
         case NA:
@@ -228,43 +235,43 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             std::cerr << "Message             : " << "No task has been specified for task specific constructor." << std::endl << std::flush;
             std::cerr << "Further information : " << "This ProSHADE_settings class constructor is intended to\n                    : set the internal variables to default value given a\n                    : particular taks. By supplying this task as NA, this beats\n                    : the purpose of the constructor. Please use the\n                    : non-argumental constructor if task is not yet known." << std::endl << std::endl << std::flush;
             ProSHADE_internal_messages::printTerminateMessage ( this->verbose );
-            exit                                  ( EXIT_FAILURE );
+            exit                                      ( EXIT_FAILURE );
             break;
             
         case Symmetry:
-            this->requestedResolution         = 8.0;
-            this->pdbBFactorNewVal            = 80.0;
-            this->changeMapResolution         = true;
-            this->maskMap                     = false;
-            this->moveToCOM                   = false;
-            this->normaliseMap                = true;
-            this->reBoxMap                    = false;
+            this->requestedResolution                 = 8.0;
+            this->pdbBFactorNewVal                    = 80.0;
+            this->changeMapResolution                 = true;
+            this->maskMap                             = false;
+            this->moveToCOM                           = false;
+            this->normaliseMap                        = true;
+            this->reBoxMap                            = false;
             break;
             
         case Distances:
-            this->changeMapResolution         = true;
-            this->maskMap                     = false;
-            this->moveToCOM                   = true;
-            this->reBoxMap                    = false;
+            this->changeMapResolution                 = true;
+            this->maskMap                             = false;
+            this->moveToCOM                           = true;
+            this->reBoxMap                            = false;
             break;
-            
+                    
         case OverlayMap:
-            this->requestedResolution         = 8.0;
-            this->changeMapResolution         = false;
-            this->maskMap                     = false;
-            this->moveToCOM                   = false;
-            this->normaliseMap                = false;
-            this->reBoxMap                    = false;
+            this->requestedResolution                 = 8.0;
+            this->changeMapResolution                 = false;
+            this->maskMap                             = false;
+            this->moveToCOM                           = false;
+            this->normaliseMap                        = false;
+            this->reBoxMap                            = false;
             break;
-            
+                    
         case MapManip:
-            this->changeMapResolution         = false;
-            this->maskMap                     = true;
-            this->moveToCOM                   = false;
+            this->changeMapResolution                 = false;
+            this->maskMap                             = true;
+            this->moveToCOM                           = false;
             break;
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -274,13 +281,13 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
  */
 ProSHADE_settings::~ProSHADE_settings ( )
 {
-    //======================================== Release boundaries variable
+    //================================================ Release boundaries variable
     delete[] this->forceBounds;
     
-    //======================================== Release symmetry axes
+    //================================================ Release symmetry axes
     if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != NULL ) { delete[] this->detectedSymmetry.at(it); } } }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -293,10 +300,10 @@ ProSHADE_settings::~ProSHADE_settings ( )
  */
 void ProSHADE_settings::addStructure ( std::string structure )
 {
-    //======================================== Use compiler independent vector processing
-    ProSHADE_internal_misc::addToStringVector ( &( this->inputFiles ), structure );
+    //================================================ Use C++ version independent vector processing
+    ProSHADE_internal_misc::addToStringVector         ( &( this->inputFiles ), structure );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -309,10 +316,10 @@ void ProSHADE_settings::addStructure ( std::string structure )
  */
 void ProSHADE_settings::setResolution ( proshade_single resolution )
 {
-    //======================================== Set the value
-    this->requestedResolution                 = resolution;
+    //================================================ Set the value
+    this->requestedResolution                         = resolution;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -325,10 +332,10 @@ void ProSHADE_settings::setResolution ( proshade_single resolution )
  */
 void ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
 {
-    //======================================== Set the value
-    this->pdbBFactorNewVal                    = newBF;
+    //================================================ Set the value
+    this->pdbBFactorNewVal                            = newBF;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -341,10 +348,10 @@ void ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
  */
 void ProSHADE_settings::setNormalisation ( bool normalise )
 {
-    //======================================== Set the value
-    this->normaliseMap                        = normalise;
+    //================================================ Set the value
+    this->normaliseMap                                = normalise;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -357,10 +364,10 @@ void ProSHADE_settings::setNormalisation ( bool normalise )
  */
 void ProSHADE_settings::setMapInversion ( bool mInv )
 {
-    //======================================== Set the value
-    this->invertMap                           = mInv;
+    //================================================ Set the value
+    this->invertMap                                   = mInv;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -373,10 +380,10 @@ void ProSHADE_settings::setMapInversion ( bool mInv )
  */
 void ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
 {
-    //======================================== Set the value
-    this->verbose                             = verbosity;
+    //================================================ Set the value
+    this->verbose                                     = verbosity;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -389,10 +396,10 @@ void ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
  */
 void ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
 {
-    //======================================== Set the value
-    this->blurFactor                          = blurFac;
+    //================================================ Set the value
+    this->blurFactor                                  = blurFac;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -406,10 +413,10 @@ void ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
  */
 void ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
 {
-    //======================================== Set the value
-    this->maskingThresholdIQRs                = noIQRs;
+    //================================================ Set the value
+    this->maskingThresholdIQRs                        = noIQRs;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -422,10 +429,10 @@ void ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
  */
 void ProSHADE_settings::setMasking ( bool mask )
 {
-    //======================================== Set the value
-    this->maskMap                             = mask;
+    //================================================ Set the value
+    this->maskMap                                     = mask;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -439,10 +446,10 @@ void ProSHADE_settings::setMasking ( bool mask )
  */
 void ProSHADE_settings::setCorrelationMasking ( bool corMask )
 {
-    //======================================== Set the value
-    this->useCorrelationMasking               = corMask;
+    //================================================ Set the value
+    this->useCorrelationMasking                       = corMask;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -457,10 +464,10 @@ void ProSHADE_settings::setCorrelationMasking ( bool corMask )
  */
 void ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
 {
-    //======================================== Set the value
-    this->halfMapKernel                       = typNoi;
+    //================================================ Set the value
+    this->halfMapKernel                               = typNoi;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -473,10 +480,10 @@ void ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
  */
 void ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
 {
-    //======================================== Set the value
-    this->correlationKernel                   = minMS;
+    //================================================ Set the value
+    this->correlationKernel                           = minMS;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -489,10 +496,10 @@ void ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
  */
 void ProSHADE_settings::setMaskSaving ( bool savMsk )
 {
-    //======================================== Set the value
-    this->saveMask                            = savMsk;
+    //================================================ Set the value
+    this->saveMask                                    = savMsk;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -505,10 +512,10 @@ void ProSHADE_settings::setMaskSaving ( bool savMsk )
  */
 void ProSHADE_settings::setMaskFilename ( std::string mskFln )
 {
-    //======================================== Set the value
-    this->maskFileName                        = mskFln;
+    //================================================ Set the value
+    this->maskFileName                                = mskFln;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -521,10 +528,10 @@ void ProSHADE_settings::setMaskFilename ( std::string mskFln )
  */
 void ProSHADE_settings::setMapReboxing ( bool reBx )
 {
-    //======================================== Set the value
-    this->reBoxMap                            = reBx;
+    //================================================ Set the value
+    this->reBoxMap                                    = reBx;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -538,10 +545,10 @@ void ProSHADE_settings::setMapReboxing ( bool reBx )
  */
 void ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
 {
-    //======================================== Set the value
-    this->boundsExtraSpace                    = boundsExSp;
+    //================================================ Set the value
+    this->boundsExtraSpace                            = boundsExSp;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -554,10 +561,10 @@ void ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
  */
 void ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
 {
-    //======================================== Set the value
-    this->boundsSimilarityThreshold           = boundsThres;
+    //================================================ Set the value
+    this->boundsSimilarityThreshold                   = boundsThres;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -571,10 +578,10 @@ void ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
  */
 void ProSHADE_settings::setSameBoundaries ( bool sameB )
 {
-    //======================================== Set the value
-    this->useSameBounds                       = sameB;
+    //================================================ Set the value
+    this->useSameBounds                               = sameB;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -588,10 +595,10 @@ void ProSHADE_settings::setSameBoundaries ( bool sameB )
  */
 void ProSHADE_settings::setOutputFilename ( std::string oFileName )
 {
-    //======================================== Set the value
-    this->outName                             = oFileName;
+    //================================================ Set the value
+    this->outName                                     = oFileName;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -604,10 +611,10 @@ void ProSHADE_settings::setOutputFilename ( std::string oFileName )
  */
 void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
 {
-    //======================================== Set the value
-    this->changeMapResolution                 = mrChange;
+    //================================================ Set the value
+    this->changeMapResolution                         = mrChange;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -620,10 +627,10 @@ void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
  */
 void ProSHADE_settings::setMapCentering ( bool com )
 {
-    //======================================== Set the value
-    this->moveToCOM                           = com;
+    //================================================ Set the value
+    this->moveToCOM                                   = com;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -636,10 +643,10 @@ void ProSHADE_settings::setMapCentering ( bool com )
  */
 void ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
 {
-    //======================================== Set the value
-    this->addExtraSpace                       = exSpace;
+    //================================================ Set the value
+    this->addExtraSpace                               = exSpace;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -652,10 +659,10 @@ void ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
  */
 void ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
 {
-    //======================================== Set the value
-    this->progressiveSphereMapping            = progSphMap;
+    //================================================ Set the value
+    this->progressiveSphereMapping                    = progSphMap;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -668,10 +675,10 @@ void ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
  */
 void ProSHADE_settings::setBandwidth ( proshade_unsign band )
 {
-    //======================================== Set the value
-    this->maxBandwidth                        = band;
+    //================================================ Set the value
+    this->maxBandwidth                                = band;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -684,10 +691,10 @@ void ProSHADE_settings::setBandwidth ( proshade_unsign band )
  */
 void ProSHADE_settings::setAngularResolution ( proshade_unsign angR )
 {
-    //======================================== Set the value
-    this->maxAngRes                           = angR;
+    //================================================ Set the value
+    this->maxAngRes                                   = angR;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -700,10 +707,10 @@ void ProSHADE_settings::setAngularResolution ( proshade_unsign angR )
  */
 void ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
 {
-    //======================================== Set the value
-    this->maxSphereDists                      = sphDist;
+    //================================================ Set the value
+    this->maxSphereDists                              = sphDist;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -716,10 +723,10 @@ void ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
  */
 void ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
 {
-    //======================================== Set the value
-    this->integOrder                          = intOrd;
+    //================================================ Set the value
+    this->integOrder                                  = intOrd;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -733,10 +740,10 @@ void ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
  */
 void ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
 {
-    //======================================== Set the value
-    this->taylorSeriesCap                          = tayCap;
+    //================================================ Set the value
+    this->taylorSeriesCap                             = tayCap;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -767,10 +774,10 @@ void ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
  */
 void ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
 {
-    //======================================== Set the value
-    this->computeTraceSigmaDesc               = trSigVal;
+    //================================================ Set the value
+    this->computeTraceSigmaDesc                       = trSigVal;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -784,10 +791,10 @@ void ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
  */
 void ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
 {
-    //======================================== Set the value
-    this->computeRotationFuncDesc             = rotfVal;
+    //================================================ Set the value
+    this->computeRotationFuncDesc                     = rotfVal;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -801,10 +808,10 @@ void ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
  */
 void ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
 {
-    //======================================== Set the value
-    this->peakNeighbours                      = pkS;
+    //================================================ Set the value
+    this->peakNeighbours                              = pkS;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -819,10 +826,10 @@ void ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
  */
 void ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
 {
-    //======================================== Set the value
-    this->noIQRsFromMedianNaivePeak           = noIQRs;
+    //================================================ Set the value
+    this->noIQRsFromMedianNaivePeak                   = noIQRs;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -837,10 +844,10 @@ void ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
  */
 void ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
 {
-    //======================================== Set the value
-    this->usePhase                            = phaseUsage;
+    //================================================ Set the value
+    this->usePhase                                    = phaseUsage;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -855,10 +862,10 @@ void ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
  */
 void ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
 {
-    //======================================== Set the value
-    this->enLevMatrixPowerWeight              = mPower;
+    //================================================ Set the value
+    this->enLevMatrixPowerWeight                      = mPower;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -873,10 +880,10 @@ void ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
  */
 void ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
 {
-    //======================================== Set the value
-    this->smoothingFactor                     = smFact;
+    //================================================ Set the value
+    this->smoothingFactor                             = smFact;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -890,10 +897,10 @@ void ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
  */
 void ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
 {
-    //======================================== Set the value
-    this->symMissPeakThres                    = mpThres;
+    //================================================ Set the value
+    this->symMissPeakThres                            = mpThres;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -907,10 +914,10 @@ void ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
  */
 void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
 {
-    //======================================== Set the value
-    this->axisErrTolerance                    = axThres;
+    //================================================ Set the value
+    this->axisErrTolerance                            = axThres;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -925,10 +932,10 @@ void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
  */
 void ProSHADE_settings::setRecommendedSymmetry ( std::string val )
 {
-    //======================================== Set the value
-    this->recommendedSymmetryType             = val;
+    //================================================ Set the value
+    this->recommendedSymmetryType                     = val;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -944,10 +951,10 @@ void ProSHADE_settings::setRecommendedSymmetry ( std::string val )
  */
 void ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
 {
-    //======================================== Set the value
-    this->recommendedSymmetryFold             = val;
+    //================================================ Set the value
+    this->recommendedSymmetryFold                     = val;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -960,10 +967,10 @@ void ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
  */
 void ProSHADE_settings::setRequestedSymmetry ( std::string val )
 {
-    //======================================== Set the value
-    this->requestedSymmetryType               = val;
+    //================================================ Set the value
+    this->requestedSymmetryType                       = val;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -976,10 +983,10 @@ void ProSHADE_settings::setRequestedSymmetry ( std::string val )
  */
 void ProSHADE_settings::setRequestedFold ( proshade_unsign val )
 {
-    //======================================== Set the value
-    this->requestedSymmetryFold             = val;
+    //================================================ Set the value
+    this->requestedSymmetryFold                       = val;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -993,22 +1000,22 @@ void ProSHADE_settings::setRequestedFold ( proshade_unsign val )
  */
 void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
 {
-    //======================================== Allocate memory
-    proshade_double* hlpAxis                  = new proshade_double [6];
-    ProSHADE_internal_misc::checkMemoryAllocation ( hlpAxis, "ProSHADE.cpp", 996, "setDetectedSymmetry()" );
+    //================================================ Allocate memory
+    proshade_double* hlpAxis                          = new proshade_double [6];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( hlpAxis, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy (deep) data
-    hlpAxis[0]                                = sym[0];
-    hlpAxis[1]                                = sym[1];
-    hlpAxis[2]                                = sym[2];
-    hlpAxis[3]                                = sym[3];
-    hlpAxis[4]                                = sym[4];
-    hlpAxis[5]                                = sym[5];
+    //================================================ Copy (deep) data
+    hlpAxis[0]                                        = sym[0];
+    hlpAxis[1]                                        = sym[1];
+    hlpAxis[2]                                        = sym[2];
+    hlpAxis[3]                                        = sym[3];
+    hlpAxis[4]                                        = sym[4];
+    hlpAxis[5]                                        = sym[5];
     
-    //==================================== Save
-    ProSHADE_internal_misc::addToDblPtrVector ( &this->detectedSymmetry, hlpAxis );
+    //================================================ Save
+    ProSHADE_internal_misc::addToDblPtrVector         ( &this->detectedSymmetry, hlpAxis );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1019,10 +1026,10 @@ void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
  */
 void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
 {
-    //======================================== Set the value
-    this->overlayStructureName                = filename;
+    //================================================ Set the value
+    this->overlayStructureName                        = filename;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1037,7 +1044,7 @@ void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
  */
 void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
 {
-    //======================================== Check the current settings value is set to auto
+    //================================================ Check the current settings value is set to auto
     if ( this->maxBandwidth != 0 )
     {
         std::stringstream hlpSS;
@@ -1046,15 +1053,15 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
         return ;
     }
     
-    //======================================== Determine automatically
-    this->maxBandwidth                        = ProSHADE_internal_spheres::autoDetermineBandwidth ( circumference );
+    //================================================ Determine automatically
+    this->maxBandwidth                                = ProSHADE_internal_spheres::autoDetermineBandwidth ( circumference );
     
-    //======================================== Report progress
+    //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined as: " << this->maxBandwidth;
     ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1069,15 +1076,15 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
  */
 void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertainty )
 {
-    //======================================== Determine bandwidth
-    this->maxBandwidth                        = std::ceil ( ( 360.0 / uncertainty ) / 2.0 );
+    //================================================ Determine bandwidth
+    this->maxBandwidth                                = std::ceil ( ( 360.0 / uncertainty ) / 2.0 );
     
-    //======================================== Report progress
+    //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined from uncertainty " << uncertainty << " degrees as: " << this->maxBandwidth;
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1093,7 +1100,7 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
  */
 void ProSHADE_settings::determineAngularResolution ( proshade_unsign circumference, proshade_double uncertainty )
 {
-    //======================================== Check the current settings value is set to auto
+    //================================================ Check the current settings value is set to auto
     if ( this->maxAngRes != 0 )
     {
         std::stringstream hlpSS;
@@ -1102,16 +1109,16 @@ void ProSHADE_settings::determineAngularResolution ( proshade_unsign circumferen
         return ;
     }
     
-    //======================================== Determine automatically
+    //================================================ Determine automatically
     if ( uncertainty <= 0.0 ) { this->maxAngRes = ProSHADE_internal_spheres::autoDetermineAngularResolution ( circumference ); }
     else { this->maxAngRes = 2 * this->maxBandwidth; }
     
-    //======================================== Report progress
+    //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The angular resolution was determined as: " << this->maxAngRes;
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1127,7 +1134,7 @@ void ProSHADE_settings::determineAngularResolution ( proshade_unsign circumferen
  */
 void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
 {
-    //======================================== Check the current settings value is set to auto
+    //================================================ Check the current settings value is set to auto
     if ( this->maxSphereDists != 0.0 )
     {
         std::stringstream hlpSS;
@@ -1136,15 +1143,15 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
         return ;
     }
     
-    //======================================== Determine automatically
-    this->maxSphereDists                      = ProSHADE_internal_spheres::autoDetermineSphereDistances ( maxMapRange, this->requestedResolution );
+    //================================================ Determine automatically
+    this->maxSphereDists                              = ProSHADE_internal_spheres::autoDetermineSphereDistances ( maxMapRange, this->requestedResolution );
     
-    //======================================== Report progress
+    //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1159,7 +1166,7 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
  */
 void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange )
 {
-    //======================================== Check the current settings value is set to auto
+    //================================================ Check the current settings value is set to auto
     if ( this->integOrder != 0 )
     {
         std::stringstream hlpSS;
@@ -1168,15 +1175,15 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
         return ;
     }
     
-    //======================================== Determine automatically
-    this->integOrder                          = ProSHADE_internal_spheres::autoDetermineIntegrationOrder ( maxMapRange, this->maxSphereDists );
+    //================================================ Determine automatically
+    this->integOrder                                  = ProSHADE_internal_spheres::autoDetermineIntegrationOrder ( maxMapRange, this->maxSphereDists );
     
-    //======================================== Report progress
+    //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The integration order was determined as " << this->integOrder;
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1198,40 +1205,40 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
  */
 void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim )
 {
-    //======================================== Print progress message
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 1, "Preparing spherical harmonics environment." );
+    //================================================ Print progress message
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
     
-    //======================================== Find maximum circumference
-    proshade_unsign maxDim                    = std::max ( xDim, std::max ( yDim, zDim ) );
-    proshade_unsign minDim                    = std::min ( xDim, std::min ( yDim, zDim ) );
-    proshade_unsign midDim                    = 0;
+    //================================================ Find maximum circumference
+    proshade_unsign maxDim                            = std::max ( xDim, std::max ( yDim, zDim ) );
+    proshade_unsign minDim                            = std::min ( xDim, std::min ( yDim, zDim ) );
+    proshade_unsign midDim                            = 0;
     if      ( ( xDim < maxDim ) && ( xDim > minDim ) ) { midDim = xDim; }
     else if ( ( yDim < maxDim ) && ( yDim > minDim ) ) { midDim = yDim; }
     else                                               { midDim = zDim; }
     
-    proshade_unsign circ                      = ( maxDim ) + ( midDim );
+    proshade_unsign circ                              = ( maxDim ) + ( midDim );
     
-    //======================================== Bandwidth
+    //================================================ Bandwidth
     if ( this->rotationUncertainty > 0.0 ) { this->determineBandwidthFromAngle ( this->rotationUncertainty ); }
     else { this->determineBandwidth ( circ ); }
     
-    //======================================== Angular resolution
-    this->determineAngularResolution          ( circ, this->rotationUncertainty );
+    //================================================ Angular resolution
+    this->determineAngularResolution                  ( circ, this->rotationUncertainty );
     
-    //======================================== Find maximum diagonal in Angstroms
-    proshade_single maxDiag                   = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
-                                                            std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) );
+    //================================================ Find maximum diagonal in Angstroms
+    proshade_single maxDiag                           = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
+                                                                    std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) );
     
-    //======================================== Sphere distances
-    this->determineSphereDistances            ( maxDiag );
+    //================================================ Sphere distances
+    this->determineSphereDistances                    ( maxDiag );
     
-    //======================================== Integration order
-    this->determineIntegrationOrder           ( maxDiag );
+    //================================================ Integration order
+    this->determineIntegrationOrder                   ( maxDiag );
     
-    //======================================== Report function completion
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 2, "Spherical harmonics environment prepared." );
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1245,26 +1252,26 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
  */
 ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
 {
-    //======================================== Wellcome message if required
-    ProSHADE_internal_messages::printWellcomeMessage ( settings->verbose );
+    //================================================ Wellcome message if required
+    ProSHADE_internal_messages::printWellcomeMessage  ( settings->verbose );
     
-    //======================================== Save the general information
-    this->noStructures                        = static_cast<proshade_unsign> ( settings->inputFiles.size() );
-    this->verbose                             = static_cast<proshade_signed> ( settings->verbose );
+    //================================================ Save the general information
+    this->noStructures                                = static_cast<proshade_unsign> ( settings->inputFiles.size() );
+    this->verbose                                     = static_cast<proshade_signed> ( settings->verbose );
     
-    //======================================== Try to run ProSHADE
+    //================================================ Try to run ProSHADE
     try
     {
-        //==================================== Depending on task, switch to correct function to call
+        //============================================ Depending on task, switch to correct function to call
         switch ( settings->task )
         {
             case NA:
-                throw ProSHADE_exception ( "No task has been specified.", "E000001", "ProSHADE.cpp", 271, "ProSHADE class constructor", "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Symmetry, Distances,\n                    : Features, RotateMap, OverlayMap, SimpleRebox." );
+                throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Symmetry, Distances,\n                    : Features, RotateMap, OverlayMap, SimpleRebox." );
                 break;
                 
             case Symmetry:
                 ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes );
-                this->setSymmetryResults      ( settings );
+                this->setSymmetryResults              ( settings );
                 break;
                 
             case Distances:
@@ -1281,7 +1288,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
         }
     }
     
-    //======================================== If this is ProSHADE exception, give all available info and terminate gracefully :-)
+    //================================================ If this is ProSHADE exception, give all available info and terminate gracefully :-)
     catch ( ProSHADE_exception& err )
     {
         std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
@@ -1292,24 +1299,24 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
         std::cerr << "Message             : " << err.what() << std::endl << std::flush;
         std::cerr << "Further information : " << err.get_info() << std::endl << std::endl << std::flush;
         
-        //==================================== Done
+        //============================================ Done
         ProSHADE_internal_messages::printTerminateMessage ( settings->verbose );
-        exit                                  ( EXIT_FAILURE );
+        exit                                          ( EXIT_FAILURE );
     }
     
-    //======================================== Well, give all there is and just end
+    //================================================ Well, give all there is and just end
     catch ( ... )
     {
         std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
         
-        //==================================== Try to find out more
+        //============================================ Try to find out more
 #if __cplusplus >= 201103L
-            std::exception_ptr exc            = std::current_exception();
+            std::exception_ptr exc                    = std::current_exception();
             try
             {
                 if (exc)
                 {
-                    std::rethrow_exception        (exc);
+                    std::rethrow_exception            ( exc );
                 }
             }
             catch ( const std::exception& e )
@@ -1321,15 +1328,15 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
 #endif
         std::cerr << "Terminating..." << std::endl << std::endl << std::flush;
         
-        //==================================== Done
+        //============================================ Done
         ProSHADE_internal_messages::printTerminateMessage ( settings->verbose );
-        exit                                  ( EXIT_FAILURE );
+        exit                                          ( EXIT_FAILURE );
     }
     
-    //======================================== Wellcome message if required
+    //================================================ Terminating message
     ProSHADE_internal_messages::printTerminateMessage ( settings->verbose );
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -1339,27 +1346,27 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
  */
 ProSHADE_run::~ProSHADE_run ( )
 {
-    //======================================== Release reboxing pointers
+    //================================================ Release reboxing pointers
     if ( this->originalBounds.size() > 0 ) { for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->originalBounds.size() ); iter++ ) { delete[] this->originalBounds.at(iter); } }
     if ( this->reboxedBounds.size()  > 0 ) { for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->reboxedBounds.size()  ); iter++ ) { delete[] this->reboxedBounds.at(iter); } }
     if ( this->manipulatedMaps.size() > 0 ) { for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->manipulatedMaps.size() ); iter++ ) { delete[] this->manipulatedMaps.at(iter); } }
     
-    //======================================== Clear vectors
-    this->enLevs.clear                        ( );
-    this->trSigm.clear                        ( );
-    this->rotFun.clear                        ( );
+    //================================================ Clear vectors
+    this->enLevs.clear                                ( );
+    this->trSigm.clear                                ( );
+    this->rotFun.clear                                ( );
     
-    //======================================== Delete symmetry axes memory
+    //================================================ Delete symmetry axes memory
     if ( this->RecomSymAxes.size() > 0 )
     {
         for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->RecomSymAxes.size() ); iter++ )
         {
             delete[] this->RecomSymAxes.at(iter);
         }
-        this->RecomSymAxes.clear              ( );
+        this->RecomSymAxes.clear                      ( );
     }
     
-    //======================================== Done
+    //================================================ Done
     
 }
 
@@ -1369,8 +1376,8 @@ ProSHADE_run::~ProSHADE_run ( )
  */
 std::string ProSHADE_run::getSymmetryType ( )
 {
-    //======================================== Return the value
-    return                                    ( this->symRecommType );
+    //================================================ Return the value
+    return                                            ( this->symRecommType );
 }
 
 /*! \brief This is the main accessor function for the user to get to know what symmetry fold ProSHADE has detected and recommends.
@@ -1379,8 +1386,8 @@ std::string ProSHADE_run::getSymmetryType ( )
  */
 proshade_unsign ProSHADE_run::getSymmetryFold ( )
 {
-    //======================================== Return the value
-    return                                    ( this->symRecommFold );
+    //================================================ Return the value
+    return                                            ( this->symRecommFold );
 }
 
 /*! \brief Sets the ProSHADE detected symmetry type.
@@ -1391,10 +1398,10 @@ proshade_unsign ProSHADE_run::getSymmetryFold ( )
  */
 void ProSHADE_run::setRecommendedSymmetry ( std::string val )
 {
-    //======================================== Set the value
-    this->symRecommType                       = val;
+    //================================================ Set the value
+    this->symRecommType                               = val;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1408,10 +1415,10 @@ void ProSHADE_run::setRecommendedSymmetry ( std::string val )
  */
 void ProSHADE_run::setRecommendedFold ( proshade_unsign val )
 {
-    //======================================== Set the value
-    this->symRecommFold                       = val;
+    //================================================ Set the value
+    this->symRecommFold                               = val;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1425,11 +1432,11 @@ void ProSHADE_run::setRecommendedFold ( proshade_unsign val )
  */
 void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
 {
-    //======================================== Save type and fold
-    this->setRecommendedSymmetry              ( settings->recommendedSymmetryType );
-    this->setRecommendedFold                  ( settings->recommendedSymmetryFold );
+    //================================================ Save type and fold
+    this->setRecommendedSymmetry                      ( settings->recommendedSymmetryType );
+    this->setRecommendedFold                          ( settings->recommendedSymmetryFold );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1442,10 +1449,10 @@ void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
  */
 void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
 {
-    //======================================== If no command line arguments, print help
+    //================================================ If no command line arguments, print help
     if ( argc == 1 ) { ProSHADE_internal_messages::printHelp ( ); }
     
-    //======================================== Long options struct
+    //================================================ Long options struct
     const struct option longopts[] =
     {
         { "version",         no_argument,        NULL, 'v' },
@@ -1494,311 +1501,311 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { NULL,              0,                  NULL,  0  }
     };
     
-    //======================================== Short options string
-    const char* const shortopts               = "a:b:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    //================================================ Short options string
+    const char* const shortopts                       = "a:b:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
-    //======================================== Parsing the options
+    //================================================ Parsing the options
     while ( true )
     {
-        //==================================== Read the next option
-        int opt                               = getopt_long ( argc, argv, shortopts, longopts, NULL );
+        //============================================ Read the next option
+        int opt                                       = getopt_long ( argc, argv, shortopts, longopts, NULL );
         
-        //==================================== Done parsing
+        //============================================ Done parsing
         if ( opt == -1 )
         {
             break;
         }
         
-        //==================================== For each option, set the internal values appropriately
-         const char *tmp_optarg                = optarg;
+        //============================================ For each option, set the internal values appropriately
+         const char *tmp_optarg                       = optarg;
          switch (opt)
          {
-             //=============================== Print version info
+             //======================================= Print version info
              case 'v':
              {
                  ProSHADE_internal_messages::printWellcomeMessage ( 0 );
-                 exit ( 0 );
+                 exit                                 ( EXIT_SUCCESS );
              }
                  
-             //=============================== User needs help
+             //======================================= User needs help
              case 'h':
              {
                  ProSHADE_internal_messages::printHelp ( );
-                 exit ( 0 );
+                 exit                                 ( EXIT_SUCCESS );
              }
                  
-             //=============================== Save the argument as the verbosity value, or if no value given, just set to 3
+             //======================================= Save the argument as the verbosity value, or if no value given, just set to 3
              case '!':
              {
-                 this->setVerbosity           ( static_cast<proshade_single> ( atoi ( tmp_optarg ) ) );
+                 this->setVerbosity                   ( static_cast<proshade_single> ( atoi ( tmp_optarg ) ) );
                  continue;
              }
                  
-             //=============================== Set task to distances
+             //======================================= Set task to distances
              case 'D':
              {
-                 this->task                   = Distances;
+                 this->task                           = Distances;
                  continue;
              }
                  
-             //=============================== Set task to map manipulation
+             //======================================= Set task to map manipulation
              case 'M':
              {
-                 this->task                   = MapManip;
+                 this->task                           = MapManip;
                  continue;
              }
                  
-             //=============================== Set task to symmetry detection
+             //======================================= Set task to symmetry detection
              case 'S':
              {
-                 this->task                   = Symmetry;
+                 this->task                           = Symmetry;
                  continue;
              }
                  
-             //=============================== Set task to map overlay
+             //======================================= Set task to map overlay
              case 'O':
              {
-                 this->task                   = OverlayMap;
+                 this->task                           = OverlayMap;
                  continue;
              }
                  
-             //=============================== Save the argument as a file to read in
+             //======================================= Save the argument as a file to read in
              case 'f':
              {
-                 this->addStructure           ( std::string ( optarg ) );
+                 this->addStructure                   ( std::string ( optarg ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the resolution value
+             //======================================= Save the argument as the resolution value
              case 'r':
              {
-                 this->setResolution          ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setResolution                  ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
 
-             //=============================== Save the argument as the bandwidth value
+             //======================================= Save the argument as the bandwidth value
              case 'b':
              {
-                 this->setBandwidth           ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
+                 this->setBandwidth                   ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the angular resolution value
+             //======================================= Save the argument as the angular resolution value
              case 'a':
              {
-                 this->setAngularResolution   ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
+                 this->setAngularResolution           ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the extra space value
+             //======================================= Save the argument as the extra space value
              case 'e':
              {
-                 this->setExtraSpace          ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setExtraSpace                  ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the intaggration order value
+             //======================================= Save the argument as the intaggration order value
              case 'i':
              {
-                 this->setIntegrationOrder    ( static_cast<proshade_unsign> ( atof ( optarg ) ) );
+                 this->setIntegrationOrder            ( static_cast<proshade_unsign> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the sphere distance value
+             //======================================= Save the argument as the sphere distance value
              case 's':
              {
-                 this->setSphereDistances     ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setSphereDistances             ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the taylor series cap value
+             //======================================= Save the argument as the taylor series cap value
              case 't':
              {
-                 this->setTaylorSeriesCap     ( static_cast<proshade_unsign> ( atof ( optarg ) ) );
+                 this->setTaylorSeriesCap             ( static_cast<proshade_unsign> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Set map inversion to true
+             //======================================= Set map inversion to true
              case '@':
              {
-                 this->setMapInversion        ( true );
+                 this->setMapInversion                ( true );
                  continue;
              }
                  
-             //=============================== Set map normalisation to true
+             //======================================= Set map normalisation to true
              case '#':
              {
-                 this->setNormalisation       ( true );
+                 this->setNormalisation               ( true );
                  continue;
              }
                  
-             //=============================== Set map masking to true
+             //======================================= Set map masking to true
              case '$':
              {
-                 this->setMasking             ( true );
+                 this->setMasking                     ( true );
                  continue;
              }
                  
-             //=============================== Set map masking to true and mask map saving to true as well
+             //======================================= Set map masking to true and mask map saving to true as well
              case '%':
              {
-                 this->setMasking             ( true );
-                 this->setMaskSaving          ( true );
+                 this->setMasking                     ( true );
+                 this->setMaskSaving                  ( true );
                  continue;
              }
                  
-             //=============================== Save the argument as the mask filename value
+             //======================================= Save the argument as the mask filename value
              case '^':
              {
-                 this->setMaskFilename        ( static_cast<std::string> ( optarg ) );
+                 this->setMaskFilename                ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the mask blurring factor value
+             //======================================= Save the argument as the mask blurring factor value
              case '&':
              {
-                 this->setMaskBlurFactor      ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setMaskBlurFactor              ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the mask threshold (IQR) value
+             //======================================= Save the argument as the mask threshold (IQR) value
              case '*':
              {
-                 this->setMaskIQR             ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setMaskIQR                     ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Set map reboxing to true
+             //======================================= Set map reboxing to true
              case 'R':
              {
-                 this->setMasking             ( true );
-                 this->setMapReboxing         ( true );
+                 this->setMasking                     ( true );
+                 this->setMapReboxing                 ( true );
                  continue;
              }
                  
-             //=============================== Save the argument as the bounds extra space value
+             //======================================= Save the argument as the bounds extra space value
              case '(':
              {
-                 this->setBoundsSpace         ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setBoundsSpace                 ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the bounds similarity threshold value
+             //======================================= Save the argument as the bounds similarity threshold value
              case ')':
              {
-                 this->setBoundsThreshold     ( static_cast<proshade_signed> ( atoi ( optarg ) ) );
+                 this->setBoundsThreshold             ( static_cast<proshade_signed> ( atoi ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Set same boundaries to true
+             //======================================= Set same boundaries to true
              case '-':
              {
-                 this->setSameBoundaries      ( true );
+                 this->setSameBoundaries              ( true );
                  continue;
              }
                  
-             //=============================== Save the argument as the re-boxed structure filename value
+             //======================================= Save the argument as the re-boxed structure filename value
              case 'g':
              {
-                 this->setOutputFilename      ( static_cast<std::string> ( optarg ) );
+                 this->setOutputFilename              ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the PDB B-factor new constant value
+             //======================================= Save the argument as the PDB B-factor new constant value
              case 'd':
              {
-                 this->setPDBBFactor          ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setPDBBFactor                  ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Set map centering to true
+             //======================================= Set map centering to true
              case 'c':
              {
-                 this->setMapCentering        ( true );
+                 this->setMapCentering                ( true );
                  continue;
              }
                  
-             //=============================== Set map resolution change to true
+             //======================================= Set map resolution change to true
              case 'j':
              {
-                 this->setMapResolutionChange ( true );
+                 this->setMapResolutionChange         ( true );
                  continue;
              }
                  
-             //=============================== Set map phase removal to true
+             //======================================= Set map phase removal to true
              case 'p':
              {
-                 this->setPhaseUsage          ( false );
+                 this->setPhaseUsage                  ( false );
                  continue;
              }
                  
-             //=============================== Set progressive shell mapping to true
+             //======================================= Set progressive shell mapping to true
              case 'k':
              {
-                 this->setProgressiveSphereMapping ( true );
+                 this->setProgressiveSphereMapping    ( true );
                  continue;
              }
                  
-             //=============================== Set energy level descriptor computation to false
+             //======================================= Set energy level descriptor computation to false
              case 'l':
              {
-                 this->setEnergyLevelsComputation ( false );
+                 this->setEnergyLevelsComputation     ( false );
                  continue;
              }
                  
-             //=============================== Set trace sigma descriptor computation to false
+             //======================================= Set trace sigma descriptor computation to false
              case 'm':
              {
-                 this->setTraceSigmaComputation ( false );
+                 this->setTraceSigmaComputation       ( false );
                  continue;
              }
                  
-             //=============================== Set full rotation function descriptor computation to false
+             //======================================= Set full rotation function descriptor computation to false
              case 'n':
              {
                  this->setRotationFunctionComputation ( false );
                  continue;
              }
                  
-             //=============================== Save the argument as the energy levels descriptor weight value
+             //======================================= Save the argument as the energy levels descriptor weight value
              case '_':
              {
-                 this->setEnLevShellWeight    ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 this->setEnLevShellWeight            ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the peak neighbours minimum value
+             //======================================= Save the argument as the peak neighbours minimum value
              case '=':
              {
-                 this->setPeakNeighboursNumber ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
+                 this->setPeakNeighboursNumber        ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the peak IQR from median naive small peaks removal value
+             //======================================= Save the argument as the peak IQR from median naive small peaks removal value
              case '+':
              {
-                 this->setPeakNaiveNoIQR      ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 this->setPeakNaiveNoIQR              ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the missing axis threshold value
+             //======================================= Save the argument as the missing axis threshold value
              case '[':
              {
-                 this->setMissingPeakThreshold ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 this->setMissingPeakThreshold        ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the missing axis threshold value
+             //======================================= Save the argument as the missing axis threshold value
              case ']':
              {
-                 this->setAxisComparisonThreshold ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 this->setAxisComparisonThreshold     ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  
-             //=============================== Save the argument as the requested symmetry and potentially fold value
+             //======================================= Save the argument as the requested symmetry and potentially fold value
              case '{':
              {
-                 std::string input            = static_cast<std::string> ( optarg );
+                 std::string input                    = static_cast<std::string> ( optarg );
                  
                  if ( input.at(0) == 'C' )
                  {
@@ -1806,7 +1813,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                      
                      std::string numHlp ( input.begin()+1, input.end() );
                      if ( numHlp.length() > 0 ) { this->setRequestedFold ( atoi ( numHlp.c_str() ) ); }
-                     else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( -1 ); }
+                     else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( EXIT_FAILURE ); }
                  }
                  else
                  {
@@ -1816,7 +1823,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                          
                          std::string numHlp ( input.begin()+1, input.end() );
                          if ( numHlp.length() > 0 ) { this->setRequestedFold ( atoi ( numHlp.c_str() ) ); }
-                         else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( -1 ); }
+                         else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( EXIT_FAILURE ); }
                      }
                      else
                      {
@@ -1838,7 +1845,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                                  }
                                  else
                                  {
-                                     std::cerr << "!!! ProSHADE ERROR !!! Failed to parse the requested symmetry type. Allowed types are C, D, T, O and I, with C and D requiring to be followed by a number specifying the fold." << std::endl;  exit ( -1 );
+                                     std::cerr << "!!! ProSHADE ERROR !!! Failed to parse the requested symmetry type. Allowed types are C, D, T, O and I, with C and D requiring to be followed by a number specifying the fold." << std::endl;  exit ( EXIT_FAILURE );
                                  }
                              }
                          }
@@ -1848,37 +1855,37 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                  continue;
              }
                  
-             //=============================== Save the argument as filename to save the overlay moved structure to value
+             //======================================= Save the argument as filename to save the overlay moved structure to value
              case '}':
              {
-                 this->setOverlaySaveFile     ( static_cast<std::string> ( optarg ) );
+                 this->setOverlaySaveFile             ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  
-             //=============================== Save the argument as angular uncertainty for bandwidth determination
+             //======================================= Save the argument as angular uncertainty for bandwidth determination
              case ';':
              {
-                 this->rotationUncertainty    = static_cast<proshade_double> ( atof ( optarg ) );
+                 this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
                  continue;
              }
                  
-             //=============================== Unknown option
+             //======================================= Unknown option
              case '?':
              {
-                 //=========================== This case is handled by getopt_long, nothing more needed.
-                 exit ( 0 );
+                 //=================================== This case is handled by getopt_long, nothing more needed.
+                 exit ( EXIT_SUCCESS );
              }
                  
-             //=============================== Fallback option
+             //======================================= Fallback option
              default:
              {
                  ProSHADE_internal_messages::printHelp ( );
-                 exit ( 0 );
+                 exit ( EXIT_SUCCESS );
              }
          }
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -1889,7 +1896,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
  */
 void ProSHADE_settings::printSettings ( )
 {
-    //======================================== Print the currest values in the settings object
+    //================================================ Print the currest values in the settings object
     std::stringstream strstr;
     strstr.str(std::string());
     if ( this->task == NA ) { strstr << "NA"; }
@@ -2046,7 +2053,7 @@ void ProSHADE_settings::printSettings ( )
     strstr << this->overlayStructureName;
     printf ( "Overlay file        : %37s\n", strstr.str().c_str() );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2057,8 +2064,8 @@ void ProSHADE_settings::printSettings ( )
  */
 std::vector< proshade_double > ProSHADE_run::getEnergyLevelsVector ( )
 {
-    //======================================== Return the value
-    return                                    ( this->enLevs );
+    //================================================ Return the value
+    return                                            ( this->enLevs );
 }
 
 /*! \brief This function returns the trace sigma distances vector from the first to all other structures.
@@ -2067,8 +2074,8 @@ std::vector< proshade_double > ProSHADE_run::getEnergyLevelsVector ( )
  */
 std::vector< proshade_double > ProSHADE_run::getTraceSigmaVector ( )
 {
-    //======================================== Return the value
-    return                                    ( this->trSigm );
+    //================================================ Return the value
+    return                                            ( this->trSigm );
 }
 
 /*! \brief This function returns the full rotation function distances vector from the first to all other structures.
@@ -2077,8 +2084,8 @@ std::vector< proshade_double > ProSHADE_run::getTraceSigmaVector ( )
  */
 std::vector< proshade_double > ProSHADE_run::getRotationFunctionVector ( )
 {
-    //======================================== Return the value
-    return                                    ( this->rotFun );
+    //================================================ Return the value
+    return                                            ( this->rotFun );
 }
 
 /*! \brief This function returns the number of structures used. This is useful for the python Numpy outputs.
@@ -2087,8 +2094,8 @@ std::vector< proshade_double > ProSHADE_run::getRotationFunctionVector ( )
 */
 proshade_unsign ProSHADE_run::getNoStructures ( )
 {
-    //======================================== Return the value
-    return                                    ( this->noStructures );
+    //================================================ Return the value
+    return                                            ( this->noStructures );
 }
 
 /*! \brief This function returns the verbose value. This is useful for the python Numpy outputs.
@@ -2097,8 +2104,8 @@ proshade_unsign ProSHADE_run::getNoStructures ( )
 */
 proshade_signed ProSHADE_run::getVerbose ( )
 {
-    //======================================== Return the value
-    return                                    ( this->verbose );
+    //================================================ Return the value
+    return                                            ( this->verbose );
 }
 
 /*! \brief This function returns the energy level distances value for a particular structure pair.
@@ -2108,8 +2115,8 @@ proshade_signed ProSHADE_run::getVerbose ( )
 */
 proshade_double ProSHADE_run::getEnergyLevelsVectorValue ( proshade_unsign pos )
 {
-    //======================================== Return the value
-    return                                    ( this->enLevs.at ( pos ) );
+    //================================================ Return the value
+    return                                            ( this->enLevs.at ( pos ) );
 }
 
 /*! \brief This function returns the energy level distances vector length.
@@ -2118,8 +2125,8 @@ proshade_double ProSHADE_run::getEnergyLevelsVectorValue ( proshade_unsign pos )
 */
 proshade_unsign ProSHADE_run::getEnergyLevelsLength ( )
 {
-    //======================================== Return the value
-    return                                    ( static_cast<proshade_unsign> ( this->enLevs.size() ) );
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->enLevs.size() ) );
 }
 
 /*! \brief This function returns the trace sigma distances value for a particular structure pair.
@@ -2129,8 +2136,8 @@ proshade_unsign ProSHADE_run::getEnergyLevelsLength ( )
 */
 proshade_double ProSHADE_run::getTraceSigmaVectorValue ( proshade_unsign pos )
 {
-    //======================================== Return the value
-    return                                    ( this->trSigm.at ( pos ) );
+    //================================================ Return the value
+    return                                            ( this->trSigm.at ( pos ) );
 }
 
 /*! \brief This function returns the trace sigma distances vector length.
@@ -2139,8 +2146,8 @@ proshade_double ProSHADE_run::getTraceSigmaVectorValue ( proshade_unsign pos )
 */
 proshade_unsign ProSHADE_run::getTraceSigmaLength ( )
 {
-    //======================================== Return the value
-    return                                    ( static_cast<proshade_unsign> ( this->trSigm.size() ) );
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->trSigm.size() ) );
 }
 
 /*! \brief This function returns the rotation function distances value for a particular structure pair.
@@ -2150,8 +2157,8 @@ proshade_unsign ProSHADE_run::getTraceSigmaLength ( )
 */
 proshade_double ProSHADE_run::getRotationFunctionVectorValue ( proshade_unsign pos )
 {
-    //======================================== Return the value
-    return                                    ( this->rotFun.at ( pos ) );
+    //================================================ Return the value
+    return                                            ( this->rotFun.at ( pos ) );
 }
 
 /*! \brief This function returns the rotation function distances vector length.
@@ -2160,8 +2167,8 @@ proshade_double ProSHADE_run::getRotationFunctionVectorValue ( proshade_unsign p
 */
 proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
 {
-    //======================================== Return the value
-    return                                    ( static_cast<proshade_unsign> ( this->rotFun.size() ) );
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->rotFun.size() ) );
 }
 
 /*! \brief This function returns the number of detected recommended symmetry axes.
@@ -2170,8 +2177,8 @@ proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
 */
 proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
 {
-    //======================================== Return the value
-    return                                    ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
 }
 
 /*! \brief This function returns the energy level distances array (for Numpy) from the first to all other structures.
@@ -2184,20 +2191,20 @@ proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
 
 void getEnergyLevelsVectorNumpy ( ProSHADE_run* run, int verbose, double *enLevVec, int len )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( len > static_cast<int> ( run->getEnergyLevelsLength ( ) ) )
     {
         ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The energy level distances are not available, yet already requested. Run the computation before the getEnergyLevelsNumpy() function is called.", "WP00035" );
         return ;
     }
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        enLevVec[iter]                        = static_cast<double> ( run->getEnergyLevelsVectorValue ( iter ) );
+        enLevVec[iter]                                = static_cast<double> ( run->getEnergyLevelsVectorValue ( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2212,20 +2219,20 @@ void getEnergyLevelsVectorNumpy ( ProSHADE_run* run, int verbose, double *enLevV
 
 void getTraceSigmaVectorNumpy ( ProSHADE_run* run, int verbose, double *trSigVec, int len )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( len > static_cast<int> ( run->getTraceSigmaLength ( ) ) )
     {
         ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The trace sigma distances are not available, yet already requested. Run the computation before the getTraceSigmaDescrNumpy() function is called.", "WP00036" );
         return ;
     }
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        trSigVec[iter]                        = static_cast<double> ( run->getTraceSigmaVectorValue ( iter ) );
+        trSigVec[iter]                                = static_cast<double> ( run->getTraceSigmaVectorValue ( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2240,20 +2247,20 @@ void getTraceSigmaVectorNumpy ( ProSHADE_run* run, int verbose, double *trSigVec
 
 void getRotationFunctionVectorNumpy ( ProSHADE_run* run, int verbose, double *rotFnVec, int len )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( len > static_cast<int> ( run->getRotationFunctionLength ( ) ) )
     {
         ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The rotation function distances are not available, yet already requested. Run the computation before the getRotationFunctionDescrNumpy() function is called.", "WP00037" );
         return ;
     }
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        rotFnVec[iter]                        = static_cast<double> ( run->getRotationFunctionVectorValue ( iter ) );
+        rotFnVec[iter]                                = static_cast<double> ( run->getRotationFunctionVectorValue ( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2265,44 +2272,44 @@ void getRotationFunctionVectorNumpy ( ProSHADE_run* run, int verbose, double *ro
 */
 std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisNo )
 {
-    //======================================== Sanity checks
+    //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) <= axisNo )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00038" );
-        return                                ( std::vector< std::string > ( ) );
+        return                                        ( std::vector< std::string > ( ) );
     }
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     std::vector< std::string > ret;
     
-    //======================================== Input the axis data as strings
+    //================================================ Input the axis data as strings
     std::stringstream ssHlp;
     ssHlp << this->RecomSymAxes.at(axisNo)[0];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
     ssHlp << this->RecomSymAxes.at(axisNo)[1];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
-    
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+            
     ssHlp << this->RecomSymAxes.at(axisNo)[2];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
-    
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+            
     ssHlp << this->RecomSymAxes.at(axisNo)[3];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
-    
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+            
     ssHlp << this->RecomSymAxes.at(axisNo)[4];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
-    
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+            
     ssHlp << this->RecomSymAxes.at(axisNo)[5];
-    ProSHADE_internal_misc::addToStringVector ( &ret, ssHlp.str() );
-    ssHlp.str                                 ( "" );
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -2312,26 +2319,26 @@ std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisN
 */
 std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign strNo )
 {
-    //======================================== Sanity checks
+    //================================================ Sanity checks
     if ( noStructures <= strNo )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WR00040" );
-        return                                ( std::vector< proshade_signed > ( ) );
+        return                                        ( std::vector< proshade_signed > ( ) );
     }
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     std::vector< proshade_signed > ret;
     
-    //======================================== Input the axis data as strings
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->originalBounds.at( strNo )[0] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->originalBounds.at( strNo )[1] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->originalBounds.at( strNo )[2] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->originalBounds.at( strNo )[3] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->originalBounds.at( strNo )[4] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->originalBounds.at( strNo )[5] );
+    //================================================ Input the axis data as strings
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->originalBounds.at( strNo )[0] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->originalBounds.at( strNo )[1] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->originalBounds.at( strNo )[2] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->originalBounds.at( strNo )[3] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->originalBounds.at( strNo )[4] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->originalBounds.at( strNo )[5] );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
 }
 
 /*! \brief This function returns a specific structure re-boxed bounds.
@@ -2340,26 +2347,26 @@ std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign
 */
 std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign strNo )
 {
-    //======================================== Sanity checks
+    //================================================ Sanity checks
     if ( noStructures <= strNo )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WR00040" );
-        return                                ( std::vector< proshade_signed > ( ) );
+        return                                        ( std::vector< proshade_signed > ( ) );
     }
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     std::vector< proshade_signed > ret;
     
-    //======================================== Input the axis data as strings
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->reboxedBounds.at( strNo )[0] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->reboxedBounds.at( strNo )[1] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->reboxedBounds.at( strNo )[2] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->reboxedBounds.at( strNo )[3] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->reboxedBounds.at( strNo )[4] );
-    ProSHADE_internal_misc::addToSignedVector ( &ret, this->reboxedBounds.at( strNo )[5] );
+    //================================================ Input the axis data as strings
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->reboxedBounds.at( strNo )[0] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->reboxedBounds.at( strNo )[1] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->reboxedBounds.at( strNo )[2] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->reboxedBounds.at( strNo )[3] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->reboxedBounds.at( strNo )[4] );
+    ProSHADE_internal_misc::addToSignedVector         ( &ret, this->reboxedBounds.at( strNo )[5] );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
 }
 
 /*! \brief This function returns a single, specific structure map value.
@@ -2370,8 +2377,8 @@ std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign 
 */
 proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsign mapIndex )
 {
-    //======================================== Return the value
-    return                                    ( this->manipulatedMaps.at(strNo)[mapIndex] );
+    //================================================ Return the value
+    return                                            ( this->manipulatedMaps.at(strNo)[mapIndex] );
 }
 
 /*! \brief This function returns the original structure bounds array (for Numpy) for a particular structure.
@@ -2384,16 +2391,16 @@ proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsi
 
 void getOriginalBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int *boundsVec, int len )
 {
-    //======================================== Get the vector
-    std::vector < proshade_signed > vals      = run->getOriginalBounds ( strNo );
+    //================================================ Get the vector
+    std::vector < proshade_signed > vals              = run->getOriginalBounds ( strNo );
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        boundsVec[iter]                       = static_cast<int> ( vals.at( iter ) );
+        boundsVec[iter]                               = static_cast<int> ( vals.at( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2408,16 +2415,16 @@ void getOriginalBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, in
 
 void getReBoxedBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int *reboxVec, int len )
 {
-    //======================================== Get the vector
-    std::vector < proshade_signed > vals      = run->getReBoxedBounds ( strNo );
+    //================================================ Get the vector
+    std::vector < proshade_signed > vals              = run->getReBoxedBounds ( strNo );
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        reboxVec[iter]                        = static_cast<int> ( vals.at( iter ) ); 
+        reboxVec[iter]                                = static_cast<int> ( vals.at( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2432,20 +2439,20 @@ void getReBoxedBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int
 
 void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len )
 {
-    //======================================== Sanity checks
+    //================================================ Sanity checks
     if ( run->getNoStructures() <= strNo )
     {
         ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WR00040" );
         return ;
     }
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        reboxMap[iter]                        = static_cast<double> ( run->getMapValue ( strNo, iter ) );
+        reboxMap[iter]                                = static_cast<double> ( run->getMapValue ( strNo, iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2460,11 +2467,11 @@ std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
     if ( this->eulerAngles.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
-        return                                ( std::vector< proshade_double > ( ) );
+        return                                        ( std::vector< proshade_double > ( ) );
     }
     
-    //======================================== Return required value
-    return                                    ( this->eulerAngles );
+    //================================================ Return required value
+    return                                            ( this->eulerAngles );
     
 }
 
@@ -2478,11 +2485,11 @@ std::vector< proshade_double > ProSHADE_run::getTranslation ( )
     if ( this->eulerAngles.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
-        return                                ( std::vector< proshade_double > ( ) );
+        return                                        ( std::vector< proshade_double > ( ) );
     }
     
-    //======================================== Return required value
-    return                                    ( this->translation );
+    //================================================ Return required value
+    return                                            ( this->translation );
     
 }
            
@@ -2495,16 +2502,16 @@ std::vector< proshade_double > ProSHADE_run::getTranslation ( )
 
 void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
 {
-    //======================================== Get values
-    std::vector< proshade_double > vals       = run->getEulerAngles ( );
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getEulerAngles ( );
     
     //======================================== Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        eulerAngs[iter]                       = static_cast<double> ( vals.at( iter ) );
+        eulerAngs[iter]                               = static_cast<double> ( vals.at( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -2518,16 +2525,16 @@ void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
 
 void getOptimalTranslation ( ProSHADE_run* run, double *translate, int len )
 {
-    //======================================== Get values
-    std::vector< proshade_double > vals       = run->getTranslation ( );
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getTranslation ( );
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        translate[iter]                       = static_cast<double> ( vals.at( iter ) );
+        translate[iter]                               = static_cast<double> ( vals.at( iter ) );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }

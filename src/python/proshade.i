@@ -8,13 +8,13 @@ ProSHADE installation and the user should not need to do anything with it.
 This file is part of the ProSHADE library for calculating
 shape descriptors and symmetry operators of protein structures.
 This is a prototype code, which is by no means complete or fully
-tested. Its use is at your own risk only. There is no quarantee
+tested. Its use is at your own risk only. There is no guarantee
 that the results are correct.
 
 \author    Michal Tykac
 \author    Garib N. Murshudov
-\version   0.7.1
-\date      NOV 2019
+\version   0.7.3
+\date      MAY 2020
 */
 
 //============================================ Module name

@@ -1,21 +1,26 @@
 /*! \file ProSHADE_distances.cpp
- \brief ...
- 
- ...
- 
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
- 
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    \brief This is the source file containing functions required for computation of shape distances.
+
+    This source file contains the functions required to compute shape distances (specifically energy levels distances, trace sigma distances and the
+    full rotation function distances) between two shapes. The user should not need to access these functions directly, as there are automated functions
+    available in the higher levels of the ProSHADE organisation, which will call these in correct order and parse the results properly.
+
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+    
+    This software is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In     no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data     or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility     of such damage.
+    
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_distances.hpp"
 
 /*! \brief This function allocates the required memory for the RRP matrices.
@@ -27,20 +32,20 @@
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( ProSHADE_settings* settings )
 {
-    //======================================== Allocate the required memory
-    this->rrpMatrices                         = new proshade_double** [this->maxShellBand];
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->rrpMatrices, "ProSHADE_distances.cpp", 32, "ProSHADE_data class function allocateRRPMemory()" );
+    //================================================ Allocate the required memory
+    this->rrpMatrices                                 = new proshade_double** [this->maxShellBand];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->rrpMatrices, __FILE__, __LINE__, __func__ );
     
     for ( proshade_unsign bwIt = 0; bwIt < this->maxShellBand; bwIt++ )
     {
-        //==================================== For rach sphere
-        this->rrpMatrices[bwIt]               = new proshade_double*  [this->noSpheres];
-        ProSHADE_internal_misc::checkMemoryAllocation ( this->rrpMatrices[bwIt], "ProSHADE_distances.cpp", 40, "ProSHADE_data class function allocateRRPMemory()" );
+        //============================================ For rach sphere
+        this->rrpMatrices[bwIt]                       = new proshade_double*  [this->noSpheres];
+        ProSHADE_internal_misc::checkMemoryAllocation ( this->rrpMatrices[bwIt], __FILE__, __LINE__, __func__ );
         
         for ( proshade_unsign shIt = 0; shIt < this->noSpheres; shIt++ )
         {
-            this->rrpMatrices[bwIt][shIt]     = new double [this->noSpheres];
-            ProSHADE_internal_misc::checkMemoryAllocation ( this->rrpMatrices[bwIt][shIt], "ProSHADE_distances.cpp", 45, "ProSHADE_data class function allocateRRPMemory()" );
+            this->rrpMatrices[bwIt][shIt]             = new double [this->noSpheres];
+            ProSHADE_internal_misc::checkMemoryAllocation ( this->rrpMatrices[bwIt][shIt], __FILE__, __LINE__, __func__ );
         }
     }
 }
@@ -55,21 +60,21 @@ void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( ProSHADE_setting
  */
 void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Computing RRP matrices for structure " + this->fileName );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing RRP matrices for structure " + this->fileName );
     
-    //======================================== Allocate the memory
-    this->allocateRRPMemory                   ( settings );
+    //================================================ Allocate the memory
+    this->allocateRRPMemory                           ( settings );
     
-    //======================================== Start computation: For each band (l)
-    proshade_double descValR                  = 0.0;
+    //================================================ Start computation: For each band (l)
+    proshade_double descValR                          = 0.0;
     proshade_unsign arrPos1, arrPos2;
     for ( proshade_unsign band = 0; band < this->maxShellBand; band++ )
     {
-        //==================================== For each unique shell couple
+        //============================================ For each unique shell couple
         for ( proshade_unsign shell1 = 0; shell1 < this->noSpheres; shell1++ )
         {
-            //================================ Does the band exist for this shell1?
+            //======================================== Does the band exist for this shell1?
             if ( !ProSHADE_internal_distances::isBandWithinShell ( band, shell1, this->spheres ) )
             {
                 for ( proshade_unsign shell2 = 0; shell2 < this->noSpheres; shell2++ )
@@ -82,10 +87,10 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
             
             for ( proshade_unsign shell2 = 0; shell2 < this->noSpheres; shell2++ )
             {
-                //============================ Compute each values only once
+                //==================================== Compute each values only once
                 if ( shell1 > shell2 ) { continue; }
                 
-                //============================ Check if band exists for this shell2?
+                //==================================== Check if band exists for this shell2?
                 if ( !ProSHADE_internal_distances::isBandWithinShell ( band, shell2, this->spheres ) )
                 {
                     this->rrpMatrices[band][shell1][shell2] = 0.0;
@@ -93,35 +98,35 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
                     continue;
                 }
 
-                //============================ Initialise
-                descValR                      = 0.0;
+                //==================================== Initialise
+                descValR                              = 0.0;
 
-                //============================ Sum over order (m)
+                //==================================== Sum over order (m)
                 for ( proshade_unsign order = 0; order < static_cast<proshade_unsign>  ( ( 2 * band ) + 1 ); order++ )
                 {
-                    arrPos1                   = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
-                                                                                           static_cast<proshade_signed> ( band ),
-                                                                                           band, this->spheres[shell1]->getLocalBandwidth() ) );
-                    arrPos2                   = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
-                                                                                           static_cast<proshade_signed> ( band ),
-                                                                                           band, this->spheres[shell2]->getLocalBandwidth() ) );
-                    descValR                 += ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( &this->sphericalHarmonics[shell1][arrPos1][0],
-                                                                                                               &this->sphericalHarmonics[shell1][arrPos1][1],
-                                                                                                               &this->sphericalHarmonics[shell2][arrPos2][0],
-                                                                                                               &this->sphericalHarmonics[shell2][arrPos2][1]  );
+                    arrPos1                           = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
+                                                                                                   static_cast<proshade_signed> ( band ),
+                                                                                                   band, this->spheres[shell1]->getLocalBandwidth() ) );
+                    arrPos2                           = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
+                                                                                                   static_cast<proshade_signed> ( band ),
+                                                                                                   band, this->spheres[shell2]->getLocalBandwidth() ) );
+                    descValR                         += ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( &this->sphericalHarmonics[shell1][arrPos1][0],
+                                                                                                                       &this->sphericalHarmonics[shell1][arrPos1][1],
+                                                                                                                       &this->sphericalHarmonics[shell2][arrPos2][0],
+                                                                                                                       &this->sphericalHarmonics[shell2][arrPos2][1]  );
                 }
 
-                //============================ Save the matrices
+                //==================================== Save the matrices
                 this->rrpMatrices[band][shell1][shell2] = descValR;
                 this->rrpMatrices[band][shell2][shell1] = descValR;
             }
         }
     }
     
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "RRP matrices successfully computed." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "RRP matrices successfully computed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -139,11 +144,11 @@ bool ProSHADE_internal_distances::isBandWithinShell ( proshade_unsign bandInQues
 {
     if ( bandInQuestion < spheres[shellInQuestion]->getLocalBandwidth() )
     {
-        return                                ( true );
+        return                                        ( true );
     }
     else
     {
-        return                                ( false );
+        return                                        ( false );
     }
 }
 
@@ -159,39 +164,39 @@ bool ProSHADE_internal_distances::isBandWithinShell ( proshade_unsign bandInQues
  */
 proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report starting the task
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting energy levels distance computation." );
+    //================================================ Report starting the task
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting energy levels distance computation." );
     
-    //======================================== Initialise local variables
-    proshade_double ret                       = 0.0;
+    //================================================ Initialise local variables
+    proshade_double ret                               = 0.0;
     std::vector<proshade_double> bandDists;
     
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( !settings->computeEnergyLevelsDesc )
     {
-        throw ProSHADE_exception ( "Attempted computing energy levels descriptors when it was not required.", "ED00017", "ProSHADE_distances.cpp", 167, "ProSHADE_internal_distances namespace function computeEnergyLevelsDescriptor()", "Attempted to pre-compute the RRP matrices, when the user\n                    : has specifically stated that these should not be computed.\n                    : Unless you manipulated the code, this error should never\n                    : occur; if you see this, I made a large blunder. Please let\n                    : me know!" );
+        throw ProSHADE_exception ( "Attempted computing energy levels descriptors when it was not required.", "ED00017", __FILE__, __LINE__, __func__, "Attempted to pre-compute the RRP matrices, when the user\n                    : has specifically stated that these should not be computed.\n                    : Unless you manipulated the code, this error should never\n                    : occur; if you see this, I made a large blunder. Please let\n                    : me know!" );
     }
     
-    //======================================== Get the RRP matrices for both objects
-    obj1->computeRRPMatrices                  ( settings );
-    obj2->computeRRPMatrices                  ( settings );
+    //================================================ Get the RRP matrices for both objects
+    obj1->computeRRPMatrices                          ( settings );
+    obj2->computeRRPMatrices                          ( settings );
     
-    //======================================== Find the minimium comparable shells and bands
-    proshade_unsign minCommonShells           = std::min ( obj1->getMaxSpheres(), obj2->getMaxSpheres() );
-    proshade_unsign minCommonBands            = std::min ( obj1->getMaxBand(),    obj2->getMaxBand()    );
+    //================================================ Find the minimium comparable shells and bands
+    proshade_unsign minCommonShells                   = std::min ( obj1->getMaxSpheres(), obj2->getMaxSpheres() );
+    proshade_unsign minCommonBands                    = std::min ( obj1->getMaxBand(),    obj2->getMaxBand()    );
 
-    //======================================== Get the Pearson's coefficients for each common band
-    computeRRPPearsonCoefficients             ( obj1, obj2, settings, minCommonBands, minCommonShells, &bandDists );
+    //================================================ Get the Pearson's coefficients for each common band
+    computeRRPPearsonCoefficients                     ( obj1, obj2, settings, minCommonBands, minCommonShells, &bandDists );
     
-    //======================================== Get distance (by averaging Patterson's coefficients)
-    ret                                       = static_cast<proshade_double> ( std::accumulate ( bandDists.begin(), bandDists.end(), 0.0 ) ) /
-                                                                               static_cast<proshade_double> ( bandDists.size() );
+    //================================================ Get distance (by averaging Patterson's coefficients)
+    ret                                               = static_cast<proshade_double> ( std::accumulate ( bandDists.begin(), bandDists.end(), 0.0 ) ) /
+                                                                                       static_cast<proshade_double> ( bandDists.size() );
     
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Energy levels distance computation complete." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Energy levels distance computation complete." );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -209,26 +214,26 @@ proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( Pro
  */
 void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings, proshade_unsign minCommonBands, proshade_unsign minCommonShells, std::vector<proshade_double>* bandDists )
 {
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Correlating RRP matrices." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Correlating RRP matrices." );
     
-    //======================================== Initialise local variables
-    proshade_double *str1Vals                 = new proshade_double[minCommonShells * minCommonShells];
-    proshade_double *str2Vals                 = new proshade_double[minCommonShells * minCommonShells];
-    ProSHADE_internal_misc::checkMemoryAllocation ( str1Vals, "ProSHADE_distances.cpp", 207, "function computeEnergyLevelsDescriptor()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( str2Vals, "ProSHADE_distances.cpp", 208, "function computeEnergyLevelsDescriptor()" );
-    proshade_unsign arrIter                   = 0;
+    //================================================ Initialise local variables
+    proshade_double *str1Vals                         = new proshade_double[minCommonShells * minCommonShells];
+    proshade_double *str2Vals                         = new proshade_double[minCommonShells * minCommonShells];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( str1Vals, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( str2Vals, __FILE__, __LINE__, __func__ );
+    proshade_unsign arrIter                           = 0;
 
-    //======================================== Start computation: For each band (l)
+    //================================================ Start computation: For each band (l)
     for ( proshade_unsign band = 0; band < minCommonBands; band++ )
     {
-        //==================================== Reset local counter
-        arrIter                               = 0;
+        //============================================ Reset local counter
+        arrIter                                       = 0;
 
-        //==================================== For each shell pair
+        //============================================ For each shell pair
         for ( proshade_unsign shell1 = 0; shell1 < minCommonShells; shell1++ )
         {
-            //================================ Check if band exists (progressive only)
+            //======================================== Check if band exists (progressive only)
             if ( settings->progressiveSphereMapping ) { if ( !obj1->shellBandExists( shell1, band ) || !obj2->shellBandExists( shell1, band ) ) { continue; } }
             
             for ( proshade_unsign shell2 = 0; shell2 < minCommonShells; shell2++ )
@@ -236,28 +241,31 @@ void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_inter
                 //============================ Check the other shell as well
                 if ( !obj1->shellBandExists( shell2, band ) || !obj2->shellBandExists( shell2, band ) ) { continue; }
                 
-                //============================ Set values between which the Person's correlation coefficient should be computed
-                str1Vals[arrIter]             = obj1->getRRPValue ( band, shell1, shell2 ) *
-                                                pow ( static_cast<proshade_double> ( shell1 ), settings->enLevMatrixPowerWeight ) *
-                                                pow ( static_cast<proshade_double> ( shell2 ), settings->enLevMatrixPowerWeight );
-                str2Vals[arrIter]             = obj2->getRRPValue ( band, shell1, shell2 ) *
-                                                pow ( static_cast<proshade_double> ( shell1 ), settings->enLevMatrixPowerWeight ) *
-                                                pow ( static_cast<proshade_double> ( shell2 ), settings->enLevMatrixPowerWeight );
-
-                arrIter                      += 1;
+                //==================================== Set values between which the Person's correlation coefficient should be computed
+                str1Vals[arrIter]                     = obj1->getRRPValue ( band, shell1, shell2 ) *
+                                                        pow ( static_cast<proshade_double> ( shell1 ), settings->enLevMatrixPowerWeight ) *
+                                                        pow ( static_cast<proshade_double> ( shell2 ), settings->enLevMatrixPowerWeight );
+                str2Vals[arrIter]                     = obj2->getRRPValue ( band, shell1, shell2 ) *
+                                                        pow ( static_cast<proshade_double> ( shell1 ), settings->enLevMatrixPowerWeight ) *
+                                                        pow ( static_cast<proshade_double> ( shell2 ), settings->enLevMatrixPowerWeight );
+        
+                arrIter                              += 1;
             }
         }
 
-        //================================ Get Pearson's Correlation Coefficient
-        ProSHADE_internal_misc::addToDoubleVector ( bandDists, ProSHADE_internal_maths::pearsonCorrCoeff ( str1Vals, str2Vals, arrIter ) );
+        //============================================ Get Pearson's Correlation Coefficient
+        ProSHADE_internal_misc::addToDoubleVector     ( bandDists, ProSHADE_internal_maths::pearsonCorrCoeff ( str1Vals, str2Vals, arrIter ) );
     }
 
-    //======================================== Clean up
+    //================================================ Clean up
     delete[] str1Vals;
     delete[] str2Vals;
     
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "RRP matrices correlation computed." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "RRP matrices correlation computed." );
+    
+    //================================================ Done
+    return ;
 }
 
 /*! \brief This function allocates the required memory for the E matrices.
@@ -271,27 +279,27 @@ void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_inter
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( ProSHADE_settings* settings, proshade_unsign  band )
 {
-    //======================================== Save the maximum band to the object
-    this->maxCompBand                         = band;
+    //================================================ Save the maximum band to the object
+    this->maxCompBand                                 = band;
     
-    //======================================== Allocate the required memory
-    this->eMatrices                           = new proshade_complex** [this->maxCompBand];
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->eMatrices, "ProSHADE_distances.cpp", 266, "ProSHADE_data class function allocateEMatrices()" );
+    //================================================ Allocate the required memory
+    this->eMatrices                                   = new proshade_complex** [this->maxCompBand];
+    ProSHADE_internal_misc::checkMemoryAllocation ( this->eMatrices, __FILE__, __LINE__, __func__ );
     
     for ( proshade_unsign bandIter = 0; bandIter < this->maxCompBand; bandIter++ )
     {
-        //==================================== Allocate the data structure
-        this->eMatrices[bandIter]             = new proshade_complex*  [static_cast<proshade_unsign> ( ( bandIter * 2 ) + 1 )];
-        ProSHADE_internal_misc::checkMemoryAllocation ( this->eMatrices[bandIter], "ProSHADE_distances.cpp", 276, "ProSHADE_data class function allocateEMatrices()" );
+        //============================================ Allocate the data structure
+        this->eMatrices[bandIter]                     = new proshade_complex*  [static_cast<proshade_unsign> ( ( bandIter * 2 ) + 1 )];
+        ProSHADE_internal_misc::checkMemoryAllocation ( this->eMatrices[bandIter], __FILE__, __LINE__, __func__ );
         
         for ( proshade_unsign band2Iter = 0; band2Iter < static_cast<proshade_unsign> ( ( bandIter * 2 ) + 1 ); band2Iter++ )
         {
-            this->eMatrices[bandIter][band2Iter] = new proshade_complex [static_cast<proshade_unsign> ( ( bandIter * 2 ) + 1 )];
-            ProSHADE_internal_misc::checkMemoryAllocation ( this->eMatrices[bandIter][band2Iter], "ProSHADE_distances.cpp", 281, "ProSHADE_data class function allocateEMatrices()" );
+            this->eMatrices[bandIter][band2Iter]      = new proshade_complex [static_cast<proshade_unsign> ( ( bandIter * 2 ) + 1 )];
+            ProSHADE_internal_misc::checkMemoryAllocation ( this->eMatrices[bandIter][band2Iter], __FILE__, __LINE__, __func__ );
         }
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -308,21 +316,21 @@ void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( ProSHADE_setting
  */
 void ProSHADE_internal_distances::allocateTrSigmaWorkspace ( proshade_unsign minSpheres, proshade_unsign intOrder, proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas, proshade_double*& GLweights, proshade_complex*& radiiVals )
 {
-    //======================================== Allocate the memory
-    obj1Vals                                  = new proshade_double [minSpheres];
-    obj2Vals                                  = new proshade_double [minSpheres];
-    radiiVals                                 = new proshade_complex[minSpheres];
-    GLabscissas                               = new proshade_double [intOrder];
-    GLweights                                 = new proshade_double [intOrder];
+    //================================================ Allocate the memory
+    obj1Vals                                          = new proshade_double [minSpheres];
+    obj2Vals                                          = new proshade_double [minSpheres];
+    radiiVals                                         = new proshade_complex[minSpheres];
+    GLabscissas                                       = new proshade_double [intOrder];
+    GLweights                                         = new proshade_double [intOrder];
     
-    //======================================== Check the memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( obj1Vals, "ProSHADE_distances.cpp", 310, "ProSHADE_distances function allocateTrSigmaWorkspace()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( obj2Vals, "ProSHADE_distances.cpp", 311, "ProSHADE_distances function allocateTrSigmaWorkspace()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( radiiVals, "ProSHADE_distances.cpp", 312, "ProSHADE_distances function allocateTrSigmaWorkspace()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( GLabscissas, "ProSHADE_distances.cpp", 313, "ProSHADE_distances function allocateTrSigmaWorkspace()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( GLweights, "ProSHADE_distances.cpp", 314, "ProSHADE_distances function allocateTrSigmaWorkspace()" );
+    //================================================ Check the memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( obj1Vals, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( obj2Vals, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( radiiVals, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( GLabscissas, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( GLweights, __FILE__, __LINE__, __func__ );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -337,16 +345,16 @@ void ProSHADE_internal_distances::allocateTrSigmaWorkspace ( proshade_unsign min
  */
 void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_internal_data::ProSHADE_data* obj, proshade_unsign band, proshade_unsign order, proshade_unsign radius, proshade_double* result )
 {
-    //======================================== Find the magnitude
-   *result                                    = ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( obj->getRealSphHarmValue ( band, order, radius ),
-                                                                                                               obj->getImagSphHarmValue ( band, order, radius ),
-                                                                                                               obj->getRealSphHarmValue ( band, order, radius ),
-                                                                                                               obj->getImagSphHarmValue ( band, order, radius ) );
+    //================================================ Find the magnitude
+   *result                                            = ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( obj->getRealSphHarmValue ( band, order, radius ),
+                                                                                                                       obj->getImagSphHarmValue ( band, order, radius ),
+                                                                                                                       obj->getRealSphHarmValue ( band, order, radius ),
+                                                                                                                       obj->getImagSphHarmValue ( band, order, radius ) );
     
-    //======================================== Weight by radius^2 for the integration that will follow
-   *result                                   *= pow ( static_cast<proshade_double> ( obj->getAnySphereRadius( radius ) ), 2.0 );
+    //================================================ Weight by radius^2 for the integration that will follow
+   *result                                           *= pow ( static_cast<proshade_double> ( obj->getAnySphereRadius( radius ) ), 2.0 );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -366,48 +374,48 @@ void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_
  */
 void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_complex* radiiVals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist )
 {
-    //======================================== Initialise local variables
-    proshade_unsign objCombValsIter           = 0;
+    //================================================ Initialise local variables
+    proshade_unsign objCombValsIter                   = 0;
     proshade_double hlpReal, hlpImag;
     proshade_complex arrVal;
     
-    //======================================== For each combination of m and m' for E matrices
+    //================================================ For each combination of m and m' for E matrices
     for ( proshade_unsign order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
     {
-        //==================================== Reset loop
-        objCombValsIter                       = 0;
+        //============================================ Reset loop
+        objCombValsIter                               = 0;
         
-        //==================================== Find the c*conj(c) values for different radii
+        //============================================ Find the c*conj(c) values for different radii
         for ( proshade_unsign radiusIter = 0; radiusIter < std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ); radiusIter++ )
         {
     
-            //================================ Get only values where the shell has the band
+            //======================================== Get only values where the shell has the band
             if ( std::min ( obj1->getShellBandwidth ( radiusIter ), obj2->getShellBandwidth ( radiusIter ) ) <= bandIter ) { continue; }
             
-            //================================ Multiply coeffs
+            //======================================== Multiply coeffs
             ProSHADE_internal_maths::complexMultiplicationConjug ( obj1->getRealSphHarmValue ( bandIter, orderIter,  radiusIter ),
                                                                    obj1->getImagSphHarmValue ( bandIter, orderIter,  radiusIter ),
                                                                    obj2->getRealSphHarmValue ( bandIter, order2Iter, radiusIter ),
                                                                    obj2->getImagSphHarmValue ( bandIter, order2Iter, radiusIter ),
                                                                   &hlpReal, &hlpImag );
   
-            //================================ Apply r^2 integral weight
-            radiiVals[objCombValsIter][0]     = hlpReal *  pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
-            radiiVals[objCombValsIter][1]     = hlpImag *  pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
-
-            objCombValsIter                  += 1;
+            //======================================== Apply r^2 integral weight
+            radiiVals[objCombValsIter][0]             = hlpReal *  pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
+            radiiVals[objCombValsIter][1]             = hlpImag *  pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
+        
+            objCombValsIter                          += 1;
         }
         
-        //==================================== Integrate over all radii using n-point Gauss-Legendre integration
+        //============================================ Integrate over all radii using n-point Gauss-Legendre integration
         ProSHADE_internal_maths::gaussLegendreIntegration ( radiiVals, objCombValsIter, integOrder, abscissas, weights, integRange, sphereDist, &hlpReal, &hlpImag );
   
-        //==================================== Save the result into E matrices
-        arrVal[0]                             = hlpReal;
-        arrVal[1]                             = hlpImag;
-        obj2->setEMatrixValue                 ( bandIter, orderIter, order2Iter, arrVal );
+        //============================================ Save the result into E matrices
+        arrVal[0]                                     = hlpReal;
+        arrVal[1]                                     = hlpImag;
+        obj2->setEMatrixValue                         ( bandIter, orderIter, order2Iter, arrVal );
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -429,38 +437,38 @@ void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data
  */
 proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double sphereDist )
 {
-    //======================================== Initialise local values
-    proshade_unsign obj1ValsIter              = 0;
-    proshade_unsign obj2ValsIter              = 0;
+    //================================================ Initialise local values
+    proshade_unsign obj1ValsIter                      = 0;
+    proshade_unsign obj2ValsIter                      = 0;
     
-    //======================================== Set sphere counters
-    proshade_unsign minSphere                 = std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() );
-    proshade_unsign maxSphere                 = 0;
+    //================================================ Set sphere counters
+    proshade_unsign minSphere                         = std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() );
+    proshade_unsign maxSphere                         = 0;
     
-    //======================================== For each radius, deal with weights
+    //================================================ For each radius, deal with weights
     for ( proshade_unsign radiusIter  = 0; radiusIter < std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ); radiusIter++ )
     {
-        //==================================== Get only values where the shell has the band
+        //============================================ Get only values where the shell has the band
         if ( std::min ( obj1->getShellBandwidth ( radiusIter ), obj2->getShellBandwidth ( radiusIter ) ) <= bandIter ) { continue; }
-        minSphere                             = std::min ( radiusIter, minSphere );
-        maxSphere                             = std::max ( radiusIter, maxSphere );
+        minSphere                                     = std::min ( radiusIter, minSphere );
+        maxSphere                                     = std::max ( radiusIter, maxSphere );
         
-        //==================================== Get the magnitudes for weighting
-        computeSphericalHarmonicsMagnitude    ( obj1, bandIter, orderIter, radiusIter, &(obj1Vals[obj1ValsIter]) );
-        computeSphericalHarmonicsMagnitude    ( obj2, bandIter, orderIter, radiusIter, &(obj2Vals[obj2ValsIter]) );
-        obj1ValsIter                         += 1;
-        obj2ValsIter                         += 1;
+        //============================================ Get the magnitudes for weighting
+        computeSphericalHarmonicsMagnitude            ( obj1, bandIter, orderIter, radiusIter, &(obj1Vals[obj1ValsIter]) );
+        computeSphericalHarmonicsMagnitude            ( obj2, bandIter, orderIter, radiusIter, &(obj2Vals[obj2ValsIter]) );
+        obj1ValsIter                                 += 1;
+        obj2ValsIter                                 += 1;
     }
     
-    //======================================== Integrate weights
-    proshade_double minSphereRad              = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5 );
-    proshade_double maxSphereRad              = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5 );
+    //================================================ Integrate weights
+    proshade_double minSphereRad                      = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5 );
+    proshade_double maxSphereRad                      = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5 );
+            
+    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
+    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
     
-    obj1->setIntegrationWeightCumul           ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
-    obj2->setIntegrationWeightCumul           ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
-    
-    //======================================== Done
-    return                                    ( maxSphereRad - minSphereRad );
+    //================================================ Done
+    return                                            ( maxSphereRad - minSphereRad );
     
 }
 
@@ -474,21 +482,21 @@ proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( P
  */
 void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas, proshade_double*& GLweights, proshade_complex*& radiiVals )
 {
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] obj1Vals;
     delete[] obj2Vals;
     delete[] radiiVals;
     delete[] GLabscissas;
     delete[] GLweights;
     
-    //======================================== Set to NULL
-    obj1Vals                                  = NULL;
-    obj2Vals                                  = NULL;
-    radiiVals                                 = NULL;
-    GLabscissas                               = NULL;
-    GLweights                                 = NULL;
+    //================================================ Set to NULL
+    obj1Vals                                          = NULL;
+    obj2Vals                                          = NULL;
+    radiiVals                                         = NULL;
+    GLabscissas                                       = NULL;
+    GLweights                                         = NULL;
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -504,40 +512,40 @@ void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& ob
  \param[in] obj2 The second ProSHADE_data object for which the computation is done.
  \param[in] settings A pointer to settings class containing all the information required for the task.
  */
-void ProSHADE_internal_distances::computeEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
+void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Starting computation of E matrices." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Starting computation of E matrices." );
     
-    //======================================== Allocatre memory for E matrices in the second object (first may be compared to more structures and therefore its data would be written over)
-    obj2->allocateEMatrices                   ( settings, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
+    //================================================ Allocatre memory for E matrices in the second object (first may be compared to more structures and therefore its data would be written over)
+    obj2->allocateEMatrices                           ( settings, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     proshade_double *obj1Vals, *obj2Vals, *GLAbscissas, *GLWeights;
     proshade_complex* radiiVals;
     proshade_double integRange;
     
-    //======================================== Allocate workspace memory
-    allocateTrSigmaWorkspace                  ( std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ), settings->integOrder, obj1Vals, obj2Vals, GLAbscissas, GLWeights,  radiiVals);
+    //================================================ Allocate workspace memory
+    allocateTrSigmaWorkspace                          ( std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ), settings->integOrder, obj1Vals, obj2Vals, GLAbscissas, GLWeights,  radiiVals);
     
-    //======================================== Initialise abscissas and weights for integration
+    //================================================ Initialise abscissas and weights for integration
     ProSHADE_internal_maths::getLegendreAbscAndWeights ( settings->integOrder, GLAbscissas, GLWeights, settings->taylorSeriesCap );
     
     
-    //======================================== For each band (l), compute the E matrix integrals
+    //================================================ For each band (l), compute the E matrix integrals
     for ( proshade_unsign bandIter = 0; bandIter < std::min ( obj1->getMaxBand(), obj2->getMaxBand() ); bandIter++ )
     {
-        //==================================== For each order (m)
+        //============================================ For each order (m)
         for ( proshade_unsign orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
         {
-            //================================ Get weights for the required band(l) and order (m)
-            integRange                        = computeWeightsForEMatricesForLM ( obj1, obj2, bandIter, orderIter, obj1Vals, obj2Vals, settings->integOrder, GLAbscissas, GLWeights, settings->maxSphereDists );
+            //======================================== Get weights for the required band(l) and order (m)
+            integRange                                = computeWeightsForEMatricesForLM ( obj1, obj2, bandIter, orderIter, obj1Vals, obj2Vals, settings->integOrder, GLAbscissas, GLWeights, settings->maxSphereDists );
 
-            //================================ Compute E matrices value for given band (l) and order(m)
-            computeEMatricesForLM             ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, settings->maxSphereDists );
+            //======================================== Compute E matrices value for given band (l) and order(m)
+            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, settings->maxSphereDists );
         }
         
-        //==================================== Report progress
+        //============================================ Report progress
         if ( settings->verbose > 3 )
         {
             std::stringstream hlpSS;
@@ -546,13 +554,13 @@ void ProSHADE_internal_distances::computeEMatrices ( ProSHADE_internal_data::Pro
         }
     }
     
-    //======================================== Release the workspace memory
-    releaseTrSigmaWorkspace                   ( obj1Vals, obj2Vals, GLAbscissas, GLWeights, radiiVals );
+    //================================================ Release the workspace memory
+    releaseTrSigmaWorkspace                           ( obj1Vals, obj2Vals, GLAbscissas, GLWeights, radiiVals );
     
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "E matrices computed." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "E matrices computed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -569,31 +577,31 @@ void ProSHADE_internal_distances::computeEMatrices ( ProSHADE_internal_data::Pro
  */
 void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "Starting E matrices normalisation." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Starting E matrices normalisation." );
     
-    //======================================== Normalise by the Pearson's c.c. like formula
-    proshade_double eMatNormFactor            = std::sqrt ( obj1->getIntegrationWeight() * obj2->getIntegrationWeight() );
+    //================================================ Normalise by the Pearson's c.c. like formula
+    proshade_double eMatNormFactor                    = std::sqrt ( obj1->getIntegrationWeight() * obj2->getIntegrationWeight() );
     
-    //======================================== If this is self-correlation (i.e. obj1 == obj2), then divide normalisation factor by 2 as the weight was applied cumulatively!
+    //================================================ If this is self-correlation (i.e. obj1 == obj2), then divide normalisation factor by 2 as the weight was applied cumulatively!
     if ( settings->task == Symmetry ) { eMatNormFactor /= 2.0; }
     
     for ( proshade_unsign bandIter = 0; bandIter < std::min ( obj1->getMaxBand(), obj2->getMaxBand() ); bandIter++ )
     {
-        //==================================== For each combination of m and m' for E matrices
+        //============================================ For each combination of m and m' for E matrices
         for ( proshade_unsign orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
         {
             for ( proshade_unsign order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
             {
-                obj2->normaliseEMatrixValue   ( bandIter, orderIter, order2Iter, eMatNormFactor );
+                obj2->normaliseEMatrixValue           ( bandIter, orderIter, order2Iter, eMatNormFactor );
             }
         }
     }
     
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, "E matrices normalised." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 4, "E matrices normalised." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -613,52 +621,52 @@ void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::P
  */
 proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report starting the task
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting trace sigma distance computation." );
+    //================================================ Report starting the task
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting trace sigma distance computation." );
     
-    //======================================== Initialise return variable
-    proshade_double ret                       = 0.0;
+    //================================================ Initialise return variable
+    proshade_double ret                               = 0.0;
     
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( !settings->computeTraceSigmaDesc )
     {
-        throw ProSHADE_exception ( "Attempted computing trace sigma descriptors when it was\n                    : not required.", "ED00018", "ProSHADE_distances.cpp", 587, "ProSHADE_internal_distances namespace function\n                    : computeTraceSigmaDescriptor()", "Attempted to pre-compute the E matrices, when the user\n                    : has specifically stated that these should not be computed.\n                    : Unless you manipulated the code, this error should never\n                    : occur; if you see this, I made a large blunder. Please let\n                    : me know!" );
+        throw ProSHADE_exception ( "Attempted computing trace sigma descriptors when it was\n                    : not required.", "ED00018", __FILE__, __LINE__, __func__, "Attempted to pre-compute the E matrices, when the user\n                    : has specifically stated that these should not be computed.\n                    : Unless you manipulated the code, this error should never\n                    : occur; if you see this, I made a large blunder. Please let\n                    : me know!" );
     }
 
-    //======================================== Compute un-weighted E matrices and their weights
-    computeEMatrices                          ( obj1, obj2, settings );
+    //================================================ Compute un-weighted E matrices and their weights
+    computeEMatrices                                  ( obj1, obj2, settings );
     
-    //======================================== Normalise E matrices by the magnitudes
-    normaliseEMatrices                        ( obj1, obj2, settings );
+    //================================================ Normalise E matrices by the magnitudes
+    normaliseEMatrices                                ( obj1, obj2, settings );
     
-    //======================================== Allocate the required memory
-    double* singularValues                    = new double[( ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) * 2 ) + 1 )];
-    ProSHADE_internal_misc::checkMemoryAllocation ( singularValues, "ProSHADE_distances.cpp", 598, "ProSHADE_distances function computeTraceSigmaDescriptor()" );
+    //================================================ Allocate the required memory
+    double* singularValues                            = new double[( ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) * 2 ) + 1 )];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( singularValues, __FILE__, __LINE__, __func__ );
     
-    //======================================== Compute the distance
+    //================================================ Compute the distance
     for ( proshade_unsign lIter = 0; lIter < std::min ( obj1->getMaxBand(), obj2->getMaxBand() ); lIter++ )
     {
-        //==================================== Find the complex matrix SVD singular values
+        //============================================ Find the complex matrix SVD singular values
         ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( obj2->getEMatrixByBand ( lIter ), static_cast<int> ( ( lIter * 2 ) + 1 ), singularValues );
 
-        //==================================== Now sum the trace
+        //============================================ Now sum the trace
         for ( proshade_unsign iter = 0; iter < ( ( lIter * 2 ) + 1 ); iter++  )
         {
-            ret                              += singularValues[iter];
+            ret                                      += singularValues[iter];
         }
     }
     
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "E matrices decomposed to singular values." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "E matrices decomposed to singular values." );
     
-    //======================================== Release the memory
+    //================================================ Release the memory
     delete[] singularValues;
     
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Trace sigma distance computation complete." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Trace sigma distance computation complete." );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -668,15 +676,15 @@ proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSH
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_unsign band )
 {
-    //======================================== Allocate the memory
-    this->so3Coeffs                           = new fftw_complex [static_cast<proshade_unsign>( ( 4 * pow( static_cast<proshade_double> ( band ), 3.0 ) - static_cast<proshade_double> ( band ) ) / 3.0 )];
-    this->so3CoeffsInverse                    = new fftw_complex [static_cast<proshade_unsign>( pow( static_cast<proshade_double> ( band ) * 2.0, 3.0 ) )];
+    //================================================ Allocate the memory
+    this->so3Coeffs                                   = new fftw_complex [static_cast<proshade_unsign>( ( 4 * pow( static_cast<proshade_double> ( band ), 3.0 ) - static_cast<proshade_double> ( band ) ) / 3.0 )];
+    this->so3CoeffsInverse                            = new fftw_complex [static_cast<proshade_unsign>( pow( static_cast<proshade_double> ( band ) * 2.0, 3.0 ) )];
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->so3Coeffs,        "ProSHADE_distances.cpp", 642, "ProSHADE_distances function allocateSO3CoeffsSpace()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( this->so3CoeffsInverse, "ProSHADE_distances.cpp", 643, "ProSHADE_distances function allocateSO3CoeffsSpace()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->so3Coeffs,        __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->so3CoeffsInverse, __FILE__, __LINE__, __func__ );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -694,53 +702,53 @@ void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_un
  */
 void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Converting E matrices to SO(3) coefficients." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Converting E matrices to SO(3) coefficients." );
     
-    //======================================== Allocate memory for the coefficients
-    obj2->allocateSO3CoeffsSpace              ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
+    //================================================ Allocate memory for the coefficients
+    obj2->allocateSO3CoeffsSpace                      ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     proshade_double wigNorm, hlpValReal, hlpValImag;
-    proshade_double signValue                 = 1.0;
+    proshade_double signValue                         = 1.0;
     proshade_unsign indexO;
     proshade_complex hlpVal;
     
-    //======================================== For each band (l)
+    //================================================ For each band (l)
     for ( proshade_signed bandIter = 0; bandIter < static_cast<proshade_signed> ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ); bandIter++ )
     {
-        //==================================== Get wigner normalisation factor
-        wigNorm                               = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * bandIter + 1.0 ) ) ;
+        //============================================ Get wigner normalisation factor
+        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * bandIter + 1.0 ) ) ;
         
-        //==================================== For each order (m)
+        //============================================ For each order (m)
         for ( proshade_signed orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
         {
-            //================================ Set the sign
+            //======================================== Set the sign
             if ( ( orderIter - bandIter + bandIter ) % 2 ) { signValue = -1.0 ; }
             else                                           { signValue =  1.0 ; }
             
-            //================================ For each order2 (m')
+            //======================================== For each order2 (m')
             for ( proshade_signed order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
             {
-                //============================ Find output index
-                indexO                        = static_cast<proshade_unsign> ( so3CoefLoc ( orderIter - bandIter, order2Iter - bandIter, bandIter, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ) );
+                //==================================== Find output index
+                indexO                                = static_cast<proshade_unsign> ( so3CoefLoc ( orderIter - bandIter, order2Iter - bandIter, bandIter, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ) );
                 
-                //============================ Compute and save the SO(3) coefficients
-                obj2->getEMatrixValue         ( bandIter, orderIter, order2Iter, &hlpValReal, &hlpValImag );
-                hlpVal[0]                     = hlpValReal * wigNorm * signValue;
-                hlpVal[1]                     = hlpValImag * wigNorm * signValue;
-                obj2->setSO3CoeffValue        ( indexO, hlpVal );
+                //==================================== Compute and save the SO(3) coefficients
+                obj2->getEMatrixValue                 ( bandIter, orderIter, order2Iter, &hlpValReal, &hlpValImag );
+                hlpVal[0]                             = hlpValReal * wigNorm * signValue;
+                hlpVal[1]                             = hlpValImag * wigNorm * signValue;
+                obj2->setSO3CoeffValue                ( indexO, hlpVal );
                 
-                //============================ Switch the sign value
-                signValue                    *= -1.0;
+                //==================================== Switch the sign value
+                signValue                            *= -1.0;
             }
         }
     }
     
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "SO(3) coefficients obtained." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "SO(3) coefficients obtained." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -754,17 +762,17 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
  */
 void ProSHADE_internal_distances::allocateInvSOFTWorkspaces ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3, proshade_unsign band )
 {
-    //======================================== Allocate memory
-    work1                                     = new proshade_complex[8  * static_cast<proshade_unsign> ( pow( static_cast<double> ( band ), 3.0 ) )];
-    work2                                     = new proshade_complex[14 * static_cast<proshade_unsign> ( pow( static_cast<double> ( band ), 2.0 ) ) + (48 * band)];
-    work3                                     = new proshade_double [2  * static_cast<proshade_unsign> ( pow( static_cast<double> ( band ), 2.0 ) ) + (24 * band)];
+    //================================================ Allocate memory
+    work1                                             = new proshade_complex[8  * static_cast<proshade_unsign> ( pow( static_cast<double> ( band ), 3.0 ) )];
+    work2                                             = new proshade_complex[14 * static_cast<proshade_unsign> ( pow( static_cast<double> ( band ), 2.0 ) ) + (48 * band)];
+    work3                                             = new proshade_double [2  * static_cast<proshade_unsign> ( pow( static_cast<double> ( band ), 2.0 ) ) + (24 * band)];
     
-    //======================================== Check the memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( work1, "ProSHADE_distances.cpp", 724, "ProSHADE_distances function allocateInvSOFTWorkspaces()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( work2, "ProSHADE_distances.cpp", 725, "ProSHADE_distances function allocateInvSOFTWorkspaces()" );
-    ProSHADE_internal_misc::checkMemoryAllocation ( work3, "ProSHADE_distances.cpp", 726, "ProSHADE_distances function allocateInvSOFTWorkspaces()" );
+    //================================================ Check the memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( work1, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( work2, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( work3, __FILE__, __LINE__, __func__ );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -778,41 +786,41 @@ void ProSHADE_internal_distances::allocateInvSOFTWorkspaces ( proshade_complex*&
  */
 void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, proshade_unsign band, fftw_complex* work1, proshade_complex* invCoeffs )
 {
-    //======================================== Prepare the plan describing variables
-    int howmany                               = 4 * band * band;
-    int idist                                 = 2 * band;
-    int odist                                 = 2 * band;
-    int rank                                  = 2;
-    
+    //================================================ Prepare the plan describing variables
+    int howmany                                       = 4 * band * band;
+    int idist                                         = 2 * band;
+    int odist                                         = 2 * band;
+    int rank                                          = 2;
+            
     int inembed[2], onembed[2];
-    inembed[0]                                = 2 * band;
-    inembed[1]                                = 4 * band * band;
-    onembed[0]                                = 2 * band;
-    onembed[1]                                = 4 * band * band;
-    
-    int istride                               = 1;
-    int ostride                               = 1;
-    
+    inembed[0]                                        = 2 * band;
+    inembed[1]                                        = 4 * band * band;
+    onembed[0]                                        = 2 * band;
+    onembed[1]                                        = 4 * band * band;
+            
+    int istride                                       = 1;
+    int ostride                                       = 1;
+            
     int na[2];
-    na[0]                                     = 1;
-    na[1]                                     = 2 * band;
+    na[0]                                             = 1;
+    na[1]                                             = 2 * band;
     
-    //======================================== Create the plan
-   *inverseSO3                                = fftw_plan_many_dft ( rank,
-                                                                     na,
-                                                                     howmany,
-                                                                     work1,
-                                                                     inembed,
-                                                                     istride,
-                                                                     idist,
-                                                                     invCoeffs,
-                                                                     onembed,
-                                                                     ostride,
-                                                                     odist,
-                                                                     FFTW_FORWARD,
-                                                                     FFTW_ESTIMATE );
-    
-    //======================================== Done
+    //================================================ Create the plan
+   *inverseSO3                                        = fftw_plan_many_dft ( rank,
+                                                                             na,
+                                                                             howmany,
+                                                                             work1,
+                                                                             inembed,
+                                                                             istride,
+                                                                             idist,
+                                                                             invCoeffs,
+                                                                             onembed,
+                                                                             ostride,
+                                                                             odist,
+                                                                             FFTW_FORWARD,
+                                                                             FFTW_ESTIMATE );
+            
+    //================================================ Done
     return ;
     
 }
@@ -825,12 +833,12 @@ void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, pr
  */
 void ProSHADE_internal_distances::releaseInvSOFTMemory ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3 )
 {
-    //======================================== Release memory
+    //================================================ Release memory
     delete[] work1;
     delete[] work2;
     delete[] work3;
     
-    //======================================== Done
+    //================================================ Done
     return ;
 }
 
@@ -847,38 +855,38 @@ void ProSHADE_internal_distances::releaseInvSOFTMemory ( proshade_complex*& work
  */
 void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Computing inverse SO(3) Fourier transform." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing inverse SO(3) Fourier transform." );
     
-    //======================================== Initialise local variables
+    //================================================ Initialise local variables
     proshade_complex *workspace1, *workspace2;
     proshade_double *workspace3;
     fftw_plan inverseSO3;
     
-    //======================================== Allocate memory for the workspaces
-    allocateInvSOFTWorkspaces                 ( workspace1, workspace2, workspace3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
+    //================================================ Allocate memory for the workspaces
+    allocateInvSOFTWorkspaces                         ( workspace1, workspace2, workspace3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
-    //======================================== Prepare the FFTW plan
-    prepareInvSOFTPlan                        ( &inverseSO3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ), workspace1, obj2->getInvSO3Coeffs ( ) );
+    //================================================ Prepare the FFTW plan
+    prepareInvSOFTPlan                                ( &inverseSO3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ), workspace1, obj2->getInvSO3Coeffs ( ) );
     
-    //======================================== Compute the transform
-    Inverse_SO3_Naive_fftw                    ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ),
-                                                obj2->getSO3Coeffs ( ),
-                                                obj2->getInvSO3Coeffs ( ),
-                                                workspace1,
-                                                workspace2,
-                                                workspace3,
-                                               &inverseSO3,
-                                                0 );
+    //================================================ Compute the transform
+    Inverse_SO3_Naive_fftw                            ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ),
+                                                        obj2->getSO3Coeffs ( ),
+                                                        obj2->getInvSO3Coeffs ( ),
+                                                        workspace1,
+                                                        workspace2,
+                                                        workspace3,
+                                                       &inverseSO3,
+                                                        0 );
     
-    //======================================== Release memory
-    releaseInvSOFTMemory                      ( workspace1, workspace2, workspace3 );
-    fftw_destroy_plan                         ( inverseSO3 );
+    //================================================ Release memory
+    releaseInvSOFTMemory                              ( workspace1, workspace2, workspace3 );
+    fftw_destroy_plan                                 ( inverseSO3 );
     
-    //======================================== Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "Inverse SO(3) Fourier transform computed." );
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Inverse SO(3) Fourier transform computed." );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -899,61 +907,61 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
  */
 proshade_double ProSHADE_internal_distances::computeRotationunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
-    //======================================== Report starting the task
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting rotation function distance computation." );
+    //================================================ Report starting the task
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting rotation function distance computation." );
     
-    //======================================== Initialise return variable
-    proshade_double ret                       = 0.0;
+    //================================================ Initialise return variable
+    proshade_double ret                               = 0.0;
     proshade_double eulA, eulB, eulG, EMatR, EMatI, WigDR, WigDI;
     
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( !settings->computeRotationFuncDesc )
     {
-        throw ProSHADE_exception ( "Attempted computing rotation function descriptors when it\n                    : was not required.", "ED00023", "ProSHADE_distances.cpp", 646, "ProSHADE_internal_distances namespace function\n                    : computeRotationunctionDescriptor()", "Attempted to compute the SO(3) transform and the rotation \n                    : function descriptor when the user did not request this. \n                    : Unless you manipulated the code, this error should never \n                    : occur; if you see this, I made a large blunder. \n                    : Please let me know!" );
+        throw ProSHADE_exception ( "Attempted computing rotation function descriptors when it\n                    : was not required.", "ED00023", __FILE__, __LINE__, __func__, "Attempted to compute the SO(3) transform and the rotation \n                    : function descriptor when the user did not request this. \n                    : Unless you manipulated the code, this error should never \n                    : occur; if you see this, I made a large blunder. \n                    : Please let me know!" );
     }
     
-    //======================================== Compute weighted E matrices if not already present
+    //================================================ Compute weighted E matrices if not already present
     if ( !settings->computeTraceSigmaDesc )
     {
-        computeEMatrices                      ( obj1, obj2, settings );
-        normaliseEMatrices                    ( obj1, obj2, settings );
+        computeEMatrices                              ( obj1, obj2, settings );
+        normaliseEMatrices                            ( obj1, obj2, settings );
     }
     
-    //======================================== Generate SO(3) coefficients
-    generateSO3CoeffsFromEMatrices            ( obj1, obj2, settings );
+    //================================================ Generate SO(3) coefficients
+    generateSO3CoeffsFromEMatrices                    ( obj1, obj2, settings );
     
-    //======================================== Compute the inverse SO(3) Fourier Transform (SOFT) on the newly computed coefficients
-    computeInverseSOFTTransform               ( obj1, obj2, settings );
+    //================================================ Compute the inverse SO(3) Fourier Transform (SOFT) on the newly computed coefficients
+    computeInverseSOFTTransform                       ( obj1, obj2, settings );
 
-    //======================================== Get inverse SO(3) map top peak Euler angle values
+    //================================================ Get inverse SO(3) map top peak Euler angle values
     ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( obj2->getInvSO3Coeffs (),
                                                               std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) * 2,
                                                              &eulA, &eulB, &eulG, settings );
 
-    //======================================== Compute the Wigner D matrices for the Euler angles
+    //================================================ Compute the Wigner D matrices for the Euler angles
     ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, obj2, eulA, eulB, eulG );
 
-    //======================================== Compute the distance
+    //================================================ Compute the distance
     for ( proshade_unsign bandIter = 0; bandIter < obj2->getComparisonBand(); bandIter++ )
     {
-        //==================================== For each order1
+        //============================================ For each order1
         for ( proshade_unsign order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
         {
-            //================================ For each order2
+            //======================================== For each order2
             for ( proshade_unsign order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
             {
-                //============================ Multiply D_{l} * E_{l} and get sum over l of traces (i.e. just sum all together)
-                obj2->getEMatrixValue         ( bandIter, order1, order2, &EMatR, &EMatI );
-                obj2->getWignerMatrixValue    ( bandIter, order2, order1, &WigDR, &WigDI );
-                ret                         += ProSHADE_internal_maths::complexMultiplicationRealOnly ( &WigDR, &WigDI, &EMatR, &EMatI );
+                //==================================== Multiply D_{l} * E_{l} and get sum over l of traces (i.e. just sum all together)
+                obj2->getEMatrixValue                 ( bandIter, order1, order2, &EMatR, &EMatI );
+                obj2->getWignerMatrixValue            ( bandIter, order2, order1, &WigDR, &WigDI );
+                ret                                  += ProSHADE_internal_maths::complexMultiplicationRealOnly ( &WigDR, &WigDI, &EMatR, &EMatI );
             }
         }
     }
     
-    //======================================== Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Rotation function distance computation complete." );
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Rotation function distance computation complete." );
     
-    //======================================== Done
-    return                                    ( ret );
+    //================================================ Done
+    return                                            ( ret );
     
 }

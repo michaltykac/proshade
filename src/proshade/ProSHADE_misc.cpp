@@ -1,22 +1,25 @@
 /*! \file ProSHADE_misc.cpp
- \brief This source contains all miscellaneous functions.
+    \brief This source file contains all miscellaneous functions.
  
- The functions defined in here are used by ProSHADE to deal with minor tasks unrelated to anything
- in the main library of functions.
+    The functions defined in here are used by ProSHADE to deal with minor tasks unrelated to anything
+    in the main library of functions, for example C++ version independent vector addition code and such.
  
- This file is part of the ProSHADE library for calculating
- shape descriptors and symmetry operators of protein structures.
- This is a prototype code, which is by no means complete or fully
- tested. Its use is at your own risk only. There is no quarantee
- that the results are correct.
+    Copyright by Michal Tykac and individual contributors. All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+    1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    3) Neither the name of Michal Tykac nor the names of this code's contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+    This software is provided by the copyright holder and contributors "as is" and any express or implied warranties, including, but not limitted to, the implied warranties of merchantibility and fitness for a particular purpose are disclaimed. In no event shall the copyright owner or the contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limitted to, procurement of substitute goods or services, loss of use, data or profits, or business interuption) however caused and on any theory of liability, whether in contract, strict liability or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
  
- \author    Michal Tykac
- \author    Garib N. Murshudov
- \version   0.7.2
- \date      DEC 2019
+    \author    Michal Tykac
+    \author    Garib N. Murshudov
+    \version   0.7.3
+    \date      JUN 2020
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_misc.hpp"
 
 /*! \brief Adds the element to the vector.
@@ -29,14 +32,14 @@
  */
 void ProSHADE_internal_misc::addToStringVector ( std::vector < std::string >* vecToAddTo, std::string elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -51,14 +54,14 @@ void ProSHADE_internal_misc::addToStringVector ( std::vector < std::string >* ve
  */
 void ProSHADE_internal_misc::addToSingleVector ( std::vector < proshade_single >* vecToAddTo, proshade_single elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -73,14 +76,14 @@ void ProSHADE_internal_misc::addToSingleVector ( std::vector < proshade_single >
  */
 void ProSHADE_internal_misc::addToDoubleVector ( std::vector < proshade_double >* vecToAddTo, proshade_double elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -95,14 +98,14 @@ void ProSHADE_internal_misc::addToDoubleVector ( std::vector < proshade_double >
  */
 void ProSHADE_internal_misc::addToUnsignVector ( std::vector < proshade_unsign >* vecToAddTo, proshade_unsign elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -117,14 +120,14 @@ void ProSHADE_internal_misc::addToUnsignVector ( std::vector < proshade_unsign >
  */
 void ProSHADE_internal_misc::addToSignedVector ( std::vector < proshade_signed >* vecToAddTo, proshade_signed elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -139,14 +142,14 @@ void ProSHADE_internal_misc::addToSignedVector ( std::vector < proshade_signed >
  */
 void ProSHADE_internal_misc::addToDblPtrVector ( std::vector < proshade_double* >* vecToAddTo, proshade_double* elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -162,14 +165,14 @@ void ProSHADE_internal_misc::addToDblPtrVector ( std::vector < proshade_double* 
  */
 void ProSHADE_internal_misc::addToSigPtrVector ( std::vector < proshade_signed* >* vecToAddTo, proshade_signed* elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -184,14 +187,14 @@ void ProSHADE_internal_misc::addToSigPtrVector ( std::vector < proshade_signed* 
  */
 void ProSHADE_internal_misc::addToUnsignVectorVector ( std::vector < std::vector < proshade_unsign  > >* vecToAddTo, std::vector < proshade_unsign  > elementToAdd )
 {
-    //======================================== Based on the compiler C++11 support, use the correct vector addition function.
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L
-    vecToAddTo->emplace_back                   ( elementToAdd );
+    vecToAddTo->emplace_back                          ( elementToAdd );
 #else
-    vecToAddTo->push_back                      ( elementToAdd );
+    vecToAddTo->push_back                             ( elementToAdd );
 #endif
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -204,8 +207,8 @@ void ProSHADE_internal_misc::addToUnsignVectorVector ( std::vector < std::vector
  */
 bool ProSHADE_internal_misc::sortSymHlp ( const proshade_double* a, const proshade_double* b )
 {
-    //======================================== Compare
-    return                                    ( a[5] < b[5] );
+    //================================================ Compare
+    return                                            ( a[5] < b[5] );
     
 }
 
@@ -230,12 +233,12 @@ bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const pro
  */
 bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const proshade_double* b )
 {
-    //======================================== Get weighted averages
-    proshade_double aScore                    = ( ( a[0] * a[5] ) + ( a[6] * a[11] ) ) / ( a[0] + a[6] );
-    proshade_double bScore                    = ( ( b[0] * b[5] ) + ( b[6] * b[11] ) ) / ( b[0] + b[6] );
+    //================================================ Get weighted averages
+    proshade_double aScore                            = ( ( a[0] * a[5] ) + ( a[6] * a[11] ) ) / ( a[0] + a[6] );
+    proshade_double bScore                            = ( ( b[0] * b[5] ) + ( b[6] * b[11] ) ) / ( b[0] + b[6] );
     
-    //======================================== Compare
-    return                                    ( aScore > bScore );
+    //================================================ Compare
+    return                                            ( aScore > bScore );
     
 }
 
@@ -248,25 +251,25 @@ bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const pr
  */
 void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_double* >* dblPtrVec, proshade_double* axis )
 {
-    //======================================== Allocate new memory
-    proshade_double* symAx                    = NULL;
-    symAx                                     = new proshade_double[6];
+    //================================================ Allocate new memory
+    proshade_double* symAx                            = NULL;
+    symAx                                             = new proshade_double[6];
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( symAx, "ProSHADE_misx.cpp", 233, "deepCopyAxisToDblPtrVector()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( symAx, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy the 6 values
-    symAx[0]                                  = axis[0];
-    symAx[1]                                  = axis[1];
-    symAx[2]                                  = axis[2];
-    symAx[3]                                  = axis[3];
-    symAx[4]                                  = axis[4];
-    symAx[5]                                  = axis[5];
+    //================================================ Copy the 6 values
+    symAx[0]                                          = axis[0];
+    symAx[1]                                          = axis[1];
+    symAx[2]                                          = axis[2];
+    symAx[3]                                          = axis[3];
+    symAx[4]                                          = axis[4];
+    symAx[5]                                          = axis[5];
     
-    //======================================== Save
-    ProSHADE_internal_misc::addToDblPtrVector ( dblPtrVec, symAx );
+    //================================================ Save
+    ProSHADE_internal_misc::addToDblPtrVector         ( dblPtrVec, symAx );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
@@ -285,25 +288,25 @@ void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_
  */
 void ProSHADE_internal_misc::deepCopyBoundsSigPtrVector ( std::vector < proshade_signed* >* sigPtrVec, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo  )
 {
-    //======================================== Allocate new memory
-    proshade_signed* bounds                   = NULL;
-    bounds                                    = new proshade_signed[6];
+    //================================================ Allocate new memory
+    proshade_signed* bounds                           = NULL;
+    bounds                                            = new proshade_signed[6];
     
-    //======================================== Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation ( bounds, "ProSHADE_misx.cpp", 265, "deepCopyBoundsSigPtrVector()" );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( bounds, __FILE__, __LINE__, __func__ );
     
-    //======================================== Copy the 6 values
-    bounds[0]                                 = *xFrom;
-    bounds[1]                                 = *xTo;
-    bounds[2]                                 = *yFrom;
-    bounds[3]                                 = *yTo;
-    bounds[4]                                 = *zFrom;
-    bounds[5]                                 = *zTo;
+    //================================================ Copy the 6 values
+    bounds[0]                                         = *xFrom;
+    bounds[1]                                         = *xTo;
+    bounds[2]                                         = *yFrom;
+    bounds[3]                                         = *yTo;
+    bounds[4]                                         = *zFrom;
+    bounds[5]                                         = *zTo;
     
-    //======================================== Save
-    ProSHADE_internal_misc::addToSigPtrVector ( sigPtrVec, bounds );
+    //================================================ Save
+    ProSHADE_internal_misc::addToSigPtrVector         ( sigPtrVec, bounds );
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }
