@@ -259,7 +259,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             this->requestedResolution                 = 8.0;
             this->changeMapResolution                 = false;
             this->maskMap                             = false;
-            this->moveToCOM                           = false;
+            this->moveToCOM                           = true;
             this->normaliseMap                        = false;
             this->reBoxMap                            = false;
             break;
@@ -2463,7 +2463,7 @@ void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap,
 */
 std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
 {
-    //======================================== Sanity check
+    //================================================ Sanity check
     if ( this->eulerAngles.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
@@ -2472,6 +2472,36 @@ std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
     
     //================================================ Return required value
     return                                            ( this->eulerAngles );
+    
+}
+
+/*! \brief This function returns the vector forming rotation matrix (rows first) with best overlay correlation.
+
+\param[out] ret Vector forming rotation matrix (rows first) which lead to the globally best overlay correlation.
+*/
+std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
+{
+    //================================================ Sanity check
+    if ( this->eulerAngles.size() != 3 )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
+        return                                        ( std::vector< proshade_double > ( ) );
+    }
+    
+    //================================================ Obtain the optimal rotation matrix
+    proshade_double* rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( this->eulerAngles.at(0), this->eulerAngles.at(1), this->eulerAngles.at(2), rotMat );
+    
+    //================================================ Copy to the output variable
+    std::vector< proshade_double > ret;
+    for ( proshade_unsign iter = 0; iter < 9; iter++ ) { ProSHADE_internal_misc::addToDoubleVector ( &ret, rotMat[iter] ); }
+    
+    //================================================ Release the memory
+    delete[] rotMat;
+    
+    //================================================ Return required value
+    return                                            ( ret );
     
 }
 

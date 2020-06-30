@@ -41,7 +41,9 @@ var NAVTREE =
         [ "Re-boxing structures", "index.html#reboxingUsage", null ],
         [ "Optimal rotation and translation", "index.html#overlayExample", null ]
       ] ],
-      [ "Using the ProSHADE library", "index.html#libuse", null ]
+      [ "Using the ProSHADE library", "index.html#libuse", [
+        [ "Linking against the ProSHADE library", "index.html#liblink", null ]
+      ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -74,8 +76,8 @@ var NAVTREEINDEX =
 [
 "_pro_s_h_a_d_e_8cpp.html",
 "_pro_s_h_a_d_e__symmetry_8hpp.html#ab0ac919dd609bc6bded806c0f78201fd",
-"class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a6b6390d13016df4578022665b87ad441",
-"namespacemembers_t.html"
+"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#afa35ae5ccd9d4b22bcc028f609cd1c3e",
+"namespacemembers_func_i.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

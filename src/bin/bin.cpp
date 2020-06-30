@@ -64,6 +64,8 @@
  *
  * 5) \ref libuse
  *
+ * 5.1) \ref liblink
+ *
  * \section install Installation
  *
  * The installation of the ProSHADE software should be done using the CMake system and the supplied CMakeLists.txt file. The minimual requiered version of CMake is 2.6, however, python modules and single source file
@@ -384,6 +386,14 @@
  \endcode
  *
  * \section libuse Using the ProSHADE library
+ *
+ * ProSHADE allows more programmatic access to its functionality through a C++ dynamic library, which is compiled at the same time as the binary is made. This library can be linked to any C++ project to allow direct access to the ProSHADE objects, functions and results. This section discusses how the ProSHADE
+ * library can be linked against and how the basic objects can be accessed.
+ *
+ * \subsection liblink Linking against the ProSHADE library
+ *
+ * The ProSHADE library
+ *
  *
  * Stay tuned for improved documentation comming soon!
  */

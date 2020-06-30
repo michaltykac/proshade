@@ -110,6 +110,7 @@ public:
     
     //================================================ Overlay results accessor functions
     std::vector< proshade_double > getEulerAngles     ( void );
+    std::vector< proshade_double > getOptimalRotMat   ( void );
     std::vector< proshade_double > getTranslation     ( void );
 };
 

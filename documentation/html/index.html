@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.3 (JUN 2020)</span>
+   &#160;<span id="projectnumber">0.7.3 (JUL 2020)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -107,6 +107,7 @@ Index</h1>
 <p>4.3) <a class="el" href="index.html#reboxingUsage">Re-boxing structures</a></p>
 <p>4.4) <a class="el" href="index.html#overlayExample">Optimal rotation and translation</a></p>
 <p>5) <a class="el" href="index.html#libuse">Using the ProSHADE library</a></p>
+<p>5.1) <a class="el" href="index.html#liblink">Linking against the ProSHADE library</a></p>
 <h1><a class="anchor" id="install"></a>
 Installation</h1>
 <p>The installation of the ProSHADE software should be done using the CMake system and the supplied CMakeLists.txt file. The minimual requiered version of CMake is 2.6, however, python modules and single source file compilation will not be available unless CMake version 3.1 or higher is used. The CMakeLists.txt file assumes the standard system dependencies are installed in the system folders; for a full list of standard system dependencies, please see the section <a class="el" href="index.html#stdSys">Standard System Dependencies</a>.</p>
@@ -352,6 +353,10 @@ Optimal rotation and translation</h2>
 <div class="line">======================</div>
 </div><!-- fragment --><h1><a class="anchor" id="libuse"></a>
 Using the ProSHADE library</h1>
+<p>ProSHADE allows more programmatic access to its functionality through a C++ dynamic library, which is compiled at the same time as the binary is made. This library can be linked to any C++ project to allow direct access to the ProSHADE objects, functions and results. This section discusses how the ProSHADE library can be linked against and how the basic objects can be accessed.</p>
+<h2><a class="anchor" id="liblink"></a>
+Linking against the ProSHADE library</h2>
+<p>The ProSHADE library</p>
 <p>Stay tuned for improved documentation comming soon! </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
