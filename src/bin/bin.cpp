@@ -20,7 +20,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUN 2020
+    \date      JUL 2020
  */
 
 //==================================================== DOxygen main page specifications
@@ -67,6 +67,8 @@
  * 5.1) \ref liblink
  *
  * 5.2) \ref libexamples
+ *
+ * 6) \ref pyusage
  *
  * \section install Installation
  *
@@ -424,9 +426,103 @@
                              -o ./proshadeProject
  \endcode
  *
- *\subsection libexamples Example of ProSHADE library usage
+ *\subsection libexamples Examples of ProSHADE library usage
  *
- * There are several examples of C++ code which makes use of the ProSHADE dynamic library to compute the standard ProSHADE functionalities and access the results programmatically (i.e. without the need for parsing any log files). The examples are avaialbe in the \b /path/to/proshade/example/libproshade folder and are divided into two categories of four examples. The source files with names starting with simpleAccess_... 
+ * There are several examples of C++ code which makes use of the ProSHADE dynamic library to compute the standard ProSHADE functionalities and access the results programmatically (i.e. without the need for parsing any log files). The examples are avaialbe in the \b /path/to/proshade/example/libproshade
+ * folder and are divided into two categories of four examples. The source files with names starting with \e simpleAccess_... provide a "black box" experience similar to using ProSHADE binary. The user firstly creates a \p ProSHADE_settings object, which provides all the variables that can be set in order to
+ * drive which ProSHADE functionality is required and how it should be done. Next, the user needs to create the \p ProSHADE_run object, whose constructor takes the already created and filled \p ProSHADE_setings object as its only argument. This constructor will then proceed to compute all required information
+ * according to the settings object and return when complete. While the computation is being done, the execution is with the ProSHADE library and any C++ project using this mode will be waiting for the ProSHADE library to finish. Once the computation is complete, the execution will be returned to the calling C++
+ * project and the results will be accessible through public functions of the \p ProSHADE_run object. The following code shows a very simple example of how ProSHADE can be run in this mode, but for more specific examples the users should review the \e simpleAccess_... example files.
+ *
+ *\code{.cpp}
+ #include "ProSHADE.hpp"
+
+ int main ( int argc, char **argv )
+ {
+     //================================================ Create the settings object
+     ProSHADE_Task task                                = Distances;
+     ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
+
+     //================================================ Set the settings object up
+     settings->setResolution                           ( 10.0 );
+     settings->addStructure                            ( "./str1.pdb" );
+     settings->addStructure                            ( "./str2.pdb" );
+ 
+     //================================================ Run ProSHADE. This may take some time, depending on what computations are required.
+     ProSHADE_run* runProshade                         = new ProSHADE_run ( settings );
+ 
+     //================================================ Access the results
+     std::vector< proshade_double > energyDistances    = runProshade->getEnergyLevelsVector     ( );
+     std::vector< proshade_double > traceDistances     = runProshade->getTraceSigmaVector       ( );
+     std::vector< proshade_double > rotFunDistances    = runProshade->getRotationFunctionVector ( );
+
+     //================================================ Release the memory
+     delete runProshade;
+     delete settings;
+ 
+     //================================================ Done
+     return EXIT_SUCCESS;
+ }
+ \endcode
+ *
+ * The second set of examples of usage of the ProSHADE library are the source files with names starting with \e advancedAccess_... . These files provide examples of how individual ProSHADE functions can be arranged to provide the results of the main ProSHADE functionalities. Using the ProSHADE tool in the manner shown in these example
+ * codes gives the user more control over the execution and it also allows the user to modify the behaviour directly. On the other hand, using ProSHADE in this way required a bit more understanding than the simple "black box" approach and this documentation should be helpful for all who wish to use ProSHADE this way. Interested users
+ * are advised to review all the \e advancedAccess_... source files as well as the following simple example code.
+ *
+ *\code{.cpp}
+ #include "ProSHADE.hpp"
+
+ int main ( int argc, char **argv )
+ {
+     //================================================ Create the settings object
+     ProSHADE_Task task                                = Symmetry;
+     ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
+
+     //================================================ Create the structure objects
+     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings );
+ 
+     //================================================ Read in the structures
+     simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );
+ 
+     //================================================ Process internal map
+     simpleSym->processInternalMap                     ( settings );
+
+     //================================================ Map to spheres
+     simpleSym->mapToSpheres                           ( settings );
+ 
+     //================================================ Compute spherical harmonics decompostion
+     simpleSym->computeSphericalHarmonics              ( settings );
+ 
+     //================================================ Compute self-rotation function
+     simpleSym->getRotationFunction                    ( settings );
+ 
+     //================================================ Detect the recommended symmetry
+     std::vector< proshade_double* > symAxes;
+     simpleSym->detectSymmetryInStructure              ( settings, &symAxes );
+     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings );
+     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings );
+ 
+     //================================================ Write out the symmetry detection results
+     std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
+     for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( symAxes.size() ); axIt++ )
+     {
+        std::cout << "Symmetry axis number " << axIt << std::endl;
+        std::cout << " ... Fold             " << symAxes.at(axIt)[0] << std::endl;
+        std::cout << " ... XYZ:             " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << std::endl;
+        std::cout << " ... Angle (radians): " << symAxes.at(axIt)[4] << std::endl;
+        std::cout << " ... Axis peak:       " << symAxes.at(axIt)[5] << std::endl;
+     }
+ 
+     //================================================ Release the memory
+     delete simpleSym;
+     delete settings;
+ 
+     //================================================ Done
+     return EXIT_SUCCESS;
+ }
+ \endcode
+ *
+ *\section pyusage Using the Python module
  *
  * Stay tuned for improved documentation comming soon!
  */

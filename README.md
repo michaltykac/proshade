@@ -23,6 +23,9 @@ ProSHADE is a C++ language library and an associated tool providing functionalit
     - [Re-boxing structures](#re-boxing-structures)
     - [Optimal rotation and translation](#optimal-rotation-and-translation)
 - [Using the ProSHADE library](#using-the-proshade-library)
+    - [Linking against the ProSHADE library](#linking-against-the-proshade-library)
+    - [Examples of ProSHADE library usage](#examples-of-proshade-library-usage)
+- [Using the Python module](#using-the-python-module)
 
 # Installation
 
@@ -303,5 +306,129 @@ shown in the following figure, while the output of the ProSHADE tool follows:
  ======================
 ```
 # Using the ProSHADE library
+
+ ProSHADE allows more programmatic access to its functionality through a C++ dynamic library, which is compiled at the same time as the binary is made. This library can be linked to any C++ project to allow direct access to the ProSHADE objects, functions and results. This section discusses how the ProSHADE library can be linked against and how the basic objects can be accessed.
+
+## Linking against the ProSHADE library
+
+The ProSHADE library can be linked as any other C++ library, that is by using the **-lproshade** option when calling the compiler (tested on *clang* and *g++* ) and including the header file (**ProSHADE.hpp**). However, as the **ProSHADE.hpp** header file includes header files from some of the dependencies, any C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by defaul in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
+
+ - **-I/path/to/proshade/install/include** This path is required for the Clipper dependency header file to be located correctly. It is not needed if Clipper is installed into system folders, i.e. when ProSHADE was installed with the CMake -DINSTALL_LOCALLY=TRUE option.
+ - **-I/path/to/proshade/extern/soft-2.0/include** This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called *fftw_wrapper.h*).
+ - **-L/path/to/proshade/install/lib** This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=TRUE option, then this path may already be available to the compiler and it may not be needed.
+ - **-Wl,-rpath,/path/to/proshade/install/lib** or **-rpath /path/to/proshade/install/lib** This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.
+ 
+Overall, a compilation of a C++ project linking against the ProSHADE library may look like the following code:
+
+```
+$ clang ./proshadeProject.cpp -I/path/to/proshade/install/include \
+                              -I/path/to/proshade/extern/soft-2.0/include \
+                              -L/path/to/proshade/install/lib \
+                              -lproshade \
+                              -rpath /path/to/proshade/install/lib \
+                              -o ./proshadeProject
+```
+
+or
+
+```
+$ g++ ./proshadeProject.cpp -I/path/to/proshade/install/include \
+                            -I/path/to/proshade/extern/soft-2.0/include \
+                            -L/path/to/proshade/install/lib \
+                            -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+                            -o ./proshadeProject
+```
+
+## Examples of ProSHADE library usage
+
+There are several examples of C++ code which makes use of the ProSHADE dynamic library to compute the standard ProSHADE functionalities and access the results programmatically (*i.e.* without the need for parsing any log files). The examples are avaialbe in the **/path/to/proshade/example/libproshade** folder and are divided into two categories of four examples. The source files with names starting with *simpleAccess_...* provide a "*black box*" experience similar to using ProSHADE binary. The user firstly creates a **ProSHADE_settings** object, which provides all the variables that can be set in order to drive which ProSHADE functionality is required and how it should be done. Next, the user needs to create the **ProSHADE_run** object, whose constructor takes the already created and filled **ProSHADE_setings** object as its only argument. This constructor will then proceed to compute all required information according to the settings object and return when complete. While the computation is being done, the execution is with the ProSHADE library and any C++ project using this mode will be waiting for the ProSHADE library to finish. Once the computation is complete, the execution will be returned to the calling C++ project and the results will be accessible through public functions of the **ProSHADE_run** object. The following code shows a very simple example of how ProSHADE can be run in this mode, but for more specific examples the users should review the *simpleAccess_...* example files.
+
+```
+#include "ProSHADE.hpp"
+
+int main ( int argc, char **argv )
+{
+    //================================================ Create the settings object
+    ProSHADE_Task task                                = Distances;
+    ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
+
+    //================================================ Set the settings object up
+    settings->setResolution                           ( 10.0 );
+    settings->addStructure                            ( "./str1.pdb" );
+    settings->addStructure                            ( "./str2.pdb" );
+
+    //================================================ Run ProSHADE. This may take some time, depending on what computations are required.
+    ProSHADE_run* runProshade                         = new ProSHADE_run ( settings );
+
+    //================================================ Access the results
+    std::vector< proshade_double > energyDistances    = runProshade->getEnergyLevelsVector     ( );
+    std::vector< proshade_double > traceDistances     = runProshade->getTraceSigmaVector       ( );
+    std::vector< proshade_double > rotFunDistances    = runProshade->getRotationFunctionVector ( );
+
+    //================================================ Release the memory
+    delete runProshade;
+    delete settings;
+
+    //================================================ Done
+    return EXIT_SUCCESS;
+}
+```
+
+The second set of examples of usage of the ProSHADE library are the source files with names starting with *advancedAccess_...*. These files provide examples of how individual ProSHADE functions can be arranged to provide the results of the main ProSHADE functionalities. Using the ProSHADE tool in the manner shown in these example codes gives the user more control over the execution and it also allows the user to modify the behaviour directly. On the other hand, using ProSHADE in this way required a bit more understanding than the simple "*black box*" approach and this documentation should be helpful for all who wish to use ProSHADE this way. Interested users are advised to review all the *advancedAccess_...* source files as well as the following simple example code.
+
+```
+#include "ProSHADE.hpp"
+
+int main ( int argc, char **argv )
+{
+    //================================================ Create the settings object
+    ProSHADE_Task task                                = Symmetry;
+    ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
+
+    //================================================ Create the structure objects
+    ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings );
+
+    //================================================ Read in the structures
+    simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );
+
+    //================================================ Process internal map
+    simpleSym->processInternalMap                     ( settings );
+
+    //================================================ Map to spheres
+    simpleSym->mapToSpheres                           ( settings );
+
+    //================================================ Compute spherical harmonics decompostion
+    simpleSym->computeSphericalHarmonics              ( settings );
+
+    //================================================ Compute self-rotation function
+    simpleSym->getRotationFunction                    ( settings );
+
+    //================================================ Detect the recommended symmetry
+    std::vector< proshade_double* > symAxes;
+    simpleSym->detectSymmetryInStructure              ( settings, &symAxes );
+    std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings );
+    proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings );
+
+    //================================================ Write out the symmetry detection results
+    std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( symAxes.size() ); axIt++ )
+    {
+       std::cout << "Symmetry axis number " << axIt << std::endl;
+       std::cout << " ... Fold             " << symAxes.at(axIt)[0] << std::endl;
+       std::cout << " ... XYZ:             " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << std::endl;
+       std::cout << " ... Angle (radians): " << symAxes.at(axIt)[4] << std::endl;
+       std::cout << " ... Axis peak:       " << symAxes.at(axIt)[5] << std::endl;
+    }
+
+    //================================================ Release the memory
+    delete simpleSym;
+    delete settings;
+
+    //================================================ Done
+    return EXIT_SUCCESS;
+}
+```
+
+# Using the Python module
 
 Stay tuned for improved documentation comming soon!
