@@ -356,8 +356,27 @@ Using the ProSHADE library</h1>
 <p>ProSHADE allows more programmatic access to its functionality through a C++ dynamic library, which is compiled at the same time as the binary is made. This library can be linked to any C++ project to allow direct access to the ProSHADE objects, functions and results. This section discusses how the ProSHADE library can be linked against and how the basic objects can be accessed.</p>
 <h2><a class="anchor" id="liblink"></a>
 Linking against the ProSHADE library</h2>
-<p>The ProSHADE library</p>
-<p>Stay tuned for improved documentation comming soon! </p>
+<p>The ProSHADE library can be linked as any other C++ library, that is by using the <code>-lproshade</code> option when calling the compiler (tested on <em>clang</em> and <em>g++</em> ) and including the header file (<code><a class="el" href="_pro_s_h_a_d_e_8hpp.html" title="This is the main header file providing the main access class and its functions.">ProSHADE.hpp</a></code> ). However, as the <code><a class="el" href="_pro_s_h_a_d_e_8hpp.html" title="This is the main header file providing the main access class and its functions.">ProSHADE.hpp</a></code> header file includes header files from some of the dependencies, any C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by defaul in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:</p>
+<ul>
+<li><b>-I/path/to/proshade/install/include</b> This path is required for the Clipper dependency header file to be located correctly. It is not needed if Clipper is installed into system folders, i.e. when ProSHADE was installed with the CMake -DINSTALL_LOCALLY=TRUE option.</li>
+<li><b>-I/path/to/proshade/extern/soft-2.0/include</b> This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called fftw_wrapper.h).</li>
+<li><b>-L/path/to/proshade/install/lib</b> This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=TRUE option, then this path may already be available to the compiler and it may not be needed.</li>
+<li><b>-Wl</b>, <b>-rpath</b>, <b>/path/to/proshade/install/lib</b> or <b>-rpath</b> <b>/path/to/proshade/install/lib</b> This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.</li>
+</ul>
+<p>Overall, a compilation of a C++ project linking against the ProSHADE library may look like the following code:</p>
+<div class="fragment"><div class="line">$ clang ./proshadeProject.cpp -I/path/to/proshade/install/include \</div>
+<div class="line">                              -I/path/to/proshade/extern/soft-2.0/include \</div>
+<div class="line">                              -L/path/to/proshade/install/lib \</div>
+<div class="line">                              -lproshade \</div>
+<div class="line">                              -rpath /path/to/proshade/install/lib \</div>
+<div class="line">                              -o ./proshadeProject</div>
+</div><!-- fragment --><p>or</p>
+<div class="fragment"><div class="line">$ g++ ./proshadeProject.cpp -I/path/to/proshade/install/include \</div>
+<div class="line">                            -I/path/to/proshade/extern/soft-2.0/include \</div>
+<div class="line">                            -L/path/to/proshade/install/lib \</div>
+<div class="line">                            -lproshade -Wl,-rpath,/path/to/proshade/install/lib \</div>
+<div class="line">                            -o ./proshadeProject</div>
+</div><!-- fragment --><p>Stay tuned for improved documentation comming soon! </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

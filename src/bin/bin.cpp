@@ -66,6 +66,8 @@
  *
  * 5.1) \ref liblink
  *
+ * 5.2) \ref libexamples
+ *
  * \section install Installation
  *
  * The installation of the ProSHADE software should be done using the CMake system and the supplied CMakeLists.txt file. The minimual requiered version of CMake is 2.6, however, python modules and single source file
@@ -392,8 +394,39 @@
  *
  * \subsection liblink Linking against the ProSHADE library
  *
- * The ProSHADE library
+ * The ProSHADE library can be linked as any other C++ library, that is by using the \p -lproshade option when calling the compiler (tested on \e clang and \e g++ ) and including the header file (\p ProSHADE.hpp ). However, as the \p ProSHADE.hpp header file includes header files from some of the dependencies, any
+ * C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by defaul in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib
+ * library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
  *
+ * - \b -I/path/to/proshade/install/include This path is required for the Clipper dependency header file to be located correctly. It is not needed if Clipper is installed into system folders, i.e. when ProSHADE was installed with the CMake -DINSTALL_LOCALLY=TRUE option.
+ * - \b -I/path/to/proshade/extern/soft-2.0/include This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called fftw_wrapper.h).
+ * - \b -L/path/to/proshade/install/lib This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=TRUE option, then this path may already be available to the compiler and it may not be needed.
+ * - \b -Wl, \b -rpath, \b /path/to/proshade/install/lib or \b -rpath \b /path/to/proshade/install/lib This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.
+ *
+ * Overall, a compilation of a C++ project linking against the ProSHADE library may look like the following code:
+ *
+ *\code{.sh}
+ $ clang ./proshadeProject.cpp -I/path/to/proshade/install/include \
+                               -I/path/to/proshade/extern/soft-2.0/include \
+                               -L/path/to/proshade/install/lib \
+                               -lproshade \
+                               -rpath /path/to/proshade/install/lib \
+                               -o ./proshadeProject
+ \endcode
+ *
+ * or
+ *
+ *\code{.sh}
+ $ g++ ./proshadeProject.cpp -I/path/to/proshade/install/include \
+                             -I/path/to/proshade/extern/soft-2.0/include \
+                             -L/path/to/proshade/install/lib \
+                             -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+                             -o ./proshadeProject
+ \endcode
+ *
+ *\subsection libexamples Example of ProSHADE library usage
+ *
+ * There are several examples of C++ code which makes use of the ProSHADE dynamic library to compute the standard ProSHADE functionalities and access the results programmatically (i.e. without the need for parsing any log files). The examples are avaialbe in the \b /path/to/proshade/example/libproshade folder and are divided into two categories of four examples. The source files with names starting with simpleAccess_... 
  *
  * Stay tuned for improved documentation comming soon!
  */
