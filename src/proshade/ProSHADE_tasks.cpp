@@ -358,7 +358,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     checkOverlaySettings                              ( settings );
     
     //================================================ Initialise variables
-    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ, xComOrig, yComOrig, zComOrig;
+    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ;
     
     //================================================ Create the data objects initially (this time without phase)
     ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
