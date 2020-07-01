@@ -934,6 +934,93 @@
  Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, shell 3.
  \endcode
  *
+ * \e Computing \e the \e self-rotation \e function
+ *
+ * ProSHADE also allows computing the self-rotation function. More specifically, it firstly computes the so called E matrices, which are matrices of the integral over all the concentric spheres of the spherical harmonics coefficients of order1 and order2, or in mathematical (LaTeX) form: Integral _0 ^rMAX ( c^lm * c'^lm ). It then
+ * proceeds to normalise these E matrices, resulting in the SO(3) decomposition (Wigner D based decomposition) coefficients. Finally, by computing the inverse SO(3) Fourier transform (SOFT) on these coefficients, ProSHADE obtains the self-rotation function. In order to isue this computaion, the following code can be used:
+ *
+ * \code{.py}
+ """ Compute the self-rotation function """
+ pStruct.getRotationFunction                   ( pSet )
+ \endcode
+ *
+ * Once the self-rotation function is computed, ProSHADE allows the user to access all of its interim results as well as the rotation function map. Specifically the E matrices, which are ordered by the band, order1 and order2 (in this order) can be obtained as shown in the following code. The E matrices are 3D arrays, which suffer from the
+ * different number of orders for different bands feature of spherical harmonics. Therefore, the band dimensions of the arrays are zero padded; furthermore, as the order indexing goes from -band to +band, but the array indexing starts from zero, the correction to the array indexes is necessary. Regarding the SO(3) coefficients, they have
+ * the same technical structure as the E matricesl however, due to some development issues, accessing them is done in a different manner, using the \e so3CoeffsArrayIndex() function as shown in the example code below. Finally, the self-rotation function map can be accessed as a 1D or 3D numpy array using the functions shown in the
+ * example code below. Again, as passing 3D matrices is not possible using SWIG and Numpy.i typedefs, the 3D version of the function is much slower than the 1D version. Assuming the user would find a point in the map for which he would like to know the rotation matrix (the indices of the self-rotation function are related to the Euler
+ * angles in a non-trivial manner), ProSHADE provides the \e getRotationMatrixFromRotFunIndices() function also shown in the following example code. This function returns the rotation matrix belonging to the given self-rotation function indices in a numpy array format.
+ *
+ * \code{.py}
+ """ Obtain the E matrices """
+ eMat                                          = proshade.getEMatrix ( pStruct )
+ Band4OrderOneMin2OrderTwo3EMatrixValue        = eMat[4][-2+4][3+4] # Band = 4, Order1 = -2 and Order2 = 3
+ 
+ """ Obtain the SO(3) coefficients """
+ so3Coeffs                                     = proshade.getSO3Coeffs( pStruct )
+ so3CoeffsOrderOneMin1OrderTwo3Band5           = so3Coeffs[pStruct.so3CoeffsArrayIndex ( -1, 3, 5 )] # Order1 = -1; Order2 = 3, Band = 5
+ 
+ """ Obtain the self-rotation function """
+ selfRotationFunction1D                        = proshade.getRotationFunction1D ( pStruct )
+ selfRotationFunction3D                        = proshade.getRotationFunction3D ( pStruct )
+ 
+ """ Convert self-rotation function indices to rotation matrix """
+ rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 )
+ \endcode
+ *
+ * \e Computing \e the \e optimal \e rotation \e function
+ *
+ * A related ProSHADE functionality is the computation of an optimal rotation function for two input structures. In the standard ProSHADE tasks, this is done for two phase-less (the phase is removed to achive identical centering on the maps) in order to find the optimal rotation, which overlays the two maps, but the user is free to
+ * call this function for any two \b ProSHADE_data objects which both have their spherical harmonics values computed. To do this, we will create two new \b ProSHADE_data objects, read in some structures, process them, map them onto spheres, compute their spherical harmonics values and then we call the
+ * \e getOverlayRotationFunction(). This function works similarly to the \e getRotationFunction() used above, but it uses spherical harmonics coefficients from two different structures as opposed to the same structures.
+ *
+ * \code{.py}
+ """ Modify the settings object for optimal rotation function computation """
+ pSet.task                                     = proshade.OverlayMap
+ pSet.verbose                                  = 1
+ pSet.requestedResolution                      = 8.0;
+ pSet.usePhase                                 = False;
+ pSet.changeMapResolution                      = True;
+ pSet.maskMap                                  = False;
+ pSet.moveToCOM                                = False;
+ pSet.normaliseMap                             = False;
+ 
+ """ Create the two new ProSHADE_data objects """
+ pStruct_static                                = proshade.ProSHADE_data ( pSet )
+ pStruct_moving                                = proshade.ProSHADE_data ( pSet )
+ 
+ """ Read in two structures """
+ pStruct_static.readInStructure                ( "./test1.map", 0, pSet )
+ pStruct_moving.readInStructure                ( "./test1_higherRotTrs.map", 1, pSet )
+
+ """ Process, map and get spherical harmonics for both structures """
+ pStruct_static.processInternalMap             ( pSet )
+ pStruct_moving.processInternalMap             ( pSet )
+
+ pStruct_static.mapToSpheres                   ( pSet )
+ pStruct_moving.mapToSpheres                   ( pSet )
+
+ pStruct_static.computeSphericalHarmonics      ( pSet )
+ pStruct_moving.computeSphericalHarmonics      ( pSet )
+ 
+ """ Compute the optimal rotation function """
+ pStruct_moving.getOverlayRotationFunction     ( pSet, pStruct_static )
+ \endcode
+ *
+ * Now, in order to access the optimal rotation function, the user can use the same functions as for accessing the self-rotation function above, \e i.e. the \e getRotationFunction1D() and the \e getRotationFunction3D() functions, both with the moving structure as their only argument. Moreover, the same function for converting
+ * the rotation function indices to the appropriate rotation matrix can also be used as shown in the following example code.
+ *
+ * \code{.py}
+ """ Obtain the self-rotation function """
+ rotationFunction1D                            = proshade.getRotationFunction1D ( pStruct_moving )
+ rotationFunction3D                            = proshade.getRotationFunction3D ( pStruct_moving )
+ 
+ """ Convert self-rotation function indices to rotation matrix """
+ rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 )
+ \endcode
+ *
+ * \e Finding \e the \e optimal \e rotation
+ *
+ *
  */
 
 //==================================================== ProSHADE

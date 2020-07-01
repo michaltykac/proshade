@@ -682,7 +682,7 @@ del pSet
 ### However, they will not be described in much
 ### detail, as the descriptions are above.
 ###
-### More specifically to the overlat computation,
+### More specifically to the overlay computation,
 ### the user here should know how ProSHADE does
 ### this in order to call the functions properly.
 ### If you do not want to know the details, I
@@ -743,7 +743,7 @@ pStruct_moving                                = proshade.ProSHADE_data ( pSet )
 
 ### Read in the structures
 pStruct_static.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map", 0, pSet )
-pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_higherRotTrs.map", 1, pSet )
+pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map", 1, pSet )
 
 ### Get spherical harmonics for both structures
 pStruct_static.processInternalMap             ( pSet )
