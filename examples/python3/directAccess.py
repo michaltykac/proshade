@@ -506,7 +506,7 @@ pStruct.computeSphericalHarmonics             ( pSet )
 ### function.
 ###
 sphericalHarmonics                            = proshade.getSphericalHarmonics ( pStruct )
-Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, ahell 3.
+Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, shell 3.
 
 ##############################################
 ### Computing distances between two structures

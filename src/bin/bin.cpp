@@ -910,7 +910,29 @@
  * \e Computing \e the \e spherical \e harmonics \e decomposition
  *
  * ProSHADE can compute the spherical harmonics decomposition of the internal map. However, instead of using the spherical-Bessel functions, it firstly creates a set of concentric spheres centered on the centre of indices (xDimIndices/2, yDimIndices/2, zDimIndices/2) point and spaced 2 indices apart, then it maps
- * the density map data onto these spheres and then it computes the spherical harmonics decomposition on each of these spheres independently. To issue
+ * the density map data onto these spheres and then it computes the spherical harmonics decomposition on each of these spheres independently. There is quite a few settings that relate to the spherical harmonics decompostion computation, such as the bandwidth of the computation, the sphere placement and spacing,
+ * the resolution on the spheres, etc.; these arre mostly inter-related and ProSHADE will set them up automatically, unless the user specifies otherwise. Since these are quite technical, the interested users are referred to the second chapter of my Ph.D. thesis, which specifies all the technical details:
+ * https://www.repository.cam.ac.uk/handle/1810/284410 . To issue this computation, please is the functions shown in the following example code:
+ *
+ * \code{.py}
+ """ Map the internal map representation onto a set of concentric spheres """
+ pStruct.mapToSpheres                          ( pSet )
+ 
+ """ Compute the spherical harmonics decomposition """
+ pStruct.computeSphericalHarmonics             ( pSet )
+ \endcode
+ *
+ * If the user is interested in the spherical harmonics values (and possibly does not need any further computations from ProSHADE), these can be accessed using the function showcased below. It is warth noing that the organisation of the spherical harmonics is as follows: Each concentric shell has a two dimensional array of values,
+ * where the row is the spherical harmonics band, while the column is the spherical harmonics order. Please note that there are only 2 * band + 1 orders for each band and therefore the array is not rectangular. Instead, it is recommended that the users take advantage of the supplied \e sphericalHarmonicsIndex() function, which takes
+ * the order, the band and the shell number as its arguments (in this order) and returns the index of the spherical harmonics value in the retrieved spherical harmonics array. Moreover, please note that the spherical harmonics are complex numbers.
+ *
+ * \code{.py}
+ """ Obtain all the spherical harmonics values for all shells """
+ sphericalHarmonics                            = proshade.getSphericalHarmonics ( pStruct )
+
+ """ Retrieve s specific value for shell 3, band 4 and order -2 """
+ Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, shell 3.
+ \endcode
  *
  */
 
