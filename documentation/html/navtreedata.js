@@ -27,6 +27,7 @@ var NAVTREE =
   [ "ProSHADE", "index.html", [
     [ "ProSHADE Documentation", "index.html", [
       [ "Introduction", "index.html#intro", null ],
+      [ "Obtaining ProSHADE", "index.html#download", null ],
       [ "Index", "index.html#index", null ],
       [ "Installation", "index.html#install", [
         [ "Standard System Dependencies", "index.html#stdSys", null ],
@@ -45,7 +46,10 @@ var NAVTREE =
         [ "Linking against the ProSHADE library", "index.html#liblink", null ],
         [ "Examples of ProSHADE library usage", "index.html#libexamples", null ]
       ] ],
-      [ "Using the Python module", "index.html#pyusage", null ]
+      [ "Using the Python modules", "index.html#pyusage", [
+        [ "Python modules installation notes", "index.html#pyinstall", null ],
+        [ "Python module examples", "index.html#pyexamples", null ]
+      ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
@@ -79,7 +83,7 @@ var NAVTREEINDEX =
 "_pro_s_h_a_d_e_8cpp.html",
 "_pro_s_h_a_d_e__symmetry_8hpp.html#ab0ac919dd609bc6bded806c0f78201fd",
 "class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#afa35ae5ccd9d4b22bcc028f609cd1c3e",
-"namespacemembers_func_f.html"
+"namespacemembers_func_c.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

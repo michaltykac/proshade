@@ -10,6 +10,7 @@ Development
 * Timing - can it be faster?
 * Documentation and examples 
 * Get new version to CCP-EM including new interface
+* Support non-orthogonal maps
 
 !!!
 * Make python get and set 3D instead of 1D arrays

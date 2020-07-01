@@ -1,6 +1,6 @@
 ##############################################
 ##############################################
-#   \file advancedAccess.py
+#   \file directAccess.py
 #   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode.
 #
 #   This file should be the main source of wisdom when it comes to using ProSHADE in

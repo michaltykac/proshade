@@ -7,9 +7,14 @@ Protein Shape Description and Symmetry Detection
 
 ProSHADE is a C++ language library and an associated tool providing functionalities for working with structural biology molecular structures. The library implements functions for computing shape-wise structural distances between pairs of molecules, detecting symmetry over the centre of mass of a single structure, map re-sizing as well as matching density maps and PDB coordinate files into one another. The executable implemented in the bin.cpp file then allows easy access to these functionalities without the need for library linking, while the python modules provide easy access to the functionality from the python language. For help on how the executable should be used, refer to the -h option of it. For more details about the functionalities, see below
 
+# Obtaining ProSHADE
+
+The most recent stable version of ProSHADE is available from the *master* branch of the GitHub repository https://github.com/michaltykac/proshade, from where it can be cloned using the git application or downloaded manually using the interface. More advanced users may be interested in obtaining the *development* or the *experimental* branches, which are available from the same link. The *experimental* branch is where I do all new development and it may or may not be currently compilable and working properly, while the *development* branch should always compile, but is more likely to contain bugs and issues as it is the code before proper testing.
+
 # Index
 
 - [Introduction](#introduction)
+- [Obtaining ProSHADE](#obtaining-proshade)
 - [Index](#index)
 - [Installation](#installation)
     - [Standard System Dependencies](#standard-system-dependencies)
@@ -341,7 +346,11 @@ $ g++ ./proshadeProject.cpp -I/path/to/proshade/install/include \
 
 ## Examples of ProSHADE library usage
 
-There are several examples of C++ code which makes use of the ProSHADE dynamic library to compute the standard ProSHADE functionalities and access the results programmatically (*i.e.* without the need for parsing any log files). The examples are avaialbe in the **/path/to/proshade/example/libproshade** folder and are divided into two categories of four examples. The source files with names starting with *simpleAccess_...* provide a "*black box*" experience similar to using ProSHADE binary. The user firstly creates a **ProSHADE_settings** object, which provides all the variables that can be set in order to drive which ProSHADE functionality is required and how it should be done. Next, the user needs to create the **ProSHADE_run** object, whose constructor takes the already created and filled **ProSHADE_setings** object as its only argument. This constructor will then proceed to compute all required information according to the settings object and return when complete. While the computation is being done, the execution is with the ProSHADE library and any C++ project using this mode will be waiting for the ProSHADE library to finish. Once the computation is complete, the execution will be returned to the calling C++ project and the results will be accessible through public functions of the **ProSHADE_run** object. The following code shows a very simple example of how ProSHADE can be run in this mode, but for more specific examples the users should review the *simpleAccess_...* example files.
+There are several examples of C++ code which makes use of the ProSHADE dynamic library to compute the standard ProSHADE functionalities and access the results programmatically (*i.e.* without the need for parsing any log files). 
+
+### Simple access
+
+The examples are avaialbe in the **/path/to/proshade/example/libproshade** folder and are divided into two categories of four examples. The source files with names starting with *simpleAccess_...* provide a "*black box*" experience similar to using ProSHADE binary. The user firstly creates a **ProSHADE_settings** object, which provides all the variables that can be set in order to drive which ProSHADE functionality is required and how it should be done. Next, the user needs to create the **ProSHADE_run** object, whose constructor takes the already created and filled **ProSHADE_setings** object as its only argument. This constructor will then proceed to compute all required information according to the settings object and return when complete. While the computation is being done, the execution is with the ProSHADE library and any C++ project using this mode will be waiting for the ProSHADE library to finish. Once the computation is complete, the execution will be returned to the calling C++ project and the results will be accessible through public functions of the **ProSHADE_run** object. The following code shows a very simple example of how ProSHADE can be run in this mode, but for more specific examples the users should review the *simpleAccess_...* example files.
 
 ```
 #include "ProSHADE.hpp"
@@ -373,6 +382,8 @@ int main ( int argc, char **argv )
     return EXIT_SUCCESS;
 }
 ```
+
+### Advanced access
 
 The second set of examples of usage of the ProSHADE library are the source files with names starting with *advancedAccess_...*. These files provide examples of how individual ProSHADE functions can be arranged to provide the results of the main ProSHADE functionalities. Using the ProSHADE tool in the manner shown in these example codes gives the user more control over the execution and it also allows the user to modify the behaviour directly. On the other hand, using ProSHADE in this way required a bit more understanding than the simple "*black box*" approach and this documentation should be helpful for all who wish to use ProSHADE this way. Interested users are advised to review all the *advancedAccess_...* source files as well as the following simple example code.
 

@@ -366,10 +366,28 @@ def setNewMapPython3D ( pStruct, map ):
     for xIt in range ( 0, int ( pStruct.getXDim() ) ):
         for yIt in range ( 0, int ( pStruct.getYDim() ) ):
             for zIt in range ( 0, int ( pStruct.getZDim() ) ):
-                arrPos                         = zIt + pStruct.getZDim() * ( yIt + pStruct.getYDim() * xIt )
-                map1D[arrPos]                  = map[xIt][yIt][zIt]
+                arrPos                        = zIt + pStruct.getZDim() * ( yIt + pStruct.getYDim() * xIt )
+                map1D[arrPos]                 = map[xIt][yIt][zIt]
                 
     pStruct.setNewMapPython                   ( map1D )
+%}
+
+//============================================ Set internal map 1D and 3D
+%pythoncode %{
+def convert3Dto1DArray ( array3D ):
+    import numpy
+    assert                                    ( array3D.ndim == 3)
+
+    array1D                                   = numpy.empty ( array3D.shape[0] * array3D.shape[1] * array3D.shape[2] )
+    arrPos                                    = 0
+
+    for xIt in range( 0, array3D.shape[0] ):
+        for yIt in range( 0, array3D.shape[1] ):
+            for zIt in range( 0, array3D.shape[2] ):
+                arrPos                        = zIt + array3D.shape[2] * ( yIt + array3D.shape[1] * xIt )
+                array1D[arrPos]               = array3D[xIt][yIt][zIt]  
+
+    return                                    ( array1D )              
 %}
 
 //============================================ Translation function access

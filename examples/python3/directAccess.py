@@ -1,6 +1,6 @@
 ##############################################
 ##############################################
-#   \file advancedAccess.py
+#   \file directAccess.py
 #   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode.
 #
 #   This file should be the main source of wisdom when it comes to using ProSHADE in
@@ -226,6 +226,22 @@ for xIt in range( 0, xDimIndices ):
 ### Create the ProSHADE_data object without structure file on drive
 pStruct                                       = proshade.ProSHADE_data ( pSet, "python_map_test", testMap, xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
 
+### Should we ever need to use 3D map instead of 1D
+### map, there is no way of passing 3D maps using SWIG
+### and numpy (as far as I know). However, 3D map can
+### be converted to 1D map using the ProSHADE supplied
+### function. Be aware, this takes some time as python
+### is not the master of for loops...
+
+testMap3D = numpy.empty ( ( xDimIndices, yDimIndices, zDimIndices ) )
+for xIt in range( 0, xDimIndices ):
+    for yIt in range( 0, yDimIndices ):
+        for zIt in range( 0, zDimIndices ):
+            testMap3D[xIt][yIt][zIt] = 1.0 / ( numpy.sqrt( numpy.power ( (xDimIndices/2) - xIt, 2.0 ) + numpy.power ( (yDimIndices/2) - yIt, 2.0 ) + numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
+
+pStruct2                                      = proshade.ProSHADE_data ( pSet, "python_map_test", proshade.convert3Dto1DArray ( testMap3D ), xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
+
+del pStruct2
 
 ##############################################
 ### Write the internal map to disk
