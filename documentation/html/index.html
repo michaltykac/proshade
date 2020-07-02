@@ -771,6 +771,113 @@ Python module examples</h2>
 <div class="line"> </div>
 <div class="line"><span class="stringliteral">&quot;&quot;&quot; Convert self-rotation function indices to rotation matrix &quot;&quot;&quot;</span></div>
 <div class="line">rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 )</div>
+</div><!-- fragment --><p><em>Computing</em> <em>the</em> <em>optimal</em> <em>rotation</em> <em>function</em> </p>
+<p>A related ProSHADE functionality is the computation of an optimal rotation function for two input structures. In the standard ProSHADE tasks, this is done for two phase-less (the phase is removed to achive identical centering on the maps) in order to find the optimal rotation, which overlays the two maps, but the user is free to call this function for any two <b>ProSHADE_data</b> objects which both have their spherical harmonics values computed. To do this, we will create two new <b>ProSHADE_data</b> objects, read in some structures, process them, map them onto spheres, compute their spherical harmonics values and then we call the <em>getOverlayRotationFunction()</em>. This function works similarly to the <em>getRotationFunction()</em> used above, but it uses spherical harmonics coefficients from two different structures as opposed to the same structures.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Modify the settings object for optimal rotation function computation &quot;&quot;&quot;</span></div>
+<div class="line">pSet.task                                     = proshade.OverlayMap</div>
+<div class="line">pSet.verbose                                  = 1</div>
+<div class="line">pSet.requestedResolution                      = 8.0;</div>
+<div class="line">pSet.usePhase                                 = <span class="keyword">False</span>;</div>
+<div class="line">pSet.changeMapResolution                      = <span class="keyword">True</span>;</div>
+<div class="line">pSet.maskMap                                  = <span class="keyword">False</span>;</div>
+<div class="line">pSet.moveToCOM                                = <span class="keyword">False</span>;</div>
+<div class="line">pSet.normaliseMap                             = <span class="keyword">False</span>;</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Create the two new ProSHADE_data objects &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static                                = proshade.ProSHADE_data ( pSet )</div>
+<div class="line">pStruct_moving                                = proshade.ProSHADE_data ( pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Read in two structures &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static.readInStructure                ( <span class="stringliteral">&quot;./test1_rotTrs.map&quot;</span>, 0, pSet )</div>
+<div class="line">pStruct_moving.readInStructure                ( <span class="stringliteral">&quot;./test1.pdb&quot;</span>, 1, pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Process, map and get spherical harmonics for both structures &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static.processInternalMap             ( pSet )</div>
+<div class="line">pStruct_moving.processInternalMap             ( pSet )</div>
+<div class="line"> </div>
+<div class="line">pStruct_static.mapToSpheres                   ( pSet )</div>
+<div class="line">pStruct_moving.mapToSpheres                   ( pSet )</div>
+<div class="line"> </div>
+<div class="line">pStruct_static.computeSphericalHarmonics      ( pSet )</div>
+<div class="line">pStruct_moving.computeSphericalHarmonics      ( pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Compute the optimal rotation function &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_moving.getOverlayRotationFunction     ( pSet, pStruct_static )</div>
+</div><!-- fragment --><p>Now, in order to access the optimal rotation function, the user can use the same functions as for accessing the self-rotation function above, <em>i.e</em>. the <em>getRotationFunction1D()</em> and the <em>getRotationFunction3D()</em> functions, both with the moving structure as their only argument. Moreover, the same function for converting the rotation function indices to the appropriate rotation matrix can also be used as shown in the following example code.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Obtain the self-rotation function &quot;&quot;&quot;</span></div>
+<div class="line">rotationFunction1D                            = proshade.getRotationFunction1D ( pStruct_moving )</div>
+<div class="line">rotationFunction3D                            = proshade.getRotationFunction3D ( pStruct_moving )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Convert self-rotation function indices to rotation matrix &quot;&quot;&quot;</span></div>
+<div class="line">rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 )</div>
+</div><!-- fragment --><p><em>Finding</em> <em>the</em> <em>optimal</em> <em>rotation</em> </p>
+<p>Once the optimal rotation map is computed, the user may be interested in the highest value in the map and the corresponding rotation matrix (or Euler angles), as these will represent the rotation which overlays most of the two structures (within the error of the map sampling). To facilitate this taks, ProSHADE contains the <em>getBestRotationMapPeaksEulerAngles()</em> function, which finds the highest peak in the map and returns the associated Euler angles. The following example code demonstrates how to use this function as well as how to obtain the the rotation matrix from the Euler angles using ProSHADE.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Find the highest peak in the map, associated Euler angles and rotation matrix &quot;&quot;&quot;</span></div>
+<div class="line">optimalRotationAngles                         = pStruct_moving.getBestRotationMapPeaksEulerAngles ( pSet )</div>
+<div class="line">optimalRotationMatrix                         = proshade.getRotationMatrixFromEulerZXZ ( optimalRotationAngles )</div>
+</div><!-- fragment --><p><em>Rotating</em> <em>the</em> <em>internal</em> <em>map</em> <em>representation</em> </p>
+<p>Once the optimal rotation angles are obtained, it is the next logical step to rotate the structure by these angles to get the two structures in identical orientation. This can also be done with ProSHADE function <em>rotateMap()</em>, which works with the Euler angles as reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which arre multiplied by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process has two side effects: Firstly, the resulting maps tend to suffer from minor artefacts resulting from the sequence termination errors and the interpolation to and from spheres to cartesian co-ordinates. And secondly, the input maps need to have their spherical harmonics coefficients computed. Therefore, this approach is not recommended for any maps that are to be deposited or fitted into, but they are sufficient for computation of most ProSHADE standard tasks as the shape is largely identical.</p>
+<p>In terms of this tutorial, since we have already computed the optimal rotation between two structures, we will continue to show how this result can be used to rotate a new structure. This will allow us to demonstrate the next functionality of ProSHADE in the later sections of this tutorial in a more streamlined fashion. To cause <b>ProSHADE_data</b> map rotation, the function in the example code can be used.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Delete the old structure objects so that new can be created &quot;&quot;&quot;</span></div>
+<div class="line">del pStruct_static</div>
+<div class="line">del pStruct_moving</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Change the settings to use phased maps &quot;&quot;&quot;</span></div>
+<div class="line">pSet.usePhase                                 = <span class="keyword">True</span></div>
+<div class="line">pSet.changeMapResolution                      = <span class="keyword">True</span></div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Create the two new ProSHADE_data objects &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static                                = proshade.ProSHADE_data ( pSet )</div>
+<div class="line">pStruct_moving                                = proshade.ProSHADE_data ( pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Read in two structures &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static.readInStructure                ( <span class="stringliteral">&quot;./test1_rotTrs.map&quot;</span>, 0, pSet )</div>
+<div class="line">pStruct_moving.readInStructure                ( <span class="stringliteral">&quot;./test1.pdb&quot;</span>, 1, pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Process the static structure to allow further examples &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static.processInternalMap             ( pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Process the moving structure and compute the spherical harmonics to allow rotation - this is not needed for the static structure &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_moving.processInternalMap             ( pSet )</div>
+<div class="line">pStruct_moving.mapToSpheres                   ( pSet )</div>
+<div class="line">pStruct_moving.computeSphericalHarmonics      ( pSet )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Rotate the moving structure &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_moving.rotateMap                      ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )</div>
+</div><!-- fragment --><p><em>Computing</em> <em>the</em> <em>translation</em> <em>function</em> </p>
+<p>Similarly to the rotation function, the user may be interested in the optimal translation required to overlay two structures. ProSHADE can compute such an optimal translation using the translation function; however, in order to compute it, it requires that the two internal map representation have the same dimensions in terms of map indices. As this will not generally be the case, ProSHADE provides a padding function, which can add zeroes around the internal representation map to makes sure that it has given dimensions. Therefore, in order to compute the translation function, it is required that the two structures are modified by the <em>zeroPaddToDims()</em> function to both have the same dimensions; the higher of the two structures are chosen in order to avoid loss of information.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Add zeroes around he structure to achieve given number of indicel along each dimension &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_static.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),</div>
+<div class="line">                                                int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),</div>
+<div class="line">                                                int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )</div>
+<div class="line">pStruct_moving.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),</div>
+<div class="line">                                                int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),</div>
+<div class="line">                                                int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )</div>
+</div><!-- fragment --><p>Once the structures have the same dimensions, it is possible to compute the translation function. This function will compute the Fourier transforms of both maps, combine the Fourier coefficients and compute the inverse Fourier transform on the resulting combined coefficients map, thus obtaining the translation map. Once computed, this map can be accessed from the ProSHADE python module as shown in the following example code, again keeping in mind that the 3D version takes considerably longer to obtain than the 1D version.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Compute the translation function &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_moving.computeTranslationMap          ( pStruct_static )</div>
+<div class="line"> </div>
+<div class="line"><span class="stringliteral">&quot;&quot;&quot; Access the translation map as 1D or 3D numpy array &quot;&quot;&quot;</span></div>
+<div class="line">translationMap1D                              = proshade.getTranslationFunction1D ( pStruct_moving )</div>
+<div class="line">translationMap3D                              = proshade.getTranslationFunction3D ( pStruct_moving )</div>
+</div><!-- fragment --><p>Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map peak and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Find the optimal translation vector &quot;&quot;&quot;</span></div>
+<div class="line">optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )</div>
+</div><!-- fragment --><p><em>Translating</em> <em>the</em> <em>internal</em> <em>representation</em> </p>
+<p>Once the optimal translation vector is computed , it makes sense that ProSHADE should also be able to apply it to the internal map representation. Therefore, the function <em>translateMap()</em> is provided to facilitate this task. The translation is done in two steps, firstly, ProSHADE simply modifies the starting indices and axes origins of the map to minimise the movement of the map in the cell by moving the cell as a whole. Next, the remaining translation is then done in the frequency domain (by modifing the Fouries coefficients) of the internal representation.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Translate the internal representation &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] )</div>
+</div><!-- fragment --><p><em>Writing</em> <em>out</em> <em>resulting</em> <em>structures</em> </p>
+<p>Finally, it is worth noting that while the MAP formatted data can be written out of the <b>ProSHADE_data</b> object at any time (albeit their quality may be decreased if the rotation was applied as discussed in the rotating internal representation map section), ProSHADE can also write out the co-ordinate data for input structures, which were read in from a co-ordinate file. Please note that ProSHADE cannot generate co-ordinate data from maps, the co-ordinate data need to pre-exist ProSHADE run. Nonetheless, in the case of for example finding the optimal rotation and translation of one structure to overlay with another structure, the user may be interested in writing out the modified co-ordinates. To do this, ProSHADE contains the <em>writePdb()</em> function, which needs to be supplied with the file name, the required rotation and translation and it will write out the PDB file with these modification applied.</p>
+<p>Also, please note that it is the users responsibility to add any rotations or translations together and to supply this function with the correct cumulative values. The example code below shows how a rotated and translated PDB file can be outputted by ProSHADE.</p>
+<div class="fragment"><div class="line"><span class="stringliteral">&quot;&quot;&quot; Translate the internal representation &quot;&quot;&quot;</span></div>
+<div class="line">pStruct_moving.writePdb                       ( <span class="stringliteral">&quot;overlayed.pdb&quot;</span>,</div>
+<div class="line">                                                optimalRotationAngles[0],</div>
+<div class="line">                                                optimalRotationAngles[1],</div>
+<div class="line">                                                optimalRotationAngles[2],</div>
+<div class="line">                                                optimalTranslationVector[0],</div>
+<div class="line">                                                optimalTranslationVector[1],</div>
+<div class="line">                                                optimalTranslationVector[2] )</div>
 </div><!-- fragment --> </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

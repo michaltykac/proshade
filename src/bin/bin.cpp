@@ -989,8 +989,8 @@
  pStruct_moving                                = proshade.ProSHADE_data ( pSet )
  
  """ Read in two structures """
- pStruct_static.readInStructure                ( "./test1.map", 0, pSet )
- pStruct_moving.readInStructure                ( "./test1_higherRotTrs.map", 1, pSet )
+ pStruct_static.readInStructure                ( "./test1_rotTrs.map", 0, pSet )
+ pStruct_moving.readInStructure                ( "./test1.pdb", 1, pSet )
 
  """ Process, map and get spherical harmonics for both structures """
  pStruct_static.processInternalMap             ( pSet )
@@ -1020,6 +1020,120 @@
  *
  * \e Finding \e the \e optimal \e rotation
  *
+ * Once the optimal rotation map is computed, the user may be interested in the highest value in the map and the corresponding rotation matrix (or Euler angles), as these will represent the rotation which overlays most of the two structures (within the error of the map
+ * sampling). To facilitate this taks, ProSHADE contains the \e getBestRotationMapPeaksEulerAngles() function, which finds the highest peak in the map and returns the associated Euler angles. The following example code demonstrates how to use this function as well
+ * as how to obtain the the rotation matrix from the Euler angles using ProSHADE.
+ *
+ * \code{.py}
+ """ Find the highest peak in the map, associated Euler angles and rotation matrix """
+ optimalRotationAngles                         = pStruct_moving.getBestRotationMapPeaksEulerAngles ( pSet )
+ optimalRotationMatrix                         = proshade.getRotationMatrixFromEulerZXZ ( optimalRotationAngles )
+ \endcode
+ *
+ * \e Rotating \e the \e internal \e map \e representation
+ *
+ * Once the optimal rotation angles are obtained, it is the next logical step to rotate the structure by these angles to get the two structures in identical orientation. This can also be done with ProSHADE function \e rotateMap(), which works with the Euler angles as
+ * reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which arre multiplied by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process
+ * has two side effects: Firstly, the resulting maps tend to suffer from minor artefacts resulting from the sequence termination errors and the interpolation to and from spheres to cartesian co-ordinates. And secondly, the input maps need to have their spherical harmonics
+ * coefficients computed. Therefore, this approach is not recommended for any maps that are to be deposited or fitted into, but they are sufficient for computation of most ProSHADE standard tasks as the shape is largely identical.
+ *
+ * In terms of this tutorial, since we have already computed the optimal rotation between two structures, we will continue to show how this result can be used to rotate a new structure. This will allow us to demonstrate the next functionality of ProSHADE in the later sections
+ * of this tutorial in a more streamlined fashion. To cause \b ProSHADE_data map rotation, the function in the example code can be used.
+ *
+ * \code{.py}
+ """ Delete the old structure objects so that new can be created """
+ del pStruct_static
+ del pStruct_moving
+ 
+ """ Change the settings to use phased maps """
+ pSet.usePhase                                 = True
+ pSet.changeMapResolution                      = True
+ 
+ """ Create the two new ProSHADE_data objects """
+ pStruct_static                                = proshade.ProSHADE_data ( pSet )
+ pStruct_moving                                = proshade.ProSHADE_data ( pSet )
+ 
+ """ Read in two structures """
+ pStruct_static.readInStructure                ( "./test1_rotTrs.map", 0, pSet )
+ pStruct_moving.readInStructure                ( "./test1.pdb", 1, pSet )
+
+ """ Process the static structure to allow further examples """
+ pStruct_static.processInternalMap             ( pSet )
+
+ """ Process the moving structure and compute the spherical harmonics to allow rotation - this is not needed for the static structure """
+ pStruct_moving.processInternalMap             ( pSet )
+ pStruct_moving.mapToSpheres                   ( pSet )
+ pStruct_moving.computeSphericalHarmonics      ( pSet )
+ 
+ """ Rotate the moving structure """
+ pStruct_moving.rotateMap                      ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
+ \endcode
+ *
+ * \e Computing \e the \e translation \e function
+ *
+ * Similarly to the rotation function, the user may be interested in the optimal translation required to overlay two structures. ProSHADE can compute such an optimal translation using the translation function; however, in order to compute it, it requires that the two internal map representation have the same
+ * dimensions in terms of map indices. As this will not generally be the case, ProSHADE provides a padding function, which can add zeroes around the internal representation map to makes sure that it has given dimensions. Therefore, in order to compute the translation function, it is required that the two
+ * structures are modified by the \e zeroPaddToDims() function to both have the same dimensions; the higher of the two structures are chosen in order to avoid loss of information.
+ *
+ * \code{.py}
+ """ Add zeroes around he structure to achieve given number of indicel along each dimension """
+ pStruct_static.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
+                                                 int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
+                                                 int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
+ pStruct_moving.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
+                                                 int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
+                                                 int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
+ \endcode
+ *
+ * Once the structures have the same dimensions, it is possible to compute the translation function. This function will compute the Fourier transforms of both maps, combine the Fourier coefficients and compute the inverse Fourier transform on the resulting combined coefficients map, thus obtaining the
+ * translation map. Once computed, this map can be accessed from the ProSHADE python module as shown in the following example code, again keeping in mind that the 3D version takes considerably longer to obtain than the 1D version.
+ *
+ * \code{.py}
+ """ Compute the translation function """
+ pStruct_moving.computeTranslationMap          ( pStruct_static )
+ 
+ """ Access the translation map as 1D or 3D numpy array """
+ translationMap1D                              = proshade.getTranslationFunction1D ( pStruct_moving )
+ translationMap3D                              = proshade.getTranslationFunction3D ( pStruct_moving )
+ \endcode
+ *
+ * Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map peak and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
+ *
+ * \code{.py}
+ """ Find the optimal translation vector """
+ optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
+ \endcode
+ *
+ *
+ * \e Translating \e the \e internal \e representation
+ *
+ * Once the optimal translation vector is computed , it makes sense that ProSHADE should also be able to apply it to the internal map representation. Therefore, the function \e translateMap() is provided to facilitate this task. The translation is done in two steps, firstly, ProSHADE
+ * simply modifies the starting indices and axes origins of the map to minimise the movement of the map in the cell by moving the cell as a whole. Next, the remaining translation is then done in the frequency domain (by modifing the Fouries coefficients) of the internal representation.
+ *
+  * \code{.py}
+ """ Translate the internal representation """
+ pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] )
+ \endcode
+ *
+ * \e Writing \e out \e resulting \e structures
+ *
+ * Finally, it is worth noting that while the MAP formatted data can be written out of the \b ProSHADE_data object at any time (albeit their quality may be decreased if the rotation was applied as discussed in the rotating internal representation map section), ProSHADE can also write
+ * out the co-ordinate data for input structures, which were read in from a co-ordinate file. Please note that ProSHADE cannot generate co-ordinate data from maps, the co-ordinate data need to pre-exist ProSHADE run. Nonetheless, in the case of for example finding the optimal rotation
+ * and translation of one structure to overlay with another structure, the user may be interested in writing out the modified co-ordinates. To do this, ProSHADE contains the \e writePdb() function, which needs to be supplied with the file name, the required rotation and translation and it
+ * will write out the PDB file with these modification applied.
+ *
+ * Also, please note that it is the users responsibility to add any rotations or translations together and to supply this function with the correct cumulative values. The example code below shows how a rotated and translated PDB file can be outputted by ProSHADE.
+ *
+ * \code{.py}
+ """ Translate the internal representation """
+ pStruct_moving.writePdb                       ( "overlayed.pdb",
+                                                 optimalRotationAngles[0],
+                                                 optimalRotationAngles[1],
+                                                 optimalRotationAngles[2],
+                                                 optimalTranslationVector[0],
+                                                 optimalTranslationVector[1],
+                                                 optimalTranslationVector[2] )
+ \endcode
  *
  */
 
