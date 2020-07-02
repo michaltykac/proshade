@@ -547,7 +547,7 @@
  *
  * \subsection pyinstall Python modules installation notes
  *
- * There are several caveats that the user should be aware of before using the python modules. This section will discuss these, but if there are any issues installing the modules, please contant the author.
+ * There are several caveats that the user should be aware of before using the python modules. This section will discuss these, but if there are any issues installing the modules, please contact the author.
  *
  * \b Automatic \b installation
  * - The python modules will be installed automatically as long as the CMake version on your system is version \b 3.1 or higher. Having this CMake version and missing any of the python specific dependencies (\e SWIG, \e python, \e python3,
@@ -573,7 +573,7 @@
  * Similarly to the dynamic library case, there are three types of examples available for the python modules. The first set of examples (files named \e simpleAccess_... ) show the \e black \e box experience, which is similar to using ProSHADE binary.
  * The user needs to create the \b ProSHADE_settings object and can then supply it with all the settings values which will then drive the ProSHADE computations. The same settings are available in the python modules as in the ProSHADE library; the example code below shows only a
  * small selection of these (for full selection, please see the example files). Next, the user creates the \b ProSHADE_run object, constructor of which takes the settings object as its only argument and then proceeds to do all computations required by the settings in the settings object. The
- * computations are done on this one line and if they take time, the exection of the script will be halted until ProSHADE is not done computing. Once completed, the results can be retrieved from the \b ProSHADE_run object using the public accessor functions; the example code below shows
+ * computations are done on this one line and if they take time, the execution of the script will be halted until ProSHADE is done computing. Once completed, the results can be retrieved from the \b ProSHADE_run object using the public accessor functions; the example code below shows
  * how the symmetry functionality can be run and results retrieved.
  *
  * \code{.py}
@@ -595,7 +595,7 @@
  pSet.setResolution                            ( 8.0 )                                 # The resolution to which computations are to be done.
  pSet.addStructure                             ( "./C2.pdb" )                          # The path to the structure to be processed.
  
- """ Run the Distances task """
+ """ Run the Symmetry task """
  pRun                                          = proshade.ProSHADE_run ( pSet )        # Do the computations. This takes most of the time.
 
  """ Get the recommended symmetry """
@@ -621,8 +621,8 @@
  * the internal functions can be arranged to achieve the standard ProSHADE tasks. Please be aware that most of the functions do require that a pre-requisite function is run before it, but not all of these pre-requisites have their own warning or error messages. Therefore, if any code causes segmentation error
  * (which usually kills the python interpreter), it is likely that you forgot to call some pre-requisite function.
  *
- * The following code is an example of how this approach to the ProSHADE python module can be used to compute the shape-wise distances between two structures. After importing the required modules, the code createse the setings object and sets the basic settings (for a full list of settings, please see the
- * example files). It then proceeds to create the \b ProSHADE_data objects for each structure, reads in the structures from files on the hard-drive (PDB and MAP formats are supported, the mmCIF should work as well). Next, the code processes the read in data - this is where map centering, masking, normalisation,
+ * The following code is an example of how this approach to the ProSHADE python module can be used to compute the shape-wise distances between two structures. After importing the required modules, the code creates the setings object and sets the basic settings (for a full list of settings, please see the
+ * example files). It then proceeds to create the \b ProSHADE_data objects for each structure, reads in the structures from files on the hard-drive (PDB and MAP formats are supported, the mmCIF should work as well). Next, the code processes in data - this is where map centering, masking, normalisation,
  * axis inversion, etc. happens - onto an internal ProSHADE data representation. This representation can then be mapped onto a set of concentric spheres, which can in turn have their spherical harmonics decomposition computed. Once this is done, the shape distances can be computed using the three functions
  * shown.
  *
@@ -703,8 +703,8 @@
  * \e Reading \e a  \e structure \e from \e file
  *
  * The first step of most ProSHADE workflows will be reading a structure (be it co-ordinates or map) from a file on the hard-drive. This can be done in the same manner as shown in the \b advanced \b access section of this tutorial, that is: Firstly we create the \b ProSHADE_settings object, which
- * needs to be filled with the initial data. It does not really matter which taks you select at this stage, but it may affect some of the default values and therefore it is recommended to use the correct taks. Next, the \b ProSHADE_data object is created and finally the structures is read in. Please note that
- * on some systems using relative paths may not work and it may result in ProSHADE error stateing that the file type cannot be recognised. If this is the case, please use the full path.
+ * needs to be filled with the initial data. It does not really matter which task you select at this stage, but it may affect some of the default values and therefore it is recommended to use the correct taks. Next, the \b ProSHADE_data object is created and finally the structure is read in. Please note that
+ * on some systems using relative paths may not work and it may result in ProSHADE error stating that the file type cannot be recognised. If this is the case, please use the full path.
  *
  * \code{.py}
  """ Create the ProSHADE_settings object """
@@ -782,20 +782,20 @@
  *                                                                        ord )                # The map file binary order
  \endcode
  *
- * There are several assumption that the ProSHADE_data constructor shown above makes and not all of these are currently checked with a warning or error message. Some of these are described in the \b directAccess.py file, but the most common things to consider are the following:
+ * There are several assumption that the \b ProSHADE_data constructor shown above makes and not all of these are currently checked with a warning or error message. Some of these are described in the \b directAccess.py file, but the most common things to consider are the following:
  * - The constructor assumes that the angles between all three axes are 90 degrees. If this is not the case, it is the users responsibility to transform and re-sample the map before submitting it to ProSHADE (support for non-orthogonal maps is on the TODO list).
- * - The map dimensions needs to be the same as the x/y/zDimInds variables.
- * - The following equality should hold: x/y/zTo - x/y/zFrom + 1 = x/y/zDimInds.
+ * - The map dimensions needs to be the same as the x/y/zDimIndices variables.
+ * - The following equality should hold: x/y/zTo - x/y/zFrom + 1 = x/y/zDimIndices.
  * - The constructor assumes that axis grids are equal to indices and that the origins are equal to the starting indices of each axis.
  * - The axis order is XYZ
  *
- * If some of these assumptions do not hold, the ProSHADE_data object is likely to still be created, but it is the users responsibility to change the \b pStruct (ProSHADE_data) object internal variables to reflect the reality or face the consequences.
+ * If some of these assumptions do not hold, the \b ProSHADE_data object is likely to still be created, but it is the users responsibility to change the \b pStruct (ProSHADE_data) object internal variables to reflect the reality or face the consequences.
  *
  * \e 3D \e arrays
  *
  *  It is possible that instead of 1D arrays as shown above, some other python module would work with maps using 3D arrays. This poses an issue for ProSHADE, as it is pythonised using SWIG and Numpy.i typedefs, which apparently do not support passing of 3D arrays between the two languages. To bridge this issue,
- *  ProSHADE provides a function called \e convert3Dto1DArray(), which can be used to convert standerd 3D numpy arrays to ProSHADE compatible 1D numpy arrays. However, as python seems to have problems with multiple for loops, this function maybe time consuming compared to other much more complex
- *  functions. Nonetheless, the following code will create a different \b ProSHADE_data object from a 3D numpy array using the conversion function. It will also delete this object, as the example here will continue with the \b pStruct object created before.
+ *  ProSHADE provides a function called \e convert3Dto1DArray(), which can be used to convert standard 3D numpy.arrays to ProSHADE compatible 1D numpy.arrays. However, as python seems to have problems with multiple for loops, this function may be time consuming compared to other much more complex
+ *  functions. Nonetheless, the following code will create a different \b ProSHADE_data object from a 3D numpy.array using the conversion function. It will also delete this object, as the example here will continue with the \b pStruct object created before.
  *
  * \code{.py}
  testMap3D = numpy.empty ( ( xDimIndices, yDimIndices, zDimIndices ) )
@@ -828,7 +828,7 @@
  *
  * \e Writing \e out \e maps
  *
- * Now, it is possible to write out the internal map representation at any point since the ProSHADE_data object has been filled in. To demonstrate this functionality, it is immediately possible to issue the following command, which will write an \b initialMap.map file
+ * Now, it is possible to write out the internal map representation at any point since the \b ProSHADE_data object has been filled in. To demonstrate this functionality, it is immediately possible to issue the following command, which will write an \b initialMap.map file
  * onto the hard-drive.
  *
  * \code{.py}
@@ -851,8 +851,8 @@
  * \e Changing \e the \e already \e supplied \e map
  *
  * A situation may also occur, where the already loaded map needs to be processed, for example, if you want to read in a map file, but then you want to remove some part of the map using algorithm not available in ProSHADE or in the case where you want to apply some ProSHADE processing, then do some more
- * processing with algorithms not available in ProSHADE and then return to ProSHADE for some more calculations. To do this, ProSHADE allows you to modify the retrieved (or any other) map in any way; in the following example we will remove the last 3 indices along the y-axis dimension. Next, it is now the users
- * responsibility to modify the ProSHADE object to reflect the new size and position of the map and finally, the new map can be pushed into ProSHADE using the \e setNewMapPythonXD())functions (where X can be 1 or 3). The following example shows how this can be done for both, the 1D and the 3D maps.
+ * processing with algorithms not available in ProSHADE and then return to ProSHADE for some more calculations. To do this, ProSHADE allows you to modify the retrieved (or any other) map in any way; in the following example we will remove the last 3 indices along the y-axis dimension and divide (or multiply) all
+ * density values by 2. Next, it is now the users responsibility to modify the ProSHADE object to reflect the new size and position of the map and finally, the new map can be pushed into ProSHADE using the \e setNewMapPythonXD()) functions (where X can be 1 or 3). The following example shows how this can be done for both, the 1D and the 3D maps.
  *
  * \code{.py}
  """ Create a new map arrays with the y-dimension decreased by 3 indices """
@@ -883,7 +883,7 @@
  *
  * \e Initial \e map \e procesing
  *
- * Once the map is read into the \b ProSHADE_data object, it needs to be processed in order to make sure ProSHADE will be able to use it for any forther computations. While processing, ProSHADE offers the following map modifications through the \b ProSHADE_setting object variables: map invertion (this
+ * Once the map is read into the \b ProSHADE_data object, it needs to be processed in order to make sure ProSHADE will be able to use it for any further computations. While processing, ProSHADE offers the following map modifications through the \b ProSHADE_setting object variables: map invertion (this
  * will invert the map indices along each dimension), map normalisation (making the map density values mean 0 and standard deviation 1), map masking (computing a map mask by blurring and then setting mask as all values above threshold), map centering (moving the map into the centre of mass), adding extra
  * space (in case the map density is close to map edge, what can lead to map artefacts and lower accuracy of further processing) and map phase removal (removing the phase of the map density, effectively producing Patterson maps). The user can chose any, all or none of these, but the processing function needs
  * to be called before any further processing is possible. The following example code showcases how some of the processing functionalities can be chosen and how the map can be processed.
@@ -904,7 +904,7 @@
  * \e Computing \e standard \e ProSHADE \e tasks
  *
  * If the user now wants to use ProSHADE to compute some of the standard ProSHADE taks, \e i.e. Distances computation, Symmetry detection, Re-boxing or Map overlay, it is recommended that the user proceeds in the same fashion as shown in the the \e advancedAccess_... example files. Moreover, these are also
- * deomnstrated in the \b directAccess.py file available in the examples folder. Therefore, none of these tasks will be shown here in a step-wise manner; instead, the rest of this tutorial will focus on how partial information and results can be obtained from ProSHADE, should the user want to use them in a way that is not
+ * demonstrated in the \b directAccess.py file available in the examples folder. Therefore, none of these tasks will be shown here in a step-wise manner; instead, the rest of this tutorial will focus on how partial information and results can be obtained from ProSHADE, should the user want to use them in a way that is not
  * currently supported by ProSHADE.
  *
  * \e Computing \e the \e spherical \e harmonics \e decomposition
@@ -912,7 +912,7 @@
  * ProSHADE can compute the spherical harmonics decomposition of the internal map. However, instead of using the spherical-Bessel functions, it firstly creates a set of concentric spheres centered on the centre of indices (xDimIndices/2, yDimIndices/2, zDimIndices/2) point and spaced 2 indices apart, then it maps
  * the density map data onto these spheres and then it computes the spherical harmonics decomposition on each of these spheres independently. There is quite a few settings that relate to the spherical harmonics decompostion computation, such as the bandwidth of the computation, the sphere placement and spacing,
  * the resolution on the spheres, etc.; these arre mostly inter-related and ProSHADE will set them up automatically, unless the user specifies otherwise. Since these are quite technical, the interested users are referred to the second chapter of my Ph.D. thesis, which specifies all the technical details:
- * https://www.repository.cam.ac.uk/handle/1810/284410 . To issue this computation, please is the functions shown in the following example code:
+ * https://www.repository.cam.ac.uk/handle/1810/284410 . To issue this computation, please use the functions shown in the following example code:
  *
  * \code{.py}
  """ Map the internal map representation onto a set of concentric spheres """
@@ -922,7 +922,7 @@
  pStruct.computeSphericalHarmonics             ( pSet )
  \endcode
  *
- * If the user is interested in the spherical harmonics values (and possibly does not need any further computations from ProSHADE), these can be accessed using the function showcased below. It is warth noing that the organisation of the spherical harmonics is as follows: Each concentric shell has a two dimensional array of values,
+ * If the user is interested in the spherical harmonics values (and possibly does not need any further computations from ProSHADE), these can be accessed using the function showcased below. It is worth noting that the organisation of the spherical harmonics is as follows: Each concentric shell has a two dimensional array of values,
  * where the row is the spherical harmonics band, while the column is the spherical harmonics order. Please note that there are only 2 * band + 1 orders for each band and therefore the array is not rectangular. Instead, it is recommended that the users take advantage of the supplied \e sphericalHarmonicsIndex() function, which takes
  * the order, the band and the shell number as its arguments (in this order) and returns the index of the spherical harmonics value in the retrieved spherical harmonics array. Moreover, please note that the spherical harmonics are complex numbers.
  *
@@ -946,9 +946,9 @@
  *
  * Once the self-rotation function is computed, ProSHADE allows the user to access all of its interim results as well as the rotation function map. Specifically the E matrices, which are ordered by the band, order1 and order2 (in this order) can be obtained as shown in the following code. The E matrices are 3D arrays, which suffer from the
  * different number of orders for different bands feature of spherical harmonics. Therefore, the band dimensions of the arrays are zero padded; furthermore, as the order indexing goes from -band to +band, but the array indexing starts from zero, the correction to the array indexes is necessary. Regarding the SO(3) coefficients, they have
- * the same technical structure as the E matricesl however, due to some development issues, accessing them is done in a different manner, using the \e so3CoeffsArrayIndex() function as shown in the example code below. Finally, the self-rotation function map can be accessed as a 1D or 3D numpy array using the functions shown in the
+ * the same technical structure as the E matrices; however, due to some development issues, accessing them is done in a different manner, using the \e so3CoeffsArrayIndex() function as shown in the example code below. Finally, the self-rotation function map can be accessed as a 1D or 3D numpy.array using the functions shown in the
  * example code below. Again, as passing 3D matrices is not possible using SWIG and Numpy.i typedefs, the 3D version of the function is much slower than the 1D version. Assuming the user would find a point in the map for which he would like to know the rotation matrix (the indices of the self-rotation function are related to the Euler
- * angles in a non-trivial manner), ProSHADE provides the \e getRotationMatrixFromRotFunIndices() function also shown in the following example code. This function returns the rotation matrix belonging to the given self-rotation function indices in a numpy array format.
+ * angles in a non-trivial manner), ProSHADE provides the \e getRotationMatrixFromRotFunIndices() function also shown in the following example code. This function returns the rotation matrix belonging to the given self-rotation function indices in a numpy.array format.
  *
  * \code{.py}
  """ Obtain the E matrices """
@@ -969,7 +969,7 @@
  *
  * \e Computing \e the \e optimal \e rotation \e function
  *
- * A related ProSHADE functionality is the computation of an optimal rotation function for two input structures. In the standard ProSHADE tasks, this is done for two phase-less (the phase is removed to achive identical centering on the maps) in order to find the optimal rotation, which overlays the two maps, but the user is free to
+ * A related ProSHADE functionality is the computation of an optimal rotation function for two input structures. In the standard ProSHADE tasks, this is done for two phase-less structure maps (the phase is removed to achive identical centering on the maps) in order to find the optimal rotation, which overlays the two maps, but the user is free to
  * call this function for any two \b ProSHADE_data objects which both have their spherical harmonics values computed. To do this, we will create two new \b ProSHADE_data objects, read in some structures, process them, map them onto spheres, compute their spherical harmonics values and then we call the
  * \e getOverlayRotationFunction(). This function works similarly to the \e getRotationFunction() used above, but it uses spherical harmonics coefficients from two different structures as opposed to the same structures.
  *
@@ -1033,7 +1033,7 @@
  * \e Rotating \e the \e internal \e map \e representation
  *
  * Once the optimal rotation angles are obtained, it is the next logical step to rotate the structure by these angles to get the two structures in identical orientation. This can also be done with ProSHADE function \e rotateMap(), which works with the Euler angles as
- * reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which arre multiplied by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process
+ * reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which are multiplied by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process
  * has two side effects: Firstly, the resulting maps tend to suffer from minor artefacts resulting from the sequence termination errors and the interpolation to and from spheres to cartesian co-ordinates. And secondly, the input maps need to have their spherical harmonics
  * coefficients computed. Therefore, this approach is not recommended for any maps that are to be deposited or fitted into, but they are sufficient for computation of most ProSHADE standard tasks as the shape is largely identical.
  *
@@ -1072,8 +1072,9 @@
  * \e Computing \e the \e translation \e function
  *
  * Similarly to the rotation function, the user may be interested in the optimal translation required to overlay two structures. ProSHADE can compute such an optimal translation using the translation function; however, in order to compute it, it requires that the two internal map representation have the same
- * dimensions in terms of map indices. As this will not generally be the case, ProSHADE provides a padding function, which can add zeroes around the internal representation map to makes sure that it has given dimensions. Therefore, in order to compute the translation function, it is required that the two
- * structures are modified by the \e zeroPaddToDims() function to both have the same dimensions; the higher of the two structures are chosen in order to avoid loss of information.
+ * dimensions in terms of map indices and map sampling; identical map sampling is achieved by setting the \b changeMapResolution setting to true. Still, the identical number of indices will not generally be the case, ProSHADE provides a padding function, which can add zeroes around the internal
+ * representation map to make sure that it has given dimensions. Therefore, in order to compute the translation function, it is required that the two structures are modified by the \e zeroPaddToDims() function to both have the same dimensions; the higher of the two structures are chosen in order to avoid
+ * loss of information.
  *
  * \code{.py}
  """ Add zeroes around he structure to achieve given number of indicel along each dimension """
@@ -1092,12 +1093,12 @@
  """ Compute the translation function """
  pStruct_moving.computeTranslationMap          ( pStruct_static )
  
- """ Access the translation map as 1D or 3D numpy array """
+ """ Access the translation map as 1D or 3D numpy.array """
  translationMap1D                              = proshade.getTranslationFunction1D ( pStruct_moving )
  translationMap3D                              = proshade.getTranslationFunction3D ( pStruct_moving )
  \endcode
  *
- * Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map peak and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
+ * Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
  *
  * \code{.py}
  """ Find the optimal translation vector """
@@ -1107,7 +1108,7 @@
  *
  * \e Translating \e the \e internal \e representation
  *
- * Once the optimal translation vector is computed , it makes sense that ProSHADE should also be able to apply it to the internal map representation. Therefore, the function \e translateMap() is provided to facilitate this task. The translation is done in two steps, firstly, ProSHADE
+ * Once the optimal translation vector is computed, it makes sense that ProSHADE should also be able to apply it to the internal map representation. Therefore, the function \e translateMap() is provided to facilitate this task. The translation is done in two steps, firstly, ProSHADE
  * simply modifies the starting indices and axes origins of the map to minimise the movement of the map in the cell by moving the cell as a whole. Next, the remaining translation is then done in the frequency domain (by modifing the Fouries coefficients) of the internal representation.
  *
   * \code{.py}
@@ -1118,9 +1119,9 @@
  * \e Writing \e out \e resulting \e structures
  *
  * Finally, it is worth noting that while the MAP formatted data can be written out of the \b ProSHADE_data object at any time (albeit their quality may be decreased if the rotation was applied as discussed in the rotating internal representation map section), ProSHADE can also write
- * out the co-ordinate data for input structures, which were read in from a co-ordinate file. Please note that ProSHADE cannot generate co-ordinate data from maps, the co-ordinate data need to pre-exist ProSHADE run. Nonetheless, in the case of for example finding the optimal rotation
+ * out the co-ordinate data for input structures, which were read in from a co-ordinate file. Please note that ProSHADE cannot generate co-ordinate data from maps, the co-ordinate data need to pre-exist ProSHADE run. Nonetheless, in the case of, for example, finding the optimal rotation
  * and translation of one structure to overlay with another structure, the user may be interested in writing out the modified co-ordinates. To do this, ProSHADE contains the \e writePdb() function, which needs to be supplied with the file name, the required rotation and translation and it
- * will write out the PDB file with these modification applied.
+ * will write out the PDB file with these modifications applied.
  *
  * Also, please note that it is the users responsibility to add any rotations or translations together and to supply this function with the correct cumulative values. The example code below shows how a rotated and translated PDB file can be outputted by ProSHADE.
  *
