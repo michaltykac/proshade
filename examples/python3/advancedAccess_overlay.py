@@ -22,7 +22,7 @@
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
 #   \version   0.7.3
-#   \date      JUN 2020
+#   \date      JUL 2020
 ##############################################
 ##############################################
 
@@ -97,7 +97,7 @@ pStruct_moving.mapToSpheres                   ( pSet )
 pStruct_moving.computeSphericalHarmonics      ( pSet )
 
 ### Rotate the moving structure (the signs with the Euler angles need to be like this!)
-pStruct_moving.rotateMap                      ( pSet, -optimalRotationAngles[0], optimalRotationAngles[1], -optimalRotationAngles[2] )
+pStruct_moving.rotateMap                      ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
 
 ### Zero padding for both structures (only really applied to the smaller one, as nothing is added if the dimensions already have the requested size)
 pStruct_static.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),

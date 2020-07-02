@@ -16,7 +16,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUN 2020
+    \date      JUL 2020
  */
 
 //==================================================== ProSHADE
@@ -163,7 +163,6 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( clipper::mmdb::CMMDBManager*
                 {
                     //================================ Get all atoms
                     residue[nRes]->GetAtomTable       ( atom, noAtoms );
-                    totAtoms                         += static_cast<proshade_double> ( noAtoms );
                     
                     for ( int aNo = 0; aNo < noAtoms; aNo++ )
                     {
@@ -176,6 +175,7 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( clipper::mmdb::CMMDBManager*
                            *xCom                     += atom[aNo]->x;
                            *yCom                     += atom[aNo]->y;
                            *zCom                     += atom[aNo]->z;
+                            totAtoms                 += 1;
                         }
                     }
                 }
@@ -211,14 +211,7 @@ proshade_double yCom, proshade_double zCom )
     ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
     
     //================================================ Determine PDB ranges
-    proshade_single xFrom, xTo, yFrom, yTo, zFrom, zTo, xTmp, yTmp, zTmp;
-    int noAt;
-    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xFrom, &xTo, &yFrom, &yTo, &zFrom, &zTo, &noAt );
-    
-    //================================================ Determine mid-point translations
-    proshade_single xMid                              = ( xTo - xFrom ) / 2.0;
-    proshade_single yMid                              = ( yTo - yFrom ) / 2.0;
-    proshade_single zMid                              = ( zTo - zFrom ) / 2.0;
+    proshade_single xTmp, yTmp, zTmp;
     
     //================================================ Initialise MMDB crawl
     int noChains                                      = 0;
@@ -444,10 +437,10 @@ void ProSHADE_internal_mapManip::movePDBForClipper ( clipper::mmdb::CMMDBManager
                             
                             //======================== Change atom positions as required
                             atom[aNo]->SetCoordinates ( atom[aNo]->x + static_cast<float> ( xMov ),
-                                                       atom[aNo]->y + static_cast<float> ( yMov ),
-                                                       atom[aNo]->z + static_cast<float> ( zMov ),
-                                                       atom[aNo]->occupancy,
-                                                       atom[aNo]->tempFactor );
+                                                        atom[aNo]->y + static_cast<float> ( yMov ),
+                                                        atom[aNo]->z + static_cast<float> ( zMov ),
+                                                        atom[aNo]->occupancy,
+                                                        atom[aNo]->tempFactor );
                         }
                     }
                 }

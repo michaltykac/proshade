@@ -16,7 +16,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUN 2020
+    \date      JUL 2020
  */
 
 //==================================================== ProSHADE
@@ -119,11 +119,8 @@ void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings
  \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
  \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
  \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
- \param[in] mapComChangeX Variable pointer to which the change in the map COM after rotation along the X-axis will be saved.
- \param[in] mapComChangeY Variable pointer to which the change in the map COM after rotation along the Y-axis will be saved.
- \param[in] mapComChangeZ Variable pointer to which the change in the map COM after rotation along the Z-axis will be saved.
  */
-void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double* mapComChangeX, proshade_double* mapComChangeY, proshade_double* mapComChangeZ )
+void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG )
 {
     //================================================ Disable speed-up - mem. leak still not solved.
     if ( settings->progressiveSphereMapping )
@@ -144,19 +141,8 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->mapToSpheres                     ( settings );
     movingStructure->computeSphericalHarmonics        ( settings );
     
-    //================================================ Save the pre-rotation COM map value
-   *mapComChangeX                                     = movingStructure->xCom;
-   *mapComChangeY                                     = movingStructure->yCom;
-   *mapComChangeZ                                     = movingStructure->zCom;
-    
     //================================================ Rotate map and write it out
-    movingStructure->rotateMap                        ( settings, -eulA, eulB, -eulG );
-    
-    //================================================ Save the pre-rotation and post-rotation COM map change
-    movingStructure->findMapCOM ();
-   *mapComChangeX                                    -= movingStructure->xCom;
-   *mapComChangeY                                    -= movingStructure->yCom;
-   *mapComChangeZ                                    -= movingStructure->zCom;
+    movingStructure->rotateMap ( settings, eulA, eulB, eulG );
     
     //================================================ Zero padding for smaller structure
     staticStructure->zeroPaddToDims                   ( std::max ( staticStructure->getXDim(), movingStructure->getXDim() ),
@@ -238,27 +224,38 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
     std::vector< proshade_double > ret;
     proshade_double mapPeak                           = 0.0;
     proshade_double trsX = 0.0, trsY = 0.0, trsZ = 0.0;
-    
-    //================================================ Find the highest peak
-    ProSHADE_internal_overlay::findHighestValueInMap  ( this->getTranslationFnPointer(), this->getXDim(), this->getYDim(), this->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
+    ProSHADE_internal_overlay::findHighestValueInMap  ( this->getTranslationFnPointer(),
+                                                        staticStructure->getXDim(),
+                                                        staticStructure->getYDim(),
+                                                        staticStructure->getZDim(),
+                                                       &trsX,
+                                                       &trsY,
+                                                       &trsZ,
+                                                       &mapPeak );
     
     //================================================ Dont translate over half
-    if ( trsX > ( this->getXDim() / 2 ) ) { trsX = trsX - static_cast<proshade_signed> ( this->getXDim() ); }
-    if ( trsY > ( this->getYDim() / 2 ) ) { trsY = trsY - static_cast<proshade_signed> ( this->getYDim() ); }
-    if ( trsZ > ( this->getZDim() / 2 ) ) { trsZ = trsZ - static_cast<proshade_signed> ( this->getZDim() ); }
+    if ( trsX > ( staticStructure->getXDim() / 2 ) ) { trsX = trsX - this->getXDim(); }
+    if ( trsY > ( staticStructure->getYDim() / 2 ) ) { trsY = trsY - this->getYDim(); }
+    if ( trsZ > ( staticStructure->getZDim() / 2 ) ) { trsZ = trsZ - this->getZDim(); }
     
-    //================================================ Compute correct map move
-    proshade_single xCor                              = ( staticStructure->xFrom - this->xFrom ) * ( static_cast<proshade_double> ( this->getXDimSize() ) / this->getXDim() );
-    proshade_single yCor                              = ( staticStructure->yFrom - this->yFrom ) * ( static_cast<proshade_double> ( this->getYDimSize() ) / this->getYDim() );
-    proshade_single zCor                              = ( staticStructure->zFrom - this->zFrom ) * ( static_cast<proshade_double> ( this->getZDimSize() ) / this->getZDim() );
-    proshade_single xMov                              = staticStructure->comMovX - xCor - ( trsX *   static_cast<proshade_double> ( this->getXDimSize() ) / this->getXDim() );
-    proshade_single yMov                              = staticStructure->comMovY - yCor - ( trsY *   static_cast<proshade_double> ( this->getYDimSize() ) / this->getYDim() );
-    proshade_single zMov                              = staticStructure->comMovZ - zCor - ( trsZ *   static_cast<proshade_double> ( this->getZDimSize() ) / this->getZDim() );
+    //================================================ Move map
+    proshade_single xCor                              = ( staticStructure->xFrom - this->xFrom ) *
+                                                        ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
+    proshade_single yCor                              = ( staticStructure->yFrom - this->yFrom ) *
+                                                        ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
+    proshade_single zCor                              = ( staticStructure->zFrom - this->zFrom ) *
+                                                        ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
+    proshade_single xMov                              = staticStructure->comMovX - xCor -
+                                                        ( trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
+    proshade_single yMov                              = staticStructure->comMovY - yCor -
+                                                        ( trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
+    proshade_single zMov                              = staticStructure->comMovZ - zCor -
+                                                        ( trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
     
     //================================================ Save results as vector
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( xMov ) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( yMov ) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( zMov ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -xMov ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -yMov ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -zMov ) );
     
     //================================================ Done
     return                                            ( ret );
@@ -627,7 +624,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     this->maxCompBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
     
     //================================================ Compute the Wigner D matrices for the Euler angles
-    ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, eulerAlpha, eulerBeta, eulerGamma );
+    ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, -eulerAlpha, eulerBeta, -eulerGamma );
     
     //================================================ Initialise rotated Spherical Harmonics memory
     this->allocateRotatedSHMemory                     ( settings );
@@ -656,6 +653,12 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
         this->internalMap[iter]                       = densityMapRotated[iter];
     }
     
+    //================================================ Re-calculate the map COM
+    this->findMapCOM                                  ( );
+    this->mapPostRotXCom                              = this->xCom;
+    this->mapPostRotYCom                              = this->yCom;
+    this->mapPostRotZCom                              = this->zCom;
+    
     //================================================ Release rotated map (original is now rotated)
     delete[] densityMapRotated;
     
@@ -677,7 +680,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
 void ProSHADE_internal_data::ProSHADE_data::translateMap ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
 {
     //================================================ Initialise local variables
-    proshade_single xMov = trsX, yMov = trsY, zMov = trsZ;
+    proshade_single xMov = -trsX, yMov = -trsY, zMov = -trsZ;
     
     //================================================ Move the whole map frame to minimise the Fourier movement
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),

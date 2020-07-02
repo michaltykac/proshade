@@ -19,7 +19,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUN 2020
+    \date      JUL 2020
  */
 
 //==================================================== ProSHADE library code
@@ -110,6 +110,7 @@ public:
     
     //================================================ Overlay results accessor functions
     std::vector< proshade_double > getEulerAngles     ( void );
+    std::vector< proshade_double > getOptimalRotMat   ( void );
     std::vector< proshade_double > getTranslation     ( void );
 };
 

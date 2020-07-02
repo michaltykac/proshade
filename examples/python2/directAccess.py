@@ -1,6 +1,6 @@
 ##############################################
 ##############################################
-#   \file advancedAccess.py
+#   \file directAccess.py
 #   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode.
 #
 #   This file should be the main source of wisdom when it comes to using ProSHADE in
@@ -35,7 +35,7 @@
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
 #   \version   0.7.3
-#   \date      JUN 2020
+#   \date      JUL 2020
 ##############################################
 ##############################################
 
@@ -51,7 +51,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-#sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python3" )
+#sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python2" )
 import proshade
 
 ##############################################

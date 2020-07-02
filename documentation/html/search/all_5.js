@@ -16,7 +16,7 @@ var searchData=
   ['findicos15c2s_130',['findIcos15C2s',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a5f1901e3425d3d701a03f21b4f855117',1,'ProSHADE_internal_symmetry']]],
   ['findicos6c5s_131',['findIcos6C5s',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a847de3b447dfed6d8918a28ea5b66217',1,'ProSHADE_internal_symmetry']]],
   ['findiscore_132',['findIScore',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a69c32bcbcdc6b5f58dc4659141b34fcd',1,'ProSHADE_internal_data::ProSHADE_data']]],
-  ['findmapcom_133',['findMapCOM',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ac07955296611dd411cf5ed87ced90571',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['findmapcom_133',['findMapCOM',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#aec21925052446f1c154eb7285acf7bb4',1,'ProSHADE_internal_data::ProSHADE_data']]],
   ['findmissingaxes_134',['findMissingAxes',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#adf71947ef8c46f0b31759874c3e7a58c',1,'ProSHADE_internal_symmetry']]],
   ['findmissingaxesdual_135',['findMissingAxesDual',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a6d9f533a789bd5c6031fa77b9649ed3d',1,'ProSHADE_internal_symmetry']]],
   ['findmissingaxestriple_136',['findMissingAxesTriple',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ae266053664eb7cf916aa5e2d282e35dd',1,'ProSHADE_internal_symmetry']]],
