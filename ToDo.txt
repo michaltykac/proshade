@@ -10,6 +10,8 @@ Development
 * Timing - can it be faster?
 * Documentation and examples 
 * Get new version to CCP-EM including new interface
+* Support non-orthogonal maps
+* Make sure the SO(3) coefficients are accessed from python just like the E matrices.
 
 !!!
 * Make python get and set 3D instead of 1D arrays

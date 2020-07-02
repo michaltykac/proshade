@@ -16,7 +16,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUN 2020
+    \date      JUL 2020
  */
 
 //==================================================== ProSHADE
@@ -358,7 +358,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     checkOverlaySettings                              ( settings );
     
     //================================================ Initialise variables
-    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ, xComChange, yComChange, zComChange;
+    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ;
     
     //================================================ Create the data objects initially (this time without phase)
     ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
@@ -379,7 +379,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;
     settings->changeMapResolution                     = true;
-    ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG, &xComChange, &yComChange, &zComChange );
+    ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG );
     
     //================================================ Write out rotated map and PDB (if possible)
     std::stringstream fNameHlp;
@@ -389,7 +389,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        movingStructure->writePdb                     ( fNameHlp.str(), eulA, eulB, eulG, trsX + xComChange, trsY + yComChange, trsZ + zComChange );
+        movingStructure->writePdb                     ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ );
     }
     
     //================================================ Release memory

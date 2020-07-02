@@ -501,6 +501,15 @@ add_custom_command (
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.log
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.status
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/mmdb2.pc
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_distances
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_overlay
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_reboxing
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_symmetry
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_distances
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_overlay
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_reboxing
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_symmetry
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/proshadeBinary
 					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeMMDB2.txt"
 					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeLIBCCP4.txt"
 					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeFFTW2.txt"

@@ -1,6 +1,6 @@
 ##############################################
 ##############################################
-#   \file advancedAccess.py
+#   \file directAccess.py
 #   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode.
 #
 #   This file should be the main source of wisdom when it comes to using ProSHADE in
@@ -35,7 +35,7 @@
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
 #   \version   0.7.3
-#   \date      JUN 2020
+#   \date      JUL 2020
 ##############################################
 ##############################################
 
@@ -226,6 +226,22 @@ for xIt in range( 0, xDimIndices ):
 ### Create the ProSHADE_data object without structure file on drive
 pStruct                                       = proshade.ProSHADE_data ( pSet, "python_map_test", testMap, xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
 
+### Should we ever need to use 3D map instead of 1D
+### map, there is no way of passing 3D maps using SWIG
+### and numpy (as far as I know). However, 3D map can
+### be converted to 1D map using the ProSHADE supplied
+### function. Be aware, this takes some time as python
+### is not the master of for loops...
+
+testMap3D = numpy.empty ( ( xDimIndices, yDimIndices, zDimIndices ) )
+for xIt in range( 0, xDimIndices ):
+    for yIt in range( 0, yDimIndices ):
+        for zIt in range( 0, zDimIndices ):
+            testMap3D[xIt][yIt][zIt] = 1.0 / ( numpy.sqrt( numpy.power ( (xDimIndices/2) - xIt, 2.0 ) + numpy.power ( (yDimIndices/2) - yIt, 2.0 ) + numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
+
+pStruct2                                      = proshade.ProSHADE_data ( pSet, "python_map_test", proshade.convert3Dto1DArray ( testMap3D ), xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
+
+del pStruct2
 
 ##############################################
 ### Write the internal map to disk
@@ -490,7 +506,7 @@ pStruct.computeSphericalHarmonics             ( pSet )
 ### function.
 ###
 sphericalHarmonics                            = proshade.getSphericalHarmonics ( pStruct )
-Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, ahell 3.
+Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, shell 3.
 
 ##############################################
 ### Computing distances between two structures
@@ -666,7 +682,7 @@ del pSet
 ### However, they will not be described in much
 ### detail, as the descriptions are above.
 ###
-### More specifically to the overlat computation,
+### More specifically to the overlay computation,
 ### the user here should know how ProSHADE does
 ### this in order to call the functions properly.
 ### If you do not want to know the details, I
@@ -727,7 +743,7 @@ pStruct_moving                                = proshade.ProSHADE_data ( pSet )
 
 ### Read in the structures
 pStruct_static.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map", 0, pSet )
-pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_higherRotTrs.map", 1, pSet )
+pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map", 1, pSet )
 
 ### Get spherical harmonics for both structures
 pStruct_static.processInternalMap             ( pSet )

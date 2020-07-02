@@ -18,7 +18,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUN 2020
+    \date      JUL 2020
 */
 
 //==================================================== ProSHADE
@@ -80,6 +80,23 @@ namespace ProSHADE_internal_data
         proshade_double xCom;                         //!< The COM of the map after processing along the X-axis.
         proshade_double yCom;                         //!< The COM of the map after processing along the Y-axis.
         proshade_double zCom;                         //!< The COM of the map after processing along the Z-axis.
+        
+        //============================================ Variables regarding original input values (i.e. these do not change with ProSHADE manipulations)
+        proshade_single xDimSizeOriginal;             //!< This is the size of the map cell x dimension in Angstroms.
+        proshade_single yDimSizeOriginal;             //!< This is the size of the map cell y dimension in Angstroms.
+        proshade_single zDimSizeOriginal;             //!< This is the size of the map cell z dimension in Angstroms.
+        proshade_unsign xDimIndicesOriginal;          //!< This is the size of the map cell x dimension in indices.
+        proshade_unsign yDimIndicesOriginal;          //!< This is the size of the map cell y dimension in indices.
+        proshade_unsign zDimIndicesOriginal;          //!< This is the size of the map cell z dimension in indices.
+        proshade_signed xAxisOriginOriginal;          //!< This is the origin position along the x axis.
+        proshade_signed yAxisOriginOriginal;          //!< This is the origin position along the y axis.
+        proshade_signed zAxisOriginOriginal;          //!< This is the origin position along the z axis.
+        proshade_double originalMapXCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the X axis.
+        proshade_double originalMapYCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the Y axis.
+        proshade_double originalMapZCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the Z axis.
+        proshade_double mapPostRotXCom;               //!< The COM of the rotated map before it is processed in any other way. Along the X axis.
+        proshade_double mapPostRotYCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Y axis.
+        proshade_double mapPostRotZCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Z axis.
 
         //============================================ Variables regarding iterator positions
         proshade_signed xFrom;                        //!< This is the starting index along the x axis.
@@ -118,6 +135,7 @@ namespace ProSHADE_internal_data
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );
         void allocateRRPMemory                        ( ProSHADE_settings* settings );
+        void setOriginalMapValues                     ( void );
         
     public:
         //============================================ Constructors / Destructors
@@ -216,7 +234,7 @@ namespace ProSHADE_internal_data
         void inverseSHCoefficients                    ( void );
         void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
-        void findMapCOM                               ( void );
+        void findMapCOM                               ( );
         
         //============================================ Python access functions
         void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );
