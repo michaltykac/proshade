@@ -46,6 +46,13 @@ The most recent stable version of ProSHADE is available from the *master* branch
             - [Changing the already supplied map](#changing-the-already-supplied-map)
             - [Computing standard ProSHADE tasks](#computing-standard-proshade-tasks)
             - [Computing the spherical harmonics decomposition](#computing-the-spherical-harmonics-decomposition)
+            - [Computing the self-rotation function](#computing-the-self-rotation-function)
+            - [Computing the optimal rotation function](#computing-the-optimal-rotation-function)
+            - [Finding the optimal rotation](#finding-the-optimal-rotation)
+            - [Rotating the internal map representation](#rotating-the-internal-map-representation)
+            - [Computing the translation function](#computing-the-translation-function)
+            - [Translating the internal representation](#translating-the-internal-representation)
+            - [Writing out resulting structures](#writing-out-resulting-structures)
 
 # Installation
 
@@ -791,48 +798,38 @@ If the user now wants to use ProSHADE to compute some of the standard ProSHADE t
 
 #### Computing the spherical harmonics decomposition
 
-ProSHADE can compute the spherical harmonics decomposition of the internal map. However, instead of using the spherical-Bessel functions, it firstly creates a set of concentric spheres centered on the centre of indices (xDimIndices/2, yDimIndices/2, zDimIndices/2) point and spaced 2 indices apart, then it maps
-the density map data onto these spheres and then it computes the spherical harmonics decomposition on each of these spheres independently. There is quite a few settings that relate to the spherical harmonics decompostion computation, such as the bandwidth of the computation, the sphere placement and spacing,
-the resolution on the spheres, etc.; these arre mostly inter-related and ProSHADE will set them up automatically, unless the user specifies otherwise. Since these are quite technical, the interested users are referred to the second chapter of my Ph.D. thesis, which specifies all the technical details:
-https://www.repository.cam.ac.uk/handle/1810/284410 . To issue this computation, please use the functions shown in the following example code:
+ProSHADE can compute the spherical harmonics decomposition of the internal map. However, instead of using the spherical-Bessel functions, it firstly creates a set of concentric spheres centered on the centre of indices (xDimIndices/2, yDimIndices/2, zDimIndices/2) point and spaced 2 indices apart, then it maps the density map data onto these spheres and then it computes the spherical harmonics decomposition on each of these spheres independently. There is quite a few settings that relate to the spherical harmonics decompostion computation, such as the bandwidth of the computation, the sphere placement and spacing, the resolution on the spheres, etc.; these arre mostly inter-related and ProSHADE will set them up automatically, unless the user specifies otherwise. Since these are quite technical, the interested users are referred to the second chapter of my Ph.D. thesis, which specifies all the technical details: https://www.repository.cam.ac.uk/handle/1810/284410 . To issue this computation, please use the functions shown in the following example code:
 
-\code{.py}
+```
 """ Map the internal map representation onto a set of concentric spheres """
 pStruct.mapToSpheres                          ( pSet )
 
 """ Compute the spherical harmonics decomposition """
 pStruct.computeSphericalHarmonics             ( pSet )
-\endcode
-*
-* If the user is interested in the spherical harmonics values (and possibly does not need any further computations from ProSHADE), these can be accessed using the function showcased below. It is worth noting that the organisation of the spherical harmonics is as follows: Each concentric shell has a two dimensional array of values,
-* where the row is the spherical harmonics band, while the column is the spherical harmonics order. Please note that there are only 2 * band + 1 orders for each band and therefore the array is not rectangular. Instead, it is recommended that the users take advantage of the supplied \e sphericalHarmonicsIndex() function, which takes
-* the order, the band and the shell number as its arguments (in this order) and returns the index of the spherical harmonics value in the retrieved spherical harmonics array. Moreover, please note that the spherical harmonics are complex numbers.
-*
-* \code{.py}
+```
+
+If the user is interested in the spherical harmonics values (and possibly does not need any further computations from ProSHADE), these can be accessed using the function showcased below. It is worth noting that the organisation of the spherical harmonics is as follows: Each concentric shell has a two dimensional array of values, where the row is the spherical harmonics band, while the column is the spherical harmonics order. Please note that there are only 2 * band + 1 orders for each band and therefore the array is not rectangular. Instead, it is recommended that the users take advantage of the supplied \e sphericalHarmonicsIndex() function, which takes the order, the band and the shell number as its arguments (in this order) and returns the index of the spherical harmonics value in the retrieved spherical harmonics array. Moreover, please note that the spherical harmonics are complex numbers.
+
+```
 """ Obtain all the spherical harmonics values for all shells """
 sphericalHarmonics                            = proshade.getSphericalHarmonics ( pStruct )
 
 """ Retrieve s specific value for shell 3, band 4 and order -2 """
 Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, shell 3.
-\endcode
-*
-* \e Computing \e the \e self-rotation \e function
-*
-* ProSHADE also allows computing the self-rotation function. More specifically, it firstly computes the so called E matrices, which are matrices of the integral over all the concentric spheres of the spherical harmonics coefficients of order1 and order2, or in mathematical (LaTeX) form: Integral _0 ^rMAX ( c^lm * c'^lm ). It then
-* proceeds to normalise these E matrices, resulting in the SO(3) decomposition (Wigner D based decomposition) coefficients. Finally, by computing the inverse SO(3) Fourier transform (SOFT) on these coefficients, ProSHADE obtains the self-rotation function. In order to isue this computaion, the following code can be used:
-*
-* \code{.py}
+```
+
+#### Computing the self-rotation function
+
+ProSHADE also allows computing the self-rotation function. More specifically, it firstly computes the so called E matrices, which are matrices of the integral over all the concentric spheres of the spherical harmonics coefficients of order1 and order2, or in mathematical (LaTeX) form: *Integral _0 ^rMAX ( c^lm * c'^lm )*. It then proceeds to normalise these E matrices, resulting in the SO(3) decomposition (Wigner D based decomposition) coefficients. Finally, by computing the inverse SO(3) Fourier transform (SOFT) on these coefficients, ProSHADE obtains the self-rotation function. In order to isue this computaion, the following code can be used:
+
+```
 """ Compute the self-rotation function """
 pStruct.getRotationFunction                   ( pSet )
-\endcode
-*
-* Once the self-rotation function is computed, ProSHADE allows the user to access all of its interim results as well as the rotation function map. Specifically the E matrices, which are ordered by the band, order1 and order2 (in this order) can be obtained as shown in the following code. The E matrices are 3D arrays, which suffer from the
-* different number of orders for different bands feature of spherical harmonics. Therefore, the band dimensions of the arrays are zero padded; furthermore, as the order indexing goes from -band to +band, but the array indexing starts from zero, the correction to the array indexes is necessary. Regarding the SO(3) coefficients, they have
-* the same technical structure as the E matrices; however, due to some development issues, accessing them is done in a different manner, using the \e so3CoeffsArrayIndex() function as shown in the example code below. Finally, the self-rotation function map can be accessed as a 1D or 3D numpy.array using the functions shown in the
-* example code below. Again, as passing 3D matrices is not possible using SWIG and Numpy.i typedefs, the 3D version of the function is much slower than the 1D version. Assuming the user would find a point in the map for which he would like to know the rotation matrix (the indices of the self-rotation function are related to the Euler
-* angles in a non-trivial manner), ProSHADE provides the \e getRotationMatrixFromRotFunIndices() function also shown in the following example code. This function returns the rotation matrix belonging to the given self-rotation function indices in a numpy.array format.
-*
-* \code{.py}
+```
+
+Once the self-rotation function is computed, ProSHADE allows the user to access all of its interim results as well as the rotation function map. Specifically the E matrices, which are ordered by the band, order1 and order2 (in this order) can be obtained as shown in the following code. The E matrices are 3D arrays, which suffer from the different number of orders for different bands feature of spherical harmonics. Therefore, the band dimensions of the arrays are zero padded; furthermore, as the order indexing goes from -band to +band, but the array indexing starts from zero, the correction to the array indexes is necessary. Regarding the SO(3) coefficients, they have the same technical structure as the E matrices; however, due to some development issues, accessing them is done in a different manner, using the *so3CoeffsArrayIndex()* function as shown in the example code below. Finally, the self-rotation function map can be accessed as a 1D or 3D numpy.array using the functions shown in the example code below. Again, as passing 3D matrices is not possible using SWIG and Numpy.i typedefs, the 3D version of the function is much slower than the 1D version. Assuming the user would find a point in the map for which he would like to know the rotation matrix (the indices of the self-rotation function are related to the Euler angles in a non-trivial manner), ProSHADE provides the *getRotationMatrixFromRotFunIndices()* function also shown in the following example code. This function returns the rotation matrix belonging to the given self-rotation function indices in a numpy.array format.
+
+```
 """ Obtain the E matrices """
 eMat                                          = proshade.getEMatrix ( pStruct )
 Band4OrderOneMin2OrderTwo3EMatrixValue        = eMat[4][-2+4][3+4] # Band = 4, Order1 = -2 and Order2 = 3
@@ -847,15 +844,13 @@ selfRotationFunction3D                        = proshade.getRotationFunction3D (
 
 """ Convert self-rotation function indices to rotation matrix """
 rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 )
-\endcode
-*
-* \e Computing \e the \e optimal \e rotation \e function
-*
-* A related ProSHADE functionality is the computation of an optimal rotation function for two input structures. In the standard ProSHADE tasks, this is done for two phase-less structure maps (the phase is removed to achive identical centering on the maps) in order to find the optimal rotation, which overlays the two maps, but the user is free to
-* call this function for any two \b ProSHADE_data objects which both have their spherical harmonics values computed. To do this, we will create two new \b ProSHADE_data objects, read in some structures, process them, map them onto spheres, compute their spherical harmonics values and then we call the
-* \e getOverlayRotationFunction(). This function works similarly to the \e getRotationFunction() used above, but it uses spherical harmonics coefficients from two different structures as opposed to the same structures.
-*
-* \code{.py}
+```
+
+#### Computing the optimal rotation function
+
+A related ProSHADE functionality is the computation of an optimal rotation function for two input structures. In the standard ProSHADE tasks, this is done for two phase-less structure maps (the phase is removed to achive identical centering on the maps) in order to find the optimal rotation, which overlays the two maps, but the user is free to call this function for any two **ProSHADE_data** objects which both have their spherical harmonics values computed. To do this, we will create two new **ProSHADE_data** objects, read in some structures, process them, map them onto spheres, compute their spherical harmonics values and then we call the *getOverlayRotationFunction()*. This function works similarly to the *getRotationFunction()* used above, but it uses spherical harmonics coefficients from two different structures as opposed to the same structures.
+
+```
 """ Modify the settings object for optimal rotation function computation """
 pSet.task                                     = proshade.OverlayMap
 pSet.verbose                                  = 1
@@ -886,43 +881,36 @@ pStruct_moving.computeSphericalHarmonics      ( pSet )
 
 """ Compute the optimal rotation function """
 pStruct_moving.getOverlayRotationFunction     ( pSet, pStruct_static )
-\endcode
-*
-* Now, in order to access the optimal rotation function, the user can use the same functions as for accessing the self-rotation function above, \e i.e. the \e getRotationFunction1D() and the \e getRotationFunction3D() functions, both with the moving structure as their only argument. Moreover, the same function for converting
-* the rotation function indices to the appropriate rotation matrix can also be used as shown in the following example code.
-*
-* \code{.py}
+```
+
+Now, in order to access the optimal rotation function, the user can use the same functions as for accessing the self-rotation function above, *i.e.* the *getRotationFunction1D()* and the *getRotationFunction3D()* functions, both with the moving structure as their only argument. Moreover, the same function for converting the rotation function indices to the appropriate rotation matrix can also be used as shown in the following example code.
+
+```
 """ Obtain the self-rotation function """
 rotationFunction1D                            = proshade.getRotationFunction1D ( pStruct_moving )
 rotationFunction3D                            = proshade.getRotationFunction3D ( pStruct_moving )
 
 """ Convert self-rotation function indices to rotation matrix """
 rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 )
-\endcode
-*
-* \e Finding \e the \e optimal \e rotation
-*
-* Once the optimal rotation map is computed, the user may be interested in the highest value in the map and the corresponding rotation matrix (or Euler angles), as these will represent the rotation which overlays most of the two structures (within the error of the map
-* sampling). To facilitate this taks, ProSHADE contains the \e getBestRotationMapPeaksEulerAngles() function, which finds the highest peak in the map and returns the associated Euler angles. The following example code demonstrates how to use this function as well
-* as how to obtain the the rotation matrix from the Euler angles using ProSHADE.
-*
-* \code{.py}
+```
+
+#### Finding the optimal rotation
+
+Once the optimal rotation map is computed, the user may be interested in the highest value in the map and the corresponding rotation matrix (or Euler angles), as these will represent the rotation which overlays most of the two structures (within the error of the map sampling). To facilitate this taks, ProSHADE contains the *getBestRotationMapPeaksEulerAngles()* function, which finds the highest peak in the map and returns the associated Euler angles. The following example code demonstrates how to use this function as well as how to obtain the the rotation matrix from the Euler angles using ProSHADE.
+
+```
 """ Find the highest peak in the map, associated Euler angles and rotation matrix """
 optimalRotationAngles                         = pStruct_moving.getBestRotationMapPeaksEulerAngles ( pSet )
 optimalRotationMatrix                         = proshade.getRotationMatrixFromEulerZXZ ( optimalRotationAngles )
-\endcode
-*
-* \e Rotating \e the \e internal \e map \e representation
-*
-* Once the optimal rotation angles are obtained, it is the next logical step to rotate the structure by these angles to get the two structures in identical orientation. This can also be done with ProSHADE function \e rotateMap(), which works with the Euler angles as
-* reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which are multiplied by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process
-* has two side effects: Firstly, the resulting maps tend to suffer from minor artefacts resulting from the sequence termination errors and the interpolation to and from spheres to cartesian co-ordinates. And secondly, the input maps need to have their spherical harmonics
-* coefficients computed. Therefore, this approach is not recommended for any maps that are to be deposited or fitted into, but they are sufficient for computation of most ProSHADE standard tasks as the shape is largely identical.
-*
-* In terms of this tutorial, since we have already computed the optimal rotation between two structures, we will continue to show how this result can be used to rotate a new structure. This will allow us to demonstrate the next functionality of ProSHADE in the later sections
-* of this tutorial in a more streamlined fashion. To cause \b ProSHADE_data map rotation, the function in the example code can be used.
-*
-* \code{.py}
+```
+
+#### Rotating the internal map representation
+
+Once the optimal rotation angles are obtained, it is the next logical step to rotate the structure by these angles to get the two structures in identical orientation. This can also be done with ProSHADE function *rotateMap()*, which works with the Euler angles as reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which are multiplied by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process has two side effects: Firstly, the resulting maps tend to suffer from minor artefacts resulting from the sequence termination errors and the interpolation to and from spheres to cartesian co-ordinates. And secondly, the input maps need to have their spherical harmonics coefficients computed. Therefore, this approach is not recommended for any maps that are to be deposited or fitted into, but they are sufficient for computation of most ProSHADE standard tasks as the shape is largely identical.
+
+In terms of this tutorial, since we have already computed the optimal rotation between two structures, we will continue to show how this result can be used to rotate a new structure. This will allow us to demonstrate the next functionality of ProSHADE in the later sections of this tutorial in a more streamlined fashion. To cause **ProSHADE_data** map rotation, the function in the example code can be used.
+
+```
 """ Delete the old structure objects so that new can be created """
 del pStruct_static
 del pStruct_moving
@@ -949,16 +937,13 @@ pStruct_moving.computeSphericalHarmonics      ( pSet )
 
 """ Rotate the moving structure """
 pStruct_moving.rotateMap                      ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
-\endcode
-*
-* \e Computing \e the \e translation \e function
-*
-* Similarly to the rotation function, the user may be interested in the optimal translation required to overlay two structures. ProSHADE can compute such an optimal translation using the translation function; however, in order to compute it, it requires that the two internal map representation have the same
-* dimensions in terms of map indices and map sampling; identical map sampling is achieved by setting the \b changeMapResolution setting to true. Still, the identical number of indices will not generally be the case, ProSHADE provides a padding function, which can add zeroes around the internal
-* representation map to make sure that it has given dimensions. Therefore, in order to compute the translation function, it is required that the two structures are modified by the \e zeroPaddToDims() function to both have the same dimensions; the higher of the two structures are chosen in order to avoid
-* loss of information.
-*
-* \code{.py}
+```
+
+#### Computing the translation function
+
+Similarly to the rotation function, the user may be interested in the optimal translation required to overlay two structures. ProSHADE can compute such an optimal translation using the translation function; however, in order to compute it, it requires that the two internal map representation have the same dimensions in terms of map indices and map sampling; identical map sampling is achieved by setting the **changeMapResolution** setting to true. Still, the identical number of indices will not generally be the case, ProSHADE provides a padding function, which can add zeroes around the internal representation map to make sure that it has given dimensions. Therefore, in order to compute the translation function, it is required that the two structures are modified by the *zeroPaddToDims()* function to both have the same dimensions; the higher of the two structures are chosen in order to avoid loss of information.
+
+```
 """ Add zeroes around he structure to achieve given number of indicel along each dimension """
 pStruct_static.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
                                                 int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
@@ -966,48 +951,43 @@ pStruct_static.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_stat
 pStruct_moving.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
                                                 int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
                                                 int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
-\endcode
-*
-* Once the structures have the same dimensions, it is possible to compute the translation function. This function will compute the Fourier transforms of both maps, combine the Fourier coefficients and compute the inverse Fourier transform on the resulting combined coefficients map, thus obtaining the
-* translation map. Once computed, this map can be accessed from the ProSHADE python module as shown in the following example code, again keeping in mind that the 3D version takes considerably longer to obtain than the 1D version.
-*
-* \code{.py}
+```
+
+Once the structures have the same dimensions, it is possible to compute the translation function. This function will compute the Fourier transforms of both maps, combine the Fourier coefficients and compute the inverse Fourier transform on the resulting combined coefficients map, thus obtaining the translation map. Once computed, this map can be accessed from the ProSHADE python module as shown in the following example code, again keeping in mind that the 3D version takes considerably longer to obtain than the 1D version.
+
+```
 """ Compute the translation function """
 pStruct_moving.computeTranslationMap          ( pStruct_static )
 
 """ Access the translation map as 1D or 3D numpy.array """
 translationMap1D                              = proshade.getTranslationFunction1D ( pStruct_moving )
 translationMap3D                              = proshade.getTranslationFunction3D ( pStruct_moving )
-\endcode
-*
-* Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
-*
-* \code{.py}
+```
+
+Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
+
+```
 """ Find the optimal translation vector """
 optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
-\endcode
-*
-*
-* \e Translating \e the \e internal \e representation
-*
-* Once the optimal translation vector is computed, it makes sense that ProSHADE should also be able to apply it to the internal map representation. Therefore, the function \e translateMap() is provided to facilitate this task. The translation is done in two steps, firstly, ProSHADE
-* simply modifies the starting indices and axes origins of the map to minimise the movement of the map in the cell by moving the cell as a whole. Next, the remaining translation is then done in the frequency domain (by modifing the Fouries coefficients) of the internal representation.
-*
- * \code{.py}
+```
+
+
+#### Translating the internal representation
+
+Once the optimal translation vector is computed, it makes sense that ProSHADE should also be able to apply it to the internal map representation. Therefore, the function *translateMap()* is provided to facilitate this task. The translation is done in two steps, firstly, ProSHADE simply modifies the starting indices and axes origins of the map to minimise the movement of the map in the cell by moving the cell as a whole. Next, the remaining translation is then done in the frequency domain (by modifing the Fouries coefficients) of the internal representation.
+
+```
 """ Translate the internal representation """
 pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] )
-\endcode
-*
-* \e Writing \e out \e resulting \e structures
-*
-* Finally, it is worth noting that while the MAP formatted data can be written out of the \b ProSHADE_data object at any time (albeit their quality may be decreased if the rotation was applied as discussed in the rotating internal representation map section), ProSHADE can also write
-* out the co-ordinate data for input structures, which were read in from a co-ordinate file. Please note that ProSHADE cannot generate co-ordinate data from maps, the co-ordinate data need to pre-exist ProSHADE run. Nonetheless, in the case of, for example, finding the optimal rotation
-* and translation of one structure to overlay with another structure, the user may be interested in writing out the modified co-ordinates. To do this, ProSHADE contains the \e writePdb() function, which needs to be supplied with the file name, the required rotation and translation and it
-* will write out the PDB file with these modifications applied.
-*
-* Also, please note that it is the users responsibility to add any rotations or translations together and to supply this function with the correct cumulative values. The example code below shows how a rotated and translated PDB file can be outputted by ProSHADE.
-*
-* \code{.py}
+```
+
+#### Writing out resulting structures
+
+Finally, it is worth noting that while the MAP formatted data can be written out of the **ProSHADE_data** object at any time (albeit their quality may be decreased if the rotation was applied as discussed in the rotating internal representation map section), ProSHADE can also write out the co-ordinate data for input structures, which were read in from a co-ordinate file. Please note that ProSHADE cannot generate co-ordinate data from maps, the co-ordinate data need to pre-exist ProSHADE run. Nonetheless, in the case of, for example, finding the optimal rotation and translation of one structure to overlay with another structure, the user may be interested in writing out the modified co-ordinates. To do this, ProSHADE contains the *writePdb()* function, which needs to be supplied with the file name, the required rotation and translation and it will write out the PDB file with these modifications applied.
+
+Also, please note that it is the users responsibility to add any rotations or translations together and to supply this function with the correct cumulative values. The example code below shows how a rotated and translated PDB file can be outputted by ProSHADE.
+
+```
 """ Translate the internal representation """
 pStruct_moving.writePdb                       ( "overlayed.pdb",
                                                 optimalRotationAngles[0],
@@ -1016,5 +996,4 @@ pStruct_moving.writePdb                       ( "overlayed.pdb",
                                                 optimalTranslationVector[0],
                                                 optimalTranslationVector[1],
                                                 optimalTranslationVector[2] )
-\endcode
-*
+```
