@@ -31,7 +31,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-#sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python3" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python3" )
 import proshade
 
 ##############################################
@@ -54,7 +54,6 @@ pSet.addStructure                             ( "/Users/mysak/LMB/proshade/exp/d
 pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
 pSet.setPDBBFactor                            ( -1.0 )                                 # Should all B-factors in a PDB file changed to this value? If no, set to negative value.
 pSet.setBandwidth                             ( 0 )                                    # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-pSet.setAngularResolution                     ( 0 )                                    # The resolution of the sphere mapping. Set to 0 for automatic determination.
 pSet.setPhaseUsage                            ( True )                                 # Use full maps, or Patterson-like maps?
 pSet.setSphereDistances                       ( 0.0 )                                  # The distance between spheres. Use 0.0 for automatic determination.
 pSet.setIntegrationOrder                      ( 0 )                                    # The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.

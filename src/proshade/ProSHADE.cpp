@@ -115,7 +115,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding the structure overlay
-    this->overlayStructureName                        = "moved.map";
+    this->overlayStructureName                        = "movedStructure";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
@@ -212,7 +212,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     this->requestedSymmetryFold                       = 0;
     
     //================================================ Settings regarding the structure overlay
-    this->overlayStructureName                        = "moved.map";
+    this->overlayStructureName                        = "movedStructure";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;

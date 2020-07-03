@@ -30,7 +30,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-#sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python2" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python2" )
 import proshade
 
 ### Create the settings object
@@ -100,7 +100,7 @@ initialMapArray                               = reBoxStr.getMapPython ( reBoxStr
 ### How did the re-boxing go?
 print ( "Original dimensions were: %+1.0f  x  %+1.0f  x  %+1.0f" % ( xDimIndices, yDimIndices, zDimIndices ) )
 print ( "Current dimensions are:   %+1.0f  x  %+1.0f  x  %+1.0f" % ( reBoxStr.getXDim(), reBoxStr.getYDim(), reBoxStr.getZDim() ) )
-perc                                          = ( ( reBoxStr.getXDim() * reBoxStr.getYDim() * reBoxStr.getZDim() ) / ( xDimIndices * yDimIndices * zDimIndices ) ) * 100.0
+perc                                          = ( float ( reBoxStr.getXDim() * reBoxStr.getYDim() * reBoxStr.getZDim() ) / ( xDimIndices * yDimIndices * zDimIndices ) ) * 100.0
 faster                                        = 100.0 / perc
 print ( "Saved %+1.3f percents of indices and thus made the processing of the map %+1.3f times faster." % ( 100 - perc, faster ) )
 

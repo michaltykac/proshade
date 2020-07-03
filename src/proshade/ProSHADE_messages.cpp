@@ -264,10 +264,10 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            for C and D symmetries to follow them with the requested fold.      " << std::endl;
     std::cout << "            I.e. \"C4\" means cyclic symmetry with fold 4.                        " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --overlayFile                                   [DEFAULT:      \"moved\"]     " << std::endl;
+    std::cout << "    --overlayFile                          [DEFAULT:      \"movedStructure\"]     " << std::endl;
     std::cout << "            Filename to where the translated and rotated moving structure       " << std::endl;
     std::cout << "            with optimal placement relative to the static structure will be     " << std::endl;
-    std::cout << "            saved to.                                                           " << std::endl;
+    std::cout << "            saved to. Extension will be added automatically                     " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "FLAGS:                                                                          " << std::endl;
     std::cout << "    The following options can be used to override the default values and        " << std::endl;

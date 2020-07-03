@@ -48,7 +48,6 @@ int main ( int argc, char **argv )
     //================================================ All other (possibly other tasks related) settings
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-    settings->setAngularResolution                    ( 0 );                                 // The resolution of the sphere mapping. Set to 0 for automatic determination.
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
     settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
@@ -80,7 +79,7 @@ int main ( int argc, char **argv )
     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
     
     //================================================ Read in the structures
-    simpleSym->readInStructure                        ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
+    simpleSym->readInStructure                        ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
 
     //================================================ Process internal map
     simpleSym->processInternalMap                     ( settings ); // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -114,7 +113,7 @@ int main ( int argc, char **argv )
     settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 4 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     ProSHADE_internal_data::ProSHADE_data* requestSym = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
-    requestSym->readInStructure                       ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
+    requestSym->readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
     requestSym->processInternalMap                    ( settings );
     requestSym->mapToSpheres                          ( settings );
     requestSym->computeSphericalHarmonics             ( settings );
