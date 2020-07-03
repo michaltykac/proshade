@@ -3,7 +3,6 @@ To Do:
 Problems
 * [Currently Disabled Feature] Progressive sphere mapping for rotation still have memory leak in shell 9...
 * [Bug] Manually setting high band crashes or leads to 0 results.
-* [Bug] Running the same structure distance computation more than twice leads to the consecutive comparisons not having trace sigma and rotation function distance 1.
 
 Development
 * Timing - are band and integration order correctly determined?
