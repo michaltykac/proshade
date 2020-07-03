@@ -126,7 +126,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     if ( settings->progressiveSphereMapping )
     {
         settings->progressiveSphereMapping            = false;
-        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! The progressive sphere mapping is not yet fully implemented for the map rotation. It has been turned off.", "WO00034" );
+        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! The progressive sphere mapping is not yet fully implemented for the map rotation. It has been turned off.", "WO00035" );
     }
     
     //================================================ Read in the structures
@@ -485,7 +485,7 @@ void ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims ( proshade_unsign xDi
     //================================================ Sanity check
     if ( ( this->xDimIndices > xDim  ) || ( this->yDimIndices > yDim  ) || ( this->zDimIndices > zDim  ) )
     {
-        throw ProSHADE_exception ( "Cannot zero-pad in negative direction.", "EO00033", __FILE__, __LINE__, __func__, "The requested padded size of a structure is smaller than\n                    : the current size. If the user sees this error, there is\n                    : likely a considerable bug. Please report this error." );
+        throw ProSHADE_exception ( "Cannot zero-pad in negative direction.", "EO00034", __FILE__, __LINE__, __func__, "The requested padded size of a structure is smaller than\n                    : the current size. If the user sees this error, there is\n                    : likely a considerable bug. Please report this error." );
     }
     
     //================================================ If done, do nothing

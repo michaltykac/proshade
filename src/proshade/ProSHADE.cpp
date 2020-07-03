@@ -2194,7 +2194,7 @@ void getEnergyLevelsVectorNumpy ( ProSHADE_run* run, int verbose, double *enLevV
     //================================================ Sanity check
     if ( len > static_cast<int> ( run->getEnergyLevelsLength ( ) ) )
     {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The energy level distances are not available, yet already requested. Run the computation before the getEnergyLevelsNumpy() function is called.", "WP00035" );
+        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The energy level distances are not available, yet already requested. Run the computation before the getEnergyLevelsNumpy() function is called.", "WP00036" );
         return ;
     }
     
@@ -2222,7 +2222,7 @@ void getTraceSigmaVectorNumpy ( ProSHADE_run* run, int verbose, double *trSigVec
     //================================================ Sanity check
     if ( len > static_cast<int> ( run->getTraceSigmaLength ( ) ) )
     {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The trace sigma distances are not available, yet already requested. Run the computation before the getTraceSigmaDescrNumpy() function is called.", "WP00036" );
+        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The trace sigma distances are not available, yet already requested. Run the computation before the getTraceSigmaDescrNumpy() function is called.", "WP00037" );
         return ;
     }
     
@@ -2250,7 +2250,7 @@ void getRotationFunctionVectorNumpy ( ProSHADE_run* run, int verbose, double *ro
     //================================================ Sanity check
     if ( len > static_cast<int> ( run->getRotationFunctionLength ( ) ) )
     {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The rotation function distances are not available, yet already requested. Run the computation before the getRotationFunctionDescrNumpy() function is called.", "WP00037" );
+        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The rotation function distances are not available, yet already requested. Run the computation before the getRotationFunctionDescrNumpy() function is called.", "WP00038" );
         return ;
     }
     
@@ -2275,7 +2275,7 @@ std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisN
     //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) <= axisNo )
     {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00038" );
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00039" );
         return                                        ( std::vector< std::string > ( ) );
     }
     
@@ -2322,7 +2322,7 @@ std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign
     //================================================ Sanity checks
     if ( noStructures <= strNo )
     {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WR00040" );
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WB00041" );
         return                                        ( std::vector< proshade_signed > ( ) );
     }
     
@@ -2350,7 +2350,7 @@ std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign 
     //================================================ Sanity checks
     if ( noStructures <= strNo )
     {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WR00040" );
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WB00041" );
         return                                        ( std::vector< proshade_signed > ( ) );
     }
     
@@ -2442,7 +2442,7 @@ void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap,
     //================================================ Sanity checks
     if ( run->getNoStructures() <= strNo )
     {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WR00040" );
+        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.", "WB00041" );
         return ;
     }
     
@@ -2466,7 +2466,7 @@ std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
     //================================================ Sanity check
     if ( this->eulerAngles.size() != 3 )
     {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     
@@ -2484,7 +2484,7 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
     //================================================ Sanity check
     if ( this->eulerAngles.size() != 3 )
     {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     
@@ -2514,7 +2514,7 @@ std::vector< proshade_double > ProSHADE_run::getTranslation ( )
     //======================================== Sanity check
     if ( this->eulerAngles.size() != 3 )
     {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00041" );
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     

@@ -421,7 +421,7 @@ void ProSHADE_internal_tasks::checkOverlaySettings ( ProSHADE_settings* settings
     //================================================ Are the any structures?
     if ( settings->inputFiles.size () != 2 )
     {
-        throw ProSHADE_exception ( "There are not enough structures for map overlay\n                    : computation.", "EO00032", __FILE__, __LINE__, __func__, "There needs to be exactly two structures for map overlay\n                    : mode to work; the first structure is the static and the\n                    : second is the moving structure." );
+        throw ProSHADE_exception ( "There are not enough structures for map overlay\n                    : computation.", "EO00033", __FILE__, __LINE__, __func__, "There needs to be exactly two structures for map overlay\n                    : mode to work; the first structure is the static and the\n                    : second is the moving structure." );
     }
     
     //================================================ Done

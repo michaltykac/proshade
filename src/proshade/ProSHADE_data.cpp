@@ -231,14 +231,14 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( len ) != ( xDmInd * yDmInd * zDmInd ) )
     {
-        throw ProSHADE_exception ( "Structure class input map has wrong dimensions.", "EP00043", __FILE__, __LINE__, __func__, "The supplied map array size has different dimensions to\n                    : the required map dimensions." );
+        throw ProSHADE_exception ( "Structure class input map has wrong dimensions.", "EP00044", __FILE__, __LINE__, __func__, "The supplied map array size has different dimensions to\n                    : the required map dimensions." );
     }
     
     if ( ( static_cast<proshade_signed> ( xT - xFr ) != static_cast<proshade_signed> ( xDmInd - 1 ) ) ||
          ( static_cast<proshade_signed> ( yT - yFr ) != static_cast<proshade_signed> ( yDmInd - 1 ) ) ||
          ( static_cast<proshade_signed> ( zT - zFr ) != static_cast<proshade_signed> ( zDmInd - 1 ) ) )
     {
-        throw ProSHADE_exception ( "Structure class input dimensions not in line with map\n                    : to/from indices.", "EP00044", __FILE__, __LINE__, __func__, "The supplied map information does not add up. The\n                    : dimensions are not in line with the indexing start/stop\n                    : position distances and therefore proper map indexing\n                    : cannot be done. Please check the input values." );
+        throw ProSHADE_exception ( "Structure class input dimensions not in line with map\n                    : to/from indices.", "EP00045", __FILE__, __LINE__, __func__, "The supplied map information does not add up. The\n                    : dimensions are not in line with the indexing start/stop\n                    : position distances and therefore proper map indexing\n                    : cannot be done. Please check the input values." );
     }
     
     //================================================ Allocate the map memory
@@ -876,7 +876,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
     {
-        throw ProSHADE_exception ( "Cannot write co-ordinate file if the input file did not contain co-ordinates.", "EP00045", __FILE__, __LINE__, __func__, "You have called the WritePDB function on structure which\n                    : was created by reading in a map. This is not allowed as\n                    : ProSHADE cannot create co-ordinates from map file." );
+        throw ProSHADE_exception ( "Cannot write co-ordinate file if the input file did not contain co-ordinates.", "EP00047", __FILE__, __LINE__, __func__, "You have called the WritePDB function on structure which\n                    : was created by reading in a map. This is not allowed as\n                    : ProSHADE cannot create co-ordinates from map file." );
     }
     
     //================================================ Open the original PDB file
@@ -928,7 +928,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     {
         std::stringstream hlpMessage;
         hlpMessage << "Failed to open the PDB file " << fName << " for output.";
-        throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00046", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
+        throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00048", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
     }
     
     //================================================ Release memory
@@ -1864,7 +1864,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     
     if ( ( settings->requestedSymmetryType != "" ) && ( settings->requestedSymmetryType != "C" ) && ( settings->requestedSymmetryType != "D" ) && ( settings->requestedSymmetryType != "T" ) && ( settings->requestedSymmetryType != "O" ) && ( settings->requestedSymmetryType != "I" ) )
     {
-        throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00031", __FILE__, __LINE__, __func__, "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
+        throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00032", __FILE__, __LINE__, __func__, "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
     }
 
     //================================================ Release memory
@@ -2276,7 +2276,7 @@ void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& save
     //================================================ Sanity check
     if ( saveTo != NULL )
     {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! The deep copy pointer is not set to NULL. Cannot proceed and returning unmodified pointer.", "WB00039" );
+        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! The deep copy pointer is not set to NULL. Cannot proceed and returning unmodified pointer.", "WB00040" );
         return ;
     }
     
@@ -3049,7 +3049,7 @@ void ProSHADE_internal_data::ProSHADE_data::getRealSphericalHarmonicsForShell ( 
     //================================================ Sanity check
     if ( shellNo >= this->noSpheres )
     {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00042" );
+        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00043" );
         return ;
     }
     
@@ -3076,7 +3076,7 @@ void ProSHADE_internal_data::ProSHADE_data::getImagSphericalHarmonicsForShell ( 
     //================================================ Sanity check
     if ( shellNo >= this->noSpheres )
     {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00042" );
+        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00043" );
         return ;
     }
     
@@ -3102,7 +3102,7 @@ int ProSHADE_internal_data::ProSHADE_data::getSphericalHarmonicsLenForShell  ( p
     //================================================ Sanity check
     if ( shellNo >= this->noSpheres )
     {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00042" );
+        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00043" );
         return                                        ( 0 );
     }
     
@@ -3366,7 +3366,7 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
     //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) <= axisNo )
     {
-        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00038" );
+        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00039" );
         return                                        ( std::vector< std::string > ( ) );
     }
     
