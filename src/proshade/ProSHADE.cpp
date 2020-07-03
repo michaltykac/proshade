@@ -47,9 +47,6 @@ ProSHADE_settings::ProSHADE_settings ( )
     this->maxBandwidth                                = 0;
     this->rotationUncertainty                         = 0;
     
-    //================================================ Settings regarding the angular resolution of calculations
-    this->maxAngRes                                   = 0;
-    
     //================================================ Settings regarding the phase
     this->usePhase                                    = true;
     
@@ -149,9 +146,6 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = 0;
     this->rotationUncertainty                         = 0;
-    
-    //================================================ Settings regarding the angular resolution of calculations
-    this->maxAngRes                                   = 0;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = true;
@@ -683,22 +677,6 @@ void ProSHADE_settings::setBandwidth ( proshade_unsign band )
     
 }
 
-/*! \brief Sets the requested spherical harmonics angular resolution in the appropriate variable.
- 
- This function sets the spherical harmonics computation resolution on each sphere in the appropriate variable.
- 
- \param[in] angR The requested value for spherical harmonics angular resolution (0 = AUTOMATIC DETERMINATION).
- */
-void ProSHADE_settings::setAngularResolution ( proshade_unsign angR )
-{
-    //================================================ Set the value
-    this->maxAngRes                                   = angR;
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief Sets the requested distance between spheres in the appropriate variable.
  
  This function sets the distance between any two consecutive spheres in the sphere mapping of a map in the appropriate variable.
@@ -1089,40 +1067,6 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
     
 }
 
-/*! \brief This function determines the angular resolution for the spherical harmonics computation.
- 
- This function is here to automstically determine the angular resolution (i.e. the theta and phi angles) to which the spherical
- harmonics computations should be done. It accomplishes this by checking if values are already set, and if not (values are 0), then
- it sets them to the maximum circumference of the map.
- 
- \param[in] circumference The maximum circumference of the map.
- \param[in] uncertainty The maximum allowed uncertainty on the rotation function.
- */
-void ProSHADE_settings::determineAngularResolution ( proshade_unsign circumference, proshade_double uncertainty )
-{
-    //================================================ Check the current settings value is set to auto
-    if ( this->maxAngRes != 0 )
-    {
-        std::stringstream hlpSS;
-        hlpSS << "The angular resolution was determined as: " << this->maxAngRes;
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
-        return ;
-    }
-    
-    //================================================ Determine automatically
-    if ( uncertainty <= 0.0 ) { this->maxAngRes = ProSHADE_internal_spheres::autoDetermineAngularResolution ( circumference ); }
-    else { this->maxAngRes = 2 * this->maxBandwidth; }
-    
-    //================================================ Report progress
-    std::stringstream hlpSS;
-    hlpSS << "The angular resolution was determined as: " << this->maxAngRes;
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief This function determines the sphere distances for sphere mapping.
  
  This function determines the distance between two consecutive spheres in the sphere mappin galgorithm. It checks
@@ -1221,9 +1165,6 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     //================================================ Bandwidth
     if ( this->rotationUncertainty > 0.0 ) { this->determineBandwidthFromAngle ( this->rotationUncertainty ); }
     else { this->determineBandwidth ( circ ); }
-    
-    //================================================ Angular resolution
-    this->determineAngularResolution                  ( circ, this->rotationUncertainty );
     
     //================================================ Find maximum diagonal in Angstroms
     proshade_single maxDiag                           = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
@@ -1465,7 +1406,6 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "file",            required_argument,  NULL, 'f' },
         { "resolution",      required_argument,  NULL, 'r' },
         { "bandwidth",       required_argument,  NULL, 'b' },
-        { "angRes",          required_argument,  NULL, 'a' },
         { "sphereDists",     required_argument,  NULL, 's' },
         { "extraSpace",      required_argument,  NULL, 'e' },
         { "integOrder",      required_argument,  NULL, 'i' },
@@ -1502,7 +1442,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "a:b:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "b:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1587,13 +1527,6 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case 'b':
              {
                  this->setBandwidth                   ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
-                 continue;
-             }
-                 
-             //======================================= Save the argument as the angular resolution value
-             case 'a':
-             {
-                 this->setAngularResolution           ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
                  continue;
              }
                  
@@ -1924,10 +1857,6 @@ void ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->maxBandwidth;
     printf ( "Bandwidth           : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maxAngRes;
-    printf ( "Angular resolution  : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->maxSphereDists;

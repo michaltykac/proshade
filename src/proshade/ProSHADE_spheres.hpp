@@ -99,7 +99,7 @@ namespace ProSHADE_internal_spheres
         ProSHADE_sphere                               ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single xSize,
                                                         proshade_single ySize, proshade_single zSize, proshade_unsign shOrder,
                                                         std::vector<proshade_single>* spherePos,
-                                                        bool progressiveMapping, proshade_unsign band, proshade_unsign angR, proshade_double* map,
+                                                        bool progressiveMapping, proshade_unsign band, proshade_double* map,
                                                         proshade_unsign* maxShellBand );
        ~ProSHADE_sphere                               ( void );
         
@@ -117,7 +117,6 @@ namespace ProSHADE_internal_spheres
     
     //================================================ Sphere resolution and computation decisions
     proshade_unsign autoDetermineBandwidth            ( proshade_unsign circumference );
-    proshade_unsign autoDetermineAngularResolution    ( proshade_unsign circumference );
     proshade_single autoDetermineSphereDistances      ( proshade_single maxMapRange, proshade_single resolution );
     proshade_unsign autoDetermineIntegrationOrder     ( proshade_single maxMapRange, proshade_single sphereDist );
 }

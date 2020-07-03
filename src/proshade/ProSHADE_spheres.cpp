@@ -39,12 +39,11 @@
  \param[in] spherePos A Pointer to vector of proshade_single's with the shell positions.
  \param[in] progressiveMapping Should the bandwidth and angular resolution be set by the actual number of points, or just same for all shells?
  \param[in] band The bandwidth to be set for conservative mapping.
- \param[in] angR The angular resolution to be set for conservative mapping.
  \param[in] map A pointer to the internal map which should be mapped to the sphere.
  \param[in] maxShellBand This pointer reference will take the shell band, if it is higher than the already known one.
  \param[out] X Data object with all values set and the appropriate map part mapped.
  */
-ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single xSize, proshade_single ySize, proshade_single zSize, proshade_unsign shOrder, std::vector<proshade_single>* spherePos, bool progressiveMapping, proshade_unsign band, proshade_unsign angR, proshade_double* map, proshade_unsign* maxShellBand )
+ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single xSize, proshade_single ySize, proshade_single zSize, proshade_unsign shOrder, std::vector<proshade_single>* spherePos, bool progressiveMapping, proshade_unsign band, proshade_double* map, proshade_unsign* maxShellBand )
 {
     //================================================ Save inputs
     this->shellOrder                                  = shOrder;
@@ -71,12 +70,12 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
     if ( progressiveMapping )
     {
         this->localBandwidth                          = std::min ( autoDetermineBandwidth ( maxCircumference ), band );
-        this->localAngRes                             = std::min ( autoDetermineAngularResolution ( maxCircumference ), angR );
+        this->localAngRes                             = this->localBandwidth * 2;
     }
     else
     {
         this->localBandwidth                          = band;
-        this->localAngRes                             = angR;
+        this->localAngRes                             = this->localBandwidth * 2;
     }
     
     //================================================ Save the maximum shell band for later
@@ -520,19 +519,6 @@ proshade_unsign ProSHADE_internal_spheres::autoDetermineBandwidth ( proshade_uns
 {
     //================================================ Determine and return
     return                                            ( std::ceil ( circumference / 2 ) );
-}
-
-/*! \brief This function determines the angular resolution for the spherical harmonics computation.
- 
- This function is here to automstically determine the angular resolution (i.e. the theta and phi angles) to which the spherical
- harmonics computations should be done. It accomplishes this by seting them to the maximum circumference of the map.
- 
- \param[in] circumference The maximum circumference of the map.
- */
-proshade_unsign ProSHADE_internal_spheres::autoDetermineAngularResolution ( proshade_unsign circumference )
-{
-    //================================================ Determine and return
-    return                                            ( circumference );
 }
 
 /*! \brief This function determines the sphere distances for sphere mapping.

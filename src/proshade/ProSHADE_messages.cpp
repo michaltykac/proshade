@@ -187,11 +187,6 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The bandwidth to which spherical harmonics decomposition shoud      " << std::endl;
     std::cout << "            be computed to. For automatic determination supply 0 or nothing.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    -a or --angRes                                  [DEFAULT:         AUTO]     " << std::endl;
-    std::cout << "            The angular resolution value determines how finely the spherical    " << std::endl;
-    std::cout << "            space will be sampled. This also affects the resolution of the      " << std::endl;
-    std::cout << "            rotation map. For automatic determination supply 0 or nothing.      " << std::endl;
-    std::cout << "                                                                                " << std::endl;
     std::cout << "    -s or --sphereDists                             [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            The distance in Angstroms between any two concentric spheres to     " << std::endl;
     std::cout << "            which the internal map representation will be mapped to. Use        " << std::endl;

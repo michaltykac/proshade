@@ -114,9 +114,6 @@ public:
     //================================================ Settings regarding the bandwidth of calculations
     proshade_unsign maxBandwidth;                     //!< The bandwidth of spherical harmonics decomposition for the largest sphere.
     proshade_double rotationUncertainty;              //!< Alternative to bandwidth - the angle in degrees to which the rotation function accuracy should be computed.
-    
-    //================================================ Settings regarding the angular resolution of calculations
-    proshade_unsign maxAngRes;                        //!< The maximum number of indices on the angular grids forming the spheres for the largest sphere.
 
     //================================================ Settings regarding the phase
     bool usePhase;                                    //!< If true, the full data will be used, if false, Patterson maps will be used instead and phased data will be converted to them. Also, only half of the spherical harmonics bands will be necessary as odd bands have to be 0 for Patterson maps.
@@ -195,7 +192,6 @@ public: // maybe make this protected?
     //================================================ Variable modifying functions
     void determineBandwidthFromAngle                  ( proshade_double uncertainty );
     void determineBandwidth                           ( proshade_unsign circumference );
-    void determineAngularResolution                   ( proshade_unsign circumference, proshade_double uncertainty );
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
     void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
@@ -230,7 +226,6 @@ public:
     void setMapCentering                              ( bool com );
     void setExtraSpace                                ( proshade_single exSpace );
     void setBandwidth                                 ( proshade_unsign band );
-    void setAngularResolution                         ( proshade_unsign angR );
     void setSphereDistances                           ( proshade_single sphDist );
     void setIntegrationOrder                          ( proshade_unsign intOrd );
     void setTaylorSeriesCap                           ( proshade_unsign tayCap );

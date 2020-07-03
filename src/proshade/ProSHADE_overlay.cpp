@@ -637,7 +637,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     
     //================================================ Find spherical cut-offs
     std::vector<proshade_double> lonCO, latCO;
-    ProSHADE_internal_overlay::computeAngularThreshold ( &lonCO, &latCO, settings->maxAngRes );
+    ProSHADE_internal_overlay::computeAngularThreshold ( &lonCO, &latCO, settings->maxBandwidth * 2 );
     
     //================================================ Allocate memory for the rotated map
     proshade_double *densityMapRotated                = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
