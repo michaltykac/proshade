@@ -58,7 +58,6 @@ int main ( int argc, char **argv )
     settings->setRequestedFold                        ( 0 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-    settings->setAngularResolution                    ( 0 );                                 // The resolution of the sphere mapping. Set to 0 for automatic determination.
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
     settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
@@ -80,7 +79,7 @@ int main ( int argc, char **argv )
     ProSHADE_internal_data::ProSHADE_data* reboxStr   = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
     
     //================================================ Read in the structures
-    reboxStr->readInStructure                         ( "/Users/mysak/Downloads/emd_5762.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
+    reboxStr->readInStructure                         ( "./emd_5762.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object. This example uses EMDB map 5762 (PDB accession code 3J4S)
 
     //================================================ Get the original structure boundaries
     std::vector < proshade_signed* > oldBounds;
@@ -128,6 +127,11 @@ int main ( int argc, char **argv )
     //================================================ Write out the change in bounds text (to show that we know them :-)
     std::cout << "The original structure boundaries were: " << oldBounds.at(0)[0] << " to " << oldBounds.at(0)[1] << " ; " << oldBounds.at(0)[2] << " to " << oldBounds.at(0)[3] << " and " << oldBounds.at(0)[4] << " to " << oldBounds.at(0)[5] << std::endl;
     std::cout << "The new structure boundaries are:       " << reboxedBounds.at(0)[0] << " to " << reboxedBounds.at(0)[1] << " ; " << reboxedBounds.at(0)[2] << " to " << reboxedBounds.at(0)[3] << " and " << reboxedBounds.at(0)[4] << " to " << reboxedBounds.at(0)[5] << std::endl;
+    
+    //================================================ Expected output
+//  The original structure boundaries were: -128 to 127 ; -128 to 127 and -128 to 127
+//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -136 to 135
+//  // And of course the reBoxed.map file :-)
     
     //================================================ Release the settings and runProshade objects
     delete reBoxedStr;

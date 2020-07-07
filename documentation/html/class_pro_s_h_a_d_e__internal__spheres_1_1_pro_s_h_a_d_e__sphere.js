@@ -1,6 +1,6 @@
 var class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere =
 [
-    [ "ProSHADE_sphere", "class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a91766cd360c42b650a3679a3146b6747", null ],
+    [ "ProSHADE_sphere", "class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a38552305aa205bcebf535a90eb068b14", null ],
     [ "~ProSHADE_sphere", "class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a78251926c36eecf8c3f5b856ac195e4a", null ],
     [ "allocateRotatedMap", "class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a125477466283ee2e9b30d0299fc8e501", null ],
     [ "getInterpolationXYZ", "class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a6e261de720565d52ad285abc216d020b", null ],

@@ -40,7 +40,7 @@ pSet                                          = proshade.ProSHADE_settings ()
 ### Set settings values for optimal overlay
 pSet.task                                     = proshade.OverlayMap
 pSet.verbose                                  = 4
-pSet.requestedResolution                      = 8.0;
+pSet.requestedResolution                      = 4.0;
 pSet.usePhase                                 = False;
 pSet.changeMapResolution                      = True;
 pSet.maskMap                                  = False;
@@ -53,8 +53,8 @@ pStruct_static                                = proshade.ProSHADE_data ( pSet )
 pStruct_moving                                = proshade.ProSHADE_data ( pSet )
 
 ### Read in the structures
-pStruct_static.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map", 0, pSet )
-pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_higherRotTrs.map", 1, pSet )
+pStruct_static.readInStructure                ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # This example uses the BALBES domain 1BFO_A_dom_1.
+pStruct_moving.readInStructure                ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # This example uses the BALBES domain 1H8N_A_dom_1.
 
 ### Get spherical harmonics for both structures
 pStruct_static.processInternalMap             ( pSet )
@@ -86,8 +86,8 @@ pStruct_static                                = proshade.ProSHADE_data ( pSet )
 pStruct_moving                                = proshade.ProSHADE_data ( pSet )
 
 ### Read in the structures
-pStruct_static.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map", 0, pSet )
-pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_higherRotTrs.map", 1, pSet )
+pStruct_static.readInStructure                ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # This example uses the BALBES domain 1BFO_A_dom_1.
+pStruct_moving.readInStructure                ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # This example uses the BALBES domain 1H8N_A_dom_1.
 
 ### Get spherical harmonics for moving structure only
 pStruct_static.processInternalMap             ( pSet )
@@ -120,9 +120,19 @@ print ( "                             :  %+1.3f    %+1.3f    %+1.3f" % ( optimal
 print ( "                             :  %+1.3f    %+1.3f    %+1.3f\n" % ( optimalRotationMatrix[2][0], optimalRotationMatrix[2][1], optimalRotationMatrix[2][2] ) )
 print ( "Optimal translation          :  %+1.3f    %+1.3f    %+1.3f" % ( optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] ) )
 
+### Expected output
+#  Optimal Euler angles         :  +5.432    +0.769    +3.927
+#  
+#  Optimal Euler rotation matrix:  -0.867    -0.084    +0.492
+#                               :  -0.196    -0.848    -0.492
+#                               :  +0.459    -0.523    +0.719
+#  
+#  Optimal translation          :  +8.000    +6.000    -6.000
+
 ### Write out the map - it has some artefacts, this is caused by the double interpolation - I recommend applying the rotation and translation in EMDA instead of using this map.
 pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] );
 pStruct_moving.writeMap                       ( "/Users/mysak/Desktop/movedPy.map" )
+pStruct_moving.writePdb                       ( "/Users/mysak/Desktop/movedPy.pdb", optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2], optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] )
 
 ### Delete the data
 del pStruct_static

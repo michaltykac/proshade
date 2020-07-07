@@ -121,14 +121,7 @@ void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings
  \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
  */
 void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG )
-{
-    //================================================ Disable speed-up - mem. leak still not solved.
-    if ( settings->progressiveSphereMapping )
-    {
-        settings->progressiveSphereMapping            = false;
-        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! The progressive sphere mapping is not yet fully implemented for the map rotation. It has been turned off.", "WO00034" );
-    }
-    
+{    
     //================================================ Read in the structures
     staticStructure->readInStructure                  ( settings->inputFiles.at(0), 0, settings );
     movingStructure->readInStructure                  ( settings->inputFiles.at(1), 1, settings );
@@ -485,7 +478,7 @@ void ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims ( proshade_unsign xDi
     //================================================ Sanity check
     if ( ( this->xDimIndices > xDim  ) || ( this->yDimIndices > yDim  ) || ( this->zDimIndices > zDim  ) )
     {
-        throw ProSHADE_exception ( "Cannot zero-pad in negative direction.", "EO00033", __FILE__, __LINE__, __func__, "The requested padded size of a structure is smaller than\n                    : the current size. If the user sees this error, there is\n                    : likely a considerable bug. Please report this error." );
+        throw ProSHADE_exception ( "Cannot zero-pad in negative direction.", "EO00034", __FILE__, __LINE__, __func__, "The requested padded size of a structure is smaller than\n                    : the current size. If the user sees this error, there is\n                    : likely a considerable bug. Please report this error." );
     }
     
     //================================================ If done, do nothing
@@ -633,11 +626,11 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     this->computeRotatedSH                            ( settings );
     
     //================================================ Inverse the SH coeffs to shells
-    this->inverseSHCoefficients                       ( );
+    this->invertSHCoefficients                        ( );
     
     //================================================ Find spherical cut-offs
     std::vector<proshade_double> lonCO, latCO;
-    ProSHADE_internal_overlay::computeAngularThreshold ( &lonCO, &latCO, settings->maxAngRes );
+    ProSHADE_internal_overlay::computeAngularThreshold ( &lonCO, &latCO, settings->maxBandwidth * 2 );
     
     //================================================ Allocate memory for the rotated map
     proshade_double *densityMapRotated                = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
@@ -645,7 +638,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     for ( unsigned int iter = 0; iter < static_cast<unsigned int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { densityMapRotated[iter] = 0.0; }
     
     //================================================ Interpolate onto cartesian grid
-    this->interpolateMapFromSpheres                   ( settings, densityMapRotated);
+    this->interpolateMapFromSpheres                   ( settings, densityMapRotated );
     
     //================================================ Copy map
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
@@ -790,18 +783,16 @@ void ProSHADE_internal_overlay::initialiseInverseSHComputation ( proshade_unsign
     proshade_unsign oneDim                            = shBand * 2;
     
     //================================================ Allocate memory
-    sigR                                              = new double [oneDim * oneDim];
-    sigI                                              = new double [oneDim * oneDim];
-    rcoeffs                                           = new double [oneDim * oneDim];
-    icoeffs                                           = new double [oneDim * oneDim];
+    sigR                                              = new double [(oneDim * oneDim * 4)];
+    sigI                                              = sigR + (oneDim * oneDim * 2);
+    rcoeffs                                           = new double [(oneDim * oneDim * 2)];
+    icoeffs                                           = rcoeffs + (oneDim * oneDim);
     weights                                           = new double [4 * shBand];
-    workspace                                         = new double [( 10 * shBand * shBand ) + ( 24 * shBand )];
+    workspace                                         = new double [( 20 * shBand * shBand ) + ( 24 * shBand )];
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( sigR,      __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( sigI,      __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( rcoeffs,   __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( icoeffs,   __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( weights,   __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( workspace, __FILE__, __LINE__, __func__ );
     
@@ -832,7 +823,7 @@ void ProSHADE_internal_overlay::initialiseInverseSHComputation ( proshade_unsign
 /*! \brief This function computes the shell mapped data from inverting the Spherical Harmonics coefficients.
  
  */
-void ProSHADE_internal_data::ProSHADE_data::inverseSHCoefficients ( )
+void ProSHADE_internal_data::ProSHADE_data::invertSHCoefficients ( )
 {
     //================================================ Initialise local variables
     double *sigR =  NULL, *sigI =  NULL, *rcoeffs =  NULL, *icoeffs =  NULL, *weights =  NULL, *workspace =  NULL;
@@ -886,9 +877,7 @@ void ProSHADE_internal_data::ProSHADE_data::inverseSHCoefficients ( )
          
          //=========================================== Release the memory
          delete[] sigR;
-         delete[] sigI;
          delete[] rcoeffs;
-         delete[] icoeffs;
          delete[] weights;
          delete[] workspace;
      }
@@ -992,13 +981,20 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE
                     continue;
                 }
                 
-                //==================================== Get the longitude and lattitude cut-offs for this shell ()
+                //==================================== Get the longitude and lattitude cut-offs for this shell resolution
+                lonCOL.clear(); latCOL.clear(); lonCOU.clear(); latCOU.clear();
                 ProSHADE_internal_overlay::computeAngularThreshold ( &lonCOL, &latCOL, this->spheres[lowerShell]->getLocalAngRes() );
                 ProSHADE_internal_overlay::computeAngularThreshold ( &lonCOU, &latCOU, this->spheres[upperShell]->getLocalAngRes() );
                 
                 //==================================== Find the angle cutoffs around the point
-                for ( proshade_unsign iter = 0; iter < this->spheres[lowerShell]->getLocalAngRes(); iter++ )
+                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( lonCOL.size() ); iter++ )
                 {
+                    if ( iter == ( static_cast<proshade_unsign> ( lonCOL.size() ) - 1 ) )
+                    {
+                        lowerLonL                     = 0;
+                        upperLonL                     = 1;
+                        break;
+                    }
                     if ( ( std::floor(10000. * lonCOL.at(iter)) <= std::floor(10000. * lon) ) && ( std::floor(10000. * lonCOL.at(iter+1)) > std::floor(10000. * lon) ) )
                     {
                         lowerLonL                     = iter;
@@ -1008,8 +1004,14 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE
                 }
                 if ( upperLonL == this->spheres[lowerShell]->getLocalAngRes() ) { upperLonL = 0; }
                 
-                for ( proshade_unsign iter = 0; iter < this->spheres[upperShell]->getLocalAngRes(); iter++ )
+                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( lonCOU.size() ); iter++ )
                 {
+                    if ( iter == ( static_cast<proshade_unsign> ( lonCOU.size() ) - 1 ) )
+                    {
+                        lowerLonU                     = 0;
+                        upperLonU                     = 1;
+                        break;
+                    }
                     if ( ( std::floor(10000. * lonCOU.at(iter)) <= std::floor(10000. * lon) ) && ( std::floor(10000. * lonCOU.at(iter+1)) > std::floor(10000. * lon) ) )
                     {
                         lowerLonU                     = iter;
@@ -1019,8 +1021,14 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE
                 }
                 if ( upperLonU == this->spheres[upperShell]->getLocalAngRes() ) { upperLonU = 0; }
                 
-                for ( proshade_unsign iter = 0; iter < this->spheres[lowerShell]->getLocalAngRes(); iter++ )
+                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( latCOL.size() ); iter++ )
                 {
+                    if ( iter == ( static_cast<proshade_unsign> ( latCOL.size() ) - 1 ) )
+                    {
+                        lowerLatL                     = 0;
+                        upperLatL                     = 1;
+                        break;
+                    }
                     if ( ( std::floor(10000. * latCOL.at(iter)) <=  std::floor(10000. * lat) ) && ( std::floor(10000. * latCOL.at(iter+1)) > std::floor(10000. * lat) ) )
                     {
                         lowerLatL                     = iter;
@@ -1030,8 +1038,14 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE
                 }
                 if ( upperLatL == this->spheres[lowerShell]->getLocalAngRes() ) { upperLatL = 0; }
                 
-                for ( proshade_unsign iter = 0; iter < this->spheres[upperShell]->getLocalAngRes(); iter++ )
+                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( latCOU.size() ); iter++ )
                 {
+                    if ( iter == ( static_cast<proshade_unsign> ( latCOU.size() ) - 1 ) )
+                    {
+                        lowerLatU                     = 0;
+                        upperLatU                     = 1;
+                        break;
+                    }
                     if ( ( std::floor(10000. * latCOU.at(iter)) <=  std::floor(10000. * lat) ) && ( std::floor(10000. * latCOU.at(iter+1)) > std::floor(10000. * lat) ) )
                     {
                         lowerLatU                     = iter;

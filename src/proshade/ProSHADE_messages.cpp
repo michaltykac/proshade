@@ -187,11 +187,6 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The bandwidth to which spherical harmonics decomposition shoud      " << std::endl;
     std::cout << "            be computed to. For automatic determination supply 0 or nothing.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    -a or --angRes                                  [DEFAULT:         AUTO]     " << std::endl;
-    std::cout << "            The angular resolution value determines how finely the spherical    " << std::endl;
-    std::cout << "            space will be sampled. This also affects the resolution of the      " << std::endl;
-    std::cout << "            rotation map. For automatic determination supply 0 or nothing.      " << std::endl;
-    std::cout << "                                                                                " << std::endl;
     std::cout << "    -s or --sphereDists                             [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            The distance in Angstroms between any two concentric spheres to     " << std::endl;
     std::cout << "            which the internal map representation will be mapped to. Use        " << std::endl;
@@ -269,10 +264,10 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            for C and D symmetries to follow them with the requested fold.      " << std::endl;
     std::cout << "            I.e. \"C4\" means cyclic symmetry with fold 4.                        " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --overlayFile                                   [DEFAULT:      \"moved\"]     " << std::endl;
+    std::cout << "    --overlayFile                          [DEFAULT:      \"movedStructure\"]     " << std::endl;
     std::cout << "            Filename to where the translated and rotated moving structure       " << std::endl;
     std::cout << "            with optimal placement relative to the static structure will be     " << std::endl;
-    std::cout << "            saved to.                                                           " << std::endl;
+    std::cout << "            saved to. Extension will be added automatically                     " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "FLAGS:                                                                          " << std::endl;
     std::cout << "    The following options can be used to override the default values and        " << std::endl;

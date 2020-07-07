@@ -100,12 +100,18 @@ initialMapArray                               = reBoxStr.getMapPython ( reBoxStr
 ### How did the re-boxing go?
 print ( "Original dimensions were: %+1.0f  x  %+1.0f  x  %+1.0f" % ( xDimIndices, yDimIndices, zDimIndices ) )
 print ( "Current dimensions are:   %+1.0f  x  %+1.0f  x  %+1.0f" % ( reBoxStr.getXDim(), reBoxStr.getYDim(), reBoxStr.getZDim() ) )
-perc                                          = ( ( reBoxStr.getXDim() * reBoxStr.getYDim() * reBoxStr.getZDim() ) / ( xDimIndices * yDimIndices * zDimIndices ) ) * 100.0
+perc                                          = ( float ( reBoxStr.getXDim() * reBoxStr.getYDim() * reBoxStr.getZDim() ) / ( xDimIndices * yDimIndices * zDimIndices ) ) * 100.0
 faster                                        = 100.0 / perc
 print ( "Saved %+1.3f percents of indices and thus made the processing of the map %+1.3f times faster." % ( 100 - perc, faster ) )
 
 ### Print map average (just to show that the map in now in python)
 print ( "Map average is %+1.3f" % ( numpy.mean ( initialMapArray ) ) )
+
+### Expected output
+#   Original dimensions were: +100  x  +120  x  +60
+#   Current dimensions are:   +42  x  +42  x  +42
+#   Saved +89.710 percents of indices and thus made the processing of the map +9.718 times faster.
+#   Map average is +0.031
 
 ### Release C++ pointers
 del pStruct

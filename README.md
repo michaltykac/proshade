@@ -137,22 +137,20 @@ One particular option regarding the symmetry detection mode should be noted; the
 
 Another noteworthy option is the **--center** or **-c** option, which  tells ProSHADE to center the internal map representation over the centre of co-ordinates before running any processing of the map. This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of co-ordinates) will be found to have no symmetries even if these are present, just not over the co-ordinate centre.
 
-To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the
-symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7, which has the \a C12 symmetry. The visualisation of the structure is
-shown in the following figure, while the output of the ProSHADE tool follows:
+To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \a C12 symmetry. The visualisation of the structure is shown in the following figure, while the output of the ProSHADE tool follows:
 
 ![T4 Portal Protein](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_3JA7.jpg)
 
 ```
- $: proshade -S -f ~/Downloads/3ja7.pdb -c --sym C12
- ProSHADE 0.7.3 (JUN 2020):
+ $: ./proshade -S -f ./emd_6324.map -r 12
+ ProSHADE 0.7.3 (JUL 2020):
  ==========================
 
-  ... Starting to read the structure: ./3ja7.pdb
+  ... Starting to read the structure: ./emd_6324.map
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Centering map onto its COM.
+  ... Map centering not requested.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Starting sphere mapping procedure.
@@ -160,11 +158,17 @@ shown in the following figure, while the output of the ProSHADE tool follows:
   ... Starting spherical harmonics decomposition.
   ... Starting self-rotation function computation.
   ... Starting C symmetry detection.
+  ... Starting D symmetry detection.
+  ... Starting I symmetry detection.
+  ... Starting O symmetry detection.
+  ... Starting T symmetry detection.
  Detected C symmetry with fold 12 .
+  ...   Fold       X           Y          Z           Angle        Height
+  ...    12   -0.015117   +0.020354   +0.99925       +0.5236      +0.17882
 
  ======================
  ProSHADE run complete.
- Time taken: 6 seconds.
+ Time taken: 4 seconds.
  ======================
 ```
 
@@ -181,59 +185,59 @@ shown in the following figure, while the output of the ProSHADE tool follows:
 ![BALBES domain used for similarity detection](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_dists.png)
 
 ```
-  $: proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 4
- ProSHADE 0.7.3 (JUN 2020):
- ==========================
+  $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
+  ProSHADE 0.7.3 (JUL 2020):
+  ==========================
 
-  ... Starting to read the structure: ./1BFO_A_dom_1.pdb
-  ... Map inversion (mirror image) not requested.
-  ... Map normalisation not requested.
-  ... Masking not requested.
-  ... Map centering not requested.
-  ... Adding extra 10 angstroms.
-  ... Phase information retained in the data.
-  ... Starting sphere mapping procedure.
-  ... Preparing spherical harmonics environment.
-  ... Starting spherical harmonics decomposition.
-  ... Starting to read the structure: ./1H8N_A_dom_1.pdb
-  ... Map inversion (mirror image) not requested.
-  ... Map normalisation not requested.
-  ... Masking not requested.
-  ... Map centering not requested.
-  ... Adding extra 10 angstroms.
-  ... Phase information retained in the data.
-  ... Starting sphere mapping procedure.
-  ... Preparing spherical harmonics environment.
-  ... Starting spherical harmonics decomposition.
-  ... Starting energy levels distance computation.
-  ... Starting trace sigma distance computation.
-  ... Starting rotation function distance computation.
- Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
- Energy levels distance    : 0.784872
- Trace sigma distance      : 0.805476
- Rotation function distance: 0.647008
-  ... Starting to read the structure: ./3IGU_A_dom_1.pdb
-  ... Map inversion (mirror image) not requested.
-  ... Map normalisation not requested.
-  ... Masking not requested.
-  ... Map centering not requested.
-  ... Adding extra 10 angstroms.
-  ... Phase information retained in the data.
-  ... Starting sphere mapping procedure.
-  ... Preparing spherical harmonics environment.
-  ... Starting spherical harmonics decomposition.
-  ... Starting energy levels distance computation.
-  ... Starting trace sigma distance computation.
-  ... Starting rotation function distance computation.
- Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
- Energy levels distance    : 0.470989
- Trace sigma distance      : 0.53887
- Rotation function distance: 0.399456
+   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
+   ... Map inversion (mirror image) not requested.
+   ... Map normalisation not requested.
+   ... Masking not requested.
+   ... Map centering not requested.
+   ... Adding extra 10 angstroms.
+   ... Phase information retained in the data.
+   ... Starting sphere mapping procedure.
+   ... Preparing spherical harmonics environment.
+   ... Starting spherical harmonics decomposition.
+   ... Starting to read the structure: ./1H8N_A_dom_1.pdb
+   ... Map inversion (mirror image) not requested.
+   ... Map normalisation not requested.
+   ... Masking not requested.
+   ... Map centering not requested.
+   ... Adding extra 10 angstroms.
+   ... Phase information retained in the data.
+   ... Starting sphere mapping procedure.
+   ... Preparing spherical harmonics environment.
+   ... Starting spherical harmonics decomposition.
+   ... Starting energy levels distance computation.
+   ... Starting trace sigma distance computation.
+   ... Starting rotation function distance computation.
+  Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
+  Energy levels distance    : 0.806452
+  Trace sigma distance      : 0.940804
+  Rotation function distance: 0.812996
+   ... Starting to read the structure: ./3IGU_A_dom_1.pdb
+   ... Map inversion (mirror image) not requested.
+   ... Map normalisation not requested.
+   ... Masking not requested.
+   ... Map centering not requested.
+   ... Adding extra 10 angstroms.
+   ... Phase information retained in the data.
+   ... Starting sphere mapping procedure.
+   ... Preparing spherical harmonics environment.
+   ... Starting spherical harmonics decomposition.
+   ... Starting energy levels distance computation.
+   ... Starting trace sigma distance computation.
+   ... Starting rotation function distance computation.
+  Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
+  Energy levels distance    : 0.581031
+  Trace sigma distance      : 0.773031
+  Rotation function distance: 0.619959
 
- ======================
- ProSHADE run complete.
- Time taken: 0 seconds.
- ======================
+  ======================
+  ProSHADE run complete.
+  Time taken: 1 seconds.
+  ======================
 ```
  
  ## Re-boxing structures
@@ -244,13 +248,13 @@ shown in the following figure, while the output of the ProSHADE tool follows:
  
  The location and filename of where this new map should be saved can be specified using the **--reBoxedFilename** (or **-g** ) command line option followed by the filename.
  
- The following snippet shows the output of the ProSHADE tool when used to re-box the TubZ-Bt four-stranded filament structure (EMD-5762), where the original volume can be decreased to 46.9% of the original structure volume and thus any linear processing of such structure will be more than twice faster and the original. The original TubZ-Bt four-stranded filament structure box is shown in the following figure as semi-transparent grey, while the new box is shown in non-transparent yellow.
+ The following snippet shows the output of the ProSHADE tool when used to re-box the TubZ-Bt four-stranded filament structure (EMDB accession code 5762 and PDB accession code 3J4S), where the original volume can be decreased to 46.9% of the original structure volume and thus any linear processing of such structure will be more than twice faster and the original. The original TubZ-Bt four-stranded filament structure box is shown in the following figure as semi-transparent grey, while the new box is shown in non-transparent yellow.
  
 ![Re-boxing result for TubZ-Bt four-stranded filament](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_rebox.png)
  
 ```
- $ proshade --mapManip -R -f ./emd_5762.map
- ProSHADE 0.7.3 (JUN 2020):
+ $ ./proshade -MR -f ./emd_5762.map
+ ProSHADE 0.7.3 (JUL 2020):
  ==========================
 
   ... Starting to read the structure: /Users/mysak/Downloads/emd_5762.map
@@ -266,7 +270,7 @@ shown in the following figure, while the output of the ProSHADE tool follows:
 
  ======================
  ProSHADE run complete.
- Time taken: 48 seconds.
+ Time taken: 49 seconds.
  ======================
 ```
 
@@ -276,29 +280,29 @@ shown in the following figure, while the output of the ProSHADE tool follows:
  
  Due to the requirement for the second stucture movement and rotation, it is worth noting that the structure may need to be re-sampled and/or moved to the same viewing position as the first structure. This is done so that only the internal representation is modified, but never the input file. However, when the overlay structure is outputted (a non-default name can be specified by the **--overlayFile** command line option) the header of this output file may differ from the second structure header. Furthermore, if there is no extra space around the structure, movement and rotation may move pieces of the structure through the box boundaries to the other side of the box. To avoid this, please use the **--extraSpace** option to add some extra space around the structure.
  
- An example of the Overlay mode matching a single PDB structure (2A2Q_T_dom_2 from the BALBES database, original structure code 2A2Q) shown in part b) of the following figure to a density map computed with low resolution from this structure shown in part a) of the figure. Part c) then shows the match obtained by the internal map representations of both inputs, while part d) shows the final match of the moved and rotated PDB file to the original map input. The output and call of the ProSHADE tool is shown below. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity (**--verbose**) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
+ As an example of the Overlay mode, we will be matching a single PDB structure (1BFO_A_dom_1 from the BALBES database, original structure code 1BFO) shown in part a) of the following figure to another PDB structure, this time the 1H8N_A_dom_1 structure from the BALBES database, shown in part b) of the following figure. Please note that ProSHADE can fit any allowed input (map or co-ordinates) to any allowed input, it is just this example which uses two PDB files. Part c) of the figure then shows the match obtained by the internal map representation of the moving structure (1H8N_A_dom_1) after rotation and translation with the static structure (1BFO_A_dom_1). Finally, part d) then shows the original static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity (**--verbose**) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
  
  ![ProSHADE Overlay results for 2A2Q_T_dom_2.pdb](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_overlay.jpg)
  
 ```
- $ proshade -O -f ./2A2Q_T_dom_2_rotTrs.map -f ./2A2Q_T_dom_2.pdb --overlayFile moved.overlay -r 4 --extraSpace 25.0
- ProSHADE 0.7.3 (JUN 2020):
+ $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4
+ ProSHADE 0.7.3 (JUL 2020):
  ==========================
 
-  ... Starting to read the structure: ./2A2Q_T_dom_2_rotTrs.map
-  ... Starting to read the structure: ./2A2Q_T_dom_2.pdb
+  ... Starting to read the structure: ./1BFO_A_dom_1.pdb
+  ... Starting to read the structure: ./1H8N_A_dom_1.pdb
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 25 angstroms.
+  ... Adding extra 10 angstroms.
   ... Centering map onto its COM.
   ... Phase information removed from the data.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 25 angstroms.
+  ... Adding extra 10 angstroms.
   ... Centering map onto its COM.
   ... Phase information removed from the data.
   ... Starting sphere mapping procedure.
@@ -308,19 +312,19 @@ shown in the following figure, while the output of the ProSHADE tool follows:
   ... Starting spherical harmonics decomposition.
   ... Starting spherical harmonics decomposition.
   ... Starting rotation function computation.
-  ... Starting to read the structure: ./2A2Q_T_dom_2_rotTrs.map
-  ... Starting to read the structure: ./2A2Q_T_dom_2.pdb
+  ... Starting to read the structure: ./1BFO_A_dom_1.pdb
+  ... Starting to read the structure: ./1H8N_A_dom_1.pdb
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 25 angstroms.
+  ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 25 angstroms.
+  ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Starting sphere mapping procedure.
   ... Preparing spherical harmonics environment.
@@ -329,7 +333,7 @@ shown in the following figure, while the output of the ProSHADE tool follows:
 
  ======================
  ProSHADE run complete.
- Time taken: 17 seconds.
+ Time taken: 7 seconds.
  ======================
 ```
 # Using the ProSHADE library

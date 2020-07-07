@@ -123,7 +123,7 @@ void ProSHADE_internal_io::readInMapCell ( CMap_io::CMMFile* mapFile, proshade_s
     //================================================ Check for perpendicular axes - only P1 is supported for now.
     if ( ( *aAng != 90.0 ) || ( *bAng != 90.0 ) || ( *cAng != 90.0 ) )
     {
-        throw ProSHADE_exception ( "The map axes are not perpendicular. Only P1 cells are\n                    : supported for now.", "EM00045", __FILE__, __LINE__, __func__, "ProSHADE currently only supports map cells with\n                    : perpendicular (90 degrees angled) axes. Your map seems to\n                    : have differently angled axes and so cannot be processed by\n                    : this ProSHADE version. This feature is coming in future\n                    : update!" );
+        throw ProSHADE_exception ( "The map axes are not perpendicular. Only P1 cells are\n                    : supported for now.", "EM00046", __FILE__, __LINE__, __func__, "ProSHADE currently only supports map cells with\n                    : perpendicular (90 degrees angled) axes. Your map seems to\n                    : have differently angled axes and so cannot be processed by\n                    : this ProSHADE version. This feature is coming in future\n                    : update!" );
     }
     
     //================================================ Release memory
