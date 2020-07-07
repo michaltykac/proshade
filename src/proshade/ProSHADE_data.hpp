@@ -231,7 +231,7 @@ namespace ProSHADE_internal_data
         void translateMap                             ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
         void allocateRotatedSHMemory                  ( ProSHADE_settings* settings );
         void computeRotatedSH                         ( ProSHADE_settings* settings );
-        void inverseSHCoefficients                    ( void );
+        void invertSHCoefficients                     ( void );
         void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( );
