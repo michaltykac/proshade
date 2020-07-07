@@ -2306,8 +2306,29 @@ void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& save
 void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_settings* settings )
 {
     //================================================ Improve this!
-    if ( settings->recommendedSymmetryType == "" ) { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!" ); }
-    else { std::stringstream ssHlp; ssHlp << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " ."; ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() ); }
+    if ( settings->recommendedSymmetryType == "" )
+    {
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!" );
+    }
+    else
+    {
+        std::stringstream ssHlp;
+        ssHlp << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " .";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+        
+        if ( settings->detectedSymmetry.size() > 0 )
+        {
+            ssHlp.clear(); ssHlp.str ( "" );
+            ssHlp << "  Fold       X           Y          Z           Angle        Height";
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, ssHlp.str() );
+        }
+        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); symIt++ )
+        {
+            ssHlp.clear(); ssHlp.str ( "" );
+            ssHlp << "   " << std::setw(2) << settings->detectedSymmetry.at(0)[0] << "   " << std::showpos << std::setprecision(5) << settings->detectedSymmetry.at(0)[1] << "   " << settings->detectedSymmetry.at(0)[2] << "   " << settings->detectedSymmetry.at(0)[3] << "       " << settings->detectedSymmetry.at(0)[4] << "      " << settings->detectedSymmetry.at(0)[5];
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, ssHlp.str() );
+        }
+    }
     
     //================================================ Done
     return ;

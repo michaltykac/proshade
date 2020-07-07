@@ -31,16 +31,16 @@ int main ( int argc, char **argv )
     ProSHADE_settings* settings                       = new ProSHADE_settings ( task );      // Creating the ProSHADE_settings object, which caries all of the settings and where everything can be set.
 
     //================================================ Set up the run
-    settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
-    settings->setResolution                           ( 8.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
-    settings->addStructure                            ( "/Users/mysak/LMB/proshade/exp/demo/C2.pdb" );  // A path to the structure to be processed.
+    settings->verbose                                 = 1;                                   // How verbose should the run be? -1 Means no verbal output at all.
+    settings->setResolution                           ( 12.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->addStructure                            ( "./emd_6324.map" );                  // A path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
     
     //================================================ Further useful settings
-    settings->setNormalisation                        ( true );                              // Should internal map representation be normalised to mean 0 and standard deviation 1?
+    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
+    settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
-    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -57,20 +57,20 @@ int main ( int argc, char **argv )
     settings->setBoundsThreshold                      ( 0 );                                 // If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
     settings->setSameBoundaries                       ( false );                             // Make multiple structures have the same boundaries. This is useful for half-maps.
     settings->setOutputFilename                       ( "reBoxed" );                         // Filename to where re-boxed structure will be written to.
-    settings->setExtraSpace                           ( 20.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
+    settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setEnLevShellWeight                     ( 1.0 );                               // The weighting of shell distances for energy levels descriptor.
-    settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
     settings->setPDBBFactor                           ( -1.0 );                              // Should all B-factors in a PDB file changed to this value? If no, set to negative value.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
     settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
-    settings->setMapReboxing                          ( true );                              // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
+    settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     
     //================================================ Print all the settings values
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
@@ -89,6 +89,10 @@ int main ( int argc, char **argv )
         std::vector< std::string > detectedSymAxis    = runProshade->getSymmetryAxis ( iter );
         std::cout << " ... FOLD: " << detectedSymAxis.at(0) << " | XYZ: " << detectedSymAxis.at(1) << " ; " << detectedSymAxis.at(2) << " ; " << detectedSymAxis.at(3) << " | Angle: " << detectedSymAxis.at(4) << " | Peak: " << detectedSymAxis.at(5) << std::endl;
     }
+    
+    //================================================ Expected output
+//  Detected symmetry C of fold 12. The symmetry axes are:
+//  ... FOLD: 12 | XYZ: -0.0151166 ; 0.0203542 ; 0.999248 | Angle: 0.523599 | Peak: 0.178822
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

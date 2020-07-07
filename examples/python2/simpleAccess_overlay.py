@@ -43,12 +43,13 @@ pSet                                          = proshade.ProSHADE_settings ()
 pSet.task                                     = proshade.OverlayMap                    # The task ProSHADE is expected to perform
 pSet.verbose                                  = -1                                     # How verbose should the run be? Use -1 for absolute silence.
 pSet.setResolution                            ( 4.0 )                                  # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
-pSet.addStructure                             ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map" )                # The path to the structure to be processed.
-pSet.addStructure                             ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map" )   # The path to the structure to be processed.
+pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb" ) # The path to the structure to be processed. This is a BALBES domain 1BFO_A_dom_1.
+pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb" ) # The path to the structure to be processed. This is a BALBES domain 1H8N_A_dom_1.
 
 
 ### Useful settings
-pSet.setOverlaySaveFile                       ( "moved.map" )                          # Filename where the overlayed moving structure should be saved.
+pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
+pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
 pSet.setMasking                               ( False )                                # Should maps be masked by blurring?
 pSet.setMapReboxing                           ( False )                                # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
@@ -70,7 +71,6 @@ pSet.setPhaseUsage                            ( True )                          
 pSet.setSphereDistances                       ( 0.0 )                                  # The distance between spheres. Use 0.0 for automatic determination.
 pSet.setIntegrationOrder                      ( 0 )                                    # The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
 pSet.setTaylorSeriesCap                       ( 10 )                                   # Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
-pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setEnergyLevelsComputation               ( True )                                 # Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 pSet.setTraceSigmaComputation                 ( True )                                 # Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 pSet.setRotationFunctionComputation           ( True )                                 # Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -114,6 +114,13 @@ print ( "Optimal overlay rotation (rot. matrix)  : %+2.4f   %+2.4f   %+2.4f" % (
 print ( "                                        : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2] ) )
 print ( "                                        : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[2][0], rotMatrix[2][1], rotMatrix[2][2] ) )
 print ( "Optimal overlay translation (Angstroms) : %+2.4f   %+2.4f   %+2.4f" % ( translation[0] , translation[1] , translation[2] ) )
+
+### Expected output
+#  Optimal overlay rotation (Euler angles) : +5.5084   +0.7639   +3.8732
+#  Optimal overlay rotation (rot. matrix)  : -0.8513   -0.1015   +0.5147
+#                                          : -0.1758   -0.8692   -0.4621
+#                                          : +0.4943   -0.4839   +0.7221
+#  Optimal overlay translation (Angstroms) : +8.0000   +6.0000   -6.0000
 
 ##############################################
 ### Done

@@ -238,7 +238,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
             this->moveToCOM                           = false;
-            this->normaliseMap                        = true;
+            this->normaliseMap                        = false;
             this->reBoxMap                            = false;
             break;
             

@@ -33,17 +33,18 @@ int main ( int argc, char **argv )
     //================================================ Set up the run
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     settings->setResolution                           ( 4.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
-    settings->addStructure                            ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map" );                 // A path to the structure to be processed.
-    settings->addStructure                            ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map" );    // A path to the structure to be processed.
+    settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb" );    // A path to the structure to be processed. This is a BALBES domain 1BFO_A_dom_1.
+    settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb" );    // A path to the structure to be processed. This is a BALBES domain 1H8N_A_dom_1.
     
     //================================================ Further useful settings
+    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
-    settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution?
-    settings->setExtraSpace                           ( 20.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
+    settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
@@ -58,7 +59,6 @@ int main ( int argc, char **argv )
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
     settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
-    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -94,6 +94,13 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMatrix.at(3) << " ; " << rotMatrix.at(4) << " ; " << rotMatrix.at(5) << std::endl;
     std::cout << "                                 :      " << rotMatrix.at(6) << " ; " << rotMatrix.at(7) << " ; " << rotMatrix.at(8) << std::endl;
     std::cout << "Optimal translation in Angstroms is:    " << translation.at(0) << " ; " << translation.at(1) << " ; " << translation.at(2) << std::endl;
+    
+    //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
+//  Optimal rotation Euler angles are:      5.45274 ; 0.767339 ; 3.89995
+//  Optimal rotation matrix is       :      -0.86017 ; -0.0781674 ; 0.503982
+//                                   :      -0.202026 ; -0.855125 ; -0.477438
+//                                   :      0.468288 ; -0.512495 ; 0.719761
+//  Optimal translation in Angstroms is:    8 ; 6 ; -6
     
     //================================================ DONE
     return EXIT_SUCCESS;

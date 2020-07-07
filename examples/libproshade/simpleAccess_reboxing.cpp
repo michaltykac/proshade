@@ -34,9 +34,7 @@ int main ( int argc, char **argv )
     //================================================ Set up the run
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     settings->setResolution                           ( 10.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
-    settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/14_FullRotFunction/14_AdditionalSymmetries/TET1.map" );  // A path to the structure to be processed.
-    settings->addStructure                            ( "/Users/mysak/LMB/proshade/exp/demo/testMap.map" );                                         // A path to the structure to be processed.
-    settings->addStructure                            ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map" );                                        // A path to the structure to be processed.
+    settings->addStructure                            ( "./emd_5762.map" );                  // A path to the structure to be processed. This example uses EMDB map 5762 (PDB accession code 3J4S)
     
     //================================================ Further useful settings
     settings->setMasking                              ( true );                              // Should maps be masked by blurring?
@@ -55,7 +53,7 @@ int main ( int argc, char **argv )
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
 
     //================================================ All other (possibly other tasks related) settings
-    settings->setExtraSpace                           ( 20.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
+    settings->setExtraSpace                           ( 0.0 );                               // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -84,19 +82,19 @@ int main ( int argc, char **argv )
     //================================================ Get results - these are already computed by the previous line, they are just copied by these commands.
     std::vector< proshade_signed > origBoundsFirst    = runProshade->getOriginalBounds  ( 0 ); // This function returns the original boundaries for the Xth structure. (Order: Xmin, Xmax, Ymin, Ymax, Zmin, Zmax).
     std::vector< proshade_signed > reboxBoundsFirst   = runProshade->getReBoxedBounds   ( 0 ); // This function returns the new boundaries for the Xth structure. (Order: Xmin, Xmax, Ymin, Ymax, Zmin, Zmax).
-    std::vector< proshade_signed > origBoundsSecond   = runProshade->getOriginalBounds  ( 1 ); // This function returns the original boundaries for the Xth structure. (Order: Xmin, Xmax, Ymin, Ymax, Zmin, Zmax).
-    std::vector< proshade_signed > reboxBoundsSecond  = runProshade->getReBoxedBounds   ( 1 ); // This function returns the new boundaries for the Xth structure. (Order: Xmin, Xmax, Ymin, Ymax, Zmin, Zmax).
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;
     delete settings;
     
     //================================================ Print the rotation and translation
-    std::cout << "The original bounds of the first structure are:      " << origBoundsFirst.at(0) << " - " << origBoundsFirst.at(1) << " ; " << origBoundsFirst.at(2) << " - " << origBoundsFirst.at(3) << " ; " << origBoundsFirst.at(4) << " - " << origBoundsFirst.at(5) << std::endl;
+    std::cout << "The original bounds of the structure are:            " << origBoundsFirst.at(0) << " - " << origBoundsFirst.at(1) << " ; " << origBoundsFirst.at(2) << " - " << origBoundsFirst.at(3) << " ; " << origBoundsFirst.at(4) << " - " << origBoundsFirst.at(5) << std::endl;
     std::cout << "... and was reboxed to bounds:                       " << reboxBoundsFirst.at(0) << " - " << reboxBoundsFirst.at(1) << " ; " << reboxBoundsFirst.at(2) << " - " << reboxBoundsFirst.at(3) << " ; " << reboxBoundsFirst.at(4) << " - " << reboxBoundsFirst.at(5) << std::endl;
     
-    std::cout << "The original bounds of the second structure are:     " << origBoundsSecond.at(0) << " - " << origBoundsSecond.at(1) << " ; " << origBoundsSecond.at(2) << " - " << origBoundsSecond.at(3) << " ; " << origBoundsSecond.at(4) << " - " << origBoundsSecond.at(5) << std::endl;
-    std::cout << "... and was reboxed to bounds:                       " << reboxBoundsSecond.at(0) << " - " << reboxBoundsSecond.at(1) << " ; " << reboxBoundsSecond.at(2) << " - " << reboxBoundsSecond.at(3) << " ; " << reboxBoundsSecond.at(4) << " - " << reboxBoundsSecond.at(5) << std::endl;
+    //================================================ Expected output
+//  The original bounds of the structure are:            -128 - 127 ; -128 - 127 ; -128 - 127
+//  ... and was reboxed to bounds:                       -94 - 93 ; -94 - 93 ; -132 - 131
+//  // And of course the reBoxed_0.map file :-)
     
     //================================================ DONE
     return EXIT_SUCCESS;

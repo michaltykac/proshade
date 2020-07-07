@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <tgmath.h>
 #include <getopt.h>
+#include <iomanip>
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_TYPEDEFS__

@@ -36,7 +36,7 @@ import proshade
 ### Create the settings object
 pSet                                          = proshade.ProSHADE_settings ()
 
-### Set settings values
+### Set settings values (for full list, please see the simpleAccess_distances.py file)
 pSet.task                                     = proshade.Distances
 pSet.verbose                                  = 1
 pSet.setResolution                            ( 6.0 )
@@ -46,8 +46,8 @@ pStruct1                                      = proshade.ProSHADE_data ( pSet )
 pStruct2                                      = proshade.ProSHADE_data ( pSet )
 
 ### Read in the structure
-pStruct1.readInStructure                      ( "/Users/mysak/LMB/proshade/exp/demo/C2.pdb", 0, pSet )
-pStruct2.readInStructure                      ( "/Users/mysak/LMB/proshade/exp/demo/testMap.map", 1, pSet )
+pStruct1.readInStructure                      ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # A BALBES domain 1BFO_A_dom_1
+pStruct2.readInStructure                      ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # A BALBES domain 1H8N_A_dom_1
 
 ### Process map
 pStruct1.processInternalMap                   ( pSet )
@@ -70,6 +70,11 @@ fullRotationFunctionDescriptor                = proshade.computeRotationunctionD
 print ( "The energy levels distance is          %+1.3f" % ( energyLevelsDescriptor ) )
 print ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor ) )
 print ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
+
+### Expected output
+#The energy levels distance is          +0.806
+#The trace sigma distance is            +0.941
+#The rotation function distance is      +0.813
 
 ### Release C++ pointers
 del pStruct1
