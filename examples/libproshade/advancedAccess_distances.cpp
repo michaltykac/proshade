@@ -24,6 +24,9 @@
 //==================================================== ProSHADE
 #include "../../src/proshade/ProSHADE.hpp"
 
+//==================================================== Standard header for the setprecision call
+#include <iomanip>
+
 //==================================================== Main
 int main ( int argc, char **argv )
 {
@@ -33,13 +36,13 @@ int main ( int argc, char **argv )
 
     //================================================ Set up the run
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
-    settings->setResolution                           ( 10.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setResolution                           ( 6.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     
     //================================================ Further useful settings
+    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution?
     settings->setPDBBFactor                           ( -1.0 );                              // Should all B-factors in a PDB file changed to this value? If no, set to negative value.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-    settings->setAngularResolution                    ( 0 );                                 // The resolution of the sphere mapping. Set to 0 for automatic determination.
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
@@ -49,7 +52,6 @@ int main ( int argc, char **argv )
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
-    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -82,8 +84,8 @@ int main ( int argc, char **argv )
     ProSHADE_internal_data::ProSHADE_data* structure2 = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the strcture object
     
     //================================================ Read in the structures
-    structure1->readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/C2.pdb", 0, settings );       // This is how a particular structure file is read into the ProSHADE object.
-    structure2->readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/testMap.map", 1, settings );  // This is how a particular structure file is read into the ProSHADE object.
+    structure1->readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, settings ); // This is how a particular structure file is read into the ProSHADE object.
+    structure2->readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, settings ); // This is how a particular structure file is read into the ProSHADE object.
 
     //================================================ Process maps
     structure1->processInternalMap                    ( settings );  // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -104,9 +106,15 @@ int main ( int argc, char **argv )
     proshade_double rotFunDistance                    = ProSHADE_internal_distances::computeRotationunctionDescriptor  ( structure1, structure2, settings ); // This is how the rotation function distance is computed between structure1 and structure2.
 
     //================================================ Print results
+    std::cout << std::setprecision(5) << std::flush;
     std::cout << "Energy levels distance       : " << energyDistance << std::endl;
     std::cout << "Trace sigma distance         : " << traceDistance  << std::endl;
     std::cout << "Rotation function distance   : " << rotFunDistance << std::endl;
+    
+    //================================================ Expected output
+//  Energy levels distance       : 0.87387
+//  Trace sigma distance         : 0.95053
+//  Rotation function distance   : 0.74014
 
     //================================================ Release the settings and runProshade objects
     delete structure1;

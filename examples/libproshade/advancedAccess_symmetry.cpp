@@ -34,6 +34,8 @@ int main ( int argc, char **argv )
     
     
     //================================================ Further useful settings
+    settings->setProgressiveSphereMapping             ( true );                              // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -41,18 +43,16 @@ int main ( int argc, char **argv )
     settings->setRequestedSymmetry                    ( "" );                                // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 0 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?
-    settings->setExtraSpace                           ( 5.0 );                               // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
-    settings->setResolution                           ( 6.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
+    settings->setResolution                           ( 12.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     
     //================================================ All other (possibly other tasks related) settings
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-    settings->setAngularResolution                    ( 0 );                                 // The resolution of the sphere mapping. Set to 0 for automatic determination.
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
     settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
-    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -71,7 +71,6 @@ int main ( int argc, char **argv )
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
-    settings->setMapResolutionChange                  ( true );                             // Should maps be re-sample to the computation resolution?
 
     //================================================ Print all the settings values
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
@@ -80,7 +79,7 @@ int main ( int argc, char **argv )
     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
     
     //================================================ Read in the structures
-    simpleSym->readInStructure                        ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
+    simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object. This example uses EMD 6324 (PDB 3JA7)
 
     //================================================ Process internal map
     simpleSym->processInternalMap                     ( settings ); // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -107,6 +106,10 @@ int main ( int argc, char **argv )
         std::cout << "Symmetry axis number " << axIt << ": Fold " << symAxes.at(axIt)[0] << " XYZ: " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << " Angle (radians): " << symAxes.at(axIt)[4] << " and axis peak: " << symAxes.at(axIt)[5] << std::endl;
     }
     
+    //================================================ Expected output
+//  Detected symmetry: C-12 with axes:
+//  Symmetry axis number 0: Fold 12 XYZ: -0.0118603 ; 0.00614382 ; 0.999609 Angle (radians): 0.523599 and axis peak: 0.360573
+    
     //================================================ Release the object
     delete simpleSym;
     
@@ -114,7 +117,7 @@ int main ( int argc, char **argv )
     settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 4 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     ProSHADE_internal_data::ProSHADE_data* requestSym = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
-    requestSym->readInStructure                       ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
+    requestSym->readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
     requestSym->processInternalMap                    ( settings );
     requestSym->mapToSpheres                          ( settings );
     requestSym->computeSphericalHarmonics             ( settings );
@@ -139,6 +142,10 @@ int main ( int argc, char **argv )
     {
         std::cout << "!!! Warning !!! ProSHADE failed to detect the requested " << settings->requestedSymmetryType << "-" << settings->requestedSymmetryFold << " symmetry. If you believe the symmetry should be there, you may want to try to set the map centering to true, decrease the resolution to reduce the effect of surface details or play around with the missing peak and axis comparison thresholds." << std::endl;
     }
+    
+    //================================================ Expected output
+//  Detected symmetry: C-4 as requested. The axes are:
+//  Symmetry axis number 0: Fold 4 XYZ: -0.00094826 ; -0.0011766 ; 0.99985 Angle (radians): 1.5708 and axis peak: 0.940622
  
     //================================================ Release the settings and runProshade objects
     delete requestSym;

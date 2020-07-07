@@ -30,9 +30,8 @@ var searchData=
   ['allocatewignerworkspace_27',['allocateWignerWorkspace',['../namespace_pro_s_h_a_d_e__internal__wigner.html#a2e3da1d3fe08d08bd94c55f9c73aeee3',1,'ProSHADE_internal_wigner']]],
   ['applycondonshortleyphase_28',['applyCondonShortleyPhase',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#aa25c84ea82e4faeb0f41f738a56ca28d',1,'ProSHADE_internal_sphericalHarmonics']]],
   ['arraymedianandiqr_29',['arrayMedianAndIQR',['../namespace_pro_s_h_a_d_e__internal__maths.html#aa5a356017340781739a3bd66c716cfa5',1,'ProSHADE_internal_maths']]],
-  ['autodetermineangularresolution_30',['autoDetermineAngularResolution',['../namespace_pro_s_h_a_d_e__internal__spheres.html#abf653964877bccf28c0bd30208695f89',1,'ProSHADE_internal_spheres']]],
-  ['autodeterminebandwidth_31',['autoDetermineBandwidth',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a9592e9df40cf87ee1d1c43d6b3508e1c',1,'ProSHADE_internal_spheres']]],
-  ['autodetermineintegrationorder_32',['autoDetermineIntegrationOrder',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a612cf0a1e92ea1e5f0b9bdb820a4b60e',1,'ProSHADE_internal_spheres']]],
-  ['autodeterminespheredistances_33',['autoDetermineSphereDistances',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a51e14f3a4ce99f8e39497bbce12e28c7',1,'ProSHADE_internal_spheres']]],
-  ['axiserrtolerance_34',['axisErrTolerance',['../class_pro_s_h_a_d_e__settings.html#a4627b03c4064d3de15efb3ebbf57ed78',1,'ProSHADE_settings']]]
+  ['autodeterminebandwidth_30',['autoDetermineBandwidth',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a9592e9df40cf87ee1d1c43d6b3508e1c',1,'ProSHADE_internal_spheres']]],
+  ['autodetermineintegrationorder_31',['autoDetermineIntegrationOrder',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a612cf0a1e92ea1e5f0b9bdb820a4b60e',1,'ProSHADE_internal_spheres']]],
+  ['autodeterminespheredistances_32',['autoDetermineSphereDistances',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a51e14f3a4ce99f8e39497bbce12e28c7',1,'ProSHADE_internal_spheres']]],
+  ['axiserrtolerance_33',['axisErrTolerance',['../class_pro_s_h_a_d_e__settings.html#a4627b03c4064d3de15efb3ebbf57ed78',1,'ProSHADE_settings']]]
 ];

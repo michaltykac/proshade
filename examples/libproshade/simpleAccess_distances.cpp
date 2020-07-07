@@ -23,6 +23,9 @@
 //==================================================== ProSHADE
 #include "../../src/proshade/ProSHADE.hpp"
 
+//==================================================== Standard header for the setprecision call
+#include <iomanip>
+
 //==================================================== Main
 int main ( int argc, char **argv )
 {
@@ -32,16 +35,16 @@ int main ( int argc, char **argv )
 
     //================================================ Set up the run
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
-    settings->setResolution                           ( 10.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
-    settings->addStructure                            ( "/Users/mysak/LMB/proshade/exp/demo/C2.pdb" );         // A path to the structure to be processed.
-    settings->addStructure                            ( "/Users/mysak/LMB/proshade/exp/demo/testMap.map" );    // A path to the structure to be processed.
-    settings->addStructure                            ( "/Users/mysak/LMB/proshade/exp/demo/C3.pdb" );         // A path to the structure to be processed.
+    settings->setResolution                           ( 6.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb" );  // A BALBES domain 1BFO_A_dom_1
+    settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb" );  // A BALBES domain 1H8N_A_dom_1
+    settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/ig/3IGU_A_dom_1.pdb" );  // A BALBES domain 3IGU_A_dom_1
     
     //================================================ Further useful settings
+    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution?
     settings->setPDBBFactor                           ( -1.0 );                              // Should all B-factors in a PDB file changed to this value? If no, set to negative value.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-    settings->setAngularResolution                    ( 0 );                                 // The resolution of the sphere mapping. Set to 0 for automatic determination.
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
@@ -51,7 +54,6 @@ int main ( int argc, char **argv )
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
-    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -88,9 +90,15 @@ int main ( int argc, char **argv )
     std::vector< proshade_double > rotFunDistances    = runProshade->getRotationFunctionVector ( ); // This is how the rotation function distances are accessed.
     
     //================================================ Print results
-    std::cout << "Energy levels distances      : " << energyDistances.at(0) << " and " << energyDistances.at(1) << std::endl;
-    std::cout << "Energy levels distances      : " << traceDistances.at(0)  << " and " << traceDistances.at(1)  << std::endl;
-    std::cout << "Energy levels distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
+    std::cout << std::setprecision(5) << std::flush;
+    std::cout << "Energy levels distances          : " << energyDistances.at(0) << " and " << energyDistances.at(1) << std::endl;
+    std::cout << "Trace sigma distances            : " << traceDistances.at(0)  << " and " << traceDistances.at(1)  << std::endl;
+    std::cout << "Rotation function distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
+    
+    //================================================ Expected output
+//  Energy levels distances          : 0.87387 and 0.59723
+//  Trace sigma distances            : 0.95053 and 0.74773
+//  Rotation function distances      : 0.74014 and 0.46354
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

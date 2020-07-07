@@ -44,9 +44,7 @@ pSet                                          = proshade.ProSHADE_settings ()
 pSet.task                                     = proshade.MapManip                      # The task ProSHADE is expected to perform
 pSet.verbose                                  = -1                                     # How verbose should the run be? Use -1 for absolute silence.
 pSet.setResolution                            ( 10.0 )                                 # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
-pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/14_FullRotFunction/14_AdditionalSymmetries/TET1.map" )         # The path to the structure to be processed.
-pSet.addStructure                             ( "/Users/mysak/LMB/proshade/exp/demo/testMap.map" )                                                # The path to the structure to be processed.
-pSet.addStructure                             ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map" )                                               # The path to the structure to be processed.
+pSet.addStructure                             ( "./emd_5762.map" )                     # A path to the structure to be processed. This example uses EMDB map 5762 (PDB accession code 3J4S)
 
 
 ### Useful settings
@@ -78,7 +76,6 @@ pSet.setOverlaySaveFile                       ( "moved" )                       
 pSet.setMapInversion                          ( False )                                # Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand ...
                                                                                        # ... as a result of first runs of map computation.
 pSet.setBandwidth                             ( 0 )                                    # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-pSet.setAngularResolution                     ( 0 )                                    # The resolution of the sphere mapping. Set to 0 for automatic determination.
 pSet.setPhaseUsage                            ( True )                                 # Use full maps, or Patterson-like maps?
 pSet.setSphereDistances                       ( 0.0 )                                  # The distance between spheres. Use 0.0 for automatic determination.
 pSet.setIntegrationOrder                      ( 0 )                                    # The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
@@ -114,6 +111,11 @@ del pSet
 for iter in range ( 0, len ( originalBounds ) ):
     print ( "Structure " + str( iter ) + " had bounds " + str( originalBounds[iter][0] ) + " - " + str( originalBounds[iter][1] ) + " ; " + str( originalBounds[iter][2] ) + " - " + str( originalBounds[iter][3] ) + " ; " + str( originalBounds[iter][4] ) + " - " + str( originalBounds[iter][5] ) + " and is now re-boxed to " + str( reboxedBounds[iter][0] ) + " - " + str( reboxedBounds[iter][1] ) + " ; " + str( reboxedBounds[iter][2] ) + " - " + str( reboxedBounds[iter][3] ) + " ; " + str( reboxedBounds[iter][4] ) + " - " + str( reboxedBounds[iter][5] ) )
     print ( "  This structure's re-boxed map has been read into Python as " + str( type( reboxedMaps[iter] ) ) + " with " + str( len ( reboxedMaps[iter] ) ) + " points having mean of " + str( numpy.mean ( reboxedMaps[iter] ) ) )
+
+##############################################
+### Expected output
+#   Structure 0 had bounds -128.0 - 127.0 ; -128.0 - 127.0 ; -128.0 - 127.0 and is now re-boxed to -94.0 - 93.0 ; -94.0 - 93.0 ; -136.0 - 135.0
+#     This structure's re-boxed map has been read into Python as <type 'numpy.ndarray'> with 9613568 points having mean of 0.0031730930564091075
 
 ##############################################
 ### Done

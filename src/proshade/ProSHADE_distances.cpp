@@ -632,6 +632,10 @@ proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSH
     {
         throw ProSHADE_exception ( "Attempted computing trace sigma descriptors when it was\n                    : not required.", "ED00018", __FILE__, __LINE__, __func__, "Attempted to pre-compute the E matrices, when the user\n                    : has specifically stated that these should not be computed.\n                    : Unless you manipulated the code, this error should never\n                    : occur; if you see this, I made a large blunder. Please let\n                    : me know!" );
     }
+    
+    //================================================ Empty the cumulative weights back to 0.0 for each structure
+    obj1->setIntegrationWeight                        ( 0.0 );
+    obj1->setIntegrationWeight                        ( 0.0 );
 
     //================================================ Compute un-weighted E matrices and their weights
     computeEMatrices                                  ( obj1, obj2, settings );

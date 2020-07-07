@@ -42,6 +42,7 @@ int main ( int argc, char **argv )
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     
     //================================================ Further useful settings
+    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setExtraSpace                           ( 25.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
@@ -55,11 +56,9 @@ int main ( int argc, char **argv )
     settings->setRequestedFold                        ( 0 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-    settings->setAngularResolution                    ( 0 );                                 // The resolution of the sphere mapping. Set to 0 for automatic determination.
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
     settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
-    settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -82,8 +81,8 @@ int main ( int argc, char **argv )
     ProSHADE_internal_data::ProSHADE_data* movingStr  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the strcture object
     
     //================================================ Read in the structures
-    staticStr->readInStructure                        ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map", 0, settings ); // This is how a particular structure file is read into the ProSHADE object.
-    movingStr->readInStructure                        ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.pdb", 1, settings );              // This is how a particular structure file is read into the ProSHADE object.
+    staticStr->readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, settings ); // This is how a particular structure file is read into the ProSHADE object. This example uses BALBES domain 1BFO_A_dom_1.
+    movingStr->readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, settings ); // This is how a particular structure file is read into the ProSHADE object. This example uses BALBES domain 1H8N_A_dom_1.
 
     //================================================ Process maps
     staticStr->processInternalMap                     ( settings );  // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -112,6 +111,12 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[3] << " ; " << rotMat[4] << " ; " << rotMat[5] << std::endl;
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
+    //================================================ Expected output
+//  Optimal rotation Euler angles are:      5.49778 ; 0.773116 ; 3.87796
+//  Optimal rotation matrix is       :      -0.849874 ; -0.0999114 ; 0.517429
+//                                   :      -0.184009 ; -0.863802 ; -0.469027
+//                                   :      0.493817 ; -0.493825 ; 0.715738
+    
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
     delete movingStr;
@@ -125,8 +130,8 @@ int main ( int argc, char **argv )
     movingStr                                         = new ProSHADE_internal_data::ProSHADE_data ( settings );
     
     //================================================ Read in the structures again
-    staticStr->readInStructure                        ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map", 0, settings );  // This is how a particular structure file is read into the ProSHADE object.
-    movingStr->readInStructure                        ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.pdb", 1, settings );               // This is how a particular structure file is read into the ProSHADE object.
+    staticStr->readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, settings );  // This is how a particular structure file is read into the ProSHADE object. This example uses BALBES domain 1BFO_A_dom_1.
+    movingStr->readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, settings );  // This is how a particular structure file is read into the ProSHADE object. This example uses BALBES domain 1H8N_A_dom_1.
 
     //================================================ Process maps
     staticStr->processInternalMap                     ( settings );  // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -155,6 +160,9 @@ int main ( int argc, char **argv )
     //================================================ Find the optimal translation vector from the translation map
     std::vector< proshade_double > optimalTranslation = movingStr->getBestTranslationMapPeaksAngstrom ( staticStr ); // This function finds the best translation from the translation map using peak search algorithm.
     std::cout << "Optimal translation in Angstroms is:    " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
+    
+    //================================================ Expected output
+//  Optimal translation in Angstroms is:    8 ; 6 ; -6
     
     //================================================ Translate the internal map
     movingStr->translateMap                           ( settings, optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2) ); // This function translates the internal map representation by the required number of Angstroms.

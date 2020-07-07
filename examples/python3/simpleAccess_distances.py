@@ -45,16 +45,16 @@ pSet                                          = proshade.ProSHADE_settings ()
 pSet.task                                     = proshade.Distances                     # The task ProSHADE is expected to pero=form
 pSet.verbose                                  = -1                                     # How verbose should the run be? Use -1 for absolute silence.
 pSet.setResolution                            ( 10.0 )                                 # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
-pSet.addStructure                             ( "/Users/mysak/LMB/proshade/exp/demo/C2.pdb" )         # The path to the structure to be processed.
-pSet.addStructure                             ( "/Users/mysak/LMB/proshade/exp/demo/testMap.map" )    # The path to the structure to be processed.
-pSet.addStructure                             ( "/Users/mysak/LMB/proshade/exp/demo/C3.pdb" )         # The path to the structure to be processed.
+pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb" ) # A BALBES domain 1BFO_A_dom_1
+pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb" ) # A BALBES domain 1H8N_A_dom_1
+pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/ig/3IGU_A_dom_1.pdb" ) # A BALBES domain 3IGU_A_dom_1
 
 
 ### Useful settings
+pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
 pSet.setPDBBFactor                            ( -1.0 )                                 # Should all B-factors in a PDB file changed to this value? If no, set to negative value.
 pSet.setBandwidth                             ( 0 )                                    # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
-pSet.setAngularResolution                     ( 0 )                                    # The resolution of the sphere mapping. Set to 0 for automatic determination.
 pSet.setPhaseUsage                            ( True )                                 # Use full maps, or Patterson-like maps?
 pSet.setSphereDistances                       ( 0.0 )                                  # The distance between spheres. Use 0.0 for automatic determination.
 pSet.setIntegrationOrder                      ( 0 )                                    # The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
@@ -65,7 +65,6 @@ pSet.setMapInversion                          ( False )                         
 pSet.setMasking                               ( False )                                # Should maps be masked by blurring?
 pSet.setMapReboxing                           ( False )                                # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 pSet.setMapCentering                          ( False )                                # Move structure COM to the centre of map box?
-pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setEnergyLevelsComputation               ( True )                                 # Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 pSet.setTraceSigmaComputation                 ( True )                                 # Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 pSet.setRotationFunctionComputation           ( True )                                 # Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -114,6 +113,12 @@ del pSet
 print ( "Energy levels distances      : " + str( energyDistances[0] ) + "\t" + str( energyDistances[1] ) )
 print ( "Trace sigma distances        : " + str( traceDistances[0] )  + "\t" + str( traceDistances[1]  ) )
 print ( "Rotation function distances  : " + str( rotFunDistances[0] ) + "\t" + str( rotFunDistances[1] ) )
+
+##############################################
+### Expected output
+#Energy levels distances      : 0.8878934799764869    0.6059582772417571
+#Trace sigma distances        : 0.9652072601499514    0.7788919448825865
+#Rotation function distances  : 0.7949105425889242    0.6001006328404906
 
 ##############################################
 ### Done

@@ -39,14 +39,15 @@ pSet                                          = proshade.ProSHADE_settings ()
 ### Set settings values
 pSet.task                                     = proshade.Symmetry
 pSet.verbose                                  = 1
-pSet.setResolution                            ( 10.0 )
-pSet.moveToCOM                                = True
+pSet.setResolution                            ( 12.0 )
+pSet.moveToCOM                                = False
+pSet.changeMapResolution                      = True
 
 ### Create the structure object
 pStruct                                       = proshade.ProSHADE_data ( pSet )
 
 ### Read in the structure
-pStruct.readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/C3.pdb", 0, pSet )
+pStruct.readInStructure                       ( "./emd_6324.map", 0, pSet ) # This example uses EMD 6324 (PDB 3JA7)
 
 ### Process map
 pStruct.processInternalMap                    ( pSet )
@@ -66,10 +67,16 @@ symmetryType                                  = pStruct.getRecommendedSymmetryTy
 symmetryFold                                  = pStruct.getRecommendedSymmetryFold ( pSet )
 symmetryAxes                                  = proshade.getSymmetryAxesPython ( pStruct, pSet )
 
+### Print results
 print ( "Detected " + str( symmetryType ) + "-" + str( symmetryFold ) + " symetry." )
 print ( "Fold      x         y         z       Angle     Height" )
 for iter in range ( 0, len( symmetryAxes ) ):
      print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( symmetryAxes[iter][0], symmetryAxes[iter][1], symmetryAxes[iter][2], symmetryAxes[iter][3], symmetryAxes[iter][4], symmetryAxes[iter][5] ) )
+
+### Expected output
+#   Detected C-12 symetry.
+#   Fold      x         y         z       Angle     Height
+#     12    -0.015    +0.020    +0.999    +0.524    +0.1788
 
 ### Release C++ pointers
 del pStruct

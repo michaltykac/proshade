@@ -280,7 +280,7 @@ void ProSHADE_internal_wigner::computeWignerMatricesForRotation ( ProSHADE_setti
     //================================================ Release the workspace memory
     releaseWignerWorkspace                            ( matIn, matOut, sqrts, workspace, alphaExponentReal, alphaExponentImag,
                                                         gammaExponentReal, gammaExponentImag, trigs );
-    
+
     //================================================ Done
     return ;
     
