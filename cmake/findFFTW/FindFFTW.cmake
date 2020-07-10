@@ -40,7 +40,7 @@ set     ( FFTW_PATHS /usr /usr/local /opt /opt/local ${FFTW_ROOT}               
 ### Find the library and header
 foreach    ( SUFFIX ${SEARCH_LIBRARY_SUFFIXES} )
   find_path   ( FFTW_LIBRARIES
-               NAMES "libfftw3${SUFFIX}"
+               NAMES "libfftw3${SUFFIX}" "libfftw3f${SUFFIX}"
                HINTS ${FFTW_HINTS}
                PATH_SUFFIXES "lib" "lib64" "lib/x86_64" "lib/x64" "lib/x86" "lib/x86_64-linux-gnu"
                PATHS ${FFTW_PATHS}

@@ -539,9 +539,9 @@ Functions</h2></td></tr>
 <div class="fragment"><div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160;{</div>
 <div class="line"><a name="l00799"></a><span class="lineno">  799</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
 <div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;    <span class="keywordtype">char</span> job                                          = <span class="charliteral">&#39;N&#39;</span>;                              <span class="comment">// Save computation of parts of U and V matrices, they are not needed here</span></div>
-<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160;    __extension__ std::complex&lt;double&gt; rotMatU[dim][dim];                                 <span class="comment">// The U matrix space</span></div>
-<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;    __extension__ std::complex&lt;double&gt; rotMatV[dim][dim];                                 <span class="comment">// The V^T matrix space</span></div>
-<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160;    __extension__ std::complex&lt;double&gt; work[( 4 * dim)];                                  <span class="comment">// Workspace, minimum required is 3*dim, using more for performance</span></div>
+<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160;    std::complex&lt;double&gt; rotMatU[dim*dim];                                                <span class="comment">// The U matrix space</span></div>
+<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;    std::complex&lt;double&gt; rotMatV[dim*dim];                                                <span class="comment">// The V^T matrix space</span></div>
+<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160;    std::complex&lt;double&gt; work[( 4 * dim)];                                                <span class="comment">// Workspace, minimum required is 3*dim, using more for performance</span></div>
 <div class="line"><a name="l00804"></a><span class="lineno">  804</span>&#160;    <span class="keywordtype">int</span> workDim                                       = ( 4 * dim);                       <span class="comment">// Formalism stating just that</span></div>
 <div class="line"><a name="l00805"></a><span class="lineno">  805</span>&#160;    <span class="keywordtype">double</span>* rwork                                     = <span class="keyword">new</span> <span class="keywordtype">double</span>[(7 * dim)];            <span class="comment">// Required by LAPACK, from 3.7 requires 7 * dim</span></div>
 <div class="line"><a name="l00806"></a><span class="lineno">  806</span>&#160;    <span class="keywordtype">int</span>* iwork                                        = <span class="keyword">new</span> <span class="keywordtype">int</span>[(8 * dim)];               <span class="comment">// Required by LAPACK</span></div>
@@ -561,7 +561,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00820"></a><span class="lineno">  820</span>&#160;    }</div>
 <div class="line"><a name="l00821"></a><span class="lineno">  821</span>&#160;    </div>
 <div class="line"><a name="l00822"></a><span class="lineno">  822</span>&#160;    <span class="comment">//================================================ Run LAPACK ZGESDD</span></div>
-<div class="line"><a name="l00823"></a><span class="lineno">  823</span>&#160;    zgesdd_                                           ( &amp;job, &amp;dim, &amp;dim, matrixToDecompose, &amp;dim, singularValues, *rotMatU, &amp;dim, *rotMatV, &amp;dim,</div>
+<div class="line"><a name="l00823"></a><span class="lineno">  823</span>&#160;    zgesdd_                                           ( &amp;job, &amp;dim, &amp;dim, matrixToDecompose, &amp;dim, singularValues, rotMatU, &amp;dim, rotMatV, &amp;dim,</div>
 <div class="line"><a name="l00824"></a><span class="lineno">  824</span>&#160;                                                        work, &amp;workDim, rwork, iwork, &amp;returnValue );</div>
 <div class="line"><a name="l00825"></a><span class="lineno">  825</span>&#160;    </div>
 <div class="line"><a name="l00826"></a><span class="lineno">  826</span>&#160;    <span class="comment">//================================================ Free memory</span></div>
@@ -637,9 +637,9 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00858"></a><span class="lineno">  858</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
 <div class="line"><a name="l00859"></a><span class="lineno">  859</span>&#160;    <span class="keywordtype">char</span> job                                          = <span class="charliteral">&#39;A&#39;</span>;                              <span class="comment">// Save computation of parts of U and V matrices, they are not needed here</span></div>
 <div class="line"><a name="l00860"></a><span class="lineno">  860</span>&#160;    <span class="keywordtype">double</span>* singularValues                            = <span class="keyword">new</span> <span class="keywordtype">double</span>[dim];                  <span class="comment">// The array of singular values</span></div>
-<div class="line"><a name="l00861"></a><span class="lineno">  861</span>&#160;    __extension__ std::complex&lt;double&gt; rotMatU[dim][dim];                                 <span class="comment">// The U matrix space</span></div>
-<div class="line"><a name="l00862"></a><span class="lineno">  862</span>&#160;    __extension__ std::complex&lt;double&gt; rotMatV[dim][dim];                                 <span class="comment">// The V^T matrix space</span></div>
-<div class="line"><a name="l00863"></a><span class="lineno">  863</span>&#160;    __extension__ std::complex&lt;double&gt; work[<span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span>( ( 3 * dim) + pow( dim, 2 ) * dim)]; <span class="comment">// Workspace, minimum required is 3*dim, using more for performance</span></div>
+<div class="line"><a name="l00861"></a><span class="lineno">  861</span>&#160;    std::complex&lt;double&gt; rotMatU[dim*dim];                                                <span class="comment">// The U matrix space</span></div>
+<div class="line"><a name="l00862"></a><span class="lineno">  862</span>&#160;    std::complex&lt;double&gt; rotMatV[dim*dim];                                                <span class="comment">// The V^T matrix space</span></div>
+<div class="line"><a name="l00863"></a><span class="lineno">  863</span>&#160;    std::complex&lt;double&gt; work[<span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span>( ( 3 * dim) + pow( dim, 2 ) * dim)]; <span class="comment">// Workspace, minimum required is 3*dim, using more for performance</span></div>
 <div class="line"><a name="l00864"></a><span class="lineno">  864</span>&#160;    <span class="keywordtype">int</span> workDim                                       = ( 3 * dim) + pow( dim, 2 );       <span class="comment">// Formalism stating just that</span></div>
 <div class="line"><a name="l00865"></a><span class="lineno">  865</span>&#160;    <span class="keywordtype">double</span>* rwork                                     = <span class="keyword">new</span> <span class="keywordtype">double</span>[<span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span>((5 * dim) + 5 * pow(dim,2))]; <span class="comment">// Required by LAPACK</span></div>
 <div class="line"><a name="l00866"></a><span class="lineno">  866</span>&#160;    <span class="keywordtype">int</span>* iwork                                        = <span class="keyword">new</span> <span class="keywordtype">int</span>[(8 * dim)];               <span class="comment">// Required by LAPACK</span></div>
@@ -660,7 +660,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00881"></a><span class="lineno">  881</span>&#160;    }</div>
 <div class="line"><a name="l00882"></a><span class="lineno">  882</span>&#160;    </div>
 <div class="line"><a name="l00883"></a><span class="lineno">  883</span>&#160;    <span class="comment">//================================================ Run LAPACK ZGESDD</span></div>
-<div class="line"><a name="l00884"></a><span class="lineno">  884</span>&#160;    zgesdd_                                           ( &amp;job, &amp;dim, &amp;dim, matrixToDecompose, &amp;dim, singularValues, *rotMatU, &amp;dim, *rotMatV, &amp;dim,</div>
+<div class="line"><a name="l00884"></a><span class="lineno">  884</span>&#160;    zgesdd_                                           ( &amp;job, &amp;dim, &amp;dim, matrixToDecompose, &amp;dim, singularValues, rotMatU, &amp;dim, rotMatV, &amp;dim,</div>
 <div class="line"><a name="l00885"></a><span class="lineno">  885</span>&#160;                                                        work, &amp;workDim, rwork, iwork, &amp;returnValue );</div>
 <div class="line"><a name="l00886"></a><span class="lineno">  886</span>&#160;    </div>
 <div class="line"><a name="l00887"></a><span class="lineno">  887</span>&#160;    <span class="comment">//================================================ Free memory</span></div>
@@ -685,7 +685,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00906"></a><span class="lineno">  906</span>&#160;    {</div>
 <div class="line"><a name="l00907"></a><span class="lineno">  907</span>&#160;        <span class="keywordflow">for</span> ( proshade_signed colIt = 0; colIt &lt; dim; colIt++ )</div>
 <div class="line"><a name="l00908"></a><span class="lineno">  908</span>&#160;        {</div>
-<div class="line"><a name="l00909"></a><span class="lineno">  909</span>&#160;            uAndV[(rowIt*3)+colIt]                    = rotMatU[rowIt][colIt].real();</div>
+<div class="line"><a name="l00909"></a><span class="lineno">  909</span>&#160;            uAndV[(rowIt*3)+colIt]                    = rotMatU[( rowIt * 3 ) + colIt].real();</div>
 <div class="line"><a name="l00910"></a><span class="lineno">  910</span>&#160;        }</div>
 <div class="line"><a name="l00911"></a><span class="lineno">  911</span>&#160;    }</div>
 <div class="line"><a name="l00912"></a><span class="lineno">  912</span>&#160;    </div>
@@ -694,7 +694,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00915"></a><span class="lineno">  915</span>&#160;    {</div>
 <div class="line"><a name="l00916"></a><span class="lineno">  916</span>&#160;        <span class="keywordflow">for</span> ( proshade_signed colIt = 0; colIt &lt; dim; colIt++ )</div>
 <div class="line"><a name="l00917"></a><span class="lineno">  917</span>&#160;        {</div>
-<div class="line"><a name="l00918"></a><span class="lineno">  918</span>&#160;            uAndV[(rowIt*3)+colIt+9]                  = rotMatV[rowIt][colIt].real();</div>
+<div class="line"><a name="l00918"></a><span class="lineno">  918</span>&#160;            uAndV[(rowIt*3)+colIt+9]                  = rotMatV[( rowIt * 3 ) + colIt].real();</div>
 <div class="line"><a name="l00919"></a><span class="lineno">  919</span>&#160;        }</div>
 <div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160;    }</div>
 <div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;    </div>

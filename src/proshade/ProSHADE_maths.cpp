@@ -798,9 +798,9 @@ void ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( proshade_complex** ma
 {
     //================================================ Initialise local variables
     char job                                          = 'N';                              // Save computation of parts of U and V matrices, they are not needed here
-    __extension__ std::complex<double> rotMatU[dim][dim];                                 // The U matrix space
-    __extension__ std::complex<double> rotMatV[dim][dim];                                 // The V^T matrix space
-    __extension__ std::complex<double> work[( 4 * dim)];                                  // Workspace, minimum required is 3*dim, using more for performance
+    std::complex<double> rotMatU[dim*dim];                                                // The U matrix space
+    std::complex<double> rotMatV[dim*dim];                                                // The V^T matrix space
+    std::complex<double> work[( 4 * dim)];                                                // Workspace, minimum required is 3*dim, using more for performance
     int workDim                                       = ( 4 * dim);                       // Formalism stating just that
     double* rwork                                     = new double[(7 * dim)];            // Required by LAPACK, from 3.7 requires 7 * dim
     int* iwork                                        = new int[(8 * dim)];               // Required by LAPACK
@@ -820,7 +820,7 @@ void ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( proshade_complex** ma
     }
     
     //================================================ Run LAPACK ZGESDD
-    zgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, *rotMatU, &dim, *rotMatV, &dim,
+    zgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, rotMatU, &dim, rotMatV, &dim,
                                                         work, &workDim, rwork, iwork, &returnValue );
     
     //================================================ Free memory
@@ -858,9 +858,9 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     //================================================ Initialise local variables
     char job                                          = 'A';                              // Save computation of parts of U and V matrices, they are not needed here
     double* singularValues                            = new double[dim];                  // The array of singular values
-    __extension__ std::complex<double> rotMatU[dim][dim];                                 // The U matrix space
-    __extension__ std::complex<double> rotMatV[dim][dim];                                 // The V^T matrix space
-    __extension__ std::complex<double> work[static_cast<proshade_unsign>( ( 3 * dim) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 3*dim, using more for performance
+    std::complex<double> rotMatU[dim*dim];                                                // The U matrix space
+    std::complex<double> rotMatV[dim*dim];                                                // The V^T matrix space
+    std::complex<double> work[static_cast<proshade_unsign>( ( 3 * dim) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 3*dim, using more for performance
     int workDim                                       = ( 3 * dim) + pow( dim, 2 );       // Formalism stating just that
     double* rwork                                     = new double[static_cast<proshade_unsign>((5 * dim) + 5 * pow(dim,2))]; // Required by LAPACK
     int* iwork                                        = new int[(8 * dim)];               // Required by LAPACK
@@ -881,7 +881,7 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     }
     
     //================================================ Run LAPACK ZGESDD
-    zgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, *rotMatU, &dim, *rotMatV, &dim,
+    zgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, rotMatU, &dim, rotMatV, &dim,
                                                         work, &workDim, rwork, iwork, &returnValue );
     
     //================================================ Free memory
@@ -906,7 +906,7 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     {
         for ( proshade_signed colIt = 0; colIt < dim; colIt++ )
         {
-            uAndV[(rowIt*3)+colIt]                    = rotMatU[rowIt][colIt].real();
+            uAndV[(rowIt*3)+colIt]                    = rotMatU[( rowIt * 3 ) + colIt].real();
         }
     }
     
@@ -915,7 +915,7 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     {
         for ( proshade_signed colIt = 0; colIt < dim; colIt++ )
         {
-            uAndV[(rowIt*3)+colIt+9]                  = rotMatV[rowIt][colIt].real();
+            uAndV[(rowIt*3)+colIt+9]                  = rotMatV[( rowIt * 3 ) + colIt].real();
         }
     }
     
