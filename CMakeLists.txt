@@ -92,6 +92,18 @@ elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
 endif  ( )
 
 ##########################################################################################
+################################### Find gfortran version. This is needed as starting from version 10, it is no longer backward compatible and it need the -fallow-argument-mismatch argument, but the old version fail with this argument...
+execute_process  ( COMMAND gfortran --version OUTPUT_VARIABLE GFORTRAN_VERSION_FULLTEXT )
+string           ( REGEX MATCH "[0-9]+" GFORTRAN_VERSION ${GFORTRAN_VERSION_FULLTEXT} )
+
+if    ( GFORTRAN_VERSION )
+	# Nothing to be done, fortran found and version detected
+else  ( GFORTRAN_VERSION )
+	# Problem. Failed to find gfortran version. Report to user and ask for debug info
+	message      ( FATAL_ERROR "Failed to find gfortran version. Please report this instance to the author along with the output of 'gfortran --version' command." )
+endif ( GFORTRAN_VERSION )
+
+##########################################################################################
 ################################### Set targets for clipper installation from supplied sources
 
 ### MMDB2
@@ -110,10 +122,34 @@ add_custom_target (
 )
 
 ### CCP4LIB
+if     ( ${GFORTRAN_VERSION} GREATER 9 )
+	add_custom_command (
+  	 OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
+  	 DEPENDS mmdb2_lib
+ 	 COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' FCFLAGS='-fallow-argument-mismatch' FFLAGS='-fallow-argument-mismatch' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+  	 COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+  	 COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+  	 COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
+  	 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
+	)
+else   ( ${GFORTRAN_VERSION} GREATER 9 )
+    if    ( ${GFORTRAN_VERSION} LESS 10 )
+    		add_custom_command (
+  	 		 OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
+  	 		 DEPENDS mmdb2_lib
+ 	 		 COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+  	 		 COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+  	 		 COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+  	 		 COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
+  	 		 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
+			)
+    endif ( ${GFORTRAN_VERSION} LESS 10 )
+endif  ( ${GFORTRAN_VERSION} GREATER 9 )
 add_custom_command (
    OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
    DEPENDS mmdb2_lib
-   COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   #COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' FCFLAGS='-fallow-argument-mismatch' FFLAGS='-fallow-argument-mismatch' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
+   COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt 
    COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
    COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
    COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
