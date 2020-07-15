@@ -65,6 +65,15 @@ namespace ProSHADE_internal_mapManip
     void reSampleMapToResolutionTrilinear             ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS,
                                                         proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs,  proshade_single zAngs,
                                                         proshade_single*& corrs );
+    void reSampleMapToResolutionFourier               ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS,
+                                                        proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs,  proshade_single zAngs,
+                                                        proshade_single*& corrs );
+    void allocateResolutionFourierMemory              ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier,
+                                                        fftw_plan& planBackwardRescaledFourier, proshade_unsign xDimOld, proshade_unsign yDimOld, proshade_unsign zDimOld,
+                                                        proshade_unsign xDimNew, proshade_unsign yDimNew, proshade_unsign zDimNew );
+    void releaseResolutionFourierMemory               ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier,
+                                                        fftw_plan& planBackwardRescaledFourier );
+    void changeFourierOrder                           ( fftw_complex*& fCoeffs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool negativeFirst );
     void removeMapPhase                               ( fftw_complex*& mapCoeffs, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
     void getFakeHalfMap                               ( proshade_double*& map, proshade_double*& fakeHalfMap, proshade_unsign xDimS, proshade_unsign yDimS,
                                                        proshade_unsign zDimS, proshade_signed fakeMapKernel );

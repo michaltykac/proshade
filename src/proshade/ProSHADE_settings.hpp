@@ -107,6 +107,7 @@ public:
     //================================================ Settings regarding the resolution of calculations
     proshade_single requestedResolution;              //!< The resolution to which the calculations are to be done.
     bool changeMapResolution;                         //!< Should maps be re-sampled to obtain the required resolution?
+    bool changeMapResolutionTriLinear;                //!< Should maps be re-sampled to obtain the required resolution?
     
     //================================================ Settings regarding the PDB B-factor change
     proshade_double pdbBFactorNewVal;                 //!< Change all PDB B-factors to this value (for smooth maps).
@@ -223,6 +224,7 @@ public:
     void setSameBoundaries                            ( bool sameB );
     void setOutputFilename                            ( std::string oFileName );
     void setMapResolutionChange                       ( bool mrChange );
+    void setMapResolutionChangeTriLinear              ( bool mrChange );
     void setMapCentering                              ( bool com );
     void setExtraSpace                                ( proshade_single exSpace );
     void setBandwidth                                 ( proshade_unsign band );

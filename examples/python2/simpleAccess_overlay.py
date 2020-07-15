@@ -29,7 +29,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-#sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python2" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python2" )
 import proshade
 
 ##############################################
@@ -54,7 +54,8 @@ pSet.setMasking                               ( False )                         
 pSet.setMapReboxing                           ( False )                                # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
 pSet.setMapCentering                          ( False )                                # Move structure COM to the centre of map box?
-pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
+pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
+pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 
 ### All other (possible other tasks related) settings
 pSet.setExtraSpace                            ( 10.0 )                                 # Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
@@ -116,11 +117,11 @@ print ( "                                        : %+2.4f   %+2.4f   %+2.4f" % (
 print ( "Optimal overlay translation (Angstroms) : %+2.4f   %+2.4f   %+2.4f" % ( translation[0] , translation[1] , translation[2] ) )
 
 ### Expected output
-#  Optimal overlay rotation (Euler angles) : +5.5084   +0.7639   +3.8732
-#  Optimal overlay rotation (rot. matrix)  : -0.8513   -0.1015   +0.5147
-#                                          : -0.1758   -0.8692   -0.4621
-#                                          : +0.4943   -0.4839   +0.7221
-#  Optimal overlay translation (Angstroms) : +8.0000   +6.0000   -6.0000
+#   Optimal overlay rotation (Euler angles) : +5.5084   +0.7639   +3.8732
+#   Optimal overlay rotation (rot. matrix)  : -0.8513   -0.1015   +0.5147
+#                                           : -0.1758   -0.8692   -0.4621
+#                                           : +0.4943   -0.4839   +0.7221
+#   Optimal overlay translation (Angstroms) : +8.0000   +8.0000   -6.0000
 
 ##############################################
 ### Done

@@ -1,9 +1,11 @@
 var _pro_s_h_a_d_e__map_manip_8hpp =
 [
     [ "addExtraBoundSpace", "_pro_s_h_a_d_e__map_manip_8hpp.html#a7c88b1152378beca4ccee251f2fb5e06", null ],
+    [ "allocateResolutionFourierMemory", "_pro_s_h_a_d_e__map_manip_8hpp.html#af7557a0637b9c6fb9ccaf8fbf31cc928", null ],
     [ "beautifyBoundaries", "_pro_s_h_a_d_e__map_manip_8hpp.html#ae273430e12dd5bce08cf29c7689800dd", null ],
     [ "betterClosePrimeFactors", "_pro_s_h_a_d_e__map_manip_8hpp.html#abc6c505ea6b876bfae4d5f45dab63e98", null ],
     [ "blurSharpenMap", "_pro_s_h_a_d_e__map_manip_8hpp.html#afdac8ed8f140bdcd289ee666b61789d4", null ],
+    [ "changeFourierOrder", "_pro_s_h_a_d_e__map_manip_8hpp.html#adc0d808ba88ad0e023ba8391aa44be95", null ],
     [ "changePDBBFactors", "_pro_s_h_a_d_e__map_manip_8hpp.html#a77f03de272e701a6cfa084d1130422a8", null ],
     [ "connectMaskBlobs", "_pro_s_h_a_d_e__map_manip_8hpp.html#acf1e3e4bba204a62b6c3046e5c4c0e77", null ],
     [ "copyMapByBounds", "_pro_s_h_a_d_e__map_manip_8hpp.html#a2c857c8f26f99695e7de52025f590205", null ],
@@ -20,7 +22,9 @@ var _pro_s_h_a_d_e__map_manip_8hpp =
     [ "moveMapByIndices", "_pro_s_h_a_d_e__map_manip_8hpp.html#a037825616c60bef58075284449872642", null ],
     [ "movePDBForClipper", "_pro_s_h_a_d_e__map_manip_8hpp.html#a3fc8927d3ed6db95849dba71a2c17c60", null ],
     [ "myRound", "_pro_s_h_a_d_e__map_manip_8hpp.html#a50df80b02427f9f55a2c7af033a9fb93", null ],
+    [ "releaseResolutionFourierMemory", "_pro_s_h_a_d_e__map_manip_8hpp.html#a7d5680a284686d86c28b5300db111ca5", null ],
     [ "removeMapPhase", "_pro_s_h_a_d_e__map_manip_8hpp.html#a167f7a9dbd061752d2a099181090a3b8", null ],
+    [ "reSampleMapToResolutionFourier", "_pro_s_h_a_d_e__map_manip_8hpp.html#ac311071faa65db4dfc1886d2a6de78ef", null ],
     [ "reSampleMapToResolutionTrilinear", "_pro_s_h_a_d_e__map_manip_8hpp.html#a5db74cc13dd4b64cf0a8377ed078b47c", null ],
     [ "rotatePDBCoordinates", "_pro_s_h_a_d_e__map_manip_8hpp.html#add7e9fe1324adeeac12547812df6e7e1", null ],
     [ "translatePDBCoordinates", "_pro_s_h_a_d_e__map_manip_8hpp.html#a14dec190bfdfd9364c3c52fae7703558", null ]

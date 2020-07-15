@@ -31,7 +31,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-#sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python3" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python3" )
 import proshade
 
 ### Create the object
@@ -121,13 +121,13 @@ print ( "                             :  %+1.3f    %+1.3f    %+1.3f\n" % ( optim
 print ( "Optimal translation          :  %+1.3f    %+1.3f    %+1.3f" % ( optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] ) )
 
 ### Expected output
-#   Optimal Euler angles         :  +5.432    +0.769    +3.927
-#
+#   Optimal Euler angles         :  +5.433    +0.769    +3.927
+#   
 #   Optimal Euler rotation matrix:  -0.867    -0.084    +0.492
 #                                :  -0.196    -0.848    -0.492
 #                                :  +0.459    -0.523    +0.719
-#
-#   Optimal translation          :  +8.000    +6.000    -6.000
+#   
+#   Optimal translation          :  +8.000    +8.000    -6.000
 
 ### Write out the map - it has some artefacts, this is caused by the double interpolation - I recommend applying the rotation and translation in EMDA instead of using this map.
 pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] );

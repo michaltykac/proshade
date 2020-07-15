@@ -200,95 +200,95 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01194">1194</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;{</div>
-<div class="line"><a name="l01196"></a><span class="lineno"> 1196</span>&#160;    <span class="comment">//================================================ Wellcome message if required</span></div>
-<div class="line"><a name="l01197"></a><span class="lineno"> 1197</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a368423cb210e9de613d652b3770fb533">ProSHADE_internal_messages::printWellcomeMessage</a>  ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
-<div class="line"><a name="l01198"></a><span class="lineno"> 1198</span>&#160;    </div>
-<div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;    <span class="comment">//================================================ Save the general information</span></div>
-<div class="line"><a name="l01200"></a><span class="lineno"> 1200</span>&#160;    this-&gt;noStructures                                = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a8a032c43a41e79e9d86c5beccb329169">inputFiles</a>.size() );</div>
-<div class="line"><a name="l01201"></a><span class="lineno"> 1201</span>&#160;    this-&gt;verbose                                     = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
-<div class="line"><a name="l01202"></a><span class="lineno"> 1202</span>&#160;    </div>
-<div class="line"><a name="l01203"></a><span class="lineno"> 1203</span>&#160;    <span class="comment">//================================================ Try to run ProSHADE</span></div>
-<div class="line"><a name="l01204"></a><span class="lineno"> 1204</span>&#160;    <span class="keywordflow">try</span></div>
-<div class="line"><a name="l01205"></a><span class="lineno"> 1205</span>&#160;    {</div>
-<div class="line"><a name="l01206"></a><span class="lineno"> 1206</span>&#160;        <span class="comment">//============================================ Depending on task, switch to correct function to call</span></div>
-<div class="line"><a name="l01207"></a><span class="lineno"> 1207</span>&#160;        <span class="keywordflow">switch</span> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#afb39c3bb75f1b925175f9f6b09ada148">task</a> )</div>
-<div class="line"><a name="l01208"></a><span class="lineno"> 1208</span>&#160;        {</div>
-<div class="line"><a name="l01209"></a><span class="lineno"> 1209</span>&#160;            <span class="keywordflow">case</span> NA:</div>
-<div class="line"><a name="l01210"></a><span class="lineno"> 1210</span>&#160;                <span class="keywordflow">throw</span> <a class="code" href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a> ( <span class="stringliteral">&quot;No task has been specified.&quot;</span>, <span class="stringliteral">&quot;E000001&quot;</span>, __FILE__, __LINE__, __func__, <span class="stringliteral">&quot;ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \&#39;Task\&#39; set to\n                    : one of the following values: Symmetry, Distances,\n                    : Features, RotateMap, OverlayMap, SimpleRebox.&quot;</span> );</div>
-<div class="line"><a name="l01211"></a><span class="lineno"> 1211</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01212"></a><span class="lineno"> 1212</span>&#160;                </div>
-<div class="line"><a name="l01213"></a><span class="lineno"> 1213</span>&#160;            <span class="keywordflow">case</span> Symmetry:</div>
-<div class="line"><a name="l01214"></a><span class="lineno"> 1214</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#abd5aca876260923130286a8f89945183">ProSHADE_internal_tasks::SymmetryDetectionTask</a> ( settings, &amp;this-&gt;RecomSymAxes );</div>
-<div class="line"><a name="l01215"></a><span class="lineno"> 1215</span>&#160;                this-&gt;setSymmetryResults              ( settings );</div>
-<div class="line"><a name="l01216"></a><span class="lineno"> 1216</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01217"></a><span class="lineno"> 1217</span>&#160;                </div>
-<div class="line"><a name="l01218"></a><span class="lineno"> 1218</span>&#160;            <span class="keywordflow">case</span> Distances:</div>
-<div class="line"><a name="l01219"></a><span class="lineno"> 1219</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#a104ae331628baf5dc1cd2af78a509624">ProSHADE_internal_tasks::DistancesComputationTask</a> ( settings, &amp;this-&gt;enLevs, &amp;this-&gt;trSigm, &amp;this-&gt;rotFun );</div>
-<div class="line"><a name="l01220"></a><span class="lineno"> 1220</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01221"></a><span class="lineno"> 1221</span>&#160;                </div>
-<div class="line"><a name="l01222"></a><span class="lineno"> 1222</span>&#160;            <span class="keywordflow">case</span> OverlayMap:</div>
-<div class="line"><a name="l01223"></a><span class="lineno"> 1223</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#a6eff0644d1b71da8a717dac61a788b09">ProSHADE_internal_tasks::MapOverlayTask</a> ( settings, &amp;this-&gt;eulerAngles, &amp;this-&gt;translation );</div>
-<div class="line"><a name="l01224"></a><span class="lineno"> 1224</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01225"></a><span class="lineno"> 1225</span>&#160;                </div>
-<div class="line"><a name="l01226"></a><span class="lineno"> 1226</span>&#160;            <span class="keywordflow">case</span> MapManip:</div>
-<div class="line"><a name="l01227"></a><span class="lineno"> 1227</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#a284518fd53c37bc487a3bd4dd3556f6d">ProSHADE_internal_tasks::MapManipulationTask</a> ( settings, &amp;this-&gt;originalBounds, &amp;this-&gt;reboxedBounds, &amp;this-&gt;manipulatedMaps );</div>
-<div class="line"><a name="l01228"></a><span class="lineno"> 1228</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l01229"></a><span class="lineno"> 1229</span>&#160;        }</div>
-<div class="line"><a name="l01230"></a><span class="lineno"> 1230</span>&#160;    }</div>
-<div class="line"><a name="l01231"></a><span class="lineno"> 1231</span>&#160;    </div>
-<div class="line"><a name="l01232"></a><span class="lineno"> 1232</span>&#160;    <span class="comment">//================================================ If this is ProSHADE exception, give all available info and terminate gracefully :-)</span></div>
-<div class="line"><a name="l01233"></a><span class="lineno"> 1233</span>&#160;    <span class="keywordflow">catch</span> ( <a class="code" href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a>&amp; err )</div>
-<div class="line"><a name="l01234"></a><span class="lineno"> 1234</span>&#160;    {</div>
-<div class="line"><a name="l01235"></a><span class="lineno"> 1235</span>&#160;        std::cerr &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;!! ProSHADE ERROR !!&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01236"></a><span class="lineno"> 1236</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Error Code          : &quot;</span> &lt;&lt; err.get_errc() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01237"></a><span class="lineno"> 1237</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;File                : &quot;</span> &lt;&lt; err.get_file() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01238"></a><span class="lineno"> 1238</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Line                : &quot;</span> &lt;&lt; err.get_line() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01239"></a><span class="lineno"> 1239</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Function            : &quot;</span> &lt;&lt; err.get_func() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01240"></a><span class="lineno"> 1240</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Message             : &quot;</span> &lt;&lt; err.what() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01241"></a><span class="lineno"> 1241</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Further information : &quot;</span> &lt;&lt; err.get_info() &lt;&lt; std::endl &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01242"></a><span class="lineno"> 1242</span>&#160;        </div>
-<div class="line"><a name="l01243"></a><span class="lineno"> 1243</span>&#160;        <span class="comment">//============================================ Done</span></div>
-<div class="line"><a name="l01244"></a><span class="lineno"> 1244</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a4653e05cb29b2ded588ae4ddcbdd8aee">ProSHADE_internal_messages::printTerminateMessage</a> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
-<div class="line"><a name="l01245"></a><span class="lineno"> 1245</span>&#160;        exit                                          ( EXIT_FAILURE );</div>
-<div class="line"><a name="l01246"></a><span class="lineno"> 1246</span>&#160;    }</div>
-<div class="line"><a name="l01247"></a><span class="lineno"> 1247</span>&#160;    </div>
-<div class="line"><a name="l01248"></a><span class="lineno"> 1248</span>&#160;    <span class="comment">//================================================ Well, give all there is and just end</span></div>
-<div class="line"><a name="l01249"></a><span class="lineno"> 1249</span>&#160;    <span class="keywordflow">catch</span> ( ... )</div>
-<div class="line"><a name="l01250"></a><span class="lineno"> 1250</span>&#160;    {</div>
-<div class="line"><a name="l01251"></a><span class="lineno"> 1251</span>&#160;        std::cerr &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;!! ProSHADE ERROR !!&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01252"></a><span class="lineno"> 1252</span>&#160;        </div>
-<div class="line"><a name="l01253"></a><span class="lineno"> 1253</span>&#160;        <span class="comment">//============================================ Try to find out more</span></div>
-<div class="line"><a name="l01254"></a><span class="lineno"> 1254</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
-<div class="line"><a name="l01255"></a><span class="lineno"> 1255</span>&#160;            std::exception_ptr exc                    = std::current_exception();</div>
-<div class="line"><a name="l01256"></a><span class="lineno"> 1256</span>&#160;            <span class="keywordflow">try</span></div>
-<div class="line"><a name="l01257"></a><span class="lineno"> 1257</span>&#160;            {</div>
-<div class="line"><a name="l01258"></a><span class="lineno"> 1258</span>&#160;                <span class="keywordflow">if</span> (exc)</div>
-<div class="line"><a name="l01259"></a><span class="lineno"> 1259</span>&#160;                {</div>
-<div class="line"><a name="l01260"></a><span class="lineno"> 1260</span>&#160;                    std::rethrow_exception            ( exc );</div>
-<div class="line"><a name="l01261"></a><span class="lineno"> 1261</span>&#160;                }</div>
-<div class="line"><a name="l01262"></a><span class="lineno"> 1262</span>&#160;            }</div>
-<div class="line"><a name="l01263"></a><span class="lineno"> 1263</span>&#160;            <span class="keywordflow">catch</span> ( <span class="keyword">const</span> std::exception&amp; e )</div>
-<div class="line"><a name="l01264"></a><span class="lineno"> 1264</span>&#160;            {</div>
-<div class="line"><a name="l01265"></a><span class="lineno"> 1265</span>&#160;                std::cerr &lt;&lt; <span class="stringliteral">&quot;Caught exception with following information: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01266"></a><span class="lineno"> 1266</span>&#160;            }</div>
-<div class="line"><a name="l01267"></a><span class="lineno"> 1267</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l01268"></a><span class="lineno"> 1268</span>&#160;            std::cerr &lt;&lt; <span class="stringliteral">&quot;Unknown error with no further explanation available. Please contact the author for help.&quot;</span> &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01269"></a><span class="lineno"> 1269</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l01270"></a><span class="lineno"> 1270</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Terminating...&quot;</span> &lt;&lt; std::endl &lt;&lt; std::endl &lt;&lt; std::flush;</div>
-<div class="line"><a name="l01271"></a><span class="lineno"> 1271</span>&#160;        </div>
-<div class="line"><a name="l01272"></a><span class="lineno"> 1272</span>&#160;        <span class="comment">//============================================ Done</span></div>
-<div class="line"><a name="l01273"></a><span class="lineno"> 1273</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a4653e05cb29b2ded588ae4ddcbdd8aee">ProSHADE_internal_messages::printTerminateMessage</a> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
-<div class="line"><a name="l01274"></a><span class="lineno"> 1274</span>&#160;        exit                                          ( EXIT_FAILURE );</div>
-<div class="line"><a name="l01275"></a><span class="lineno"> 1275</span>&#160;    }</div>
-<div class="line"><a name="l01276"></a><span class="lineno"> 1276</span>&#160;    </div>
-<div class="line"><a name="l01277"></a><span class="lineno"> 1277</span>&#160;    <span class="comment">//================================================ Terminating message</span></div>
-<div class="line"><a name="l01278"></a><span class="lineno"> 1278</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a4653e05cb29b2ded588ae4ddcbdd8aee">ProSHADE_internal_messages::printTerminateMessage</a> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
-<div class="line"><a name="l01279"></a><span class="lineno"> 1279</span>&#160;    </div>
-<div class="line"><a name="l01280"></a><span class="lineno"> 1280</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l01281"></a><span class="lineno"> 1281</span>&#160;    </div>
-<div class="line"><a name="l01282"></a><span class="lineno"> 1282</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01212">1212</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l01213"></a><span class="lineno"> 1213</span>&#160;{</div>
+<div class="line"><a name="l01214"></a><span class="lineno"> 1214</span>&#160;    <span class="comment">//================================================ Wellcome message if required</span></div>
+<div class="line"><a name="l01215"></a><span class="lineno"> 1215</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a368423cb210e9de613d652b3770fb533">ProSHADE_internal_messages::printWellcomeMessage</a>  ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
+<div class="line"><a name="l01216"></a><span class="lineno"> 1216</span>&#160;    </div>
+<div class="line"><a name="l01217"></a><span class="lineno"> 1217</span>&#160;    <span class="comment">//================================================ Save the general information</span></div>
+<div class="line"><a name="l01218"></a><span class="lineno"> 1218</span>&#160;    this-&gt;noStructures                                = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a8a032c43a41e79e9d86c5beccb329169">inputFiles</a>.size() );</div>
+<div class="line"><a name="l01219"></a><span class="lineno"> 1219</span>&#160;    this-&gt;verbose                                     = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
+<div class="line"><a name="l01220"></a><span class="lineno"> 1220</span>&#160;    </div>
+<div class="line"><a name="l01221"></a><span class="lineno"> 1221</span>&#160;    <span class="comment">//================================================ Try to run ProSHADE</span></div>
+<div class="line"><a name="l01222"></a><span class="lineno"> 1222</span>&#160;    <span class="keywordflow">try</span></div>
+<div class="line"><a name="l01223"></a><span class="lineno"> 1223</span>&#160;    {</div>
+<div class="line"><a name="l01224"></a><span class="lineno"> 1224</span>&#160;        <span class="comment">//============================================ Depending on task, switch to correct function to call</span></div>
+<div class="line"><a name="l01225"></a><span class="lineno"> 1225</span>&#160;        <span class="keywordflow">switch</span> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#afb39c3bb75f1b925175f9f6b09ada148">task</a> )</div>
+<div class="line"><a name="l01226"></a><span class="lineno"> 1226</span>&#160;        {</div>
+<div class="line"><a name="l01227"></a><span class="lineno"> 1227</span>&#160;            <span class="keywordflow">case</span> NA:</div>
+<div class="line"><a name="l01228"></a><span class="lineno"> 1228</span>&#160;                <span class="keywordflow">throw</span> <a class="code" href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a> ( <span class="stringliteral">&quot;No task has been specified.&quot;</span>, <span class="stringliteral">&quot;E000001&quot;</span>, __FILE__, __LINE__, __func__, <span class="stringliteral">&quot;ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \&#39;Task\&#39; set to\n                    : one of the following values: Symmetry, Distances,\n                    : Features, RotateMap, OverlayMap, SimpleRebox.&quot;</span> );</div>
+<div class="line"><a name="l01229"></a><span class="lineno"> 1229</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01230"></a><span class="lineno"> 1230</span>&#160;                </div>
+<div class="line"><a name="l01231"></a><span class="lineno"> 1231</span>&#160;            <span class="keywordflow">case</span> Symmetry:</div>
+<div class="line"><a name="l01232"></a><span class="lineno"> 1232</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#abd5aca876260923130286a8f89945183">ProSHADE_internal_tasks::SymmetryDetectionTask</a> ( settings, &amp;this-&gt;RecomSymAxes );</div>
+<div class="line"><a name="l01233"></a><span class="lineno"> 1233</span>&#160;                this-&gt;setSymmetryResults              ( settings );</div>
+<div class="line"><a name="l01234"></a><span class="lineno"> 1234</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01235"></a><span class="lineno"> 1235</span>&#160;                </div>
+<div class="line"><a name="l01236"></a><span class="lineno"> 1236</span>&#160;            <span class="keywordflow">case</span> Distances:</div>
+<div class="line"><a name="l01237"></a><span class="lineno"> 1237</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#a104ae331628baf5dc1cd2af78a509624">ProSHADE_internal_tasks::DistancesComputationTask</a> ( settings, &amp;this-&gt;enLevs, &amp;this-&gt;trSigm, &amp;this-&gt;rotFun );</div>
+<div class="line"><a name="l01238"></a><span class="lineno"> 1238</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01239"></a><span class="lineno"> 1239</span>&#160;                </div>
+<div class="line"><a name="l01240"></a><span class="lineno"> 1240</span>&#160;            <span class="keywordflow">case</span> OverlayMap:</div>
+<div class="line"><a name="l01241"></a><span class="lineno"> 1241</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#a6eff0644d1b71da8a717dac61a788b09">ProSHADE_internal_tasks::MapOverlayTask</a> ( settings, &amp;this-&gt;eulerAngles, &amp;this-&gt;translation );</div>
+<div class="line"><a name="l01242"></a><span class="lineno"> 1242</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01243"></a><span class="lineno"> 1243</span>&#160;                </div>
+<div class="line"><a name="l01244"></a><span class="lineno"> 1244</span>&#160;            <span class="keywordflow">case</span> MapManip:</div>
+<div class="line"><a name="l01245"></a><span class="lineno"> 1245</span>&#160;                <a class="code" href="namespace_pro_s_h_a_d_e__internal__tasks.html#a284518fd53c37bc487a3bd4dd3556f6d">ProSHADE_internal_tasks::MapManipulationTask</a> ( settings, &amp;this-&gt;originalBounds, &amp;this-&gt;reboxedBounds, &amp;this-&gt;manipulatedMaps );</div>
+<div class="line"><a name="l01246"></a><span class="lineno"> 1246</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l01247"></a><span class="lineno"> 1247</span>&#160;        }</div>
+<div class="line"><a name="l01248"></a><span class="lineno"> 1248</span>&#160;    }</div>
+<div class="line"><a name="l01249"></a><span class="lineno"> 1249</span>&#160;    </div>
+<div class="line"><a name="l01250"></a><span class="lineno"> 1250</span>&#160;    <span class="comment">//================================================ If this is ProSHADE exception, give all available info and terminate gracefully :-)</span></div>
+<div class="line"><a name="l01251"></a><span class="lineno"> 1251</span>&#160;    <span class="keywordflow">catch</span> ( <a class="code" href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a>&amp; err )</div>
+<div class="line"><a name="l01252"></a><span class="lineno"> 1252</span>&#160;    {</div>
+<div class="line"><a name="l01253"></a><span class="lineno"> 1253</span>&#160;        std::cerr &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;!! ProSHADE ERROR !!&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01254"></a><span class="lineno"> 1254</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Error Code          : &quot;</span> &lt;&lt; err.get_errc() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01255"></a><span class="lineno"> 1255</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;File                : &quot;</span> &lt;&lt; err.get_file() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01256"></a><span class="lineno"> 1256</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Line                : &quot;</span> &lt;&lt; err.get_line() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01257"></a><span class="lineno"> 1257</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Function            : &quot;</span> &lt;&lt; err.get_func() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01258"></a><span class="lineno"> 1258</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Message             : &quot;</span> &lt;&lt; err.what() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01259"></a><span class="lineno"> 1259</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Further information : &quot;</span> &lt;&lt; err.get_info() &lt;&lt; std::endl &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01260"></a><span class="lineno"> 1260</span>&#160;        </div>
+<div class="line"><a name="l01261"></a><span class="lineno"> 1261</span>&#160;        <span class="comment">//============================================ Done</span></div>
+<div class="line"><a name="l01262"></a><span class="lineno"> 1262</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a4653e05cb29b2ded588ae4ddcbdd8aee">ProSHADE_internal_messages::printTerminateMessage</a> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
+<div class="line"><a name="l01263"></a><span class="lineno"> 1263</span>&#160;        exit                                          ( EXIT_FAILURE );</div>
+<div class="line"><a name="l01264"></a><span class="lineno"> 1264</span>&#160;    }</div>
+<div class="line"><a name="l01265"></a><span class="lineno"> 1265</span>&#160;    </div>
+<div class="line"><a name="l01266"></a><span class="lineno"> 1266</span>&#160;    <span class="comment">//================================================ Well, give all there is and just end</span></div>
+<div class="line"><a name="l01267"></a><span class="lineno"> 1267</span>&#160;    <span class="keywordflow">catch</span> ( ... )</div>
+<div class="line"><a name="l01268"></a><span class="lineno"> 1268</span>&#160;    {</div>
+<div class="line"><a name="l01269"></a><span class="lineno"> 1269</span>&#160;        std::cerr &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;!! ProSHADE ERROR !!&quot;</span> &lt;&lt; std::endl &lt;&lt; <span class="stringliteral">&quot;=====================&quot;</span> &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01270"></a><span class="lineno"> 1270</span>&#160;        </div>
+<div class="line"><a name="l01271"></a><span class="lineno"> 1271</span>&#160;        <span class="comment">//============================================ Try to find out more</span></div>
+<div class="line"><a name="l01272"></a><span class="lineno"> 1272</span>&#160;<span class="preprocessor">#if __cplusplus &gt;= 201103L</span></div>
+<div class="line"><a name="l01273"></a><span class="lineno"> 1273</span>&#160;            std::exception_ptr exc                    = std::current_exception();</div>
+<div class="line"><a name="l01274"></a><span class="lineno"> 1274</span>&#160;            <span class="keywordflow">try</span></div>
+<div class="line"><a name="l01275"></a><span class="lineno"> 1275</span>&#160;            {</div>
+<div class="line"><a name="l01276"></a><span class="lineno"> 1276</span>&#160;                <span class="keywordflow">if</span> (exc)</div>
+<div class="line"><a name="l01277"></a><span class="lineno"> 1277</span>&#160;                {</div>
+<div class="line"><a name="l01278"></a><span class="lineno"> 1278</span>&#160;                    std::rethrow_exception            ( exc );</div>
+<div class="line"><a name="l01279"></a><span class="lineno"> 1279</span>&#160;                }</div>
+<div class="line"><a name="l01280"></a><span class="lineno"> 1280</span>&#160;            }</div>
+<div class="line"><a name="l01281"></a><span class="lineno"> 1281</span>&#160;            <span class="keywordflow">catch</span> ( <span class="keyword">const</span> std::exception&amp; e )</div>
+<div class="line"><a name="l01282"></a><span class="lineno"> 1282</span>&#160;            {</div>
+<div class="line"><a name="l01283"></a><span class="lineno"> 1283</span>&#160;                std::cerr &lt;&lt; <span class="stringliteral">&quot;Caught exception with following information: &quot;</span> &lt;&lt; e.what() &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01284"></a><span class="lineno"> 1284</span>&#160;            }</div>
+<div class="line"><a name="l01285"></a><span class="lineno"> 1285</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l01286"></a><span class="lineno"> 1286</span>&#160;            std::cerr &lt;&lt; <span class="stringliteral">&quot;Unknown error with no further explanation available. Please contact the author for help.&quot;</span> &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01287"></a><span class="lineno"> 1287</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l01288"></a><span class="lineno"> 1288</span>&#160;        std::cerr &lt;&lt; <span class="stringliteral">&quot;Terminating...&quot;</span> &lt;&lt; std::endl &lt;&lt; std::endl &lt;&lt; std::flush;</div>
+<div class="line"><a name="l01289"></a><span class="lineno"> 1289</span>&#160;        </div>
+<div class="line"><a name="l01290"></a><span class="lineno"> 1290</span>&#160;        <span class="comment">//============================================ Done</span></div>
+<div class="line"><a name="l01291"></a><span class="lineno"> 1291</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a4653e05cb29b2ded588ae4ddcbdd8aee">ProSHADE_internal_messages::printTerminateMessage</a> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
+<div class="line"><a name="l01292"></a><span class="lineno"> 1292</span>&#160;        exit                                          ( EXIT_FAILURE );</div>
+<div class="line"><a name="l01293"></a><span class="lineno"> 1293</span>&#160;    }</div>
+<div class="line"><a name="l01294"></a><span class="lineno"> 1294</span>&#160;    </div>
+<div class="line"><a name="l01295"></a><span class="lineno"> 1295</span>&#160;    <span class="comment">//================================================ Terminating message</span></div>
+<div class="line"><a name="l01296"></a><span class="lineno"> 1296</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#a4653e05cb29b2ded588ae4ddcbdd8aee">ProSHADE_internal_messages::printTerminateMessage</a> ( settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">verbose</a> );</div>
+<div class="line"><a name="l01297"></a><span class="lineno"> 1297</span>&#160;    </div>
+<div class="line"><a name="l01298"></a><span class="lineno"> 1298</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l01299"></a><span class="lineno"> 1299</span>&#160;    </div>
+<div class="line"><a name="l01300"></a><span class="lineno"> 1300</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -311,31 +311,31 @@ Public Member Functions</h2></td></tr>
 <p>Destructor for the ProSHADE class. </p>
 <p>This destructor is responsible for releasing all memory used by the executing object </p>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01288">1288</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l01289"></a><span class="lineno"> 1289</span>&#160;{</div>
-<div class="line"><a name="l01290"></a><span class="lineno"> 1290</span>&#160;    <span class="comment">//================================================ Release reboxing pointers</span></div>
-<div class="line"><a name="l01291"></a><span class="lineno"> 1291</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;originalBounds.size() &gt; 0 ) { <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;originalBounds.size() ); iter++ ) { <span class="keyword">delete</span>[] this-&gt;originalBounds.at(iter); } }</div>
-<div class="line"><a name="l01292"></a><span class="lineno"> 1292</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;reboxedBounds.size()  &gt; 0 ) { <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;reboxedBounds.size()  ); iter++ ) { <span class="keyword">delete</span>[] this-&gt;reboxedBounds.at(iter); } }</div>
-<div class="line"><a name="l01293"></a><span class="lineno"> 1293</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;manipulatedMaps.size() &gt; 0 ) { <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;manipulatedMaps.size() ); iter++ ) { <span class="keyword">delete</span>[] this-&gt;manipulatedMaps.at(iter); } }</div>
-<div class="line"><a name="l01294"></a><span class="lineno"> 1294</span>&#160;    </div>
-<div class="line"><a name="l01295"></a><span class="lineno"> 1295</span>&#160;    <span class="comment">//================================================ Clear vectors</span></div>
-<div class="line"><a name="l01296"></a><span class="lineno"> 1296</span>&#160;    this-&gt;enLevs.clear                                ( );</div>
-<div class="line"><a name="l01297"></a><span class="lineno"> 1297</span>&#160;    this-&gt;trSigm.clear                                ( );</div>
-<div class="line"><a name="l01298"></a><span class="lineno"> 1298</span>&#160;    this-&gt;rotFun.clear                                ( );</div>
-<div class="line"><a name="l01299"></a><span class="lineno"> 1299</span>&#160;    </div>
-<div class="line"><a name="l01300"></a><span class="lineno"> 1300</span>&#160;    <span class="comment">//================================================ Delete symmetry axes memory</span></div>
-<div class="line"><a name="l01301"></a><span class="lineno"> 1301</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;RecomSymAxes.size() &gt; 0 )</div>
-<div class="line"><a name="l01302"></a><span class="lineno"> 1302</span>&#160;    {</div>
-<div class="line"><a name="l01303"></a><span class="lineno"> 1303</span>&#160;        <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;RecomSymAxes.size() ); iter++ )</div>
-<div class="line"><a name="l01304"></a><span class="lineno"> 1304</span>&#160;        {</div>
-<div class="line"><a name="l01305"></a><span class="lineno"> 1305</span>&#160;            <span class="keyword">delete</span>[] this-&gt;RecomSymAxes.at(iter);</div>
-<div class="line"><a name="l01306"></a><span class="lineno"> 1306</span>&#160;        }</div>
-<div class="line"><a name="l01307"></a><span class="lineno"> 1307</span>&#160;        this-&gt;RecomSymAxes.clear                      ( );</div>
-<div class="line"><a name="l01308"></a><span class="lineno"> 1308</span>&#160;    }</div>
-<div class="line"><a name="l01309"></a><span class="lineno"> 1309</span>&#160;    </div>
-<div class="line"><a name="l01310"></a><span class="lineno"> 1310</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l01311"></a><span class="lineno"> 1311</span>&#160;    </div>
-<div class="line"><a name="l01312"></a><span class="lineno"> 1312</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01306">1306</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l01307"></a><span class="lineno"> 1307</span>&#160;{</div>
+<div class="line"><a name="l01308"></a><span class="lineno"> 1308</span>&#160;    <span class="comment">//================================================ Release reboxing pointers</span></div>
+<div class="line"><a name="l01309"></a><span class="lineno"> 1309</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;originalBounds.size() &gt; 0 ) { <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;originalBounds.size() ); iter++ ) { <span class="keyword">delete</span>[] this-&gt;originalBounds.at(iter); } }</div>
+<div class="line"><a name="l01310"></a><span class="lineno"> 1310</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;reboxedBounds.size()  &gt; 0 ) { <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;reboxedBounds.size()  ); iter++ ) { <span class="keyword">delete</span>[] this-&gt;reboxedBounds.at(iter); } }</div>
+<div class="line"><a name="l01311"></a><span class="lineno"> 1311</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;manipulatedMaps.size() &gt; 0 ) { <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;manipulatedMaps.size() ); iter++ ) { <span class="keyword">delete</span>[] this-&gt;manipulatedMaps.at(iter); } }</div>
+<div class="line"><a name="l01312"></a><span class="lineno"> 1312</span>&#160;    </div>
+<div class="line"><a name="l01313"></a><span class="lineno"> 1313</span>&#160;    <span class="comment">//================================================ Clear vectors</span></div>
+<div class="line"><a name="l01314"></a><span class="lineno"> 1314</span>&#160;    this-&gt;enLevs.clear                                ( );</div>
+<div class="line"><a name="l01315"></a><span class="lineno"> 1315</span>&#160;    this-&gt;trSigm.clear                                ( );</div>
+<div class="line"><a name="l01316"></a><span class="lineno"> 1316</span>&#160;    this-&gt;rotFun.clear                                ( );</div>
+<div class="line"><a name="l01317"></a><span class="lineno"> 1317</span>&#160;    </div>
+<div class="line"><a name="l01318"></a><span class="lineno"> 1318</span>&#160;    <span class="comment">//================================================ Delete symmetry axes memory</span></div>
+<div class="line"><a name="l01319"></a><span class="lineno"> 1319</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;RecomSymAxes.size() &gt; 0 )</div>
+<div class="line"><a name="l01320"></a><span class="lineno"> 1320</span>&#160;    {</div>
+<div class="line"><a name="l01321"></a><span class="lineno"> 1321</span>&#160;        <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;RecomSymAxes.size() ); iter++ )</div>
+<div class="line"><a name="l01322"></a><span class="lineno"> 1322</span>&#160;        {</div>
+<div class="line"><a name="l01323"></a><span class="lineno"> 1323</span>&#160;            <span class="keyword">delete</span>[] this-&gt;RecomSymAxes.at(iter);</div>
+<div class="line"><a name="l01324"></a><span class="lineno"> 1324</span>&#160;        }</div>
+<div class="line"><a name="l01325"></a><span class="lineno"> 1325</span>&#160;        this-&gt;RecomSymAxes.clear                      ( );</div>
+<div class="line"><a name="l01326"></a><span class="lineno"> 1326</span>&#160;    }</div>
+<div class="line"><a name="l01327"></a><span class="lineno"> 1327</span>&#160;    </div>
+<div class="line"><a name="l01328"></a><span class="lineno"> 1328</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l01329"></a><span class="lineno"> 1329</span>&#160;    </div>
+<div class="line"><a name="l01330"></a><span class="lineno"> 1330</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -364,11 +364,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02055">2055</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02056"></a><span class="lineno"> 2056</span>&#160;{</div>
-<div class="line"><a name="l02057"></a><span class="lineno"> 2057</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02058"></a><span class="lineno"> 2058</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;enLevs.size() ) );</div>
-<div class="line"><a name="l02059"></a><span class="lineno"> 2059</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02085">2085</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02086"></a><span class="lineno"> 2086</span>&#160;{</div>
+<div class="line"><a name="l02087"></a><span class="lineno"> 2087</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02088"></a><span class="lineno"> 2088</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;enLevs.size() ) );</div>
+<div class="line"><a name="l02089"></a><span class="lineno"> 2089</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -396,11 +396,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01994">1994</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l01995"></a><span class="lineno"> 1995</span>&#160;{</div>
-<div class="line"><a name="l01996"></a><span class="lineno"> 1996</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l01997"></a><span class="lineno"> 1997</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;enLevs );</div>
-<div class="line"><a name="l01998"></a><span class="lineno"> 1998</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02024">2024</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02025"></a><span class="lineno"> 2025</span>&#160;{</div>
+<div class="line"><a name="l02026"></a><span class="lineno"> 2026</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02027"></a><span class="lineno"> 2027</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;enLevs );</div>
+<div class="line"><a name="l02028"></a><span class="lineno"> 2028</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -429,11 +429,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02045">2045</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02046"></a><span class="lineno"> 2046</span>&#160;{</div>
-<div class="line"><a name="l02047"></a><span class="lineno"> 2047</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02048"></a><span class="lineno"> 2048</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;enLevs.at ( pos ) );</div>
-<div class="line"><a name="l02049"></a><span class="lineno"> 2049</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02075">2075</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02076"></a><span class="lineno"> 2076</span>&#160;{</div>
+<div class="line"><a name="l02077"></a><span class="lineno"> 2077</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02078"></a><span class="lineno"> 2078</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;enLevs.at ( pos ) );</div>
+<div class="line"><a name="l02079"></a><span class="lineno"> 2079</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -461,19 +461,19 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02393">2393</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02394"></a><span class="lineno"> 2394</span>&#160;{</div>
-<div class="line"><a name="l02395"></a><span class="lineno"> 2395</span>&#160;    <span class="comment">//================================================ Sanity check</span></div>
-<div class="line"><a name="l02396"></a><span class="lineno"> 2396</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;eulerAngles.size() != 3 )</div>
-<div class="line"><a name="l02397"></a><span class="lineno"> 2397</span>&#160;    {</div>
-<div class="line"><a name="l02398"></a><span class="lineno"> 2398</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.&quot;</span>, <span class="stringliteral">&quot;WO00042&quot;</span> );</div>
-<div class="line"><a name="l02399"></a><span class="lineno"> 2399</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_double &gt; ( ) );</div>
-<div class="line"><a name="l02400"></a><span class="lineno"> 2400</span>&#160;    }</div>
-<div class="line"><a name="l02401"></a><span class="lineno"> 2401</span>&#160;    </div>
-<div class="line"><a name="l02402"></a><span class="lineno"> 2402</span>&#160;    <span class="comment">//================================================ Return required value</span></div>
-<div class="line"><a name="l02403"></a><span class="lineno"> 2403</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;eulerAngles );</div>
-<div class="line"><a name="l02404"></a><span class="lineno"> 2404</span>&#160;    </div>
-<div class="line"><a name="l02405"></a><span class="lineno"> 2405</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02423">2423</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02424"></a><span class="lineno"> 2424</span>&#160;{</div>
+<div class="line"><a name="l02425"></a><span class="lineno"> 2425</span>&#160;    <span class="comment">//================================================ Sanity check</span></div>
+<div class="line"><a name="l02426"></a><span class="lineno"> 2426</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;eulerAngles.size() != 3 )</div>
+<div class="line"><a name="l02427"></a><span class="lineno"> 2427</span>&#160;    {</div>
+<div class="line"><a name="l02428"></a><span class="lineno"> 2428</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.&quot;</span>, <span class="stringliteral">&quot;WO00042&quot;</span> );</div>
+<div class="line"><a name="l02429"></a><span class="lineno"> 2429</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_double &gt; ( ) );</div>
+<div class="line"><a name="l02430"></a><span class="lineno"> 2430</span>&#160;    }</div>
+<div class="line"><a name="l02431"></a><span class="lineno"> 2431</span>&#160;    </div>
+<div class="line"><a name="l02432"></a><span class="lineno"> 2432</span>&#160;    <span class="comment">//================================================ Return required value</span></div>
+<div class="line"><a name="l02433"></a><span class="lineno"> 2433</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;eulerAngles );</div>
+<div class="line"><a name="l02434"></a><span class="lineno"> 2434</span>&#160;    </div>
+<div class="line"><a name="l02435"></a><span class="lineno"> 2435</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -513,11 +513,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02307">2307</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02308"></a><span class="lineno"> 2308</span>&#160;{</div>
-<div class="line"><a name="l02309"></a><span class="lineno"> 2309</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02310"></a><span class="lineno"> 2310</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;manipulatedMaps.at(strNo)[mapIndex] );</div>
-<div class="line"><a name="l02311"></a><span class="lineno"> 2311</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02337">2337</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02338"></a><span class="lineno"> 2338</span>&#160;{</div>
+<div class="line"><a name="l02339"></a><span class="lineno"> 2339</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02340"></a><span class="lineno"> 2340</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;manipulatedMaps.at(strNo)[mapIndex] );</div>
+<div class="line"><a name="l02341"></a><span class="lineno"> 2341</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -545,11 +545,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02024">2024</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02025"></a><span class="lineno"> 2025</span>&#160;{</div>
-<div class="line"><a name="l02026"></a><span class="lineno"> 2026</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02027"></a><span class="lineno"> 2027</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;noStructures );</div>
-<div class="line"><a name="l02028"></a><span class="lineno"> 2028</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02054">2054</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02055"></a><span class="lineno"> 2055</span>&#160;{</div>
+<div class="line"><a name="l02056"></a><span class="lineno"> 2056</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02057"></a><span class="lineno"> 2057</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;noStructures );</div>
+<div class="line"><a name="l02058"></a><span class="lineno"> 2058</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -577,11 +577,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02107">2107</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02108"></a><span class="lineno"> 2108</span>&#160;{</div>
-<div class="line"><a name="l02109"></a><span class="lineno"> 2109</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02110"></a><span class="lineno"> 2110</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;RecomSymAxes.size() ) );</div>
-<div class="line"><a name="l02111"></a><span class="lineno"> 2111</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02137">2137</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02138"></a><span class="lineno"> 2138</span>&#160;{</div>
+<div class="line"><a name="l02139"></a><span class="lineno"> 2139</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02140"></a><span class="lineno"> 2140</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;RecomSymAxes.size() ) );</div>
+<div class="line"><a name="l02141"></a><span class="lineno"> 2141</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -609,31 +609,31 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02411">2411</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02412"></a><span class="lineno"> 2412</span>&#160;{</div>
-<div class="line"><a name="l02413"></a><span class="lineno"> 2413</span>&#160;    <span class="comment">//================================================ Sanity check</span></div>
-<div class="line"><a name="l02414"></a><span class="lineno"> 2414</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;eulerAngles.size() != 3 )</div>
-<div class="line"><a name="l02415"></a><span class="lineno"> 2415</span>&#160;    {</div>
-<div class="line"><a name="l02416"></a><span class="lineno"> 2416</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.&quot;</span>, <span class="stringliteral">&quot;WO00042&quot;</span> );</div>
-<div class="line"><a name="l02417"></a><span class="lineno"> 2417</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_double &gt; ( ) );</div>
-<div class="line"><a name="l02418"></a><span class="lineno"> 2418</span>&#160;    }</div>
-<div class="line"><a name="l02419"></a><span class="lineno"> 2419</span>&#160;    </div>
-<div class="line"><a name="l02420"></a><span class="lineno"> 2420</span>&#160;    <span class="comment">//================================================ Obtain the optimal rotation matrix</span></div>
-<div class="line"><a name="l02421"></a><span class="lineno"> 2421</span>&#160;    proshade_double* rotMat                           = <span class="keyword">new</span> proshade_double[9];</div>
-<div class="line"><a name="l02422"></a><span class="lineno"> 2422</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a>     ( rotMat, __FILE__, __LINE__, __func__ );</div>
-<div class="line"><a name="l02423"></a><span class="lineno"> 2423</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__maths.html#abd9fe573a48f499dd7d1df4f779222f1">ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles</a> ( this-&gt;eulerAngles.at(0), this-&gt;eulerAngles.at(1), this-&gt;eulerAngles.at(2), rotMat );</div>
-<div class="line"><a name="l02424"></a><span class="lineno"> 2424</span>&#160;    </div>
-<div class="line"><a name="l02425"></a><span class="lineno"> 2425</span>&#160;    <span class="comment">//================================================ Copy to the output variable</span></div>
-<div class="line"><a name="l02426"></a><span class="lineno"> 2426</span>&#160;    std::vector&lt; proshade_double &gt; ret;</div>
-<div class="line"><a name="l02427"></a><span class="lineno"> 2427</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; 9; iter++ ) { <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a68c3eafaeea1c1873c33525f337f9d0b">ProSHADE_internal_misc::addToDoubleVector</a> ( &amp;ret, rotMat[iter] ); }</div>
-<div class="line"><a name="l02428"></a><span class="lineno"> 2428</span>&#160;    </div>
-<div class="line"><a name="l02429"></a><span class="lineno"> 2429</span>&#160;    <span class="comment">//================================================ Release the memory</span></div>
-<div class="line"><a name="l02430"></a><span class="lineno"> 2430</span>&#160;    <span class="keyword">delete</span>[] rotMat;</div>
-<div class="line"><a name="l02431"></a><span class="lineno"> 2431</span>&#160;    </div>
-<div class="line"><a name="l02432"></a><span class="lineno"> 2432</span>&#160;    <span class="comment">//================================================ Return required value</span></div>
-<div class="line"><a name="l02433"></a><span class="lineno"> 2433</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
-<div class="line"><a name="l02434"></a><span class="lineno"> 2434</span>&#160;    </div>
-<div class="line"><a name="l02435"></a><span class="lineno"> 2435</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02441">2441</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02442"></a><span class="lineno"> 2442</span>&#160;{</div>
+<div class="line"><a name="l02443"></a><span class="lineno"> 2443</span>&#160;    <span class="comment">//================================================ Sanity check</span></div>
+<div class="line"><a name="l02444"></a><span class="lineno"> 2444</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;eulerAngles.size() != 3 )</div>
+<div class="line"><a name="l02445"></a><span class="lineno"> 2445</span>&#160;    {</div>
+<div class="line"><a name="l02446"></a><span class="lineno"> 2446</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.&quot;</span>, <span class="stringliteral">&quot;WO00042&quot;</span> );</div>
+<div class="line"><a name="l02447"></a><span class="lineno"> 2447</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_double &gt; ( ) );</div>
+<div class="line"><a name="l02448"></a><span class="lineno"> 2448</span>&#160;    }</div>
+<div class="line"><a name="l02449"></a><span class="lineno"> 2449</span>&#160;    </div>
+<div class="line"><a name="l02450"></a><span class="lineno"> 2450</span>&#160;    <span class="comment">//================================================ Obtain the optimal rotation matrix</span></div>
+<div class="line"><a name="l02451"></a><span class="lineno"> 2451</span>&#160;    proshade_double* rotMat                           = <span class="keyword">new</span> proshade_double[9];</div>
+<div class="line"><a name="l02452"></a><span class="lineno"> 2452</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#af556836aa9286c1571196de442a6b493">ProSHADE_internal_misc::checkMemoryAllocation</a>     ( rotMat, __FILE__, __LINE__, __func__ );</div>
+<div class="line"><a name="l02453"></a><span class="lineno"> 2453</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__maths.html#abd9fe573a48f499dd7d1df4f779222f1">ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles</a> ( this-&gt;eulerAngles.at(0), this-&gt;eulerAngles.at(1), this-&gt;eulerAngles.at(2), rotMat );</div>
+<div class="line"><a name="l02454"></a><span class="lineno"> 2454</span>&#160;    </div>
+<div class="line"><a name="l02455"></a><span class="lineno"> 2455</span>&#160;    <span class="comment">//================================================ Copy to the output variable</span></div>
+<div class="line"><a name="l02456"></a><span class="lineno"> 2456</span>&#160;    std::vector&lt; proshade_double &gt; ret;</div>
+<div class="line"><a name="l02457"></a><span class="lineno"> 2457</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; 9; iter++ ) { <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a68c3eafaeea1c1873c33525f337f9d0b">ProSHADE_internal_misc::addToDoubleVector</a> ( &amp;ret, rotMat[iter] ); }</div>
+<div class="line"><a name="l02458"></a><span class="lineno"> 2458</span>&#160;    </div>
+<div class="line"><a name="l02459"></a><span class="lineno"> 2459</span>&#160;    <span class="comment">//================================================ Release the memory</span></div>
+<div class="line"><a name="l02460"></a><span class="lineno"> 2460</span>&#160;    <span class="keyword">delete</span>[] rotMat;</div>
+<div class="line"><a name="l02461"></a><span class="lineno"> 2461</span>&#160;    </div>
+<div class="line"><a name="l02462"></a><span class="lineno"> 2462</span>&#160;    <span class="comment">//================================================ Return required value</span></div>
+<div class="line"><a name="l02463"></a><span class="lineno"> 2463</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
+<div class="line"><a name="l02464"></a><span class="lineno"> 2464</span>&#160;    </div>
+<div class="line"><a name="l02465"></a><span class="lineno"> 2465</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -661,29 +661,29 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02249">2249</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02250"></a><span class="lineno"> 2250</span>&#160;{</div>
-<div class="line"><a name="l02251"></a><span class="lineno"> 2251</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
-<div class="line"><a name="l02252"></a><span class="lineno"> 2252</span>&#160;    <span class="keywordflow">if</span> ( noStructures &lt;= strNo )</div>
-<div class="line"><a name="l02253"></a><span class="lineno"> 2253</span>&#160;    {</div>
-<div class="line"><a name="l02254"></a><span class="lineno"> 2254</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WB00041&quot;</span> );</div>
-<div class="line"><a name="l02255"></a><span class="lineno"> 2255</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_signed &gt; ( ) );</div>
-<div class="line"><a name="l02256"></a><span class="lineno"> 2256</span>&#160;    }</div>
-<div class="line"><a name="l02257"></a><span class="lineno"> 2257</span>&#160;    </div>
-<div class="line"><a name="l02258"></a><span class="lineno"> 2258</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
-<div class="line"><a name="l02259"></a><span class="lineno"> 2259</span>&#160;    std::vector&lt; proshade_signed &gt; ret;</div>
-<div class="line"><a name="l02260"></a><span class="lineno"> 2260</span>&#160;    </div>
-<div class="line"><a name="l02261"></a><span class="lineno"> 2261</span>&#160;    <span class="comment">//================================================ Input the axis data as strings</span></div>
-<div class="line"><a name="l02262"></a><span class="lineno"> 2262</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[0] );</div>
-<div class="line"><a name="l02263"></a><span class="lineno"> 2263</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[1] );</div>
-<div class="line"><a name="l02264"></a><span class="lineno"> 2264</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[2] );</div>
-<div class="line"><a name="l02265"></a><span class="lineno"> 2265</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[3] );</div>
-<div class="line"><a name="l02266"></a><span class="lineno"> 2266</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[4] );</div>
-<div class="line"><a name="l02267"></a><span class="lineno"> 2267</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[5] );</div>
-<div class="line"><a name="l02268"></a><span class="lineno"> 2268</span>&#160;    </div>
-<div class="line"><a name="l02269"></a><span class="lineno"> 2269</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l02270"></a><span class="lineno"> 2270</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
-<div class="line"><a name="l02271"></a><span class="lineno"> 2271</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02279">2279</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02280"></a><span class="lineno"> 2280</span>&#160;{</div>
+<div class="line"><a name="l02281"></a><span class="lineno"> 2281</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
+<div class="line"><a name="l02282"></a><span class="lineno"> 2282</span>&#160;    <span class="keywordflow">if</span> ( noStructures &lt;= strNo )</div>
+<div class="line"><a name="l02283"></a><span class="lineno"> 2283</span>&#160;    {</div>
+<div class="line"><a name="l02284"></a><span class="lineno"> 2284</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WB00041&quot;</span> );</div>
+<div class="line"><a name="l02285"></a><span class="lineno"> 2285</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_signed &gt; ( ) );</div>
+<div class="line"><a name="l02286"></a><span class="lineno"> 2286</span>&#160;    }</div>
+<div class="line"><a name="l02287"></a><span class="lineno"> 2287</span>&#160;    </div>
+<div class="line"><a name="l02288"></a><span class="lineno"> 2288</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
+<div class="line"><a name="l02289"></a><span class="lineno"> 2289</span>&#160;    std::vector&lt; proshade_signed &gt; ret;</div>
+<div class="line"><a name="l02290"></a><span class="lineno"> 2290</span>&#160;    </div>
+<div class="line"><a name="l02291"></a><span class="lineno"> 2291</span>&#160;    <span class="comment">//================================================ Input the axis data as strings</span></div>
+<div class="line"><a name="l02292"></a><span class="lineno"> 2292</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[0] );</div>
+<div class="line"><a name="l02293"></a><span class="lineno"> 2293</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[1] );</div>
+<div class="line"><a name="l02294"></a><span class="lineno"> 2294</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[2] );</div>
+<div class="line"><a name="l02295"></a><span class="lineno"> 2295</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[3] );</div>
+<div class="line"><a name="l02296"></a><span class="lineno"> 2296</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[4] );</div>
+<div class="line"><a name="l02297"></a><span class="lineno"> 2297</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;originalBounds.at( strNo )[5] );</div>
+<div class="line"><a name="l02298"></a><span class="lineno"> 2298</span>&#160;    </div>
+<div class="line"><a name="l02299"></a><span class="lineno"> 2299</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l02300"></a><span class="lineno"> 2300</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
+<div class="line"><a name="l02301"></a><span class="lineno"> 2301</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -711,29 +711,29 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02277">2277</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02278"></a><span class="lineno"> 2278</span>&#160;{</div>
-<div class="line"><a name="l02279"></a><span class="lineno"> 2279</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
-<div class="line"><a name="l02280"></a><span class="lineno"> 2280</span>&#160;    <span class="keywordflow">if</span> ( noStructures &lt;= strNo )</div>
-<div class="line"><a name="l02281"></a><span class="lineno"> 2281</span>&#160;    {</div>
-<div class="line"><a name="l02282"></a><span class="lineno"> 2282</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WB00041&quot;</span> );</div>
-<div class="line"><a name="l02283"></a><span class="lineno"> 2283</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_signed &gt; ( ) );</div>
-<div class="line"><a name="l02284"></a><span class="lineno"> 2284</span>&#160;    }</div>
-<div class="line"><a name="l02285"></a><span class="lineno"> 2285</span>&#160;    </div>
-<div class="line"><a name="l02286"></a><span class="lineno"> 2286</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
-<div class="line"><a name="l02287"></a><span class="lineno"> 2287</span>&#160;    std::vector&lt; proshade_signed &gt; ret;</div>
-<div class="line"><a name="l02288"></a><span class="lineno"> 2288</span>&#160;    </div>
-<div class="line"><a name="l02289"></a><span class="lineno"> 2289</span>&#160;    <span class="comment">//================================================ Input the axis data as strings</span></div>
-<div class="line"><a name="l02290"></a><span class="lineno"> 2290</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[0] );</div>
-<div class="line"><a name="l02291"></a><span class="lineno"> 2291</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[1] );</div>
-<div class="line"><a name="l02292"></a><span class="lineno"> 2292</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[2] );</div>
-<div class="line"><a name="l02293"></a><span class="lineno"> 2293</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[3] );</div>
-<div class="line"><a name="l02294"></a><span class="lineno"> 2294</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[4] );</div>
-<div class="line"><a name="l02295"></a><span class="lineno"> 2295</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[5] );</div>
-<div class="line"><a name="l02296"></a><span class="lineno"> 2296</span>&#160;    </div>
-<div class="line"><a name="l02297"></a><span class="lineno"> 2297</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l02298"></a><span class="lineno"> 2298</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
-<div class="line"><a name="l02299"></a><span class="lineno"> 2299</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02307">2307</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02308"></a><span class="lineno"> 2308</span>&#160;{</div>
+<div class="line"><a name="l02309"></a><span class="lineno"> 2309</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
+<div class="line"><a name="l02310"></a><span class="lineno"> 2310</span>&#160;    <span class="keywordflow">if</span> ( noStructures &lt;= strNo )</div>
+<div class="line"><a name="l02311"></a><span class="lineno"> 2311</span>&#160;    {</div>
+<div class="line"><a name="l02312"></a><span class="lineno"> 2312</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WB00041&quot;</span> );</div>
+<div class="line"><a name="l02313"></a><span class="lineno"> 2313</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_signed &gt; ( ) );</div>
+<div class="line"><a name="l02314"></a><span class="lineno"> 2314</span>&#160;    }</div>
+<div class="line"><a name="l02315"></a><span class="lineno"> 2315</span>&#160;    </div>
+<div class="line"><a name="l02316"></a><span class="lineno"> 2316</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
+<div class="line"><a name="l02317"></a><span class="lineno"> 2317</span>&#160;    std::vector&lt; proshade_signed &gt; ret;</div>
+<div class="line"><a name="l02318"></a><span class="lineno"> 2318</span>&#160;    </div>
+<div class="line"><a name="l02319"></a><span class="lineno"> 2319</span>&#160;    <span class="comment">//================================================ Input the axis data as strings</span></div>
+<div class="line"><a name="l02320"></a><span class="lineno"> 2320</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[0] );</div>
+<div class="line"><a name="l02321"></a><span class="lineno"> 2321</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[1] );</div>
+<div class="line"><a name="l02322"></a><span class="lineno"> 2322</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[2] );</div>
+<div class="line"><a name="l02323"></a><span class="lineno"> 2323</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[3] );</div>
+<div class="line"><a name="l02324"></a><span class="lineno"> 2324</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[4] );</div>
+<div class="line"><a name="l02325"></a><span class="lineno"> 2325</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a>         ( &amp;ret, this-&gt;reboxedBounds.at( strNo )[5] );</div>
+<div class="line"><a name="l02326"></a><span class="lineno"> 2326</span>&#160;    </div>
+<div class="line"><a name="l02327"></a><span class="lineno"> 2327</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l02328"></a><span class="lineno"> 2328</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
+<div class="line"><a name="l02329"></a><span class="lineno"> 2329</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -761,11 +761,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02097">2097</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02098"></a><span class="lineno"> 2098</span>&#160;{</div>
-<div class="line"><a name="l02099"></a><span class="lineno"> 2099</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02100"></a><span class="lineno"> 2100</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;rotFun.size() ) );</div>
-<div class="line"><a name="l02101"></a><span class="lineno"> 2101</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02127">2127</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02128"></a><span class="lineno"> 2128</span>&#160;{</div>
+<div class="line"><a name="l02129"></a><span class="lineno"> 2129</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02130"></a><span class="lineno"> 2130</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;rotFun.size() ) );</div>
+<div class="line"><a name="l02131"></a><span class="lineno"> 2131</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -793,11 +793,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02014">2014</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02015"></a><span class="lineno"> 2015</span>&#160;{</div>
-<div class="line"><a name="l02016"></a><span class="lineno"> 2016</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02017"></a><span class="lineno"> 2017</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;rotFun );</div>
-<div class="line"><a name="l02018"></a><span class="lineno"> 2018</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02044">2044</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02045"></a><span class="lineno"> 2045</span>&#160;{</div>
+<div class="line"><a name="l02046"></a><span class="lineno"> 2046</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02047"></a><span class="lineno"> 2047</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;rotFun );</div>
+<div class="line"><a name="l02048"></a><span class="lineno"> 2048</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -826,11 +826,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02087">2087</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02088"></a><span class="lineno"> 2088</span>&#160;{</div>
-<div class="line"><a name="l02089"></a><span class="lineno"> 2089</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02090"></a><span class="lineno"> 2090</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;rotFun.at ( pos ) );</div>
-<div class="line"><a name="l02091"></a><span class="lineno"> 2091</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02117">2117</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02118"></a><span class="lineno"> 2118</span>&#160;{</div>
+<div class="line"><a name="l02119"></a><span class="lineno"> 2119</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02120"></a><span class="lineno"> 2120</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;rotFun.at ( pos ) );</div>
+<div class="line"><a name="l02121"></a><span class="lineno"> 2121</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -859,48 +859,48 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02202">2202</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02203"></a><span class="lineno"> 2203</span>&#160;{</div>
-<div class="line"><a name="l02204"></a><span class="lineno"> 2204</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
-<div class="line"><a name="l02205"></a><span class="lineno"> 2205</span>&#160;    <span class="keywordflow">if</span> ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;RecomSymAxes.size() ) &lt;= axisNo )</div>
-<div class="line"><a name="l02206"></a><span class="lineno"> 2206</span>&#160;    {</div>
-<div class="line"><a name="l02207"></a><span class="lineno"> 2207</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WS00039&quot;</span> );</div>
-<div class="line"><a name="l02208"></a><span class="lineno"> 2208</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; std::string &gt; ( ) );</div>
-<div class="line"><a name="l02209"></a><span class="lineno"> 2209</span>&#160;    }</div>
-<div class="line"><a name="l02210"></a><span class="lineno"> 2210</span>&#160;    </div>
-<div class="line"><a name="l02211"></a><span class="lineno"> 2211</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
-<div class="line"><a name="l02212"></a><span class="lineno"> 2212</span>&#160;    std::vector&lt; std::string &gt; ret;</div>
-<div class="line"><a name="l02213"></a><span class="lineno"> 2213</span>&#160;    </div>
-<div class="line"><a name="l02214"></a><span class="lineno"> 2214</span>&#160;    <span class="comment">//================================================ Input the axis data as strings</span></div>
-<div class="line"><a name="l02215"></a><span class="lineno"> 2215</span>&#160;    std::stringstream ssHlp;</div>
-<div class="line"><a name="l02216"></a><span class="lineno"> 2216</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[0];</div>
-<div class="line"><a name="l02217"></a><span class="lineno"> 2217</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
-<div class="line"><a name="l02218"></a><span class="lineno"> 2218</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
-<div class="line"><a name="l02219"></a><span class="lineno"> 2219</span>&#160;    </div>
-<div class="line"><a name="l02220"></a><span class="lineno"> 2220</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[1];</div>
-<div class="line"><a name="l02221"></a><span class="lineno"> 2221</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
-<div class="line"><a name="l02222"></a><span class="lineno"> 2222</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
-<div class="line"><a name="l02223"></a><span class="lineno"> 2223</span>&#160;            </div>
-<div class="line"><a name="l02224"></a><span class="lineno"> 2224</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[2];</div>
-<div class="line"><a name="l02225"></a><span class="lineno"> 2225</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
-<div class="line"><a name="l02226"></a><span class="lineno"> 2226</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
-<div class="line"><a name="l02227"></a><span class="lineno"> 2227</span>&#160;            </div>
-<div class="line"><a name="l02228"></a><span class="lineno"> 2228</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[3];</div>
-<div class="line"><a name="l02229"></a><span class="lineno"> 2229</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
-<div class="line"><a name="l02230"></a><span class="lineno"> 2230</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
-<div class="line"><a name="l02231"></a><span class="lineno"> 2231</span>&#160;            </div>
-<div class="line"><a name="l02232"></a><span class="lineno"> 2232</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[4];</div>
-<div class="line"><a name="l02233"></a><span class="lineno"> 2233</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
-<div class="line"><a name="l02234"></a><span class="lineno"> 2234</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
-<div class="line"><a name="l02235"></a><span class="lineno"> 2235</span>&#160;            </div>
-<div class="line"><a name="l02236"></a><span class="lineno"> 2236</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[5];</div>
-<div class="line"><a name="l02237"></a><span class="lineno"> 2237</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
-<div class="line"><a name="l02238"></a><span class="lineno"> 2238</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
-<div class="line"><a name="l02239"></a><span class="lineno"> 2239</span>&#160;    </div>
-<div class="line"><a name="l02240"></a><span class="lineno"> 2240</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l02241"></a><span class="lineno"> 2241</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
-<div class="line"><a name="l02242"></a><span class="lineno"> 2242</span>&#160;    </div>
-<div class="line"><a name="l02243"></a><span class="lineno"> 2243</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02232">2232</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02233"></a><span class="lineno"> 2233</span>&#160;{</div>
+<div class="line"><a name="l02234"></a><span class="lineno"> 2234</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
+<div class="line"><a name="l02235"></a><span class="lineno"> 2235</span>&#160;    <span class="keywordflow">if</span> ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;RecomSymAxes.size() ) &lt;= axisNo )</div>
+<div class="line"><a name="l02236"></a><span class="lineno"> 2236</span>&#160;    {</div>
+<div class="line"><a name="l02237"></a><span class="lineno"> 2237</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WS00039&quot;</span> );</div>
+<div class="line"><a name="l02238"></a><span class="lineno"> 2238</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; std::string &gt; ( ) );</div>
+<div class="line"><a name="l02239"></a><span class="lineno"> 2239</span>&#160;    }</div>
+<div class="line"><a name="l02240"></a><span class="lineno"> 2240</span>&#160;    </div>
+<div class="line"><a name="l02241"></a><span class="lineno"> 2241</span>&#160;    <span class="comment">//================================================ Initialise local variables</span></div>
+<div class="line"><a name="l02242"></a><span class="lineno"> 2242</span>&#160;    std::vector&lt; std::string &gt; ret;</div>
+<div class="line"><a name="l02243"></a><span class="lineno"> 2243</span>&#160;    </div>
+<div class="line"><a name="l02244"></a><span class="lineno"> 2244</span>&#160;    <span class="comment">//================================================ Input the axis data as strings</span></div>
+<div class="line"><a name="l02245"></a><span class="lineno"> 2245</span>&#160;    std::stringstream ssHlp;</div>
+<div class="line"><a name="l02246"></a><span class="lineno"> 2246</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[0];</div>
+<div class="line"><a name="l02247"></a><span class="lineno"> 2247</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
+<div class="line"><a name="l02248"></a><span class="lineno"> 2248</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"><a name="l02249"></a><span class="lineno"> 2249</span>&#160;    </div>
+<div class="line"><a name="l02250"></a><span class="lineno"> 2250</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[1];</div>
+<div class="line"><a name="l02251"></a><span class="lineno"> 2251</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
+<div class="line"><a name="l02252"></a><span class="lineno"> 2252</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"><a name="l02253"></a><span class="lineno"> 2253</span>&#160;            </div>
+<div class="line"><a name="l02254"></a><span class="lineno"> 2254</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[2];</div>
+<div class="line"><a name="l02255"></a><span class="lineno"> 2255</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
+<div class="line"><a name="l02256"></a><span class="lineno"> 2256</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"><a name="l02257"></a><span class="lineno"> 2257</span>&#160;            </div>
+<div class="line"><a name="l02258"></a><span class="lineno"> 2258</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[3];</div>
+<div class="line"><a name="l02259"></a><span class="lineno"> 2259</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
+<div class="line"><a name="l02260"></a><span class="lineno"> 2260</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"><a name="l02261"></a><span class="lineno"> 2261</span>&#160;            </div>
+<div class="line"><a name="l02262"></a><span class="lineno"> 2262</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[4];</div>
+<div class="line"><a name="l02263"></a><span class="lineno"> 2263</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
+<div class="line"><a name="l02264"></a><span class="lineno"> 2264</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"><a name="l02265"></a><span class="lineno"> 2265</span>&#160;            </div>
+<div class="line"><a name="l02266"></a><span class="lineno"> 2266</span>&#160;    ssHlp &lt;&lt; this-&gt;RecomSymAxes.at(axisNo)[5];</div>
+<div class="line"><a name="l02267"></a><span class="lineno"> 2267</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__misc.html#a60e14917f99e745c35cc400475ad6ca5">ProSHADE_internal_misc::addToStringVector</a>         ( &amp;ret, ssHlp.str() );</div>
+<div class="line"><a name="l02268"></a><span class="lineno"> 2268</span>&#160;    ssHlp.str                                         ( <span class="stringliteral">&quot;&quot;</span> );</div>
+<div class="line"><a name="l02269"></a><span class="lineno"> 2269</span>&#160;    </div>
+<div class="line"><a name="l02270"></a><span class="lineno"> 2270</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l02271"></a><span class="lineno"> 2271</span>&#160;    <span class="keywordflow">return</span>                                            ( ret );</div>
+<div class="line"><a name="l02272"></a><span class="lineno"> 2272</span>&#160;    </div>
+<div class="line"><a name="l02273"></a><span class="lineno"> 2273</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -928,11 +928,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01328">1328</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l01329"></a><span class="lineno"> 1329</span>&#160;{</div>
-<div class="line"><a name="l01330"></a><span class="lineno"> 1330</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l01331"></a><span class="lineno"> 1331</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;symRecommFold );</div>
-<div class="line"><a name="l01332"></a><span class="lineno"> 1332</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01346">1346</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l01347"></a><span class="lineno"> 1347</span>&#160;{</div>
+<div class="line"><a name="l01348"></a><span class="lineno"> 1348</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l01349"></a><span class="lineno"> 1349</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;symRecommFold );</div>
+<div class="line"><a name="l01350"></a><span class="lineno"> 1350</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -960,11 +960,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01318">1318</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l01319"></a><span class="lineno"> 1319</span>&#160;{</div>
-<div class="line"><a name="l01320"></a><span class="lineno"> 1320</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l01321"></a><span class="lineno"> 1321</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;symRecommType );</div>
-<div class="line"><a name="l01322"></a><span class="lineno"> 1322</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l01336">1336</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l01337"></a><span class="lineno"> 1337</span>&#160;{</div>
+<div class="line"><a name="l01338"></a><span class="lineno"> 1338</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l01339"></a><span class="lineno"> 1339</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;symRecommType );</div>
+<div class="line"><a name="l01340"></a><span class="lineno"> 1340</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -992,11 +992,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02076">2076</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02077"></a><span class="lineno"> 2077</span>&#160;{</div>
-<div class="line"><a name="l02078"></a><span class="lineno"> 2078</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02079"></a><span class="lineno"> 2079</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;trSigm.size() ) );</div>
-<div class="line"><a name="l02080"></a><span class="lineno"> 2080</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02106">2106</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02107"></a><span class="lineno"> 2107</span>&#160;{</div>
+<div class="line"><a name="l02108"></a><span class="lineno"> 2108</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02109"></a><span class="lineno"> 2109</span>&#160;    <span class="keywordflow">return</span>                                            ( <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;trSigm.size() ) );</div>
+<div class="line"><a name="l02110"></a><span class="lineno"> 2110</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -1024,11 +1024,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02004">2004</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02005"></a><span class="lineno"> 2005</span>&#160;{</div>
-<div class="line"><a name="l02006"></a><span class="lineno"> 2006</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02007"></a><span class="lineno"> 2007</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;trSigm );</div>
-<div class="line"><a name="l02008"></a><span class="lineno"> 2008</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02034">2034</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02035"></a><span class="lineno"> 2035</span>&#160;{</div>
+<div class="line"><a name="l02036"></a><span class="lineno"> 2036</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02037"></a><span class="lineno"> 2037</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;trSigm );</div>
+<div class="line"><a name="l02038"></a><span class="lineno"> 2038</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -1057,11 +1057,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02066">2066</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02067"></a><span class="lineno"> 2067</span>&#160;{</div>
-<div class="line"><a name="l02068"></a><span class="lineno"> 2068</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02069"></a><span class="lineno"> 2069</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;trSigm.at ( pos ) );</div>
-<div class="line"><a name="l02070"></a><span class="lineno"> 2070</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02096">2096</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02097"></a><span class="lineno"> 2097</span>&#160;{</div>
+<div class="line"><a name="l02098"></a><span class="lineno"> 2098</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02099"></a><span class="lineno"> 2099</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;trSigm.at ( pos ) );</div>
+<div class="line"><a name="l02100"></a><span class="lineno"> 2100</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -1089,19 +1089,19 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02441">2441</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02442"></a><span class="lineno"> 2442</span>&#160;{</div>
-<div class="line"><a name="l02443"></a><span class="lineno"> 2443</span>&#160;    <span class="comment">//======================================== Sanity check</span></div>
-<div class="line"><a name="l02444"></a><span class="lineno"> 2444</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;eulerAngles.size() != 3 )</div>
-<div class="line"><a name="l02445"></a><span class="lineno"> 2445</span>&#160;    {</div>
-<div class="line"><a name="l02446"></a><span class="lineno"> 2446</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.&quot;</span>, <span class="stringliteral">&quot;WO00042&quot;</span> );</div>
-<div class="line"><a name="l02447"></a><span class="lineno"> 2447</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_double &gt; ( ) );</div>
-<div class="line"><a name="l02448"></a><span class="lineno"> 2448</span>&#160;    }</div>
-<div class="line"><a name="l02449"></a><span class="lineno"> 2449</span>&#160;    </div>
-<div class="line"><a name="l02450"></a><span class="lineno"> 2450</span>&#160;    <span class="comment">//================================================ Return required value</span></div>
-<div class="line"><a name="l02451"></a><span class="lineno"> 2451</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;translation );</div>
-<div class="line"><a name="l02452"></a><span class="lineno"> 2452</span>&#160;    </div>
-<div class="line"><a name="l02453"></a><span class="lineno"> 2453</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02471">2471</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02472"></a><span class="lineno"> 2472</span>&#160;{</div>
+<div class="line"><a name="l02473"></a><span class="lineno"> 2473</span>&#160;    <span class="comment">//======================================== Sanity check</span></div>
+<div class="line"><a name="l02474"></a><span class="lineno"> 2474</span>&#160;    <span class="keywordflow">if</span> ( this-&gt;eulerAngles.size() != 3 )</div>
+<div class="line"><a name="l02475"></a><span class="lineno"> 2475</span>&#160;    {</div>
+<div class="line"><a name="l02476"></a><span class="lineno"> 2476</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( this-&gt;verbose, <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.&quot;</span>, <span class="stringliteral">&quot;WO00042&quot;</span> );</div>
+<div class="line"><a name="l02477"></a><span class="lineno"> 2477</span>&#160;        <span class="keywordflow">return</span>                                        ( std::vector&lt; proshade_double &gt; ( ) );</div>
+<div class="line"><a name="l02478"></a><span class="lineno"> 2478</span>&#160;    }</div>
+<div class="line"><a name="l02479"></a><span class="lineno"> 2479</span>&#160;    </div>
+<div class="line"><a name="l02480"></a><span class="lineno"> 2480</span>&#160;    <span class="comment">//================================================ Return required value</span></div>
+<div class="line"><a name="l02481"></a><span class="lineno"> 2481</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;translation );</div>
+<div class="line"><a name="l02482"></a><span class="lineno"> 2482</span>&#160;    </div>
+<div class="line"><a name="l02483"></a><span class="lineno"> 2483</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -1129,11 +1129,11 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02034">2034</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02035"></a><span class="lineno"> 2035</span>&#160;{</div>
-<div class="line"><a name="l02036"></a><span class="lineno"> 2036</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
-<div class="line"><a name="l02037"></a><span class="lineno"> 2037</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;verbose );</div>
-<div class="line"><a name="l02038"></a><span class="lineno"> 2038</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02064">2064</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02065"></a><span class="lineno"> 2065</span>&#160;{</div>
+<div class="line"><a name="l02066"></a><span class="lineno"> 2066</span>&#160;    <span class="comment">//================================================ Return the value</span></div>
+<div class="line"><a name="l02067"></a><span class="lineno"> 2067</span>&#160;    <span class="keywordflow">return</span>                                            ( this-&gt;verbose );</div>
+<div class="line"><a name="l02068"></a><span class="lineno"> 2068</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -1147,7 +1147,7 @@ Public Member Functions</h2></td></tr>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__exception_html"><div class="ttname"><a href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a></div><div class="ttdoc">This class is the representation of ProSHADE exception.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__exceptions_8hpp_source.html#l00036">ProSHADE_exceptions.hpp:37</a></div></div>
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__maths_html_abd9fe573a48f499dd7d1df4f779222f1"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__maths.html#abd9fe573a48f499dd7d1df4f779222f1">ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles</a></div><div class="ttdeci">void getRotationMatrixFromEulerZXZAngles(proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double *matrix)</div><div class="ttdoc">Function to find the rotation matrix from Euler angles (ZXZ convention).</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__maths_8cpp_source.html#l00960">ProSHADE_maths.cpp:960</a></div></div>
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__messages_html_addbb90f2b4199441f60e241ac850daa2"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a></div><div class="ttdeci">void printWarningMessage(proshade_signed verbose, std::string message, std::string warnCode)</div><div class="ttdoc">General stderr message printing (used for warnings).</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__messages_8cpp_source.html#l00101">ProSHADE_messages.cpp:101</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a89094c73ae033812d4df0bd846e03442"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">ProSHADE_settings::verbose</a></div><div class="ttdeci">proshade_signed verbose</div><div class="ttdoc">Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00189">ProSHADE_settings.hpp:189</a></div></div>
+<div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a89094c73ae033812d4df0bd846e03442"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">ProSHADE_settings::verbose</a></div><div class="ttdeci">proshade_signed verbose</div><div class="ttdoc">Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00190">ProSHADE_settings.hpp:190</a></div></div>
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_a68c3eafaeea1c1873c33525f337f9d0b"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#a68c3eafaeea1c1873c33525f337f9d0b">ProSHADE_internal_misc::addToDoubleVector</a></div><div class="ttdeci">void addToDoubleVector(std::vector&lt; proshade_double &gt; *vecToAddTo, proshade_double elementToAdd)</div><div class="ttdoc">Adds the element to the vector.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00077">ProSHADE_misc.cpp:77</a></div></div>
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__tasks_html_a284518fd53c37bc487a3bd4dd3556f6d"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__tasks.html#a284518fd53c37bc487a3bd4dd3556f6d">ProSHADE_internal_tasks::MapManipulationTask</a></div><div class="ttdeci">void MapManipulationTask(ProSHADE_settings *settings, std::vector&lt; proshade_signed * &gt; *originalBounds, std::vector&lt; proshade_signed * &gt; *reboxedBounds, std::vector&lt; proshade_double * &gt; *manipulatedMaps)</div><div class="ttdoc">The re-boxing task driver function.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__tasks_8cpp_source.html#l00035">ProSHADE_tasks.cpp:35</a></div></div>
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__misc_html_a8a52d854a63ecad80c1805d601ffcf96"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__misc.html#a8a52d854a63ecad80c1805d601ffcf96">ProSHADE_internal_misc::addToSignedVector</a></div><div class="ttdeci">void addToSignedVector(std::vector&lt; proshade_signed &gt; *vecToAddTo, proshade_signed elementToAdd)</div><div class="ttdoc">Adds the element to the vector.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__misc_8cpp_source.html#l00121">ProSHADE_misc.cpp:121</a></div></div>
