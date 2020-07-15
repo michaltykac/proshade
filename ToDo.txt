@@ -5,6 +5,8 @@ Development
 * Timing - can it be faster?
 * Support non-orthogonal maps
 * Make sure the SO(3) coefficients are accessed from python just like the E matrices.
+* Use Gemmi
+* Use NFFT
 
 Admin
 * Create pip installation
