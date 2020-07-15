@@ -30,7 +30,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python3" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python3" )
 import proshade
 
 ### Create the settings object
@@ -42,6 +42,9 @@ pSet.verbose                                  = 1
 pSet.setResolution                            ( 12.0 )
 pSet.moveToCOM                                = False
 pSet.changeMapResolution                      = True
+pSet.changeMapResolutionTriLinear             = False
+pSet.requestedSymmetryType                    = "C"
+pSet.requestedSymmetryFold                    = 12
 
 ### Create the structure object
 pStruct                                       = proshade.ProSHADE_data ( pSet )
@@ -75,7 +78,7 @@ for iter in range ( 0, len( symmetryAxes ) ):
 ### Expected output
 #   Detected C-12 symetry.
 #   Fold      x         y         z       Angle     Height
-#     12    -0.015    +0.020    +0.999    +0.524    +0.1788
+#     12    -0.012    +0.004    +1.000    +0.524    +0.9621
 
 ### Release C++ pointers
 del pStruct

@@ -31,7 +31,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python2" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python2" )
 import proshade
 
 ##############################################
@@ -51,7 +51,8 @@ pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomai
 
 ### Useful settings
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
-pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
+pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
+pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setPDBBFactor                            ( -1.0 )                                 # Should all B-factors in a PDB file changed to this value? If no, set to negative value.
 pSet.setBandwidth                             ( 0 )                                    # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
 pSet.setPhaseUsage                            ( True )                                 # Use full maps, or Patterson-like maps?

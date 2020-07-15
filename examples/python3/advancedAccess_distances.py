@@ -30,7 +30,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python3" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python3" )
 import proshade
 
 ### Create the settings object
@@ -72,9 +72,9 @@ print ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor
 print ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
 
 ### Expected output
-#The energy levels distance is          +0.806
-#The trace sigma distance is            +0.941
-#The rotation function distance is      +0.813
+#   The energy levels distance is          +0.874
+#   The trace sigma distance is            +0.951
+#   The rotation function distance is      +0.740
 
 ### Release C++ pointers
 del pStruct1

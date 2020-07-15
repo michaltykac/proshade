@@ -30,7 +30,7 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python3" )
+sys.path.append                               ( "/Users/mysak/BioCEV/proshade/development/install/python3" )
 import proshade
 
 ##############################################
@@ -53,7 +53,8 @@ pSet.setMapReboxing                           ( True )                          
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
 pSet.setMapCentering                          ( False )                                # Move structure COM to the centre of map box?
 pSet.setOutputFilename                        ( str ( "reBoxed" ) )                    # Filename to where re-boxed structure will be written to.
-pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
+pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
+pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setBoundsSpace                           ( 3.0 )                                  # The extra space in Angs to add to the minimal boundaries when re-boxing.
 pSet.setBoundsThreshold                       ( 0 )                                    # If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
 pSet.setSameBoundaries                        ( False )                                # Make multiple structures have the same boundaries. This is useful for half-maps.

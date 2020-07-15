@@ -506,7 +506,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     this->figureIndexStartStop                        ( );
     
     //================================================ If specific resolution is requested, make sure the map has it
-    if ( settings->changeMapResolution )
+    if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
         this->reSampleMap                             ( settings );
     }
@@ -576,7 +576,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     delete pdbFile;
     
     //================================================ If specific resolution is requested, make sure the map has it
-    if ( settings->changeMapResolution )
+    if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
         this->reSampleMap                             ( settings );
     }
@@ -1391,10 +1391,24 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
 {
     //================================================ Initialise the return variable
     proshade_single* changeVals                       = new proshade_single[6];
-
+    
     //================================================ Now re-sample the map
-    ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
-                                                                   this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+    if ( settings->changeMapResolution )
+    {
+        ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                     this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+        
+        if ( settings->changeMapResolutionTriLinear )
+        {
+            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.", "WM00049" );
+        }
+    }
+    if ( settings->changeMapResolutionTriLinear && !settings->changeMapResolution )
+    {
+        ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                       this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+
+    }
     
     //================================================ Set the internal values to reflect the new map size
     this->xDimIndices                                += static_cast<proshade_unsign>  ( changeVals[0] );
@@ -1427,7 +1441,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices );
-
+    
     //================================================ Release memory
     delete[] changeVals;
     

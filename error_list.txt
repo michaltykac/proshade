@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00049 ==
+== NEXT FREE MESSAGE NUMBER: 00050 ==
 
 ========
 GENERAL:
@@ -115,6 +115,13 @@ EP00045		Structure class input dimensions not in line with map to/from indices.	
 ===== ProSHADE warning messages: =====
 ======================================
 ======================================
+
+============
+MAP READING:
+============
+
+CODE:		Message:																												Comment:
+WM00049		Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.				This warning results when both -a and -j options are given. If you are not using both, then consider that the Fourier-space re-sampling is default for some tasks.
 
 ==========
 RE-BOXING:

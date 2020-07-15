@@ -941,7 +941,7 @@ void ProSHADE_internal_mapManip::addExtraBoundSpace ( proshade_unsign xDim, pros
     
 }
 
-/*! \brief This function re-samples a map to conform to given resolution using Fourier.
+/*! \brief This function re-samples a map to conform to given resolution using tri-linear interpolation.
  
  This function takes a map and resolution value and it proceeds to create a new map, which has sampling resolution/2 and is
  large enough to contain the original map. It then proceeds to interpolate the new map values from the old map values, re-writing
@@ -1139,6 +1139,257 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     corrs[5]                                          = newZDim * newZSample;
     
     //======================================== Done
+    return ;
+    
+}
+
+/*! \brief This function re-samples a map to conform to given resolution using Fourier.
+ 
+ ...
+ 
+ \param[in] map A Reference Pointer to the map for which the bounds are to be found.
+ \param[in] resolution The required resolution value.
+ \param[in] xDimS The number of indices along the x axis of the map.
+ \param[in] yDimS The number of indices along the y axis of the map.
+ \param[in] zDimS The number of indices along the z axis of the map.
+ \param[in] xAngs The size of the x dimension of the map in angstroms.
+ \param[in] yAngs The size of the y dimension of the map in angstroms.
+ \param[in] zAngs The size of the z dimension of the map in angstroms.
+ \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
+ */
+void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
+{
+    //================================================ Sanity check - the resolution needs to be set
+    if ( resolution <= 0.0 )
+    {
+        throw ProSHADE_exception ( "Requested resolution not set for map re-sampling.", "EM00015", __FILE__, __LINE__, __func__, "There is no resolution value set, but map re-sampling to\n                    : this unset resolution value is required. This error\n                    : occurs when a task with no resolution requirement is\n                    : requested on a map data and the map resolution change is\n                    : set to \'on\'. Either supply a resolution value, or do not\n                    : re-sample the map." );
+    }
+    
+    //================================================ Initialise variables
+    proshade_unsign newXDim                           = static_cast<proshade_unsign> ( std::ceil ( xAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newYDim                           = static_cast<proshade_unsign> ( std::ceil ( yAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newZDim                           = static_cast<proshade_unsign> ( std::ceil ( zAngs / ( resolution / 2.0 ) ) );
+    
+    proshade_signed preXChange, preYChange, preZChange;
+    if ( ( xDimS % 2 ) == 0 ) { preXChange = std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }
+    else                      { preXChange = std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }
+    if ( ( yDimS % 2 ) == 0 ) { preYChange = std::ceil  ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2.0 ); }
+    else                      { preYChange = std::floor ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2.0 ); }
+    if ( ( zDimS % 2 ) == 0 ) { preZChange = std::ceil  ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2.0 ); }
+    else                      { preZChange = std::floor ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2.0 ); }
+    
+    proshade_signed postXChange                       = static_cast<proshade_signed> ( xDimS ) - ( preXChange + static_cast<proshade_signed> ( newXDim ) );
+    proshade_signed postYChange                       = static_cast<proshade_signed> ( yDimS ) - ( preYChange + static_cast<proshade_signed> ( newYDim ) );
+    proshade_signed postZChange                       = static_cast<proshade_signed> ( zDimS ) - ( preZChange + static_cast<proshade_signed> ( newZDim ) );
+    
+    proshade_signed origSizeArr = 0, newSizeArr = 0;
+    proshade_double normFactor                        = static_cast<proshade_double> ( xDimS * yDimS * zDimS );
+    
+    //================================================ Manage memory
+    fftw_complex *origMap, *fCoeffs, *newFCoeffs, *newMap;
+    fftw_plan planForwardFourier, planBackwardRescaledFourier;
+    allocateResolutionFourierMemory                   ( origMap, fCoeffs, newFCoeffs, newMap, planForwardFourier, planBackwardRescaledFourier,
+                                                        xDimS, yDimS, zDimS, newXDim, newYDim, newZDim );
+    
+    //================================================ Fill maps with data and zeroes
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( xDimS * yDimS * zDimS ); iter++ ) { origMap[iter][0] = map[iter]; origMap[iter][1] = 0.0; }
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( newXDim * newYDim * newZDim ); iter++ ) { newFCoeffs[iter][0] = 0.0; newFCoeffs[iter][1] = 0.0; }
+    
+    //================================================ Get the Fourier coeffs
+    fftw_execute                                      ( planForwardFourier );
+    
+    //================================================ Change the order of Fourier coefficients
+    changeFourierOrder                                ( fCoeffs, xDimS, yDimS, zDimS, true );
+    
+    //================================================ Re-sample the coefficients by removing high frequencies or adding these with 0 values
+    for ( proshade_signed xIt = 0; xIt < newXDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < newYDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < newZDim; zIt++ )
+            {
+                //==================================== Find the array positions
+                origSizeArr                           = (zIt + preZChange) + zDimS   * ( (yIt + preYChange) + yDimS   * (xIt + preXChange) );
+                newSizeArr                            = zIt                + newZDim * ( yIt                + newYDim * xIt                );
+                
+                //==================================== If original coefficient for this new coefficient position exists, copy
+                if ( ( ( -1  < ( xIt     + preXChange  ) ) && ( -1  < ( yIt     + preYChange  ) ) && ( -1  < ( zIt     + preZChange  ) ) ) &&
+                     ( ( xIt < ( newXDim + postXChange ) ) && ( yIt < ( newYDim + postYChange ) ) && ( zIt < ( newZDim + postZChange ) ) ) )
+                {
+                    //================================ Copy the Fourier coeff
+                    newFCoeffs[newSizeArr][0]         = fCoeffs[origSizeArr][0] / normFactor;
+                    newFCoeffs[newSizeArr][1]         = fCoeffs[origSizeArr][1] / normFactor;
+                }
+            }
+        }
+    }
+    
+    //================================================ Change the order of the re-sampled Fourier coefficients
+    changeFourierOrder                                ( newFCoeffs, newXDim, newYDim, newZDim, false );
+
+    //================================================ Get the new map from the re-sized Fourier coefficients
+    fftw_execute                                      ( planBackwardRescaledFourier );
+
+    //================================================ Delete the old map and create a new, re-sized one. Then copy the new map values into this new map memory.
+    delete map;
+    map                                               = new proshade_double [newXDim * newYDim * newZDim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( newXDim * newYDim * newZDim ); iter++ ) { map[iter] = newMap[iter][0]; }
+    
+    //================================================ Release memory
+    releaseResolutionFourierMemory                    ( origMap, fCoeffs, newFCoeffs, newMap, planForwardFourier, planBackwardRescaledFourier );
+    
+    //================================================ Define change in indices and return it
+    corrs[0]                                          = static_cast<proshade_signed> ( newXDim ) - static_cast<proshade_signed> ( xDimS );
+    corrs[1]                                          = static_cast<proshade_signed> ( newYDim ) - static_cast<proshade_signed> ( yDimS );
+    corrs[2]                                          = static_cast<proshade_signed> ( newZDim ) - static_cast<proshade_signed> ( zDimS );
+    corrs[3]                                          = static_cast<proshade_signed> ( newXDim ) * ( resolution / 2.0 );
+    corrs[4]                                          = static_cast<proshade_signed> ( newYDim ) * ( resolution / 2.0 );
+    corrs[5]                                          = static_cast<proshade_signed> ( newZDim ) * ( resolution / 2.0 );
+    
+    //======================================== Done
+    return ;
+    
+}
+
+/*! \brief This function allocates and checks the allocatio of the memory required by the Fourier resampling.
+ 
+ This function allocates the memory required for the Fourier space re-sampling of density maps. It allocates the original map and original map coefficients arrays (these need to be of the fftw_complex type) as well as the
+ re-sampled map and re-sampled map coefficients. It then also proceeds to check the memory allocation and creating the FFTW transform plans for both, the forward and re-sampled backward operations.
+ 
+ \param[in] origMap A Reference pointer to an array where the original map data will be stored.
+ \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data will be stored.
+ \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data will be stored.
+ \param[in] newMap A Reference pointer to an array where the re-sampled map data will be stored.
+ \param[in] planForwardFourier FFTW_plan which will compute the original map to Fourier coefficients transform.
+ \param[in] planBackwardRescaledFourier FFTW_plan which will compute the re-sampled Fourier coefficients to re-sampled map transform.
+ \param[in] xDimOld The number of indices along the x-axis of the original map.
+ \param[in] yDimOld The number of indices along the y-axis of the original map.
+ \param[in] zDimOld The number of indices along the z-axis of the original map.
+ \param[in] xDimNew The number of indices along the x-axis of the re-sampled map.
+ \param[in] yDimNew The number of indices along the y-axis of the re-sampled map.
+ \param[in] zDimNew The number of indices along the z-axis of the re-sampled map.
+ */
+void ProSHADE_internal_mapManip::allocateResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier, proshade_unsign xDimOld, proshade_unsign yDimOld, proshade_unsign zDimOld, proshade_unsign xDimNew, proshade_unsign yDimNew, proshade_unsign zDimNew )
+{
+    //================================================ Initialise memory
+    origMap                                           = new fftw_complex [xDimOld * yDimOld * zDimOld];
+    fCoeffs                                           = new fftw_complex [xDimOld * yDimOld * zDimOld];
+    newFCoeffs                                        = new fftw_complex [xDimNew * yDimNew * zDimNew];
+    newMap                                            = new fftw_complex [xDimNew * yDimNew * zDimNew];
+    
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( origMap,          __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( fCoeffs,          __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newFCoeffs,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newMap,           __FILE__, __LINE__, __func__ );
+    
+    //================================================ Create plans
+    planForwardFourier                                = fftw_plan_dft_3d ( xDimOld, yDimOld, zDimOld, origMap,    fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    planBackwardRescaledFourier                       = fftw_plan_dft_3d ( xDimNew, yDimNew, zDimNew, newFCoeffs, newMap,  FFTW_BACKWARD, FFTW_ESTIMATE );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function releases the memory required by the Fourier resampling.
+ 
+ This function simply deletes all the memory allocated by the allocateResolutionFourierMemory() function.
+ 
+ \param[in] origMap A Reference pointer to an array where the original map data were stored.
+ \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data were stored.
+ \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data were stored.
+ \param[in] newMap A Reference pointer to an array where the re-sampled map data were stored.
+ \param[in] planForwardFourier FFTW_plan which computed the original map to Fourier coefficients transform.
+ \param[in] planBackwardRescaledFourier FFTW_plan which computed the re-sampled Fourier coefficients to re-sampled map transform.
+ */
+void ProSHADE_internal_mapManip::releaseResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier )
+{
+    //================================================ Delete the FFTW plans
+    fftw_destroy_plan                                 ( planForwardFourier );
+    fftw_destroy_plan                                 ( planBackwardRescaledFourier );
+    
+    //================================================ Delete the complex arrays
+    delete[] origMap;
+    delete[] fCoeffs;
+    delete[] newFCoeffs;
+    delete[] newMap;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function changes the order of Fourier coefficients in a 3D array between positive first (default) and negative first (mass centered at xMax/2, yMax/2, zMax/2 instead of 0,0,0)
+ 
+ This function firstly determines the start and end of the positive and negative Fourier coefficients for all three axes (it assumes 3D array); this works for both odd and even axis sizes. To do this properly, in the case of
+ odd axis sizes, the function needs to know whether we are changing the order from FFTW defaul positive first, or if we are changing the other way around - the last parameter serves the purpose of passing this information.
+ Finally, the function then switches the order of the Fourier coefficients as requested using a temporary array that it allocates and deletes within itself.
+ 
+ \param[in] fCoeffs A Reference pointer to an array where the Fourier coefficients for re-ordering are stored.
+ \param[in] xDim The size of the x-axis dimension of the fCoeffs array.
+ \param[in] yDim The size of the x-axis dimension of the fCoeffs array.
+ \param[in] zDim The size of the x-axis dimension of the fCoeffs array.
+ \param[in] negativeFirst Should the coefficients be stored negarive first (TRUE), or are we reversing already re-ordered array (FALSE)?
+ */
+void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool negativeFirst )
+{
+    //================================================ Initialise local variables
+    proshade_signed h = 0, k = 0, l = 0, origSizeArr = 0, newSizeArr = 0;
+    proshade_signed xSeq1FreqStart, ySeq1FreqStart, zSeq1FreqStart, xSeq2FreqStart, ySeq2FreqStart, zSeq2FreqStart;
+    
+    //================================================ Find the positive and negative indices cot-offs
+    if ( negativeFirst )
+    {
+        if ( ( xDim % 2 ) == 0 ) { xSeq1FreqStart = xDim / 2; xSeq2FreqStart = xDim / 2; } else { xSeq1FreqStart = (xDim / 2) + 1; xSeq2FreqStart = xDim / 2; }
+        if ( ( yDim % 2 ) == 0 ) { ySeq1FreqStart = yDim / 2; ySeq2FreqStart = yDim / 2; } else { ySeq1FreqStart = (yDim / 2) + 1; ySeq2FreqStart = yDim / 2; }
+        if ( ( zDim % 2 ) == 0 ) { zSeq1FreqStart = zDim / 2; zSeq2FreqStart = zDim / 2; } else { zSeq1FreqStart = (zDim / 2) + 1; zSeq2FreqStart = zDim / 2; }
+    }
+    else
+    {
+        if ( ( xDim % 2 ) == 0 ) { xSeq1FreqStart = xDim / 2; xSeq2FreqStart = xDim / 2; } else { xSeq1FreqStart = (xDim / 2); xSeq2FreqStart = xDim / 2 + 1; }
+        if ( ( yDim % 2 ) == 0 ) { ySeq1FreqStart = yDim / 2; ySeq2FreqStart = yDim / 2; } else { ySeq1FreqStart = (yDim / 2); ySeq2FreqStart = yDim / 2 + 1; }
+        if ( ( zDim % 2 ) == 0 ) { zSeq1FreqStart = zDim / 2; zSeq2FreqStart = zDim / 2; } else { zSeq1FreqStart = (zDim / 2); zSeq2FreqStart = zDim / 2 + 1; }
+    }
+        
+    //================================================ Allocate helper array memory
+    fftw_complex *hlpFCoeffs                          = new fftw_complex [xDim * yDim * zDim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( hlpFCoeffs, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Change the coefficients order
+    for ( proshade_signed xIt = 0; xIt < xDim; xIt++ )
+    {
+        //============================================ Find x frequency
+        if ( xIt < xSeq1FreqStart ) { h = xIt + xSeq2FreqStart; } else { h = xIt - xSeq1FreqStart; }
+        for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
+        {
+            //======================================== Find y frequency
+            if ( yIt < ySeq1FreqStart ) { k = yIt + ySeq2FreqStart; } else { k = yIt - ySeq1FreqStart; }
+            
+            for ( proshade_signed zIt = 0; zIt < zDim; zIt++ )
+            {
+                //==================================== Find z frequency
+                if ( zIt < zSeq1FreqStart ) { l = zIt + zSeq2FreqStart; } else { l = zIt - zSeq1FreqStart; }
+                
+                //==================================== Find array positions
+                newSizeArr                            = l   + zDim * ( k   + yDim * h   );
+                origSizeArr                           = zIt + zDim * ( yIt + yDim * xIt );
+                
+                //==================================== Copy vals
+                hlpFCoeffs[newSizeArr][0]             = fCoeffs[origSizeArr][0];
+                hlpFCoeffs[newSizeArr][1]             = fCoeffs[origSizeArr][1];
+            }
+        }
+    }
+    
+    //================================================ Copy the helper array to the input Fourier coefficients array
+    for ( proshade_unsign iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }
+    
+    //================================================ Release helper array memory
+    delete[] hlpFCoeffs;
+    
+    //================================================ Done
     return ;
     
 }

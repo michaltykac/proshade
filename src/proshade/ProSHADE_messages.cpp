@@ -302,9 +302,14 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Should the map be moved to centre of mass (COM) before process-     " << std::endl;
     std::cout << "            ing? This will not affect map overlay positioning.                  " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --changeMapResol or -j                          [DEFAULT:        FALSE]     " << std::endl;
+    std::cout << "    --changeMapResol or -j                          [DEFAULT:         TRUE]     " << std::endl;
     std::cout << "            Should the map sampling be changed to fit the required resolu-      " << std::endl;
-    std::cout << "            tion, or should it be left alone?                                   " << std::endl;
+    std::cout << "            tion, or should it be left alone? Uses Fourier space re-sampling.   " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --changeMapTriLin or -a                         [DEFAULT:        FALSE]     " << std::endl;
+    std::cout << "            Should the map sampling be changed to fit the required resolu-      " << std::endl;
+    std::cout << "            tion, or should it be left alone? Uses tri-linear interpolation re- " << std::endl;
+    std::cout << "            sampling.                                                           " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --noPhase or -p                                 [DEFAULT:         TRUE]     " << std::endl;
     std::cout << "            This option forces removal of phase from the internal map rep-      " << std::endl;
