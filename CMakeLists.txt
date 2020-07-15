@@ -106,6 +106,19 @@ endif ( GFORTRAN_VERSION )
 ##########################################################################################
 ################################### Set targets for clipper installation from supplied sources
 
+### GEMMI
+add_custom_command (
+   OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   COMMAND git clone https://github.com/project-gemmi/gemmi.git
+   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
+)
+
+add_custom_target (
+   gemmi_lib
+   DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+)
+
 ### MMDB2
 add_custom_command (
    OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildMMDB2
