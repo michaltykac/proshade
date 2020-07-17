@@ -10,12 +10,13 @@ add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${OBJS}                   
 
 ##########################################################################################
 ### Add and link the dependencies
+add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} mmdb2_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} ccp4_lib                                        )
 add_dependencies        ( ${PROJECT_NAME} fftw2_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} clipper_lib                                     )
-target_link_libraries   ( ${PROJECT_NAME} clipper-cif clipper-minimol clipper-mmdb clipper-cns clipper-phs clipper-contrib clipper-core ccp4c mmdb2 )
+target_link_libraries   ( ${PROJECT_NAME} clipper-cif clipper-minimol clipper-mmdb clipper-cns clipper-phs clipper-contrib clipper-core ccp4c mmdb2 z )
 target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
 target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a  )
 target_link_libraries   ( ${PROJECT_NAME} lapack blas                                     )

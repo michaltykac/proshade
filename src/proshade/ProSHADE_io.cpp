@@ -31,24 +31,19 @@
  */
 bool ProSHADE_internal_io::isFilePDB ( std::string fName )
 {
-    //================================================ Create MMDBManager object
-    clipper::mmdb::CMMDBManager *mfile                = new clipper::mmdb::CMMDBManager ( );
-    
-    //================================================ Try reading the file
-    if ( mfile->ReadCoorFile ( fName.c_str() ) )
+    //================================================ Try reading the file using Gemmi
+    try
     {
-        //============================================ The file is not PDB
-        delete mfile;
+        gemmi::Structure structure                    = gemmi::read_structure ( gemmi::MaybeGzipped ( fName ) );
+    }
+    catch ( std::runtime_error& e )
+    {
+        //============================================ Read failed. Done
         return                                        ( false );
     }
-    else
-    {
-        //============================================ The file is PDB
-        delete mfile;
-        return                                        ( true );
-    }
     
-    //================================================ Done
+    //================================================ Read successfull. Done
+    return                                            ( true );
     
 }
 

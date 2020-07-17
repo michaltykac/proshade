@@ -42,7 +42,7 @@ proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
  This function does a quick read-through the PDB file and reports the x, y and z to and from values. This is used to determine if these
  need to be changed for proper clipper operation.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A gemmi::Structure object read in from the input file.
  \param[in] xFrom Address to a variable to save the x axis minimal atom position.
  \param[in] xTo Address to a variable to save the x axis maximum atom position.
  \param[in] yFrom Address to a variable to save the y axis minimal atom position.
@@ -51,72 +51,67 @@ proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
  \param[in] zTo Address to a variable to save the z axis maximum atom position.
  \param[in] noAt The number of atoms as determined by the MMDB Crawl.
  */
-void ProSHADE_internal_mapManip::determinePDBRanges ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, int* noAt )
+void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, int* noAt )
 {
     //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
    *noAt                                              = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
     bool firstAtom                                    = true;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+  
+    //================================================ Use the first model, if it exists
+    if ( pdbFile.models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model model                            = pdbFile.models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain chain                        = model.chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue residue                = chain.residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom atom                  = residue.atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
+                    //================================ Find the coordinate ranges
+                    if ( firstAtom )
                     {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Find axis maxs and mins
-                            if ( firstAtom )
-                            {
-                                *xTo                  = static_cast<proshade_single> ( atom[aNo]->x );
-                                *xFrom                = static_cast<proshade_single> ( atom[aNo]->x );
-                                *yTo                  = static_cast<proshade_single> ( atom[aNo]->y );
-                                *yFrom                = static_cast<proshade_single> ( atom[aNo]->y );
-                                *zTo                  = static_cast<proshade_single> ( atom[aNo]->z );
-                                *zFrom                = static_cast<proshade_single> ( atom[aNo]->z );
-                                       
-                                firstAtom             = false;
-                                       
-                                *noAt                += 1;
-                            }
-                            else
-                            {
-                                if ( static_cast<proshade_single> ( atom[aNo]->x ) > *xTo   ) { *xTo   = static_cast<proshade_single> ( atom[aNo]->x ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->x ) < *xFrom ) { *xFrom = static_cast<proshade_single> ( atom[aNo]->x ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->y ) > *yTo   ) { *yTo   = static_cast<proshade_single> ( atom[aNo]->y ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->y ) < *yFrom ) { *yFrom = static_cast<proshade_single> ( atom[aNo]->y ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->z ) > *zTo   ) { *zTo   = static_cast<proshade_single> ( atom[aNo]->z ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->z ) < *zFrom ) { *zFrom = static_cast<proshade_single> ( atom[aNo]->z ); }
-                                
-                                *noAt                += 1;
-                            }
-                        }
+                        *xTo                          = static_cast<proshade_single> ( atom.pos.x );
+                        *xFrom                        = static_cast<proshade_single> ( atom.pos.x );
+                        *yTo                          = static_cast<proshade_single> ( atom.pos.y );
+                        *yFrom                        = static_cast<proshade_single> ( atom.pos.y );
+                        *zTo                          = static_cast<proshade_single> ( atom.pos.z );
+                        *zFrom                        = static_cast<proshade_single> ( atom.pos.z );
+                        *noAt                        += 1;
+                        firstAtom                     = false;
+                    }
+                    else
+                    {
+                        if ( static_cast<proshade_single> ( atom.pos.x ) > *xTo   ) { *xTo   = static_cast<proshade_single> ( atom.pos.x ); }
+                        if ( static_cast<proshade_single> ( atom.pos.x ) < *xFrom ) { *xFrom = static_cast<proshade_single> ( atom.pos.x ); }
+                        if ( static_cast<proshade_single> ( atom.pos.y ) > *yTo   ) { *yTo   = static_cast<proshade_single> ( atom.pos.y ); }
+                        if ( static_cast<proshade_single> ( atom.pos.y ) < *yFrom ) { *yFrom = static_cast<proshade_single> ( atom.pos.y ); }
+                        if ( static_cast<proshade_single> ( atom.pos.z ) > *zTo   ) { *zTo   = static_cast<proshade_single> ( atom.pos.z ); }
+                        if ( static_cast<proshade_single> ( atom.pos.z ) < *zFrom ) { *zFrom = static_cast<proshade_single> ( atom.pos.z ); }
+                        *noAt                        += 1;
                     }
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile.name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
@@ -339,50 +334,46 @@ void ProSHADE_internal_mapManip::translatePDBCoordinates ( clipper::mmdb::CMMDBM
  important for PDB files which have all atoms with B-factor value 0, as these then produce bad maps, which fail further processing
  by ProSHADE.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A pointer to gemmi::Structure object read in from the input file.
  \param[in] newBFactorValue The value with which all atom B-factor values should be replaced.
  */
-void ProSHADE_internal_mapManip::changePDBBFactors ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double newBFactorValue )
+void ProSHADE_internal_mapManip::changePDBBFactors ( gemmi::Structure *pdbFile, proshade_double newBFactorValue )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model *model                           = &pdbFile->models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain *chain                       = &model->chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Change the value
-                            atom[aNo]->tempFactor     = newBFactorValue;
-                        }
-                    }
+                    //================================ Change the B-factors
+                    atom->b_iso                       = newBFactorValue;
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
@@ -390,75 +381,67 @@ void ProSHADE_internal_mapManip::changePDBBFactors ( clipper::mmdb::CMMDBManager
     
 }
 
-/*! \brief Function for moving PDB atoms to better suit clipper map computation.
+/*! \brief Function for moving co-ordinate atoms to better suit theoretical map computation.
  
- This function translates all atoms by a given x, y and z distances. This is required as clipper can only output map cells starting from
- 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect is
+ This function translates all atoms by a given x, y and z distances. This is required as theoretical map computation can only output map cells starting from
+ 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect should be
  reversed later.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A pointer to the gemmi::Structure object as read in from the input file.
  \param[in] xMov How many angstroms should the atoms be moved along the x axis.
  \param[in] yMov How many angstroms should the atoms be moved along the y axis.
  \param[in] zMov How many angstroms should the atoms be moved along the z axis.
  */
-void ProSHADE_internal_mapManip::movePDBForClipper ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov )
+void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model *model                           = &pdbFile->models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain *chain                       = &model->chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Change atom positions as required
-                            atom[aNo]->SetCoordinates ( atom[aNo]->x + static_cast<float> ( xMov ),
-                                                        atom[aNo]->y + static_cast<float> ( yMov ),
-                                                        atom[aNo]->z + static_cast<float> ( zMov ),
-                                                        atom[aNo]->occupancy,
-                                                        atom[aNo]->tempFactor );
-                        }
-                    }
+                    //================================ Move the atoms
+                    atom->pos                         = gemmi::Position ( atom->pos.x + xMov, atom->pos.y + yMov, atom->pos.z + zMov );
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
     return ;
 }
 
-/*! \brief Function for moving PDB atoms to better suit clipper map computation.
+/*! \brief This function generates a theoretical map from co-ordinate input files.
  
- This function translates all atoms by a given x, y and z distances. This is required as clipper can only output map cells starting from
- 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect is
- reversed later.
+ This function makes use of the Gemmi internal functionality to firstly create a properly sized cell object, then to check the input co-ordinate file for containing known elements as well as
+ elements for which Gemmi knows the form factors. Then, this function proceeds to compute the F's using Cromer & Libermann method (from Gemmi) to finally compute the theoretical
+ map using these. This map is then copied to the variable supplied in the second argument, presumably the ProSHADE internal map variable.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A gemmi::Structure object read in from the input file.
  \param[in] map Pointer reference to a variable to save the map data.
  \param[in] requestedResolution Map resolution to which the map should be computed.
  \param[in] xCell The size of the map cell to be created.
@@ -466,55 +449,73 @@ void ProSHADE_internal_mapManip::movePDBForClipper ( clipper::mmdb::CMMDBManager
  \param[in] zCell The size of the map cell to be created.
  \param[in] noAtoms The number of atoms as determined by the MMDB Crawl.
  */
-void ProSHADE_internal_mapManip::generateMapFromPDB ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, int noAtoms, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo )
+void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, int noAtoms, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo )
 {
-    //================================================ Initialise clipper variables
-    clipper::Spacegroup spgr                          ( clipper::Spacegroup::P1 );
-    clipper::Cell cell                                ( clipper::Cell_descr ( static_cast<float> ( xCell ), static_cast<float> ( yCell ), static_cast<float> ( zCell ) ) );
-    clipper::Resolution reso                          = clipper::Resolution ( requestedResolution );
-    const clipper::Grid_sampling grid                 ( spgr, cell, reso );
-    clipper::Xmap<float> *densityMap                  = new clipper::Xmap<float> ( spgr, cell, grid );
-    clipper::mmdb::PPCAtom atom;
+    //================================================ Set cell dimensions from the increased ranges (we need to add some space) and re-calculate cell properties
+    pdbFile.cell.a                                    = xCell;
+    pdbFile.cell.b                                    = yCell;
+    pdbFile.cell.c                                    = zCell;
+    pdbFile.cell.calculate_properties                 ( );
+
+    //================================================ Establish the Structure Factor Calculater object, which will compute the f's required later.
+    gemmi::StructureFactorCalculator < gemmi::IT92 < double > > calc ( pdbFile.cell );
+    std::bitset<(size_t)gemmi::El::END> present_elems = pdbFile.models[0].present_elements ( );
     
-    //================================================ Get Clipper XMap
-    int hndl                                          = pdbFile->NewSelection ( );
-    pdbFile->SelectAtoms                              ( hndl, 0, 0, ::mmdb::SKEY_NEW );
-    pdbFile->GetSelIndex                              ( hndl, atom, noAtoms );
-    clipper::MMDBAtom_list *aList                     = new clipper::MMDBAtom_list ( atom, noAtoms );
-    clipper::EDcalc_aniso<clipper::ftype32> edCalc;
-    edCalc                                            ( *densityMap, *aList );
-    
-    //================================================ Find max U, V and W
-    clipper::Xmap_base::Map_reference_index LastPos   = (*densityMap).first();
-    clipper::Xmap_base::Map_reference_index PrevPos   = (*densityMap).first();
-    for ( LastPos = (*densityMap).first(); !LastPos.last(); LastPos.next() ) { PrevPos = LastPos; }
-    *xTo                                              = PrevPos.coord().u();
-    *yTo                                              = PrevPos.coord().v();
-    *zTo                                              = PrevPos.coord().w();
-    
-    //================================================ Convert clipper Xmap to my map format
-    map                                               = new proshade_double [(*xTo + 1) * (*yTo + 1) * (*zTo + 1)];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
-    
-    proshade_signed arrPos                            = 0;
-    for ( proshade_signed uIt = 0; uIt < (*xTo + 1); uIt++ )
+    //================================================ Sanity checks
+    if ( present_elems[static_cast<int> ( gemmi::El::X )] )
     {
-        for ( proshade_signed vIt = 0; vIt < (*yTo + 1); vIt++ )
+        throw ProSHADE_exception ( "Found unknown element in input file.", "EP00051", __FILE__, __LINE__, __func__, "Gemmi library does not recognise some of the elements in\n                    : the co-ordinate file. Please check the file for not being\n                    : corrupted and containing standard elements." );
+    }
+    
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ )
+    {
+      if ( present_elems[elIt] && !gemmi::IT92<double>::has ( static_cast<gemmi::El> ( elIt ) ) )
+      {
+          std::stringstream hlpSS;
+          hlpSS << "Missing form factor for element " << element_name ( static_cast<gemmi::El> ( elIt ) );
+          throw ProSHADE_exception ( hlpSS.str().c_str(), "EP00052", __FILE__, __LINE__, __func__, "Gemmi library does not have a form factor value for this\n                    : reported element. Please report this to the author." );
+      }
+    }
+    
+    //================================================ Compute the f's
+    double wavelength                                 = 0.1;
+    double energy                                     = gemmi::hc() / wavelength;
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { calc.set_fprime_if_not_set ( static_cast<gemmi::El> ( elIt ), gemmi::cromer_libermann ( elIt, energy, nullptr ) ); } }
+    
+    //================================================ Create the density calculator object and fill it in
+    gemmi::DensityCalculator<gemmi::IT92<double>, float> dencalc;
+    
+    dencalc.d_min                                     = static_cast<double> ( requestedResolution );
+    for ( std::map<gemmi::El, double>::const_iterator mapIt = calc.fprimes().begin(); mapIt != calc.fprimes().end(); mapIt++ ) { dencalc.fprimes[static_cast<int> ( mapIt->first )] = static_cast<float> ( mapIt->second ); }
+    dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
+    
+    //================================================ Compute the theoretical map
+    dencalc.put_model_density_on_grid                 ( pdbFile.models[0] );
+    
+    //================================================ Get the map
+    const gemmi::Grid<float>& grid                    = dencalc.grid;
+    
+    //================================================ Save the map dimensions
+   *xTo                                               = grid.nu;
+   *yTo                                               = grid.nv;
+   *zTo                                               = grid.nw;
+
+    //================================================ Copy the gemmi::Grid to my map format
+    map                                               = new proshade_double [(*xTo) * (*yTo) * (*zTo)];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
+
+    proshade_signed arrPos                            = 0;
+    for ( proshade_signed uIt = 0; uIt < (*xTo); uIt++ )
+    {
+        for ( proshade_signed vIt = 0; vIt < (*yTo); vIt++ )
         {
-            for ( proshade_signed wIt = 0; wIt < (*zTo + 1); wIt++ )
+            for ( proshade_signed wIt = 0; wIt < (*zTo); wIt++ )
             {
-                arrPos                                = wIt  + (*zTo + 1) * ( vIt  + (*yTo + 1) * uIt );
-                        
-                clipper::Vec3<int> pos                ( static_cast<int> ( uIt ), static_cast<int> ( vIt ), static_cast<int> ( wIt ) );
-                clipper::Coord_grid cg                ( pos );
-                        
-                map[arrPos]                           = densityMap->get_data ( cg );
+                arrPos                                = wIt  + (*zTo) * ( vIt  + (*yTo) * uIt );
+                map[arrPos]                           = grid.get_value_q( uIt, vIt, wIt );
             }
         }
     }
-    
-    //================================================ Free memory
-    delete densityMap;
     
     //================================================ Done
     return ;

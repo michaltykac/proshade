@@ -531,50 +531,43 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     }
     
     //================================================ Open PDB file for reading
-    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
-    if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
+    gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
+    
+    //================================================ Change B-factors if need be
+    if ( settings->pdbBFactorNewVal >= 0.0 )
     {
-        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
+        ProSHADE_internal_mapManip::changePDBBFactors ( &pdbFile, settings->pdbBFactorNewVal );
     }
     
     //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
     int noAtoms;
     ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, &noAtoms );
-    
-    //================================================ Change B-factors if need be
-    if ( settings->pdbBFactorNewVal >= 0.0 )
-    {
-        ProSHADE_internal_mapManip::changePDBBFactors ( pdbFile, settings->pdbBFactorNewVal );
-    }
-    
+
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = 20.0 - xF;
     proshade_single yMov                              = 20.0 - yF;
     proshade_single zMov                              = 20.0 - zF;
-    ProSHADE_internal_mapManip::movePDBForClipper     ( pdbFile, xMov, yMov, zMov );
-    
+    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov );
+
     //================================================ Set the angstrom sizes
     this->xDimSize                                    = xT - xF + 40.0;
     this->yDimSize                                    = yT - yF + 40.0;
     this->zDimSize                                    = zT - zF + 40.0;
-    
+
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, noAtoms, &this->xTo, &this->yTo, &this->zTo );
     
     //================================================ Set the internal variables to correct values
     this->setPDBMapValues                             ( );
-    
+
     //================================================ Move map back to the original PDB location
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
                                                         &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    
-    //================================================ Release the PDB file
-    delete pdbFile;
-    
+
     //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
@@ -582,6 +575,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     }
     
     //================================================ Done
+    return;
     
 }
 
@@ -602,9 +596,9 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
     this->cAngle                                      = 90.0;
     
     //================================================ Set dimension sizes in indices
-    this->xDimIndices                                 = this->xTo + 1;
-    this->yDimIndices                                 = this->yTo + 1;
-    this->zDimIndices                                 = this->zTo + 1;
+    this->xDimIndices                                 = this->xTo;
+    this->yDimIndices                                 = this->yTo;
+    this->zDimIndices                                 = this->zTo;
     
     //================================================ Set grid indexing to cell indexing
     this->xGridIndices                                = this->xDimIndices;

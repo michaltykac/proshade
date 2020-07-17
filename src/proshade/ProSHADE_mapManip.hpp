@@ -37,15 +37,15 @@
 namespace ProSHADE_internal_mapManip
 {
     proshade_signed myRound                           ( proshade_double x );
-    void determinePDBRanges                           ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
+    void determinePDBRanges                           ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
                                                         proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, int* noAt );
     void findPDBCOMValues                             ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom );
     void rotatePDBCoordinates                         ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
                                                         proshade_double yCom, proshade_double zCom );
     void translatePDBCoordinates                      ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ );
-    void changePDBBFactors                            ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double newBFactorValue );
-    void movePDBForClipper                            ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov );
-    void generateMapFromPDB                           ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double*& map, proshade_single requestedResolution,
+    void changePDBBFactors                            ( gemmi::Structure *pdbFile, proshade_double newBFactorValue );
+    void movePDBForMapCalc                            ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov );
+    void generateMapFromPDB                           ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution,
                                                         proshade_single xCell, proshade_single yCell, proshade_single zCell, int noAtoms, proshade_signed* xTo,
                                                         proshade_signed* yTo, proshade_signed* zTo );
     void moveMapByIndices                             ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs,

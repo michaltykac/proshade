@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00050 ==
+== NEXT FREE MESSAGE NUMBER: 00053 ==
 
 ========
 GENERAL:
@@ -35,8 +35,10 @@ CODE:		Message:																												Comment:
 EP00010		While attempting to open file XXX for reading, MMDB library failed to open the file. This 								Are you sure the file is not corrupted and that the path is right?
 			could be caused by not being formatted properly or by memory not being sufficient	
 EP00047		Cannot write co-ordinate file if the input file did not contain co-ordinates.											You have called the WritePDB function on structure which was created by reading in a map. This is not allowed as ProSHADE cannot create co-ordinates from map file.									
-EP00048		Failed to open the PDB file XXX for output.																				ProSHADE has failed to open the PDB output file. This is likely caused by either not having the write privileges to the required output path, or by making a mistake in the path.									
-
+EP00048		Failed to open the PDB file XXX for output.																				ProSHADE has failed to open the PDB output file. This is likely caused by either not having the write privileges to the required output path, or by making a mistake in the path.					
+EP00050		Found no model in co-ordinate file.																						Found 0 models in the input file <<FILE>>. This suggests that the input co-ordinate file is corrupted or mis-formatted.
+EP00051		Found unknown element in input file.																					Gemmi library does not recognise some of the elements in the co-ordinate file. Please check the file for not being corrupted and containing standard elements.
+EP00052		Missing form factor for element <<EL>>																					Gemmi library does not have a form factor value for this reported element. Please report this to the Gemmi library authors or to the author of ProSHADE.
 
 ============
 MAP MASKING:

@@ -109,7 +109,7 @@ endif ( GFORTRAN_VERSION )
 ### GEMMI
 add_custom_command (
    OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
-   COMMAND git clone https://github.com/project-gemmi/gemmi.git
+   COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
    COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
 )
@@ -211,6 +211,7 @@ add_custom_target (
 set               ( CLIPPER_LINK ${CMAKE_SOURCE_DIR}/install/lib CACHE STRING "RPATH value to MMDB2/CMAPLIB/CLIPPER libs" )
 
 ### Set command line accessible variable for clipper path
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )
 include_directories ( ${CMAKE_SOURCE_DIR}/extern/clipper                                  )
 include_directories ( ${CMAKE_SOURCE_DIR}/install/include                                 )
 link_directories    ( ${CMAKE_SOURCE_DIR}/install/lib                                     )            
@@ -509,6 +510,7 @@ add_custom_command (
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildFFTW2
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildCLIPPER
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/include
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/lib
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/lib64
@@ -540,6 +542,7 @@ add_custom_command (
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.log
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.status
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/mmdb2.pc
+                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/gemmi
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_distances
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_overlay
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_reboxing
