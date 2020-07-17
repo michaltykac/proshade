@@ -24,10 +24,10 @@
 
 /*! \brief Function determining if the input data type is PDB.
  
- This function checks if the input file is a PDB file and can be read by the MMDB library.
+ This function checks if the input file is a PDB file and can be read by the gemmi library.
  
  \param[in] fName The file name of the file for which the type should be determined.
- \param[out] X Bool value true if the file is a PDB file readable by MMDB and false otherwise.
+ \param[out] X Bool value true if the file is a PDB file readable by gemmi and false otherwise.
  */
 bool ProSHADE_internal_io::isFilePDB ( std::string fName )
 {
@@ -597,7 +597,7 @@ void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_do
 /*! \brief Function determining input data type.
  
  This function determines the type of the input structure. The possible outputs are MAP for MRC map files, PDB for mmCIF or PDB formatted data,
- or UNKNOWN if both cmaplib and mmdb fail to read the file.
+ or UNKNOWN if both cmaplib and gemmi fail to read the file.
  
  \param[in] fName The file name of the file for which the type should be determined.
  \param[out] X ProSHADE InputType variable with values UNKNOWN, MAP or PDB depending on the type of the input file.

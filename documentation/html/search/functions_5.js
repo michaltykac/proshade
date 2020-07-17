@@ -23,7 +23,7 @@ var searchData=
   ['findocta4c3s_757',['findOcta4C3s',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a6e190de23934ce6ea93c37e46bc2deb9',1,'ProSHADE_internal_symmetry']]],
   ['findocta6c2s_758',['findOcta6C2s',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a22d8a193831a1c60dc8520035677ea3a',1,'ProSHADE_internal_symmetry']]],
   ['findoscore_759',['findOScore',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#aedc04d6abaeebd3a2e8b26fb956d1996',1,'ProSHADE_internal_data::ProSHADE_data']]],
-  ['findpdbcomvalues_760',['findPDBCOMValues',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a7f265b6875a1b427ff88e8bf81ead1dc',1,'ProSHADE_internal_mapManip']]],
+  ['findpdbcomvalues_760',['findPDBCOMValues',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a99fe02ef9da6b17ab51f1d82a32f02b9',1,'ProSHADE_internal_mapManip']]],
   ['findpeaksbyheightboundaries_761',['findPeaksByHeightBoundaries',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a2137fa16a69fc7a8365439e322b67dc8',1,'ProSHADE_internal_symmetry']]],
   ['findpeakscsymmetry_762',['findPeaksCSymmetry',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a9312ec99e35ea8bc0ca9ca77879d0378',1,'ProSHADE_internal_symmetry']]],
   ['findsymmetryusingfold_763',['findSymmetryUsingFold',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ae9f6a6475bb1855e0960428091bdc1a9',1,'ProSHADE_internal_symmetry']]],

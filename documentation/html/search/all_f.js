@@ -5,6 +5,6 @@ var searchData=
   ['testgroupagainstgroup_525',['testGroupAgainstGroup',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a5360c152697780177eb2676888cd5108',1,'ProSHADE_internal_symmetry']]],
   ['testgroupagainstsymmetry_526',['testGroupAgainstSymmetry',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ad8c193e95c7069fafa78dccc1de1aaa4',1,'ProSHADE_internal_symmetry']]],
   ['translatemap_527',['translateMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#aee34d26604c8922b427da61781a3eff6',1,'ProSHADE_internal_data::ProSHADE_data']]],
-  ['translatepdbcoordinates_528',['translatePDBCoordinates',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a14dec190bfdfd9364c3c52fae7703558',1,'ProSHADE_internal_mapManip']]],
+  ['translatepdbcoordinates_528',['translatePDBCoordinates',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a3892495503aa80bbb294574ee9a94e1d',1,'ProSHADE_internal_mapManip']]],
   ['translationmap_529',['translationMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a37f26ac4bc76e4f4c5da77dd0eace56e',1,'ProSHADE_internal_data::ProSHADE_data']]]
 ];

@@ -24,6 +24,10 @@
 //==================================================== ProSHADE
 #include "ProSHADE_data.hpp"
 
+//==================================================== Gemmi PDB output - this cannot be with the rest of includes for some stb_sprintf library related reasons ...
+#define GEMMI_WRITE_IMPLEMENTATION
+#include <gemmi/to_pdb.hpp>
+
 /*! \brief Constructor for getting empty ProSHADE_data class.
  
  This constructor creates an empty data structure which can later be filled with data and used to process
@@ -541,8 +545,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     
     //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
-    int noAtoms;
-    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, &noAtoms );
+    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT );
 
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = 20.0 - xF;
@@ -556,7 +559,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     this->zDimSize                                    = zT - zF + 40.0;
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
-    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, noAtoms, &this->xTo, &this->yTo, &this->zTo );
+    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo );
     
     //================================================ Set the internal variables to correct values
     this->setPDBMapValues                             ( );
@@ -585,7 +588,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
  */
 void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 {
-    //================================================ Set starts to 0 (all clipper maps have this)
+    //================================================ Set starts to 0 
     this->xFrom                                       = 0;
     this->yFrom                                       = 0;
     this->zFrom                                       = 0;
@@ -873,12 +876,8 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         throw ProSHADE_exception ( "Cannot write co-ordinate file if the input file did not contain co-ordinates.", "EP00047", __FILE__, __LINE__, __func__, "You have called the WritePDB function on structure which\n                    : was created by reading in a map. This is not allowed as\n                    : ProSHADE cannot create co-ordinates from map file." );
     }
     
-    //================================================ Open the original PDB file
-    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
-    if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
-    {
-        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
-    }
+    //================================================ Open PDB file for reading
+    gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
@@ -899,34 +898,41 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
                                                         (this->originalMapZCom - zCOMOriginal);
         
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos );
-        
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos );
+
         //============================================ Compute the after rotation PDB COM position
         proshade_double xCOMRotated = 0.0, yCOMRotated = 0.0, zCOMRotated = 0.0;
         ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated );
-        
+
         //============================================ Compute the after rotation position correction
         proshade_double xPDBTrans                     = ( xCOMRotated - xCOMOriginal ) + ( this->mapPostRotXCom - this->originalMapXCom );
         proshade_double yPDBTrans                     = ( yCOMRotated - yCOMOriginal ) + ( this->mapPostRotYCom - this->originalMapYCom );
         proshade_double zPDBTrans                     = ( zCOMRotated - zCOMOriginal ) + ( this->mapPostRotZCom - this->originalMapZCom );
-        
+
         //============================================ Correct the co-ordinate position after rotation
-        ProSHADE_internal_mapManip::translatePDBCoordinates ( pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
+        ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ );
-    
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ );
+
     //================================================ Write the PDB file
-    if ( pdbFile->WritePDBASCII ( fName.c_str() ) )
+    std::ofstream outCoOrdFile;
+    outCoOrdFile.open                                 ( fName.c_str() );
+    
+    if ( outCoOrdFile.is_open() )
+    {
+        gemmi::PdbWriteOptions opt;
+        write_pdb                                     ( pdbFile, outCoOrdFile, opt );
+    }
+    else
     {
         std::stringstream hlpMessage;
         hlpMessage << "Failed to open the PDB file " << fName << " for output.";
         throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00048", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
     }
     
-    //================================================ Release memory
-    delete pdbFile;
+    outCoOrdFile.close                                ( );
     
     //================================================ Done
     return ;

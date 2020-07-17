@@ -13,7 +13,7 @@ file                    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"	    
 ################################### Link the executable
 add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${SOURCES}                          )
 add_dependencies        ( ${PROJECT_NAME} soft2.0_lib                                     )
-target_link_libraries   ( ${PROJECT_NAME} clipper-ccp4 clipper-cif clipper-minimol clipper-mmdb clipper-cns clipper-phs clipper-contrib clipper-core ccp4c mmdb2 )
+target_link_libraries   ( ${PROJECT_NAME} ccp4c mmdb2 )
 target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
 target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a  )
 target_link_libraries   ( ${PROJECT_NAME} lapack blas                                     )
@@ -23,8 +23,8 @@ target_link_libraries   ( ${PROJECT_NAME} lapack blas                           
 set_property            (
               				TARGET ${PROJECT_NAME}
                 			PROPERTY INSTALL_RPATH
-                			        "${CLIPPER_LINK}"
                 			        "${FFTW_LINK}"
+                			        "${SOFT_LINK}"
                 			        "${LAPACK_LINK}" )
 
 ##########################################################################################

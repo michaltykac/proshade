@@ -30,7 +30,7 @@ var searchData=
   ['resamplemaptoresolutionfourier_437',['reSampleMapToResolutionFourier',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#ac311071faa65db4dfc1886d2a6de78ef',1,'ProSHADE_internal_mapManip']]],
   ['resamplemaptoresolutiontrilinear_438',['reSampleMapToResolutionTrilinear',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a5db74cc13dd4b64cf0a8377ed078b47c',1,'ProSHADE_internal_mapManip']]],
   ['rotatemap_439',['rotateMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a8089b5dceb60b2e4c2e65957e24d1f56',1,'ProSHADE_internal_data::ProSHADE_data']]],
-  ['rotatepdbcoordinates_440',['rotatePDBCoordinates',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#add7e9fe1324adeeac12547812df6e7e1',1,'ProSHADE_internal_mapManip']]],
+  ['rotatepdbcoordinates_440',['rotatePDBCoordinates',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a4dd26d899d4e4291fefcfe0c9ffddc1b',1,'ProSHADE_internal_mapManip']]],
   ['rotationuncertainty_441',['rotationUncertainty',['../class_pro_s_h_a_d_e__settings.html#ad9c57832756d4ea342589104cdaded6b',1,'ProSHADE_settings']]],
   ['rotsphericalharmonics_442',['rotSphericalHarmonics',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a94b04108aa1a9406eb3c5eb61749140b',1,'ProSHADE_internal_data::ProSHADE_data']]],
   ['rrpmatrices_443',['rrpMatrices',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#af8b72cbc56a4f72d0557e01a8101d435',1,'ProSHADE_internal_data::ProSHADE_data']]]

@@ -152,7 +152,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The input maps will be re-boxed using the internal map masking and  " << std::endl;
     std::cout << "            boundary finding procedures. Requires at least one structure. In    " << std::endl;
     std::cout << "            case of co-ordinate input, these will be converted to map using     " << std::endl;
-    std::cout << "            Clipper software.                                                   " << std::endl;
+    std::cout << "            Gemmi library.                                                      " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    -S or --symmetry                                                            " << std::endl;
     std::cout << "            Detect if any C, D, T or I symmetries are present in all supplied   " << std::endl;

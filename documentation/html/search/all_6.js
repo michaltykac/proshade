@@ -2,7 +2,7 @@ var searchData=
 [
   ['gausslegendreintegration_152',['gaussLegendreIntegration',['../namespace_pro_s_h_a_d_e__internal__maths.html#a3d4604176a61820f5fcb95e372861c1d',1,'ProSHADE_internal_maths']]],
   ['gausslegendreintegrationreal_153',['gaussLegendreIntegrationReal',['../namespace_pro_s_h_a_d_e__internal__maths.html#a62133f51851217e3cb28dff2f520d192',1,'ProSHADE_internal_maths']]],
-  ['generatemapfrompdb_154',['generateMapFromPDB',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a6bf6fedf2c5aff6bcf8ef020406251ba',1,'ProSHADE_internal_mapManip']]],
+  ['generatemapfrompdb_154',['generateMapFromPDB',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#afe43c82995777c05000cf92091c10b9c',1,'ProSHADE_internal_mapManip']]],
   ['generateso3coeffsfromematrices_155',['generateSO3CoeffsFromEMatrices',['../namespace_pro_s_h_a_d_e__internal__distances.html#afacb5240b508ea28b64cacf395b47dba',1,'ProSHADE_internal_distances']]],
   ['getallpeaksnaive_156',['getAllPeaksNaive',['../namespace_pro_s_h_a_d_e__internal__peak_search.html#a9874fdfe82bd0d75958f9b250750fd56',1,'ProSHADE_internal_peakSearch']]],
   ['getallpeakssmoothedz_157',['getAllPeaksSmoothedZ',['../namespace_pro_s_h_a_d_e__internal__peak_search.html#ae1faf29aa9f12daea7688c7e24e94ad7',1,'ProSHADE_internal_peakSearch']]],

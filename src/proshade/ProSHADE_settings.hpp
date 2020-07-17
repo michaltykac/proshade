@@ -27,13 +27,6 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wall"
 
-//==================================================== Clipper
-#include <clipper/clipper.h>
-#include <clipper/clipper-contrib.h>
-#include <clipper/clipper-ccp4.h>
-#include <clipper/clipper-mmdb.h>
-#include <clipper/clipper-minimol.h>
-
 //==================================================== CMAPLIB
 #ifdef __cplusplus
 extern "C" {

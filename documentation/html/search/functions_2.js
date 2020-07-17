@@ -2,7 +2,7 @@ var searchData=
 [
   ['centremaponcom_675',['centreMapOnCOM',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a80ff45ef40549fb6a1d80b70865fc807',1,'ProSHADE_internal_data::ProSHADE_data']]],
   ['changefourierorder_676',['changeFourierOrder',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#adc0d808ba88ad0e023ba8391aa44be95',1,'ProSHADE_internal_mapManip']]],
-  ['changepdbbfactors_677',['changePDBBFactors',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a77f03de272e701a6cfa084d1130422a8',1,'ProSHADE_internal_mapManip']]],
+  ['changepdbbfactors_677',['changePDBBFactors',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a9cf227397ba62db3394d6e404006df97',1,'ProSHADE_internal_mapManip']]],
   ['checkdistancessettings_678',['checkDistancesSettings',['../namespace_pro_s_h_a_d_e__internal__tasks.html#a381e43e3bc24c15d616841f68acae3d8',1,'ProSHADE_internal_tasks']]],
   ['checkexpectedagainstfound_679',['checkExpectedAgainstFound',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a074d9c1d40d7491ea9f9f9639744e18d',1,'ProSHADE_internal_symmetry']]],
   ['checkfittingaxisdualandsave_680',['checkFittingAxisDualAndSave',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a79d752583b571eb856561aa38727a455',1,'ProSHADE_internal_symmetry']]],

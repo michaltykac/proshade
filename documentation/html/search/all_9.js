@@ -17,7 +17,7 @@ var searchData=
   ['missingaxisheight_317',['missingAxisHeight',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ad44ed609e8a3d59674b2b2256aec41f8',1,'ProSHADE_internal_symmetry']]],
   ['movemapbyfourier_318',['moveMapByFourier',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a94dfbe2867f4e294dbb49284881fcb2a',1,'ProSHADE_internal_mapManip']]],
   ['movemapbyindices_319',['moveMapByIndices',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a037825616c60bef58075284449872642',1,'ProSHADE_internal_mapManip']]],
-  ['movepdbforclipper_320',['movePDBForClipper',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a3fc8927d3ed6db95849dba71a2c17c60',1,'ProSHADE_internal_mapManip']]],
+  ['movepdbformapcalc_320',['movePDBForMapCalc',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#af2bbc07d56beb9ba0b45c2ac1a8a0a0b',1,'ProSHADE_internal_mapManip']]],
   ['movetocom_321',['moveToCOM',['../class_pro_s_h_a_d_e__settings.html#a37c9037721c1ad28ad6421a31dbcd8d8',1,'ProSHADE_settings']]],
   ['multiplytwosquarematrices_322',['multiplyTwoSquareMatrices',['../namespace_pro_s_h_a_d_e__internal__maths.html#ac211e762a46e4c7e25235a651acfdc77',1,'ProSHADE_internal_maths']]],
   ['myround_323',['myRound',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a50df80b02427f9f55a2c7af033a9fb93',1,'ProSHADE_internal_mapManip']]]

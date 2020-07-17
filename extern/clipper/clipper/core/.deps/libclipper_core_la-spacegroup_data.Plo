@@ -1,4 +1,0 @@
-libclipper_core_la-spacegroup_data.lo: spacegroup_data.cpp \
-  spacegroup_data.h
-
-spacegroup_data.h:

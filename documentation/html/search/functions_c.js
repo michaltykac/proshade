@@ -24,5 +24,5 @@ var searchData=
   ['resamplemaptoresolutionfourier_969',['reSampleMapToResolutionFourier',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#ac311071faa65db4dfc1886d2a6de78ef',1,'ProSHADE_internal_mapManip']]],
   ['resamplemaptoresolutiontrilinear_970',['reSampleMapToResolutionTrilinear',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a5db74cc13dd4b64cf0a8377ed078b47c',1,'ProSHADE_internal_mapManip']]],
   ['rotatemap_971',['rotateMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a8089b5dceb60b2e4c2e65957e24d1f56',1,'ProSHADE_internal_data::ProSHADE_data']]],
-  ['rotatepdbcoordinates_972',['rotatePDBCoordinates',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#add7e9fe1324adeeac12547812df6e7e1',1,'ProSHADE_internal_mapManip']]]
+  ['rotatepdbcoordinates_972',['rotatePDBCoordinates',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a4dd26d899d4e4291fefcfe0c9ffddc1b',1,'ProSHADE_internal_mapManip']]]
 ];

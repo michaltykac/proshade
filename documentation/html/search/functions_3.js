@@ -13,7 +13,7 @@ var searchData=
   ['determinebandwidthfromangle_729',['determineBandwidthFromAngle',['../class_pro_s_h_a_d_e__settings.html#a25080bd03aaf7a4ce834f0df7aaa4250',1,'ProSHADE_settings']]],
   ['determinefoldtotry_730',['determineFoldToTry',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ac0a8dc71c37de02256521ebc9178c8d4',1,'ProSHADE_internal_symmetry']]],
   ['determineintegrationorder_731',['determineIntegrationOrder',['../class_pro_s_h_a_d_e__settings.html#a6d2b5d90f31a1493e17474a044852da6',1,'ProSHADE_settings']]],
-  ['determinepdbranges_732',['determinePDBRanges',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#ab66d0044647012b861bdb4b755fcc8ae',1,'ProSHADE_internal_mapManip']]],
+  ['determinepdbranges_732',['determinePDBRanges',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a053e8acecc88aad289d6a06a678d9ac4',1,'ProSHADE_internal_mapManip']]],
   ['determinespheredistances_733',['determineSphereDistances',['../class_pro_s_h_a_d_e__settings.html#a4436b5eeb922db0351874eb64f350920',1,'ProSHADE_settings']]],
   ['distancescomputationtask_734',['DistancesComputationTask',['../namespace_pro_s_h_a_d_e__internal__tasks.html#a104ae331628baf5dc1cd2af78a509624',1,'ProSHADE_internal_tasks']]],
   ['distributespacetoboundaries_735',['distributeSpaceToBoundaries',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a272ed511f8e39433857ba6c733fa009a',1,'ProSHADE_internal_mapManip']]]
