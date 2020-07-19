@@ -130,7 +130,6 @@ namespace ProSHADE_internal_data
         
     protected:
         void figureIndexStartStop                     ( void );
-        void switchAxes                               ( void );
         void setPDBMapValues                          ( void );
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );

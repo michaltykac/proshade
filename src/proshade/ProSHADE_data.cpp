@@ -463,7 +463,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     
 }
 
-/*! \brief Function for reading map data.
+/*! \brief Function for reading map data using gemmi library.
  
  This function reads in the map data using the information from the settings object and saves all the results into the
  structure calling it.
@@ -472,32 +472,26 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
  */
 void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
 {
-    //================================================ Initialise local variables
-    CMap_io::CMMFile *mapFile                         = NULL;
-    int myMapMode                                     = O_RDONLY;
+    //================================================ Open the file
+    gemmi::Ccp4<float> map;
+    map.read_ccp4                                     ( gemmi::MaybeGzipped ( this->fileName.c_str() ) );
     
-    //================================================ Open file for reading and check
-    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( this->fileName.c_str() , myMapMode ) );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( mapFile, __FILE__, __LINE__, __func__ );
+    //================================================ Convert to XYZ and create complete map, if need be
+    map.setup                                         ( gemmi::GridSetup::Full, NAN );
     
-    //================================================ Read in header
-    ProSHADE_internal_io::readInMapCell               ( mapFile, &this->xDimSize, &this->yDimSize, &this->zDimSize, &this->aAngle, &this->bAngle, &this->cAngle );
-    ProSHADE_internal_io::readInMapDim                ( mapFile, &this->xDimIndices, &this->yDimIndices, &this->zDimIndices );
-    ProSHADE_internal_io::readInMapGrid               ( mapFile, &this->xGridIndices, &this->yGridIndices, &this->zGridIndices );
-    ProSHADE_internal_io::readInMapOrder              ( mapFile, &this->xAxisOrder, &this->yAxisOrder, &this->zAxisOrder );
-    ProSHADE_internal_io::readInMapOrigin             ( mapFile, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
+    //================================================ Read in the map file header
+    ProSHADE_internal_io::readInMapHeader             ( &map,
+                                                        &this->xDimIndices,  &this->yDimIndices,  &this->zDimIndices,
+                                                        &this->xDimSize,     &this->yDimSize,     &this->zDimSize,
+                                                        &this->aAngle,       &this->bAngle,       &this->cAngle,
+                                                        &this->xFrom,        &this->yFrom,        &this->zFrom,
+                                                        &this->xAxisOrigin,  &this->yAxisOrigin,  &this->zAxisOrigin,
+                                                        &this->xAxisOrder,   &this->yAxisOrder,   &this->zAxisOrder,
+                                                        &this->xGridIndices, &this->yGridIndices, &this->zGridIndices );
     
-    //================================================ Read in data
-    ProSHADE_internal_io::readInMapData               ( mapFile, this->internalMap, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin,
-                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices,
-                                                        this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    //================================================ Save the map density to ProSHADE variable
+    ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
-    //================================================ Close the map file
-    CMap_io::ccp4_cmap_close                          ( mapFile );
-    
-    //================================================ Switch axes to XYZ order
-    this->switchAxes                                  ( );
-     
     //================================================ Set resolution if need be
     if ( settings->requestedResolution < 0.0 )
     {
@@ -625,15 +619,10 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 
 /*! \brief Function for determining iterator start and stop positions.
  
- This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations.
+ This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations. It assumes that gemmi has read in the xFrom, yFrom and zFrom values already.
  */
 void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
 {
-    //================================================ Set starts to origin
-    this->xFrom                                       = this->xAxisOrigin;
-    this->yFrom                                       = this->yAxisOrigin;
-    this->zFrom                                       = this->zAxisOrigin;
-    
     //================================================ Set ends to origin + size - 1
     this->xTo                                         = this->xFrom + this->xDimIndices - 1;
     this->yTo                                         = this->yFrom + this->yDimIndices - 1;
@@ -641,181 +630,6 @@ void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
     
     //================================================ Done
     return ;
-    
-}
-
-/*! \brief Function for changing axes to XYZ order if different.
- 
- This function is called to change the axes order for map data read in non-XYZ order.
- */
-void ProSHADE_internal_data::ProSHADE_data::switchAxes ( void )
-{
-    //================================================ Establish the axes order
-    if ( ( this->xAxisOrder == 1 ) && ( this->yAxisOrder == 2 ) )
-    {
-        //============================================ Order is XYZ - Nothing to be done
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 1 ) && ( this->yAxisOrder == 3 ) )
-    {
-        //============================================ Order is XZY
-        proshade_single tmp                           = this->yDimSize;
-        this->yDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->bAngle;
-        this->bAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->yDimIndices;
-        this->yDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->yGridIndices;
-        this->yGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->yAxisOrigin;
-        this->yAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->yAxisOrder                              = 2;
-        this->zAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 2 ) && ( this->yAxisOrder == 1 ) )
-    {
-        //============================================ Order is YXZ
-        proshade_single tmp                           = this->xDimSize;
-        this->xDimSize                                = this->yDimSize;
-        this->yDimSize                                = tmp;
-                
-        tmp                                           = this->aAngle;
-        this->aAngle                                  = this->bAngle;
-        this->bAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->xDimIndices;
-        this->xDimIndices                             = this->yDimIndices;
-        this->yDimIndices                             = tmps;
-                
-        tmps                                          = this->xGridIndices;
-        this->xGridIndices                            = this->yGridIndices;
-        this->yGridIndices                            = tmps;
-                
-        tmps                                          = this->xAxisOrigin;
-        this->xAxisOrigin                             = this->yAxisOrigin;
-        this->yAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->yAxisOrder                              = 2;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 2 ) && ( this->yAxisOrder == 3 ) )
-    {
-        //============================================ Order is YZX
-        proshade_single tmp                           = this->yDimSize;
-        this->yDimSize                                = this->xDimSize;
-        this->xDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->bAngle;
-        this->bAngle                                  = this->aAngle;
-        this->aAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->yDimIndices;
-        this->yDimIndices                             = this->xDimIndices;
-        this->xDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->yGridIndices;
-        this->yGridIndices                            = this->xGridIndices;
-        this->xGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->yAxisOrigin;
-        this->yAxisOrigin                             = this->xAxisOrigin;
-        this->xAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->yAxisOrder                              = 2;
-        this->yAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 3 ) && ( this->yAxisOrder == 1 ) )
-    {
-        //============================================ Order is ZXY
-        proshade_single tmp                           = this->zDimSize;
-        this->xDimSize                                = this->yDimSize;
-        this->yDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->cAngle;
-        this->aAngle                                  = this->bAngle;
-        this->bAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->zDimIndices;
-        this->xDimIndices                             = this->yDimIndices;
-        this->yDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->zGridIndices;
-        this->xGridIndices                            = this->yGridIndices;
-        this->yGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->zAxisOrigin;
-        this->xAxisOrigin                             = this->yAxisOrigin;
-        this->yAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->yAxisOrder                              = 2;
-        this->yAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 3 ) && ( this->yAxisOrder == 2 ) )
-    {
-        //============================================ Order is ZYX
-        proshade_single tmp                           = this->xDimSize;
-        this->xDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->aAngle;
-        this->aAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->xDimIndices;
-        this->xDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->xGridIndices;
-        this->xGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->xAxisOrigin;
-        this->xAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->zAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    //================================================ Done
-    throw ProSHADE_exception ( "Failed to determine the axis order of the input map file.", "EM00008", __FILE__, __LINE__, __func__, "This is more of a debugging check and the code execution\n                    : should never reach here. If you see this message,\n                    : something is clearly very wrong. Please report this case." );
     
 }
 

@@ -43,6 +43,7 @@ extern "C" {
 #ifndef __PROSHADE_GEMMI_INCLUDE__
     #define __PROSHADE_GEMMI_INCLUDE__
     #include <gemmi/mmread.hpp>
+    #include <gemmi/ccp4.hpp>
     #include <gemmi/it92.hpp>
     #include <gemmi/rhogrid.hpp>
     #include <gemmi/sfcalc.hpp>
