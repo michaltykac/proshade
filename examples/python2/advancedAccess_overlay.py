@@ -122,7 +122,7 @@ print ( "Optimal translation          :  %+1.3f    %+1.3f    %+1.3f" % ( optimal
 
 ### Expected output
 #   Optimal Euler angles         :  +5.433    +0.769    +3.927
-#
+#   
 #   Optimal Euler rotation matrix:  -0.867    -0.084    +0.492
 #                                :  -0.196    -0.848    -0.492
 #                                :  +0.459    -0.523    +0.719

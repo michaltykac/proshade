@@ -98,9 +98,9 @@ int main ( int argc, char **argv )
     
     //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
 //  Optimal rotation Euler angles are:      5.43251 ; 0.769003 ; 3.92701
-//  Optimal rotation matrix is       :      -0.866653 ; -0.0843546 ; 0.491728
-//                                   :      -0.196442 ; -0.848292 ; -0.491743
-//                                   :      0.45861 ; -0.522766 ; 0.718604
+//  Optimal rotation matrix is       :      -0.866653 ; -0.0843547 ; 0.491728
+//                                   :      -0.196441 ; -0.848292 ; -0.491743
+//                                   :      0.45861 ; -0.522767 ; 0.718604
 //  Optimal translation in Angstroms is:    8 ; 8 ; -6
     
     //================================================ DONE

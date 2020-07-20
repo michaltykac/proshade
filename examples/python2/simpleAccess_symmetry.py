@@ -53,7 +53,7 @@ pSet.requestedSymmetryFold                    = 12
 ### Useful settings
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
-pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
+pSet.setMapResolutionChangeTriLinear          ( True )                                 # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
 pSet.setMapInversion                          ( False )                                # Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand ...
                                                                                        # ... as a result of first runs of map computation.
@@ -119,7 +119,7 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 ### Expected output
 #   Detected symmetry C-12 with axes:
 #   Fold      x         y         z       Angle     Height
-#     12    -0.012    +0.004    +1.000    +0.524    +0.9621
+#     12    -0.015    +0.020    +0.999    +0.524    +0.1788
 
 ##############################################
 ### Create the ProSHADE_settings object to test requesting symmetry

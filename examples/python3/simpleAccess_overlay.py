@@ -122,7 +122,7 @@ print ( "Optimal overlay translation (Angstroms) : %+2.4f   %+2.4f   %+2.4f" % (
 #   Optimal overlay rotation (Euler angles) : +5.5084   +0.7639   +3.8732
 #   Optimal overlay rotation (rot. matrix)  : -0.8513   -0.1015   +0.5147
 #                                           : -0.1758   -0.8692   -0.4621
-#                                           : +0.4943   -0.4839   +0.7221
+#                                           : +0.4943   -0.4839   +0.7222
 #   Optimal overlay translation (Angstroms) : +8.0000   +8.0000   -6.0000
 
 ##############################################

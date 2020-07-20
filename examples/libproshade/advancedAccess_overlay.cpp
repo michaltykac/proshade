@@ -114,9 +114,9 @@ int main ( int argc, char **argv )
 
     //================================================ Expected output
 //  Optimal rotation Euler angles are:      5.49775 ; 0.773114 ; 3.87796
-//  Optimal rotation matrix is       :      -0.849875 ; -0.0998834 ; 0.517431
-//                                   :      -0.184036 ; -0.863799 ; -0.469023
-//                                   :      0.493804 ; -0.493837 ; 0.715739
+//  Optimal rotation matrix is       :      -0.849875 ; -0.0998845 ; 0.517431
+//                                   :      -0.184035 ; -0.863799 ; -0.469023
+//                                   :      0.493804 ; -0.493836 ; 0.715739
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;

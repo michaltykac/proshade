@@ -97,9 +97,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
     
     //================================================ Expected output
-//  Energy levels distances          : 0.87387 and 0.59723
-//  Trace sigma distances            : 0.95053 and 0.74773
-//  Rotation function distances      : 0.74014 and 0.46354
+//  Energy levels distances          : 0.89531 and 0.55904
+//  Trace sigma distances            : 0.96045 and 0.73655
+//  Rotation function distances      : 0.75628 and 0.45242
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

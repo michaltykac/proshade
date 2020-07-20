@@ -341,6 +341,7 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade.dSYM
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/include/ProSHADE.hpp
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/lib/libproshade.dylib
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.pyc
