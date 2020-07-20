@@ -476,10 +476,13 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     gemmi::Ccp4<float> map;
     map.read_ccp4                                     ( gemmi::MaybeGzipped ( this->fileName.c_str() ) );
     
-    //================================================ Convert to XYZ and create complete map, if need be
-    map.setup                                         ( gemmi::GridSetup::Full, NAN );
+    //================================================ Read in the axes starting points before it is modified by the gemmi set-up
+    ProSHADE_internal_io::readInMapHeaderFroms        ( &map, &this->xFrom, &this->yFrom, &this->zFrom );
     
-    //================================================ Read in the map file header
+    //================================================ Convert to XYZ and create complete map, if need be
+    map.setup                                         ( gemmi::GridSetup::ReorderOnly, NAN );
+    
+    //================================================ Read in the rest of the map file header
     ProSHADE_internal_io::readInMapHeader             ( &map,
                                                         &this->xDimIndices,  &this->yDimIndices,  &this->zDimIndices,
                                                         &this->xDimSize,     &this->yDimSize,     &this->zDimSize,
@@ -635,34 +638,58 @@ void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
 
 /*! \brief Function for writing out the internal structure representation in MRC MAP format.
  
- This function takes all the internal map representation information from the calling object and the internal map itself
- and proceeds to write all this information in MRC MAP format for visualisation and further processing by other software.
- It is dependent on the internal information being correct.
+ This function takes all the internal map representation information from the calling object and proceeds to write all this information in MRC MAP format for
+ visualisation and possibly further processing by other software. This function will write out axis order XYZ and spacegroup P1 irrespective of the input
+ axis order and spacegroup.
  
  \param[in] fName The filename (including path) to where the output MAP file should be saved.
- \param[in] title String with the map title to be written into the header - default value is "ProSHADE generated map"
+ \param[in] title String with the map title to be written into the header - default value is "Created by ProSHADE and written by GEMMI"
+ \param[in] mode The type of the data, leave at default 2 (mean float type) unless you specifically required other types.
  */
-void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title )
+void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title, int mode )
 {
-    //================================================ Open output file for writing
-    int myMapMode                                     = O_WRONLY;
-    CMap_io::CMMFile *mapFile                         = NULL;
-    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , myMapMode ) );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( mapFile, __FILE__, __LINE__, __func__ );
+    //================================================ Create and prepare new Grid gemmi object
+    gemmi::Grid<float> mapData;
+    mapData.set_unit_cell                             ( this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
+    mapData.set_size_without_checking                 ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    mapData.axis_order                                = gemmi::AxisOrder::XYZ;
+    mapData.spacegroup                                = &gemmi::get_spacegroup_p1();
+
+    //================================================ Create and prepare new Ccp4 gemmi object
+    gemmi::Ccp4<float> map;
+    map.grid                                          = mapData;
+    map.prepare_ccp4_header                           ( mode );
     
-    //================================================ Write map header
-    ProSHADE_internal_io::writeMapCell                ( mapFile, this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
-    ProSHADE_internal_io::writeMapGrid                ( mapFile, this->xGridIndices, this->yGridIndices, this->zGridIndices );
-    ProSHADE_internal_io::writeMapOrder               ( mapFile, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
-    ProSHADE_internal_io::writeMapDims                ( mapFile, this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    ProSHADE_internal_io::writeMapOrigin              ( mapFile, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin );
-    ProSHADE_internal_io::writeMapTitleEtc            ( mapFile, title, 2, 1 );
+    //================================================ Fill in the header
+    ProSHADE_internal_io::writeOutMapHeader           ( &map,
+                                                        this->xDimIndices,  this->yDimIndices,  this->zDimIndices,
+                                                        this->xDimSize,     this->yDimSize,     this->zDimSize,
+                                                        this->aAngle,       this->bAngle,       this->cAngle,
+                                                        this->xFrom,        this->yFrom,        this->zFrom,
+                                                        this->xAxisOrigin,  this->yAxisOrigin,  this->zAxisOrigin,
+                                                        this->xAxisOrder,   this->yAxisOrder,   this->zAxisOrder,
+                                                        this->xGridIndices, this->yGridIndices, this->zGridIndices,
+                                                        title, mode );
     
-    //================================================ Write out the data
-    ProSHADE_internal_io::writeMapData                ( mapFile, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    //================================================ Copy internal map to grid
+    proshade_unsign arrPos                            = 0;
+    for ( proshade_unsign uIt = 0; uIt < this->xDimIndices; uIt++ )
+    {
+        for ( proshade_unsign vIt = 0; vIt < this->yDimIndices; vIt++ )
+        {
+            for ( proshade_unsign wIt = 0; wIt < this->zDimIndices; wIt++ )
+            {
+                arrPos                                = wIt + this->zDimIndices * ( vIt + this->yDimIndices * uIt );
+                map.grid.set_value                    ( uIt, vIt, wIt, static_cast<float> ( this->internalMap[arrPos] ) );
+            }
+        }
+    }
     
-    //================================================ Close the file
-    CMap_io::ccp4_cmap_close                          ( mapFile );
+    //================================================ Update the statistics in the header
+    map.update_ccp4_header                            ( mode, true );
+    
+    //================================================ Write out the map
+    map.write_ccp4_map                                ( fName );
     
     //================================================ Done
     return ;
