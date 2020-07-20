@@ -119,55 +119,8 @@ add_custom_target (
    DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
 )
 
-### MMDB2
-add_custom_command (
-   OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildMMDB2
-   COMMAND ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --disable-Werror --enable-silent-rules --enable-shared --disable-static > ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
-   COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
-   COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
-   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildMMDB2
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/mmdb2
-)
-
-add_custom_target (
-   mmdb2_lib
-   DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildMMDB2
-)
-
-### CCP4LIB
-if     ( ${GFORTRAN_VERSION} GREATER 9 )
-	add_custom_command (
-  	 OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
-  	 DEPENDS mmdb2_lib
- 	 COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' FCFLAGS='-fallow-argument-mismatch' FFLAGS='-fallow-argument-mismatch' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-  	 COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-  	 COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-  	 COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
-  	 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
-	)
-else   ( ${GFORTRAN_VERSION} GREATER 9 )
-    if    ( ${GFORTRAN_VERSION} LESS 10 )
-    		add_custom_command (
-  	 		 OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
-  	 		 DEPENDS mmdb2_lib
- 	 		 COMMAND env LDFLAGS='-L${CMAKE_SOURCE_DIR}/install/lib' CPPFLAGS='-I${CMAKE_SOURCE_DIR}/install/include' ./configure --prefix=${CMAKE_SOURCE_DIR}/install --includedir=${CMAKE_SOURCE_DIR}/install/include --libdir=${CMAKE_SOURCE_DIR}/install/lib --enable-silent-rules --enable-shared --disable-static  > ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-  	 		 COMMAND make >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-  	 		 COMMAND make install >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-  	 		 COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
-  	 		 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4   
-			)
-    endif ( ${GFORTRAN_VERSION} LESS 10 )
-endif  ( ${GFORTRAN_VERSION} GREATER 9 )
-
-add_custom_target (
-   ccp4_lib
-   DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
-)
-
 ### Set paths to installed dependencies
-include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )
-include_directories ( ${CMAKE_SOURCE_DIR}/install/include                                 )
-link_directories    ( ${CMAKE_SOURCE_DIR}/install/lib                                     )            
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )       
 
 ##########################################################################################
 ################################### Add fftw3 dependency
@@ -221,7 +174,6 @@ add_custom_command (
    COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
    COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
-   DEPENDS mmdb2_lib
 )
 
 add_custom_target (
@@ -368,24 +320,6 @@ add_custom_target  ( clear DEPENDS ${CLEAR_VARIABLE}                            
 
 #####################################################################################
 ################################### Remove all files including compiled files and targets
-set                ( DELETEMMDB2_VARIABLE "${CMAKE_SOURCE_DIR}/delmeMMDB2.txt"            )
-add_custom_command ( 
-					 OUTPUT ${DELETEMMDB2_VARIABLE}
-					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
-					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
-					 DEPENDS ${PROJECT_SOURCE_DIR}/CMakeLists.txt
-					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/mmdb2
-				   )
-				   
-set                ( DELETECCP4_VARIABLE "${CMAKE_SOURCE_DIR}/delmeLIBCCP4.txt"           )
-add_custom_command ( 
-					 OUTPUT ${DELETECCP4_VARIABLE}
-					 COMMAND make clean >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-					 COMMAND make uninstall >> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt 2>> ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-					 DEPENDS ${PROJECT_SOURCE_DIR}/CMakeLists.txt
-					 WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/libccp4
-				   )
-				   				   
 set                ( DELETESOFT2_VARIABLE "${CMAKE_SOURCE_DIR}/delmeSOFT2.txt"            )
 add_custom_command ( 
 					 OUTPUT ${DELETESOFT2_VARIABLE}
@@ -431,31 +365,11 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/wrap_soft_fftw_cor2.o
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/wrap_soft_fftw.o
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a
-					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/install.log.txt
-					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/install.err.txt
-					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.log.txt
-					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/install.err.txt
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
-					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildMMDB2
-					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildCCP4LIB
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
-					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/include
-					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/lib
-					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/lib64
-					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/install/share
-					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/Makefile
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/config.h
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/config.log
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/config.status
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/libccp4c.pc
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/libccp4/libccp4f.pc
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/Makefile
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.log
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/config.status
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/mmdb2/mmdb2.pc
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/gemmi
+					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/gemmi
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_distances
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_overlay
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_reboxing
@@ -465,8 +379,6 @@ add_custom_command (
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_reboxing
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_symmetry
                      COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/proshadeBinary
-					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeMMDB2.txt"
-					 DEPENDS "${CMAKE_SOURCE_DIR}/delmeLIBCCP4.txt"
 					 DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
 				     DEPENDS "${CMAKE_SOURCE_DIR}/delmeSOFT2.txt"
   					 COMMENT "Removed all files including the targets."

@@ -12,9 +12,7 @@ add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS}                    
 ### Add and link the dependencies
 add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
-add_dependencies        ( ${PROJECT_NAME} mmdb2_lib                                       )
-add_dependencies        ( ${PROJECT_NAME} ccp4_lib                                        )
-target_link_libraries   ( ${PROJECT_NAME}_LIB ccp4c mmdb2 z )
+target_link_libraries   ( ${PROJECT_NAME}_LIB z )
 target_link_libraries   ( ${PROJECT_NAME}_LIB fftw3                                       )
 target_link_libraries   ( ${PROJECT_NAME}_LIB ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
 target_link_libraries   ( ${PROJECT_NAME}_LIB lapack blas                                 )
@@ -23,7 +21,6 @@ target_link_libraries   ( ${PROJECT_NAME}_LIB lapack blas                       
 ################################### Set RPATH for the installed library
 set_property            (  TARGET ${PROJECT_NAME}_LIB
                            PROPERTY INSTALL_RPATH
-                                 "${CMAKE_SOURCE_DIR}/install"
                                  "${FFTW_LINK}"
                                  "${SOFT_LINK}"
                                  "${LAPACK_LINK}" )

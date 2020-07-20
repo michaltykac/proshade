@@ -2,7 +2,7 @@
     \brief This header file declares all the functions required for low level file format access.
  
     This header file declares the ProSHADE_internal_io namespace, which groups together all the low level functions required for input and output file format detection, reading and writing. Also,
-    most of the interactions with the CMAPLIB CCP4 library are done by these functions as to avoid these being dispersed everywhere.
+    most of the interactions with the Gemmi library are done by these functions as to avoid these being dispersed everywhere.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 

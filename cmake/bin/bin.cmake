@@ -13,7 +13,7 @@ file                    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"	    
 ################################### Link the executable
 add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${SOURCES}                          )
 add_dependencies        ( ${PROJECT_NAME} soft2.0_lib                                     )
-target_link_libraries   ( ${PROJECT_NAME} ccp4c mmdb2 )
+target_link_libraries   ( ${PROJECT_NAME} z                                               )
 target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
 target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a  )
 target_link_libraries   ( ${PROJECT_NAME} lapack blas                                     )

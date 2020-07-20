@@ -27,18 +27,6 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wall"
 
-//==================================================== CMAPLIB
-#ifdef __cplusplus
-extern "C" {
-#endif
-    
-#include <ccp4/cmaplib.h>
-#include <ccp4/ccp4_errno.h>
-    
-#ifdef __cplusplus
-}
-#endif
-
 //==================================================== Gemmi
 #ifndef __PROSHADE_GEMMI_INCLUDE__
     #define __PROSHADE_GEMMI_INCLUDE__
@@ -49,11 +37,6 @@ extern "C" {
     #include <gemmi/sfcalc.hpp>
     #include <gemmi/gz.hpp>
 #endif
-
-//==================================================== Undefine clashing macros from CMapLib
-#undef MAX
-#undef MIN
-#undef ABS
 
 //==================================================== FFTW3
 #ifdef __cplusplus

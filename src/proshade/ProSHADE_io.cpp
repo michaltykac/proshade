@@ -283,7 +283,7 @@ void ProSHADE_internal_io::writeOutMapHeader ( gemmi::Ccp4<float> *map, proshade
 /*! \brief Function determining input data type.
  
  This function determines the type of the input structure. The possible outputs are MAP for MRC map files, PDB for mmCIF or PDB formatted data,
- or UNKNOWN if both cmaplib and gemmi fail to read the file.
+ or UNKNOWN if gemmi fail to read the file as co-ordinates as well as map.
  
  \param[in] fName The file name of the file for which the type should be determined.
  \param[out] X ProSHADE InputType variable with values UNKNOWN, MAP or PDB depending on the type of the input file.

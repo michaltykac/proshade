@@ -144,7 +144,7 @@
  *
  * \subsection otherDependencies Other dependencies
  *
- * ProSHADE also depends on the \e Gemmi, \e libccp4, \e MMDB2 and \e SOFT2.0 libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are
+ * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are
  * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation. Please note that these dependencies do have their own licences (the CCP4 licence, the GPL licence, ...) and therefore
  * this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
  *
@@ -419,7 +419,6 @@
  * C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by defaul in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib
  * library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
  *
- * - \b -I/path/to/proshade/install/include This path is required for the cmaplib dependency header file to be located correctly. It may not needed if cmaplib is installed into system folders, i.e. when ProSHADE was installed with the CMake -DINSTALL_LOCALLY=FALSE option.
  * - \b -I/path/to/proshade/extern/soft-2.0/include This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called fftw_wrapper.h).
  * - \b -L/path/to/proshade/install/lib This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=FALSE option, then this path may already be available to the compiler and it may not be needed.
  * - \b -Wl, \b -rpath, \b /path/to/proshade/install/lib or \b -rpath \b /path/to/proshade/install/lib This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.
