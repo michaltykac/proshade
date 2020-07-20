@@ -43,7 +43,8 @@ int main ( int argc, char **argv )
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
-    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+    settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
@@ -96,11 +97,11 @@ int main ( int argc, char **argv )
     std::cout << "Optimal translation in Angstroms is:    " << translation.at(0) << " ; " << translation.at(1) << " ; " << translation.at(2) << std::endl;
     
     //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
-//  Optimal rotation Euler angles are:      5.45274 ; 0.767339 ; 3.89995
-//  Optimal rotation matrix is       :      -0.86017 ; -0.0781674 ; 0.503982
-//                                   :      -0.202026 ; -0.855125 ; -0.477438
-//                                   :      0.468288 ; -0.512495 ; 0.719761
-//  Optimal translation in Angstroms is:    8 ; 6 ; -6
+//  Optimal rotation Euler angles are:      5.43251 ; 0.769003 ; 3.92701
+//  Optimal rotation matrix is       :      -0.866653 ; -0.0843547 ; 0.491728
+//                                   :      -0.196441 ; -0.848292 ; -0.491743
+//                                   :      0.45861 ; -0.522767 ; 0.718604
+//  Optimal translation in Angstroms is:    8 ; 8 ; -6
     
     //================================================ DONE
     return EXIT_SUCCESS;

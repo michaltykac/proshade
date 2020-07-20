@@ -24,31 +24,26 @@
 
 /*! \brief Function determining if the input data type is PDB.
  
- This function checks if the input file is a PDB file and can be read by the MMDB library.
+ This function checks if the input file is a PDB file and can be read by the gemmi library.
  
  \param[in] fName The file name of the file for which the type should be determined.
- \param[out] X Bool value true if the file is a PDB file readable by MMDB and false otherwise.
+ \param[out] X Bool value true if the file is a PDB file readable by gemmi and false otherwise.
  */
 bool ProSHADE_internal_io::isFilePDB ( std::string fName )
 {
-    //================================================ Create MMDBManager object
-    clipper::mmdb::CMMDBManager *mfile                = new clipper::mmdb::CMMDBManager ( );
-    
-    //================================================ Try reading the file
-    if ( mfile->ReadCoorFile ( fName.c_str() ) )
+    //================================================ Try reading the file using Gemmi
+    try
     {
-        //============================================ The file is not PDB
-        delete mfile;
+        gemmi::Structure structure                    = gemmi::read_structure ( gemmi::MaybeGzipped ( fName ) );
+    }
+    catch ( std::runtime_error& e )
+    {
+        //============================================ Read failed. Done
         return                                        ( false );
     }
-    else
-    {
-        //============================================ The file is PDB
-        delete mfile;
-        return                                        ( true );
-    }
     
-    //================================================ Done
+    //================================================ Read successfull. Done
+    return                                            ( true );
     
 }
 
@@ -61,538 +56,224 @@ bool ProSHADE_internal_io::isFilePDB ( std::string fName )
  */
 bool ProSHADE_internal_io::isFileMAP ( std::string fName )
 {
-    //================================================ Create CCP4MAPfile object
-    CMap_io::CMMFile *mapFile                         = NULL;
-    
-    //================================================ Read in the file, if possible
-    CCP4::ccp4_liberr_verbosity                       ( 0 );
-    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , O_RDONLY ) );
-    
-    //================================================ Catch for fail
-    if ( mapFile == NULL )
+    gemmi::Ccp4<float> map;
+    try
     {
-        //============================================ The file is not MAP format
-        CMap_io::ccp4_cmap_close                      ( mapFile );
-        
-        //============================================ Done testing
+        map.read_ccp4                                 ( gemmi::MaybeGzipped (fName.c_str() ) );
+    }
+    catch ( std::runtime_error& e )
+    {
+        //============================================ Failed to read the map
         return                                        ( false );
     }
-    //================================================ The file is MAP format
-    CMap_io::ccp4_cmap_close                          ( mapFile );
-    return                                            ( true );
-    
+
     //================================================ Done
+    return                                            ( true );
     
 }
 
-/*! \brief Function or reading the map cell from the header.
+/*! \brief This function parses the CCP4 MAP file header as read in by gemmi.
  
- This function takes an open map file and reads the cell information, saving the read values to the supp;ied
- variables.
+ This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
+ information from the header and saving it to the supplied variables.
  
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to read from.
+ \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
+ \param[in] xDimInds Address to a variable to save the x-axis size in indices.
+ \param[in] yDimInds Address to a variable to save the y-axis size in indices.
+ \param[in] zDimInds Address to a variable to save the z-axis size in indices.
  \param[in] xDim Address to a variable to save the x dimension size in angstroms.
  \param[in] yDim Address to a variable to save the y dimension size in angstroms.
  \param[in] zDim Address to a variable to save the z dimension size in angstroms.
  \param[in] aAng Address to a variable to save the a angle in degrees.
  \param[in] bAng Address to a variable to save the b angle in degrees.
  \param[in] cAng Address to a variable to save the c angle in degrees.
+ \param[in] xFrom Address to a variable to save the starting index along the x-axis.
+ \param[in] yFrom Address to a variable to save the starting index along the y-axis.
+ \param[in] zFrom Address to a variable to save the starting index along the z-axis.
+ \param[in] xAxOrigin Address to a variable to save the map origin positon along the x-axis.
+ \param[in] yAxOrigin Address to a variable to save the map origin positon along the y-axis.
+ \param[in] zAxOrigin Address to a variable to save the map origin positon along the z-axis.
+ \param[in] xAxOrder Address to a variable to save the order of x axis.
+ \param[in] yAxOrder Address to a variable to save the order of y axis.
+ \param[in] zAxOrder Address to a variable to save the order of z axis.
+ \param[in] xGridInds Address to a variable to save the grid indices count along the x-axis.
+ \param[in] yGridInds Address to a variable to save the grid indices count along the y-axis.
+ \param[in] zGridInds Address to a variable to save the grid indices count along the z-axis.
  */
-void ProSHADE_internal_io::readInMapCell ( CMap_io::CMMFile* mapFile, proshade_single* xDim, proshade_single* yDim, proshade_single* zDim, proshade_single* aAng, proshade_single* bAng, proshade_single* cAng )
+void ProSHADE_internal_io::readInMapHeader ( gemmi::Ccp4<float> *map, proshade_unsign *xDimInds, proshade_unsign *yDimInds, proshade_unsign *zDimInds, proshade_single *xDim, proshade_single *yDim, proshade_single *zDim, proshade_single *aAng, proshade_single *bAng, proshade_single *cAng, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom, proshade_signed *xAxOrigin, proshade_signed *yAxOrigin, proshade_signed *zAxOrigin, proshade_unsign *xAxOrder, proshade_unsign *yAxOrder, proshade_unsign *zAxOrder, proshade_unsign *xGridInds, proshade_unsign *yGridInds, proshade_unsign *zGridInds )
 {
-    //================================================ Initialise variables
-    float *cell                                       = NULL;
-    
-    //================================================ Allocate memory
-    cell                                              = (float*) malloc ( 6 * sizeof ( float ) );
-    
-    //================================================ Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation     ( cell, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Read the data
-    CMap_io::ccp4_cmap_get_cell                       ( mapFile, cell );
-    
-    //================================================ Save the data
-   *xDim                                              = static_cast<proshade_single> ( cell[0] );
-   *yDim                                              = static_cast<proshade_single> ( cell[1] );
-   *zDim                                              = static_cast<proshade_single> ( cell[2] );
-   *aAng                                              = static_cast<proshade_single> ( cell[3] );
-   *bAng                                              = static_cast<proshade_single> ( cell[4] );
-   *cAng                                              = static_cast<proshade_single> ( cell[5] );
-    
-    //================================================ Check for perpendicular axes - only P1 is supported for now.
-    if ( ( *aAng != 90.0 ) || ( *bAng != 90.0 ) || ( *cAng != 90.0 ) )
-    {
-        throw ProSHADE_exception ( "The map axes are not perpendicular. Only P1 cells are\n                    : supported for now.", "EM00046", __FILE__, __LINE__, __func__, "ProSHADE currently only supports map cells with\n                    : perpendicular (90 degrees angled) axes. Your map seems to\n                    : have differently angled axes and so cannot be processed by\n                    : this ProSHADE version. This feature is coming in future\n                    : update!" );
-    }
-    
-    //================================================ Release memory
-    free                                              ( cell );
+    //================================================ Read in the map file header
+   *xDimInds                                          = static_cast<proshade_unsign> ( map->header_i32   ( 1  ) );
+   *yDimInds                                          = static_cast<proshade_unsign> ( map->header_i32   ( 2  ) );
+   *zDimInds                                          = static_cast<proshade_unsign> ( map->header_i32   ( 3  ) );
+   
+   *xDim                                              = static_cast<proshade_single> ( map->header_float ( 11 ) );
+   *yDim                                              = static_cast<proshade_single> ( map->header_float ( 12 ) );
+   *zDim                                              = static_cast<proshade_single> ( map->header_float ( 13 ) );
+   
+   *aAng                                              = static_cast<proshade_single> ( map->header_float ( 14 ) );
+   *bAng                                              = static_cast<proshade_single> ( map->header_float ( 15 ) );
+   *cAng                                              = static_cast<proshade_single> ( map->header_float ( 16 ) );
+   
+   *xAxOrigin                                         = static_cast<proshade_signed> ( map->header_i32   ( 50 ) ) + (*xFrom);
+   *yAxOrigin                                         = static_cast<proshade_signed> ( map->header_i32   ( 51 ) ) + (*yFrom);
+   *zAxOrigin                                         = static_cast<proshade_signed> ( map->header_i32   ( 52 ) ) + (*zFrom);
+   
+   *xAxOrder                                          = static_cast<proshade_unsign> ( map->header_i32   ( 17 ) );
+   *yAxOrder                                          = static_cast<proshade_unsign> ( map->header_i32   ( 18 ) );
+   *zAxOrder                                          = static_cast<proshade_unsign> ( map->header_i32   ( 19 ) );
+   
+   *xGridInds                                         = static_cast<proshade_unsign> ( *xDimInds );
+   *yGridInds                                         = static_cast<proshade_unsign> ( *yDimInds );
+   *zGridInds                                         = static_cast<proshade_unsign> ( *zDimInds );
     
     //================================================ Done
     return ;
     
 }
 
-/*! \brief Function or reading the map dimensions from the header.
+/*! \brief This function parses the CCP4 MAP file header as read in by gemmi from values.
  
- This function takes an open map file and reads the cell dimensions information, saving the read values to the supp;ied
- variables.
+ This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
+ information about the axes starting points.
  
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to read from.
- \param[in] xDim Address to a variable to save the x dimension size in indices.
- \param[in] yDim Address to a variable to save the y dimension size in indices.
- \param[in] zDim Address to a variable to save the z dimension size in indices.
+ \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
+ \param[in] xFrom Address to a variable to save the starting index along the x-axis.
+ \param[in] yFrom Address to a variable to save the starting index along the y-axis.
+ \param[in] zFrom Address to a variable to save the starting index along the z-axis.
  */
-void ProSHADE_internal_io::readInMapDim ( CMap_io::CMMFile* mapFile, proshade_unsign* xDim, proshade_unsign* yDim, proshade_unsign* zDim )
+void ProSHADE_internal_io::readInMapHeaderFroms ( gemmi::Ccp4<float> *map, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom )
 {
-    //================================================ Initialise variables
-    int *dim                                          = NULL;
-    
-    //================================================ Allocate memory
-    dim                                               = (int*) malloc (3 * sizeof ( int ) );
-    
-    //================================================ Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation     ( dim, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Read the data
-    CMap_io::ccp4_cmap_get_dim                        ( mapFile, dim );
-    
-    //================================================ Save the data
-   *xDim                                              = static_cast<proshade_signed> ( dim[0] );
-   *yDim                                              = static_cast<proshade_signed> ( dim[1] );
-   *zDim                                              = static_cast<proshade_signed> ( dim[2] );
-    
-    //================================================ Release memory
-    free                                              ( dim );
+    //================================================ Read in the map file header froms
+   *xFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 5  ) );
+   *yFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 6  ) );
+   *zFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 7  ) );
     
     //================================================ Done
     return ;
     
 }
 
-/*! \brief Function or reading the map grid from the header.
+/*! \brief This function converts the gemmi Ccp4 object data to ProSHADE internal map representation.
  
- This function takes an open map file and reads the cell grid information, saving the read values to the supp;ied
- variables.
+ This function firstly allocates the required memory for the ProSHADE internal map representation variable according to the grid size. Then, it iterates over the axes in such a way, so that the resulting ProSHADE
+ variable would have XYZ axis order independently on the axis order of the Ccp4 gemmi object. This should not be necessary as the gemmi setup function should have been called by now, but one never knows.
  
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to read from.
- \param[in] xGrid Address to a variable to save the x dimension size in angstroms (as far as I believe).
- \param[in] yGrid Address to a variable to save the y dimension size in angstroms (as far as I believe).
- \param[in] zGrid Address to a variable to save the z dimension size in angstroms (as far as I believe).
- */
-void ProSHADE_internal_io::readInMapGrid ( CMap_io::CMMFile* mapFile, proshade_unsign* xGrid, proshade_unsign* yGrid, proshade_unsign* zGrid )
-{
-    //================================================ Initialise variables
-    int *grid                                         = NULL;
-    
-    //================================================ Allocate memory
-    grid                                              = (int*) malloc (3 * sizeof ( int ) );
-    
-    //================================================ Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation     ( grid, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Read the data
-    CMap_io::ccp4_cmap_get_grid                       ( mapFile, grid );
-    
-    //================================================ Save the data
-   *xGrid                                             = static_cast<proshade_signed> ( grid[0] );
-   *yGrid                                             = static_cast<proshade_signed> ( grid[1] );
-   *zGrid                                             = static_cast<proshade_signed> ( grid[2] );
-    
-    //================================================ Release memory
-    free                                              ( grid );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function or reading the map dimension order from the header.
- 
- This function takes an open map file and reads the order of axes, saving the read values to the supp;ied
- variables.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to read from.
- \param[in] xAxisOrder Address to a variable to save the x axis order.
- \param[in] yAxisOrder Address to a variable to save the y axis order.
- \param[in] zAxisOrder Address to a variable to save the z axis order.
- */
-void ProSHADE_internal_io::readInMapOrder ( CMap_io::CMMFile* mapFile, proshade_unsign* xAxisOrder, proshade_unsign* yAxisOrder, proshade_unsign* zAxisOrder )
-{
-    //================================================ Initialise variables
-    int *order                                        = NULL;
-    
-    //================================================ Allocate memory
-    order                                             = (int*) malloc (3 * sizeof ( int ) );
-    
-    //================================================ Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation     ( order, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Read the data
-    CMap_io::ccp4_cmap_get_order                      ( mapFile, order );
-    
-    //================================================ Save the data
-   *xAxisOrder                                        = static_cast<proshade_signed> ( order[0] );
-   *yAxisOrder                                        = static_cast<proshade_signed> ( order[1] );
-   *zAxisOrder                                        = static_cast<proshade_signed> ( order[2] );
-    
-    //================================================ Release memory
-    free                                              ( order );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for reading the map origin from the header.
- 
- This function takes an open map file and reads the origin of the map, saving the read values to the supp;ied
- variables.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to read from.
- \param[in] xOrigin Address to a variable to save the x axis origin position.
- \param[in] yOrigin Address to a variable to save the y axis origin position.
- \param[in] zOrigin Address to a variable to save the z axis origin position.
- */
-void ProSHADE_internal_io::readInMapOrigin ( CMap_io::CMMFile* mapFile, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
-{
-    //================================================ Initialise variables
-    int *origin                                       = NULL;
-    
-    //================================================ Allocate memory
-    origin                                            = (int*) malloc (3 * sizeof ( int ) );
-    
-    //================================================ Check memory allocation
-    ProSHADE_internal_misc::checkMemoryAllocation     ( origin, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Read the data
-    CMap_io::ccp4_cmap_get_origin                     ( mapFile, origin );
-    
-    //================================================ Save the data
-   *xOrigin                                           = static_cast<proshade_signed> ( origin[0] );
-   *yOrigin                                           = static_cast<proshade_signed> ( origin[1] );
-   *zOrigin                                           = static_cast<proshade_signed> ( origin[2] );
-    
-    //================================================ Release memory
-    free                                              ( origin );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for reading the map data from a file.
- 
- This function takes an open map file and reads the map data into the supplied map pointer.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to read from.
+ \param[in] gemmiMap Pointer to a gemmi Ccp4 object containing the read in MAP file information.
  \param[in] map Pointer reference to a variable to save the map data.
- \param[in] xIndexStart Pointer to the x index start value.
- \param[in] yIndexStart Pointer to the y index start value.
- \param[in] zIndexStart Pointer to the z index start value.
- \param[in] xDimInIndices Pointer to the size of x dimension in indices.
- \param[in] yDimInIndices Pointer to the size of y dimension in indices.
- \param[in] zDimInIndices Pointer to the size of z dimension in indices.
- \param[in] xAxisOrder Pointer to the x axis order.
- \param[in] yAxisOrder Pointer to the y axis order.
- \param[in] zAxisOrder Pointer to the z axis order.
+ \param[in] xDimInds The size of x dimension in indices.
+ \param[in] yDimInds The size of y dimension in indices.
+ \param[in] zDimInds The size of z dimension in indices.
+ \param[in] xAxOrder The order of the x-axis.
+ \param[in] yAxOrder The order of the y-axis.
+ \param[in] zAxOrder The order of the z-axis.
  */
-void ProSHADE_internal_io::readInMapData ( CMap_io::CMMFile* mapFile, proshade_double*& map, proshade_signed xIndexStart, proshade_signed yIndexStart, proshade_signed zIndexStart, proshade_signed xDimInIndices, proshade_signed yDimInIndices, proshade_signed zDimInIndices, proshade_signed xAxisOrder, proshade_signed yAxisOrder, proshade_signed zAxisOrder )
+void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<float> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder )
 {
-    //================================================ Allocate map memory
-    map                                               = new proshade_double [xDimInIndices * yDimInIndices * zDimInIndices];
+    //================================================ Allocate internal variables
+    proshade_unsign *axOrdArr                         = new proshade_unsign[3];
+    proshade_unsign *axDimArr                         = new proshade_unsign[3];
+    proshade_unsign arrPos                            = 0;
     
-    //================================================ Check memory allocation
+    //================================================ Check memory allocation and fill in values
+    ProSHADE_internal_misc::checkMemoryAllocation     ( axOrdArr, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( axDimArr, __FILE__, __LINE__, __func__ );
+    axDimArr[0]                                       = xDimInds;
+    axDimArr[1]                                       = yDimInds;
+    axDimArr[2]                                       = zDimInds;
+    
+    //================================================ Allocate the ProSHADE internal map variable memory
+    map                                               = new proshade_double [xDimInds * yDimInds * zDimInds];
     ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
     
-    //================================================ Check the map mode
-    int mapMode                                       = CMap_io::ccp4_cmap_get_datamode ( mapFile );
-    if ( ( mapMode != 0 ) && ( mapMode != 2 ) )
+    //================================================ Copy read in data to internal map variable
+    for ( axOrdArr[0] = 0; axOrdArr[0] < axDimArr[xAxOrder-1]; axOrdArr[0]++ )
     {
-        throw ProSHADE_exception ( "The map file mode is not supported.", "EM00009", __FILE__, __LINE__, __func__, "ProSHADE currently only supports map modes 0 and 2. The\n                    : supplied map seems to have different map mode and\n                    : therefore cannot be read in." );
-    }
-    
-    //================================================ Read in map data
-    // ... Prepare the variables
-    proshade_signed index;
-    proshade_signed iters[3];
-    proshade_signed maxLim[3];
-    proshade_signed XYZOrder[3];
-    proshade_signed newU, newV, newW;
-    proshade_signed arrPos;
-    proshade_signed maxMapV = 0, maxMapW = 0;
-    proshade_signed order[3]; order[0] = xAxisOrder;    order[1] = yAxisOrder;    order[2] = zAxisOrder;
-    proshade_signed orig[3];  orig[0]  = xIndexStart;   orig[1]  = yIndexStart;   orig[2]  = zIndexStart;
-    proshade_signed dim[3];   dim[0]   = xDimInIndices; dim[1]   = yDimInIndices; dim[2]   = zDimInIndices;
-    
-    // ... Set the dimensions for XYZ indexing
-    if ( order[1] == 1 ) { maxMapV = dim[0] - 1; }
-    if ( order[1] == 2 ) { maxMapV = dim[1] - 1; }
-    if ( order[1] == 3 ) { maxMapV = dim[2] - 1; }
-    
-    if ( order[2] == 1 ) { maxMapW = dim[0] - 1; }
-    if ( order[2] == 2 ) { maxMapW = dim[1] - 1; }
-    if ( order[2] == 3 ) { maxMapW = dim[2] - 1; }
-    
-    // ... Set the XYZ indexing order and indices
-    for ( proshade_signed iter = 0; iter < 3; iter++ )
-    {
-        maxLim[iter]                                  = orig[iter] + dim[iter] - 1;
-        XYZOrder[order[iter]-1]                       = iter;
-    }
-    
-    // ... Solve the dimensions and sizes for reading
-    proshade_signed fastDimSize                       = ( maxLim[0] - orig[0] + 1 );
-    proshade_signed midDimSize                        = ( maxLim[1] - orig[1] + 1 ) * fastDimSize;
-    std::vector < float > section                     ( midDimSize );
-    
-    // ... Read in the map data
-    for ( iters[2] = orig[2]; iters[2] <= maxLim[2]; iters[2]++ )
-    {
-        index                                         = 0;
-        CMap_io::ccp4_cmap_read_section( mapFile, &section[0] );
-        
-        if ( mapMode == 0 )
+        for ( axOrdArr[1] = 0; axOrdArr[1] < axDimArr[yAxOrder-1]; axOrdArr[1]++ )
         {
-            for ( int iter = ( midDimSize - 1 ); iter >= 0; iter-- )
+            for ( axOrdArr[2] = 0; axOrdArr[2] < axDimArr[zAxOrder-1]; axOrdArr[2]++ )
             {
-                section[iter]                         = static_cast < float > ( ( reinterpret_cast<unsigned char*> (&section[0]) )[iter] );
-            }
-        }
-        
-        for ( iters[1] = orig[1]; iters[1] <= maxLim[1]; iters[1]++ )
-        {
-            for ( iters[0] = orig[0]; iters[0] <= maxLim[0]; iters[0]++ )
-            {
-                newU                                  = iters[XYZOrder[0]] - orig[XYZOrder[0]];
-                newV                                  = iters[XYZOrder[1]] - orig[XYZOrder[1]];
-                newW                                  = iters[XYZOrder[2]] - orig[XYZOrder[2]];
-                arrPos                                = newW + ( maxMapW + 1) * ( newV + ( maxMapV + 1) * newU );
-                map[arrPos]                           = static_cast < proshade_double > ( section[ index++ ] );
+                arrPos                                = axOrdArr[2]  + axDimArr[zAxOrder-1] * ( axOrdArr[1]  + axDimArr[yAxOrder-1] * axOrdArr[0] );
+                map[arrPos]                           = gemmiMap->grid.get_value_q( axOrdArr[xAxOrder-1], axOrdArr[yAxOrder-1], axOrdArr[zAxOrder-1] );
             }
         }
     }
     
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for writing out the map cell into the header.
- 
- This function takes all the required information and writes the map header with the cell information.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] xAngs How many angstroms are there along the x dimension.
- \param[in] yAngs How many angstroms are there along the y dimension
- \param[in] zAngs How many angstroms are there along the z dimension.
- \param[in] aAngle The cell a angle in degrees.
- \param[in] bAngle The cell b angle in degrees.
- \param[in] cAngle The cell c angle in degrees.
- */
-void ProSHADE_internal_io::writeMapCell ( CMap_io::CMMFile* mapFile, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single aAngle, proshade_single bAngle, proshade_single cAngle )
-{
-    //================================================ Declare local variables
-    float cell[6];
-
-    //================================================ Initialise writen veriable to correct values
-    cell[0]                                           = static_cast<float> ( xAngs );
-    cell[1]                                           = static_cast<float> ( yAngs );
-    cell[2]                                           = static_cast<float> ( zAngs );
-    cell[3]                                           = static_cast<float> ( aAngle );
-    cell[4]                                           = static_cast<float> ( bAngle );
-    cell[5]                                           = static_cast<float> ( cAngle );
-    
-    //================================================ Write data to header
-    CMap_io::ccp4_cmap_set_cell                       ( mapFile, cell );
+    //================================================ Release internal variables memory
+    delete[] axDimArr;
+    delete[] axOrdArr;
     
     //================================================ Done
     return ;
     
 }
 
-/*! \brief Function for writing out the map grid into the header.
+/*! \brief This function parses the CCP4 MAP file header as read in by gemmi.
  
- This function takes all the required information and writes the map header with the grid information.
+ This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
+ information from the header and saving it to the supplied variables.
  
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] xGrid How many indices are there along the x dimension of the grid.
- \param[in] yGrid How many indices are there along the y dimension of the grid.
- \param[in] zGrid How many indices are there along the z dimension of the grid.
+ \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
+ \param[in] xDimInds Variable holding the x-axis size in indices.
+ \param[in] yDimInds Variable holding the y-axis size in indices.
+ \param[in] zDimInds Variable holding the z-axis size in indices.
+ \param[in] xDim Variable holding the x dimension size in angstroms.
+ \param[in] yDim Variable holding the y dimension size in angstroms.
+ \param[in] zDim Variable holding the z dimension size in angstroms.
+ \param[in] aAng Variable holding the a angle in degrees.
+ \param[in] bAng Variable holding the b angle in degrees.
+ \param[in] cAng Variable holding the c angle in degrees.
+ \param[in] xFrom Variable holding the starting index along the x-axis.
+ \param[in] yFrom Variable holding the starting index along the y-axis.
+ \param[in] zFrom Variable holding the starting index along the z-axis.
+ \param[in] xAxOrigin Variable holding the map origin positon along the x-axis.
+ \param[in] yAxOrigin Variable holding the map origin positon along the y-axis.
+ \param[in] zAxOrigin Variable holding the map origin positon along the z-axis.
+ \param[in] xAxOrder Variable holding the order of x axis.
+ \param[in] yAxOrder Variable holding the order of y axis.
+ \param[in] zAxOrder Variable holding the order of z axis.
+ \param[in] xGridInds Variable holding the grid indices count along the x-axis.
+ \param[in] yGridInds Variable holding the grid indices count along the y-axis.
+ \param[in] zGridInds Variable holding the grid indices count along the z-axis.
+ \param[in] title The title to be written into the MAP file.
+ \param[in] mode The variable type of the data, please leave two (float) unless you require any specific other mode.
  */
-void ProSHADE_internal_io::writeMapGrid ( CMap_io::CMMFile* mapFile, proshade_unsign xGrid, proshade_unsign yGrid, proshade_unsign zGrid )
+void ProSHADE_internal_io::writeOutMapHeader ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim, proshade_single yDim, proshade_single zDim, proshade_single aAng, proshade_single bAng, proshade_single cAng, proshade_signed xFrom, proshade_signed yFrom, proshade_signed zFrom, proshade_signed xAxOrigin, proshade_signed yAxOrigin, proshade_signed zAxOrigin, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder, proshade_unsign xGridInds, proshade_unsign yGridInds, proshade_unsign zGridInds, std::string title, int mode )
 {
-    //================================================ Declare local variables
-    int grid[3];
-    
-    //================================================ Initialise writen veriable to correct values
-    grid[0]                                           = static_cast<int> ( xGrid );
-    grid[1]                                           = static_cast<int> ( yGrid );
-    grid[2]                                           = static_cast<int> ( zGrid );
-    
-    //================================================ Write data to header
-    CMap_io::ccp4_cmap_set_grid                       ( mapFile, grid );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for writing out the map axis order into the header.
- 
- This function takes all the required information and writes the map header with the axis order information.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] xAxisOrder The order of the x axis.
- \param[in] yAxisOrder The order of the y axis.
- \param[in] zAxisOrder The order of the z axis.
- */
-void ProSHADE_internal_io::writeMapOrder ( CMap_io::CMMFile* mapFile, proshade_unsign xAxisOrder, proshade_unsign yAxisOrder, proshade_unsign zAxisOrder )
-{
-    //================================================ Declare local variables
-    int order[3];
-    
-    //================================================ Initialise writen veriable to correct values
-    order[0]                                          = static_cast<int> ( xAxisOrder );
-    order[1]                                          = static_cast<int> ( yAxisOrder );
-    order[2]                                          = static_cast<int> ( zAxisOrder );
-    
-    //================================================ Write data to header
-    CMap_io::ccp4_cmap_set_order                      ( mapFile, order );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for writing out the map dimensions into the header.
- 
- This function takes all the required information and writes the map header with the dimension sizes information.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] xDims The number of indiced alon the x axis in the map.
- \param[in] yDims The number of indiced alon the y axis in the map.
- \param[in] zDims The number of indiced alon the z axis in the map.
- */
-void ProSHADE_internal_io::writeMapDims ( CMap_io::CMMFile* mapFile, proshade_unsign xDims, proshade_unsign yDims, proshade_unsign zDims )
-{
-    //================================================ Declare local variables
-    int dims[3];
-    
-    //================================================ Initialise writen veriable to correct values
-    dims[0]                                           = static_cast<int> ( xDims );
-    dims[1]                                           = static_cast<int> ( yDims );
-    dims[2]                                           = static_cast<int> ( zDims );
-    
-    //================================================ Write data to header
-    CMap_io::ccp4_cmap_set_dim                ( mapFile, dims );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for writing out the map origin into the header.
- 
- This function takes all the required information and writes the map header with the origin location information.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] xOrigin The position of the first index along the x axis.
- \param[in] yOrigin The position of the first index along the y axis.
- \param[in] zOrigin The position of the first index along the z axis.
- */
-void ProSHADE_internal_io::writeMapOrigin ( CMap_io::CMMFile* mapFile, proshade_unsign xOrigin, proshade_unsign yOrigin, proshade_unsign zOrigin )
-{
-    //================================================ Declare local variables
-    int orig[3];
-    
-    //================================================ Initialise writen veriable to correct values
-    orig[0]                                           = static_cast<int> ( xOrigin );
-    orig[1]                                           = static_cast<int> ( yOrigin );
-    orig[2]                                           = static_cast<int> ( zOrigin );
-    
-    //================================================ Write data to header
-    CMap_io::ccp4_cmap_set_origin                     ( mapFile, orig );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for writing out the spacegroup, map mode and title into the header.
- 
- This function takes all the required information and writes the map header with the spacegroup, map mode and title information.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] title String which should become the title of the saved map.
- \param[in] mode The map mode to be used. Defaul value is 2.
- \param[in] spaceGroup The spacegroup value to be saved. If this value is not 1, I have no clue what will happen and whether all will fail. Just do not change it.
- */
-void ProSHADE_internal_io::writeMapTitleEtc ( CMap_io::CMMFile* mapFile, std::string title, proshade_unsign mode, proshade_unsign spaceGroup )
-{
-    //================================================ Write obvious data to header
-    CMap_io::ccp4_cmap_set_spacegroup                 ( mapFile, static_cast<int> ( spaceGroup ) );
-    CMap_io::ccp4_cmap_set_datamode                   ( mapFile, static_cast<int> ( mode ) );
-    
-    //================================================ Deal with the title
-    if ( title == "" )
-    {
-        const char* titl                              = "ProSHADE genrated map                                                           ";
-        CMap_io::ccp4_cmap_set_title                  ( mapFile, titl );
-    }
-    else
-    {
-        char buff[80];
-        snprintf                                      ( buff, sizeof ( buff ), "%s", title.c_str() );
-        CMap_io::ccp4_cmap_set_title                  ( mapFile, buff );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Function for writing out the map into the data portion of the output file.
- 
- This function writes the internal map representation into a MRC MAP file.
- 
- \param[in] mapFile Pointer to an open CMap_io::CMMFile object to write to.
- \param[in] map The map to be written into the data portion of the file.
- \param[in] xDim The number of indices along the x dimension.
- \param[in] yDim The number of indices along the y dimension.
- \param[in] zDim The number of indices along the z dimension.
- \param[in] xAxisOrder The order of the x axis.
- \param[in] yAxisOrder The order of the y axis.
- \param[in] zAxisOrder The order of the z axis.
- */
-void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_double* map, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_unsign xAxisOrder, proshade_unsign yAxisOrder, proshade_unsign zAxisOrder )
-{
-    
-    //================================================ Initialise local variables
-    proshade_unsign dims[3];      dims[0]      = xDim;       dims[1]      = yDim;       dims[2]      = zDim;
-    proshade_unsign axisOrder[3]; axisOrder[0] = xAxisOrder; axisOrder[1] = yAxisOrder; axisOrder[2] = zAxisOrder;
-    std::vector<float> section                ( dims[axisOrder[0]-1] * dims[axisOrder[1]-1] );
-    proshade_unsign index;
-    proshade_unsign iters[3];
-    proshade_unsign arrPos;
-    
-    //================================================ Write out the map data
-    for ( iters[2] = 0; iters[2] < dims[axisOrder[2]-1]; iters[2]++ )
-    {
-        index = 0;
-        
-        for ( iters[1] = 0; iters[1] < dims[axisOrder[1]-1]; iters[1]++ )
-        {
-            for ( iters[0] = 0; iters[0] < dims[axisOrder[0]-1]; iters[0]++ )
-            {
-                arrPos                                = iters[2]  + (dims[axisOrder[2]-1]) * ( iters[1]  + (dims[axisOrder[1]-1]) * iters[0] );
-                section[ index++ ]                    = static_cast<float> ( map[arrPos] );
-            }
-        }
-        
-        CMap_io::ccp4_cmap_write_section              ( mapFile, &section[0] );
-    }
+    //================================================ Fill in the map file header
+    map->set_header_i32                               ( 1 , static_cast<int32_t> ( xDimInds ) );       // Number of columns in 3D data array (fast axis)
+    map->set_header_i32                               ( 2 , static_cast<int32_t> ( yDimInds ) );       // Number of columns in 3D data array (medium axis)
+    map->set_header_i32                               ( 3 , static_cast<int32_t> ( zDimInds ) );       // Number of columns in 3D data array (slow axis)
+    map->set_header_i32                               ( 4 , static_cast<int32_t> ( mode ) );           // Map mode
+    map->set_header_i32                               ( 5 , static_cast<int32_t> ( xFrom ) );          // Starting index (fast axis)
+    map->set_header_i32                               ( 6 , static_cast<int32_t> ( yFrom ) );          // Starting index (medium axis)
+    map->set_header_i32                               ( 7 , static_cast<int32_t> ( zFrom ) );          // Starting index (slow axis)
+    map->set_header_i32                               ( 8 , static_cast<int32_t> ( xGridInds ) );      // Grid sampling (fast axis)
+    map->set_header_i32                               ( 9 , static_cast<int32_t> ( yGridInds ) );      // Grid sampling (medium axis)
+    map->set_header_i32                               ( 10, static_cast<int32_t> ( zGridInds ) );      // Grid sampling (slow axis)
+    map->set_header_float                             ( 11, static_cast<float>   ( xDim ) );           // Grid dimension in Angstrom (fast axis)
+    map->set_header_float                             ( 12, static_cast<float>   ( yDim ) );           // Grid dimension in Angstrom (medium axis)
+    map->set_header_float                             ( 13, static_cast<float>   ( zDim ) );           // Grid dimension in Angstrom (slow axis)
+    map->set_header_float                             ( 14, static_cast<float>   ( aAng ) );           // Alpha angle in degrees
+    map->set_header_float                             ( 15, static_cast<float>   ( bAng ) );           // Beta angle in degrees
+    map->set_header_float                             ( 16, static_cast<float>   ( cAng ) );           // Gamma angle in degrees
+    map->set_header_i32                               ( 17, static_cast<int32_t> ( xAxOrder ) );       // MAPC
+    map->set_header_i32                               ( 18, static_cast<int32_t> ( yAxOrder ) );       // MAPR
+    map->set_header_i32                               ( 19, static_cast<int32_t> ( zAxOrder ) );       // MAPS
+    if ( map->grid.spacegroup ) { map->set_header_i32 ( 23, static_cast<int32_t> ( map->grid.spacegroup->ccp4 ) ); } // Space group
+    else                        { map->set_header_i32 ( 23, static_cast<int32_t> ( 1 ) ); }
+    map->set_header_i32                               ( 24, static_cast<int32_t> ( map->grid.spacegroup->operations().order() * 80 ) ); // NSYMBT - size of extended header (which follows main header) in bytes
+    map->set_header_str                               ( 27, "CCP4" );                                  // Code for the type of extended header
+    map->set_header_i32                               ( 28, static_cast<int32_t> ( 20140 ) );          // Version
+    map->set_header_i32                               ( 50, static_cast<int32_t> ( xAxOrigin ) );      // Origin of the map (fast axis)
+    map->set_header_i32                               ( 51, static_cast<int32_t> ( yAxOrigin ) );      // Origin of the map (medium axis)
+    map->set_header_i32                               ( 52, static_cast<int32_t> ( zAxOrigin ) );      // Origin of the map (slow axis)
+    map->set_header_str                               ( 53, "MAP" );                                   // File format
+    if ( gemmi::is_little_endian() ) { map->set_header_i32 ( 54, static_cast<int32_t> ( 0x00004144 ) ); }       // Machine stamp encoding byte ordering of data
+    else                             { map->set_header_i32 ( 54, static_cast<int32_t> ( 0x11110000 ) ); }
+    map->set_header_i32                               ( 56, static_cast<int32_t> ( 1 ) );                       // Number of labels used
+    std::memset                                       ( reinterpret_cast<void*> ( &(map->ccp4_header.at( 56 )) ), ' ', 800 + map->grid.spacegroup->operations().order() * 80); // 56 is used because the vector is indexed from 0
+    map->set_header_str                               ( 57, title );                                            // Title
     
     //================================================ Done
     return ;
@@ -602,7 +283,7 @@ void ProSHADE_internal_io::writeMapData ( CMap_io::CMMFile* mapFile, proshade_do
 /*! \brief Function determining input data type.
  
  This function determines the type of the input structure. The possible outputs are MAP for MRC map files, PDB for mmCIF or PDB formatted data,
- or UNKNOWN if both cmaplib and mmdb fail to read the file.
+ or UNKNOWN if gemmi fail to read the file as co-ordinates as well as map.
  
  \param[in] fName The file name of the file for which the type should be determined.
  \param[out] X ProSHADE InputType variable with values UNKNOWN, MAP or PDB depending on the type of the input file.

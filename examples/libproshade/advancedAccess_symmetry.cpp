@@ -35,13 +35,14 @@ int main ( int argc, char **argv )
     
     //================================================ Further useful settings
     settings->setProgressiveSphereMapping             ( true );                              // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
-    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+    settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
     settings->setAxisComparisonThreshold              ( 0.05 );                              // The dot product difference within which two axes are considered the same.
-    settings->setRequestedSymmetry                    ( "" );                                // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
-    settings->setRequestedFold                        ( 0 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
+    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
+    settings->setRequestedFold                        ( 6 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     settings->setResolution                           ( 12.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
@@ -107,8 +108,8 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: C-12 with axes:
-//  Symmetry axis number 0: Fold 12 XYZ: -0.0118603 ; 0.00614382 ; 0.999609 Angle (radians): 0.523599 and axis peak: 0.360573
+//  Detected symmetry: C-6 with axes:
+//  Symmetry axis number 0: Fold 6 XYZ: -0.0132743 ; 0.0136886 ; 0.999501 Angle (radians): 1.0472 and axis peak: 0.977501
     
     //================================================ Release the object
     delete simpleSym;
@@ -145,7 +146,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: C-4 as requested. The axes are:
-//  Symmetry axis number 0: Fold 4 XYZ: -0.00094826 ; -0.0011766 ; 0.99985 Angle (radians): 1.5708 and axis peak: 0.940622
+//  Symmetry axis number 0: Fold 4 XYZ: -0.000946299 ; -0.00117491 ; 0.99985 Angle (radians): 1.5708 and axis peak: 0.911635
  
     //================================================ Release the settings and runProshade objects
     delete requestSym;

@@ -45,8 +45,8 @@ int main ( int argc, char **argv )
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
     settings->setAxisComparisonThreshold              ( 0.05 );                              // The dot product difference within which two axes are considered the same.
-    settings->setRequestedSymmetry                    ( "" );                                // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
-    settings->setRequestedFold                        ( 0 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
+    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
+    settings->setRequestedFold                        ( 12 );                                // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     
     //================================================ All other (possibly other tasks related) settings
     settings->setMaskBlurFactor                       ( 350.0 );                             // If masking, what blur factor should be used? 350 seems to work for most maps.
@@ -63,7 +63,8 @@ int main ( int argc, char **argv )
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setEnLevShellWeight                     ( 1.0 );                               // The weighting of shell distances for energy levels descriptor.
-    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+    settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     settings->setPDBBFactor                           ( -1.0 );                              // Should all B-factors in a PDB file changed to this value? If no, set to negative value.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
@@ -92,7 +93,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry C of fold 12. The symmetry axes are:
-//  ... FOLD: 12 | XYZ: -0.0151166 ; 0.0203542 ; 0.999248 | Angle: 0.523599 | Peak: 0.178822
+//  ... FOLD: 12 | XYZ: -0.0116461 ; 0.00435832 ; 0.999546 | Angle: 0.523599 | Peak: 0.962099
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

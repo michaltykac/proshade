@@ -42,7 +42,8 @@ int main ( int argc, char **argv )
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
     settings->setOutputFilename                       ( "reBoxed" );                         // Filename to where re-boxed structure will be written to.
-    settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+    settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     settings->setBoundsSpace                          ( 3.0 );                               // The extra space in Angs to add to the minimal boundaries when re-boxing.
     settings->setBoundsThreshold                      ( 0 );                                 // If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
     settings->setSameBoundaries                       ( false );                             // Make multiple structures have the same boundaries. This is useful for half-maps.

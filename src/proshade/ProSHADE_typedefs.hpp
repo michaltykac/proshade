@@ -24,6 +24,7 @@
 
 //==================================================== Standard library
 #include <iostream>
+#include <fstream>
 #include <ctime>
 #include <cmath>
 #include <numeric>

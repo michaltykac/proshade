@@ -1,7 +1,7 @@
 /*! \file ProSHADE_mapManip.cpp
     \brief This source file contains the functions required for internal map manipulation for various purposes
  
-    The functions in this source file are grouped here as they all change either the internal map or the MMDB2 library objects from which map will be computed. These
+    The functions in this source file are grouped here as they all change either the internal map or the gemmi library objects from which map will be computed. These
     functions include, for example, phase-removal, trilinear interpolation and changing map boundaries functionalities.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
@@ -40,83 +40,74 @@ proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
 /*! \brief Function for finding the PDB file ranges.
  
  This function does a quick read-through the PDB file and reports the x, y and z to and from values. This is used to determine if these
- need to be changed for proper clipper operation.
+ need to be changed for proper theoretical map computation operation.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A gemmi::Structure object read in from the input file.
  \param[in] xFrom Address to a variable to save the x axis minimal atom position.
  \param[in] xTo Address to a variable to save the x axis maximum atom position.
  \param[in] yFrom Address to a variable to save the y axis minimal atom position.
  \param[in] yTo Address to a variable to save the y axis maximum atom position.
  \param[in] zFrom Address to a variable to save the z axis minimal atom position.
  \param[in] zTo Address to a variable to save the z axis maximum atom position.
- \param[in] noAt The number of atoms as determined by the MMDB Crawl.
  */
-void ProSHADE_internal_mapManip::determinePDBRanges ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, int* noAt )
+void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-   *noAt                                              = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
+    //================================================ Initialise structure crawl
     bool firstAtom                                    = true;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+  
+    //================================================ Use the first model, if it exists
+    if ( pdbFile.models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model model                            = pdbFile.models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain chain                        = model.chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue residue                = chain.residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom atom                  = residue.atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
+                    //================================ Find the coordinate ranges
+                    if ( firstAtom )
                     {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Find axis maxs and mins
-                            if ( firstAtom )
-                            {
-                                *xTo                  = static_cast<proshade_single> ( atom[aNo]->x );
-                                *xFrom                = static_cast<proshade_single> ( atom[aNo]->x );
-                                *yTo                  = static_cast<proshade_single> ( atom[aNo]->y );
-                                *yFrom                = static_cast<proshade_single> ( atom[aNo]->y );
-                                *zTo                  = static_cast<proshade_single> ( atom[aNo]->z );
-                                *zFrom                = static_cast<proshade_single> ( atom[aNo]->z );
-                                       
-                                firstAtom             = false;
-                                       
-                                *noAt                += 1;
-                            }
-                            else
-                            {
-                                if ( static_cast<proshade_single> ( atom[aNo]->x ) > *xTo   ) { *xTo   = static_cast<proshade_single> ( atom[aNo]->x ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->x ) < *xFrom ) { *xFrom = static_cast<proshade_single> ( atom[aNo]->x ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->y ) > *yTo   ) { *yTo   = static_cast<proshade_single> ( atom[aNo]->y ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->y ) < *yFrom ) { *yFrom = static_cast<proshade_single> ( atom[aNo]->y ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->z ) > *zTo   ) { *zTo   = static_cast<proshade_single> ( atom[aNo]->z ); }
-                                if ( static_cast<proshade_single> ( atom[aNo]->z ) < *zFrom ) { *zFrom = static_cast<proshade_single> ( atom[aNo]->z ); }
-                                
-                                *noAt                += 1;
-                            }
-                        }
+                        *xTo                          = static_cast<proshade_single> ( atom.pos.x );
+                        *xFrom                        = static_cast<proshade_single> ( atom.pos.x );
+                        *yTo                          = static_cast<proshade_single> ( atom.pos.y );
+                        *yFrom                        = static_cast<proshade_single> ( atom.pos.y );
+                        *zTo                          = static_cast<proshade_single> ( atom.pos.z );
+                        *zFrom                        = static_cast<proshade_single> ( atom.pos.z );
+                        firstAtom                     = false;
+                    }
+                    else
+                    {
+                        if ( static_cast<proshade_single> ( atom.pos.x ) > *xTo   ) { *xTo   = static_cast<proshade_single> ( atom.pos.x ); }
+                        if ( static_cast<proshade_single> ( atom.pos.x ) < *xFrom ) { *xFrom = static_cast<proshade_single> ( atom.pos.x ); }
+                        if ( static_cast<proshade_single> ( atom.pos.y ) > *yTo   ) { *yTo   = static_cast<proshade_single> ( atom.pos.y ); }
+                        if ( static_cast<proshade_single> ( atom.pos.y ) < *yFrom ) { *yFrom = static_cast<proshade_single> ( atom.pos.y ); }
+                        if ( static_cast<proshade_single> ( atom.pos.z ) > *zTo   ) { *zTo   = static_cast<proshade_single> ( atom.pos.z ); }
+                        if ( static_cast<proshade_single> ( atom.pos.z ) < *zFrom ) { *zFrom = static_cast<proshade_single> ( atom.pos.z ); }
                     }
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile.name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
@@ -124,65 +115,64 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( clipper::mmdb::CMMDBManage
     
 }
 
-/*! \brief This function finds the Centre of Mass for the PDB file.
+/*! \brief This function finds the Centre of Mass for the co-ordinate file.
 
-This function takes the MMDB Manager object open on a PDB file and procceds to compute the Centre of Mass of this object.
+This function takes the gemmi::Structure object read from a co-odinate file and procceds to compute the Centre of Mass of this object.
 
-\param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+\param[in] pdbFile A gemmi::Structure object read in from input file.
 \param[in] xCom A pointer to proshade_double variable where the PDB file COM along the X-axis will be saved.
 \param[in] yCom A pointer to proshade_double variable where the PDB file COM along the Y-axis will be saved.
 \param[in] zCom A pointer to proshade_double variable where the PDB file COM along the Z-axis will be saved.
 */
-void ProSHADE_internal_mapManip::findPDBCOMValues ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom )
+void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
+    //================================================ Initialise structure crawl
     proshade_double totAtoms                          = 0.0;
    *xCom                                              = 0.0;
    *yCom                                              = 0.0;
    *zCom                                              = 0.0;
     
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile.models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model model                            = pdbFile.models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain chain                        = model.chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue residue                = chain.residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom atom                  = residue.atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Translate the atom position
-                           *xCom                     += atom[aNo]->x;
-                           *yCom                     += atom[aNo]->y;
-                           *zCom                     += atom[aNo]->z;
-                            totAtoms                 += 1;
-                        }
-                    }
+                    //================================ Save the COM sums
+                   *xCom                             += atom.pos.x;
+                   *yCom                             += atom.pos.y;
+                   *zCom                             += atom.pos.z;
+                    totAtoms                         += 1.0;
                 }
             }
         }
     }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile.name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
+    }
     
+    //================================================ Normalise sums to COM
    *xCom                                             /= totAtoms;
    *yCom                                             /= totAtoms;
    *zCom                                             /= totAtoms;
@@ -194,15 +184,15 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( clipper::mmdb::CMMDBManager*
 
 /*! \brief Function for rotating the PDB file co-ordinates by Euler angles.
  
- This function takes the three Euler angles and a pointer to an open MMDB2 manager and it then proceeds to compute the rotation matrix from the Euler angles. This matrix is then applied to
- the co-ordinates in the MMDB2 manager in a way so that the rotation is done over the centre of the co-ordinates, but the co-ordinate positions stay unchanged.
+ This function takes the three Euler angles and a pointer to a gemmi::Structure and it then proceeds to compute the rotation matrix from the Euler angles. This matrix is then applied to
+ the co-ordinates in the gemmi::Structure in a way so that the rotation is done over the centre of the co-ordinates, but the co-ordinate positions stay unchanged.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile Pointer to a gemmi::Structure object which will have its co-ordinates rotated.
  \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated.
  \param[in] euB The Euler angle beta by which the co-ordinates should be rotated.
  \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated.
  */
-void ProSHADE_internal_mapManip::rotatePDBCoordinates ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
+void ProSHADE_internal_mapManip::rotatePDBCoordinates ( gemmi::Structure *pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
 proshade_double yCom, proshade_double zCom )
 {
     //================================================ Convert Euler angles to rotation matrix
@@ -210,60 +200,56 @@ proshade_double yCom, proshade_double zCom )
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
     
-    //================================================ Determine PDB ranges
+    //================================================ Initialise internal variables
     proshade_single xTmp, yTmp, zTmp;
     
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model *model                           = &pdbFile->models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain *chain                       = &model->chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Move to mid-point
-                            xTmp                      = atom[aNo]->x - xCom;
-                            yTmp                      = atom[aNo]->y - yCom;
-                            zTmp                      = atom[aNo]->z - zCom;
-                            
-                            //======================== Rotate the atom position
-                            atom[aNo]->x              = ( xTmp * rotMat[0] ) + ( yTmp * rotMat[1] ) + ( zTmp * rotMat[2] );
-                            atom[aNo]->y              = ( xTmp * rotMat[3] ) + ( yTmp * rotMat[4] ) + ( zTmp * rotMat[5] );
-                            atom[aNo]->z              = ( xTmp * rotMat[6] ) + ( yTmp * rotMat[7] ) + ( zTmp * rotMat[8] );
-                            
-                            //======================== Move back
-                            atom[aNo]->x              = atom[aNo]->x + xCom;
-                            atom[aNo]->y              = atom[aNo]->y + yCom;
-                            atom[aNo]->z              = atom[aNo]->z + zCom;
-                        }
-                    }
+                    //================================ Move to mid-point
+                    xTmp                              = atom->pos.x - xCom;
+                    yTmp                              = atom->pos.y - yCom;
+                    zTmp                              = atom->pos.z - zCom;
+                    
+                    //================================ Rotate the atom position
+                    atom->pos.x                       = ( xTmp * rotMat[0] ) + ( yTmp * rotMat[1] ) + ( zTmp * rotMat[2] );
+                    atom->pos.y                       = ( xTmp * rotMat[3] ) + ( yTmp * rotMat[4] ) + ( zTmp * rotMat[5] );
+                    atom->pos.z                       = ( xTmp * rotMat[6] ) + ( yTmp * rotMat[7] ) + ( zTmp * rotMat[8] );
+                    
+                    //================================ Move back
+                    atom->pos.x                       = atom->pos.x + xCom;
+                    atom->pos.y                       = atom->pos.y + yCom;
+                    atom->pos.z                       = atom->pos.z + zCom;
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Release memory
@@ -274,58 +260,54 @@ proshade_double yCom, proshade_double zCom )
     
 }
 
-/*! \brief Function for translating the PDB file co-ordinates by Euler angles..
+/*! \brief Function for translating the PDB file co-ordinates by given distances in Angstroms.
  
- ...
+ This function simply iterates through the given structure object and adds the required shift to all atoms in the first model along the three axes.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile Pointer to a gemmi::Structure object whose co-ordinates are to be translated.
  \param[in] transX The
  \param[in] transY The
  \param[in] transZ The
  */
-void ProSHADE_internal_mapManip::translatePDBCoordinates ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ )
+void ProSHADE_internal_mapManip::translatePDBCoordinates ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model *model                           = &pdbFile->models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain *chain                       = &model->chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Translate the atom position
-                            atom[aNo]->x             += transX;
-                            atom[aNo]->y             += transY;
-                            atom[aNo]->z             += transZ;
-                        }
-                    }
+                    //================================ Translate
+                    atom->pos.x                      += transX;
+                    atom->pos.y                      += transY;
+                    atom->pos.z                      += transZ;
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
@@ -339,50 +321,46 @@ void ProSHADE_internal_mapManip::translatePDBCoordinates ( clipper::mmdb::CMMDBM
  important for PDB files which have all atoms with B-factor value 0, as these then produce bad maps, which fail further processing
  by ProSHADE.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A pointer to gemmi::Structure object read in from the input file.
  \param[in] newBFactorValue The value with which all atom B-factor values should be replaced.
  */
-void ProSHADE_internal_mapManip::changePDBBFactors ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double newBFactorValue )
+void ProSHADE_internal_mapManip::changePDBBFactors ( gemmi::Structure *pdbFile, proshade_double newBFactorValue )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model *model                           = &pdbFile->models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain *chain                       = &model->chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Change the value
-                            atom[aNo]->tempFactor     = newBFactorValue;
-                        }
-                    }
+                    //================================ Change the B-factors
+                    atom->b_iso                       = newBFactorValue;
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
@@ -390,131 +368,143 @@ void ProSHADE_internal_mapManip::changePDBBFactors ( clipper::mmdb::CMMDBManager
     
 }
 
-/*! \brief Function for moving PDB atoms to better suit clipper map computation.
+/*! \brief Function for moving co-ordinate atoms to better suit theoretical map computation.
  
- This function translates all atoms by a given x, y and z distances. This is required as clipper can only output map cells starting from
- 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect is
+ This function translates all atoms by a given x, y and z distances. This is required as theoretical map computation can only output map cells starting from
+ 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect should be
  reversed later.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A pointer to the gemmi::Structure object as read in from the input file.
  \param[in] xMov How many angstroms should the atoms be moved along the x axis.
  \param[in] yMov How many angstroms should the atoms be moved along the y axis.
  \param[in] zMov How many angstroms should the atoms be moved along the z axis.
  */
-void ProSHADE_internal_mapManip::movePDBForClipper ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov )
+void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov )
 {
-    //================================================ Initialise MMDB crawl
-    int noChains                                      = 0;
-    int noResidues                                    = 0;
-    int noAtoms                                       = 0;
-    
-    clipper::mmdb::PPCChain chain;
-    clipper::mmdb::PPCResidue residue;
-    clipper::mmdb::PPCAtom atom;
-    
-    //================================================ Get all chains
-    pdbFile->GetChainTable                            ( 1, chain, noChains );
-    for ( int nCh = 0; nCh < noChains; nCh++ )
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
     {
-        if ( chain[nCh] )
+        //============================================ Get the model
+        gemmi::Model *model                           = &pdbFile->models.at(0);
+        
+        //============================================ For each chain
+        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
         {
-            //======================================== Get all residues
-            chain[nCh]->GetResidueTable               ( residue, noResidues );
+            //======================================== Get chain
+            gemmi::Chain *chain                       = &model->chains.at(mIt);
             
-            for ( int nRes = 0; nRes < noResidues; nRes++ )
+            //======================================== For each residue
+            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
             {
-                if ( residue[nRes] )
+                //==================================== Get residue
+                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                
+                //==================================== For each atom
+                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
                 {
-                    //================================ Get all atoms
-                    residue[nRes]->GetAtomTable       ( atom, noAtoms );
+                    //================================ Get atom
+                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
                     
-                    for ( int aNo = 0; aNo < noAtoms; aNo++ )
-                    {
-                        if ( atom[aNo] )
-                        {
-                            //======================== Check for termination 'residue'
-                            if ( atom[aNo]->Ter )     { continue; }
-                            
-                            //======================== Change atom positions as required
-                            atom[aNo]->SetCoordinates ( atom[aNo]->x + static_cast<float> ( xMov ),
-                                                        atom[aNo]->y + static_cast<float> ( yMov ),
-                                                        atom[aNo]->z + static_cast<float> ( zMov ),
-                                                        atom[aNo]->occupancy,
-                                                        atom[aNo]->tempFactor );
-                        }
-                    }
+                    //================================ Move the atoms
+                    atom->pos                         = gemmi::Position ( atom->pos.x + xMov, atom->pos.y + yMov, atom->pos.z + zMov );
                 }
             }
         }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
     //================================================ Done
     return ;
 }
 
-/*! \brief Function for moving PDB atoms to better suit clipper map computation.
+/*! \brief This function generates a theoretical map from co-ordinate input files.
  
- This function translates all atoms by a given x, y and z distances. This is required as clipper can only output map cells starting from
- 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect is
- reversed later.
+ This function makes use of the Gemmi internal functionality to firstly create a properly sized cell object, then to check the input co-ordinate file for containing known elements as well as
+ elements for which Gemmi knows the form factors. Then, this function proceeds to compute the F's using Cromer & Libermann method (from Gemmi) to finally compute the theoretical
+ map using these. This map is then copied to the variable supplied in the second argument, presumably the ProSHADE internal map variable.
  
- \param[in] pdbFile Pointer to an open clipper::mmdb::CMMDBManager object to read from.
+ \param[in] pdbFile A gemmi::Structure object read in from the input file.
  \param[in] map Pointer reference to a variable to save the map data.
  \param[in] requestedResolution Map resolution to which the map should be computed.
  \param[in] xCell The size of the map cell to be created.
  \param[in] yCell The size of the map cell to be created.
  \param[in] zCell The size of the map cell to be created.
- \param[in] noAtoms The number of atoms as determined by the MMDB Crawl.
+ \param[in] xTo Pointer to variable where the map size along the x-axis in indices will be saved.
+ \param[in] yTo Pointer to variable where the map size along the y-axis in indices will be saved.
+ \param[in] zTo Pointer to variable where the map size along the z-axis in indices will be saved.
  */
-void ProSHADE_internal_mapManip::generateMapFromPDB ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, int noAtoms, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo )
+void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo )
 {
-    //================================================ Initialise clipper variables
-    clipper::Spacegroup spgr                          ( clipper::Spacegroup::P1 );
-    clipper::Cell cell                                ( clipper::Cell_descr ( static_cast<float> ( xCell ), static_cast<float> ( yCell ), static_cast<float> ( zCell ) ) );
-    clipper::Resolution reso                          = clipper::Resolution ( requestedResolution );
-    const clipper::Grid_sampling grid                 ( spgr, cell, reso );
-    clipper::Xmap<float> *densityMap                  = new clipper::Xmap<float> ( spgr, cell, grid );
-    clipper::mmdb::PPCAtom atom;
+    //================================================ Set cell dimensions from the increased ranges (we need to add some space) and re-calculate cell properties
+    pdbFile.cell.a                                    = xCell;
+    pdbFile.cell.b                                    = yCell;
+    pdbFile.cell.c                                    = zCell;
+    pdbFile.cell.calculate_properties                 ( );
+
+    //================================================ Establish the Structure Factor Calculater object, which will compute the f's required later.
+    gemmi::StructureFactorCalculator < gemmi::IT92 < double > > calc ( pdbFile.cell );
+    std::bitset<(size_t)gemmi::El::END> present_elems = pdbFile.models[0].present_elements ( );
     
-    //================================================ Get Clipper XMap
-    int hndl                                          = pdbFile->NewSelection ( );
-    pdbFile->SelectAtoms                              ( hndl, 0, 0, ::mmdb::SKEY_NEW );
-    pdbFile->GetSelIndex                              ( hndl, atom, noAtoms );
-    clipper::MMDBAtom_list *aList                     = new clipper::MMDBAtom_list ( atom, noAtoms );
-    clipper::EDcalc_aniso<clipper::ftype32> edCalc;
-    edCalc                                            ( *densityMap, *aList );
-    
-    //================================================ Find max U, V and W
-    clipper::Xmap_base::Map_reference_index LastPos   = (*densityMap).first();
-    clipper::Xmap_base::Map_reference_index PrevPos   = (*densityMap).first();
-    for ( LastPos = (*densityMap).first(); !LastPos.last(); LastPos.next() ) { PrevPos = LastPos; }
-    *xTo                                              = PrevPos.coord().u();
-    *yTo                                              = PrevPos.coord().v();
-    *zTo                                              = PrevPos.coord().w();
-    
-    //================================================ Convert clipper Xmap to my map format
-    map                                               = new proshade_double [(*xTo + 1) * (*yTo + 1) * (*zTo + 1)];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
-    
-    proshade_signed arrPos                            = 0;
-    for ( proshade_signed uIt = 0; uIt < (*xTo + 1); uIt++ )
+    //================================================ Sanity checks
+    if ( present_elems[static_cast<int> ( gemmi::El::X )] )
     {
-        for ( proshade_signed vIt = 0; vIt < (*yTo + 1); vIt++ )
+        throw ProSHADE_exception ( "Found unknown element in input file.", "EP00051", __FILE__, __LINE__, __func__, "Gemmi library does not recognise some of the elements in\n                    : the co-ordinate file. Please check the file for not being\n                    : corrupted and containing standard elements." );
+    }
+    
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ )
+    {
+      if ( present_elems[elIt] && !gemmi::IT92<double>::has ( static_cast<gemmi::El> ( elIt ) ) )
+      {
+          std::stringstream hlpSS;
+          hlpSS << "Missing form factor for element " << element_name ( static_cast<gemmi::El> ( elIt ) );
+          throw ProSHADE_exception ( hlpSS.str().c_str(), "EP00052", __FILE__, __LINE__, __func__, "Gemmi library does not have a form factor value for this\n                    : reported element. Please report this to the author." );
+      }
+    }
+    
+    //================================================ Compute the f's
+    double wavelength                                 = 0.1;
+    double energy                                     = gemmi::hc() / wavelength;
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { calc.set_fprime_if_not_set ( static_cast<gemmi::El> ( elIt ), gemmi::cromer_libermann ( elIt, energy, nullptr ) ); } }
+    
+    //================================================ Create the density calculator object and fill it in
+    gemmi::DensityCalculator<gemmi::IT92<double>, float> dencalc;
+    
+    dencalc.d_min                                     = static_cast<double> ( requestedResolution );
+    for ( std::map<gemmi::El, double>::const_iterator mapIt = calc.fprimes().begin(); mapIt != calc.fprimes().end(); mapIt++ ) { dencalc.fprimes[static_cast<int> ( mapIt->first )] = static_cast<float> ( mapIt->second ); }
+    dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
+    
+    //================================================ Compute the theoretical map
+    dencalc.put_model_density_on_grid                 ( pdbFile.models[0] );
+    
+    //================================================ Get the map
+    const gemmi::Grid<float>& grid                    = dencalc.grid;
+    
+    //================================================ Save the map dimensions
+   *xTo                                               = grid.nu;
+   *yTo                                               = grid.nv;
+   *zTo                                               = grid.nw;
+
+    //================================================ Copy the gemmi::Grid to my map format
+    map                                               = new proshade_double [(*xTo) * (*yTo) * (*zTo)];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
+
+    proshade_signed arrPos                            = 0;
+    for ( proshade_signed uIt = 0; uIt < (*xTo); uIt++ )
+    {
+        for ( proshade_signed vIt = 0; vIt < (*yTo); vIt++ )
         {
-            for ( proshade_signed wIt = 0; wIt < (*zTo + 1); wIt++ )
+            for ( proshade_signed wIt = 0; wIt < (*zTo); wIt++ )
             {
-                arrPos                                = wIt  + (*zTo + 1) * ( vIt  + (*yTo + 1) * uIt );
-                        
-                clipper::Vec3<int> pos                ( static_cast<int> ( uIt ), static_cast<int> ( vIt ), static_cast<int> ( wIt ) );
-                clipper::Coord_grid cg                ( pos );
-                        
-                map[arrPos]                           = densityMap->get_data ( cg );
+                arrPos                                = wIt  + (*zTo) * ( vIt  + (*yTo) * uIt );
+                map[arrPos]                           = grid.get_value_q( uIt, vIt, wIt );
             }
         }
     }
-    
-    //================================================ Free memory
-    delete densityMap;
     
     //================================================ Done
     return ;
@@ -941,7 +931,7 @@ void ProSHADE_internal_mapManip::addExtraBoundSpace ( proshade_unsign xDim, pros
     
 }
 
-/*! \brief This function re-samples a map to conform to given resolution using Fourier.
+/*! \brief This function re-samples a map to conform to given resolution using tri-linear interpolation.
  
  This function takes a map and resolution value and it proceeds to create a new map, which has sampling resolution/2 and is
  large enough to contain the original map. It then proceeds to interpolate the new map values from the old map values, re-writing
@@ -1139,6 +1129,257 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     corrs[5]                                          = newZDim * newZSample;
     
     //======================================== Done
+    return ;
+    
+}
+
+/*! \brief This function re-samples a map to conform to given resolution using Fourier.
+ 
+ ...
+ 
+ \param[in] map A Reference Pointer to the map for which the bounds are to be found.
+ \param[in] resolution The required resolution value.
+ \param[in] xDimS The number of indices along the x axis of the map.
+ \param[in] yDimS The number of indices along the y axis of the map.
+ \param[in] zDimS The number of indices along the z axis of the map.
+ \param[in] xAngs The size of the x dimension of the map in angstroms.
+ \param[in] yAngs The size of the y dimension of the map in angstroms.
+ \param[in] zAngs The size of the z dimension of the map in angstroms.
+ \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
+ */
+void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
+{
+    //================================================ Sanity check - the resolution needs to be set
+    if ( resolution <= 0.0 )
+    {
+        throw ProSHADE_exception ( "Requested resolution not set for map re-sampling.", "EM00015", __FILE__, __LINE__, __func__, "There is no resolution value set, but map re-sampling to\n                    : this unset resolution value is required. This error\n                    : occurs when a task with no resolution requirement is\n                    : requested on a map data and the map resolution change is\n                    : set to \'on\'. Either supply a resolution value, or do not\n                    : re-sample the map." );
+    }
+    
+    //================================================ Initialise variables
+    proshade_unsign newXDim                           = static_cast<proshade_unsign> ( std::ceil ( xAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newYDim                           = static_cast<proshade_unsign> ( std::ceil ( yAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newZDim                           = static_cast<proshade_unsign> ( std::ceil ( zAngs / ( resolution / 2.0 ) ) );
+    
+    proshade_signed preXChange, preYChange, preZChange;
+    if ( ( xDimS % 2 ) == 0 ) { preXChange = std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }
+    else                      { preXChange = std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }
+    if ( ( yDimS % 2 ) == 0 ) { preYChange = std::ceil  ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2.0 ); }
+    else                      { preYChange = std::floor ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2.0 ); }
+    if ( ( zDimS % 2 ) == 0 ) { preZChange = std::ceil  ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2.0 ); }
+    else                      { preZChange = std::floor ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2.0 ); }
+    
+    proshade_signed postXChange                       = static_cast<proshade_signed> ( xDimS ) - ( preXChange + static_cast<proshade_signed> ( newXDim ) );
+    proshade_signed postYChange                       = static_cast<proshade_signed> ( yDimS ) - ( preYChange + static_cast<proshade_signed> ( newYDim ) );
+    proshade_signed postZChange                       = static_cast<proshade_signed> ( zDimS ) - ( preZChange + static_cast<proshade_signed> ( newZDim ) );
+    
+    proshade_signed origSizeArr = 0, newSizeArr = 0;
+    proshade_double normFactor                        = static_cast<proshade_double> ( xDimS * yDimS * zDimS );
+    
+    //================================================ Manage memory
+    fftw_complex *origMap, *fCoeffs, *newFCoeffs, *newMap;
+    fftw_plan planForwardFourier, planBackwardRescaledFourier;
+    allocateResolutionFourierMemory                   ( origMap, fCoeffs, newFCoeffs, newMap, planForwardFourier, planBackwardRescaledFourier,
+                                                        xDimS, yDimS, zDimS, newXDim, newYDim, newZDim );
+    
+    //================================================ Fill maps with data and zeroes
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( xDimS * yDimS * zDimS ); iter++ ) { origMap[iter][0] = map[iter]; origMap[iter][1] = 0.0; }
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( newXDim * newYDim * newZDim ); iter++ ) { newFCoeffs[iter][0] = 0.0; newFCoeffs[iter][1] = 0.0; }
+    
+    //================================================ Get the Fourier coeffs
+    fftw_execute                                      ( planForwardFourier );
+    
+    //================================================ Change the order of Fourier coefficients
+    changeFourierOrder                                ( fCoeffs, xDimS, yDimS, zDimS, true );
+    
+    //================================================ Re-sample the coefficients by removing high frequencies or adding these with 0 values
+    for ( proshade_signed xIt = 0; xIt < newXDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < newYDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < newZDim; zIt++ )
+            {
+                //==================================== Find the array positions
+                origSizeArr                           = (zIt + preZChange) + zDimS   * ( (yIt + preYChange) + yDimS   * (xIt + preXChange) );
+                newSizeArr                            = zIt                + newZDim * ( yIt                + newYDim * xIt                );
+                
+                //==================================== If original coefficient for this new coefficient position exists, copy
+                if ( ( ( -1  < ( xIt     + preXChange  ) ) && ( -1  < ( yIt     + preYChange  ) ) && ( -1  < ( zIt     + preZChange  ) ) ) &&
+                     ( ( xIt < ( newXDim + postXChange ) ) && ( yIt < ( newYDim + postYChange ) ) && ( zIt < ( newZDim + postZChange ) ) ) )
+                {
+                    //================================ Copy the Fourier coeff
+                    newFCoeffs[newSizeArr][0]         = fCoeffs[origSizeArr][0] / normFactor;
+                    newFCoeffs[newSizeArr][1]         = fCoeffs[origSizeArr][1] / normFactor;
+                }
+            }
+        }
+    }
+    
+    //================================================ Change the order of the re-sampled Fourier coefficients
+    changeFourierOrder                                ( newFCoeffs, newXDim, newYDim, newZDim, false );
+
+    //================================================ Get the new map from the re-sized Fourier coefficients
+    fftw_execute                                      ( planBackwardRescaledFourier );
+
+    //================================================ Delete the old map and create a new, re-sized one. Then copy the new map values into this new map memory.
+    delete map;
+    map                                               = new proshade_double [newXDim * newYDim * newZDim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( newXDim * newYDim * newZDim ); iter++ ) { map[iter] = newMap[iter][0]; }
+    
+    //================================================ Release memory
+    releaseResolutionFourierMemory                    ( origMap, fCoeffs, newFCoeffs, newMap, planForwardFourier, planBackwardRescaledFourier );
+    
+    //================================================ Define change in indices and return it
+    corrs[0]                                          = static_cast<proshade_signed> ( newXDim ) - static_cast<proshade_signed> ( xDimS );
+    corrs[1]                                          = static_cast<proshade_signed> ( newYDim ) - static_cast<proshade_signed> ( yDimS );
+    corrs[2]                                          = static_cast<proshade_signed> ( newZDim ) - static_cast<proshade_signed> ( zDimS );
+    corrs[3]                                          = static_cast<proshade_signed> ( newXDim ) * ( resolution / 2.0 );
+    corrs[4]                                          = static_cast<proshade_signed> ( newYDim ) * ( resolution / 2.0 );
+    corrs[5]                                          = static_cast<proshade_signed> ( newZDim ) * ( resolution / 2.0 );
+    
+    //======================================== Done
+    return ;
+    
+}
+
+/*! \brief This function allocates and checks the allocatio of the memory required by the Fourier resampling.
+ 
+ This function allocates the memory required for the Fourier space re-sampling of density maps. It allocates the original map and original map coefficients arrays (these need to be of the fftw_complex type) as well as the
+ re-sampled map and re-sampled map coefficients. It then also proceeds to check the memory allocation and creating the FFTW transform plans for both, the forward and re-sampled backward operations.
+ 
+ \param[in] origMap A Reference pointer to an array where the original map data will be stored.
+ \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data will be stored.
+ \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data will be stored.
+ \param[in] newMap A Reference pointer to an array where the re-sampled map data will be stored.
+ \param[in] planForwardFourier FFTW_plan which will compute the original map to Fourier coefficients transform.
+ \param[in] planBackwardRescaledFourier FFTW_plan which will compute the re-sampled Fourier coefficients to re-sampled map transform.
+ \param[in] xDimOld The number of indices along the x-axis of the original map.
+ \param[in] yDimOld The number of indices along the y-axis of the original map.
+ \param[in] zDimOld The number of indices along the z-axis of the original map.
+ \param[in] xDimNew The number of indices along the x-axis of the re-sampled map.
+ \param[in] yDimNew The number of indices along the y-axis of the re-sampled map.
+ \param[in] zDimNew The number of indices along the z-axis of the re-sampled map.
+ */
+void ProSHADE_internal_mapManip::allocateResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier, proshade_unsign xDimOld, proshade_unsign yDimOld, proshade_unsign zDimOld, proshade_unsign xDimNew, proshade_unsign yDimNew, proshade_unsign zDimNew )
+{
+    //================================================ Initialise memory
+    origMap                                           = new fftw_complex [xDimOld * yDimOld * zDimOld];
+    fCoeffs                                           = new fftw_complex [xDimOld * yDimOld * zDimOld];
+    newFCoeffs                                        = new fftw_complex [xDimNew * yDimNew * zDimNew];
+    newMap                                            = new fftw_complex [xDimNew * yDimNew * zDimNew];
+    
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( origMap,          __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( fCoeffs,          __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newFCoeffs,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( newMap,           __FILE__, __LINE__, __func__ );
+    
+    //================================================ Create plans
+    planForwardFourier                                = fftw_plan_dft_3d ( xDimOld, yDimOld, zDimOld, origMap,    fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    planBackwardRescaledFourier                       = fftw_plan_dft_3d ( xDimNew, yDimNew, zDimNew, newFCoeffs, newMap,  FFTW_BACKWARD, FFTW_ESTIMATE );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function releases the memory required by the Fourier resampling.
+ 
+ This function simply deletes all the memory allocated by the allocateResolutionFourierMemory() function.
+ 
+ \param[in] origMap A Reference pointer to an array where the original map data were stored.
+ \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data were stored.
+ \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data were stored.
+ \param[in] newMap A Reference pointer to an array where the re-sampled map data were stored.
+ \param[in] planForwardFourier FFTW_plan which computed the original map to Fourier coefficients transform.
+ \param[in] planBackwardRescaledFourier FFTW_plan which computed the re-sampled Fourier coefficients to re-sampled map transform.
+ */
+void ProSHADE_internal_mapManip::releaseResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier )
+{
+    //================================================ Delete the FFTW plans
+    fftw_destroy_plan                                 ( planForwardFourier );
+    fftw_destroy_plan                                 ( planBackwardRescaledFourier );
+    
+    //================================================ Delete the complex arrays
+    delete[] origMap;
+    delete[] fCoeffs;
+    delete[] newFCoeffs;
+    delete[] newMap;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function changes the order of Fourier coefficients in a 3D array between positive first (default) and negative first (mass centered at xMax/2, yMax/2, zMax/2 instead of 0,0,0)
+ 
+ This function firstly determines the start and end of the positive and negative Fourier coefficients for all three axes (it assumes 3D array); this works for both odd and even axis sizes. To do this properly, in the case of
+ odd axis sizes, the function needs to know whether we are changing the order from FFTW defaul positive first, or if we are changing the other way around - the last parameter serves the purpose of passing this information.
+ Finally, the function then switches the order of the Fourier coefficients as requested using a temporary array that it allocates and deletes within itself.
+ 
+ \param[in] fCoeffs A Reference pointer to an array where the Fourier coefficients for re-ordering are stored.
+ \param[in] xDim The size of the x-axis dimension of the fCoeffs array.
+ \param[in] yDim The size of the x-axis dimension of the fCoeffs array.
+ \param[in] zDim The size of the x-axis dimension of the fCoeffs array.
+ \param[in] negativeFirst Should the coefficients be stored negarive first (TRUE), or are we reversing already re-ordered array (FALSE)?
+ */
+void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool negativeFirst )
+{
+    //================================================ Initialise local variables
+    proshade_signed h = 0, k = 0, l = 0, origSizeArr = 0, newSizeArr = 0;
+    proshade_signed xSeq1FreqStart, ySeq1FreqStart, zSeq1FreqStart, xSeq2FreqStart, ySeq2FreqStart, zSeq2FreqStart;
+    
+    //================================================ Find the positive and negative indices cot-offs
+    if ( negativeFirst )
+    {
+        if ( ( xDim % 2 ) == 0 ) { xSeq1FreqStart = xDim / 2; xSeq2FreqStart = xDim / 2; } else { xSeq1FreqStart = (xDim / 2) + 1; xSeq2FreqStart = xDim / 2; }
+        if ( ( yDim % 2 ) == 0 ) { ySeq1FreqStart = yDim / 2; ySeq2FreqStart = yDim / 2; } else { ySeq1FreqStart = (yDim / 2) + 1; ySeq2FreqStart = yDim / 2; }
+        if ( ( zDim % 2 ) == 0 ) { zSeq1FreqStart = zDim / 2; zSeq2FreqStart = zDim / 2; } else { zSeq1FreqStart = (zDim / 2) + 1; zSeq2FreqStart = zDim / 2; }
+    }
+    else
+    {
+        if ( ( xDim % 2 ) == 0 ) { xSeq1FreqStart = xDim / 2; xSeq2FreqStart = xDim / 2; } else { xSeq1FreqStart = (xDim / 2); xSeq2FreqStart = xDim / 2 + 1; }
+        if ( ( yDim % 2 ) == 0 ) { ySeq1FreqStart = yDim / 2; ySeq2FreqStart = yDim / 2; } else { ySeq1FreqStart = (yDim / 2); ySeq2FreqStart = yDim / 2 + 1; }
+        if ( ( zDim % 2 ) == 0 ) { zSeq1FreqStart = zDim / 2; zSeq2FreqStart = zDim / 2; } else { zSeq1FreqStart = (zDim / 2); zSeq2FreqStart = zDim / 2 + 1; }
+    }
+        
+    //================================================ Allocate helper array memory
+    fftw_complex *hlpFCoeffs                          = new fftw_complex [xDim * yDim * zDim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( hlpFCoeffs, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Change the coefficients order
+    for ( proshade_signed xIt = 0; xIt < xDim; xIt++ )
+    {
+        //============================================ Find x frequency
+        if ( xIt < xSeq1FreqStart ) { h = xIt + xSeq2FreqStart; } else { h = xIt - xSeq1FreqStart; }
+        for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
+        {
+            //======================================== Find y frequency
+            if ( yIt < ySeq1FreqStart ) { k = yIt + ySeq2FreqStart; } else { k = yIt - ySeq1FreqStart; }
+            
+            for ( proshade_signed zIt = 0; zIt < zDim; zIt++ )
+            {
+                //==================================== Find z frequency
+                if ( zIt < zSeq1FreqStart ) { l = zIt + zSeq2FreqStart; } else { l = zIt - zSeq1FreqStart; }
+                
+                //==================================== Find array positions
+                newSizeArr                            = l   + zDim * ( k   + yDim * h   );
+                origSizeArr                           = zIt + zDim * ( yIt + yDim * xIt );
+                
+                //==================================== Copy vals
+                hlpFCoeffs[newSizeArr][0]             = fCoeffs[origSizeArr][0];
+                hlpFCoeffs[newSizeArr][1]             = fCoeffs[origSizeArr][1];
+            }
+        }
+    }
+    
+    //================================================ Copy the helper array to the input Fourier coefficients array
+    for ( proshade_unsign iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }
+    
+    //================================================ Release helper array memory
+    delete[] hlpFCoeffs;
+    
+    //================================================ Done
     return ;
     
 }

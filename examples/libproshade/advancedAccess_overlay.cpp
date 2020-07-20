@@ -36,7 +36,8 @@ int main ( int argc, char **argv )
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     settings->setResolution                           ( 4.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->setPhaseUsage                           ( false );                             // Use full maps, or Patterson-like maps?
-    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+    settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
@@ -112,10 +113,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      5.49778 ; 0.773116 ; 3.87796
-//  Optimal rotation matrix is       :      -0.849874 ; -0.0999114 ; 0.517429
-//                                   :      -0.184009 ; -0.863802 ; -0.469027
-//                                   :      0.493817 ; -0.493825 ; 0.715738
+//  Optimal rotation Euler angles are:      5.49775 ; 0.773114 ; 3.87796
+//  Optimal rotation matrix is       :      -0.849875 ; -0.0998845 ; 0.517431
+//                                   :      -0.184035 ; -0.863799 ; -0.469023
+//                                   :      0.493804 ; -0.493836 ; 0.715739
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
@@ -162,7 +163,7 @@ int main ( int argc, char **argv )
     std::cout << "Optimal translation in Angstroms is:    " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Optimal translation in Angstroms is:    8 ; 6 ; -6
+//  Optimal translation in Angstroms is:    8 ; 8 ; -6
     
     //================================================ Translate the internal map
     movingStr->translateMap                           ( settings, optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2) ); // This function translates the internal map representation by the required number of Angstroms.

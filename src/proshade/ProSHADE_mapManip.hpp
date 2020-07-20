@@ -1,7 +1,7 @@
 /*! \file ProSHADE_mapManip.hpp
     \brief This header file declares the ProSHADE_internal_mapManip namespace, which groups functions for internal map manipulation.
  
-    The functions grouped here are used to modify the internal density map, or the MMDB2 library objects from which an internal map will be computed. These functions
+    The functions grouped here are used to modify the internal density map, or the gemmi library objects from which an internal map will be computed. These functions
     deal with the boundaries and their changes, re-sampling using trilinear interpolation or phase remova, to name a few examples.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
@@ -37,16 +37,16 @@
 namespace ProSHADE_internal_mapManip
 {
     proshade_signed myRound                           ( proshade_double x );
-    void determinePDBRanges                           ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
-                                                        proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, int* noAt );
-    void findPDBCOMValues                             ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom );
-    void rotatePDBCoordinates                         ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
+    void determinePDBRanges                           ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
+                                                        proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo );
+    void findPDBCOMValues                             ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom );
+    void rotatePDBCoordinates                         ( gemmi::Structure *pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
                                                         proshade_double yCom, proshade_double zCom );
-    void translatePDBCoordinates                      ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ );
-    void changePDBBFactors                            ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double newBFactorValue );
-    void movePDBForClipper                            ( clipper::mmdb::CMMDBManager* pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov );
-    void generateMapFromPDB                           ( clipper::mmdb::CMMDBManager* pdbFile, proshade_double*& map, proshade_single requestedResolution,
-                                                        proshade_single xCell, proshade_single yCell, proshade_single zCell, int noAtoms, proshade_signed* xTo,
+    void translatePDBCoordinates                      ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ );
+    void changePDBBFactors                            ( gemmi::Structure *pdbFile, proshade_double newBFactorValue );
+    void movePDBForMapCalc                            ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov );
+    void generateMapFromPDB                           ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution,
+                                                        proshade_single xCell, proshade_single yCell, proshade_single zCell, proshade_signed* xTo,
                                                         proshade_signed* yTo, proshade_signed* zTo );
     void moveMapByIndices                             ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs,
                                                         proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo,
@@ -65,6 +65,15 @@ namespace ProSHADE_internal_mapManip
     void reSampleMapToResolutionTrilinear             ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS,
                                                         proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs,  proshade_single zAngs,
                                                         proshade_single*& corrs );
+    void reSampleMapToResolutionFourier               ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS,
+                                                        proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs,  proshade_single zAngs,
+                                                        proshade_single*& corrs );
+    void allocateResolutionFourierMemory              ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier,
+                                                        fftw_plan& planBackwardRescaledFourier, proshade_unsign xDimOld, proshade_unsign yDimOld, proshade_unsign zDimOld,
+                                                        proshade_unsign xDimNew, proshade_unsign yDimNew, proshade_unsign zDimNew );
+    void releaseResolutionFourierMemory               ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier,
+                                                        fftw_plan& planBackwardRescaledFourier );
+    void changeFourierOrder                           ( fftw_complex*& fCoeffs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool negativeFirst );
     void removeMapPhase                               ( fftw_complex*& mapCoeffs, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
     void getFakeHalfMap                               ( proshade_double*& map, proshade_double*& fakeHalfMap, proshade_unsign xDimS, proshade_unsign yDimS,
                                                        proshade_unsign zDimS, proshade_signed fakeMapKernel );

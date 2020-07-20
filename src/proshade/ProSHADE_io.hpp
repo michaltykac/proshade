@@ -2,7 +2,7 @@
     \brief This header file declares all the functions required for low level file format access.
  
     This header file declares the ProSHADE_internal_io namespace, which groups together all the low level functions required for input and output file format detection, reading and writing. Also,
-    most of the interactions with the CMAPLIB CCP4 library are done by these functions as to avoid these being dispersed everywhere.
+    most of the interactions with the Gemmi library are done by these functions as to avoid these being dispersed everywhere.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -43,24 +43,19 @@ namespace ProSHADE_internal_io
     InputType figureDataType                          ( std::string fName );
     bool isFilePDB                                    ( std::string fName );
     bool isFileMAP                                    ( std::string fName );
-    void readInMapCell                                ( CMap_io::CMMFile* mapFile, proshade_single* xDim, proshade_single* yDim, proshade_single* zDim,
-                                                        proshade_single* aAng, proshade_single* bAng, proshade_single* cAng );
-    void readInMapDim                                 ( CMap_io::CMMFile* mapFile, proshade_unsign* xDim, proshade_unsign* yDim, proshade_unsign* zDim );
-    void readInMapGrid                                ( CMap_io::CMMFile* mapFile, proshade_unsign* xGrid, proshade_unsign* yGrid, proshade_unsign* zGrid );
-    void readInMapOrder                               ( CMap_io::CMMFile* mapFile, proshade_unsign* xAxisOrder, proshade_unsign* yAxisOrder, proshade_unsign* zAxisOrder );
-    void readInMapOrigin                              ( CMap_io::CMMFile* mapFile, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin );
-    void readInMapData                                ( CMap_io::CMMFile* mapFile, proshade_double*& map, proshade_signed xIndexStart, proshade_signed yIndexStart,
-                                                        proshade_signed zIndexStart, proshade_signed xDimInIndices, proshade_signed yDimInIndices,
-                                                        proshade_signed zDimInIndices, proshade_signed xAxisOrder, proshade_signed yAxisOrder, proshade_signed zAxisOrder );
-    void writeMapCell                                 ( CMap_io::CMMFile* mapFile, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs,
-                                                        proshade_single aAngle, proshade_single bAngle, proshade_single cAngle );
-    void writeMapGrid                                 ( CMap_io::CMMFile* mapFile, proshade_unsign xGrid, proshade_unsign yGrid, proshade_unsign zGrid );
-    void writeMapOrder                                ( CMap_io::CMMFile* mapFile, proshade_unsign xAxisOrder, proshade_unsign yAxisOrder, proshade_unsign zAxisOrder );
-    void writeMapDims                                 ( CMap_io::CMMFile* mapFile, proshade_unsign xDims, proshade_unsign yDims, proshade_unsign zDims );
-    void writeMapOrigin                               ( CMap_io::CMMFile* mapFile, proshade_unsign xOrigin, proshade_unsign yOrigin, proshade_unsign zOrigin );
-    void writeMapTitleEtc                             ( CMap_io::CMMFile* mapFile, std::string title, proshade_unsign mode = 2, proshade_unsign spaceGroup = 1 );
-    void writeMapData                                 ( CMap_io::CMMFile* mapFile, proshade_double* map, proshade_unsign xDim, proshade_unsign yDim,
-                                                        proshade_unsign zDim, proshade_unsign xAxisOrder, proshade_unsign yAxisOrder, proshade_unsign zAxisOrder );
+    void readInMapHeader                              ( gemmi::Ccp4<float> *map, proshade_unsign *xDimInds, proshade_unsign *yDimInds, proshade_unsign *zDimInds, proshade_single *xDim,
+                                                        proshade_single *yDim, proshade_single *zDim, proshade_single *aAng, proshade_single *bAng, proshade_single *cAng, proshade_signed *xFrom,
+                                                        proshade_signed *yFrom, proshade_signed *zFrom, proshade_signed *xAxOrigin, proshade_signed *yAxOrigin, proshade_signed *zAxOrigin,
+                                                        proshade_unsign *xAxOrder, proshade_unsign *yAxOrder, proshade_unsign *zAxOrder, proshade_unsign *xGridInds, proshade_unsign *yGridInds,
+                                                        proshade_unsign *zGridInds );
+    void readInMapHeaderFroms                         ( gemmi::Ccp4<float> *map, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom );
+    void readInMapData                                ( gemmi::Ccp4<float> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
+                                                        proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
+    void writeOutMapHeader                            ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim,
+                                                        proshade_single yDim, proshade_single zDim, proshade_single aAng, proshade_single bAng, proshade_single cAng, proshade_signed xFrom,
+                                                        proshade_signed yFrom, proshade_signed zFrom, proshade_signed xAxOrigin, proshade_signed yAxOrigin, proshade_signed zAxOrigin,
+                                                        proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder, proshade_unsign xGridInds, proshade_unsign yGridInds,
+                                                       proshade_unsign zGridInds, std::string title, int mode );
 }
 
 #endif

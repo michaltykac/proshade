@@ -72,9 +72,9 @@ print ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor
 print ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
 
 ### Expected output
-#The energy levels distance is          +0.806
-#The trace sigma distance is            +0.941
-#The rotation function distance is      +0.813
+#   The energy levels distance is          +0.895
+#   The trace sigma distance is            +0.960
+#   The rotation function distance is      +0.756
 
 ### Release C++ pointers
 del pStruct1

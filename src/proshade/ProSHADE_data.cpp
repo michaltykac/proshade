@@ -24,6 +24,10 @@
 //==================================================== ProSHADE
 #include "ProSHADE_data.hpp"
 
+//==================================================== Gemmi PDB output - this cannot be with the rest of includes for some stb_sprintf library related reasons ...
+#define GEMMI_WRITE_IMPLEMENTATION
+#include <gemmi/to_pdb.hpp>
+
 /*! \brief Constructor for getting empty ProSHADE_data class.
  
  This constructor creates an empty data structure which can later be filled with data and used to process
@@ -459,7 +463,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     
 }
 
-/*! \brief Function for reading map data.
+/*! \brief Function for reading map data using gemmi library.
  
  This function reads in the map data using the information from the settings object and saves all the results into the
  structure calling it.
@@ -468,32 +472,29 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
  */
 void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
 {
-    //================================================ Initialise local variables
-    CMap_io::CMMFile *mapFile                         = NULL;
-    int myMapMode                                     = O_RDONLY;
+    //================================================ Open the file
+    gemmi::Ccp4<float> map;
+    map.read_ccp4                                     ( gemmi::MaybeGzipped ( this->fileName.c_str() ) );
     
-    //================================================ Open file for reading and check
-    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( this->fileName.c_str() , myMapMode ) );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( mapFile, __FILE__, __LINE__, __func__ );
+    //================================================ Read in the axes starting points before it is modified by the gemmi set-up
+    ProSHADE_internal_io::readInMapHeaderFroms        ( &map, &this->xFrom, &this->yFrom, &this->zFrom );
     
-    //================================================ Read in header
-    ProSHADE_internal_io::readInMapCell               ( mapFile, &this->xDimSize, &this->yDimSize, &this->zDimSize, &this->aAngle, &this->bAngle, &this->cAngle );
-    ProSHADE_internal_io::readInMapDim                ( mapFile, &this->xDimIndices, &this->yDimIndices, &this->zDimIndices );
-    ProSHADE_internal_io::readInMapGrid               ( mapFile, &this->xGridIndices, &this->yGridIndices, &this->zGridIndices );
-    ProSHADE_internal_io::readInMapOrder              ( mapFile, &this->xAxisOrder, &this->yAxisOrder, &this->zAxisOrder );
-    ProSHADE_internal_io::readInMapOrigin             ( mapFile, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
+    //================================================ Convert to XYZ and create complete map, if need be
+    map.setup                                         ( gemmi::GridSetup::ReorderOnly, NAN );
     
-    //================================================ Read in data
-    ProSHADE_internal_io::readInMapData               ( mapFile, this->internalMap, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin,
-                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices,
-                                                        this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    //================================================ Read in the rest of the map file header
+    ProSHADE_internal_io::readInMapHeader             ( &map,
+                                                        &this->xDimIndices,  &this->yDimIndices,  &this->zDimIndices,
+                                                        &this->xDimSize,     &this->yDimSize,     &this->zDimSize,
+                                                        &this->aAngle,       &this->bAngle,       &this->cAngle,
+                                                        &this->xFrom,        &this->yFrom,        &this->zFrom,
+                                                        &this->xAxisOrigin,  &this->yAxisOrigin,  &this->zAxisOrigin,
+                                                        &this->xAxisOrder,   &this->yAxisOrder,   &this->zAxisOrder,
+                                                        &this->xGridIndices, &this->yGridIndices, &this->zGridIndices );
     
-    //================================================ Close the map file
-    CMap_io::ccp4_cmap_close                          ( mapFile );
+    //================================================ Save the map density to ProSHADE variable
+    ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
-    //================================================ Switch axes to XYZ order
-    this->switchAxes                                  ( );
-     
     //================================================ Set resolution if need be
     if ( settings->requestedResolution < 0.0 )
     {
@@ -506,7 +507,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     this->figureIndexStartStop                        ( );
     
     //================================================ If specific resolution is requested, make sure the map has it
-    if ( settings->changeMapResolution )
+    if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
         this->reSampleMap                             ( settings );
     }
@@ -531,57 +532,50 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     }
     
     //================================================ Open PDB file for reading
-    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
-    if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
-    {
-        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
-    }
-    
-    //================================================ Find the ranges
-    proshade_single xF, xT, yF, yT, zF, zT;
-    int noAtoms;
-    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, &noAtoms );
+    gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
     //================================================ Change B-factors if need be
     if ( settings->pdbBFactorNewVal >= 0.0 )
     {
-        ProSHADE_internal_mapManip::changePDBBFactors ( pdbFile, settings->pdbBFactorNewVal );
+        ProSHADE_internal_mapManip::changePDBBFactors ( &pdbFile, settings->pdbBFactorNewVal );
     }
     
+    //================================================ Find the ranges
+    proshade_single xF, xT, yF, yT, zF, zT;
+    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT );
+
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = 20.0 - xF;
     proshade_single yMov                              = 20.0 - yF;
     proshade_single zMov                              = 20.0 - zF;
-    ProSHADE_internal_mapManip::movePDBForClipper     ( pdbFile, xMov, yMov, zMov );
-    
+    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov );
+
     //================================================ Set the angstrom sizes
     this->xDimSize                                    = xT - xF + 40.0;
     this->yDimSize                                    = yT - yF + 40.0;
     this->zDimSize                                    = zT - zF + 40.0;
-    
+
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
-    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, noAtoms, &this->xTo, &this->yTo, &this->zTo );
+    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo );
     
     //================================================ Set the internal variables to correct values
     this->setPDBMapValues                             ( );
-    
+
     //================================================ Move map back to the original PDB location
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
                                                         &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    
-    //================================================ Release the PDB file
-    delete pdbFile;
-    
+
     //================================================ If specific resolution is requested, make sure the map has it
-    if ( settings->changeMapResolution )
+    if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
         this->reSampleMap                             ( settings );
     }
     
     //================================================ Done
+    return;
     
 }
 
@@ -591,7 +585,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
  */
 void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 {
-    //================================================ Set starts to 0 (all clipper maps have this)
+    //================================================ Set starts to 0 
     this->xFrom                                       = 0;
     this->yFrom                                       = 0;
     this->zFrom                                       = 0;
@@ -602,9 +596,9 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
     this->cAngle                                      = 90.0;
     
     //================================================ Set dimension sizes in indices
-    this->xDimIndices                                 = this->xTo + 1;
-    this->yDimIndices                                 = this->yTo + 1;
-    this->zDimIndices                                 = this->zTo + 1;
+    this->xDimIndices                                 = this->xTo;
+    this->yDimIndices                                 = this->yTo;
+    this->zDimIndices                                 = this->zTo;
     
     //================================================ Set grid indexing to cell indexing
     this->xGridIndices                                = this->xDimIndices;
@@ -628,15 +622,10 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 
 /*! \brief Function for determining iterator start and stop positions.
  
- This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations.
+ This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations. It assumes that gemmi has read in the xFrom, yFrom and zFrom values already.
  */
 void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
 {
-    //================================================ Set starts to origin
-    this->xFrom                                       = this->xAxisOrigin;
-    this->yFrom                                       = this->yAxisOrigin;
-    this->zFrom                                       = this->zAxisOrigin;
-    
     //================================================ Set ends to origin + size - 1
     this->xTo                                         = this->xFrom + this->xDimIndices - 1;
     this->yTo                                         = this->yFrom + this->yDimIndices - 1;
@@ -647,211 +636,60 @@ void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
     
 }
 
-/*! \brief Function for changing axes to XYZ order if different.
- 
- This function is called to change the axes order for map data read in non-XYZ order.
- */
-void ProSHADE_internal_data::ProSHADE_data::switchAxes ( void )
-{
-    //================================================ Establish the axes order
-    if ( ( this->xAxisOrder == 1 ) && ( this->yAxisOrder == 2 ) )
-    {
-        //============================================ Order is XYZ - Nothing to be done
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 1 ) && ( this->yAxisOrder == 3 ) )
-    {
-        //============================================ Order is XZY
-        proshade_single tmp                           = this->yDimSize;
-        this->yDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->bAngle;
-        this->bAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->yDimIndices;
-        this->yDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->yGridIndices;
-        this->yGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->yAxisOrigin;
-        this->yAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->yAxisOrder                              = 2;
-        this->zAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 2 ) && ( this->yAxisOrder == 1 ) )
-    {
-        //============================================ Order is YXZ
-        proshade_single tmp                           = this->xDimSize;
-        this->xDimSize                                = this->yDimSize;
-        this->yDimSize                                = tmp;
-                
-        tmp                                           = this->aAngle;
-        this->aAngle                                  = this->bAngle;
-        this->bAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->xDimIndices;
-        this->xDimIndices                             = this->yDimIndices;
-        this->yDimIndices                             = tmps;
-                
-        tmps                                          = this->xGridIndices;
-        this->xGridIndices                            = this->yGridIndices;
-        this->yGridIndices                            = tmps;
-                
-        tmps                                          = this->xAxisOrigin;
-        this->xAxisOrigin                             = this->yAxisOrigin;
-        this->yAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->yAxisOrder                              = 2;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 2 ) && ( this->yAxisOrder == 3 ) )
-    {
-        //============================================ Order is YZX
-        proshade_single tmp                           = this->yDimSize;
-        this->yDimSize                                = this->xDimSize;
-        this->xDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->bAngle;
-        this->bAngle                                  = this->aAngle;
-        this->aAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->yDimIndices;
-        this->yDimIndices                             = this->xDimIndices;
-        this->xDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->yGridIndices;
-        this->yGridIndices                            = this->xGridIndices;
-        this->xGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->yAxisOrigin;
-        this->yAxisOrigin                             = this->xAxisOrigin;
-        this->xAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->yAxisOrder                              = 2;
-        this->yAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 3 ) && ( this->yAxisOrder == 1 ) )
-    {
-        //============================================ Order is ZXY
-        proshade_single tmp                           = this->zDimSize;
-        this->xDimSize                                = this->yDimSize;
-        this->yDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->cAngle;
-        this->aAngle                                  = this->bAngle;
-        this->bAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->zDimIndices;
-        this->xDimIndices                             = this->yDimIndices;
-        this->yDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->zGridIndices;
-        this->xGridIndices                            = this->yGridIndices;
-        this->yGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->zAxisOrigin;
-        this->xAxisOrigin                             = this->yAxisOrigin;
-        this->yAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->yAxisOrder                              = 2;
-        this->yAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    if ( ( this->xAxisOrder == 3 ) && ( this->yAxisOrder == 2 ) )
-    {
-        //============================================ Order is ZYX
-        proshade_single tmp                           = this->xDimSize;
-        this->xDimSize                                = this->zDimSize;
-        this->zDimSize                                = tmp;
-                
-        tmp                                           = this->aAngle;
-        this->aAngle                                  = this->cAngle;
-        this->cAngle                                  = tmp;
-                
-        proshade_signed tmps                          = this->xDimIndices;
-        this->xDimIndices                             = this->zDimIndices;
-        this->zDimIndices                             = tmps;
-                
-        tmps                                          = this->xGridIndices;
-        this->xGridIndices                            = this->zGridIndices;
-        this->zGridIndices                            = tmps;
-                
-        tmps                                          = this->xAxisOrigin;
-        this->xAxisOrigin                             = this->zAxisOrigin;
-        this->zAxisOrigin                             = tmps;
-                
-        this->xAxisOrder                              = 1;
-        this->zAxisOrder                              = 3;
-        
-        return ;
-    }
-    
-    //================================================ Done
-    throw ProSHADE_exception ( "Failed to determine the axis order of the input map file.", "EM00008", __FILE__, __LINE__, __func__, "This is more of a debugging check and the code execution\n                    : should never reach here. If you see this message,\n                    : something is clearly very wrong. Please report this case." );
-    
-}
-
 /*! \brief Function for writing out the internal structure representation in MRC MAP format.
  
- This function takes all the internal map representation information from the calling object and the internal map itself
- and proceeds to write all this information in MRC MAP format for visualisation and further processing by other software.
- It is dependent on the internal information being correct.
+ This function takes all the internal map representation information from the calling object and proceeds to write all this information in MRC MAP format for
+ visualisation and possibly further processing by other software. This function will write out axis order XYZ and spacegroup P1 irrespective of the input
+ axis order and spacegroup.
  
  \param[in] fName The filename (including path) to where the output MAP file should be saved.
- \param[in] title String with the map title to be written into the header - default value is "ProSHADE generated map"
+ \param[in] title String with the map title to be written into the header - default value is "Created by ProSHADE and written by GEMMI"
+ \param[in] mode The type of the data, leave at default 2 (mean float type) unless you specifically required other types.
  */
-void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title )
+void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title, int mode )
 {
-    //================================================ Open output file for writing
-    int myMapMode                                     = O_WRONLY;
-    CMap_io::CMMFile *mapFile                         = NULL;
-    mapFile                                           = reinterpret_cast<CMap_io::CMMFile*> ( CMap_io::ccp4_cmap_open ( fName.c_str() , myMapMode ) );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( mapFile, __FILE__, __LINE__, __func__ );
+    //================================================ Create and prepare new Grid gemmi object
+    gemmi::Grid<float> mapData;
+    mapData.set_unit_cell                             ( this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
+    mapData.set_size_without_checking                 ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    mapData.axis_order                                = gemmi::AxisOrder::XYZ;
+    mapData.spacegroup                                = &gemmi::get_spacegroup_p1();
+
+    //================================================ Create and prepare new Ccp4 gemmi object
+    gemmi::Ccp4<float> map;
+    map.grid                                          = mapData;
+    map.prepare_ccp4_header                           ( mode );
     
-    //================================================ Write map header
-    ProSHADE_internal_io::writeMapCell                ( mapFile, this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
-    ProSHADE_internal_io::writeMapGrid                ( mapFile, this->xGridIndices, this->yGridIndices, this->zGridIndices );
-    ProSHADE_internal_io::writeMapOrder               ( mapFile, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
-    ProSHADE_internal_io::writeMapDims                ( mapFile, this->xDimIndices, this->yDimIndices, this->zDimIndices );
-    ProSHADE_internal_io::writeMapOrigin              ( mapFile, this->xAxisOrigin, this->yAxisOrigin, this->zAxisOrigin );
-    ProSHADE_internal_io::writeMapTitleEtc            ( mapFile, title, 2, 1 );
+    //================================================ Fill in the header
+    ProSHADE_internal_io::writeOutMapHeader           ( &map,
+                                                        this->xDimIndices,  this->yDimIndices,  this->zDimIndices,
+                                                        this->xDimSize,     this->yDimSize,     this->zDimSize,
+                                                        this->aAngle,       this->bAngle,       this->cAngle,
+                                                        this->xFrom,        this->yFrom,        this->zFrom,
+                                                        this->xAxisOrigin,  this->yAxisOrigin,  this->zAxisOrigin,
+                                                        this->xAxisOrder,   this->yAxisOrder,   this->zAxisOrder,
+                                                        this->xGridIndices, this->yGridIndices, this->zGridIndices,
+                                                        title, mode );
     
-    //================================================ Write out the data
-    ProSHADE_internal_io::writeMapData                ( mapFile, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
+    //================================================ Copy internal map to grid
+    proshade_unsign arrPos                            = 0;
+    for ( proshade_unsign uIt = 0; uIt < this->xDimIndices; uIt++ )
+    {
+        for ( proshade_unsign vIt = 0; vIt < this->yDimIndices; vIt++ )
+        {
+            for ( proshade_unsign wIt = 0; wIt < this->zDimIndices; wIt++ )
+            {
+                arrPos                                = wIt + this->zDimIndices * ( vIt + this->yDimIndices * uIt );
+                map.grid.set_value                    ( uIt, vIt, wIt, static_cast<float> ( this->internalMap[arrPos] ) );
+            }
+        }
+    }
     
-    //================================================ Close the file
-    CMap_io::ccp4_cmap_close                          ( mapFile );
+    //================================================ Update the statistics in the header
+    map.update_ccp4_header                            ( mode, true );
+    
+    //================================================ Write out the map
+    map.write_ccp4_map                                ( fName );
     
     //================================================ Done
     return ;
@@ -879,12 +717,8 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         throw ProSHADE_exception ( "Cannot write co-ordinate file if the input file did not contain co-ordinates.", "EP00047", __FILE__, __LINE__, __func__, "You have called the WritePDB function on structure which\n                    : was created by reading in a map. This is not allowed as\n                    : ProSHADE cannot create co-ordinates from map file." );
     }
     
-    //================================================ Open the original PDB file
-    clipper::mmdb::CMMDBManager *pdbFile              = new clipper::mmdb::CMMDBManager ( );
-    if ( pdbFile->ReadCoorFile ( this->fileName.c_str() ) )
-    {
-        throw ProSHADE_exception ( "MMDB Failed to open PDB file.", "EP00010", __FILE__, __LINE__, __func__, "While attempting to open file\n                    : " + this->fileName + "\n                    : for reading, MMDB library failed to open the file. This\n                    : could be caused by not being formatted properly or by\n                    : memory not being sufficient." );
-    }
+    //================================================ Open PDB file for reading
+    gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
@@ -905,34 +739,41 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
                                                         (this->originalMapZCom - zCOMOriginal);
         
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos );
-        
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos );
+
         //============================================ Compute the after rotation PDB COM position
         proshade_double xCOMRotated = 0.0, yCOMRotated = 0.0, zCOMRotated = 0.0;
         ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated );
-        
+
         //============================================ Compute the after rotation position correction
         proshade_double xPDBTrans                     = ( xCOMRotated - xCOMOriginal ) + ( this->mapPostRotXCom - this->originalMapXCom );
         proshade_double yPDBTrans                     = ( yCOMRotated - yCOMOriginal ) + ( this->mapPostRotYCom - this->originalMapYCom );
         proshade_double zPDBTrans                     = ( zCOMRotated - zCOMOriginal ) + ( this->mapPostRotZCom - this->originalMapZCom );
-        
+
         //============================================ Correct the co-ordinate position after rotation
-        ProSHADE_internal_mapManip::translatePDBCoordinates ( pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
+        ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ );
-    
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ );
+
     //================================================ Write the PDB file
-    if ( pdbFile->WritePDBASCII ( fName.c_str() ) )
+    std::ofstream outCoOrdFile;
+    outCoOrdFile.open                                 ( fName.c_str() );
+    
+    if ( outCoOrdFile.is_open() )
+    {
+        gemmi::PdbWriteOptions opt;
+        write_pdb                                     ( pdbFile, outCoOrdFile, opt );
+    }
+    else
     {
         std::stringstream hlpMessage;
         hlpMessage << "Failed to open the PDB file " << fName << " for output.";
         throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00048", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
     }
     
-    //================================================ Release memory
-    delete pdbFile;
+    outCoOrdFile.close                                ( );
     
     //================================================ Done
     return ;
@@ -1391,10 +1232,24 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
 {
     //================================================ Initialise the return variable
     proshade_single* changeVals                       = new proshade_single[6];
-
+    
     //================================================ Now re-sample the map
-    ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
-                                                                   this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+    if ( settings->changeMapResolution )
+    {
+        ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                     this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+        
+        if ( settings->changeMapResolutionTriLinear )
+        {
+            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.", "WM00049" );
+        }
+    }
+    if ( settings->changeMapResolutionTriLinear && !settings->changeMapResolution )
+    {
+        ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                                       this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
+
+    }
     
     //================================================ Set the internal values to reflect the new map size
     this->xDimIndices                                += static_cast<proshade_unsign>  ( changeVals[0] );
@@ -1427,7 +1282,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices );
-
+    
     //================================================ Release memory
     delete[] changeVals;
     

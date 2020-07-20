@@ -109,7 +109,7 @@ The installation of the ProSHADE software should be done using the CMake system 
  
  ## Other dependencies
  
-  ProSHADE also depends on the *libccp4*, *MMDB2*, *FFTW2*, *clipper* and *SOFT2.0* libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation. Please note that these dependencies do have their own licences (the CCP4 licence, the GPL licence, ...) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
+  ProSHADE also depends on the *Gemmi* and *SOFT2.0* libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation. Please note that these dependencies do have their own licences (the CCP4 licence, the GPL licence, ...) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
  
  ## Install
  
@@ -142,7 +142,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 ![T4 Portal Protein](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_3JA7.jpg)
 
 ```
- $: ./proshade -S -f ./emd_6324.map -r 12
+ $: ./proshade -S -f ./emd_6324.map -r 12 -ak
  ProSHADE 0.7.3 (JUL 2020):
  ==========================
 
@@ -164,11 +164,11 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   ... Starting T symmetry detection.
  Detected C symmetry with fold 12 .
   ...   Fold       X           Y          Z           Angle        Height
-  ...    12   -0.015117   +0.020354   +0.99925       +0.5236      +0.17882
+  ...    12   -0.014426   +0.016779   +0.9994       +0.5236      +0.34321
 
  ======================
  ProSHADE run complete.
- Time taken: 4 seconds.
+ Time taken: 5 seconds.
  ======================
 ```
 
@@ -185,7 +185,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 ![BALBES domain used for similarity detection](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_dists.png)
 
 ```
-  $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
+  $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6 -k
   ProSHADE 0.7.3 (JUL 2020):
   ==========================
 
@@ -213,9 +213,9 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
-  Energy levels distance    : 0.806452
-  Trace sigma distance      : 0.940804
-  Rotation function distance: 0.812996
+  Energy levels distance    : 0.806233
+  Trace sigma distance      : 0.963017
+  Rotation function distance: 0.800751
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
@@ -230,13 +230,13 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
-  Energy levels distance    : 0.581031
-  Trace sigma distance      : 0.773031
-  Rotation function distance: 0.619959
+  Energy levels distance    : 0.589239
+  Trace sigma distance      : 0.734309
+  Rotation function distance: 0.562099
 
   ======================
   ProSHADE run complete.
-  Time taken: 1 seconds.
+  Time taken: 2 seconds.
   ======================
 ```
  
@@ -253,11 +253,11 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 ![Re-boxing result for TubZ-Bt four-stranded filament](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_rebox.png)
  
 ```
- $ ./proshade -MR -f ./emd_5762.map
+ $ ./proshade -MRf ./emd_5762.map.gz
  ProSHADE 0.7.3 (JUL 2020):
  ==========================
 
-  ... Starting to read the structure: /Users/mysak/Downloads/emd_5762.map
+  ... Starting to read the structure: ./emd_5762.map.gz
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Computing mask.
@@ -270,7 +270,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
  ======================
  ProSHADE run complete.
- Time taken: 49 seconds.
+ Time taken: 9 seconds.
  ======================
 ```
 
@@ -285,7 +285,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  ![ProSHADE Overlay results for 2A2Q_T_dom_2.pdb](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_overlay.jpg)
  
 ```
- $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4
+ $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
  ProSHADE 0.7.3 (JUL 2020):
  ==========================
 
@@ -294,14 +294,14 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Map centering not requested.
+  ... Centering map onto its COM.
   ... Adding extra 10 angstroms.
   ... Centering map onto its COM.
   ... Phase information removed from the data.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Map centering not requested.
+  ... Centering map onto its COM.
   ... Adding extra 10 angstroms.
   ... Centering map onto its COM.
   ... Phase information removed from the data.
@@ -317,13 +317,13 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Map centering not requested.
+  ... Centering map onto its COM.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Map centering not requested.
+  ... Centering map onto its COM.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Starting sphere mapping procedure.
@@ -333,7 +333,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
  ======================
  ProSHADE run complete.
- Time taken: 7 seconds.
+ Time taken: 4 seconds.
  ======================
 ```
 # Using the ProSHADE library
@@ -342,31 +342,31 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ## Linking against the ProSHADE library
 
-The ProSHADE library can be linked as any other C++ library, that is by using the **-lproshade** option when calling the compiler (tested on *clang* and *g++* ) and including the header file (**ProSHADE.hpp**). However, as the **ProSHADE.hpp** header file includes header files from some of the dependencies, any C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by defaul in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
+The ProSHADE library can be linked as any other C++ library, that is by using the **-lproshade** option when calling the compiler (tested on *clang* and *g++* ) and including the header file (**ProSHADE.hpp**). However, as the **ProSHADE.hpp** header file includes header files from some of the dependencies, any C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by default in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
 
- - **-I/path/to/proshade/install/include** This path is required for the Clipper dependency header file to be located correctly. It is not needed if Clipper is installed into system folders, i.e. when ProSHADE was installed with the CMake -DINSTALL_LOCALLY=TRUE option.
- - **-I/path/to/proshade/extern/soft-2.0/include** This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called *fftw_wrapper.h*).
+- **-I/path/to/proshade/extern/soft-2.0/include** This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called *fftw_wrapper.h*).
+- **-I/path/to/proshade/extern/gemmi/include** This path is required for the Gemi dependency header file to be located correctly.
  - **-L/path/to/proshade/install/lib** This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=TRUE option, then this path may already be available to the compiler and it may not be needed.
  - **-Wl,-rpath,/path/to/proshade/install/lib** or **-rpath /path/to/proshade/install/lib** This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.
  
 Overall, a compilation of a C++ project linking against the ProSHADE library may look like the following code:
 
 ```
-$ clang ./proshadeProject.cpp -I/path/to/proshade/install/include \
-                              -I/path/to/proshade/extern/soft-2.0/include \
-                              -L/path/to/proshade/install/lib \
-                              -lproshade \
-                              -rpath /path/to/proshade/install/lib \
-                              -o ./proshadeProject
+$ clang ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                             -I/path/to/proshade/extern/gemmi/include \
+                             -L/path/to/proshade/install/lib \
+                             -std=c++11 -lproshade -lc++ -lz \
+                             -rpath /path/to/proshade/install/lib \
+                             -o ./proshadeBinary
 ```
 
 or
 
 ```
-$ g++ ./proshadeProject.cpp -I/path/to/proshade/install/include \
-                            -I/path/to/proshade/extern/soft-2.0/include \
+$ g++ ./proshadeProject.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                            -I/path/to/proshade/extern/gemmi/include \
                             -L/path/to/proshade/install/lib \
-                            -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+                            -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
                             -o ./proshadeProject
 ```
 

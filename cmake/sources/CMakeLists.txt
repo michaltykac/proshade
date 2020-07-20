@@ -10,8 +10,5 @@ add_library              ( compileObjs OBJECT ${SOURCES}                        
 
 ##########################################################################################
 ### Add the dependencies
+add_dependencies        ( compileObjs gemmi_lib                                           )
 add_dependencies        ( compileObjs soft2_lib                                           )
-add_dependencies        ( compileObjs mmdb2_lib                                           )
-add_dependencies        ( compileObjs ccp4_lib                                            )
-add_dependencies        ( compileObjs fftw2_lib                                           )
-add_dependencies        ( compileObjs clipper_lib                                         )

@@ -42,7 +42,8 @@ int main ( int argc, char **argv )
     
     //================================================ Further useful settings
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
-    settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution?
+    settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+    settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     settings->setPDBBFactor                           ( -1.0 );                              // Should all B-factors in a PDB file changed to this value? If no, set to negative value.
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
@@ -96,9 +97,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
     
     //================================================ Expected output
-//  Energy levels distances          : 0.87387 and 0.59723
-//  Trace sigma distances            : 0.95053 and 0.74773
-//  Rotation function distances      : 0.74014 and 0.46354
+//  Energy levels distances          : 0.89531 and 0.55904
+//  Trace sigma distances            : 0.96045 and 0.73655
+//  Rotation function distances      : 0.75628 and 0.45242
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

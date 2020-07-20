@@ -52,7 +52,8 @@ pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomai
 
 ### Useful settings
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
-pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
+pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
+pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setPDBBFactor                            ( -1.0 )                                 # Should all B-factors in a PDB file changed to this value? If no, set to negative value.
 pSet.setBandwidth                             ( 0 )                                    # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
 pSet.setPhaseUsage                            ( True )                                 # Use full maps, or Patterson-like maps?
@@ -116,9 +117,9 @@ print ( "Rotation function distances  : " + str( rotFunDistances[0] ) + "\t" + s
 
 ##############################################
 ### Expected output
-#Energy levels distances      : 0.8878934799764869    0.6059582772417571
-#Trace sigma distances        : 0.9652072601499514    0.7788919448825865
-#Rotation function distances  : 0.7949105425889242    0.6001006328404906
+#   Energy levels distances      : 0.8984338794121268    0.6012626312302949
+#   Trace sigma distances        : 0.9586515647570873    0.7669313554309691
+#   Rotation function distances  : 0.7942379183355734    0.5949845163438436
 
 ##############################################
 ### Done

@@ -2,151 +2,152 @@
 compiling proshadeBinary.cpp
 ============================
 
-clang ./proshadeBinary.cpp -I/path/to/proshade/install/include \
-                           -I/path/to/proshade/extern/soft-2.0/include \
-                           -L/path/to/proshade/install/lib \
-                           -lproshade -lc++ \
-                           -rpath /path/to/proshade/install/lib \
-                           -o ./proshadeBinary
+clang ./proshadeProject.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                            -I/path/to/proshade/extern/gemmi/include \
+                            -L/path/to/proshade/install/lib \
+                            -std=c++11 -lproshade -lc++ -lz \
+                            -rpath /path/to/proshade/install/lib \
+                            -o ./proshadeProject
+
                            
-g++ ./proshadeBinary.cpp -I/path/to/proshade/install/include \
-						 -I/path/to/proshade/extern/soft-2.0/include \ 
-						 -L/path/to/proshade/install/lib \
-						 -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
-						 -o ./proshadeBinary
+g++ ./proshadeProject.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                          -I/path/to/proshade/extern/gemmi/include \
+                          -L/path/to/proshade/install/lib \
+                          -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
+                          -o ./proshadeProject
                            
 ====================================
 compiling simpleAccess_distances.cpp
 ====================================                     
 
-clang ./simpleAccess_distances.cpp -I/path/to/proshade/install/include \
-                   		           -I/path/to/proshade/extern/soft-2.0/include \
-                           		   -L/path/to/proshade/install/lib \
-                           		   -lproshade -lc++ \
-                           		   -rpath /path/to/proshade/install/lib \
+clang ./simpleAccess_distances.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                   -I/path/to/proshade/extern/gemmi/include \
+                                   -L/path/to/proshade/install/lib \
+                                   -std=c++11 -lproshade -lc++ -lz \
+                                   -rpath /path/to/proshade/install/lib \
                                    -o ./simpleAccess_distances
                                    
-g++ ./simpleAccess_distances.cpp -I/path/to/proshade/install/include \
-								 -I/path/to/proshade/extern/soft-2.0/include \ 
-								 -L/path/to/proshade/install/lib \
-								 -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./simpleAccess_distances.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                 -I/path/to/proshade/extern/gemmi/include \
+                                 -L/path/to/proshade/install/lib \
+                                 -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 								 -o ./simpleAccess_distances
                                    
 ==================================
 compiling simpleAccess_overlay.cpp
 ==================================                     
 
-clang ./simpleAccess_overlay.cpp -I/path/to/proshade/install/include \
-                   		         -I/path/to/proshade/extern/soft-2.0/include \
-                           		 -L/path/to/proshade/install/lib \
-                           		 -lproshade -lc++ \
-                           		 -rpath /path/to/proshade/install/lib \
+clang ./simpleAccess_overlay.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                 -I/path/to/proshade/extern/gemmi/include \
+                                 -L/path/to/proshade/install/lib \
+                                 -std=c++11 -lproshade -lc++ -lz \
+                                 -rpath /path/to/proshade/install/lib \
                                  -o ./simpleAccess_overlay
                                  
-g++ ./simpleAccess_overlay.cpp -I/path/to/proshade/install/include \
-							   -I/path/to/proshade/extern/soft-2.0/include \ 
-							   -L/path/to/proshade/install/lib \
-							   -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./simpleAccess_overlay.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                               -I/path/to/proshade/extern/gemmi/include \
+                               -L/path/to/proshade/install/lib \
+                               -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							   -o ./simpleAccess_overlay
                                                                     
 ===================================
 compiling simpleAccess_reboxing.cpp
 ===================================                    
 
-clang ./simpleAccess_reboxing.cpp -I/path/to/proshade/install/include \
-                   		          -I/path/to/proshade/extern/soft-2.0/include \
-                           		  -L/path/to/proshade/install/lib \
-                           		  -lproshade -lc++ \
-                           		  -rpath /path/to/proshade/install/lib \
+clang ./simpleAccess_reboxing.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                  -I/path/to/proshade/extern/gemmi/include \
+                                  -L/path/to/proshade/install/lib \
+                                  -std=c++11 -lproshade -lc++ -lz \
+                                  -rpath /path/to/proshade/install/lib \
                                   -o ./simpleAccess_reboxing
                                   
-g++ ./simpleAccess_reboxing.cpp -I/path/to/proshade/install/include \
-							    -I/path/to/proshade/extern/soft-2.0/include \ 
-							    -L/path/to/proshade/install/lib \
-							    -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./simpleAccess_reboxing.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                -I/path/to/proshade/extern/gemmi/include \
+                                -L/path/to/proshade/install/lib \
+                                -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							    -o ./simpleAccess_reboxing
                                   
 ===================================
 compiling simpleAccess_symmetry.cpp
 ===================================                    
 
-clang ./simpleAccess_symmetry.cpp -I/path/to/proshade/install/include \
-                   		          -I/path/to/proshade/extern/soft-2.0/include \
-                           		  -L/path/to/proshade/install/lib \
-                           		  -lproshade -lc++ \
-                           		  -rpath /path/to/proshade/install/lib \
+clang ./simpleAccess_symmetry.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                  -I/path/to/proshade/extern/gemmi/include \
+                                  -L/path/to/proshade/install/lib \
+                                  -std=c++11 -lproshade -lc++ -lz \
+                                  -rpath /path/to/proshade/install/lib \
                                   -o ./simpleAccess_symmetry
                                   
-g++ ./simpleAccess_symmetry.cpp -I/path/to/proshade/install/include \
-							    -I/path/to/proshade/extern/soft-2.0/include \ 
-							    -L/path/to/proshade/install/lib \
-							    -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./simpleAccess_symmetry.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                -I/path/to/proshade/extern/gemmi/include \
+                                -L/path/to/proshade/install/lib \
+                                -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							    -o ./simpleAccess_symmetry
                                   
 ======================================
 compiling advancedAccess_distances.cpp
 ======================================                   
 
-clang ./advancedAccess_distances.cpp -I/path/to/proshade/install/include \
-                   		             -I/path/to/proshade/extern/soft-2.0/include \
-                           		     -L/path/to/proshade/install/lib \
-                           		     -lproshade -lc++ \
-                           		     -rpath /path/to/proshade/install/lib \
+clang ./advancedAccess_distances.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                     -I/path/to/proshade/extern/gemmi/include \
+                                     -L/path/to/proshade/install/lib \
+                                     -std=c++11 -lproshade -lc++ -lz \
+                                     -rpath /path/to/proshade/install/lib \
                                      -o ./advancedAccess_distances
                                      
-g++ ./advancedAccess_distances.cpp -I/path/to/proshade/install/include \
-							       -I/path/to/proshade/extern/soft-2.0/include \ 
-							       -L/path/to/proshade/install/lib \
-							       -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./advancedAccess_distances.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                   -I/path/to/proshade/extern/gemmi/include \
+                                   -L/path/to/proshade/install/lib \
+                                   -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							       -o ./advancedAccess_distances
                                      
 ====================================
 compiling advancedAccess_overlay.cpp
 ====================================                   
 
-clang ./advancedAccess_overlay.cpp -I/path/to/proshade/install/include \
-                   		           -I/path/to/proshade/extern/soft-2.0/include \
-                           		   -L/path/to/proshade/install/lib \
-                           		   -lproshade -lc++ \
-                           		   -rpath /path/to/proshade/install/lib \
+clang ./advancedAccess_overlay.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                   -I/path/to/proshade/extern/gemmi/include \
+                                   -L/path/to/proshade/install/lib \
+                                   -std=c++11 -lproshade -lc++ -lz \
+                                   -rpath /path/to/proshade/install/lib \
                                    -o ./advancedAccess_overlay
                                    
-g++ ./advancedAccess_overlay.cpp -I/path/to/proshade/install/include \
-							     -I/path/to/proshade/extern/soft-2.0/include \ 
-							     -L/path/to/proshade/install/lib \
-							     -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./advancedAccess_overlay.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                 -I/path/to/proshade/extern/gemmi/include \
+                                 -L/path/to/proshade/install/lib \
+                                 -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							     -o ./advancedAccess_overlay
 
 =====================================
 compiling advancedAccess_reboxing.cpp
 =====================================                   
 
-clang ./advancedAccess_reboxing.cpp -I/path/to/proshade/install/include \
-                   		            -I/path/to/proshade/extern/soft-2.0/include \
-                           		    -L/path/to/proshade/install/lib \
-                           		    -lproshade -lc++ \
-                           		    -rpath /path/to/proshade/install/lib \
+clang ./advancedAccess_reboxing.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                    -I/path/to/proshade/extern/gemmi/include \
+                                    -L/path/to/proshade/install/lib \
+                                    -std=c++11 -lproshade -lc++ -lz \
+                                    -rpath /path/to/proshade/install/lib \
                                     -o ./advancedAccess_reboxing
                                     
-g++ ./advancedAccess_reboxing.cpp -I/path/to/proshade/install/include \
-							      -I/path/to/proshade/extern/soft-2.0/include \ 
-							      -L/path/to/proshade/install/lib \
-							      -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./advancedAccess_reboxing.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                  -I/path/to/proshade/extern/gemmi/include \
+                                  -L/path/to/proshade/install/lib \
+                                  -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							      -o ./advancedAccess_reboxing
 
 =====================================
 compiling advancedAccess_symmetry.cpp
 =====================================                   
 
-clang ./advancedAccess_symmetry.cpp -I/path/to/proshade/install/include \
-                   		            -I/path/to/proshade/extern/soft-2.0/include \
-                           		    -L/path/to/proshade/install/lib \
-                           		    -lproshade -lc++ \
-                           		    -rpath /path/to/proshade/install/lib \
+clang ./advancedAccess_symmetry.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                    -I/path/to/proshade/extern/gemmi/include \
+                                    -L/path/to/proshade/install/lib \
+                                    -std=c++11 -lproshade -lc++ -lz \
+                                    -rpath /path/to/proshade/install/lib \
                                     -o ./advancedAccess_symmetry
                                     
-g++ ./advancedAccess_symmetry.cpp -I/path/to/proshade/install/include \
-							      -I/path/to/proshade/extern/soft-2.0/include \ 
-							      -L/path/to/proshade/install/lib \
-							      -lproshade -Wl,-rpath,/path/to/proshade/install/lib \
+g++ ./advancedAccess_symmetry.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                                  -I/path/to/proshade/extern/gemmi/include \
+                                  -L/path/to/proshade/install/lib \
+                                  -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							      -o ./advancedAccess_symmetry

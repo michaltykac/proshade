@@ -38,7 +38,8 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
-    this->changeMapResolution                         = true;
+    this->changeMapResolution                         = false;
+    this->changeMapResolutionTriLinear                = false;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = -1.0;
@@ -139,6 +140,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
+    this->changeMapResolutionTriLinear                = false;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = -1.0;
@@ -235,7 +237,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
         case Symmetry:
             this->requestedResolution                 = 8.0;
             this->pdbBFactorNewVal                    = 80.0;
-            this->changeMapResolution                 = true;
+            this->changeMapResolution                 = false;
             this->maskMap                             = false;
             this->moveToCOM                           = false;
             this->normaliseMap                        = false;
@@ -243,7 +245,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             break;
             
         case Distances:
-            this->changeMapResolution                 = true;
+            this->changeMapResolution                 = false;
             this->maskMap                             = false;
             this->moveToCOM                           = true;
             this->reBoxMap                            = false;
@@ -251,7 +253,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
                     
         case OverlayMap:
             this->requestedResolution                 = 8.0;
-            this->changeMapResolution                 = false;
+            this->changeMapResolution                 = true;
             this->maskMap                             = false;
             this->moveToCOM                           = true;
             this->normaliseMap                        = false;
@@ -607,6 +609,22 @@ void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
 {
     //================================================ Set the value
     this->changeMapResolution                         = mrChange;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the requested map resolution change decision using tri-linear interpolation in the appropriate variable.
+ 
+ This function sets the tri-linear interpolation map resolution change between on and off.
+ 
+ \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
+ */
+void ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
+{
+    //================================================ Set the value
+    this->changeMapResolutionTriLinear                = mrChange;
     
     //================================================ Done
     return ;
@@ -1425,6 +1443,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "pdbTempFact",     required_argument,  NULL, 'd' },
         { "center",          no_argument,        NULL, 'c' },
         { "changeMapResol",  no_argument,        NULL, 'j' },
+        { "changeMapTriLin", no_argument,        NULL, 'a' },
         { "noPhase",         no_argument,        NULL, 'p' },
         { "progressive",     no_argument,        NULL, 'k' },
         { "noEnL",           no_argument,        NULL, 'l' },
@@ -1442,7 +1461,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "b:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1658,10 +1677,17 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                  continue;
              }
                  
-             //======================================= Set map resolution change to true
+             //======================================= Set map resolution change using Fourier transforms to true
              case 'j':
              {
                  this->setMapResolutionChange         ( true );
+                 continue;
+             }
+                 
+             //======================================= Set map resolution change using real-space tri-linear interpolation to true
+             case 'a':
+             {
+                 this->setMapResolutionChangeTriLinear ( true );
                  continue;
              }
                  
@@ -1933,6 +1959,10 @@ void ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     if ( this->changeMapResolution ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Change map resol    : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->changeMapResolutionTriLinear ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Change map tri-lin  : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     if ( this->usePhase ) { strstr << "TRUE"; } else { strstr << "FALSE"; }

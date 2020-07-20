@@ -12,6 +12,31 @@ Windows 10
 
 Not supported yet.
 
+======================
+MacOS Yosemite (10.10) 
+======================
+
+* Install Command Line Tools
+	* xcode-select --install
+* Install Homebrew
+	* ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	* brew install gcc
+	* brew install cmake
+	* brew install swig
+* Install pip and numpy
+	* curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+	* sudo python get-pip.py
+	* sudo pip install numpy
+* Install numpy for python3
+	* pip3 install numpy
+* Install full fftw3
+	* Download sources from http://www.fftw.org/download.html
+	* tar -zxvf fftw-3.3.8.tar.gz
+	* cd fftw-3.3.8
+	* ./configure --enable-shared 
+	* make
+	* sudo make install
+
 =============
 Ubuntu 18.4.4 
 =============
@@ -34,6 +59,7 @@ APT INSTALL:
 * python3-dev
 * swig
 * git
+* zlib1g-dev
 
 PIP INSTALL:
 * numpy
@@ -43,7 +69,7 @@ PIP3 INSTALL:
 
 COMMAND LINE:
 $ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git
+$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git zlib1g-dev
 $ sudo pip install numpy
 $ sudo pip3 install numpy
 
@@ -73,6 +99,7 @@ YUM INSTALL:
 * python3-devel
 * swig
 * git
+* zlib-devel
 
 PIP2 INSTALL:
 * numpy
@@ -84,7 +111,7 @@ COMMAND LINE:
 $ sudo yum install dnf-plugins-core
 $ sudo yum config-manager --set-enabled PowerTools
 $ sudo yum update -y
-$ sudo yum install gcc gcc-c++ gcc-gfortran make cmake m4 fftw3-devel blas-devel lapack-devel python2 python2-pip python2-devel python3 python3-pip python3-devel swig git -y
+$ sudo yum install gcc gcc-c++ gcc-gfortran make cmake m4 fftw3-devel blas-devel lapack-devel python2 python2-pip python2-devel python3 python3-pip python3-devel swig git zlib-devel -y
 $ sudo pip2 install numpy
 $ sudo pip3 install numpy
 
@@ -113,6 +140,7 @@ APT INSTALL:
 * python3-dev
 * swig
 * git
+* zlib1g-dev
 
 PIP INSTALL:
 * numpy
@@ -122,7 +150,7 @@ PIP3 INSTALL:
 
 COMMAND LINE:
 $ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git 
+$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git zlib1g-dev
 $ sudo pip install numpy
 $ sudo pip3 install numpy
 
@@ -148,6 +176,7 @@ APT INSTALL:
 * python3-dev
 * swig
 * git
+* zlib1g-dev
 
 PIP INSTALL:
 * numpy
@@ -157,7 +186,7 @@ PIP3 INSTALL:
 
 COMMAND LINE:
 $ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc gcc-c++ gcc-fortran make cmake m4 fftw3-dev blas-dev lapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git
+$ sudo apt-get install -y gcc gcc-c++ gcc-fortran make cmake m4 fftw3-dev blas-dev lapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git zlib1g-dev
 $ sudo pip2 install numpy
 $ sudo pip3 install numpy
 

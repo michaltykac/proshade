@@ -27,29 +27,16 @@
 #pragma GCC diagnostic ignored "-Wshadow"
 #pragma GCC diagnostic ignored "-Wall"
 
-//==================================================== Clipper
-#include <clipper/clipper.h>
-#include <clipper/clipper-contrib.h>
-#include <clipper/clipper-ccp4.h>
-#include <clipper/clipper-mmdb.h>
-#include <clipper/clipper-minimol.h>
-
-//==================================================== CMAPLIB
-#ifdef __cplusplus
-extern "C" {
+//==================================================== Gemmi
+#ifndef __PROSHADE_GEMMI_INCLUDE__
+    #define __PROSHADE_GEMMI_INCLUDE__
+    #include <gemmi/mmread.hpp>
+    #include <gemmi/ccp4.hpp>
+    #include <gemmi/it92.hpp>
+    #include <gemmi/rhogrid.hpp>
+    #include <gemmi/sfcalc.hpp>
+    #include <gemmi/gz.hpp>
 #endif
-    
-#include <ccp4/cmaplib.h>
-#include <ccp4/ccp4_errno.h>
-    
-#ifdef __cplusplus
-}
-#endif
-
-//==================================================== Undefine clashing macros from CMapLib
-#undef MAX
-#undef MIN
-#undef ABS
 
 //==================================================== FFTW3
 #ifdef __cplusplus
@@ -107,6 +94,7 @@ public:
     //================================================ Settings regarding the resolution of calculations
     proshade_single requestedResolution;              //!< The resolution to which the calculations are to be done.
     bool changeMapResolution;                         //!< Should maps be re-sampled to obtain the required resolution?
+    bool changeMapResolutionTriLinear;                //!< Should maps be re-sampled to obtain the required resolution?
     
     //================================================ Settings regarding the PDB B-factor change
     proshade_double pdbBFactorNewVal;                 //!< Change all PDB B-factors to this value (for smooth maps).
@@ -223,6 +211,7 @@ public:
     void setSameBoundaries                            ( bool sameB );
     void setOutputFilename                            ( std::string oFileName );
     void setMapResolutionChange                       ( bool mrChange );
+    void setMapResolutionChangeTriLinear              ( bool mrChange );
     void setMapCentering                              ( bool com );
     void setExtraSpace                                ( proshade_single exSpace );
     void setBandwidth                                 ( proshade_unsign band );
