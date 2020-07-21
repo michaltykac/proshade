@@ -104,7 +104,7 @@ else  ( GFORTRAN_VERSION )
 endif ( GFORTRAN_VERSION )
 
 ##########################################################################################
-################################### Set targets for dependency installation from supplied sources
+################################### Set a target for Gemmi installation
 
 ### GEMMI
 add_custom_command (
