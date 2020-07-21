@@ -10,7 +10,7 @@ Standard dependencies:
 Windows 10 
 ==========
 
-Not supported yet.
+Not fully supported yet.
 
 * Install cygwin
 	* https://www.cygwin.com
@@ -18,6 +18,13 @@ Not supported yet.
 	* Command Prompt
 		* cd C:\cygwin64
 		* setup-x86_64.exe -q -P wget -P gcc-g++ -P gcc-fortran -P make -P cmake -P fftw3 -P libfftw3-devel -P liblapack-devel -P swig -P zlib-devel -P git
+	* Cygwin64 Terminal
+		* git clone https://github.com/michaltykac/proshade
+		* mkdir ./proshade/build
+		* cd ./proshade/build
+		* cmake ..
+		* make install
+		
 
 ======================
 MacOS Yosemite (10.10) 

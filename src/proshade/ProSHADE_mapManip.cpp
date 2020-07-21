@@ -1192,11 +1192,11 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     changeFourierOrder                                ( fCoeffs, xDimS, yDimS, zDimS, true );
     
     //================================================ Re-sample the coefficients by removing high frequencies or adding these with 0 values
-    for ( proshade_signed xIt = 0; xIt < newXDim; xIt++ )
+    for ( proshade_unsign xIt = 0; xIt < newXDim; xIt++ )
     {
-        for ( proshade_signed yIt = 0; yIt < newYDim; yIt++ )
+        for ( proshade_unsign yIt = 0; yIt < newYDim; yIt++ )
         {
-            for ( proshade_signed zIt = 0; zIt < newZDim; zIt++ )
+            for ( proshade_unsign zIt = 0; zIt < newZDim; zIt++ )
             {
                 //==================================== Find the array positions
                 origSizeArr                           = (zIt + preZChange) + zDimS   * ( (yIt + preYChange) + yDimS   * (xIt + preXChange) );
@@ -1374,7 +1374,7 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
     }
     
     //================================================ Copy the helper array to the input Fourier coefficients array
-    for ( proshade_unsign iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }
     
     //================================================ Release helper array memory
     delete[] hlpFCoeffs;
