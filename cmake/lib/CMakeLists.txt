@@ -12,9 +12,9 @@ add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS}                    
 ### Add and link the dependencies
 add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
-target_link_libraries   ( ${PROJECT_NAME}_LIB z )
-target_link_libraries   ( ${PROJECT_NAME}_LIB fftw3                                       )
+target_link_libraries   ( ${PROJECT_NAME}_LIB z                                           )
 target_link_libraries   ( ${PROJECT_NAME}_LIB ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
+target_link_libraries   ( ${PROJECT_NAME}_LIB fftw3                                       )
 target_link_libraries   ( ${PROJECT_NAME}_LIB lapack blas                                 )
 
 ##########################################################################################

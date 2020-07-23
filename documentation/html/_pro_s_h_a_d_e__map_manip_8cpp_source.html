@@ -1051,11 +1051,11 @@ $(document).ready(function(){initNavTree('_pro_s_h_a_d_e__map_manip_8cpp_source.
 <div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160;    <a class="code" href="namespace_pro_s_h_a_d_e__internal__map_manip.html#adc0d808ba88ad0e023ba8391aa44be95">changeFourierOrder</a>                                ( fCoeffs, xDimS, yDimS, zDimS, <span class="keyword">true</span> );</div>
 <div class="line"><a name="l01193"></a><span class="lineno"> 1193</span>&#160;    </div>
 <div class="line"><a name="l01194"></a><span class="lineno"> 1194</span>&#160;    <span class="comment">//================================================ Re-sample the coefficients by removing high frequencies or adding these with 0 values</span></div>
-<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;    <span class="keywordflow">for</span> ( proshade_signed xIt = 0; xIt &lt; newXDim; xIt++ )</div>
+<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign xIt = 0; xIt &lt; newXDim; xIt++ )</div>
 <div class="line"><a name="l01196"></a><span class="lineno"> 1196</span>&#160;    {</div>
-<div class="line"><a name="l01197"></a><span class="lineno"> 1197</span>&#160;        <span class="keywordflow">for</span> ( proshade_signed yIt = 0; yIt &lt; newYDim; yIt++ )</div>
+<div class="line"><a name="l01197"></a><span class="lineno"> 1197</span>&#160;        <span class="keywordflow">for</span> ( proshade_unsign yIt = 0; yIt &lt; newYDim; yIt++ )</div>
 <div class="line"><a name="l01198"></a><span class="lineno"> 1198</span>&#160;        {</div>
-<div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;            <span class="keywordflow">for</span> ( proshade_signed zIt = 0; zIt &lt; newZDim; zIt++ )</div>
+<div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;            <span class="keywordflow">for</span> ( proshade_unsign zIt = 0; zIt &lt; newZDim; zIt++ )</div>
 <div class="line"><a name="l01200"></a><span class="lineno"> 1200</span>&#160;            {</div>
 <div class="line"><a name="l01201"></a><span class="lineno"> 1201</span>&#160;                <span class="comment">//==================================== Find the array positions</span></div>
 <div class="line"><a name="l01202"></a><span class="lineno"> 1202</span>&#160;                origSizeArr                           = (zIt + preZChange) + zDimS   * ( (yIt + preYChange) + yDimS   * (xIt + preXChange) );</div>
@@ -1192,7 +1192,7 @@ $(document).ready(function(){initNavTree('_pro_s_h_a_d_e__map_manip_8cpp_source.
 <div class="line"><a name="l01374"></a><span class="lineno"> 1374</span>&#160;    }</div>
 <div class="line"><a name="l01375"></a><span class="lineno"> 1375</span>&#160;    </div>
 <div class="line"><a name="l01376"></a><span class="lineno"> 1376</span>&#160;    <span class="comment">//================================================ Copy the helper array to the input Fourier coefficients array</span></div>
-<div class="line"><a name="l01377"></a><span class="lineno"> 1377</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }</div>
+<div class="line"><a name="l01377"></a><span class="lineno"> 1377</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }</div>
 <div class="line"><a name="l01378"></a><span class="lineno"> 1378</span>&#160;    </div>
 <div class="line"><a name="l01379"></a><span class="lineno"> 1379</span>&#160;    <span class="comment">//================================================ Release helper array memory</span></div>
 <div class="line"><a name="l01380"></a><span class="lineno"> 1380</span>&#160;    <span class="keyword">delete</span>[] hlpFCoeffs;</div>

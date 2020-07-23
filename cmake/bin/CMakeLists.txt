@@ -13,8 +13,8 @@ add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${OBJS}                   
 add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
 target_link_libraries   ( ${PROJECT_NAME} z                                               )
-target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
 target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a  )
+target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
 target_link_libraries   ( ${PROJECT_NAME} lapack blas                                     )
 
 ##########################################################################################
