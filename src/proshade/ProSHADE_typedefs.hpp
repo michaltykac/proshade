@@ -16,7 +16,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUL 2020
+    \date      AUG 2020
  */
 
 //==================================================== ProSHADE
@@ -33,7 +33,6 @@
 #include <exception>
 #include <complex>
 #include <algorithm>
-#include <tgmath.h>
 #include <getopt.h>
 #include <iomanip>
 
