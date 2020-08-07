@@ -7,7 +7,11 @@ Development
 * Make sure the SO(3) coefficients are accessed from python just like the E matrices.
 * Use NFFT
 * Look into symmetry and improve on time and accuracy
+* Create PiPy build procedure for python modules
+* Create Homebrew build procedure for MacOS
+* Create apt build procedure for Linux
+* Create Windows binary and dll to go with PiPy for complete Windows installation
+* Create MacPorts build procedure
 
 Admin
-* Create pip installation
 * Get new version to CCP-EM including new interface

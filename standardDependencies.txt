@@ -18,12 +18,20 @@ Not fully supported yet.
 	* Command Prompt
 		* cd C:\cygwin64
 		* setup-x86_64.exe -q -P wget -P gcc-g++ -P gcc-fortran -P make -P cmake -P fftw3 -P libfftw3-devel -P liblapack-devel -P swig -P zlib-devel -P git
+* Install ProSHADE
 	* Cygwin64 Terminal
 		* git clone https://github.com/michaltykac/proshade
 		* mkdir ./proshade/build
 		* cd ./proshade/build
 		* cmake ..
 		* make install
+* Edit system paths
+	* Control Panel -> System and Security -> System -> Advanced System Settings -> Advanced -> Environment Variables
+	* Under System Variables (as opposed by User variables) find variable "Path" and click Edit...
+	* Click new and write "C:\cygwin64\bin"
+	* Click new and write "C:\cygwin64\lib\lapack"
+* Use ProSHADE from Command Prompt :-)
+		
 		
 
 ======================
