@@ -20,7 +20,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.3
-    \date      JUL 2020
+    \date      AUG 2020
  */
 
 //==================================================== DOxygen main page specifications
@@ -195,7 +195,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map -r 12 -ak
- ProSHADE 0.7.3 (JUL 2020):
+ ProSHADE 0.7.3 (AUG 2020):
  ==========================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -242,7 +242,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6 -k
-  ProSHADE 0.7.3 (JUL 2020):
+  ProSHADE 0.7.3 (AUG 2020):
   ==========================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -316,7 +316,7 @@
  *
  *\code{.sh}
  $ ./proshade -MRf ./emd_5762.map.gz
- ProSHADE 0.7.3 (JUL 2020):
+ ProSHADE 0.7.3 (AUG 2020):
  ==========================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -357,7 +357,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.3 (JUL 2020):
+ ProSHADE 0.7.3 (AUG 2020):
  ==========================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb

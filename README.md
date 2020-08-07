@@ -143,7 +143,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map -r 12 -ak
- ProSHADE 0.7.3 (JUL 2020):
+ ProSHADE 0.7.3 (AUG 2020):
  ==========================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -186,7 +186,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6 -k
-  ProSHADE 0.7.3 (JUL 2020):
+  ProSHADE 0.7.3 (AUG 2020):
   ==========================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -254,7 +254,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
  $ ./proshade -MRf ./emd_5762.map.gz
- ProSHADE 0.7.3 (JUL 2020):
+ ProSHADE 0.7.3 (AUG 2020):
  ==========================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -286,7 +286,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.3 (JUL 2020):
+ ProSHADE 0.7.3 (AUG 2020):
  ==========================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb

@@ -6,14 +6,14 @@
 
 ##########################################################################################
 ################################### Decide version of CMake and use appropriate fn calls
-set ( PRODUCE_PYTHON_BINDINGS   "0"                                                       )
-set ( USE_MODERN_PATHS          "0"                                                       )
+set     ( PRODUCE_PYTHON_BINDINGS   "0"                                                   )
+set     ( USE_MODERN_PATHS          "0"                                                   )
 
-if    ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
+if      ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
 	message ( FATAL_ERROR "Your CMake version is less than 2.6. ProSHADE requires a newer version and cannot be installed using the current version. Please update your CMake and try again." )
-endif ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
+endif   ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
 
-if    ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
+if      ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 	if    ( ${CMAKE_MINOR_VERSION} GREATER 7 )
 		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
 		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
@@ -23,9 +23,9 @@ if    ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
 		set ( USE_MODERN_PATHS          "0"                                               )
 	endif ( ${CMAKE_MINOR_VERSION} GREATER 7 )
-endif ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
+endif   ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 
-if    ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
+if      ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
 	if    ( ${CMAKE_MINOR_VERSION} LESS 1 )
 		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
 		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
@@ -35,15 +35,15 @@ if    ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
 		set ( PRODUCE_PYTHON_BINDINGS   "1"                                               )
 		set ( USE_MODERN_PATHS          "1"                                               )
 	endif ( ${CMAKE_MINOR_VERSION} LESS 1 )
-endif ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
+endif   ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
 
 ##########################################################################################
 ################################### Set the correct required version
-if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+if      ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 	cmake_minimum_required  ( VERSION 3.1                                                 )
-else  ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+else    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 	cmake_minimum_required  ( VERSION 2.6                                                 )
-endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
@@ -58,6 +58,58 @@ set     ( CMAKE_CXX_STANDARD_REQUIRED ON                                        
 ################################### Find the source files
 file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                          )
 file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                               )
+
+##########################################################################################
+################################### Check for header files
+include ( CheckIncludeFiles                                                               )
+check_include_files ( getopt.h HAVE_GETOPT_H                                              )
+if      ( NOT ${HAVE_GETOPT_H} )
+	message ( FATAL_ERROR "The getopt.h header was not found. Please check that its include path is in the system paths or re-install your compiler." )
+endif   ( NOT ${HAVE_GETOPT_H} )
+
+##########################################################################################
+################################### Check type sizes
+include ( ${CMAKE_SOURCE_DIR}/cmake/checkTypeSizes/CheckTypeSize.cmake                    )
+set     ( CMAKE_EXTRA_INCLUDE_FILES "ProSHADE_typedefs.hpp"                               )
+set     ( CMAKE_REQUIRED_INCLUDES "${CMAKE_SOURCE_DIR}/src/proshade"                      )
+
+check_type_size ( "proshade_single" FLOAT_SIZE LANGUAGE CXX                               )
+check_type_size ( "proshade_double" DOUBLE_SIZE LANGUAGE CXX                              )
+check_type_size ( "proshade_signed" SIGNLONGINT_SIZE LANGUAGE CXX                         )
+check_type_size ( "proshade_unsign" UNSGLONGINT_SIZE LANGUAGE CXX                         )
+set     ( CMAKE_EXTRA_INCLUDE_FILES                                                       )
+
+if      ( NOT ${HAVE_FLOAT_SIZE} )
+	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+elseif  ( ${FLOAT_SIZE} LESS 4 )
+	message ( FATAL_ERROR "Float type on your system has less than 4 bytes. Please edit the ProSHADE_typedefs.hpp file line 47 so that the proshade_single typedef would be of a decimal type with at least 4 bytes (maybe try double instead of float?)." )
+else    ( NOT ${HAVE_FLOAT_SIZE} )
+    message ( STATUS "proshade_single type size is : " ${FLOAT_SIZE} " bytes" )
+endif   ( NOT ${HAVE_FLOAT_SIZE} )
+
+if      ( NOT ${HAVE_DOUBLE_SIZE} )
+	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+elseif  ( ${DOUBLE_SIZE} LESS 4 )
+	message ( FATAL_ERROR "Double type on your system has less than 4 bytes. Please edit the ProSHADE_typedefs.hpp file line 48 so that the proshade_double typedef would be of a decimal type with at least 4 bytes (maybe try long double instead of double?)." )
+else    ( NOT ${HAVE_DOUBLE_SIZE} )
+    message ( STATUS "proshade_double type size is : " ${DOUBLE_SIZE} " bytes" )
+endif   ( NOT ${HAVE_DOUBLE_SIZE} )
+
+if      ( NOT ${HAVE_SIGNLONGINT_SIZE} )
+	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+elseif  ( ${SIGNLONGINT_SIZE} LESS 8 )
+	message ( FATAL_ERROR "Signed long int type on your system has less than 8 bytes. Please edit the ProSHADE_typedefs.hpp file line 49 so that the proshade_signed typedef would be of an integer type with at least 8 bytes on your system." )
+else    ( NOT ${HAVE_SIGNLONGINT_SIZE} )
+    message ( STATUS "proshade_signed type size is : " ${SIGNLONGINT_SIZE} " bytes" )
+endif   ( NOT ${HAVE_SIGNLONGINT_SIZE} )
+
+if      ( NOT ${HAVE_UNSGLONGINT_SIZE} )
+	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+elseif  ( ${UNSGLONGINT_SIZE} LESS 8 )
+	message ( FATAL_ERROR "Unsigned long int type on your system has less than 8 bytes. Please edit the ProSHADE_typedefs.hpp file line 50 so that the proshade_unsign typedef would be of an integer type with at least 8 bytes on your system." )
+else    ( NOT ${HAVE_UNSGLONGINT_SIZE} )
+    message ( STATUS "proshade_unsign type size is : " ${UNSGLONGINT_SIZE} " bytes" )
+endif   ( NOT ${HAVE_UNSGLONGINT_SIZE} )
 
 ##########################################################################################
 ################################### Define the command line options variables and defaults
