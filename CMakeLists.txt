@@ -47,7 +47,7 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.1 LANGUAGES CXX C                                          )     
+project ( proshade VERSION 0.7.3 LANGUAGES CXX C                                          )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -69,47 +69,49 @@ endif   ( NOT ${HAVE_GETOPT_H} )
 
 ##########################################################################################
 ################################### Check type sizes
-include ( ${CMAKE_SOURCE_DIR}/cmake/checkTypeSizes/CheckTypeSize.cmake                    )
-set     ( CMAKE_EXTRA_INCLUDE_FILES "ProSHADE_typedefs.hpp"                               )
-set     ( CMAKE_REQUIRED_INCLUDES "${CMAKE_SOURCE_DIR}/src/proshade"                      )
-
-check_type_size ( "proshade_single" FLOAT_SIZE LANGUAGE CXX                               )
-check_type_size ( "proshade_double" DOUBLE_SIZE LANGUAGE CXX                              )
-check_type_size ( "proshade_signed" SIGNLONGINT_SIZE LANGUAGE CXX                         )
-check_type_size ( "proshade_unsign" UNSGLONGINT_SIZE LANGUAGE CXX                         )
-set     ( CMAKE_EXTRA_INCLUDE_FILES                                                       )
-
-if      ( NOT ${HAVE_FLOAT_SIZE} )
-	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
-elseif  ( ${FLOAT_SIZE} LESS 4 )
-	message ( FATAL_ERROR "Float type on your system has less than 4 bytes. Please edit the ProSHADE_typedefs.hpp file line 47 so that the proshade_single typedef would be of a decimal type with at least 4 bytes (maybe try double instead of float?)." )
-else    ( NOT ${HAVE_FLOAT_SIZE} )
-    message ( STATUS "proshade_single type size is : " ${FLOAT_SIZE} " bytes" )
-endif   ( NOT ${HAVE_FLOAT_SIZE} )
-
-if      ( NOT ${HAVE_DOUBLE_SIZE} )
-	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
-elseif  ( ${DOUBLE_SIZE} LESS 4 )
-	message ( FATAL_ERROR "Double type on your system has less than 4 bytes. Please edit the ProSHADE_typedefs.hpp file line 48 so that the proshade_double typedef would be of a decimal type with at least 4 bytes (maybe try long double instead of double?)." )
-else    ( NOT ${HAVE_DOUBLE_SIZE} )
-    message ( STATUS "proshade_double type size is : " ${DOUBLE_SIZE} " bytes" )
-endif   ( NOT ${HAVE_DOUBLE_SIZE} )
-
-if      ( NOT ${HAVE_SIGNLONGINT_SIZE} )
-	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
-elseif  ( ${SIGNLONGINT_SIZE} LESS 8 )
-	message ( FATAL_ERROR "Signed long int type on your system has less than 8 bytes. Please edit the ProSHADE_typedefs.hpp file line 49 so that the proshade_signed typedef would be of an integer type with at least 8 bytes on your system." )
-else    ( NOT ${HAVE_SIGNLONGINT_SIZE} )
-    message ( STATUS "proshade_signed type size is : " ${SIGNLONGINT_SIZE} " bytes" )
-endif   ( NOT ${HAVE_SIGNLONGINT_SIZE} )
-
-if      ( NOT ${HAVE_UNSGLONGINT_SIZE} )
-	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
-elseif  ( ${UNSGLONGINT_SIZE} LESS 8 )
-	message ( FATAL_ERROR "Unsigned long int type on your system has less than 8 bytes. Please edit the ProSHADE_typedefs.hpp file line 50 so that the proshade_unsign typedef would be of an integer type with at least 8 bytes on your system." )
-else    ( NOT ${HAVE_UNSGLONGINT_SIZE} )
-    message ( STATUS "proshade_unsign type size is : " ${UNSGLONGINT_SIZE} " bytes" )
-endif   ( NOT ${HAVE_UNSGLONGINT_SIZE} )
+if    ( APPLE )
+    include ( ${CMAKE_SOURCE_DIR}/cmake/checkTypeSizes/CheckTypeSize.cmake                    )
+    set     ( CMAKE_EXTRA_INCLUDE_FILES "ProSHADE_typedefs.hpp"                               )
+    set     ( CMAKE_REQUIRED_INCLUDES "${CMAKE_SOURCE_DIR}/src/proshade"                      )
+    
+    check_type_size ( "proshade_single" FLOAT_SIZE LANGUAGE CXX                               )
+    check_type_size ( "proshade_double" DOUBLE_SIZE LANGUAGE CXX                              )
+    check_type_size ( "proshade_signed" SIGNLONGINT_SIZE LANGUAGE CXX                         )
+    check_type_size ( "proshade_unsign" UNSGLONGINT_SIZE LANGUAGE CXX                         )
+    set     ( CMAKE_EXTRA_INCLUDE_FILES                                                       )
+    
+    if      ( NOT ${HAVE_FLOAT_SIZE} )
+    	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+    elseif  ( ${FLOAT_SIZE} LESS 4 )
+    	message ( FATAL_ERROR "Float type on your system has less than 4 bytes. Please edit the ProSHADE_typedefs.hpp file line 47 so that the proshade_single typedef would be of a decimal type with at least 4 bytes (maybe try double instead of float?)." )
+    else    ( NOT ${HAVE_FLOAT_SIZE} )
+        message ( STATUS "proshade_single type size is : " ${FLOAT_SIZE} " bytes" )
+    endif   ( NOT ${HAVE_FLOAT_SIZE} )
+    
+    if      ( NOT ${HAVE_DOUBLE_SIZE} )
+    	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+    elseif  ( ${DOUBLE_SIZE} LESS 4 )
+    	message ( FATAL_ERROR "Double type on your system has less than 4 bytes. Please edit the ProSHADE_typedefs.hpp file line 48 so that the proshade_double typedef would be of a decimal type with at least 4 bytes (maybe try long double instead of double?)." )
+    else    ( NOT ${HAVE_DOUBLE_SIZE} )
+        message ( STATUS "proshade_double type size is : " ${DOUBLE_SIZE} " bytes" )
+    endif   ( NOT ${HAVE_DOUBLE_SIZE} )
+    
+    if      ( NOT ${HAVE_SIGNLONGINT_SIZE} )
+    	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+    elseif  ( ${SIGNLONGINT_SIZE} LESS 8 )
+    	message ( FATAL_ERROR "Signed long int type on your system has less than 8 bytes. Please edit the ProSHADE_typedefs.hpp file line 49 so that the proshade_signed typedef would be of an integer type with at least 8 bytes on your system." )
+    else    ( NOT ${HAVE_SIGNLONGINT_SIZE} )
+        message ( STATUS "proshade_signed type size is : " ${SIGNLONGINT_SIZE} " bytes" )
+    endif   ( NOT ${HAVE_SIGNLONGINT_SIZE} )
+    
+    if      ( NOT ${HAVE_UNSGLONGINT_SIZE} )
+    	message ( FATAL_ERROR "Test compilation has failed to compile the ProSHADE typedefs. Please try removing the CMakeCache.txt file and re-running the installation. If this does not help, please contact the author." )
+    elseif  ( ${UNSGLONGINT_SIZE} LESS 8 )
+    	message ( FATAL_ERROR "Unsigned long int type on your system has less than 8 bytes. Please edit the ProSHADE_typedefs.hpp file line 50 so that the proshade_unsign typedef would be of an integer type with at least 8 bytes on your system." )
+    else    ( NOT ${HAVE_UNSGLONGINT_SIZE} )
+        message ( STATUS "proshade_unsign type size is : " ${UNSGLONGINT_SIZE} " bytes" )
+    endif   ( NOT ${HAVE_UNSGLONGINT_SIZE} )
+endif ( APPLE )
 
 ##########################################################################################
 ################################### Define the command line options variables and defaults
