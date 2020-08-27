@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -1239,7 +1239,7 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
             //================================ Is the angle approximately the dihedral angle
             if ( ( ( 1.0 / 3.0 ) > ( dotProduct - axErr ) ) && ( ( 1.0 / 3.0 ) < ( dotProduct + axErr ) ) )
             {
-                if ( ( CSymList->at(C3List.at(c31))[5] > 0.1 ) && ( CSymList->at(C3List.at(c32))[5] ) ) { return ( true ); }
+                if ( ( CSymList->at(C3List.at(c31))[5] > 0.1 ) && ( CSymList->at(C3List.at(c32))[5] > 0.1 ) ) { return ( true ); }
             }
         }
     }

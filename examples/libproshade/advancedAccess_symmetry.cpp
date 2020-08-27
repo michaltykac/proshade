@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
 */
 
 //==================================================== ProSHADE
@@ -41,6 +41,7 @@ int main ( int argc, char **argv )
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
     settings->setAxisComparisonThreshold              ( 0.05 );                              // The dot product difference within which two axes are considered the same.
+    settings->setMinimumPeakForAxis                   ( 0.3 );                               // The minimum peak height for axis to be used.
     settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 6 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?

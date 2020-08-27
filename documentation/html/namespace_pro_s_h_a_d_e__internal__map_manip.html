@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.3 (AUG 2020) - EXPERIMENTAL</span>
+   &#160;<span id="projectnumber">0.7.4 (SEP 2020) - EXPERIMENTAL</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -3168,8 +3168,8 @@ Functions</h2></td></tr>
 <div class="line"><a name="l01203"></a><span class="lineno"> 1203</span>&#160;                newSizeArr                            = zIt                + newZDim * ( yIt                + newYDim * xIt                );</div>
 <div class="line"><a name="l01204"></a><span class="lineno"> 1204</span>&#160;                </div>
 <div class="line"><a name="l01205"></a><span class="lineno"> 1205</span>&#160;                <span class="comment">//==================================== If original coefficient for this new coefficient position exists, copy</span></div>
-<div class="line"><a name="l01206"></a><span class="lineno"> 1206</span>&#160;                <span class="keywordflow">if</span> ( ( ( -1  &lt; ( xIt     + preXChange  ) ) &amp;&amp; ( -1  &lt; ( yIt     + preYChange  ) ) &amp;&amp; ( -1  &lt; ( zIt     + preZChange  ) ) ) &amp;&amp;</div>
-<div class="line"><a name="l01207"></a><span class="lineno"> 1207</span>&#160;                     ( ( xIt &lt; ( newXDim + postXChange ) ) &amp;&amp; ( yIt &lt; ( newYDim + postYChange ) ) &amp;&amp; ( zIt &lt; ( newZDim + postZChange ) ) ) )</div>
+<div class="line"><a name="l01206"></a><span class="lineno"> 1206</span>&#160;                <span class="keywordflow">if</span> ( ( ( -1  &lt; <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> ( xIt     + preXChange  ) ) &amp;&amp; ( -1  &lt; <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> ( yIt     + preYChange  ) ) &amp;&amp; ( -1  &lt; <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> ( zIt     + preZChange  ) ) ) &amp;&amp;</div>
+<div class="line"><a name="l01207"></a><span class="lineno"> 1207</span>&#160;                     ( ( xIt &lt; static_cast&lt;proshade_unsign&gt; ( newXDim + postXChange ) ) &amp;&amp; ( yIt &lt; <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( newYDim + postYChange ) ) &amp;&amp; ( zIt &lt; <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( newZDim + postZChange ) ) ) )</div>
 <div class="line"><a name="l01208"></a><span class="lineno"> 1208</span>&#160;                {</div>
 <div class="line"><a name="l01209"></a><span class="lineno"> 1209</span>&#160;                    <span class="comment">//================================ Copy the Fourier coeff</span></div>
 <div class="line"><a name="l01210"></a><span class="lineno"> 1210</span>&#160;                    newFCoeffs[newSizeArr][0]         = fCoeffs[origSizeArr][0] / normFactor;</div>

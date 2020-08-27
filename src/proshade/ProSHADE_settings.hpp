@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -164,6 +164,7 @@ public:
     //================================================ Settings regarding the symmetry detection
     proshade_double symMissPeakThres;                 //!< Percentage of peaks that could be missing that would warrant starting the missing peaks search procedure.
     proshade_double axisErrTolerance;                 //!< Allowed error on vector elements for vectors to still be considered the same.
+    proshade_double minSymPeak;                       //!< Minimum average peak for symmetry axis to be considered as "real".
     std::string recommendedSymmetryType;              //!< The symmetry type that ProSHADE finds the best fitting for the structure. Possible values are "" for none, "C" for cyclic, "D" for Dihedral, "T" for Tetrahedral, "O" for Octahedral and "I" for Icosahedral. C and D types also have fold value associated.
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
@@ -175,6 +176,10 @@ public:
     
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
+    
+private:
+    //================================================ These settings are used to determine if user overwrote the defaults or not.
+
     
 public: // maybe make this protected?
     //================================================ Variable modifying functions
@@ -229,6 +234,7 @@ public:
     void setGroupingSmoothingFactor                   ( proshade_double smFact );
     void setMissingPeakThreshold                      ( proshade_double mpThres );
     void setAxisComparisonThreshold                   ( proshade_double axThres );
+    void setMinimumPeakForAxis                        ( proshade_double minSP );
     void setRecommendedSymmetry                       ( std::string val );
     void setRecommendedFold                           ( proshade_unsign val );
     void setRequestedSymmetry                         ( std::string val );

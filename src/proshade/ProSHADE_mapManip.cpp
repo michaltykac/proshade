@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -1203,8 +1203,8 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
                 newSizeArr                            = zIt                + newZDim * ( yIt                + newYDim * xIt                );
                 
                 //==================================== If original coefficient for this new coefficient position exists, copy
-                if ( ( ( -1  < ( xIt     + preXChange  ) ) && ( -1  < ( yIt     + preYChange  ) ) && ( -1  < ( zIt     + preZChange  ) ) ) &&
-                     ( ( xIt < ( newXDim + postXChange ) ) && ( yIt < ( newYDim + postYChange ) ) && ( zIt < ( newZDim + postZChange ) ) ) )
+                if ( ( ( -1  < static_cast<proshade_signed> ( xIt     + preXChange  ) ) && ( -1  < static_cast<proshade_signed> ( yIt     + preYChange  ) ) && ( -1  < static_cast<proshade_signed> ( zIt     + preZChange  ) ) ) &&
+                     ( ( xIt < static_cast<proshade_unsign> ( newXDim + postXChange ) ) && ( yIt < static_cast<proshade_unsign> ( newYDim + postYChange ) ) && ( zIt < static_cast<proshade_unsign> ( newZDim + postZChange ) ) ) )
                 {
                     //================================ Copy the Fourier coeff
                     newFCoeffs[newSizeArr][0]         = fCoeffs[origSizeArr][0] / normFactor;

@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -109,6 +109,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.05;
+    this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -140,6 +141,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
+    this->changeMapResolution                         = false;
     this->changeMapResolutionTriLinear                = false;
     
     //================================================ Settings regarding the PDB B-factor change
@@ -208,6 +210,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.05;
+    this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -237,10 +240,10 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
         case Symmetry:
             this->requestedResolution                 = 8.0;
             this->pdbBFactorNewVal                    = 80.0;
-            this->changeMapResolution                 = false;
+            this->changeMapResolution                 = true;
             this->maskMap                             = false;
-            this->moveToCOM                           = false;
-            this->normaliseMap                        = false;
+            this->moveToCOM                           = true;
+            this->normaliseMap                        = true;
             this->reBoxMap                            = false;
             break;
             
@@ -918,6 +921,23 @@ void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
     
 }
 
+/*! \brief Sets the minimum peak height for symmetry axis to be considered.
+ 
+ When considering if a symmetry axis is "real" and should be acted upon, its average peak height will need to
+ be higher than this value.
+ 
+ \param[in] minSP The requested value for the minimum peak height.
+ */
+void ProSHADE_settings::setMinimumPeakForAxis ( proshade_double minSP )
+{
+    //================================================ Set the value
+    this->minSymPeak                                  = minSP;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the ProSHADE detected symmetry type.
  
  When symmetry detection is done, the resulting recommended symmetry type will be saved in the settings object by this function.
@@ -1454,6 +1474,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "peakThres",       required_argument,  NULL, '+' },
         { "missAxThres",     required_argument,  NULL, '[' },
         { "sameAxComp",      required_argument,  NULL, ']' },
+        { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
         { "angUncertain",    required_argument,  NULL, ';' },
@@ -1461,7 +1482,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1518,6 +1539,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case 'S':
              {
                  this->task                           = Symmetry;
+                 
+                 //=================================== Force default unless changed already by the user
+                 if (  this->requestedResolution == -1 ) { this->requestedResolution = 8.0;  }
+                 if (  this->pdbBFactorNewVal    == -1 ) { this->pdbBFactorNewVal    = 80.0; }
+                 this->changeMapResolution            = !this->changeMapResolution;  // Switch value. This can be over-ridden by the user by using -j
+                 this->moveToCOM                      = !this->moveToCOM;            // Switch value. This can be over-ridden by the user by using -c.
+                 
                  continue;
              }
                  
@@ -1673,14 +1701,14 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              //======================================= Set map centering to true
              case 'c':
              {
-                 this->setMapCentering                ( true );
+                 this->moveToCOM                      = !this->moveToCOM;
                  continue;
              }
                  
              //======================================= Set map resolution change using Fourier transforms to true
              case 'j':
              {
-                 this->setMapResolutionChange         ( true );
+                 this->changeMapResolution            = !this->changeMapResolution;
                  continue;
              }
                  
@@ -1758,6 +1786,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case ']':
              {
                  this->setAxisComparisonThreshold     ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Minimum peak height for axis
+             case 'o':
+             {
+                 this->minSymPeak                     = static_cast<proshade_double> ( atof ( optarg ) );
                  continue;
              }
                  

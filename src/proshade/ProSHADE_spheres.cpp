@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //============================================ ProSHADE
