@@ -1322,3 +1322,138 @@ proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1
     //================================================ Compute and return
     return                                            ( (*x1 * *x2) + (*y1 * *y2) + (*z1 * *z2) );
 }
+
+/*! \brief Function for finding a vector which would have a given dot product to two other vectors.
+
+    This function takes two vectors and a dot product value. It then basically solves the following set of equations for x, y and z:
+    
+        solX*x1 + solY*y1 + solZ*z1 = dot
+        solX*x2 + solY*y2 + solZ*z2 = dot
+        sqrt ( solX^2 + solY^2 + solZ^2 ) = 1
+ 
+    This should result in a vector, which has the required angle to both input vectors and is normalised (I am using the third equation only as
+    I need three equatinos to solve three unknowns, but it is nice to have the result already there). The equations are courtesy of https://www.wolframalpha.com/input/?i=Reduce%5B%7Ba+x+%2B+b+y+%2B+c+z+%3D%3D+f%2C+k+x+%2B+l+y+%2B+m+z+%3D%3D+f%2C+Sqrt%5Bx%5E2+%2B+y%5E2+%2B+z%5E2%5D+%3D%3D+f%7D%2C+%7Bx%2C+y%2C+z%7D%5D
+    webpage of Wolfram Alpha. If in doubt, do not fear to derive yourself :-).
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+    \param[in] dot The dot product specifying the angle between the sought vector and each of the input vectors.
+    \param[out] vec A std::vector containing the three elements of the sought vector.
+*/
+std::vector < proshade_double > ProSHADE_internal_maths::findVectorFromTwoAndDot ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2, proshade_double dot )
+{
+    //================================================ Initialise variables
+    std::vector < proshade_double > ret;
+    
+    //================================================ Pre-compute values
+    proshade_double powX1                             = pow ( x1, 2.0 );
+    proshade_double powX2                             = pow ( x2, 2.0 );
+    proshade_double powY1                             = pow ( y1, 2.0 );
+    proshade_double powY2                             = pow ( y2, 2.0 );
+    proshade_double powZ1                             = pow ( z1, 2.0 );
+    proshade_double powZ2                             = pow ( z2, 2.0 );
+    proshade_double powDot                            = pow ( dot, 2.0 );
+    proshade_double x1y1y2x2                          = x1 * y1 * y2 * x2;
+    proshade_double x1z1z2x2                          = x1 * z1 * z2 * x2;
+    proshade_double y1z1y2z2                          = y1 * z1 * y2 * z2;
+    proshade_double y1z2_z1y2                         = y1 * z2 - z1 * y2;
+    
+    //================================================ Solution
+    proshade_double solX                              = ( - sqrt ( powDot *
+                                                                   pow ( 2.0 * x1 * y1 * y2 + 2.0 * x1 * z1 * z2 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powY1 * x2 + 2.0 * y1 * x2 * y2 - 2.0 * powZ1 * x2 + 2.0 * z1 * x2 * z2, 2.0 )
+                                                                   - 4 * ( powY1 * powDot - powY1 * powZ2 + 2.0 * y1z1y2z2 - 2.0 * y1 * powDot * y2 + powZ1 * powDot - powZ1 * powY2 - 2.0 * z1 * powDot * z2 + powDot * powY2 + powDot * powZ2 ) *
+                                                                   ( powX1 * powY2 + powX1 * powZ2 - 2.0 * x1 * y1 * x2 * y2 - 2.0 * x1 * z1 * x2 * z2 + powY1 * powX2 + powY1 * powZ2 - 2.0 * y1z1y2z2 + powZ1 * powX2 + powZ1 * powY2 )
+                                                                 )
+                                                          - dot * ( 2.0 * x1 * y1 * y2 + 2.0 * x1 * z1 * z2 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powY1 * x2 + 2.0 * y1 * x2 * y2 - 2.0 * powZ1 * x2 + 2.0 * z1 * x2 * z2 ) ) /
+                                                        ( 2.0 * ( powX1 * powY2 + powX1 * powZ2 - 2.0 * x1 * y1 * x2 * y2 - 2.0 * x1 * z1 * x2 * z2 + powY1 * powX2 + powY1 * powZ2 - 2.0 * y1z1y2z2 + powZ1 * powX2 + powZ1 * powY2 ) );
+    
+    proshade_double solY                              = ( ( dot * powX2 * pow ( z1, 3.0 ) ) /
+                                                          ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         ( dot * powX2 * z2 * powZ1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         ( 2.0 * x1 * dot * x2 * z2 * powZ1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         dot * z1 -
+                                                         ( x2 * sqrt ( powDot * pow ( - 2.0 * x2 * powY1 + 2.0 * x1 * y2 * y1 + 2.0 * x2 * y2 * y1 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powZ1 * x2 + 2.0 * x1 * z1 * z2 + 2 * z1 * x2 * z2, 2.0 ) -
+                                                                       4.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) *
+                                                                      ( powY1 * powDot + powZ1 * powDot + powY2 * powDot + powZ2 * powDot - 2.0 * y1 * y2 * powDot - 2.0 * z1 * z2 * powDot - powZ1 * powY2 - powY1 * powZ2 + 2.0 * y1z1y2z2 ) ) * z1 ) /
+                                                         ( 2.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                         ( powY1 * dot * powX2 * z1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                         ( x1 * dot * x2 * powY2 * z1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                         ( powX1 * dot * powZ2 * z1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                         ( 2.0 * x1 * dot * x2 * powZ2 * z1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         ( y1 * dot * powX2 * y2 * z1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         ( x1 * y1 * dot * x2 * y2 * z1 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                         dot * z2 + ( x1 * z2 * sqrt ( powDot * pow ( -2.0 * x2 * powY1 + 2.0 * x1 * y2 * y1 + 2.0 * x2 * y2 * y1 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powZ1 * x2 + 2.0 * x1 * z1 * z2 + 2.0 * z1 * x2 * z2, 2.0 ) -
+                                                                                      4.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) *
+                                                                                      ( powY1 * powDot + powZ1 * powDot + powY2 * powDot + powZ2 * powDot - 2.0 * y1 * y2 * powDot - 2.0 * z1 * z2 * powDot - powZ1 * powY2 - powY1 * powZ2 + 2.0 * y1z1y2z2 ) ) ) /
+                                                         ( 2.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                         ( powX1 * dot * pow ( z2, 3.0 ) ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         ( powX1 * dot * powY2 * z2 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                         ( x1 * powY1 * dot * x2 * z2 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                         ( powX1 * y1 * dot * y2 * z2 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                         ( x1 * y1 * dot * x2 * y2 * z2 ) /
+                                                         ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) / ( y1z2_z1y2);
+    
+    proshade_double solZ                              = ( - ( dot * powX2 * y2 * pow ( z1, 3.0 ) ) /
+                                                            ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( dot * powX2 * powZ1 ) /
+                                                            ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                            ( dot * powX2 * y2 * z2 * powZ1 ) /
+                                                            ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            ( 2.0 * x1 * dot * x2 * y2 * z2 * powZ1 ) /
+                                                            ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            ( x2 * y2 * sqrt ( powDot *
+                                                              pow ( -2.0 * x2 * powY1 + 2.0 * x1 * y2 * y1 + 2.0 * x2 * y2 * y1 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powZ1 * x2 + 2.0 * x1 * z1 * z2 + 2.0 * z1 * x2 * z2, 2.0 ) -
+                                                              4.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) *
+                                                              ( powY1 * powDot + powZ1 * powDot + powY2 * powDot + powZ2 * powDot - 2.0 * y1 * y2 * powDot - 2.0 * z1 * z2 * powDot - powZ1 * powY2 - powY1 * powZ2 + 2.0 * y1z1y2z2 ) ) * z1 ) /
+                                                            ( 2.0 * ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            ( dot * y2 * z1 ) / ( y1z2_z1y2) +
+                                                            ( dot * powX2 * z2 * z1 ) /
+                                                            ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                            ( x1 * dot * x2 * z2 * z1 ) / ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                            ( x1 * dot * x2 * pow ( y2, 3.0 ) * z1 ) / ( ( y1z2_z1y2) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            ( y1 * dot * powX2 * powY2 * z1 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            ( x1 * y1 * dot * x2 * powY2 * z1 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( powX1 * dot * y2 * powZ2 * z1 ) / ( ( y1z2_z1y2) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( 2.0 * x1 * dot * x2 * y2 * powZ2 * z1 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( powY1 * dot * powX2 * y2 * z1 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            dot + ( x2 * sqrt ( powDot * pow ( -2.0 * x2 * powY1 + 2.0 * x1 * y2 * y1 + 2.0 * x2 * y2 * y1 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powZ1 * x2 + 2.0 * x1 * z1 * z2 + 2.0 * z1 * x2 * z2, 2.0 ) - 4.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) * ( powY1 * powDot + powZ1 * powDot + powY2 * powDot + powZ2 * powDot - 2.0 * y1 * y2 * powDot - 2.0 * z1 * z2 * powDot - powZ1 * powY2 - powY1 * powZ2 + 2.0 * y1z1y2z2 ) ) ) /
+                                                            ( 2.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( x1 * y2 * z2 * sqrt ( powDot * pow ( -2.0 * x2 * powY1 + 2.0 * x1 * y2 * y1 + 2.0 * x2 * y2 * y1 - 2.0 * x1 * powY2 - 2.0 * x1 * powZ2 - 2.0 * powZ1 * x2 + 2.0 * x1 * z1 * z2 + 2.0 * z1 * x2 * z2, 2.0 ) - 4.0 * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) * ( powY1 * powDot + powZ1 * powDot + powY2 * powDot + powZ2 * powDot - 2.0 * y1 * y2 * powDot - 2.0 * z1 * z2 * powDot - powZ1 * powY2 - powY1 * powZ2 + 2.0 * y1z1y2z2 ) ) ) /
+                                                            ( 2.0 * ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( dot * y2 * z2 ) / ( y1z2_z1y2 ) -
+                                                            ( powY1 * dot * powX2 ) / ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                            ( x1 * dot * x2 * powY2 ) / ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) -
+                                                            ( x1 * dot * x2 * powZ2 ) / ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                            ( y1 * dot * powX2 * y2 ) / ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                            ( x1 * y1 * dot * x2 * y2 ) / ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) +
+                                                            ( powX1 * dot * y2 * pow ( z2, 3.0 ) ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                            ( powX1 * dot * pow ( y2, 3.0 ) * z2 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( powX1 * y1 * dot * powY2 * z2 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) -
+                                                            ( x1 * y1 * dot * x2 * powY2 * z2 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) +
+                                                         ( x1 * powY1 * dot * x2 * y2 * z2 ) / ( ( y1z2_z1y2 ) * ( powY1 * powX2 + powZ1 * powX2 - 2.0 * x1y1y2x2 - 2.0 * x1z1z2x2 + powX1 * powY2 + powZ1 * powY2 + powX1 * powZ2 + powY1 * powZ2 - 2.0 * y1z1y2z2 ) ) ) / z2;
+    
+    //================================================ Save solutions
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solX  );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solY  );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solZ  );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}

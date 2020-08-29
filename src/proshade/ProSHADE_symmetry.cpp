@@ -1090,13 +1090,19 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
     //================================================If not enough axes, just end here
     if ( CSymList->size() < 2 ) { return ( ret ); }
     
-    //=============================================== For each unique pair of axes
+    //================================================ For each unique pair of axes
     for ( proshade_unsign ax1 = 0; ax1 < static_cast<proshade_unsign> ( CSymList->size() ); ax1++ )
     {
+        //============================================ Ignore small axes
+        if ( CSymList->at(ax1)[5] < settings->minSymPeak ) { continue; }
+        
         for ( proshade_unsign ax2 = 0; ax2 < static_cast<proshade_unsign> ( CSymList->size() ); ax2++ )
         {
             //======================================= Use unique pairs only
             if ( ax1 >= ax2 ) { continue; }
+            
+            //======================================== Ignore small axes
+            if ( CSymList->at(ax2)[5] < settings->minSymPeak ) { continue; }
             
             //======================================= Compute the dot product
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &CSymList->at(ax1)[1], &CSymList->at(ax1)[2],
@@ -1185,13 +1191,13 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting T symmetry detection." );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0 ) )
+    if ( ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findTetra4C3s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findTetra4C3s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 4 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
     }
     
@@ -1211,9 +1217,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
  
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[out] X Boolean value telling whether there are two C3 symmetries with tetrahedral dihhedral angle.
  */
-bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr )
+bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3List;
@@ -1222,7 +1229,7 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
     //================================================ Find all C3 symmetries
     for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
     {
-        if ( CSymList->at(cSym)[0] == 3 ) { ProSHADE_internal_misc::addToUnsignVector ( &C3List, cSym ); }
+        if ( CSymList->at(cSym)[0] == 3 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C3List, cSym ); }
     }
     
     //================================================ For each unique pair of C3s
@@ -1239,7 +1246,7 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
             //================================ Is the angle approximately the dihedral angle
             if ( ( ( 1.0 / 3.0 ) > ( dotProduct - axErr ) ) && ( ( 1.0 / 3.0 ) < ( dotProduct + axErr ) ) )
             {
-                if ( ( CSymList->at(C3List.at(c31))[5] > 0.1 ) && ( CSymList->at(C3List.at(c32))[5] > 0.1 ) ) { return ( true ); }
+                return                                ( true );
             }
         }
     }
@@ -1260,8 +1267,9 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
  \param[in] ret The vector .
  \param[in] axErr The error tolerance on angle matching.
  \param[in] verobse How loud the announcments should be?
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3PossibilitiesHlp;
@@ -1275,7 +1283,7 @@ void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Search only using C3s
-        if ( CSymList->at(cIt)[0] != 3.0 ) { continue; }
+        if ( CSymList->at(cIt)[0] != 3.0 || CSymList->at(cIt)[0] < minPeakHeight ) { continue; }
         
         //============================================ If this is the first C3, then just save it to the first group of the temporary holder
         if ( C3Possibilities.size() == 0 ) { ProSHADE_internal_misc::addToUnsignVector ( &C3PossibilitiesHlp, cIt ); ProSHADE_internal_misc::addToUnsignVectorVector ( &C3Possibilities, C3PossibilitiesHlp ); continue; }
@@ -1292,7 +1300,7 @@ void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >
     }
     
     //================================================ Test for missing symmetry axes, if need be
-    ProSHADE_internal_symmetry::findMissingAxes       ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, true );
+    ProSHADE_internal_symmetry::findMissingAxes       ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, true, minPeakHeight );
     
     //================================================ Any group has 4 entries? If more such groups, take the one with highest average height.
     proshade_double maxHeight = 0.0; proshade_unsign maxGrp = 0;
@@ -1367,11 +1375,11 @@ bool ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( std::vector< proshad
         if ( ( angle > ( std::abs ( dotProduct ) - axErr ) ) &&
              ( angle < ( std::abs ( dotProduct ) + axErr ) ) )
         {
-            //================================ Matching group memner - try next one
+            //======================================== Matching group memner - try next one
         }
         else
         {
-            //================================ Group member not matched - try next group
+            //======================================== Group member not matched - try next group
             allAnglesMet                              = false;
             break;
         }
@@ -1384,11 +1392,7 @@ bool ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( std::vector< proshad
 
 /*! \brief This function tries to find an axis which would complete a particular group of axes for polyhedral symmetry detection.
  
- This function takes each of the possible groups for which a missing axis would make it complete and starts searching for such
- completing axes. It checks that and prospective missing axis does have the correct angle to all already present group axes, that
- the prospective axis does have at least 50% height as compared to the group and that it does conform to the required fold. If
- successfull, the indices vector and the CSymList vectors will be updated and true will be returned; if no group can be completed
- to contain the required number of axes, false will be returned instead.
+ ...
  
  \param[in] possibilities A vector of vectors of indices to the cyclic symmetries list with all the already determined axes.
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
@@ -1398,12 +1402,12 @@ bool ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( std::vector< proshad
  \param[in] fold The fold of the searched for axis.
  \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
  \param[in] fastCalc The value decides if only the first completed group should be returned (faster = true), or whether all groups should be searched (slower = false).
+ \param[in] minPeakHeight The minimum new axis average peak height in order for the axis to be added.
  \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
  */
-bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< proshade_unsign > >* possibilities, std::vector< proshade_double* >* CSymList, proshade_unsign requiredNoAxes, proshade_double axErr, proshade_double angle, proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj, bool fastCalc )
+bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< proshade_unsign > >* possibilities, std::vector< proshade_double* >* CSymList, proshade_unsign requiredNoAxes, proshade_double axErr, proshade_double angle, proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj, bool fastCalc, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
-    proshade_double groupAvg;
     std::vector< proshade_double* > hlpVec;
     bool atLeastOne                                   = false;
     
@@ -1416,13 +1420,14 @@ bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< pro
     //================================================ For each possible group
     for ( proshade_unsign gIt = 0; gIt < static_cast<proshade_unsign> ( possibilities->size() ); gIt++ )
     {
+        //============================================ This will not work for less than two axes in group
+        if ( possibilities->at(gIt).size() < 2 ) { continue; }
+        
         //============================================ Prepare iteration
         hlpVec.clear                                  ( );
-        groupAvg                                      = 0.0;
-        for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( possibilities->at(gIt).size() ); iter++ ) { groupAvg += CSymList->at(possibilities->at(gIt).at(iter))[5]; } groupAvg /= static_cast<proshade_double> ( possibilities->at(gIt).size() );
         
         //============================================ Search for missing axes
-        ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( dataObj, CSymList, &possibilities->at(gIt), &hlpVec, axErr, angle, fold, groupAvg );
+        ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( dataObj, CSymList, &possibilities->at(gIt), &hlpVec, axErr, angle, fold, minPeakHeight );
         
         //============================================ Add missing axes
         if ( hlpVec.size() > 0 )
@@ -1680,57 +1685,85 @@ void ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( std::vector< proshade_
  \param[in] axErr The error tolerance on angle matching.
  \param[in] angle The angle that each group member is required to have against the symmetry.
  \param[in] fold The fold of the searched for axis.
- \param[in] groupAvg The average height of the other axes in the group.
+ \param[in] minPeakHeight The minimum new axis average peak height in order for the axis to be added.
  */
-void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_double* >* CSymList, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* hlpVec, proshade_double axErr, proshade_double angle, proshade_unsign fold, proshade_double groupAvg )
+void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_double* >* CSymList, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* hlpVec, proshade_double axErr, proshade_double angle, proshade_unsign fold, proshade_double minPeakHeight )
 {
+    //================================================ Sanity check
+    if ( grp->size() < 2 ) { return; }
+    
     //================================================ Initialise variables
-    proshade_double axNorm, axX, axY, axZ, axHeight, maxX = 0.0, maxY = 0.0, maxZ = 0.0, maxH = 0.0;
+    proshade_double axHeight                          = 0.0;
     proshade_double* symHlp                           = new proshade_double[6];
     ProSHADE_internal_misc::checkMemoryAllocation     ( symHlp, __FILE__, __LINE__, __func__ );
     
-    //================================================ Try all possible axes
-    for ( proshade_double xIt = -1.0; xIt < 1.001; xIt += 0.1 )
+    //================================================ For each axis pair in the group, find the possible solutions
+    for ( proshade_unsign fAx = 0; fAx < static_cast<proshade_unsign> ( grp->size() ); fAx++ )
     {
-        for ( proshade_double yIt = -1.0; yIt < 1.001; yIt += 0.1 )
+        for ( proshade_unsign sAx = 1; sAx < static_cast<proshade_unsign> ( grp->size() ); sAx++ )
         {
-            for ( proshade_double zIt = -1.0; zIt < 1.001; zIt += 0.1 )
+            //======================================== Only unique pairs
+            if ( fAx >= sAx ) { continue; }
+            
+            //======================================== Find possible axis having the required angle to this pair ( solution 1 )
+            std::vector< proshade_double > solVec     = ProSHADE_internal_maths::findVectorFromTwoAndDot ( CSymList->at(grp->at(fAx))[1],
+                                                                                                           CSymList->at(grp->at(fAx))[2],
+                                                                                                           CSymList->at(grp->at(fAx))[3],
+                                                                                                           CSymList->at(grp->at(sAx))[1],
+                                                                                                           CSymList->at(grp->at(sAx))[2],
+                                                                                                           CSymList->at(grp->at(sAx))[3], angle );
+            
+            //======================================== Set largest axis element to positive
+            if ( ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(0) ) ) && ( solVec.at(0) < 0.0 ) ) ||
+                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(1) ) ) && ( solVec.at(1) < 0.0 ) ) ||
+                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(2) ) ) && ( solVec.at(2) < 0.0 ) ) )
             {
-                //==================================== Possible axes only
-                if ( xIt == 0.0 && yIt == 0.0 && zIt == 0.0 ) { continue; }
+                solVec.at(0)                         *= -1.0;
+                solVec.at(1)                         *= -1.0;
+                solVec.at(2)                         *= -1.0;
+            }
+            
+            //======================================== Does the solution fit the whole group?
+            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2);
+            if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, true ) )
+            {
+                //==================================== Find the height for the axis
+                axHeight                              = ProSHADE_internal_symmetry::missingAxisHeight ( solVec.at(0), solVec.at(1), solVec.at(2), dataObj, fold, axErr );
                 
-                //==================================== Get the axis elements
-                axNorm                                = sqrt ( pow ( xIt, 2.0 ) + pow ( yIt, 2.0 ) + pow ( zIt, 2.0 ) );
-                axX                                   = xIt / axNorm;
-                axY                                   = yIt / axNorm;
-                axZ                                   = zIt / axNorm;
+                //================================ Save max height result
+                if ( axHeight >= minPeakHeight ) { ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( hlpVec, solVec.at(0), solVec.at(1), solVec.at(2), axHeight, fold, axErr ); }
+            }
+            
+            //======================================== Find possible axis having the required angle to this pair ( solution 2 )
+            solVec                                    = ProSHADE_internal_maths::findVectorFromTwoAndDot ( CSymList->at(grp->at(fAx))[1],
+                                                                                                           CSymList->at(grp->at(fAx))[2],
+                                                                                                           CSymList->at(grp->at(fAx))[3],
+                                                                                                           CSymList->at(grp->at(sAx))[1],
+                                                                                                           CSymList->at(grp->at(sAx))[2],
+                                                                                                           CSymList->at(grp->at(sAx))[3], -angle );
+            
+            //======================================== Set largest axis element to positive
+            if ( ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(0) ) ) && ( solVec.at(0) < 0.0 ) ) ||
+                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(1) ) ) && ( solVec.at(1) < 0.0 ) ) ||
+                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(2) ) ) && ( solVec.at(2) < 0.0 ) ) )
+            {
+                solVec.at(0)                         *= -1.0;
+                solVec.at(1)                         *= -1.0;
+                solVec.at(2)                         *= -1.0;
+            }
+            
+            //======================================== Does the solution fit the whole group?
+            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2);
+            if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, true ) )
+            {
+                //==================================== Find the height for the axis
+                axHeight                              = ProSHADE_internal_symmetry::missingAxisHeight ( solVec.at(0), solVec.at(1), solVec.at(2), dataObj, fold, axErr );
                 
-                //==================================== Set largest axis element to positive
-                if ( ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axX ) ) && ( axX < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axY ) ) && ( axY < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axZ ) ) && ( axZ < 0.0 ) ) )
-                {
-                    axX                              *= -1.0;
-                    axY                              *= -1.0;
-                    axZ                              *= -1.0;
-                }
-                
-                //==================================== Find axis which fits the group
-                symHlp[1] = axX; symHlp[2] = axY; symHlp[3] = axZ;
-                if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, false ) )
-                {
-                    //================================ Find the height for the axis
-                    axHeight                          = ProSHADE_internal_symmetry::missingAxisHeight ( axX, axY, axZ, dataObj, fold, axErr );
-                    
-                    //================================ Save max height result
-                    if ( maxH < axHeight ) { maxH = axHeight; maxX = axX; maxY = axY; maxZ = axZ; }
-                }
+                //================================ Save max height result
+                if ( axHeight >= minPeakHeight ) { ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( hlpVec, solVec.at(0), solVec.at(1), solVec.at(2), axHeight, fold, axErr ); }
             }
         }
     }
-    
-    //================================================ Save symmetry if minimum height was achieved
-    if ( maxH > ( std::max( groupAvg * 0.1, 0.05 ) ) ) { ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( hlpVec, maxX, maxY, maxZ, maxH, fold, axErr ); }
     
     //================================================ Release memory
     delete[] symHlp;
@@ -1751,8 +1784,9 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
  \param[in] ret The vector .
  \param[in] axErr The error tolerance on angle matching.
  \param[in] verobse How loud the announcments should be?
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3s, prospectiveC2s, C2PossibilitiesHlp;
@@ -1771,7 +1805,7 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
         for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
         {
             //======================================== Search only using C2s
-            if ( CSymList->at(cIt)[0] != 2.0 ) { continue; }
+            if ( CSymList->at(cIt)[0] != 2.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
             
             //======================================== Check the C2 axis to the C3 ( acos ( 0.5 ) )
             dotProd = ProSHADE_internal_maths::computeDotProduct ( &ret->at(rIt)[1], &ret->at(rIt)[2], &ret->at(rIt)[3],
@@ -1800,7 +1834,7 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
     while ( C2Possibilities.size() != 0 )
     {
         //============================================ Test for missing symmetry axes, if need be
-        ProSHADE_internal_symmetry::findMissingAxes   ( &C2Possibilities, CSymList, 3, axErr, 0.0, 2, dataObj, true );
+        ProSHADE_internal_symmetry::findMissingAxes   ( &C2Possibilities, CSymList, 3, axErr, 0.0, 2, dataObj, true, minPeakHeight );
         
         //============================================ Found 3 C2s?
         if ( C2Possibilities.at(0).size() == 3 )
@@ -1888,16 +1922,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry detection." );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0 ) )
+    if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findOcta3C4s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findOcta3C4s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 3 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findOcta4C3s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findOcta4C3s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 13 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
     }
     
@@ -1917,9 +1951,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
  
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[out] X Boolean value telling whether there are C4 and C3 symmetries with octahedral dihhedral angle.
  */
-bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr )
+bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4List;
@@ -1928,7 +1963,7 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
     //================================================ Find all C4 symmetries
     for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
     {
-        if ( CSymList->at(cSym)[0] == 4 ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); }
+        if ( CSymList->at(cSym)[0] == 4 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); }
     }
     
     //================================================ For each unique pair of C3s
@@ -1950,7 +1985,7 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
             //======================================== Is the angle approximately the dihedral angle
             if ( ( ( 1.0 / sqrt ( 3.0 ) ) > ( dotProduct - axErr ) ) && ( ( 1.0 / sqrt ( 3.0 ) ) < ( dotProduct + axErr ) ) )
             {
-                if ( ( CSymList->at(C4List.at(c4))[5] > 0.1 ) && ( CSymList->at(cSym)[5] > 0.1 ) ) { return ( true ); }
+                return                                ( true );
             }
         }
     }
@@ -1970,9 +2005,10 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] ret The vector .
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4PossibilitiesHlp;
@@ -1986,7 +2022,7 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Search only using C4s
-        if ( CSymList->at(cIt)[0] != 4.0 ) { continue; }
+        if ( CSymList->at(cIt)[0] != 4.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
 
         //============================================ If second or more C4, check if it has the correct angle to all other already found C4s for each group
         groupMatched                                  = false;
@@ -2000,7 +2036,7 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
     }
 
     //================================================ Test for missing symmetry axes, if need be
-    ProSHADE_internal_symmetry::findMissingAxes       ( &C4Possibilities, CSymList, 3, axErr, 0.0, 4, dataObj, true );
+    ProSHADE_internal_symmetry::findMissingAxes       ( &C4Possibilities, CSymList, 3, axErr, 0.0, 4, dataObj, true, minPeakHeight );
 
     //================================================ Any group has 3 entries? If more such groups, take the one with highest average height.
     proshade_double maxHeight = 0.0; proshade_unsign maxGrp = 0;
@@ -2035,9 +2071,10 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
  \param[in] ret The vector .
  \param[in] axErr The error tolerance on angle matching.
  \param[in] verobse How loud the announcments should be?
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[in] TetraSymList A vector containing the already detected tetrahedral symmetries - this is to avoid the same search for four C3 symmetry axes.
  */
-void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4s, prospectiveC3s, C3PossibilitiesHlp;
@@ -2056,7 +2093,7 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
         for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
         {
             //======================================== Search only using C3s
-            if ( CSymList->at(cIt)[0] != 3.0 ) { continue; }
+            if ( CSymList->at(cIt)[0] != 3.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
             
             //======================================== Check the C3 axis to the C4 ( acos ( 1/sqrt(3) ) )
             dotProd = ProSHADE_internal_maths::computeDotProduct ( &ret->at(rIt)[1], &ret->at(rIt)[2], &ret->at(rIt)[3], &CSymList->at(cIt)[1], &CSymList->at(cIt)[2], &CSymList->at(cIt)[3] );
@@ -2084,7 +2121,7 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
     while ( C3Possibilities.size() != 0 )
     {
         //============================================ Test for missing symmetry axes, if need be
-        ProSHADE_internal_symmetry::findMissingAxes ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, true );
+        ProSHADE_internal_symmetry::findMissingAxes ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, true, minPeakHeight );
 
         //============================================ Found four C3s?
         if ( C3Possibilities.at(0).size() == 4 )
@@ -2117,8 +2154,9 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
  \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
  \param[in] axErr The error tolerance on angle matching.
  \param[in] verobse How loud the announcments should be?
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC2s, retGrp;
@@ -2132,7 +2170,7 @@ void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >*
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Use only C2s
-        if ( CSymList->at(cIt)[0] != 2.0 ) { continue; }
+        if ( CSymList->at(cIt)[0] != 2.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
         
         //============================================ Check the C2 has acos ( 1/sqrt(2) ) to 2 C4s and acos ( 0.0 ) to the third C4
         noPerpendicular = 0; noSqrtTwo = 0;
@@ -2394,16 +2432,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry detection." );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0 ) )
+    if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findIcos6C5s      ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findIcos6C5s      ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 6 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
 
-        ProSHADE_internal_symmetry::findIcos10C3s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findIcos10C3s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 16 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
 
-        ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose );
+        ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 31 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
     }
 
@@ -2423,9 +2461,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
  
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height required for symmetry axis to be considered.
  \param[out] X Boolean value telling whether there are C5 and C3 symmetries with icosahedral dihhedral angle.
  */
-bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr )
+bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C5List;
@@ -2434,7 +2473,7 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
     //================================================ Find all C5 symmetries
     for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
     {
-        if ( CSymList->at(cSym)[0] == 5 ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); }
+        if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); }
     }
     
     //================================================ For each unique pair of C5 and C3
@@ -2456,7 +2495,7 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
             //======================================== Is the angle approximately the dihedral angle
             if ( ( ( sqrt ( 5.0 ) / 3.0 ) > ( dotProduct - axErr ) ) && ( ( sqrt ( 5.0 ) / 3.0 ) < ( dotProduct + axErr ) ) )
             {
-                if ( ( CSymList->at(C5List.at(c5))[5] > 0.1 ) && ( CSymList->at(cSym)[5] > 0.1 ) ) { return ( true ); }
+                return                                ( true );
             }
         }
     }
@@ -2480,9 +2519,10 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] ret The vector .
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C5PossibilitiesHlp;
@@ -2495,10 +2535,10 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     //================================================ For all symmetries in the C symmetries list
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
-        //============================================ Search only using C4s
-        if ( CSymList->at(cIt)[0] != 5.0 ) { continue; }
+        //============================================ Search only using C5s and check peak height
+        if ( CSymList->at(cIt)[0] != 5.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
 
-        //============================================ If second or more C5, check if it has the correct angle to all other already found C4s for each group
+        //============================================ If second or more C5, check if it has the correct angle to all other already found C5s for each group
         groupMatched                                  = false;
         for ( proshade_unsign gIt = 0; gIt < static_cast<proshade_unsign> ( C5Possibilities.size() ); gIt++ )
         {
@@ -2510,7 +2550,7 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     }
     
     //================================================ Test for missing symmetry axes, if need be
-    ProSHADE_internal_symmetry::findMissingAxes       ( &C5Possibilities, CSymList, 6, axErr, 1.0 / 2.0, 5, dataObj, true );
+    ProSHADE_internal_symmetry::findMissingAxes       ( &C5Possibilities, CSymList, 6, axErr, 1.0 / 2.0, 5, dataObj, true, minPeakHeight );
 
     //======================================== ========Any group has 6 entries? If more such groups, take the one with highest average height.
     proshade_double maxHeight = 0.0; proshade_unsign maxGrp = 0;
@@ -2543,9 +2583,10 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC3s, retGrp;
@@ -2558,8 +2599,8 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
     //================================================ For each C3
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
-        //============================================ Use only C3s
-        if ( CSymList->at(cIt)[0] != 3.0 ) { continue; }
+        //============================================ Use only C3s with hight enough average
+        if ( CSymList->at(cIt)[0] != 3.0 || CSymList->at(cIt)[0] < minPeakHeight ) { continue; }
 
         //============================================ Check the C3 has acos ( sqrt ( 5.0 ) / 3.0 ) to 3 C5s and acos ( 1.0 - ( sqrt ( 5.0 ) / 3.0 ) ) to the other three C5s
         noClose = 0; noAway = 0;
@@ -2616,9 +2657,10 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
  \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
  \param[in] axErr The error tolerance on angle matching.
+ \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC2s, retGrp;
@@ -2632,7 +2674,7 @@ void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Use only C2s
-        if ( CSymList->at(cIt)[0] != 2.0 ) { continue; }
+        if ( CSymList->at(cIt)[0] != 2.0 || CSymList->at(cIt)[0] < minPeakHeight ) { continue; }
 
         //============================================ Check the C2 has acos ( 0.0 ) to 2 C5s, acos ( 0.5 ) to another 2 C5s and acos ( sqrt ( 3.0 ) / 2.0 ) to the last two C5s
         noClose = 0; noMidway = 0; noAway = 0;

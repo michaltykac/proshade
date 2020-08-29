@@ -82,6 +82,8 @@ namespace ProSHADE_internal_maths
     proshade_double normalDistributionValue           ( proshade_double mean, proshade_double standardDev, proshade_double value );
     proshade_double computeDotProduct                 ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2,
                                                         proshade_double* z2 );
+    std::vector < proshade_double > findVectorFromTwoAndDot ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
+                                                              proshade_double z2, proshade_double dot );
 }
 
 #endif
