@@ -1096,7 +1096,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
         //============================================ Ignore small axes
         if ( CSymList->at(ax1)[5] < settings->minSymPeak ) { continue; }
         
-        for ( proshade_unsign ax2 = 0; ax2 < static_cast<proshade_unsign> ( CSymList->size() ); ax2++ )
+        for ( proshade_unsign ax2 = 1; ax2 < static_cast<proshade_unsign> ( CSymList->size() ); ax2++ )
         {
             //======================================= Use unique pairs only
             if ( ax1 >= ax2 ) { continue; }
@@ -1112,9 +1112,6 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
             //======================================== If close to zero, these two axes are perpendicular
             if ( std::abs( dotProduct ) < settings->axisErrTolerance )
             {
-                //==================================== Check for reasonable similarity in height
-                if ( std::max ( CSymList->at(ax1)[5], CSymList->at(ax2)[5] ) > ( 3.0 * std::min ( CSymList->at(ax1)[5], CSymList->at(ax2)[5] ) ) ) { continue; }
-                
                 //==================================== Save
                 if ( CSymList->at(ax1)[0] >= CSymList->at(ax2)[0] ) { ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax1, ax2 ); }
                 else { ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax2, ax1 ); }
