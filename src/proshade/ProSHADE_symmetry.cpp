@@ -1188,13 +1188,13 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting T symmetry detection." );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0, settings->minSymPeak ) )
+    if ( ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findTetra4C3s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findTetra4C3s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 4 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
     }
     
@@ -1919,16 +1919,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry detection." );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0, settings->minSymPeak ) )
+    if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findOcta3C4s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findOcta3C4s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 3 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findOcta4C3s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findOcta4C3s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 13 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
     }
     
@@ -2429,16 +2429,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry detection." );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance * 2.0, settings->minSymPeak ) )
+    if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findIcos6C5s      ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findIcos6C5s      ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 6 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
 
-        ProSHADE_internal_symmetry::findIcos10C3s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findIcos10C3s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 16 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
 
-        ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance * 2.0, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 31 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
     }
 
