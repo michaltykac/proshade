@@ -109,6 +109,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.1;
+    this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
@@ -210,6 +211,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.1;
+    this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
@@ -238,7 +240,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             break;
             
         case Symmetry:
-            this->requestedResolution                 = 8.0;
+            this->requestedResolution                 = 6.0;
             this->pdbBFactorNewVal                    = 80.0;
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
@@ -921,6 +923,25 @@ void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
     
 }
 
+/*! \brief Sets the automatic symmetry axis tolerance decreasing.
+
+    When comparing symmetry axes, there needs to be a threshold allowing for some small error comming from the numberical
+    inaccuracies. It turns out that this threshold should take into account the ratio to the next symmetry angles, otherwise it would
+    strongly prefer larger symmetries. This variable decides whether the threshold should be decreased based on the fold of sought
+    åsymmetry or not.
+
+    \param[in] behav The requested value for the axes comparison threshold decreasing.
+*/
+void ProSHADE_settings::setAxisComparisonThresholdBehaviour ( bool behav )
+{
+    //================================================ Set the value
+    this->axisErrToleranceDefault                     = behav;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the minimum peak height for symmetry axis to be considered.
  
  When considering if a symmetry axis is "real" and should be acted upon, its average peak height will need to
@@ -1474,6 +1495,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "peakThres",       required_argument,  NULL, '+' },
         { "missAxThres",     required_argument,  NULL, '[' },
         { "sameAxComp",      required_argument,  NULL, ']' },
+        { "axisComBeh",      no_argument,        NULL, 'q' },
         { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
@@ -1482,7 +1504,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1541,7 +1563,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                  this->task                           = Symmetry;
                  
                  //=================================== Force default unless changed already by the user
-                 if (  this->requestedResolution == -1 ) { this->requestedResolution = 8.0;  }
+                 if (  this->requestedResolution == -1 ) { this->requestedResolution = 6.0;  }
                  if (  this->pdbBFactorNewVal    == -1 ) { this->pdbBFactorNewVal    = 80.0; }
                  this->changeMapResolution            = !this->changeMapResolution;  // Switch value. This can be over-ridden by the user by using -j
                  this->moveToCOM                      = !this->moveToCOM;            // Switch value. This can be over-ridden by the user by using -c.
@@ -1785,7 +1807,14 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              //======================================= Save the argument as the missing axis threshold value
              case ']':
              {
-                 this->setAxisComparisonThreshold     ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 setAxisComparisonThreshold           ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the missing axis threshold value
+             case 'q':
+             {
+                 setAxisComparisonThresholdBehaviour  ( !this->axisErrToleranceDefault );
                  continue;
              }
                  
@@ -2036,8 +2065,16 @@ void ProSHADE_settings::printSettings ( )
     printf ( "Missing ax. thres   : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
+    strstr << this->minSymPeak;
+    printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
     strstr << this->axisErrTolerance;
     printf ( "Same ax. threshold  : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->axisErrToleranceDefault ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Same ax. thre. decr.: %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;

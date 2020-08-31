@@ -38,7 +38,7 @@ namespace ProSHADE_internal_symmetry
     std::vector< proshade_double > findPeaksByHeightBoundaries ( std::vector< proshade_double* > allPeaks, proshade_double smoothing );
     std::vector< std::vector< proshade_unsign > > findPeaksCSymmetry ( std::vector< proshade_double* >* peaks, proshade_signed verbose,
                                                                        proshade_unsign band, proshade_double missPeakThres, proshade_double axisErrTolerance,
-                                                                       ProSHADE_internal_data::ProSHADE_data* dataObj );
+                                                                       bool axisErrToleranceDef, ProSHADE_internal_data::ProSHADE_data* dataObj );
     std::vector< std::vector< proshade_unsign > > groupSameAxes ( std::vector< proshade_double* >& peaks, proshade_double errTolerance );
     void giveOppositeAxesSameDirection                ( std::vector< proshade_double* > peaks );
     void printSymmetryPeaks                           ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
@@ -68,7 +68,7 @@ namespace ProSHADE_internal_symmetry
     void findSymmetryUsingFold                        ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry,
                                                         std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks,
                                                         std::vector< std::vector< proshade_unsign > >* ret,
-                                                        std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance,
+                                                        std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault,
                                                         proshade_double missPeakThres, proshade_unsign verbose );
     void printSymmetryGroup                           ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
                                                         proshade_signed verbose );

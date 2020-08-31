@@ -252,9 +252,14 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The fraction of axes that can be missing for missing axes           " << std::endl;
     std::cout << "            search to be initiated.                                             " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --sameAxComp                                    [DEFAULT:         0.05]     " << std::endl;
+    std::cout << "    --sameAxComp                                     [DEFAULT:         0.1]     " << std::endl;
     std::cout << "            The difference in dot product of two vectors for them to be         " << std::endl;
     std::cout << "            still considered to be the same.                                    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --axisComBeh or -q                               [DEFAULT:        TRUE]     " << std::endl;
+    std::cout << "            Should the maximum difference in dot product of two vectors for     " << std::endl;
+    std::cout << "            them to be still considered to be the same decrease with fold of    " << std::endl;
+    std::cout << "            tested symmetry?                                                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;

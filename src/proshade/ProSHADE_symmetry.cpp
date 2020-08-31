@@ -99,7 +99,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         //============================================ Search for symmetry in these peaks
         detectedCSymmetries                           = ProSHADE_internal_symmetry::findPeaksCSymmetry ( &symPeaks, settings->verbose, this->getMaxBand(),
                                                                                                          settings->symMissPeakThres,
-                                                                                                         settings->axisErrTolerance, this );
+                                                                                                         settings->axisErrTolerance, settings->axisErrToleranceDefault, this );
         
         //============================================ Print detected symmetries
         for ( proshade_unsign detIt = 0; detIt < static_cast<proshade_unsign> ( detectedCSymmetries.size() ); detIt++ ) { ProSHADE_internal_symmetry::printSymmetryGroup ( detectedCSymmetries.at(detIt), symPeaks, settings->verbose ); }
@@ -235,10 +235,12 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findPeaksByHeightBoun
  \param[in] verbose How loud the standard output of this run should be?
  \param[in] band The bandwidth of these computations.
  \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
+ \param[in] axisErrTolerance Tolerance for symmetry axis identity.
+ \param[in] axisErrToleranceDef Should the automatic axis tolerance decrease be applied?
  \param[in] dataObj The data object for which symmetry is being searched. This is only needed for missing peaks search, but needed nonetheless.
  \param[out] X Vector of vectors with first number being the detected fold and all remaining numbers being the indices of peaks forming the symmetry.
  */
-std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::findPeaksCSymmetry ( std::vector< proshade_double* >* peaks, proshade_signed verbose, proshade_unsign band, proshade_double missPeakThres, proshade_double axisErrTolerance, ProSHADE_internal_data::ProSHADE_data* dataObj )
+std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::findPeaksCSymmetry ( std::vector< proshade_double* >* peaks, proshade_signed verbose, proshade_unsign band, proshade_double missPeakThres, proshade_double axisErrTolerance, bool axisErrToleranceDef, ProSHADE_internal_data::ProSHADE_data* dataObj )
 {
     //======================================== Initialise variables
     std::vector< std::vector< proshade_unsign > > ret;
@@ -268,7 +270,7 @@ std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::findPe
             if ( !ProSHADE_internal_symmetry::determineFoldToTry ( angDist, &angDivisionBasis, &angDivisionRemainder, nextPeakError, &nextSymmetryError, &angsToTry ) ) { continue; }
             
             //======================================== If reasonable folds are found, test these for being complete symmetries
-            ProSHADE_internal_symmetry::findSymmetryUsingFold ( dataObj, &angsToTry, &sameAxesGroups.at(grpIt), peaks, &ret, &testedAlready, axisErrTolerance, missPeakThres, verbose );
+            ProSHADE_internal_symmetry::findSymmetryUsingFold ( dataObj, &angsToTry, &sameAxesGroups.at(grpIt), peaks, &ret, &testedAlready, axisErrTolerance, axisErrToleranceDef, missPeakThres, verbose );
         }
         
     }
@@ -766,7 +768,7 @@ void ProSHADE_internal_symmetry::saveDetectedCSymmetry ( proshade_unsign fold, s
     //================================================ Report finding symmetry
     std::stringstream hlpS;
     hlpS << "Found symmetry C" << fold;
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 4, hlpS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 5, hlpS.str() );
     
     //================================================ Done
     return ;
@@ -851,15 +853,17 @@ bool ProSHADE_internal_symmetry::completeMissingCSymmetry ( ProSHADE_internal_da
  \param[in] ret The final variable holding all results (i.e. detected symmetries).
  \param[in] testedAlready A vector in which the already tested folds for this symmetry axis are saved.
  \param[in] axErrTolerance The allowed error on matching axes.
+ \param[in] axErrToleranceDefault Should the axErrTolerance be decreased with increasing fold?
  \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
  \param[in] verbose How loud the standard output of this run should be?
  */
-void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< std::vector< proshade_unsign > >* ret, std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, proshade_double missPeakThres, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< std::vector< proshade_unsign > >* ret, std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault, proshade_double missPeakThres, proshade_unsign verbose )
 {
     //================================================ Initialise variables
     bool skipFold                                     = false;
     std::vector< proshade_unsign > matchedPeaks, missingPeaks;
     std::vector< proshade_double > expectedAngles;
+    proshade_double axErrToleranceOrig                = axErrTolerance;
     
     //================================================ Testing folds for being supported by peaks
     for ( proshade_unsign fIt = 0; fIt < static_cast<proshade_unsign> ( angsToTry->size() ); fIt++ )
@@ -869,6 +873,14 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
         for ( proshade_unsign ftIt = 0; ftIt < static_cast<proshade_unsign> ( testedAlready->size() ); ftIt++ ) { if ( testedAlready->at(ftIt) == angsToTry->at(fIt) ) { skipFold = true; } }
         if ( skipFold ) { continue; }
         else { ProSHADE_internal_misc::addToUnsignVector( testedAlready, angsToTry->at(fIt) ); }
+        
+        //============================================ Set axis tolerance based on fold (if required)
+        if ( axErrToleranceDefault )
+        {
+            axErrTolerance                            = std::min ( ( ( 360.0 / static_cast<double> ( angsToTry->at(fIt) ) ) -
+                                                                   ( 360.0 / static_cast<double> ( angsToTry->at(fIt) + 1 ) ) ) /
+                                                                   acos ( axErrTolerance ) * axErrTolerance, axErrTolerance );
+        }
         
         //============================================ Find expected peak rotation angles
         expectedAngles.clear                          ( );

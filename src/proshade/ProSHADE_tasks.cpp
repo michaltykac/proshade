@@ -338,6 +338,12 @@ void ProSHADE_internal_tasks::checkSymmetrySettings ( ProSHADE_settings* setting
         throw ProSHADE_exception ( "There are not enough structures for symmetry detection.", "ES00028", __FILE__, __LINE__, __func__, "There needs to be at least one structure for which\n                    : symmetry is to be detected. Please supply at least one\n                    : structure by using the addStructure() function." );
     }
     
+    //================================================ Is the axis tolerance set properly?
+    if ( settings->axisErrTolerance < 0.0 )
+    {
+        throw ProSHADE_exception ( "Symmetry axis detection tolerance set to negative value.", "ES00053", __FILE__, __LINE__, __func__, "The symmetry axis detection tolerance was manually set to\n                    : negative value. This makes no sense, please supply\n                    : value >= 0.0." );
+    }
+    
     //================================================ Done
     return ;
     

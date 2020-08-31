@@ -164,6 +164,7 @@ public:
     //================================================ Settings regarding the symmetry detection
     proshade_double symMissPeakThres;                 //!< Percentage of peaks that could be missing that would warrant starting the missing peaks search procedure.
     proshade_double axisErrTolerance;                 //!< Allowed error on vector elements for vectors to still be considered the same.
+    bool axisErrToleranceDefault;
     proshade_double minSymPeak;                       //!< Minimum average peak for symmetry axis to be considered as "real".
     std::string recommendedSymmetryType;              //!< The symmetry type that ProSHADE finds the best fitting for the structure. Possible values are "" for none, "C" for cyclic, "D" for Dihedral, "T" for Tetrahedral, "O" for Octahedral and "I" for Icosahedral. C and D types also have fold value associated.
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
@@ -234,6 +235,7 @@ public:
     void setGroupingSmoothingFactor                   ( proshade_double smFact );
     void setMissingPeakThreshold                      ( proshade_double mpThres );
     void setAxisComparisonThreshold                   ( proshade_double axThres );
+    void setAxisComparisonThresholdBehaviour          ( bool behav );
     void setMinimumPeakForAxis                        ( proshade_double minSP );
     void setRecommendedSymmetry                       ( std::string val );
     void setRecommendedFold                           ( proshade_unsign val );

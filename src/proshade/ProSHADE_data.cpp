@@ -1969,7 +1969,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     tScore                                            = this->findTScore     ( TSym );
     oScore                                            = this->findOScore     ( OSym );
     iScore                                            = this->findIScore     ( ISym );
-    
+
     //================================================ Find the best available score
     proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 2.0, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
     
@@ -1983,6 +1983,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         settings->setRecommendedFold                  ( CSym->at(bestCIndex)[0] );
         settings->setDetectedSymmetry                 ( CSym->at(bestCIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestCIndex) );
+        
+        //============================================ Warn if resolution does not really support this fold
+        if ( ( ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] + 1 ) ) ) <
+             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+        {
+            std::stringstream hlpSS;
+            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry C" << CSym->at(bestCIndex)[0] << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+        }
     }
     if ( bestWeightedScore == dScore * 2.0 )
     {
