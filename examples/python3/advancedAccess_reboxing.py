@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.3
-#   \date      AUG 2020
+#   \version   0.7.4
+#   \date      SEP 2020
 ##############################################
 ##############################################
 
@@ -48,6 +48,7 @@ pSet.setOutputFilename                        ( str ( "reBoxed" ) )             
 pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution?
 pSet.setBoundsSpace                           ( 3.0 )                                  # The extra space in Angs to add to the minimal boundaries when re-boxing.
 pSet.setBoundsThreshold                       ( 5 )                                    # If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
+pSet.setMinimumPeakForAxis                    ( 0.3 )                                  # The minimum peak height for axis to be used.
 pSet.setSameBoundaries                        ( False )                                # Make multiple structures have the same boundaries. This is useful for half-maps.
 pSet.setPDBBFactor                            ( -1.0 )                                 # Should all B-factors in a PDB file changed to this value? If no, set to negative value.
 pSet.setMaskBlurFactor                        ( 350.0 )                                # If masking, what blur factor should be used? 350 seems to work for most maps.

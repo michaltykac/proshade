@@ -1,16 +1,18 @@
 To Do:
 
+Testing:
+* Look into symmetry - especially taking into account the average peak heights when deciding which symmetry to report.
+* Look into the limits of structure overlay
+
 Development
 * Timing - are band and integration order correctly determined?
 * Timing - can it be faster?
 * Support non-orthogonal maps
 * Make sure the SO(3) coefficients are accessed from python just like the E matrices.
-* Use NFFT
-* Look into symmetry and improve on time and accuracy
-* Create PiPy build procedure for python modules
+* Use NFFT?
 * Create Homebrew build procedure for MacOS
 * Create apt build procedure for Linux
-* Create Windows binary and dll to go with PiPy for complete Windows installation
+* Create PyPi module for Windows
 * Create MacPorts build procedure
 
 Admin

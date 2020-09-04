@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -27,9 +27,9 @@
 
 /*! \brief Contructor for the ProSHADE_settings class.
  
- This is the generic constructor used in cases where the settings object will be filled based on run-time determined values. If you know the specific
- task to be done, it is recommended to use the constructor which takes the task as argument, so that the default values are set specifically for the
- task at hand.
+    This is the generic constructor used in cases where the settings object will be filled based on run-time determined values. If you know the specific
+    task to be done, it is recommended to use the constructor which takes the task as argument, so that the default values are set specifically for the
+    task at hand.
  */
 ProSHADE_settings::ProSHADE_settings ( )
 {
@@ -108,7 +108,9 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
-    this->axisErrTolerance                            = 0.05;
+    this->axisErrTolerance                            = 0.1;
+    this->axisErrToleranceDefault                     = true;
+    this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -127,11 +129,11 @@ ProSHADE_settings::ProSHADE_settings ( )
 
 /*! \brief Contructor for the ProSHADE_settings class for particular task.
  
- This is the generic constructor used in cases where the settings object will be filled based on run-time determined values. If you know the specific
- task to be done, it is recommended to use the constructor which takes the task as argument, so that the default values are set specifically for the
- task at hand.
+    This is the generic constructor used in cases where the settings object will be filled based on run-time determined values. If you know the specific
+    task to be done, it is recommended to use the constructor which takes the task as argument, so that the default values are set specifically for the
+    task at hand.
  
- \param[in] taskToPerform The task that should be performed by ProSHADE.
+    \param[in] taskToPerform The task that should be performed by ProSHADE.
  */
 ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
 {
@@ -140,6 +142,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
+    this->changeMapResolution                         = false;
     this->changeMapResolutionTriLinear                = false;
     
     //================================================ Settings regarding the PDB B-factor change
@@ -207,7 +210,9 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
-    this->axisErrTolerance                            = 0.05;
+    this->axisErrTolerance                            = 0.1;
+    this->axisErrToleranceDefault                     = true;
+    this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -235,12 +240,12 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             break;
             
         case Symmetry:
-            this->requestedResolution                 = 8.0;
+            this->requestedResolution                 = 6.0;
             this->pdbBFactorNewVal                    = 80.0;
-            this->changeMapResolution                 = false;
+            this->changeMapResolution                 = true;
             this->maskMap                             = false;
-            this->moveToCOM                           = false;
-            this->normaliseMap                        = false;
+            this->moveToCOM                           = true;
+            this->normaliseMap                        = true;
             this->reBoxMap                            = false;
             break;
             
@@ -273,7 +278,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
 
 /*! \brief Destructor for the ProSHADE_settings class.
  
- This destructor is responsible for releasing all memory used by the settings object
+    This destructor is responsible for releasing all memory used by the settings object
  */
 ProSHADE_settings::~ProSHADE_settings ( )
 {
@@ -289,10 +294,10 @@ ProSHADE_settings::~ProSHADE_settings ( )
 
 /*! \brief Adds a structure file name to the appropriate variable.
  
- This function takes a string defining the filename of a structure to be processed and adds it to
- the list of structures to be processed.
+    This function takes a string defining the filename of a structure to be processed and adds it to
+    the list of structures to be processed.
  
- \param[in] structure String file name to be added to the list of structures to process.
+    \param[in] structure String file name to be added to the list of structures to process.
  */
 void ProSHADE_settings::addStructure ( std::string structure )
 {
@@ -306,9 +311,9 @@ void ProSHADE_settings::addStructure ( std::string structure )
 
 /*! \brief Sets the requested resolution in the appropriate variable.
  
- This function sets the resolution in the appropriate variable.
+    This function sets the resolution in the appropriate variable.
  
- \param[in] resolution The requested value for the resolution to which the computations are to be done.
+    \param[in] resolution The requested value for the resolution to which the computations are to be done.
  */
 void ProSHADE_settings::setResolution ( proshade_single resolution )
 {
@@ -322,9 +327,9 @@ void ProSHADE_settings::setResolution ( proshade_single resolution )
 
 /*! \brief Sets the requested B-factor value for PDB files in the appropriate variable.
  
- This function sets the B-factor value for PDB files in the appropriate variable.
+    This function sets the B-factor value for PDB files in the appropriate variable.
  
- \param[in] newBF The requested value for the B-factor value for PDB files for smooth and processible maps.
+    \param[in] newBF The requested value for the B-factor value for PDB files for smooth and processible maps.
  */
 void ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
 {
@@ -338,9 +343,9 @@ void ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
 
 /*! \brief Sets the requested map normalisation value in the appropriate variable.
  
- This function sets the map normalisation between on and off.
+    This function sets the map normalisation between on and off.
  
- \param[in] normalise The requested value for the map normalisation (on = true, off = false).
+    \param[in] normalise The requested value for the map normalisation (on = true, off = false).
  */
 void ProSHADE_settings::setNormalisation ( bool normalise )
 {
@@ -354,9 +359,9 @@ void ProSHADE_settings::setNormalisation ( bool normalise )
 
 /*! \brief Sets the requested map inversion value in the appropriate variable.
  
- This function sets the map inversion between on and off.
+    This function sets the map inversion between on and off.
  
- \param[in] mInv Should the map be inverted? (on = true, off = false).
+    \param[in] mInv Should the map be inverted? (on = true, off = false).
  */
 void ProSHADE_settings::setMapInversion ( bool mInv )
 {
@@ -370,9 +375,9 @@ void ProSHADE_settings::setMapInversion ( bool mInv )
 
 /*! \brief Sets the requested verbosity in the appropriate variable.
  
- This function sets the varbosity of the ProSHADE run in the appropriate variable.
+    This function sets the varbosity of the ProSHADE run in the appropriate variable.
  
- \param[in] verbose The requested value for verbosity. -1 means no output, while 4 means loud output
+    \param[in] verbose The requested value for verbosity. -1 means no output, while 4 means loud output
  */
 void ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
 {
@@ -386,9 +391,9 @@ void ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
 
 /*! \brief Sets the requested map blurring factor in the appropriate variable.
  
- This function sets the blurring / sharpening factor for map masking in the appropriate variable.
+    This function sets the blurring / sharpening factor for map masking in the appropriate variable.
  
- \param[in] blurFac The requested value for the blurring factor.
+    \param[in] blurFac The requested value for the blurring factor.
  */
 void ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
 {
@@ -402,10 +407,10 @@ void ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
 
 /*! \brief Sets the requested number of IQRs for masking threshold in the appropriate variable.
  
- This function sets the number of interquartile ranges from the median to be used for map masking in the correct
- variable.
+    This function sets the number of interquartile ranges from the median to be used for map masking in the correct
+    variable.
  
- \param[in] noIQRs The requested value for the number of IQRs from the median to be used for masking threshold.
+    \param[in] noIQRs The requested value for the number of IQRs from the median to be used for masking threshold.
  */
 void ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
 {
@@ -419,9 +424,9 @@ void ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
 
 /*! \brief Sets the requested map masking decision value in the appropriate variable.
  
- This function sets the map masking between on and off.
+    This function sets the map masking between on and off.
  
- \param[in] mask The requested value for the map masking (on = true, off = false).
+    \param[in] mask The requested value for the map masking (on = true, off = false).
  */
 void ProSHADE_settings::setMasking ( bool mask )
 {
@@ -435,10 +440,10 @@ void ProSHADE_settings::setMasking ( bool mask )
 
 /*! \brief Sets the requested map masking type in the appropriate variable.
  
- This function sets the map masking type. If false, the standard map blurring masking will be used, while
- if true, the new "fake" half-map correlation mask will be used.
+    This function sets the map masking type. If false, the standard map blurring masking will be used, while
+    if true, the new "fake" half-map correlation mask will be used.
  
- \param[in] corMask The requested value for the map masking type.
+    \param[in] corMask The requested value for the map masking type.
  */
 void ProSHADE_settings::setCorrelationMasking ( bool corMask )
 {
@@ -452,11 +457,11 @@ void ProSHADE_settings::setCorrelationMasking ( bool corMask )
 
 /*! \brief Sets the requested "fake" half-map kernel in the appropriate variable.
  
- This function sets the kernel for creating the "fake" half-map. What is meant here is that a new map is
- created as the average of neighbours from the original map - this is useful in masking. This value then
- sets how many neighbours.
+    This function sets the kernel for creating the "fake" half-map. What is meant here is that a new map is
+    created as the average of neighbours from the original map - this is useful in masking. This value then
+    sets how many neighbours.
  
- \param[in] typNoi The requested value for the typical noise size in Angstrom.
+    \param[in] typNoi The requested value for the typical noise size in Angstrom.
  */
 void ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
 {
@@ -470,9 +475,9 @@ void ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
 
 /*! \brief Sets the requested minimum mask size.
  
- This function sets the kernel for the local correlation computation between the "fake half-map" and the original map.
+    This function sets the kernel for the local correlation computation between the "fake half-map" and the original map.
  
- \param[in] minMS The requested value for the minimum mask size in Angstrom.
+    \param[in] minMS The requested value for the minimum mask size in Angstrom.
  */
 void ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
 {
@@ -486,9 +491,9 @@ void ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
 
 /*! \brief Sets whether the mask should be saved.
  
- This function sets the switch variable to whether mask should be saved.
+    This function sets the switch variable to whether mask should be saved.
  
- \param[in] savMsk If true, mask will be saved, otherwise it will not be.
+    \param[in] savMsk If true, mask will be saved, otherwise it will not be.
  */
 void ProSHADE_settings::setMaskSaving ( bool savMsk )
 {
@@ -502,9 +507,9 @@ void ProSHADE_settings::setMaskSaving ( bool savMsk )
 
 /*! \brief Sets where the mask should be saved.
  
- This function sets the the filename to which mask should be saved.
+    This function sets the the filename to which mask should be saved.
  
- \param[in] mskFln The filename where the mask should be saved.
+    \param[in] mskFln The filename where the mask should be saved.
  */
 void ProSHADE_settings::setMaskFilename ( std::string mskFln )
 {
@@ -518,9 +523,9 @@ void ProSHADE_settings::setMaskFilename ( std::string mskFln )
 
 /*! \brief Sets whether re-boxing needs to be done in the appropriate variable.
  
- This function sets the switch as to whether re-boxing needs to be done to the correct variable.
+    This function sets the switch as to whether re-boxing needs to be done to the correct variable.
  
- \param[in] reBx The requested value for the re-boxing switch variable.
+    \param[in] reBx The requested value for the re-boxing switch variable.
  */
 void ProSHADE_settings::setMapReboxing ( bool reBx )
 {
@@ -534,10 +539,10 @@ void ProSHADE_settings::setMapReboxing ( bool reBx )
 
 /*! \brief Sets the requested number of angstroms for extra space in re-boxing in the appropriate variable.
  
- This function sets the number of angstroms to be added both before and after the absolute bounds for re-boxing to
- the correct variable.
+    This function sets the number of angstroms to be added both before and after the absolute bounds for re-boxing to
+    the correct variable.
  
- \param[in] boundsExSp The requested value for the extra re-boxing space in angstroms.
+    \param[in] boundsExSp The requested value for the extra re-boxing space in angstroms.
  */
 void ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
 {
@@ -551,9 +556,9 @@ void ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
 
 /*! \brief Sets the threshold for number of indices difference acceptable to make index sizes same in the appropriate variable.
  
- This function sets the number of indices by which two dimensions can differ for them to be still made the same size.
+    This function sets the number of indices by which two dimensions can differ for them to be still made the same size.
  
- \param[in] boundsThres The requested value for the bouds difference threhshold.
+    \param[in] boundsThres The requested value for the bouds difference threhshold.
  */
 void ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
 {
@@ -567,10 +572,10 @@ void ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
 
 /*! \brief Sets whether same boundaries should be used in the appropriate variable.
  
- This function sets the switch as to whether the same boundaries as for the first map should be forced upon the rest
- if the input maps.
+    This function sets the switch as to whether the same boundaries as for the first map should be forced upon the rest
+    if the input maps.
  
- \param[in] sameB The requested value for the same boundaries as first structure switch variable.
+    \param[in] sameB The requested value for the same boundaries as first structure switch variable.
  */
 void ProSHADE_settings::setSameBoundaries ( bool sameB )
 {
@@ -584,10 +589,10 @@ void ProSHADE_settings::setSameBoundaries ( bool sameB )
 
 /*! \brief Sets the requested output file name in the appropriate variable.
  
- This function sets the filename to which the output structure(s) should be saved. This variable is used by multiple tasks
- and therefore cannot be more specifically described here.
+    This function sets the filename to which the output structure(s) should be saved. This variable is used by multiple tasks
+    and therefore cannot be more specifically described here.
  
- \param[in] oFileName The requested value for the output file name variable.
+    \param[in] oFileName The requested value for the output file name variable.
  */
 void ProSHADE_settings::setOutputFilename ( std::string oFileName )
 {
@@ -601,9 +606,9 @@ void ProSHADE_settings::setOutputFilename ( std::string oFileName )
 
 /*! \brief Sets the requested map resolution change decision in the appropriate variable.
  
- This function sets the map resolution change between on and off.
+    This function sets the map resolution change between on and off.
  
- \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
+    \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
  */
 void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
 {
@@ -617,9 +622,9 @@ void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
 
 /*! \brief Sets the requested map resolution change decision using tri-linear interpolation in the appropriate variable.
  
- This function sets the tri-linear interpolation map resolution change between on and off.
+    This function sets the tri-linear interpolation map resolution change between on and off.
  
- \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
+    \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
  */
 void ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
 {
@@ -633,9 +638,9 @@ void ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
 
 /*! \brief Sets the requested map centering decision value in the appropriate variable.
  
- This function sets the map centering using COM between on and off.
+    This function sets the map centering using COM between on and off.
  
- \param[in] com The requested value for the map centering (on = true, off = false).
+    \param[in] com The requested value for the map centering (on = true, off = false).
  */
 void ProSHADE_settings::setMapCentering ( bool com )
 {
@@ -649,9 +654,9 @@ void ProSHADE_settings::setMapCentering ( bool com )
 
 /*! \brief Sets the requested map extra space value in the appropriate variable.
  
- This function sets the amount of extra space to be added to internal maps in the appropriate variable.
+    This function sets the amount of extra space to be added to internal maps in the appropriate variable.
  
- \param[in] exSpace The requested amount of extra space.
+    \param[in] exSpace The requested amount of extra space.
  */
 void ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
 {
@@ -665,9 +670,9 @@ void ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
 
 /*! \brief Sets the requested sphere mapping value settings approach in the appropriate variable.
  
- This function sets the progressive sphere mapping approach between on and off.
+    This function sets the progressive sphere mapping approach between on and off.
  
- \param[in] com The requested value for the progressive sphere mapping (on = true, off = false).
+    \param[in] com The requested value for the progressive sphere mapping (on = true, off = false).
  */
 void ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
 {
@@ -681,9 +686,9 @@ void ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
 
 /*! \brief Sets the requested spherical harmonics bandwidth in the appropriate variable.
  
- This function sets the bandwidth limit for the spherical harmonics computations in the appropriate variable.
+    This function sets the bandwidth limit for the spherical harmonics computations in the appropriate variable.
  
- \param[in] band The requested value for spherical harmonics bandwidth (0 = AUTOMATIC DETERMINATION).
+    \param[in] band The requested value for spherical harmonics bandwidth (0 = AUTOMATIC DETERMINATION).
  */
 void ProSHADE_settings::setBandwidth ( proshade_unsign band )
 {
@@ -697,9 +702,9 @@ void ProSHADE_settings::setBandwidth ( proshade_unsign band )
 
 /*! \brief Sets the requested distance between spheres in the appropriate variable.
  
- This function sets the distance between any two consecutive spheres in the sphere mapping of a map in the appropriate variable.
+    This function sets the distance between any two consecutive spheres in the sphere mapping of a map in the appropriate variable.
  
- \param[in] sphDist The requested value for distance between spheres (0 = AUTOMATIC DETERMINATION).
+    \param[in] sphDist The requested value for distance between spheres (0 = AUTOMATIC DETERMINATION).
  */
 void ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
 {
@@ -713,9 +718,9 @@ void ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
 
 /*! \brief Sets the requested order for the Gauss-Legendre integration in the appropriate variable.
  
- This function sets the Gauss-Legendre integration between the spheres order value in the appropriate variable.
+    This function sets the Gauss-Legendre integration between the spheres order value in the appropriate variable.
  
- \param[in] intOrd The requested value for the Gauss-Legendre integration order (0 = AUTOMATIC DETERMINATION).
+    \param[in] intOrd The requested value for the Gauss-Legendre integration order (0 = AUTOMATIC DETERMINATION).
  */
 void ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
 {
@@ -729,10 +734,10 @@ void ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
 
 /*! \brief Sets the requested Taylor series cap for the Gauss-Legendre integration in the appropriate variable.
  
- This function sets the Taylor series maximum limit for the Gauss-Legendre integration between the spheres order
- value in the appropriate variable.
+    This function sets the Taylor series maximum limit for the Gauss-Legendre integration between the spheres order
+    value in the appropriate variable.
  
- \param[in] tayCap The requested value for the Taylor series cap. (0 = AUTOMATIC DETERMINATION).
+    \param[in] tayCap The requested value for the Taylor series cap. (0 = AUTOMATIC DETERMINATION).
  */
 void ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
 {
@@ -746,10 +751,10 @@ void ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
 
 /*! \brief Sets whether the energy level distance descriptor should be computed.
  
- This function sets the boolean variable deciding whether the RRP matrices and the energy levels descriptor should
- be computed or not.
+    This function sets the boolean variable deciding whether the RRP matrices and the energy levels descriptor should
+    be computed or not.
  
- \param[in] enLevDesc The requested value for the energy levels descriptor computation switch.
+    \param[in] enLevDesc The requested value for the energy levels descriptor computation switch.
  */
 void ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
 {
@@ -763,10 +768,10 @@ void ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
 
 /*! \brief Sets whether the trace sigma distance descriptor should be computed.
  
- This function sets the boolean variable deciding whether the E matrices and the trace sigma descriptor should
- be computed or not.
+    This function sets the boolean variable deciding whether the E matrices and the trace sigma descriptor should
+    be computed or not.
  
- \param[in] trSigVal The requested value for the trace sigma descriptor computation switch.
+    \param[in] trSigVal The requested value for the trace sigma descriptor computation switch.
  */
 void ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
 {
@@ -780,10 +785,10 @@ void ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
 
 /*! \brief Sets whether the rotation function distance descriptor should be computed.
  
- This function sets the boolean variable deciding whether the inverse SO(3) transform and the rotation function descriptor should
- be computed or not.
+    This function sets the boolean variable deciding whether the inverse SO(3) transform and the rotation function descriptor should
+    be computed or not.
  
- \param[in] rotfVal The requested value for the rotation function descriptor computation switch.
+    \param[in] rotfVal The requested value for the rotation function descriptor computation switch.
  */
 void ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
 {
@@ -797,10 +802,10 @@ void ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
 
 /*! \brief Sets the number of neighbour values that have to be smaller for an index to be considered a peak.
  
- This function sets the number of neighbouring points (in all three dimensions and both positive and negative direction) that
- have to have lower value than the currently considered index in order for this index to be considered as a peak.
+    This function sets the number of neighbouring points (in all three dimensions and both positive and negative direction) that
+    have to have lower value than the currently considered index in order for this index to be considered as a peak.
  
- \param[in] pkS The requested value for the number of neighbours being lower for a peak.
+    \param[in] pkS The requested value for the number of neighbours being lower for a peak.
  */
 void ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
 {
@@ -814,11 +819,11 @@ void ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
 
 /*! \brief Sets the number of IQRs from the median for threshold height a peak needs to be considered a peak.
  
- This function sets the number of IQRs from the median that determine the threshold used to determine if a 'naive' peak
- is a peak, or just a random local maxim in the background. The set from which median and IQR is computed is the non-peak
- values.
+    This function sets the number of IQRs from the median that determine the threshold used to determine if a 'naive' peak
+    is a peak, or just a random local maxim in the background. The set from which median and IQR is computed is the non-peak
+    values.
  
- \param[in] noIQRs The requested number of IQRs from the median.
+    \param[in] noIQRs The requested number of IQRs from the median.
  */
 void ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
 {
@@ -832,11 +837,11 @@ void ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
 
 /*! \brief Sets whether the phase information will be used.
  
- This function sets the boolean variable deciding whether the phase information should be used. If not, Patterson maps
- will be used instead of density maps and the 3D data will be converted to them. Also, only even bands of the spherical
- harmonics decomposition will be computed as the odd bands must be 0.
+    This function sets the boolean variable deciding whether the phase information should be used. If not, Patterson maps
+    will be used instead of density maps and the 3D data will be converted to them. Also, only even bands of the spherical
+    harmonics decomposition will be computed as the odd bands must be 0.
  
- \param[in] phaseUsage The requested value for the phase usage switch.
+    \param[in] phaseUsage The requested value for the phase usage switch.
  */
 void ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
 {
@@ -850,11 +855,11 @@ void ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
 
 /*! \brief Sets the weight of shell position for the energy levels computation.
  
- During the computation of the energy levels descriptor, Pearson's correlation coefficient is computed between different shells
- with the same band. The shell index can by expanded to its mPower exponential to give higher shells more weight, or vice versa.
- To do this, set the mPower value as you see fit.
+    During the computation of the energy levels descriptor, Pearson's correlation coefficient is computed between different shells
+    with the same band. The shell index can by expanded to its mPower exponential to give higher shells more weight, or vice versa.
+    To do this, set the mPower value as you see fit.
  
- \param[in] mPower The requested value for the shell position exponential.
+    \param[in] mPower The requested value for the shell position exponential.
  */
 void ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
 {
@@ -868,11 +873,11 @@ void ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
 
 /*! \brief Sets the grouping smoothing factor into the proper variable.
  
- When detecting symmetry, it is worth grouping the possible rotations by their self-rotation function peak heights. In this
- process, the distribution of peak heights needs to be smoothen over and this factor decides how smooth it should be. Small
- value leads to all peaks being in the same group, while large number means each peak will be in its own group.
+    When detecting symmetry, it is worth grouping the possible rotations by their self-rotation function peak heights. In this
+    process, the distribution of peak heights needs to be smoothen over and this factor decides how smooth it should be. Small
+    value leads to all peaks being in the same group, while large number means each peak will be in its own group.
  
- \param[in] smFact The requested value for the grouping smoothing factor.
+    \param[in] smFact The requested value for the grouping smoothing factor.
  */
 void ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
 {
@@ -886,10 +891,10 @@ void ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
 
 /*! \brief Sets the threshold for starting the missing peaks procedure.
  
- When only mpThres percentage of peaks are missing during symmetry detection, the full missing peak detection procedure will
- be started. Otherwise, the symmetry will not be detected at all.
+    When only mpThres percentage of peaks are missing during symmetry detection, the full missing peak detection procedure will
+    be started. Otherwise, the symmetry will not be detected at all.
  
- \param[in] mpThres The requested value for the missing peaks procedure starting threshold.
+    \param[in] mpThres The requested value for the missing peaks procedure starting threshold.
  */
 void ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
 {
@@ -903,10 +908,10 @@ void ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
 
 /*! \brief Sets the threshold for matching symmetry axes.
  
- When comparing symmetry axes, there needs to be a threshold allowing for some small error comming from the numberical
- inaccuracies. This is where you set this threshold.
+    When comparing symmetry axes, there needs to be a threshold allowing for some small error comming from the numberical
+    inaccuracies. This is where you set this threshold.
  
- \param[in] axThres The requested value for the axes comparison threshold.
+    \param[in] axThres The requested value for the axes comparison threshold.
  */
 void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
 {
@@ -918,13 +923,49 @@ void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
     
 }
 
+/*! \brief Sets the automatic symmetry axis tolerance decreasing.
+
+    When comparing symmetry axes, there needs to be a threshold allowing for some small error comming from the numberical
+    inaccuracies. It turns out that this threshold should take into account the ratio to the next symmetry angles, otherwise it would
+    strongly prefer larger symmetries. This variable decides whether the threshold should be decreased based on the fold of sought
+    åsymmetry or not.
+
+    \param[in] behav The requested value for the axes comparison threshold decreasing.
+*/
+void ProSHADE_settings::setAxisComparisonThresholdBehaviour ( bool behav )
+{
+    //================================================ Set the value
+    this->axisErrToleranceDefault                     = behav;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the minimum peak height for symmetry axis to be considered.
+ 
+    When considering if a symmetry axis is "real" and should be acted upon, its average peak height will need to
+    be higher than this value.
+ 
+    \param[in] minSP The requested value for the minimum peak height.
+ */
+void ProSHADE_settings::setMinimumPeakForAxis ( proshade_double minSP )
+{
+    //================================================ Set the value
+    this->minSymPeak                                  = minSP;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the ProSHADE detected symmetry type.
  
- When symmetry detection is done, the resulting recommended symmetry type will be saved in the settings object by this function.
+    When symmetry detection is done, the resulting recommended symmetry type will be saved in the settings object by this function.
  
- \param[in] val The recommended symmetry type for the structure.
+    \param[in] val The recommended symmetry type for the structure.
  
- \warning This is an internal function and it should not be used by the user.
+    \warning This is an internal function and it should not be used by the user.
  */
 void ProSHADE_settings::setRecommendedSymmetry ( std::string val )
 {
@@ -938,12 +979,12 @@ void ProSHADE_settings::setRecommendedSymmetry ( std::string val )
 
 /*! \brief Sets the ProSHADE detected symmetry fold.
  
- When symmetry detection is done, the resulting recommended symmetry fold  (valid only for C and D symmetry types) will be saved in the
- settings object by this function.
+    When symmetry detection is done, the resulting recommended symmetry fold  (valid only for C and D symmetry types) will be saved in the
+    settings object by this function.
  
- \param[in] val The recommended symmetry fold for the structure.
+    \param[in] val The recommended symmetry fold for the structure.
  
- \warning This is an internal function and it should not be used by the user.
+    \warning This is an internal function and it should not be used by the user.
  */
 void ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
 {
@@ -957,9 +998,9 @@ void ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
 
 /*! \brief Sets the user requested symmetry type.
  
- When symmetry detection is started, this symmetry type will be exclusively sought.
+    When symmetry detection is started, this symmetry type will be exclusively sought.
  
- \param[in] val The requested symmetry type for the structure.
+    \param[in] val The requested symmetry type for the structure.
  */
 void ProSHADE_settings::setRequestedSymmetry ( std::string val )
 {
@@ -973,9 +1014,9 @@ void ProSHADE_settings::setRequestedSymmetry ( std::string val )
 
 /*! \brief Sets the user requested symmetry fold.
  
- When symmetry detection is started, this symmetry fold will be exclusively sought.
+    When symmetry detection is started, this symmetry fold will be exclusively sought.
  
- \param[in] val The requested symmetry fold for the structure.
+    \param[in] val The requested symmetry fold for the structure.
  */
 void ProSHADE_settings::setRequestedFold ( proshade_unsign val )
 {
@@ -988,11 +1029,11 @@ void ProSHADE_settings::setRequestedFold ( proshade_unsign val )
 }
 
 /*! \brief Sets the final detected symmetry axes information.
+    
+    This function copies (deep copy) the detected and recommended (or requested) symmetry axis information into the settings
+    object variable for further processing. For multiple axes, call this function multiple times - the addition is cumulative.
  
- This function copies (deep copy) the detected and recommended (or requested) symmetry axis information into the settings
- object variable for further processing. For multiple axes, call this function multiple times - the addition is cumulative.
- 
- \param[in] sym A pointer to single symmetry axis constituting the detected symmetry.
+    \param[in] sym A pointer to single symmetry axis constituting the detected symmetry.
  */
 void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
 {
@@ -1018,7 +1059,7 @@ void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
 
 /*! \brief Sets the filename to which the overlay structure is to be save into.
  
- \param[in] filename The filename to which the overlay structure is to be saved to.
+    \param[in] filename The filename to which the overlay structure is to be saved to.
  */
 void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
 {
@@ -1032,11 +1073,11 @@ void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
 
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
- This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
- It accomplishes this by checking if value is already set, and if not (value is 0), then it sets it to half of the maximum
- circumference of the map, in indices as recommended by Kostelec and Rockmore (2007).
+    This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
+    It accomplishes this by checking if value is already set, and if not (value is 0), then it sets it to half of the maximum
+    circumference of the map, in indices as recommended by Kostelec and Rockmore (2007).
  
- \param[in] circumference The maximum circumference of the map.
+    \param[in] circumference The maximum circumference of the map.
  */
 void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
 {
@@ -1064,9 +1105,9 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
 
 /*! \brief This function determines the bandwidth for the spherical harmonics computation from the allowed rotation function angle uncertainty.
  
- This function makes use of the fact that the rotation function dimensions will be 2 * bandwidth and that the dimensions will be covering full
- 360 degrees rotation space. Therefore, by saying what is the maximum allowed angle uncertainty, the minimum required bandwidth value can be
- determined.
+    This function makes use of the fact that the rotation function dimensions will be 2 * bandwidth and that the dimensions will be covering full
+    360 degrees rotation space. Therefore, by saying what is the maximum allowed angle uncertainty, the minimum required bandwidth value can be
+    determined.
  
  \param[in] uncertainty The maximum allowed uncertainty on the rotation function.
  */
@@ -1087,10 +1128,10 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
 
 /*! \brief This function determines the sphere distances for sphere mapping.
  
- This function determines the distance between two consecutive spheres in the sphere mappin galgorithm. It checks
- if this values has not been already set and if not, it sets it as the sampling rate (distance between any two map
- points). It then checks that there will be at least 10 spheres and if not, it changes the sphere distance until at
- least 10 spheres are to be produced.
+    This function determines the distance between two consecutive spheres in the sphere mappin galgorithm. It checks
+    if this values has not been already set and if not, it sets it as the sampling rate (distance between any two map
+    points). It then checks that there will be at least 10 spheres and if not, it changes the sphere distance until at
+    least 10 spheres are to be produced.
  
  \param[in] maxMapRange The maximum diagonal distance of the map in Angstroms.
  */
@@ -1120,9 +1161,9 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
 
 /*! \brief This function determines the integration order for the between spheres integration.
  
- This function determines the order of the Gauss-Legendre integration which needs to be done between the spheres. To do
- this, it uses the pre-coputed values of maxium distance between integration points for each order and the maxium distance
- between spheres expressed as a fraction of the total.
+    This function determines the order of the Gauss-Legendre integration which needs to be done between the spheres. To do
+    this, it uses the pre-coputed values of maxium distance between integration points for each order and the maxium distance
+    between spheres expressed as a fraction of the total.
  
  \param[in] maxMapRange The maximum diagonal distance of the map in Angstroms.
  */
@@ -1152,18 +1193,18 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
 
 /*! \brief This function determines all the required values for spherical harmonics computation.
  
- This function takes the maximum dimension size (in indices) and uses the settings pre-set be the user to set up the
- sphherical harmonics bandwidth, sphere sampling, sphere placement and spacing as well as the Gauss-Legendre integration
- order. This is either done using the user set values (if given), or using automated algorithm which only requires the
- resolution and max dimension.
+    This function takes the maximum dimension size (in indices) and uses the settings pre-set be the user to set up the
+    sphherical harmonics bandwidth, sphere sampling, sphere placement and spacing as well as the Gauss-Legendre integration
+    order. This is either done using the user set values (if given), or using automated algorithm which only requires the
+    resolution and max dimension.
  
- \param[in] xDim The size of the x axis dimension in indices.
- \param[in] yDim The size of the y axis dimension in indices.
- \param[in] zDim The size of the z axis dimension in indices.
+    \param[in] xDim The size of the x axis dimension in indices.
+    \param[in] yDim The size of the y axis dimension in indices.
+    \param[in] zDim The size of the z axis dimension in indices.
  
- \warning Because the automated algorithm decides the values based on the first structure size, by using it one gives up on
- the idea that DIST(A,B) == DIST(B,A). If this is important, then the user should set all of these values manually to the
- settings object to avoid this issue.
+    \warning Because the automated algorithm decides the values based on the first structure size, by using it one gives up on
+    the idea that DIST(A,B) == DIST(B,A). If this is important, then the user should set all of these values manually to the
+    settings object to avoid this issue.
  */
 void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim )
 {
@@ -1204,10 +1245,10 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
 
 /*! \brief Contructor for the ProSHADE_run class.
  
- This is where all the decisions regarding what should be done are made. It takes the settings and based on them, it decides what to do
- and how to report the results.
+    This is where all the decisions regarding what should be done are made. It takes the settings and based on them, it decides what to do
+    and how to report the results.
  
- \param[in] settings ProSHADE_settings object specifying what should be done.
+    \param[in] settings ProSHADE_settings object specifying what should be done.
  */
 ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
 {
@@ -1301,7 +1342,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
 
 /*! \brief Destructor for the ProSHADE class.
  
- This destructor is responsible for releasing all memory used by the executing object
+    This destructor is responsible for releasing all memory used by the executing object
  */
 ProSHADE_run::~ProSHADE_run ( )
 {
@@ -1331,7 +1372,7 @@ ProSHADE_run::~ProSHADE_run ( )
 
 /*! \brief This is the main accessor function for the user to get to know what symmetry type ProSHADE has detected and recommends.
  
- \param[out] symRecommType This is the value ( ""=None, C=cyclic, D=Dihedral, T=Tetrahedral, O=Octahedral or I=Icosahedral) of ProSHADE detected and recommended symmetry.
+    \param[out] symRecommType This is the value ( ""=None, C=cyclic, D=Dihedral, T=Tetrahedral, O=Octahedral or I=Icosahedral) of ProSHADE detected and recommended symmetry.
  */
 std::string ProSHADE_run::getSymmetryType ( )
 {
@@ -1341,7 +1382,7 @@ std::string ProSHADE_run::getSymmetryType ( )
 
 /*! \brief This is the main accessor function for the user to get to know what symmetry fold ProSHADE has detected and recommends.
  
- \param[out] symRecommFold This is the fold of ProSHADE detected and recommended symmetry (C and D symmetry types only).
+    \param[out] symRecommFold This is the fold of ProSHADE detected and recommended symmetry (C and D symmetry types only).
  */
 proshade_unsign ProSHADE_run::getSymmetryFold ( )
 {
@@ -1351,9 +1392,9 @@ proshade_unsign ProSHADE_run::getSymmetryFold ( )
 
 /*! \brief Sets the ProSHADE detected symmetry type.
  
- When symmetry detection is done, the resulting recommended symmetry type will be saved in the ProSHADE object by this function.
+    When symmetry detection is done, the resulting recommended symmetry type will be saved in the ProSHADE object by this function.
  
- \param[in] val The recommended symmetry type for the structure.
+    \param[in] val The recommended symmetry type for the structure.
  */
 void ProSHADE_run::setRecommendedSymmetry ( std::string val )
 {
@@ -1367,10 +1408,10 @@ void ProSHADE_run::setRecommendedSymmetry ( std::string val )
 
 /*! \brief Sets the ProSHADE detected symmetry fold.
  
- When symmetry detection is done, the resulting recommended symmetry fold  (valid only for C and D symmetry types) will be saved in the
- ProSHADE object by this function.
+    When symmetry detection is done, the resulting recommended symmetry fold  (valid only for C and D symmetry types) will be saved in the
+    ProSHADE object by this function.
  
- \param[in] val The recommended symmetry fold for the structure.
+    \param[in] val The recommended symmetry fold for the structure.
  */
 void ProSHADE_run::setRecommendedFold ( proshade_unsign val )
 {
@@ -1384,10 +1425,10 @@ void ProSHADE_run::setRecommendedFold ( proshade_unsign val )
 
 /*! \brief Sets the ProSHADE detected symmetry information for easy programmatical output.
  
- When symmetry detection is done, the resulting recommended symmetry information will be saved in the
- ProSHADE object by this function.
+    When symmetry detection is done, the resulting recommended symmetry information will be saved in the
+    ProSHADE object by this function.
  
- \param[in] settings ProSHADE_settings object where the results are passed through.
+    \param[in] settings ProSHADE_settings object where the results are passed through.
  */
 void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
 {
@@ -1403,8 +1444,8 @@ void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
 /*! \brief This function parses the command line arguments into the settings object.
  
 
- \param[in] argc The count of the command line arguments (as passed to main function by the system).
- \param[in] argv The string containing the command line arguments (as passed to main function by the system).
+    \param[in] argc The count of the command line arguments (as passed to main function by the system).
+    \param[in] argv The string containing the command line arguments (as passed to main function by the system).
  */
 void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
 {
@@ -1454,6 +1495,8 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "peakThres",       required_argument,  NULL, '+' },
         { "missAxThres",     required_argument,  NULL, '[' },
         { "sameAxComp",      required_argument,  NULL, ']' },
+        { "axisComBeh",      no_argument,        NULL, 'q' },
+        { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
         { "angUncertain",    required_argument,  NULL, ';' },
@@ -1461,7 +1504,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMnOpr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1518,6 +1561,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case 'S':
              {
                  this->task                           = Symmetry;
+                 
+                 //=================================== Force default unless changed already by the user
+                 if (  this->requestedResolution == -1 ) { this->requestedResolution = 6.0;  }
+                 if (  this->pdbBFactorNewVal    == -1 ) { this->pdbBFactorNewVal    = 80.0; }
+                 this->changeMapResolution            = !this->changeMapResolution;  // Switch value. This can be over-ridden by the user by using -j
+                 this->moveToCOM                      = !this->moveToCOM;            // Switch value. This can be over-ridden by the user by using -c.
+                 
                  continue;
              }
                  
@@ -1673,14 +1723,14 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              //======================================= Set map centering to true
              case 'c':
              {
-                 this->setMapCentering                ( true );
+                 this->moveToCOM                      = !this->moveToCOM;
                  continue;
              }
                  
              //======================================= Set map resolution change using Fourier transforms to true
              case 'j':
              {
-                 this->setMapResolutionChange         ( true );
+                 this->changeMapResolution            = !this->changeMapResolution;
                  continue;
              }
                  
@@ -1757,7 +1807,21 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              //======================================= Save the argument as the missing axis threshold value
              case ']':
              {
-                 this->setAxisComparisonThreshold     ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 setAxisComparisonThreshold           ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the missing axis threshold value
+             case 'q':
+             {
+                 setAxisComparisonThresholdBehaviour  ( !this->axisErrToleranceDefault );
+                 continue;
+             }
+                 
+             //======================================= Minimum peak height for axis
+             case 'o':
+             {
+                 this->minSymPeak                     = static_cast<proshade_double> ( atof ( optarg ) );
                  continue;
              }
                  
@@ -1851,7 +1915,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
 
 /*! \brief This function prints the current values in the settings object.
  
- \warning This is a debugging function of no real utility to the user.
+    \warning This is a debugging function of no real utility to the user.
  */
 void ProSHADE_settings::printSettings ( )
 {
@@ -2001,8 +2065,16 @@ void ProSHADE_settings::printSettings ( )
     printf ( "Missing ax. thres   : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
+    strstr << this->minSymPeak;
+    printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
     strstr << this->axisErrTolerance;
     printf ( "Same ax. threshold  : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->axisErrToleranceDefault ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Same ax. thre. decr.: %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;
@@ -2019,7 +2091,7 @@ void ProSHADE_settings::printSettings ( )
 
 /*! \brief This function returns the energy level distances vector from the first to all other structures.
  
- \param[out] enLevs Vector of doubles of the distances.
+    \param[out] enLevs Vector of doubles of the distances.
  */
 std::vector< proshade_double > ProSHADE_run::getEnergyLevelsVector ( )
 {
@@ -2029,7 +2101,7 @@ std::vector< proshade_double > ProSHADE_run::getEnergyLevelsVector ( )
 
 /*! \brief This function returns the trace sigma distances vector from the first to all other structures.
  
- \param[out] trSigm Vector of doubles of the distances.
+    \param[out] trSigm Vector of doubles of the distances.
  */
 std::vector< proshade_double > ProSHADE_run::getTraceSigmaVector ( )
 {
@@ -2039,7 +2111,7 @@ std::vector< proshade_double > ProSHADE_run::getTraceSigmaVector ( )
 
 /*! \brief This function returns the full rotation function distances vector from the first to all other structures.
  
- \param[out] rotFun Vector of doubles of the distances.
+    \param[out] rotFun Vector of doubles of the distances.
  */
 std::vector< proshade_double > ProSHADE_run::getRotationFunctionVector ( )
 {
@@ -2049,7 +2121,7 @@ std::vector< proshade_double > ProSHADE_run::getRotationFunctionVector ( )
 
 /*! \brief This function returns the number of structures used. This is useful for the python Numpy outputs.
 
-\param[in] noStructures Number of structures supplied to the settings object.
+    \param[in] noStructures Number of structures supplied to the settings object.
 */
 proshade_unsign ProSHADE_run::getNoStructures ( )
 {
@@ -2059,7 +2131,7 @@ proshade_unsign ProSHADE_run::getNoStructures ( )
 
 /*! \brief This function returns the verbose value. This is useful for the python Numpy outputs.
 
-\param[in] verbose How loud the run should be?
+    \param[in] verbose How loud the run should be?
 */
 proshade_signed ProSHADE_run::getVerbose ( )
 {
@@ -2069,8 +2141,8 @@ proshade_signed ProSHADE_run::getVerbose ( )
 
 /*! \brief This function returns the energy level distances value for a particular structure pair.
 
-\param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
-\param[out] val The value of the energy levels distances for the particular pair position.
+    \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
+    \param[out] val The value of the energy levels distances for the particular pair position.
 */
 proshade_double ProSHADE_run::getEnergyLevelsVectorValue ( proshade_unsign pos )
 {
@@ -2080,7 +2152,7 @@ proshade_double ProSHADE_run::getEnergyLevelsVectorValue ( proshade_unsign pos )
 
 /*! \brief This function returns the energy level distances vector length.
 
-\param[out] val The length of the energy levels distances vector.
+    \param[out] val The length of the energy levels distances vector.
 */
 proshade_unsign ProSHADE_run::getEnergyLevelsLength ( )
 {
@@ -2090,8 +2162,8 @@ proshade_unsign ProSHADE_run::getEnergyLevelsLength ( )
 
 /*! \brief This function returns the trace sigma distances value for a particular structure pair.
 
-\param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
-\param[out] val The value of the energy levels distances for the particular pair position.
+    \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
+    \param[out] val The value of the energy levels distances for the particular pair position.
 */
 proshade_double ProSHADE_run::getTraceSigmaVectorValue ( proshade_unsign pos )
 {
@@ -2101,7 +2173,7 @@ proshade_double ProSHADE_run::getTraceSigmaVectorValue ( proshade_unsign pos )
 
 /*! \brief This function returns the trace sigma distances vector length.
 
-\param[out] val The length of the trace sigma distances vector.
+    \param[out] val The length of the trace sigma distances vector.
 */
 proshade_unsign ProSHADE_run::getTraceSigmaLength ( )
 {
@@ -2111,8 +2183,8 @@ proshade_unsign ProSHADE_run::getTraceSigmaLength ( )
 
 /*! \brief This function returns the rotation function distances value for a particular structure pair.
 
-\param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
-\param[out] val The value of the energy levels distances for the particular pair position.
+    \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
+    \param[out] val The value of the energy levels distances for the particular pair position.
 */
 proshade_double ProSHADE_run::getRotationFunctionVectorValue ( proshade_unsign pos )
 {
@@ -2122,7 +2194,7 @@ proshade_double ProSHADE_run::getRotationFunctionVectorValue ( proshade_unsign p
 
 /*! \brief This function returns the rotation function distances vector length.
 
-\param[out] val The length of the rotation function distances vector.
+    \param[out] val The length of the rotation function distances vector.
 */
 proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
 {
@@ -2132,7 +2204,7 @@ proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
 
 /*! \brief This function returns the number of detected recommended symmetry axes.
 
-\param[out] val The length of the recommended symmetry axes vector.
+    \param[out] val The length of the recommended symmetry axes vector.
 */
 proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
 {
@@ -2142,10 +2214,10 @@ proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
 
 /*! \brief This function returns the energy level distances array (for Numpy) from the first to all other structures.
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] verbose How loud the program run should be?
- \param[in] enLevVec Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] verbose How loud the program run should be?
+    \param[in] enLevVec Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getEnergyLevelsVectorNumpy ( ProSHADE_run* run, int verbose, double *enLevVec, int len )
@@ -2170,10 +2242,10 @@ void getEnergyLevelsVectorNumpy ( ProSHADE_run* run, int verbose, double *enLevV
 
 /*! \brief This function returns the trace sigma distances array (for Numpy) from the first to all other structures.
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] verbose How loud the program run should be?
- \param[in] trSigVec Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] verbose How loud the program run should be?
+    \param[in] trSigVec Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getTraceSigmaVectorNumpy ( ProSHADE_run* run, int verbose, double *trSigVec, int len )
@@ -2198,10 +2270,10 @@ void getTraceSigmaVectorNumpy ( ProSHADE_run* run, int verbose, double *trSigVec
 
 /*! \brief This function returns the rotation function distances array (for Numpy) from the first to all other structures.
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] verbose How loud the program run should be?
- \param[in] rotFnVec Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] verbose How loud the program run should be?
+    \param[in] rotFnVec Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getRotationFunctionVectorNumpy ( ProSHADE_run* run, int verbose, double *rotFnVec, int len )
@@ -2226,8 +2298,8 @@ void getRotationFunctionVectorNumpy ( ProSHADE_run* run, int verbose, double *ro
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.
 
-\param[in] axisNo The index of the axis to be returned.
-\param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle and peak height in this order.
+    \param[in] axisNo The index of the axis to be returned.
+    \param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle and peak height in this order.
 */
 std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisNo )
 {
@@ -2274,7 +2346,7 @@ std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisN
 
 /*! \brief This function returns a specific structure original bounds.
 
-\param[in] strNo The index of the structure for which the bounds are to be returned.
+    \param[in] strNo The index of the structure for which the bounds are to be returned.
 */
 std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign strNo )
 {
@@ -2302,7 +2374,7 @@ std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign
 
 /*! \brief This function returns a specific structure re-boxed bounds.
 
-\param[in] strNo The index of the structure for which the bounds are to be returned.
+    \param[in] strNo The index of the structure for which the bounds are to be returned.
 */
 std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign strNo )
 {
@@ -2330,9 +2402,9 @@ std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign 
 
 /*! \brief This function returns a single, specific structure map value.
 
-\param[in] strNo The index of the structure for which the map value is to be returned.
-\param[in] mapIndex The map array index of which the value is returned.
-\param[out] val The map density value for the particular mapIndex position.
+    \param[in] strNo The index of the structure for which the map value is to be returned.
+    \param[in] mapIndex The map array index of which the value is returned.
+    \param[out] val The map density value for the particular mapIndex position.
 */
 proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsign mapIndex )
 {
@@ -2342,10 +2414,10 @@ proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsi
 
 /*! \brief This function returns the original structure bounds array (for Numpy) for a particular structure.
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] strNo Index of the structure for which the bounds are to be returned.
- \param[in] boundsVec Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] strNo Index of the structure for which the bounds are to be returned.
+    \param[in] boundsVec Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getOriginalBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int *boundsVec, int len )
@@ -2366,10 +2438,10 @@ void getOriginalBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, in
 
 /*! \brief This function returns the re-boxed structure bounds array (for Numpy) for a particular structure.
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] strNo Index of the structure for which the bounds are to be returned.
- \param[in] reboxVec Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] strNo Index of the structure for which the bounds are to be returned.
+    \param[in] reboxVec Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getReBoxedBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int *reboxVec, int len )
@@ -2390,10 +2462,10 @@ void getReBoxedBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int
 
 /*! \brief This function returns the re-boxed structure map 1D array (for Numpy) for a particular structure.
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] strNo Index of the structure for which the bounds are to be returned.
- \param[in] reboxMap Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] strNo Index of the structure for which the bounds are to be returned.
+    \param[in] reboxMap Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len )
@@ -2418,7 +2490,7 @@ void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap,
 
 /*! \brief This function returns the vector of Euler angles with best overlay correlation.
 
-\param[out] ret Vector of Euler angles (ZXZ convention) which lead to the globally best overlay correlation.
+    \param[out] ret Vector of Euler angles (ZXZ convention) which lead to the globally best overlay correlation.
 */
 std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
 {
@@ -2436,7 +2508,7 @@ std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
 
 /*! \brief This function returns the vector forming rotation matrix (rows first) with best overlay correlation.
 
-\param[out] ret Vector forming rotation matrix (rows first) which lead to the globally best overlay correlation.
+    \param[out] ret Vector forming rotation matrix (rows first) which lead to the globally best overlay correlation.
 */
 std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
 {
@@ -2466,7 +2538,7 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
 
 /*! \brief This function returns the vector of translation vectors with the best overlay correlation.
 
-\param[out] ret Vector of translations which lead to the globally best overlay correlation.
+    \param[out] ret Vector of translations which lead to the globally best overlay correlation.
 */
 std::vector< proshade_double > ProSHADE_run::getTranslation ( )
 {
@@ -2484,9 +2556,9 @@ std::vector< proshade_double > ProSHADE_run::getTranslation ( )
            
 /*! \brief This function returns the optimal Euler angles (for Numpy).
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] eulerAngs Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] eulerAngs Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
@@ -2507,9 +2579,9 @@ void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
 
 /*! \brief This function returns the optimal translatoin (for Numpy).
  
- \param[in] run The ProSHADE_run object from which the values will be drawn.
- \param[in] eulerAngs Array to which the values are to be loaded into.
- \param[in] len The length of the array.
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] eulerAngs Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
  */
 
 void getOptimalTranslation ( ProSHADE_run* run, double *translate, int len )

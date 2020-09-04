@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -24,13 +24,13 @@
 
 /*! \brief The re-boxing task driver function.
  
- This function is called to proceed with the map re-boxing task according to the information placed in
- the settings object passed as the first argument.
+    This function is called to proceed with the map re-boxing task according to the information placed in
+    the settings object passed as the first argument.
  
- \param[in] settings ProSHADE_settings object specifying the details of how re-boxing should be done.
- \param[in] originalBounds Vector to which the original map boundaries of each re-boxed map will be saved into.
- \param[in] reboxedBounds Vector to which the re-boxed map boundaries of each re-boxed map will be saved into.
- \param[in] manipulatedMaps Vector to which the map values of each re-boxed map will be saved into.
+    \param[in] settings ProSHADE_settings object specifying the details of how re-boxing should be done.
+    \param[in] originalBounds Vector to which the original map boundaries of each re-boxed map will be saved into.
+    \param[in] reboxedBounds Vector to which the re-boxed map boundaries of each re-boxed map will be saved into.
+    \param[in] manipulatedMaps Vector to which the map values of each re-boxed map will be saved into.
  */
 void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings, std::vector < proshade_signed* >* originalBounds, std::vector < proshade_signed* >* reboxedBounds, std::vector < proshade_double* >* manipulatedMaps )
 {
@@ -98,10 +98,10 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
 
 /*! \brief The re-boxing settings checks.
  
- This function is called to check the settings object for having all the required information for
- the Re-Boxing task to proceed.
+    This function is called to check the settings object for having all the required information for
+    the Re-Boxing task to proceed.
  
- \param[in] settings ProSHADE_settings object specifying the details of how re-boxing should be done.
+    \param[in] settings ProSHADE_settings object specifying the details of how re-boxing should be done.
  */
 void ProSHADE_internal_tasks::checkMapManipulationSettings ( ProSHADE_settings* settings )
 {
@@ -136,13 +136,13 @@ void ProSHADE_internal_tasks::checkMapManipulationSettings ( ProSHADE_settings* 
 
 /*! \brief The distances computation task driver function.
  
- This function is called to proceed with the distances computation task according to the information placed in
- the settings object passed as the first argument.
+    This function is called to proceed with the distances computation task according to the information placed in
+    the settings object passed as the first argument.
  
- \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
- \param[in] enLevs Pointer to vector where all energy levels distances are to be saved into.
- \param[in] trSigm Pointer to vector where all trace sigma distances are to be saved into.
- \param[in] rotFun Pointer to vector where all rotation function distances are to be saved into.
+    \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
+    \param[in] enLevs Pointer to vector where all energy levels distances are to be saved into.
+    \param[in] trSigm Pointer to vector where all trace sigma distances are to be saved into.
+    \param[in] rotFun Pointer to vector where all rotation function distances are to be saved into.
  */
 void ProSHADE_internal_tasks::DistancesComputationTask ( ProSHADE_settings* settings, std::vector< proshade_double >* enLevs, std::vector< proshade_double >* trSigm, std::vector< proshade_double >* rotFun )
 {
@@ -218,12 +218,12 @@ void ProSHADE_internal_tasks::DistancesComputationTask ( ProSHADE_settings* sett
 
 /*! \brief Simple function for reporting the distances computation results.
  
- \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
- \param[in] str1 The name of the structure to which all other structures are to be compared to.
- \param[in] str2 The name of the structure which is compared to str1.
- \param[in] enLevDist The value of the energy levels descriptor for the two structures.
- \param[in] trSimDist The value of the trace sigma descriptor for the two structures.
- \param[in] rotFunDist The value of the roation function descriptor for the two structures.
+    \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
+    \param[in] str1 The name of the structure to which all other structures are to be compared to.
+    \param[in] str2 The name of the structure which is compared to str1.
+    \param[in] enLevDist The value of the energy levels descriptor for the two structures.
+    \param[in] trSimDist The value of the trace sigma descriptor for the two structures.
+    \param[in] rotFunDist The value of the roation function descriptor for the two structures.
  */
 void ProSHADE_internal_tasks::ReportDistancesResults ( ProSHADE_settings* settings, std::string str1, std::string str2, proshade_double enLevDist, proshade_double trSigmDist, proshade_double rotFunDist )
 {
@@ -250,10 +250,10 @@ void ProSHADE_internal_tasks::ReportDistancesResults ( ProSHADE_settings* settin
 
 /*! \brief The distances computation settings checks.
  
- This function is called to check the settings object for having all the required information for
- the distances computation task to proceed.
+    This function is called to check the settings object for having all the required information for
+    the distances computation task to proceed.
  
- \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
+    \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
  */
 void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settings )
 {
@@ -276,11 +276,11 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
 
 /*! \brief The symmetry detection task driver function.
  
- This function is called to run the detect symmetries task according to the information placed in
- the settings object passed as the first argument.
+    This function is called to run the detect symmetries task according to the information placed in
+    the settings object passed as the first argument.
  
- \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
- \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
+    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
  */
 void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes )
 {
@@ -325,10 +325,10 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
 
 /*! \brief The symmetry computation settings checks.
  
- This function is called to check the settings object for having all the required information for
- the symmetry computation task to proceed.
+    This function is called to check the settings object for having all the required information for
+    the symmetry computation task to proceed.
  
- \param[in] settings ProSHADE_settings object specifying the details of how symmetry detection should be done.
+    \param[in] settings ProSHADE_settings object specifying the details of how symmetry detection should be done.
  */
 void ProSHADE_internal_tasks::checkSymmetrySettings ( ProSHADE_settings* settings )
 {
@@ -338,6 +338,12 @@ void ProSHADE_internal_tasks::checkSymmetrySettings ( ProSHADE_settings* setting
         throw ProSHADE_exception ( "There are not enough structures for symmetry detection.", "ES00028", __FILE__, __LINE__, __func__, "There needs to be at least one structure for which\n                    : symmetry is to be detected. Please supply at least one\n                    : structure by using the addStructure() function." );
     }
     
+    //================================================ Is the axis tolerance set properly?
+    if ( settings->axisErrTolerance < 0.0 )
+    {
+        throw ProSHADE_exception ( "Symmetry axis detection tolerance set to negative value.", "ES00053", __FILE__, __LINE__, __func__, "The symmetry axis detection tolerance was manually set to\n                    : negative value. This makes no sense, please supply\n                    : value >= 0.0." );
+    }
+    
     //================================================ Done
     return ;
     
@@ -345,12 +351,12 @@ void ProSHADE_internal_tasks::checkSymmetrySettings ( ProSHADE_settings* setting
 
 /*! \brief The symmetry detection task driver function.
  
- This function is called to run the detect symmetries task according to the information placed in
- the settings object passed as the first argument.
+    This function is called to run the detect symmetries task according to the information placed in
+    the settings object passed as the first argument.
  
- \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
- \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
- \param[in] translation Pointer to vector where the three translation vectors will be saved into.
+    \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
+    \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
+    \param[in] translation Pointer to vector where the three translation vectors will be saved into.
  */
 void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* translation )
 {
@@ -411,10 +417,10 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
 
 /*! \brief The map overlay computation settings checks.
  
- This function is called to check the settings object for having all the required information for
- the map overlay task to proceed.
+    This function is called to check the settings object for having all the required information for
+    the map overlay task to proceed.
  
- \param[in] settings ProSHADE_settings object specifying the details of how map overlay should be done.
+    \param[in] settings ProSHADE_settings object specifying the details of how map overlay should be done.
  */
 void ProSHADE_internal_tasks::checkOverlaySettings ( ProSHADE_settings* settings )
 {

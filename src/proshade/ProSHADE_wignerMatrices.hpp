@@ -1,5 +1,5 @@
 /*! \file ProSHADE_wignerMatrices.hpp
- \brief This header declares the functions required to compute the Wigner D matrices.
+    \brief This header declares the functions required to compute the Wigner D matrices.
  
     The functions declared in this header file in the ProSHADE_internal_wigner namespace are required to compute the Wigner D matrices, which in turn allow the computation of the inverse SOFT transform as well as
     rotation of internal map representations in the spherical harmonics coefficient space.
@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE library code
@@ -28,10 +28,10 @@
 
 //==================================================== ProSHADE Namespace
 /*! \namespace ProSHADE_internal_wigner
- \brief This namespace contains all the functionality required to perform object rotation in SO(3) space.
+    \brief This namespace contains all the functionality required to perform object rotation in SO(3) space.
  
- The ProSHADE namespace wraps around all the functions required to compute Wigner d and D matrices for any perticular rotation (as given
- by the ZXZ Euler angles) and applying these to the SO(3) coefficients of any object.
+    The ProSHADE namespace wraps around all the functions required to compute Wigner d and D matrices for any perticular rotation (as given
+    by the ZXZ Euler angles) and applying these to the SO(3) coefficients of any object.
  */
 namespace ProSHADE_internal_wigner
 {

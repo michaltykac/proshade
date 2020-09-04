@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -28,9 +28,9 @@
 
 //==================================================== ProSHADE_internal_symmetry Namespace
 /*! \namespace ProSHADE_internal_symmetry
- \brief This namespace contains the symmetry detection related code.
+    \brief This namespace contains the symmetry detection related code.
  
- The ProSHADE_internal_symmetry namespace contains the functions related to the symmetry detection task.
+    The ProSHADE_internal_symmetry namespace contains the functions related to the symmetry detection task.
  */
 namespace ProSHADE_internal_symmetry
 {
@@ -38,7 +38,7 @@ namespace ProSHADE_internal_symmetry
     std::vector< proshade_double > findPeaksByHeightBoundaries ( std::vector< proshade_double* > allPeaks, proshade_double smoothing );
     std::vector< std::vector< proshade_unsign > > findPeaksCSymmetry ( std::vector< proshade_double* >* peaks, proshade_signed verbose,
                                                                        proshade_unsign band, proshade_double missPeakThres, proshade_double axisErrTolerance,
-                                                                       ProSHADE_internal_data::ProSHADE_data* dataObj );
+                                                                       bool axisErrToleranceDef, ProSHADE_internal_data::ProSHADE_data* dataObj );
     std::vector< std::vector< proshade_unsign > > groupSameAxes ( std::vector< proshade_double* >& peaks, proshade_double errTolerance );
     void giveOppositeAxesSameDirection                ( std::vector< proshade_double* > peaks );
     void printSymmetryPeaks                           ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
@@ -68,7 +68,7 @@ namespace ProSHADE_internal_symmetry
     void findSymmetryUsingFold                        ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry,
                                                         std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks,
                                                         std::vector< std::vector< proshade_unsign > >* ret,
-                                                        std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance,
+                                                        std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault,
                                                         proshade_double missPeakThres, proshade_unsign verbose );
     void printSymmetryGroup                           ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
                                                         proshade_signed verbose );
@@ -79,17 +79,17 @@ namespace ProSHADE_internal_symmetry
     bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres );
     void saveDSymmetry                                ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList,
                                                         proshade_unsign axisOne, proshade_unsign axisTwo );
-    bool detectTetrahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr );
+    bool detectTetrahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight );
     void findTetra4C3s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     bool testGroupAgainstSymmetry                     ( std::vector< proshade_double* >* CSymList, std::vector< proshade_unsign >* grp,
                                                         proshade_double* sym, proshade_double axErr, proshade_double angle, bool improve,
                                                         proshade_unsign pos = 0 );
     bool findMissingAxes                              ( std::vector< std::vector< proshade_unsign > >* possibilities,
                                                         std::vector< proshade_double* >* CSymList, proshade_unsign requiredNoAxes,
                                                         proshade_double axErr, proshade_double angle, proshade_unsign fold,
-                                                        ProSHADE_internal_data::ProSHADE_data* dataObj, bool fastCalc );
+                                                        ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_double minPeakHeight );
     proshade_double missingAxisHeight                 ( proshade_double xVal, proshade_double yVal, proshade_double zVal,
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign fold, proshade_double axErr );
     std::vector < proshade_double* > findMissingAxisPoints ( proshade_double xVal, proshade_double yVal, proshade_double zVal,
@@ -100,23 +100,23 @@ namespace ProSHADE_internal_symmetry
     void searchMissingSymmetrySpace                   ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_double* >* CSymList,
                                                         std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* hlpVec,
                                                         proshade_double axErr, proshade_double angle, proshade_unsign fold,
-                                                        proshade_double groupAvg );
+                                                        proshade_double minPeakHeight );
     void findTetra3C2s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     bool testGroupAgainstGroup                        ( std::vector< proshade_double* >* CSymList, std::vector< proshade_unsign >* grp1,
                                                         std::vector< proshade_double* >* RetList, std::vector< proshade_unsign >* grp2,
                                                         proshade_double angle, proshade_double axErr );
-    bool detectOctahedralSymmetry                     ( std::vector< proshade_double* >* CSymList, proshade_double axErr );
+    bool detectOctahedralSymmetry                     ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight );
     void findOcta3C4s                                 ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     void findOcta4C3s                                 ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     void findOcta6C2s                                 ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     bool findMissingAxesDual                          ( std::vector< proshade_unsign >* possibilities,
                                                         std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, std::vector<
                                                         proshade_unsign >* retGroup, proshade_unsign requiredNoAxes, proshade_double axErr,
@@ -124,21 +124,21 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_double angle2, proshade_unsign fold,  ProSHADE_internal_data::ProSHADE_data* dataObj );
     void addAxisUnlessSame                            ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
                                                         proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr );
-    void checkFittingAxisDualAndSave                  ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret,
+    bool checkFittingAxisDualAndSave                  ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret,
                                                         proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
-                                                        proshade_double groupAvg, std::vector< proshade_double* >* prosp, proshade_double axErr,
-                                                        proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2,
-                                                        proshade_double angle2, ProSHADE_internal_data::ProSHADE_data* dataObj );
-    bool detectIcosahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr );
+                                                        std::vector< proshade_double* >* prosp, proshade_double axErr, proshade_unsign noMatchesG1,
+                                                        proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2,
+                                                        ProSHADE_internal_data::ProSHADE_data* dataObj );
+    bool detectIcosahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight );
     void findIcos6C5s                                 ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     void findIcos10C3s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     void findIcos15C2s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight );
     bool findMissingAxesTriple                        ( std::vector< proshade_unsign >* possibilities,
                                                         std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, std::vector<
                                                         proshade_unsign >* retGroup, proshade_unsign requiredNoAxes, proshade_double axErr,
@@ -147,7 +147,7 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj );
     void checkFittingAxisTripleAndSave                ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret,
                                                         proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
-                                                        proshade_double groupAvg, std::vector< proshade_double* >* prosp, proshade_double axErr,
+                                                        std::vector< proshade_double* >* prosp, proshade_double axErr,
                                                         proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2,
                                                         proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3,
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj );

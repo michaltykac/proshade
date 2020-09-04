@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -28,10 +28,10 @@
 
 //==================================================== ProSHADE_internal_peakSearch Namespace
 /*! \namespace ProSHADE_internal_peakSearch
- \brief This namespace contains all the functions required for peak searching in 3D maps.
+    \brief This namespace contains all the functions required for peak searching in 3D maps.
  
- Peak searching may be one of the bottlenecks of the "old" ProSHADE and therefore a dedicated header with
- functions related to 3D peak searching is created to allow more testing and work to be done on this task.
+    Peak searching may be one of the bottlenecks of the "old" ProSHADE and therefore a dedicated header with
+    functions related to 3D peak searching is created to allow more testing and work to be done on this task.
  */
 namespace ProSHADE_internal_peakSearch
 {

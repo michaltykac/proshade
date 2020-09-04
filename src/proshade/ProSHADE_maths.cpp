@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -272,12 +272,13 @@ proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* val
 
 /*! \brief Function to prepare abscissas and weights for Gauss-Legendre integration.
  
- ...
+    This function fills in the Gauss-Legendre interpolation points positions (abscissas) and their weights vectors, which will then be used for computing the
+    Gauss-Legendre interpolation.
  
- \param[in] order The order to which the abscissas and weights should be prepared.
- \param[in] abscissas The array holding the abscissa values.
- \param[in] weights The array holding the weight values.
- \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] order The order to which the abscissas and weights should be prepared.
+    \param[in] abscissas The array holding the abscissa values.
+    \param[in] weights The array holding the weight values.
+    \param[in] taylorSeriesCap The limit on the Taylor series.
  */
 void ProSHADE_internal_maths::getLegendreAbscAndWeights ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_unsign taylorSeriesCap )
 {
@@ -1321,4 +1322,201 @@ proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1
 {
     //================================================ Compute and return
     return                                            ( (*x1 * *x2) + (*y1 * *y2) + (*z1 * *z2) );
+}
+
+/*! \brief Function for finding a vector which would have a given two dot products to two other vectors.
+
+    This function takes two vectors and two dot product values. It then basically solves the following set of equations for x, y and z:
+    
+        solX*x1 + solY*y1 + solZ*z1 = dot1
+        solX*x2 + solY*y2 + solZ*z2 = dot2
+        sqrt ( solX^2 + solY^2 + solZ^2 ) = 1.0
+ 
+    This should result in a vector, which has the required angles to both input vectors and is normalised (this is done by the third equation, which is required to obtain system of three equations with three unkonwns). The equations are courtesy of https://www.wolframalpha.com/input/?i=Solve%5B%7Ba+x+%2B+b+y+%2B+c+z+%3D%3D+f%2C+k+x+%2B+l+y+%2B+m+z+%3D%3D+g%2C+Sqrt%5Bx%5E2+%2B+y%5E2+%2B+z%5E2%5D+%3D%3D+1%7D%2C+%7Bx%2C+y%2C+z%7D%5D
+    webpage of Wolfram Alpha. If in doubt, do not fear to derive yourself :-).
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+    \param[in] dot1 The dot product specifying the angle between the sought vector and the first input vector.
+    \param[in] dot2 The dot product specifying the angle between the sought vector and the second input vectors.
+    \param[out] vec A std::vector containing the three elements of the sought vector.
+*/
+std::vector < proshade_double > ProSHADE_internal_maths::findVectorFromTwoVAndTwoD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2, proshade_double dot1, proshade_double dot2 )
+{
+    //================================================ Initialise variables
+    std::vector < proshade_double > ret;
+    
+    //================================================ Solution
+    proshade_double solX                              = ( -sqrt ( pow ( 2.0 * x1 * y1 * dot2 * y2 + 2.0 * x1 * z1 * dot2 * z2 - 2.0 * x1 * dot1 * pow ( y2, 2.0 ) - 2.0 * x1 * dot1 * pow ( z2, 2.0 ) - 2.0 * pow ( y1, 2.0 ) * dot2 * x2 + 2.0 * y1 * dot1 * x2 * y2 - 2.0 * pow ( z1, 2.0 ) * dot2 * x2 + 2.0 * z1 * dot1 * x2 * z2, 2.0 ) -
+                                                                  4.0 * ( pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * x1 * y1 * x2 * y2 - 2.0 * x1 * z1 * x2 * z2 + pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) ) *
+                                                                  ( pow ( y1, 2.0 ) * pow ( dot2, 2.0 ) - pow ( y1, 2.0 ) * pow ( z2, 2.0 ) + 2.0 * y1 * z1 * y2 * z2 - 2.0 * y1 * dot1 * dot2 * y2 + pow ( z1, 2.0 ) * pow ( dot2, 2.0 ) - pow ( z1, 2.0 ) * pow ( y2, 2.0 ) - 2.0 * z1 * dot1 * dot2 * z2 + pow ( dot1, 2.0 ) * pow ( y2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( z2, 2.0 ) ) ) -
+                                                          2.0 * x1 * y1 * dot2 * y2 - 2.0 * x1 * z1 * dot2 * z2 + 2.0 * x1 * dot1 * pow ( y2, 2.0 ) + 2.0 * x1 * dot1 * pow ( z2, 2.0 ) + 2.0 * pow ( y1, 2.0 ) * dot2 * x2 - 2.0 * y1 * dot1 * x2 * y2 + 2.0 * pow ( z1, 2.0 ) * dot2 * x2 - 2.0 * z1 * dot1 * x2 * z2 ) /
+                                                        ( 2.0 * ( pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * x1 * y1 * x2 * y2 - 2.0 * x1 * z1 * x2 * z2 + pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) ) );
+    proshade_double solY                              = ( ( dot2 * pow ( x2, 2.0 ) * pow ( z1, 3.0 ) ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                          ( dot1 * pow ( x2, 2.0 ) * z2 * pow ( z1, 2.0 ) ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                          ( 2.0 * x1 * dot2 * x2 * z2 * pow ( z1, 2.0 ) ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) - dot2 * z1 -
+                                                          ( x2 * sqrt ( pow ( - 2.0 * dot2 * x2 * pow ( y1, 2.0 ) + 2.0 * x1 * dot2 * y2 * y1 + 2.0 * dot1 * x2 * y2 * y1 - 2.0 * x1 * dot1 * pow ( y2, 2.0 ) - 2.0 * x1 * dot1 * pow ( z2, 2.0 ) - 2.0 * pow ( z1, 2.0 ) * dot2 * x2 + 2.0 * x1 * z1 * dot2 * z2 + 2.0 * z1 * dot1 * x2 * z2, 2.0 ) -
+                                                                        4.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) *
+                                                                        ( pow ( y1, 2.0 ) * pow ( dot2, 2.0 ) + pow ( z1, 2.0 ) * pow ( dot2, 2.0 ) - 2.0 * y1 * dot1 * y2 * dot2 - 2.0 * z1 * dot1 * z2 * dot2 - pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( y2, 2.0 ) - pow ( y1, 2.0 ) * pow ( z2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( z2, 2.0 ) + 2.0 * y1 * z1 * y2 * z2 ) ) * z1 ) /
+                                                          ( 2.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                          ( pow ( y1, 2.0 ) * dot2 * pow ( x2, 2.0 ) * z1 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                          ( x1 * dot1 * x2 * pow ( y2, 2.0 ) * z1 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                          ( pow ( x1, 2.0 ) * dot2 * pow ( z2, 2.0 ) * z1 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                          ( 2.0 * x1 * dot1 * x2 * pow ( z2, 2.0 ) * z1 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                          ( y1 * dot1 * pow ( x2, 2.0 ) * y2 * z1 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                          ( x1 * y1 * dot2 * x2 * y2 * z1 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) + dot1 * z2 +
+                                                          ( x1 * z2 * sqrt ( pow ( -2.0 * dot2 * x2 * pow ( y1, 2.0 ) + 2.0 * x1 * dot2 * y2 * y1 + 2.0 * dot1 * x2 * y2 * y1 - 2.0 * x1 * dot1 * pow ( y2, 2.0 ) - 2.0 * x1 * dot1 * pow ( z2, 2.0 ) - 2.0 * pow ( z1, 2.0 ) * dot2 * x2 + 2.0 * x1 * z1 * dot2 * z2 + 2.0 * z1 * dot1 * x2 * z2, 2.0 ) -
+                                                                             4.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) *
+                                                                             ( pow ( y1, 2.0 ) * pow ( dot2, 2.0 ) + pow ( z1, 2.0 ) * pow ( dot2, 2.0 ) - 2.0 * y1 * dot1 * y2 * dot2 - 2.0 * z1 * dot1 * z2 * dot2 - pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( y2, 2.0 ) - pow ( y1, 2.0 ) * pow ( z2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( z2, 2.0 ) + 2.0 * y1 * z1 * y2 * z2 ) ) ) /
+                                                          ( 2.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                          ( pow ( x1, 2.0 ) * dot1 * pow ( z2, 3.0 ) ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                          ( pow ( x1, 2.0 ) * dot1 * pow ( y2, 2.0 ) * z2 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                          ( x1 * pow ( y1, 2.0 ) * dot2 * x2 * z2 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                          ( pow ( x1, 2.0 ) * y1 * dot2 * y2 * z2 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                          ( x1 * y1 * dot1 * x2 * y2 * z2 ) /
+                                                          ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) / ( y1 * z2 - z1 * y2 );
+    proshade_double solZ                              = ( - ( dot2 * pow ( x2, 2.0 ) * y2 * pow ( z1, 3.0 ) ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( dot2 * pow ( x2, 2.0 ) * pow ( z1, 2.0 ) ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                            ( dot1 * pow ( x2, 2.0 ) * y2 * z2 * pow ( z1, 2.0 ) ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( 2.0 * x1 * dot2 * x2 * y2 * z2 * pow ( z1, 2.0 ) ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( x2 * y2 * sqrt ( pow ( -2.0 * dot2 * x2 * pow ( y1, 2.0 ) + 2.0 * x1 * dot2 * y2 * y1 + 2.0 * dot1 * x2 * y2 * y1 - 2.0 * x1 * dot1 * pow ( y2, 2.0 ) - 2.0 * x1 * dot1 * pow ( z2, 2.0 ) - 2.0 * pow ( z1, 2.0 ) * dot2 * x2 + 2.0 * x1 * z1 * dot2 * z2 + 2.0 * z1 * dot1 * x2 * z2, 2.0 ) -
+                                                                              4.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) *
+                                                                              ( pow ( y1, 2.0 ) * pow ( dot2, 2.0 ) + pow ( z1, 2.0 ) * pow ( dot2, 2.0 ) - 2.0 * y1 * dot1 * y2 * dot2 - 2.0 * z1 * dot1 * z2 * dot2 - pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( y2, 2.0 ) - pow ( y1, 2.0 ) * pow ( z2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( z2, 2.0 ) + 2.0 * y1 * z1 * y2 * z2 ) ) * z1 ) /
+                                                            ( 2.0 * ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( dot2 * y2 * z1 ) / ( y1 * z2 - z1 * y2 ) +
+                                                            ( dot1 * pow ( x2, 2.0 ) * z2 * z1 ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                            ( x1 * dot2 * x2 * z2 * z1 ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                            ( x1 * dot1 * x2 * pow ( y2, 3.0 ) * z1 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( y1 * dot1 * pow ( x2, 2.0 ) * pow ( y2, 2.0 ) * z1 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( x1 * y1 * dot2 * x2 * pow ( y2, 2.0 ) * z1 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( pow ( x1, 2.0 ) * dot2 * y2 * pow ( z2, 2.0 ) * z1 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( 2.0 * x1 * dot1 * x2 * y2 * pow ( z2, 2.0 ) * z1 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( pow ( y1, 2.0 ) * dot2 * pow ( x2, 2.0 ) * y2 * z1 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) + dot2 +
+                                                            ( x2 * sqrt ( pow ( - 2.0 * dot2 * x2 * pow ( y1, 2.0 ) + 2.0 * x1 * dot2 * y2 * y1 + 2.0 * dot1 * x2 * y2 * y1 - 2.0 * x1 * dot1 * pow ( y2, 2.0 ) - 2.0 * x1 * dot1 * pow ( z2, 2.0 ) - 2.0 * pow ( z1, 2.0 ) * dot2 * x2 + 2.0 * x1 * z1 * dot2 * z2 + 2.0 * z1 * dot1 * x2 * z2, 2.0 ) -
+                                                                          4.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) *
+                                                                          ( pow ( y1, 2.0 ) * pow ( dot2, 2.0 ) + pow ( z1, 2.0 ) * pow ( dot2, 2.0 ) - 2.0 * y1 * dot1 * y2 * dot2 - 2.0 * z1 * dot1 * z2 * dot2 - pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( y2, 2.0 ) - pow ( y1, 2.0 ) * pow ( z2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( z2, 2.0 ) + 2.0 * y1 * z1 * y2 * z2 ) ) ) /
+                                                            ( 2.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( x1 * y2 * z2 * sqrt ( pow ( - 2.0 * dot2 * x2 * pow ( y1, 2.0 ) + 2.0 * x1 * dot2 * y2 * y1 + 2.0 * dot1 * x2 * y2 * y1 - 2.0 * x1 * dot1 * pow ( y2, 2.0 ) - 2.0 * x1 * dot1 * pow ( z2, 2.0 ) - 2.0 * pow ( z1, 2.0 ) * dot2 * x2 + 2.0 * x1 * z1 * dot2 * z2 + 2.0 * z1 * dot1 * x2 * z2, 2.0 ) -
+                                                                                    4.0 * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) *
+                                                                                    ( pow ( y1, 2.0 ) * pow ( dot2, 2.0 ) + pow ( z1, 2.0 ) * pow ( dot2, 2.0 ) - 2.0 * y1 * dot1 * y2 * dot2 - 2.0 * z1 * dot1 * z2 * dot2 - pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( y2, 2.0 ) - pow ( y1, 2.0 ) * pow ( z2, 2.0 ) + pow ( dot1, 2.0 ) * pow ( z2, 2.0 ) + 2.0 * y1 * z1 * y2 * z2 ) ) ) /
+                                                            ( 2.0 * ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( dot1 * y2 * z2 ) / ( y1 * z2 - z1 * y2 ) -
+                                                            ( pow ( y1, 2.0 ) * dot2 * pow ( x2, 2.0 ) ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                            ( x1 * dot1 * x2 * pow ( y2, 2.0 ) ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) -
+                                                            ( x1 * dot1 * x2 * pow ( z2, 2.0 ) ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                            ( y1 * dot1 * pow ( x2, 2.0 ) * y2 ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                            ( x1 * y1 * dot2 * x2 * y2 ) /
+                                                            ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) +
+                                                            ( pow ( x1, 2.0 ) * dot1 * y2 * pow ( z2, 3.0 ) ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( pow ( x1, 2.0 ) * dot1 * pow ( y2, 3.0 ) * z2 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( pow ( x1, 2.0 ) * y1 * dot2 * pow ( y2, 2.0 ) * z2 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) -
+                                                            ( x1 * y1 * dot1 * x2 * pow ( y2, 2.0 ) * z2 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) +
+                                                            ( x1 * pow ( y1, 2.0 ) * dot2 * x2 * y2 * z2 ) /
+                                                            ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) ) / z2;
+
+    //================================================ Set largest axis element to positive (ProSHADE standard)
+    if ( ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solX ) ) && ( solX < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solY ) ) && ( solY < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solZ ) ) && ( solZ < 0.0 ) ) ) { solX *= -1.0; solY *= -1.0; solZ *= -1.0; }
+    
+    //================================================ Save solutions
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solX  );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solY  );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solZ  );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief Function for finding a vector which would have a given three dot products to three other vectors.
+
+    This function takes three vectors and three dot product values. It then basically solves the following set of equations for x, y and z:
+    
+        solX*x1 + solY*y1 + solZ*z1 = dot1
+        solX*x2 + solY*y2 + solZ*z2 = dot2
+        solX*x3 + solY*y3 + solZ*z3 = dot3
+ 
+    This should result in a vector, which has the required angles to all input vectors and is normalised (this is done later as part of this function). The equations are courtesy of https://www.wolframalpha.com/input/?i=Solve%5B%7Ba+x+%2B+b+y+%2B+c+z+%3D%3D+f%2C+u+x+%2B+v+y+%2B+w+z+%3D%3D+g%2C+k+x+%2B+l+y+%2B+m+z+%3D%3D+h%7D%2C+%7Bx%2C+y%2C+z%7D%5D
+    webpage of Wolfram Alpha. If in doubt, do not fear to derive yourself :-).
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+    \param[in] dot1 The dot product specifying the angle between the sought vector and the first input vector.
+    \param[in] dot2 The dot product specifying the angle between the sought vector and the second input vectors.
+    \param[out] vec A std::vector containing the three elements of the sought vector.
+*/
+std::vector < proshade_double > ProSHADE_internal_maths::findVectorFromThreeVAndThreeD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2, proshade_double x3, proshade_double y3, proshade_double z3, proshade_double dot1, proshade_double dot2, proshade_double dot3 )
+{
+    //================================================ Initialise variables
+    std::vector < proshade_double > ret;
+    
+    //================================================ Solution
+    proshade_double solX                              = - (  y1 * dot2 * z3 - y1 * dot3 * z2 - z1 * dot2 * y3 + z1 * dot3 * y2 + dot1 * y3 * z2 - dot1 * z3 * y2 ) /
+                                                          ( -x1 * y3 * z2 + x1 * z3 * y2 + y1 * x3 * z2 - y1 * z3 * x2 - z1 * x3 * y2 + z1 * y3 * x2 );
+    proshade_double solY                              = - (  x1 * dot2 * z3 - x1 * dot3 * z2 - z1 * dot2 * x3 + z1 * dot3 * x2 + dot1 * x3 * z2 - dot1 * z3 * x2 ) /
+                                                          (  x1 * y3 * z2 - x1 * z3 * y2 - y1 * x3 * z2 + y1 * z3 * x2 + z1 * x3 * y2 - z1 * y3 * x2 );
+    proshade_double solZ                              = - (  x1 * dot2 * y3 - x1 * dot3 * y2 - y1 * dot2 * x3 + y1 * dot3 * x2 + dot1 * x3 * y2 - dot1 * y3 * x2 ) /
+                                                          ( -x1 * y3 * z2 + x1 * z3 * y2 + y1 * x3 * z2 - y1 * z3 * x2 - z1 * x3 * y2 + z1 * y3 * x2 );
+
+    //================================================ Normalise the axis to magnitude 1
+    proshade_double normFactor                        = sqrt ( pow ( solX, 2.0 ) + pow ( solY, 2.0 ) + pow ( solZ, 2.0 ) );
+    solX                                             /= normFactor;
+    solY                                             /= normFactor;
+    solZ                                             /= normFactor;
+    
+    //================================================ Set largest axis element to positive (ProSHADE standard)
+    if ( ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solX ) ) && ( solX < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solY ) ) && ( solY < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solZ ) ) && ( solZ < 0.0 ) ) ) { solX *= -1.0; solY *= -1.0; solZ *= -1.0; }
+    
+    //================================================ Save solutions
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solX  );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solY  );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, solZ  );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
 }

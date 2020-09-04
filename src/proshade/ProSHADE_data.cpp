@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -1969,7 +1969,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     tScore                                            = this->findTScore     ( TSym );
     oScore                                            = this->findOScore     ( OSym );
     iScore                                            = this->findIScore     ( ISym );
-    
+
     //================================================ Find the best available score
     proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 2.0, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
     
@@ -1983,6 +1983,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         settings->setRecommendedFold                  ( CSym->at(bestCIndex)[0] );
         settings->setDetectedSymmetry                 ( CSym->at(bestCIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestCIndex) );
+        
+        //============================================ Warn if resolution does not really support this fold
+        if ( ( ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] + 1 ) ) ) <
+             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+        {
+            std::stringstream hlpSS;
+            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry C" << CSym->at(bestCIndex)[0] << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+        }
     }
     if ( bestWeightedScore == dScore * 2.0 )
     {
@@ -1992,6 +2001,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         settings->setDetectedSymmetry                 ( &DSym->at(bestDIndex)[6] );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, DSym->at(bestDIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestDIndex)[6] );
+        
+        //============================================ Warn if resolution does not really support this fold
+        if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) ) ) - ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) + 1 ) ) ) <
+             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+        {
+            std::stringstream hlpSS;
+            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry D" << std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+        }
     }
     if ( bestWeightedScore == tScore * 3.0 )
     {
@@ -2168,7 +2186,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     else
     {
         std::stringstream ssHlp;
-        ssHlp << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " .";
+        ssHlp << std::endl << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " .";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
         
         if ( settings->detectedSymmetry.size() > 0 )
@@ -2180,7 +2198,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); symIt++ )
         {
             ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << "   " << std::setw(2) << settings->detectedSymmetry.at(0)[0] << "   " << std::showpos << std::setprecision(5) << settings->detectedSymmetry.at(0)[1] << "   " << settings->detectedSymmetry.at(0)[2] << "   " << settings->detectedSymmetry.at(0)[3] << "       " << settings->detectedSymmetry.at(0)[4] << "      " << settings->detectedSymmetry.at(0)[5];
+            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->detectedSymmetry.at(symIt)[0] << std::setprecision(5) << "     " << settings->detectedSymmetry.at(symIt)[1] << "   " << settings->detectedSymmetry.at(symIt)[2] << "   " << settings->detectedSymmetry.at(symIt)[3] << "     " << settings->detectedSymmetry.at(symIt)[4] << "      " << settings->detectedSymmetry.at(symIt)[5];
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, ssHlp.str() );
         }
     }
