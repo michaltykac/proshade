@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE library code
@@ -32,7 +32,7 @@
 /*! \class ProSHADE_run
     \brief This class provides the access point to the library.
  
- This class codes the object that the user of the library needs to create (and presumably delete) in order to get access to the ProSHADE library.
+    This class codes the object that the user of the library needs to create (and presumably delete) in order to get access to the ProSHADE library.   
  */
 
 class ProSHADE_run

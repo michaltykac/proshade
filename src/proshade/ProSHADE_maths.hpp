@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -82,6 +82,11 @@ namespace ProSHADE_internal_maths
     proshade_double normalDistributionValue           ( proshade_double mean, proshade_double standardDev, proshade_double value );
     proshade_double computeDotProduct                 ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2,
                                                         proshade_double* z2 );
+    std::vector < proshade_double > findVectorFromTwoVAndTwoD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
+                                                                proshade_double z2, proshade_double dot1, proshade_double dot2 );
+    std::vector < proshade_double > findVectorFromThreeVAndThreeD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
+                                                                    proshade_double z2, proshade_double x3, proshade_double y3, proshade_double z3, proshade_double dot1,
+                                                                    proshade_double dot2, proshade_double dot3 );
 }
 
 #endif

@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== DOxygen main page specifications
@@ -194,15 +194,15 @@
  * \image html ProSHADE_3JA7.jpg width=500cm
  *
 *\code{.sh}
- $: ./proshade -S -f ./emd_6324.map -r 12 -ak
- ProSHADE 0.7.3 (AUG 2020):
+ $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
+ ProSHADE 0.7.4 (SEP 2020):
  ==========================
 
   ... Starting to read the structure: ./emd_6324.map
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Map centering not requested.
+  ... Centering map onto its COM.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Starting sphere mapping procedure.
@@ -210,17 +210,14 @@
   ... Starting spherical harmonics decomposition.
   ... Starting self-rotation function computation.
   ... Starting C symmetry detection.
-  ... Starting D symmetry detection.
-  ... Starting I symmetry detection.
-  ... Starting O symmetry detection.
-  ... Starting T symmetry detection.
+
  Detected C symmetry with fold 12 .
   ...   Fold       X           Y          Z           Angle        Height
-  ...    12   -0.014426   +0.016779   +0.9994       +0.5236      +0.34321
+  ...    +12     -0.01170   +0.00616   +0.99980     +0.52360      +0.95423
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 16 seconds.
  ======================
 *\endcode
  *
@@ -241,8 +238,8 @@
  * \image html ProSHADE_dists.png width=500cm
  *
  *\code{.sh}
-  $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6 -k
-  ProSHADE 0.7.3 (AUG 2020):
+  $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
+  ProSHADE 0.7.4 (SEP 2020):
   ==========================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -269,9 +266,9 @@
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
-  Energy levels distance    : 0.806233
-  Trace sigma distance      : 0.963017
-  Rotation function distance: 0.800751
+  Energy levels distance    : 0.895313
+  Trace sigma distance      : 0.960445
+  Rotation function distance: 0.756283
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
@@ -286,13 +283,13 @@
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
-  Energy levels distance    : 0.589239
-  Trace sigma distance      : 0.734309
-  Rotation function distance: 0.562099
+  Energy levels distance    : 0.55904
+  Trace sigma distance      : 0.736554
+  Rotation function distance: 0.452416
 
   ======================
   ProSHADE run complete.
-  Time taken: 2 seconds.
+  Time taken: 4 seconds.
   ======================
  *\endcode
  *
@@ -316,7 +313,7 @@
  *
  *\code{.sh}
  $ ./proshade -MRf ./emd_5762.map.gz
- ProSHADE 0.7.3 (AUG 2020):
+ ProSHADE 0.7.4 (SEP 2020):
  ==========================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -357,7 +354,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.3 (AUG 2020):
+ ProSHADE 0.7.4 (SEP 2020):
  ==========================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb

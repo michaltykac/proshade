@@ -11,6 +11,8 @@ var _pro_s_h_a_d_e__maths_8hpp =
     [ "complexMultiplicationRealOnly", "_pro_s_h_a_d_e__maths_8hpp.html#ac9b05344ffead449c29a333a57b404f6", null ],
     [ "computeDotProduct", "_pro_s_h_a_d_e__maths_8hpp.html#a2ac3b534f974de25b092e9d48d9f7dea", null ],
     [ "evaluateGLSeries", "_pro_s_h_a_d_e__maths_8hpp.html#a7e69b64278319ae1a1268d1a55545675", null ],
+    [ "findVectorFromThreeVAndThreeD", "_pro_s_h_a_d_e__maths_8hpp.html#ae9f376bb341b192fff008b9b4ef5c603", null ],
+    [ "findVectorFromTwoVAndTwoD", "_pro_s_h_a_d_e__maths_8hpp.html#a45fbcfaeaabf9bae2fbd7d46a5fb4bc7", null ],
     [ "gaussLegendreIntegration", "_pro_s_h_a_d_e__maths_8hpp.html#a3d4604176a61820f5fcb95e372861c1d", null ],
     [ "gaussLegendreIntegrationReal", "_pro_s_h_a_d_e__maths_8hpp.html#a62133f51851217e3cb28dff2f520d192", null ],
     [ "getAxisAngleFromRotationMatrix", "_pro_s_h_a_d_e__maths_8hpp.html#aafc6f1626c7463de53c9f4f6fa11db22", null ],

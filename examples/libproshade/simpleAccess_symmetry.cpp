@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
 */
 
 //==================================================== ProSHADE
@@ -32,7 +32,7 @@ int main ( int argc, char **argv )
 
     //================================================ Set up the run
     settings->verbose                                 = 1;                                   // How verbose should the run be? -1 Means no verbal output at all.
-    settings->setResolution                           ( 12.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setResolution                           ( 8.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->addStructure                            ( "./emd_6324.map" );                  // A path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
     
     //================================================ Further useful settings
@@ -44,7 +44,8 @@ int main ( int argc, char **argv )
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
-    settings->setAxisComparisonThreshold              ( 0.05 );                              // The dot product difference within which two axes are considered the same.
+    settings->setAxisComparisonThreshold              ( 0.1 );                              // The dot product difference within which two axes are considered the same.
+    settings->setMinimumPeakForAxis                   ( 0.3 );                               // The minimum peak height for axis to be used.
     settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 12 );                                // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     
@@ -92,8 +93,9 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry C of fold 12. The symmetry axes are:
-//  ... FOLD: 12 | XYZ: -0.0116461 ; 0.00435832 ; 0.999546 | Angle: 0.523599 | Peak: 0.962099
+//  Detected C symmetry with fold 12 .
+//  ...   Fold       X           Y          Z           Angle        Height
+//  ...    +12     -0.01165   +0.00436   +0.99955     +0.52360      +0.96210
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

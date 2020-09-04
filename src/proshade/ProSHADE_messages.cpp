@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
 */
 
 //==================================================== ProSHADE
@@ -252,9 +252,18 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The fraction of axes that can be missing for missing axes           " << std::endl;
     std::cout << "            search to be initiated.                                             " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --sameAxComp                                    [DEFAULT:         0.05]     " << std::endl;
+    std::cout << "    --sameAxComp                                     [DEFAULT:         0.1]     " << std::endl;
     std::cout << "            The difference in dot product of two vectors for them to be         " << std::endl;
     std::cout << "            still considered to be the same.                                    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --axisComBeh or -q                               [DEFAULT:        TRUE]     " << std::endl;
+    std::cout << "            Should the maximum difference in dot product of two vectors for     " << std::endl;
+    std::cout << "            them to be still considered to be the same decrease with fold of    " << std::endl;
+    std::cout << "            tested symmetry?                                                    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
+    std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
+    std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --sym                                           [DEFAULT:           \"\"]     " << std::endl;
     std::cout << "            This is where the user states any particular symmetry he is         " << std::endl;

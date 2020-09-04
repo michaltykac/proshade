@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -28,12 +28,12 @@
 
 //==================================================== ProSHADE_internal_precomputedVals Namespace
 /*! \namespace ProSHADE_internal_precomputedVals
- \brief This namespace contains the pre-computed values for the ProSHADE run.
+    \brief This namespace contains the pre-computed values for the ProSHADE run.
  
  
- The ProSHADE_internal_precomputedVals namespace contains the pre-computed numbers so that the slow functions required
- to obtain these would not have to be run every time ProSHADE is being used. This approach has its limits, but in some
- cases these do outweighht the benefits of computing everything afresh.
+    The ProSHADE_internal_precomputedVals namespace contains the pre-computed numbers so that the slow functions required
+    to obtain these would not have to be run every time ProSHADE is being used. This approach has its limits, but in some
+    cases these do outweighht the benefits of computing everything afresh.
  */
 namespace ProSHADE_internal_precomputedVals
 {

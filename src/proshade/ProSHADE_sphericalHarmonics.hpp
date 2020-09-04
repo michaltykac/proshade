@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.3
-    \date      AUG 2020
+    \version   0.7.4
+    \date      SEP 2020
  */
 
 //==================================================== ProSHADE
@@ -28,11 +28,11 @@
 
 //==================================================== ProSHADE_internal_sphericalHarmonics namespace
 /*! \namespace ProSHADE_internal_sphericalHarmonics
- \brief This namespace contains the internal functions for computing spherical harmonics and their related computations.
+    \brief This namespace contains the internal functions for computing spherical harmonics and their related computations.
  
- The ProSHADE_internal_sphericalHarmonics namespace contains helper functions for spherical harmonics computation for each sphere as
- created in the sphere object as well as the further processing computations. None of these functions should be used directly be
- the user.
+    The ProSHADE_internal_sphericalHarmonics namespace contains helper functions for spherical harmonics computation for each sphere as
+    created in the sphere object as well as the further processing computations. None of these functions should be used directly be
+    the user.
  */
 namespace ProSHADE_internal_sphericalHarmonics
 {

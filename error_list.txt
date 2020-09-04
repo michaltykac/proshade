@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00053 ==
+== NEXT FREE MESSAGE NUMBER: 00055 ==
 
 ========
 GENERAL:
@@ -76,6 +76,7 @@ SYMMETRY:
 CODE:		Message:																												Comment:
 ES00028		There are not enough structures for symmetry detection.
 ES00032		Requested symmetry supplied, but not recognised																			The allowed values for requested symmetry are "", "C", "D", "T", "O" or "I". Any other value will result in this error.
+ES00053     Symmetry axis detection tolerance set to negative value.          														The symmetry axis detection tolerance was manually set to negative value. This makes no sense, please supply value >= 0.0.
 
 ============
 MAP OVERLAY:
@@ -153,7 +154,9 @@ WS00031		Failed to detect some of the polyhedral symmetries, while detecting the
 																																	decreasing the resolution could be a good approach. However, I, O and T symmetries do look alike when missing symmetry axis detection is done and therefore if one of these symmetries
 																																	is detected, but the previous attempt gives this warning, it is likely the reported symmetry is right and the warning should be ignored.
 WS00039		Requested symmetry index does not exist. Returning empty vector.														When requesting detected symmetry axes one by one, the code has requested symmetry axis index outside of the range. Please check the code if you wrote  it, it let me know if this is something I have done.
-																																	
+WS00054		Detected symmetry CX, however, the grid sampling does not provide reasonable accuracy for symmetry with such 			This warning occurs when the symmetry rotation between the detected and the one fold higher symmetry is smaller than the angle error of misplacing a rotation function peak position by 1 grid point. This
+			high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the 		means that misplacing a peak by less than 1 point could reasonably lead to symmetry fold+1. In such cases, ProSHADE cannot be reasonably sure that the reported symmetry is correct and will need higher 
+			grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).						sampling to remedy this.																											
 																																	
 ========
 OVERLAY:
