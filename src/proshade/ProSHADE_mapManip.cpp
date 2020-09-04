@@ -1135,17 +1135,18 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
 
 /*! \brief This function re-samples a map to conform to given resolution using Fourier.
  
- ...
+    This function re-samples the internal map to a given resolutution by removing or zero-padding the Fourier (reciprocal space) coefficients and computing the inverse
+    Fourier transform. This is the default option for map re-sampling, should it be required by the user.
  
- \param[in] map A Reference Pointer to the map for which the bounds are to be found.
- \param[in] resolution The required resolution value.
- \param[in] xDimS The number of indices along the x axis of the map.
- \param[in] yDimS The number of indices along the y axis of the map.
- \param[in] zDimS The number of indices along the z axis of the map.
- \param[in] xAngs The size of the x dimension of the map in angstroms.
- \param[in] yAngs The size of the y dimension of the map in angstroms.
- \param[in] zAngs The size of the z dimension of the map in angstroms.
- \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
+    \param[in] map A Reference Pointer to the map for which the bounds are to be found.
+    \param[in] resolution The required resolution value.
+    \param[in] xDimS The number of indices along the x axis of the map.
+    \param[in] yDimS The number of indices along the y axis of the map.
+    \param[in] zDimS The number of indices along the z axis of the map.
+    \param[in] xAngs The size of the x dimension of the map in angstroms.
+    \param[in] yAngs The size of the y dimension of the map in angstroms.
+    \param[in] zAngs The size of the z dimension of the map in angstroms.
+    \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
  */
 void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
 {
@@ -1499,15 +1500,15 @@ void ProSHADE_internal_mapManip::getFakeHalfMap ( proshade_double*& map, proshad
 
 /*! \brief Function for creating the correlation mask.
  
- ...
+    This function is currently not used and should probably be deleted. The proper implementation of this masking approach should be available in the EMDA software.
  
- \param[in] map A Reference Pointer to the map which should be blurred/sharpened.
- \param[in] blurredMap A Reference Pointer to the variable which stores the fake half-map.
- \param[in] correlationMask A Reference Pointer to empty map where the mask will be saved.
- \param[in] xDimS The number of indices along the x axis of the map.
- \param[in] yDimS The number of indices along the y axis of the map.
- \param[in] zDimS The number of indices along the z axis of the map.
- \param[in] corrMaskKernel The amount of neighbours in any direction whose correlation is to be used to get the current points correlation.
+    \param[in] map A Reference Pointer to the map which should be blurred/sharpened.
+    \param[in] blurredMap A Reference Pointer to the variable which stores the fake half-map.
+    \param[in] correlationMask A Reference Pointer to empty map where the mask will be saved.
+    \param[in] xDimS The number of indices along the x axis of the map.
+    \param[in] yDimS The number of indices along the y axis of the map.
+    \param[in] zDimS The number of indices along the z axis of the map.
+    \param[in] corrMaskKernel The amount of neighbours in any direction whose correlation is to be used to get the current points correlation.
  */
 void ProSHADE_internal_mapManip::getCorrelationMapMask ( proshade_double*& map, proshade_double*& fakeHalfMap, proshade_double*& correlationMask, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_signed corrMaskKernel )
 {

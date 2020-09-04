@@ -76,11 +76,11 @@ extern "C" {
 #define __PROSHADE_SETTINGS__
 
 /*! \class ProSHADE_settings
- \brief This class stores all the settings and is passed to the executive classes instead of a multitude of parameters.
+    \brief This class stores all the settings and is passed to the executive classes instead of a multitude of parameters.
  
- The ProSHADE_settings class is a simple way of keeping all the settings together and easy to set by the user. Its
- constructor sets it to the default settings, so that if the user does not want to change these, he just needs to
- pass the object to the executing class and all is done.
+    The ProSHADE_settings class is a simple way of keeping all the settings together and easy to set by the user. Its
+    constructor sets it to the default settings, so that if the user does not want to change these, he just needs to
+    pass the object to the executing class and all is done.
  */
 class ProSHADE_settings
 {

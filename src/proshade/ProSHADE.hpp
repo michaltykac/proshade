@@ -32,7 +32,7 @@
 /*! \class ProSHADE_run
     \brief This class provides the access point to the library.
  
- This class codes the object that the user of the library needs to create (and presumably delete) in order to get access to the ProSHADE library.
+    This class codes the object that the user of the library needs to create (and presumably delete) in order to get access to the ProSHADE library.   
  */
 
 class ProSHADE_run

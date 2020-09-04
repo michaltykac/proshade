@@ -110,7 +110,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: C-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: -0.0132743 ; 0.0136886 ; 0.999501 Angle (radians): 1.0472 and axis peak: 0.977501
+//  Symmetry axis number 0: Fold 6 XYZ: -0.0134855 ; 0.00782574 ; 0.999629 Angle (radians): 1.0472 and axis peak: 0.974124
     
     //================================================ Release the object
     delete simpleSym;

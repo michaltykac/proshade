@@ -1,7 +1,7 @@
 To Do:
 
 Testing:
-* Look into symmetry and improve on time and accuracy
+* Look into symmetry - especially taking into account the average peak heights when deciding which symmetry to report.
 * Look into the limits of structure overlay
 
 Development

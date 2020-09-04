@@ -24,12 +24,12 @@
 
 /*! \brief This function computes the self-rotation function for this structure.
  
- This function assumes that the spherical harmonics have been computed for a data object. It can be then called on this
- object and it will proceed to compute the E matrices for this object against itself. From these "self E matrices", the
- function will generate the SO(3) transform coefficients and finally it will invert transform these coefficients back,
- thus getting the self-rotation function.
+    This function assumes that the spherical harmonics have been computed for a data object. It can be then called on this
+    object and it will proceed to compute the E matrices for this object against itself. From these "self E matrices", the
+    function will generate the SO(3) transform coefficients and finally it will invert transform these coefficients back,
+    thus getting the self-rotation function.
  
- \param[in] settings A pointer to settings class containing all the information required for map self-rotation function computation.
+    \param[in] settings A pointer to settings class containing all the information required for map self-rotation function computation.
  */
 void ProSHADE_internal_data::ProSHADE_data::getRotationFunction ( ProSHADE_settings* settings )
 {
@@ -58,13 +58,13 @@ void ProSHADE_internal_data::ProSHADE_data::getRotationFunction ( ProSHADE_setti
 
 /*! \brief This function obtains a list of all C symmetries from already computed self-rotation map.
  
- This function starts by finding all peaks in the self-rotation map, which are outliers in terms of height. It then proceeds to
- group these by the height, searching for C symmetries in each peak height group (thus making sure symmetries with higher peak heights
- are found first). The symmetry detection proceeds by detecting possible C symmetry folds and searching whether the all peaks are present
- to support the prospective C symmetry. If only few are missing, it will even search for the missing peaks. Finally, the function returns
- all detected symmetries in the order of decreasing average peak height.
+    This function starts by finding all peaks in the self-rotation map, which are outliers in terms of height. It then proceeds to
+    group these by the height, searching for C symmetries in each peak height group (thus making sure symmetries with higher peak heights
+    are found first). The symmetry detection proceeds by detecting possible C symmetry folds and searching whether the all peaks are present
+    to support the prospective C symmetry. If only few are missing, it will even search for the missing peaks. Finally, the function returns
+    all detected symmetries in the order of decreasing average peak height.
  
- \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
  */
 std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclicSymmetriesList ( ProSHADE_settings* settings )
 {
@@ -121,12 +121,12 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
 
 /*! \brief This function converts peaks ZXZ Euler anles to angle-axis representation for further processing.
  
- The only functionality here is taking a vector of Euler ZXZ angles and converting these though the rotation matrices to a vector
- of angle-axis representation of the same angles.
+    The only functionality here is taking a vector of Euler ZXZ angles and converting these though the rotation matrices to a vector
+    of angle-axis representation of the same angles.
  
- \param[in] allPeaks A vector of pointers where Euler ZXZ representations of the peaks are saved.
- \param[in] verbose How loud the standard output of this run should be?
- \param[out] X A vector of pointers where angle-axis representations of the peaks will be saved.
+    \param[in] allPeaks A vector of pointers where Euler ZXZ representations of the peaks are saved.
+    \param[in] verbose How loud the standard output of this run should be?
+    \param[out] X A vector of pointers where angle-axis representations of the peaks will be saved.
  */
 std::vector< proshade_double* > ProSHADE_internal_symmetry::getPeaksAngleAxisPositions ( std::vector< proshade_double* > allPeaks, proshade_unsign verbose )
 {
@@ -175,12 +175,12 @@ std::vector< proshade_double* > ProSHADE_internal_symmetry::getPeaksAngleAxisPos
 
 /*! \brief This function groups the peaks by height and returns the boundaries between such groups.
  
- This function allows for a list of peaks to be divided into multiple groups based on the peak heights, so that only the most
- confident values would be used for symmetry detection first.
+    This function allows for a list of peaks to be divided into multiple groups based on the peak heights, so that only the most
+    confident values would be used for symmetry detection first.
  
- \param[in] allPeaks A vector of pointers where angle-axis representations of the peaks is saved.
- \param[in] smoothing Value determining how smooth the distribution of peaks should be made. Larger number means more groups.
- \param[out] X The boundaries for peak groups by height as determined by 1D grouping.
+    \param[in] allPeaks A vector of pointers where angle-axis representations of the peaks is saved.
+    \param[in] smoothing Value determining how smooth the distribution of peaks should be made. Larger number means more groups.
+    \param[out] X The boundaries for peak groups by height as determined by 1D grouping.
  */
 std::vector< proshade_double > ProSHADE_internal_symmetry::findPeaksByHeightBoundaries ( std::vector< proshade_double* > allPeaks, proshade_double smoothing )
 {
@@ -227,18 +227,18 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findPeaksByHeightBoun
 
 /*! \brief This function searches the list of peaks for presence of cyclic symmetry.
  
- This function takes a set of peaks and a bunch of settings parameters and proceeds to search these peaks for containing any Cyclic
- (C) symmetries. It contains all the functionality including missing peaks searching and automatic possible fold detection including
- allowing for errors. It will finally save all the results in the vector of vectors it returns.
+    This function takes a set of peaks and a bunch of settings parameters and proceeds to search these peaks for containing any Cyclic
+    (C) symmetries. It contains all the functionality including missing peaks searching and automatic possible fold detection including
+    allowing for errors. It will finally save all the results in the vector of vectors it returns.
  
- \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
- \param[in] verbose How loud the standard output of this run should be?
- \param[in] band The bandwidth of these computations.
- \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
- \param[in] axisErrTolerance Tolerance for symmetry axis identity.
- \param[in] axisErrToleranceDef Should the automatic axis tolerance decrease be applied?
- \param[in] dataObj The data object for which symmetry is being searched. This is only needed for missing peaks search, but needed nonetheless.
- \param[out] X Vector of vectors with first number being the detected fold and all remaining numbers being the indices of peaks forming the symmetry.
+    \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
+    \param[in] verbose How loud the standard output of this run should be?
+    \param[in] band The bandwidth of these computations.
+    \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
+    \param[in] axisErrTolerance Tolerance for symmetry axis identity.
+    \param[in] axisErrToleranceDef Should the automatic axis tolerance decrease be applied?
+    \param[in] dataObj The data object for which symmetry is being searched. This is only needed for missing peaks search, but needed nonetheless.
+    \param[out] X Vector of vectors with first number being the detected fold and all remaining numbers being the indices of peaks forming the symmetry.
  */
 std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::findPeaksCSymmetry ( std::vector< proshade_double* >* peaks, proshade_signed verbose, proshade_unsign band, proshade_double missPeakThres, proshade_double axisErrTolerance, bool axisErrToleranceDef, ProSHADE_internal_data::ProSHADE_data* dataObj )
 {
@@ -282,14 +282,14 @@ std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::findPe
 
 /*! \brief This function groups the peaks by their axes of rotation.
  
- This function takes the list of peaks so far detected and groups these by their axis or rotation, ignoring peaks
- with zero rotation angle. The return value is a vector of vectors of the groups and their members, but not re-organised
- list of peaks. This function also adds a zero angle peak to all peak groups (so that the zero angle peak has the same axis
- as all other group members for all groups).
+    This function takes the list of peaks so far detected and groups these by their axis or rotation, ignoring peaks
+    with zero rotation angle. The return value is a vector of vectors of the groups and their members, but not re-organised
+    list of peaks. This function also adds a zero angle peak to all peak groups (so that the zero angle peak has the same axis
+    as all other group members for all groups).
  
- \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
- \param[in] errTolerance A value within which two axes are considered equal.
- \param[out] X A vector of peak groups with each group entry being a vector of groups member indices in the peaks vector.
+    \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
+    \param[in] errTolerance A value within which two axes are considered equal.
+    \param[out] X A vector of peak groups with each group entry being a vector of groups member indices in the peaks vector.
  */
 std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::groupSameAxes ( std::vector< proshade_double* >& peaks, proshade_double errTolerance )
 {
@@ -352,11 +352,11 @@ std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::groupS
 
 /*! \brief This function modifiest the axes so that the highest vector element is always positive.
  
- This function modifies the angle-axis representation of the peak positions so that the leargest dimmension of the rotation axis would
- be positive. This is important in order to make sure that the AA representations [0,0,1;3.14] and [0,0,-1;-3.14] are equal and not considered
- as completely different.
+    This function modifies the angle-axis representation of the peak positions so that the leargest dimmension of the rotation axis would
+    be positive. This is important in order to make sure that the AA representations [0,0,1;3.14] and [0,0,-1;-3.14] are equal and not considered
+    as completely different.
  
- \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
+    \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
  */
 void ProSHADE_internal_symmetry::giveOppositeAxesSameDirection ( std::vector< proshade_double* > peaks )
 {
@@ -381,9 +381,9 @@ void ProSHADE_internal_symmetry::giveOppositeAxesSameDirection ( std::vector< pr
 
 /*! \brief This function simply prints the symmetry axis group supplied in the first parameter from the second parameter values.
  
- \param[in] grp A single symmetry axis group indices to be printed.
- \param[in] peaks The vector of all peaks from which the indices are drawn.
- \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
+    \param[in] grp A single symmetry axis group indices to be printed.
+    \param[in] peaks The vector of all peaks from which the indices are drawn.
+    \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
  */
 void ProSHADE_internal_symmetry::printSymmetryPeaks ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks, proshade_signed verbose, proshade_unsign groupNo )
 {
@@ -408,15 +408,15 @@ void ProSHADE_internal_symmetry::printSymmetryPeaks ( std::vector< proshade_unsi
 
 /*! \brief This function finds the smallest distance between the rotation angles within a group.
  
- This function is used to control the while loop in the findPeaksCSymmetry() function. It has two outputs, the standard returned value
- is a boolean stating whether a new distance between group rotation angles was found; the second output is the distance itself, which is
- saved in the dist variable.
+    This function is used to control the while loop in the findPeaksCSymmetry() function. It has two outputs, the standard returned value
+    is a boolean stating whether a new distance between group rotation angles was found; the second output is the distance itself, which is
+    saved in the dist variable.
  
- \param[in] grp A single symmetry axis group indices to be printed.
- \param[in] peaks The vector of all peaks from which the indices are drawn.
- \param[in] tried A vector of doubles holding the already tried distances and group combinations, so that they would not be tried again.
- \param[in] dist A pointer to the variable where the smallest distance (if found) will be saved.
- \param[out] X Bool whether a new distance was found.
+    \param[in] grp A single symmetry axis group indices to be printed.
+    \param[in] peaks The vector of all peaks from which the indices are drawn.
+    \param[in] tried A vector of doubles holding the already tried distances and group combinations, so that they would not be tried again.
+    \param[in] dist A pointer to the variable where the smallest distance (if found) will be saved.
+    \param[out] X Bool whether a new distance was found.
  */
 bool ProSHADE_internal_symmetry::smallestDistanceBetweenAngles ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks, std::vector< proshade_double >* tried, proshade_double* dist )
 {
@@ -481,12 +481,12 @@ bool ProSHADE_internal_symmetry::smallestDistanceBetweenAngles ( std::vector< pr
 
 /*! \brief This function takes the peak groups and adds zero peak to each of them.
  
- This function takes all of the detected peak axis groups and the list of peaks. It then proceeds to add a single peak per a group to
- the peaks list; this newly added peak has the same axis as the group, but zero angle. The function also adds the index of this new
- peak to the peak group, so that the group now has a new member, a peak with zero angle and the same axis.
+    This function takes all of the detected peak axis groups and the list of peaks. It then proceeds to add a single peak per a group to
+    the peaks list; this newly added peak has the same axis as the group, but zero angle. The function also adds the index of this new
+    peak to the peak group, so that the group now has a new member, a peak with zero angle and the same axis.
  
- \param[in] grpsVec A list of all symmetry axis groups.
- \param[in] peaks The vector of all peaks from which the group indices are to be drawn.
+    \param[in] grpsVec A list of all symmetry axis groups.
+    \param[in] peaks The vector of all peaks from which the group indices are to be drawn.
  */
 void ProSHADE_internal_symmetry::addZeroPeakToGroups ( std::vector< std::vector< proshade_unsign > >& grpsVec, std::vector< proshade_double* >& peaks )
 {
@@ -511,19 +511,19 @@ void ProSHADE_internal_symmetry::addZeroPeakToGroups ( std::vector< std::vector<
 
 /*! \brief This function determines the symmetry fold to be searched for.
  
- This function detects which fold would belong to the rotation angle distance supplied. This is done by finding the division basis
- for the simple 2pi/dist equation and minimising the remainder. The function then checks whether the remainder is smaller than a
- threshold and whether the error on fold detection is not close to fold+1 value in terms of peak misplacement in the map - if it is,
- then surrounding fold values are also added to be tested. Finally, the function returns boolean value stating whether at least one
- testable fold value passed the checks.
+    This function detects which fold would belong to the rotation angle distance supplied. This is done by finding the division basis
+    for the simple 2pi/dist equation and minimising the remainder. The function then checks whether the remainder is smaller than a
+    threshold and whether the error on fold detection is not close to fold+1 value in terms of peak misplacement in the map - if it is,
+    then surrounding fold values are also added to be tested. Finally, the function returns boolean value stating whether at least one
+    testable fold value passed the checks.
  
- \param[in] dist The distance between rotation angles that should form the symmetry group.
- \param[in] divBasis Pointer to where to save the basis of the division 2pi/dist.
- \param[in] divRem Pointer to where to save the remainder of the division 2pi/dist.
- \param[in] peakErr The error in radians which would be the result of misplacing a peak by single map index.
- \param[in] symmErr Pointer to where to save the error which would be caused by mis-predicting the fold by 1.
- \param[in] angsToTry A vector where all the suggested fold values to be tested are saved.
- \param[out] X Boolean value whether at least single testable fold value was found
+    \param[in] dist The distance between rotation angles that should form the symmetry group.
+    \param[in] divBasis Pointer to where to save the basis of the division 2pi/dist.
+    \param[in] divRem Pointer to where to save the remainder of the division 2pi/dist.
+    \param[in] peakErr The error in radians which would be the result of misplacing a peak by single map index.
+    \param[in] symmErr Pointer to where to save the error which would be caused by mis-predicting the fold by 1.
+    \param[in] angsToTry A vector where all the suggested fold values to be tested are saved.
+    \param[out] X Boolean value whether at least single testable fold value was found
  */
 bool ProSHADE_internal_symmetry::determineFoldToTry ( proshade_double dist, proshade_double* divBasis, proshade_double* divRem, proshade_double peakErr, proshade_double* symmErr, std::vector< proshade_unsign >* angsToTry )
 {
@@ -566,11 +566,11 @@ bool ProSHADE_internal_symmetry::determineFoldToTry ( proshade_double dist, pros
 
 /*! \brief This function computes the expected peak rotations for given fold.
  
- This function computes the expected peak rotation angle values for the peak range between -180 to +180 degrees plus one
- distance on both sides for a good measure. The resulting values are then saved to the second parameter vector.
+    This function computes the expected peak rotation angle values for the peak range between -180 to +180 degrees plus one
+    distance on both sides for a good measure. The resulting values are then saved to the second parameter vector.
  
- \param[in] fold The fold for which peak rotation angles should be predicted.
- \param[in] expAngs A vector where the expected peak rotation values will be saved to.
+    \param[in] fold The fold for which peak rotation angles should be predicted.
+    \param[in] expAngs A vector where the expected peak rotation values will be saved to.
  */
 void ProSHADE_internal_symmetry::findExpectedPeakRotations ( proshade_unsign fold, std::vector< proshade_double >* expAngs )
 {
@@ -590,16 +590,16 @@ void ProSHADE_internal_symmetry::findExpectedPeakRotations ( proshade_unsign fol
 
 /*! \brief This function computes the expected peak rotations for given fold.
  
- This function compares the expected and the detected peak rotation angle values to check if the complete C symmetry is found within this peak axis group.
- It also saves the indices of the matched and missing peaks and returns the number of consecutive mathes.
+    This function compares the expected and the detected peak rotation angle values to check if the complete C symmetry is found within this peak axis group.
+    It also saves the indices of the matched and missing peaks and returns the number of consecutive mathes.
  
- \param[in] grp A single symmetry axis group indices to be processed.
- \param[in] peaks The vector of all peaks from which the indices are drawn.
- \param[in] expAngs A vector where the expected peak rotation values are saved.
- \param[in] matchedAngs A vector where the indices of matched peaks will be saved.
- \param[in] missingAngs A vector where the indices of missing peaks will be saved.
- \param[in] axisTol The tolerance for matching the expected and found peak rotation angles.
- \param[out] X An integer with the longest consecutive streak of matched values.
+    \param[in] grp A single symmetry axis group indices to be processed.
+    \param[in] peaks The vector of all peaks from which the indices are drawn.
+    \param[in] expAngs A vector where the expected peak rotation values are saved.
+    \param[in] matchedAngs A vector where the indices of matched peaks will be saved.
+    \param[in] missingAngs A vector where the indices of missing peaks will be saved.
+    \param[in] axisTol The tolerance for matching the expected and found peak rotation angles.
+    \param[out] X An integer with the longest consecutive streak of matched values.
  */
 proshade_unsign ProSHADE_internal_symmetry::checkExpectedAgainstFound ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks, std::vector< proshade_double >* expAngs, std::vector< proshade_unsign >* matchedAngs, std::vector< proshade_unsign >* missingAngs, proshade_double axisTol )
 {
@@ -669,19 +669,19 @@ proshade_unsign ProSHADE_internal_symmetry::checkExpectedAgainstFound ( std::vec
 
 /*! \brief This function checks for the high of the correlation for particular rotation angle and axis.
  
- This is the core of missing peaks procedure. This function takes the angle-axis representation of the sought after peak/rotation
- and searches the data objects (respectivelly its inverse SO(3) Fourier Transform map) for the highest point conforming to these
- specifications. It then returns the highest value found, so that it could be decided whether the symmetry search has been successfully
- completed or whether the symmetry was not found.
+    This is the core of missing peaks procedure. This function takes the angle-axis representation of the sought after peak/rotation
+    and searches the data objects (respectivelly its inverse SO(3) Fourier Transform map) for the highest point conforming to these
+    specifications. It then returns the highest value found, so that it could be decided whether the symmetry search has been successfully
+    completed or whether the symmetry was not found.
  
- \param[in] dataObj The data object for which symmetry is being searched.
- \param[in] x The x-axis element of the searched for rotation angle-axis representation.
- \param[in] y The y-axis element of the searched for rotation angle-axis representation.
- \param[in] z The z-axis element of the searched for rotation angle-axis representation.
- \param[in] angle The angle element of the searched for rotation angle-axis representation.
- \param[in] heightThres The required self-rotation map height for this rotation.
- \param[in] axTol The tolerance on axis matching when searching for the rotation.
- \param[out] X The height of highest matching map point.
+    \param[in] dataObj The data object for which symmetry is being searched.
+    \param[in] x The x-axis element of the searched for rotation angle-axis representation.
+    \param[in] y The y-axis element of the searched for rotation angle-axis representation.
+    \param[in] z The z-axis element of the searched for rotation angle-axis representation.
+    \param[in] angle The angle element of the searched for rotation angle-axis representation.
+    \param[in] heightThres The required self-rotation map height for this rotation.
+    \param[in] axTol The tolerance on axis matching when searching for the rotation.
+    \param[out] X The height of highest matching map point.
  */
 proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_double x, proshade_double y, proshade_double z, proshade_double angle, proshade_double heightThres, proshade_double axTol )
 {
@@ -744,13 +744,13 @@ proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_inter
 
 /*! \brief This function saves a detected symmetry for reporting to the user.
  
- This function simply saves the supplied group members and fold value to the main output vector of vectors (also supplied). It makes sure the saving
- format (fold first, then all symmetry peak indices) is upheld.
+    This function simply saves the supplied group members and fold value to the main output vector of vectors (also supplied). It makes sure the saving
+    format (fold first, then all symmetry peak indices) is upheld.
  
- \param[in] fold This is the fold value of the detected C symmetry.
- \param[in] matchedPeaks A vector containing the indices of all peaks forming this symmetry.
- \param[in] ret The vector of vectors to be returned by findPeaksCSymmetry() and containing all detected symmetries (to which we are saving here).
- \param[in] verbose How loud the standard output of this run should be?
+    \param[in] fold This is the fold value of the detected C symmetry.
+    \param[in] matchedPeaks A vector containing the indices of all peaks forming this symmetry.
+    \param[in] ret The vector of vectors to be returned by findPeaksCSymmetry() and containing all detected symmetries (to which we are saving here).
+    \param[in] verbose How loud the standard output of this run should be?
  */
 void ProSHADE_internal_symmetry::saveDetectedCSymmetry ( proshade_unsign fold, std::vector< proshade_unsign >* matchedPeaks, std::vector< std::vector< proshade_unsign > >* ret, proshade_signed verbose )
 {
@@ -777,20 +777,20 @@ void ProSHADE_internal_symmetry::saveDetectedCSymmetry ( proshade_unsign fold, s
 
 /*! \brief This function does the complete missing peak searching and filling in the missing peaks.
  
- This function does the complete work on missing peaks and detection of symmetries affected by them. It firstly decides on the threshold
- for a missing peak height and it then proceeds to check all missing peaks for being in the inverse SO(3) FT map. Any detected peaks will
- be saved to all appropriate variables (as supplied) and finally, if all missing peaks were sucessfully found, it will return true, otherwise
- false.
+    This function does the complete work on missing peaks and detection of symmetries affected by them. It firstly decides on the threshold
+    for a missing peak height and it then proceeds to check all missing peaks for being in the inverse SO(3) FT map. Any detected peaks will
+    be saved to all appropriate variables (as supplied) and finally, if all missing peaks were sucessfully found, it will return true, otherwise
+    false.
  
- \param[in] dataObj The data object for which symmetry is being searched.
- \param[in] fold This is the fold value of the detected C symmetry.
- \param[in] grp Vector with the indices of members of this symmetry axis group.
- \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
- \param[in] missingPeaks Vector with the indices of missing rotation angles (indices are from the expected peaks vector, not peaks vector!).
- \param[in] expectedAngles Vector with the expected rotation angle values.
- \param[in] axErrTolerance The allowed error on matching axes.
- \param[in] verbose How loud the standard output of this run should be?
- \param[out] X Was the missing symmetry part completion successfull?
+    \param[in] dataObj The data object for which symmetry is being searched.
+    \param[in] fold This is the fold value of the detected C symmetry.
+    \param[in] grp Vector with the indices of members of this symmetry axis group.
+    \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
+    \param[in] missingPeaks Vector with the indices of missing rotation angles (indices are from the expected peaks vector, not peaks vector!).
+    \param[in] expectedAngles Vector with the expected rotation angle values.
+    \param[in] axErrTolerance The allowed error on matching axes.
+    \param[in] verbose How loud the standard output of this run should be?
+    \param[out] X Was the missing symmetry part completion successfull?
  */
 bool ProSHADE_internal_symmetry::completeMissingCSymmetry ( ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign fold, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< proshade_unsign >* missingPeaks, std::vector< proshade_double >* expectedAngles, std::vector< proshade_unsign >* matchedPeaks, proshade_double axErrTolerance, proshade_unsign verbose )
 {
@@ -843,19 +843,19 @@ bool ProSHADE_internal_symmetry::completeMissingCSymmetry ( ProSHADE_internal_da
 
 /*! \brief This function tests all supplied folds for being supported by the peaks (i.e. and being complete present symmetry).
  
- This function takes all the possible folds which could be in the set of peaks and checks if these are indeed full symmetries,
- or whether these were random.
+    This function takes all the possible folds which could be in the set of peaks and checks if these are indeed full symmetries,
+    or whether these were random.
  
- \param[in] dataObj The data object for which symmetry is being searched.
- \param[in] angsToTry This vector contains all the folds that should be attempted.
- \param[in] grp Vector with the indices of members of this symmetry axis group.
- \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
- \param[in] ret The final variable holding all results (i.e. detected symmetries).
- \param[in] testedAlready A vector in which the already tested folds for this symmetry axis are saved.
- \param[in] axErrTolerance The allowed error on matching axes.
- \param[in] axErrToleranceDefault Should the axErrTolerance be decreased with increasing fold?
- \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
- \param[in] verbose How loud the standard output of this run should be?
+    \param[in] dataObj The data object for which symmetry is being searched.
+    \param[in] angsToTry This vector contains all the folds that should be attempted.
+    \param[in] grp Vector with the indices of members of this symmetry axis group.
+    \param[in] peaks A vector of pointers where angle-axis representations of the peaks is saved.
+    \param[in] ret The final variable holding all results (i.e. detected symmetries).
+    \param[in] testedAlready A vector in which the already tested folds for this symmetry axis are saved.
+    \param[in] axErrTolerance The allowed error on matching axes.
+    \param[in] axErrToleranceDefault Should the axErrTolerance be decreased with increasing fold?
+    \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
+    \param[in] verbose How loud the standard output of this run should be?
  */
 void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< std::vector< proshade_unsign > >* ret, std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault, proshade_double missPeakThres, proshade_unsign verbose )
 {
@@ -877,9 +877,9 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
         //============================================ Set axis tolerance based on fold (if required)
         if ( axErrToleranceDefault )
         {
-            axErrTolerance                            = std::min ( ( ( 360.0 / static_cast<double> ( angsToTry->at(fIt) ) ) -
-                                                                   ( 360.0 / static_cast<double> ( angsToTry->at(fIt) + 1 ) ) ) /
-                                                                   acos ( axErrTolerance ) * axErrTolerance, axErrTolerance );
+            axErrTolerance                            = std::max ( std::min ( ( ( 360.0 / static_cast<double> ( angsToTry->at(fIt) ) ) -
+                                                                                ( 360.0 / static_cast<double> ( angsToTry->at(fIt) + 1 ) ) ) /
+                                                                             acos ( axErrTolerance ) * axErrTolerance, axErrTolerance ), 0.02 );
         }
         
         //============================================ Find expected peak rotation angles
@@ -923,9 +923,9 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
 
 /*! \brief This function simply prints the detected symmetry and all its supporting peaks.
  
- \param[in] grp A single symmetry axis group indices to be printed.
- \param[in] peaks The vector of all peaks from which the indices are drawn.
- \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
+    \param[in] grp A single symmetry axis group indices to be printed.
+    \param[in] peaks The vector of all peaks from which the indices are drawn.
+    \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
  */
 void ProSHADE_internal_symmetry::printSymmetryGroup ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks, proshade_signed verbose )
 {
@@ -950,8 +950,8 @@ void ProSHADE_internal_symmetry::printSymmetryGroup ( std::vector< proshade_unsi
 
 /*! \brief This function simply prints the summary and warnings for cyclic symmetries detection completion.
  
- \param[in] noSyms The number of symmetries that were detected.
- \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
+    \param[in] noSyms The number of symmetries that were detected.
+    \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
  */
 void ProSHADE_internal_symmetry::printSymmetryCompletion ( proshade_unsign noSyms, proshade_unsign verbose )
 {
@@ -973,15 +973,15 @@ void ProSHADE_internal_symmetry::printSymmetryCompletion ( proshade_unsign noSym
 
 /*! \brief This function takes the detected symmetries indices and peaks and saves these in the main cyclic symmetries detection output format.
  
- This function uses the indices of peaks forming a detected symmetry along with the peak values corresponding to these indices in order to
- compute the symmetry description - that is the fold, average x, y and z-axis elements, angle (2pi/fold) and the average peak height. With
- all this computed for each detected symmetry, it saves these as double arrays to the output vector of double arrays for further processing.
- The function also does not save redundant symmetries.
+    This function uses the indices of peaks forming a detected symmetry along with the peak values corresponding to these indices in order to
+    compute the symmetry description - that is the fold, average x, y and z-axis elements, angle (2pi/fold) and the average peak height. With
+    all this computed for each detected symmetry, it saves these as double arrays to the output vector of double arrays for further processing.
+    The function also does not save redundant symmetries.
  
- \param[in] detected This is a vector of vectors with the indices of detected symmetry peaks.
- \param[in] peaks These are the peaks and their values which come together to form the detected symmetry.
- \param[in] ret This is the variable where the results will be saved. It is a vector of double[6] arrays with the following meaning: [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
- \param[in] axErr The tolerance on axis matching.
+    \param[in] detected This is a vector of vectors with the indices of detected symmetry peaks.
+    \param[in] peaks These are the peaks and their values which come together to form the detected symmetry.
+    \param[in] ret This is the variable where the results will be saved. It is a vector of double[6] arrays with the following meaning: [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
+    \param[in] axErr The tolerance on axis matching.
  */
 void ProSHADE_internal_symmetry::saveAllCSymmetries ( std::vector< std::vector< proshade_unsign > > detected, std::vector< proshade_double* > peaks, std::vector< proshade_double* >* ret, proshade_double axErr )
 {
@@ -1037,13 +1037,13 @@ void ProSHADE_internal_symmetry::saveAllCSymmetries ( std::vector< std::vector< 
 
 /*! \brief This function checks if a very similar symmetry is not already saved.
  
- This is a simple function comparing a single double array of 6 to a vector of these, returning whether the vector already
- contains a very similar entry to the rested one. If the new has better height, replacement will take place.
+    This is a simple function comparing a single double array of 6 to a vector of these, returning whether the vector already
+    contains a very similar entry to the rested one. If the new has better height, replacement will take place.
  
- \param[in] ret This is the variable where the tested array will be saved if passed. It is a vector of double[6] arrays with the following meaning: [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
- \param[in] sym This is a double array of 6 which is to be compared to all the vector entries.
- \param[in] simThres The threshold for axis-wise comparison similarity.
- \param[out] X Boolean value stating whether a similar entry has been found (true = it was, false = it was not).
+    \param[in] ret This is the variable where the tested array will be saved if passed. It is a vector of double[6] arrays with the following meaning: [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
+    \param[in] sym This is a double array of 6 which is to be compared to all the vector entries.
+    \param[in] simThres The threshold for axis-wise comparison similarity.
+    \param[out] X Boolean value stating whether a similar entry has been found (true = it was, false = it was not).
  */
 bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres )
 {
@@ -1081,14 +1081,14 @@ bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* 
 
 /*! \brief This function obtains a list of all D symmetries from already computed C  symmetries list.
  
- This function simply returns a vector of C symmetry pairs which are perpendicular to each other (and therefore form dihedral symmetry).
- The vector contains arrays of 12 double numbers with the following format: [0] = Fold of axis 1; [1] = X-axis of axis 1; [2] Y-axis of
- axis 1; [3] = Z-axis of axis 1; [4] = angle of axis 1; [5] = average peak height of axis 1; [6] = Fold of axis 2; [7] = X-axis of axis 2;
- [8] Y-axis of axis 2; [9] = Z-axis of axis 2; [10] = angle of axis 2; [11] = average peak height of axis 2. Note that the larger fold axis
- is listed first in this format.
+    This function simply returns a vector of C symmetry pairs which are perpendicular to each other (and therefore form dihedral symmetry).
+    The vector contains arrays of 12 double numbers with the following format: [0] = Fold of axis 1; [1] = X-axis of axis 1; [2] Y-axis of
+    axis 1; [3] = Z-axis of axis 1; [4] = angle of axis 1; [5] = average peak height of axis 1; [6] = Fold of axis 2; [7] = X-axis of axis 2;
+    [8] Y-axis of axis 2; [9] = Z-axis of axis 2; [10] = angle of axis 2; [11] = average peak height of axis 2. Note that the larger fold axis
+    is listed first in this format.
  
- \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  */
 std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
 {
@@ -1143,14 +1143,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
 
 /*! \brief This function saves a detected dihedral symmetry to the dihedral symmetries list.
  
- This function takes two C symmetry axes as supplied by the calling function and the list of the detected C symmetries. It then
- produces the saving structure for a dihedral symmetry formed by the two supplied axes and saves this structure to the supplied
- dihedral symmetry list vector - ret.
+    This function takes two C symmetry axes as supplied by the calling function and the list of the detected C symmetries. It then
+    produces the saving structure for a dihedral symmetry formed by the two supplied axes and saves this structure to the supplied
+    dihedral symmetry list vector - ret.
  
- \param[in] ret The vector of double pointers to which the symmetry is to be saved to.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] axisOne The index of the first C symmetry forming the dihedral symmetry.
- \param[in] axisTwo The index of the second C symmetry forming the dihedral symmetry.
+    \param[in] ret The vector of double pointers to which the symmetry is to be saved to.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axisOne The index of the first C symmetry forming the dihedral symmetry.
+    \param[in] axisTwo The index of the second C symmetry forming the dihedral symmetry.
  */
 void ProSHADE_internal_symmetry::saveDSymmetry ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList, proshade_unsign axisOne, proshade_unsign axisTwo )
 {
@@ -1184,12 +1184,12 @@ void ProSHADE_internal_symmetry::saveDSymmetry ( std::vector< proshade_double* >
 
 /*! \brief This function obtains a list of all T symmetry axes from the already computed C symmetries list.
  
- This function starts by checking if there are two C3 symmetries with the tetrahedral dihedral angle. If so, it proceeds to search for all seven symmetry axes
- expected to form a full tetrahedral symmetry. It then returns the list of found symmetries; if full tetrahedral symmetry was found, seven axes (four C3s and
- three C2s) are returned. If less than seven symmetries are returned, the procedure has failed and no tetrahedral symmetry was found.
+    This function starts by checking if there are two C3 symmetries with the tetrahedral dihedral angle. If so, it proceeds to search for all seven symmetry axes
+    expected to form a full tetrahedral symmetry. It then returns the list of found symmetries; if full tetrahedral symmetry was found, seven axes (four C3s and
+    three C2s) are returned. If less than seven symmetries are returned, the procedure has failed and no tetrahedral symmetry was found.
  
- \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  */
 std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
 {
@@ -1220,14 +1220,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
 
 /*! \brief This function takes the list of C symmetries and decides whether basic requirements for tetrahedral symmetry are there.
  
- This function first finds all the C3 symmetries in the C symmetries list and then it checks all pais of such present C3s for have the angle
- between the pair equal to the dihedral angle of a tetrahedron ( acos(1/3) ). If a single such pair is detected, this is likely a tetrahedral
- symmetry and all other axes need to be located. Otherwise, false is returned.
+    This function first finds all the C3 symmetries in the C symmetries list and then it checks all pais of such present C3s for have the angle
+    between the pair equal to the dihedral angle of a tetrahedron ( acos(1/3) ). If a single such pair is detected, this is likely a tetrahedral
+    symmetry and all other axes need to be located. Otherwise, false is returned.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[out] X Boolean value telling whether there are two C3 symmetries with tetrahedral dihhedral angle.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[out] X Boolean value telling whether there are two C3 symmetries with tetrahedral dihhedral angle.
  */
 bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight )
 {
@@ -1267,16 +1267,16 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
 
 /*! \brief This function takes the list of C symmetries and finds the 4 C3 symmetries with correct angles required for full tetrahedral symmetry.
  
- This function is specific to detecting the tetrahedral symmetry. It should be called once tetrahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the four C3 symmetries which must all be detected in order to fully
- describe tetrahedral symmetry. If all four are found, the ret vector will contain these as its only four entries, while it will be empty if some of the
- C3 symmetries are not found. The missing symmetry axis detection is implemented as part of this function as well.
+    This function is specific to detecting the tetrahedral symmetry. It should be called once tetrahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the four C3 symmetries which must all be detected in order to fully
+    describe tetrahedral symmetry. If all four are found, the ret vector will contain these as its only four entries, while it will be empty if some of the
+    C3 symmetries are not found. The missing symmetry axis detection is implemented as part of this function as well.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector .
- \param[in] axErr The error tolerance on angle matching.
- \param[in] verobse How loud the announcments should be?
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector .
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] verobse How loud the announcments should be?
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
 void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -1309,7 +1309,7 @@ void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >
     }
     
     //================================================ Test for missing symmetry axes, if need be
-    ProSHADE_internal_symmetry::findMissingAxes       ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, true, minPeakHeight );
+    ProSHADE_internal_symmetry::findMissingAxes       ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, minPeakHeight );
     
     //================================================ Any group has 4 entries? If more such groups, take the one with highest average height.
     proshade_double maxHeight = 0.0; proshade_unsign maxGrp = 0;
@@ -1334,19 +1334,19 @@ void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >
 
 /*! \brief This function tests whether a  symmetry has particular angle to all members of a group.
  
- This utility function tests if a sinlge symmetry axis has a given angle to all member of a particular symmetry group as given by the
- vector of indices and a vector of all symmetries. If the improve parameter is true, that it will also check for the tested axis for
- being parallel to any of the group axes while having higher average peak height - and in such cases, the function will replace the existing
- axis with the tested axis index as given in the pos argument. This utility is useful when searching for all axes of polyhedral symmetry groups.
+    This utility function tests if a sinlge symmetry axis has a given angle to all member of a particular symmetry group as given by the
+    vector of indices and a vector of all symmetries. If the improve parameter is true, that it will also check for the tested axis for
+    being parallel to any of the group axes while having higher average peak height - and in such cases, the function will replace the existing
+    axis with the tested axis index as given in the pos argument. This utility is useful when searching for all axes of polyhedral symmetry groups.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] grp A vector of indices (relating to CSymList) of the group members.
- \param[in] sym A double pointer to array containing the symmetry to be tested against the group.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] angle The angle that each group member is required to have against the symmetry.
- \param[in] improve Boolead value stating whether an axis with higher average height should be used instead of equal axis with lower average height, if such axis is found.
- \param[in] pos This is the CSymList index of the axis tested against the group. It will be used if improve = true to change the grp entry which is identical, but has lower height.
- \param[out] X Boolean value speciying whether all group members have the angle to the symmetry or not.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] grp A vector of indices (relating to CSymList) of the group members.
+    \param[in] sym A double pointer to array containing the symmetry to be tested against the group.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] angle The angle that each group member is required to have against the symmetry.
+    \param[in] improve Boolead value stating whether an axis with higher average height should be used instead of equal axis with lower average height, if such axis is found.
+    \param[in] pos This is the CSymList index of the axis tested against the group. It will be used if improve = true to change the grp entry which is identical, but has lower height.
+    \param[out] X Boolean value speciying whether all group members have the angle to the symmetry or not.
  */
 bool ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( std::vector< proshade_double* >* CSymList, std::vector< proshade_unsign >* grp, proshade_double* sym, proshade_double axErr, proshade_double angle, bool improve, proshade_unsign pos )
 {
@@ -1401,20 +1401,21 @@ bool ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( std::vector< proshad
 
 /*! \brief This function tries to find an axis which would complete a particular group of axes for polyhedral symmetry detection.
  
- ...
+    This function assumes that there is a set of already detected axes and that for a polyhedral symmetry, another axis with known fold and angle to some of the already detected axis needs
+    to be found. It uses algebraic solution to try to find such an axis (or a given number of them) and also tests for these newly detected axes being unique and having at least minPeakHeight
+    average peak height. If such axes are found, they are added to the CSymList vector and their indices are also added to the possibilities vector.
  
- \param[in] possibilities A vector of vectors of indices to the cyclic symmetries list with all the already determined axes.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] requiredNoAxes Number of axes required for positive result.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] angle The angle that each group member is required to have against the symmetry.
- \param[in] fold The fold of the searched for axis.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- \param[in] fastCalc The value decides if only the first completed group should be returned (faster = true), or whether all groups should be searched (slower = false).
- \param[in] minPeakHeight The minimum new axis average peak height in order for the axis to be added.
- \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
+    \param[in] possibilities A vector of vectors of indices to the cyclic symmetries list with all the already determined axes.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] requiredNoAxes Number of axes required for positive result.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] angle The angle that each group member is required to have against the symmetry.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[in] minPeakHeight The minimum new axis average peak height in order for the axis to be added.
+    \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
  */
-bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< proshade_unsign > >* possibilities, std::vector< proshade_double* >* CSymList, proshade_unsign requiredNoAxes, proshade_double axErr, proshade_double angle, proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj, bool fastCalc, proshade_double minPeakHeight )
+bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< proshade_unsign > >* possibilities, std::vector< proshade_double* >* CSymList, proshade_unsign requiredNoAxes, proshade_double axErr, proshade_double angle, proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_double* > hlpVec;
@@ -1457,7 +1458,6 @@ bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< pro
         }
         
         if ( possibilities->at(gIt).size() == requiredNoAxes ) { atLeastOne = true; }
-        if ( ( possibilities->at(gIt).size() == requiredNoAxes ) && fastCalc ) { return ( atLeastOne ); }
     }
     
     //================================================ Done
@@ -1480,17 +1480,17 @@ bool ProSHADE_internal_symmetry::sortArrVecHlp ( const proshade_double* a, const
 
 /*! \brief This function searches for the highest peaks average that would produce the required axis and fold.
  
- This function starts by finding all self-rotation map points with corresponding axis and recording the angle and map heights of these points. It then
- sorts these and searches for a combination of fold points separated by the 2pi/fold distance with the highest average map height. In this way, the highest
- average symmetry height is determined for any axis. This does not, however, check if such symmetry does indeed exist!
+    This function starts by finding all self-rotation map points with corresponding axis and recording the angle and map heights of these points. It then
+    sorts these and searches for a combination of fold points separated by the 2pi/fold distance with the highest average map height. In this way, the highest
+    average symmetry height is determined for any axis. This does not, however, check if such symmetry does indeed exist!
  
- \param[in] xVal The x-axis element of the axis to have the height detected.
- \param[in] yVal The y-axis element of the axis to have the height detected.
- \param[in] zVal The z-axis element of the axis to have the height detected.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- \param[in] fold The fold of the searched for axis.
- \param[in] axErr The error tolerance on angle matching.
- \param[out] X The highest height value found for the axis with the given fold.
+    \param[in] xVal The x-axis element of the axis to have the height detected.
+    \param[in] yVal The y-axis element of the axis to have the height detected.
+    \param[in] zVal The z-axis element of the axis to have the height detected.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[out] X The highest height value found for the axis with the given fold.
  */
 proshade_double ProSHADE_internal_symmetry::missingAxisHeight ( proshade_double xVal, proshade_double yVal, proshade_double zVal, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign fold, proshade_double axErr )
 {
@@ -1543,16 +1543,16 @@ proshade_double ProSHADE_internal_symmetry::missingAxisHeight ( proshade_double 
 
 /*! \brief This function searches for all the self-rotation map points conforming to the axis, returning their angles and heights.
  
- This helper function searches the self-rotation map point by point for all points which represent the same rotation axis as required
- by the input parameters. For all such points, it records the angle they represent and the map height associated with them. Finally, it
- returns a vector of all detected points.
+    This helper function searches the self-rotation map point by point for all points which represent the same rotation axis as required
+    by the input parameters. For all such points, it records the angle they represent and the map height associated with them. Finally, it
+    returns a vector of all detected points.
  
- \param[in] xVal The x-axis element of the axis to have the height detected.
- \param[in] yVal The y-axis element of the axis to have the height detected.
- \param[in] zVal The z-axis element of the axis to have the height detected.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- \param[in] axErr The error tolerance on angle matching.
- \param[out] angVec Vector containing all map points which conform to the required axis along with their heights.
+    \param[in] xVal The x-axis element of the axis to have the height detected.
+    \param[in] yVal The y-axis element of the axis to have the height detected.
+    \param[in] zVal The z-axis element of the axis to have the height detected.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[out] angVec Vector containing all map points which conform to the required axis along with their heights.
  */
 std::vector < proshade_double* > ProSHADE_internal_symmetry::findMissingAxisPoints ( proshade_double xVal, proshade_double yVal, proshade_double zVal, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_double axErr )
 {
@@ -1618,17 +1618,17 @@ std::vector < proshade_double* > ProSHADE_internal_symmetry::findMissingAxisPoin
 
 /*! \brief This function saves the recovered information about missing axis into a full symmetry, making sure no duplicates are created.
  
- This function takes the information about the missing symmetry and proceeds to create a full symmetry description out of it. It then checks whether
- the vector already contains similar symmetry, either replacing the old or ignoring the new symmetry based on which has hiher height. If the symmetry
- does not match anything in the vector, it will be copied as a new vector entry.
+    This function takes the information about the missing symmetry and proceeds to create a full symmetry description out of it. It then checks whether
+    the vector already contains similar symmetry, either replacing the old or ignoring the new symmetry based on which has hiher height. If the symmetry
+    does not match anything in the vector, it will be copied as a new vector entry.
  
- \param[in] axVec Vector containing all already detected missing axes.
- \param[in] axX The x-axis element of the missing axis.
- \param[in] axY The y-axis element of the missing axis.
- \param[in] axZ The z-axis element of the missing axis.
- \param[in] height The average map height for this new axis.
- \param[in] fold The fold of the searched for axis.
- \param[in] axErr The error tolerance on angle matching.
+    \param[in] axVec Vector containing all already detected missing axes.
+    \param[in] axX The x-axis element of the missing axis.
+    \param[in] axY The y-axis element of the missing axis.
+    \param[in] axZ The z-axis element of the missing axis.
+    \param[in] height The average map height for this new axis.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] axErr The error tolerance on angle matching.
  */
 void ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( std::vector< proshade_double* >* axVec, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double height, proshade_unsign fold, proshade_double axErr )
 {
@@ -1680,21 +1680,19 @@ void ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( std::vector< proshade_
     
 }
 
-/*! \brief This function tests all feasible axes against the missing axis criteria, returning a set of matching axes.
+/*! \brief This function tests feasible axes against the missing axis criteria, returning a set of matching axes.
  
- This function does the havey  lifting of the missing symmetry search. It starts by trying all possible combinations of the axes values, making
- sure these conform to the axis speciications (normalisation and highest element positive). For each of these, it tests the prospective symmetry
- axis against the group, gets the average fold height of the axis. For the highest peaked axis (which needs to meet simple criteria), it saves
- the results in the output vector.
+    This function does the real missing axis searching. It starts by taking all supplied axes and algebraically computing the vector which has the required angle to two of the supplied axes. This computed axis is
+    then tested against the group for being unique and having an average height at least as high as required. If such axis is found, it is added to the axes list.
  
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] grp A vector of indices (relating to CSymList) of the group members.
- \param[in] hlpVec A vector which will hold the detected, but not verified axes to be returned to the caller function.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] angle The angle that each group member is required to have against the symmetry.
- \param[in] fold The fold of the searched for axis.
- \param[in] minPeakHeight The minimum new axis average peak height in order for the axis to be added.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] grp A vector of indices (relating to CSymList) of the group members.
+    \param[in] hlpVec A vector which will hold the detected, but not verified axes to be returned to the caller function.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] angle The angle that each group member is required to have against the symmetry.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] minPeakHeight The minimum new axis average peak height in order for the axis to be added.
  */
 void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_double* >* CSymList, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* hlpVec, proshade_double axErr, proshade_double angle, proshade_unsign fold, proshade_double minPeakHeight )
 {
@@ -1715,12 +1713,12 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
             if ( fAx >= sAx ) { continue; }
             
             //======================================== Find possible axis having the required angle to this pair ( solution 1 )
-            std::vector< proshade_double > solVec     = ProSHADE_internal_maths::findVectorFromTwoAndDot ( CSymList->at(grp->at(fAx))[1],
-                                                                                                           CSymList->at(grp->at(fAx))[2],
-                                                                                                           CSymList->at(grp->at(fAx))[3],
-                                                                                                           CSymList->at(grp->at(sAx))[1],
-                                                                                                           CSymList->at(grp->at(sAx))[2],
-                                                                                                           CSymList->at(grp->at(sAx))[3], angle );
+            std::vector< proshade_double > solVec     = ProSHADE_internal_maths::findVectorFromTwoVAndTwoD ( CSymList->at(grp->at(fAx))[1],
+                                                                                                             CSymList->at(grp->at(fAx))[2],
+                                                                                                             CSymList->at(grp->at(fAx))[3],
+                                                                                                             CSymList->at(grp->at(sAx))[1],
+                                                                                                             CSymList->at(grp->at(sAx))[2],
+                                                                                                             CSymList->at(grp->at(sAx))[3], angle, angle );
             
             //======================================== Set largest axis element to positive
             if ( ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(0) ) ) && ( solVec.at(0) < 0.0 ) ) ||
@@ -1744,12 +1742,12 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
             }
             
             //======================================== Find possible axis having the required angle to this pair ( solution 2 )
-            solVec                                    = ProSHADE_internal_maths::findVectorFromTwoAndDot ( CSymList->at(grp->at(fAx))[1],
-                                                                                                           CSymList->at(grp->at(fAx))[2],
-                                                                                                           CSymList->at(grp->at(fAx))[3],
-                                                                                                           CSymList->at(grp->at(sAx))[1],
-                                                                                                           CSymList->at(grp->at(sAx))[2],
-                                                                                                           CSymList->at(grp->at(sAx))[3], -angle );
+            solVec                                    = ProSHADE_internal_maths::findVectorFromTwoVAndTwoD ( CSymList->at(grp->at(fAx))[1],
+                                                                                                             CSymList->at(grp->at(fAx))[2],
+                                                                                                             CSymList->at(grp->at(fAx))[3],
+                                                                                                             CSymList->at(grp->at(sAx))[1],
+                                                                                                             CSymList->at(grp->at(sAx))[2],
+                                                                                                             CSymList->at(grp->at(sAx))[3], -angle, -angle );
             
             //======================================== Set largest axis element to positive
             if ( ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(0) ) ) && ( solVec.at(0) < 0.0 ) ) ||
@@ -1784,16 +1782,16 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
 
 /*! \brief This function takes the list of C symmetries and finds the 3 C2 symmetries with correct angles required for full tetrahedral symmetry.
  
- This is a specific helper function for detecting three C2 symmetries perpendicular to each other hand having a specific angle ( acos(0.5) ) to one of the already
- detected C3 symmetries of the sought after tetrahedral symmetry. It firstly finds all C2s and tests these for having the acos(0.5) angle to the already found C3s.
- From this list of passing C2s, it then tries to find three mutually perpendicular axes, including searching for missing axes. If no such axes are found, the ret
- array will still have 4 entries, while if they are found, the ret array will have these added to the total of 7 entries.
+    This is a specific helper function for detecting three C2 symmetries perpendicular to each other hand having a specific angle ( acos(0.5) ) to one of the already
+    detected C3 symmetries of the sought after tetrahedral symmetry. It firstly finds all C2s and tests these for having the acos(0.5) angle to the already found C3s.
+    From this list of passing C2s, it then tries to find three mutually perpendicular axes, including searching for missing axes. If no such axes are found, the ret
+    array will still have 4 entries, while if they are found, the ret array will have these added to the total of 7 entries.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector .
- \param[in] axErr The error tolerance on angle matching.
- \param[in] verobse How loud the announcments should be?
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector .
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] verobse How loud the announcments should be?
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
 void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -1843,7 +1841,7 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
     while ( C2Possibilities.size() != 0 )
     {
         //============================================ Test for missing symmetry axes, if need be
-        ProSHADE_internal_symmetry::findMissingAxes   ( &C2Possibilities, CSymList, 3, axErr, 0.0, 2, dataObj, true, minPeakHeight );
+        ProSHADE_internal_symmetry::findMissingAxes   ( &C2Possibilities, CSymList, 3, axErr, 0.0, 2, dataObj, minPeakHeight );
         
         //============================================ Found 3 C2s?
         if ( C2Possibilities.at(0).size() == 3 )
@@ -1867,17 +1865,17 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
 
 /*! \brief This function compares two groups of axes for a single pair having the required angle.
  
- This simple helper function takes two sets of symmetry axes and two vectors of indices, each relating to one of the two sets. It then proceeds to
- check each of the indexed axes in each set against all the indexed axes in the other set, searching for a particular angle. If this angle is found
- for at least one pair, true is returned, while otherwise false is returned.
+    This simple helper function takes two sets of symmetry axes and two vectors of indices, each relating to one of the two sets. It then proceeds to
+    check each of the indexed axes in each set against all the indexed axes in the other set, searching for a particular angle. If this angle is found
+    for at least one pair, true is returned, while otherwise false is returned.
  
- \param[in] GrList1 A vector containing the symmetries for the group 1.
- \param[in] grp1 The indices respective to GrList1 which form group 1.
- \param[in] GrList2 A vector containing the symmetries for the group 2.
- \param[in] grp2 The indices respective to GrList1 which form group 2.
- \param[in] angle The angle which needs to be found between any pair of axes in group 1 and 2.
- \param[in] axErr The error tolerance on angle matching.
- \param[out] ret True if succeeded, false otherwise.
+    \param[in] GrList1 A vector containing the symmetries for the group 1.
+    \param[in] grp1 The indices respective to GrList1 which form group 1.
+    \param[in] GrList2 A vector containing the symmetries for the group 2.
+    \param[in] grp2 The indices respective to GrList1 which form group 2.
+    \param[in] angle The angle which needs to be found between any pair of axes in group 1 and 2.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[out] ret True if succeeded, false otherwise.
  */
 bool ProSHADE_internal_symmetry::testGroupAgainstGroup ( std::vector< proshade_double* >* GrList1, std::vector< proshade_unsign >* grp1, std::vector< proshade_double* >* GrList2, std::vector< proshade_unsign >* grp2, proshade_double angle, proshade_double axErr )
 {
@@ -1914,13 +1912,13 @@ bool ProSHADE_internal_symmetry::testGroupAgainstGroup ( std::vector< proshade_d
 
 /*! \brief This function obtains a list of all O symmetry axes from the already computed C symmetries list.
  
- This function starts by checking if there is a pair of C3 and C4 symmetries with the octahedron dihedral angle ( acos ( 1/sqrt(3) ) ). If so, it will
- then assume existence of octahedral symmetry and it will search for three C4 axes, four C3 axes and six C2 axes with the correct angle to each other
- and within the group. If all required axes are detected, it will return a list of 13 axes, otherwise it will return empty or shorter list. Automated
- missing symmetry axis detection is also included.
+    This function starts by checking if there is a pair of C3 and C4 symmetries with the octahedron dihedral angle ( acos ( 1/sqrt(3) ) ). If so, it will
+    then assume existence of octahedral symmetry and it will search for three C4 axes, four C3 axes and six C2 axes with the correct angle to each other
+    and within the group. If all required axes are detected, it will return a list of 13 axes, otherwise it will return empty or shorter list. Automated
+    missing symmetry axis detection is also included.
  
- \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  */
 std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
 {
@@ -1954,14 +1952,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
 
 /*! \brief This function takes the list of C symmetries and decides whether basic requirements for octahhedral symmetry are there.
  
- This function first finds all the C4 symmetries in the C symmetries list and then it checks each present C4 against all C3 symmetries for having
- the angle between the pair equal to the dihedral angle of an octahedron ( acos(1/sqrt(3)) ). If a single such pair is detected, this is likely an
- octahedral symmetry and all other axes need to be located. Otherwise, false is returned.
+    This function first finds all the C4 symmetries in the C symmetries list and then it checks each present C4 against all C3 symmetries for having
+    the angle between the pair equal to the dihedral angle of an octahedron ( acos(1/sqrt(3)) ). If a single such pair is detected, this is likely an
+    octahedral symmetry and all other axes need to be located. Otherwise, false is returned.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[out] X Boolean value telling whether there are C4 and C3 symmetries with octahedral dihhedral angle.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[out] X Boolean value telling whether there are C4 and C3 symmetries with octahedral dihhedral angle.
  */
 bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight )
 {
@@ -2006,16 +2004,16 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
 
 /*! \brief This function takes the list of C symmetries and finds the 3 C4 symmetries with perpendicular angles required for full octahedral symmetry.
  
- This function is specific to detecting the octahedral symmetry. It should be called once octahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the three C4 symmetries which must all be detected in order to fully
- describe octahedral symmetry. If all three are found, the ret vector will contain these as its only four entries, while it will be empty if some of the
- C4 symmetries are not found. The missing symmetry axis detection is implemented as part of this function as well.
+    This function is specific to detecting the octahedral symmetry. It should be called once octahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the three C4 symmetries which must all be detected in order to fully
+    describe octahedral symmetry. If all three are found, the ret vector will contain these as its only four entries, while it will be empty if some of the
+    C4 symmetries are not found. The missing symmetry axis detection is implemented as part of this function as well.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector .
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[in] verobse How loud the announcments should be?
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector containing all axes required for the octahedral symmetry detected so far.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] verobse How loud the announcments should be?
  */
 void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -2045,7 +2043,7 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
     }
 
     //================================================ Test for missing symmetry axes, if need be
-    ProSHADE_internal_symmetry::findMissingAxes       ( &C4Possibilities, CSymList, 3, axErr, 0.0, 4, dataObj, true, minPeakHeight );
+    ProSHADE_internal_symmetry::findMissingAxes       ( &C4Possibilities, CSymList, 3, axErr, 0.0, 4, dataObj, minPeakHeight );
 
     //================================================ Any group has 3 entries? If more such groups, take the one with highest average height.
     proshade_double maxHeight = 0.0; proshade_unsign maxGrp = 0;
@@ -2070,18 +2068,18 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
 
 /*! \brief This function takes the list of C symmetries and finds the four C3 symmetries with correct angles required for full octahedral symmetry.
  
- This function is specific to detecting the tetrahedral symmetry. It should be called once tetrahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the four C3 symmetries which must all be detected in order to fully
- describe octahedral symmetry. If all four are found, the ret vector will have these four axes added to the already present three C4 axes; alternatively,
- the ret array size will not change. In order not to replicate computations, if tetrahedral symmetry has already been detected, the four axes sought here
- are the same as the first four axes detected there, so simple copying is used instead of re-computing the results anew.
+    This function is specific to detecting the tetrahedral symmetry. It should be called once tetrahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the four C3 symmetries which must all be detected in order to fully
+    describe octahedral symmetry. If all four are found, the ret vector will have these four axes added to the already present three C4 axes; alternatively,
+    the ret array size will not change. In order not to replicate computations, if tetrahedral symmetry has already been detected, the four axes sought here
+    are the same as the first four axes detected there, so simple copying is used instead of re-computing the results anew.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector .
- \param[in] axErr The error tolerance on angle matching.
- \param[in] verobse How loud the announcments should be?
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[in] TetraSymList A vector containing the already detected tetrahedral symmetries - this is to avoid the same search for four C3 symmetry axes.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector .
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] verobse How loud the announcments should be?
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] TetraSymList A vector containing the already detected tetrahedral symmetries - this is to avoid the same search for four C3 symmetry axes.
  */
 void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -2130,7 +2128,7 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
     while ( C3Possibilities.size() != 0 )
     {
         //============================================ Test for missing symmetry axes, if need be
-        ProSHADE_internal_symmetry::findMissingAxes ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, true, minPeakHeight );
+        ProSHADE_internal_symmetry::findMissingAxes ( &C3Possibilities, CSymList, 4, axErr, 1.0/3.0, 3, dataObj, minPeakHeight );
 
         //============================================ Found four C3s?
         if ( C3Possibilities.at(0).size() == 4 )
@@ -2154,16 +2152,16 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
 
 /*! \brief This function takes the list of C symmetries and finds the six C2 symmetries with correct angles required for full octahedral symmetry.
  
- This function is specific to detecting the octahedral symmetry. It should be called once octahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the six C2 symmetries which must all be detected in order to fully
- describe octahedral symmetry. If all six are found, the ret vector will have these six axes added to the already present three C4 axes and the four C3 axes;
- alternatively, the ret array size will not change.
+    This function is specific to detecting the octahedral symmetry. It should be called once octahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the six C2 symmetries which must all be detected in order to fully
+    describe octahedral symmetry. If all six are found, the ret vector will have these six axes added to the already present three C4 axes and the four C3 axes;
+    alternatively, the ret array size will not change.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] verobse How loud the announcments should be?
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] verobse How loud the announcments should be?
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
 void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -2210,7 +2208,7 @@ void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >*
         return ;
     }
     
-    //======================================== Found correct number of axes! Now save the
+    //================================================ Found correct number of axes! Now save the
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( prospectiveC2s.size() ); iter++ )
     {
         ProSHADE_internal_misc::addToDblPtrVector     ( ret, CSymList->at(prospectiveC2s.at(iter)) );
@@ -2224,95 +2222,97 @@ void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >*
     
 }
 
-/*! \brief This function tries to find a particular symmetry which would complete a group of symmetries with two different angle requirement to another group.
+/*! \brief This function tries to find a particular symmetry axes which would complete a group of symmetries with two different angle requirement to another group.
 
- This function takes a single group of already found axes and tries to locate missing axes which would have particular angles in a given frequencies to the
- already detected axes. It also makes sure that the newly detected axes are different from each other. If successfull, the list of axes will be extended by the
- newly detected axes and true is returned. Alternatively, if not enough axes are found (as determined by the requiredNoAxes argument), false is returned and the
- list of axes is not modified, not even by the already detected missing axes.
+    This function takes a list of axes to which a new axis should have two particular angles (to two different group members, that is). It then uses algebraic solution finding approach
+    to compute possible solutions which would satisfy this condition, testing whether such solutions comply with the appropriate number of angles to number of members and for
+    the new solutions being unique. If the required number of solutions is found, it will add the newly detected solutions to the CSymList vector and update the possibilities indices list,
+    otherwise it will leave both alone.
 
- \param[in] possibilities A vector of already detected axis indices which should be extended.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret A list of already detected octahedral axes.
- \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
- \param[in] requiredNoAxes Number of axes required for positive result.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
- \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
- \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
- \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
- \param[in] fold The fold of the searched for axis.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
+    \param[in] possibilities A vector of already detected axis indices which should be extended.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret A list of already detected octahedral axes.
+    \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
+    \param[in] requiredNoAxes Number of axes required for positive result.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
+    \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
+    \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
+    \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
 */
 bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_unsign >* possibilities, std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, std::vector< proshade_unsign >* retGroup, proshade_unsign requiredNoAxes, proshade_double axErr, proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2, proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj )
 {
     //================================================ Initialise variables
-    proshade_double axNorm, axX, axY, axZ, groupAvg = 0.0;
     bool atLeastOne                                   = false;
-    bool skipAxis                                     = false;
     std::vector< proshade_double* > prosp;
-    proshade_unsign alreadyKnown                      = static_cast<proshade_unsign> ( possibilities->size() );
+    std::vector< proshade_double > sol;
     
     //================================================ Proceed only if need be
     if ( static_cast<proshade_unsign> ( possibilities->size() ) == requiredNoAxes ) { atLeastOne = true; return ( atLeastOne ); }
     
-    //================================================ Get group average
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( possibilities->size() ); iter++ ) { groupAvg += CSymList->at(possibilities->at(iter))[5]; ProSHADE_internal_misc::addToDblPtrVector ( &prosp, CSymList->at(possibilities->at(iter)) ); }
-    groupAvg                                         /= static_cast<proshade_double> ( possibilities->size() );
-    
-    //================================================ Try all possible axes
-    for ( proshade_double xIt = -1.0; xIt < 1.001; xIt += 0.1 )
+    //================================================ Copy already found to prospective
+    for ( proshade_unsign prIt = 0; prIt < static_cast<proshade_unsign> ( possibilities->size() ); prIt++ )
     {
-        for ( proshade_double yIt = -1.0; yIt < 1.001; yIt += 0.1 )
-        {
-            for ( proshade_double zIt = -1.0; zIt < 1.001; zIt += 0.1 )
-            {
-                //==================================== Possible axes only
-                if ( xIt == 0.0 && yIt == 0.0 && zIt == 0.0 ) { continue; }
-                
-                //==================================== Get the axis elements
-                axNorm                                = sqrt ( pow ( xIt, 2.0 ) + pow ( yIt, 2.0 ) + pow ( zIt, 2.0 ) );
-                axX                                   = xIt / axNorm;
-                axY                                   = yIt / axNorm;
-                axZ                                   = zIt / axNorm;
-                
-                //==================================== Set largest axis element to positive
-                if ( ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axX ) ) && ( axX < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axY ) ) && ( axY < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axZ ) ) && ( axZ < 0.0 ) ) ) { axX *= -1.0; axY *= -1.0; axZ *= -1.0; }
-                
-                //==================================== Skip if already exists
-                skipAxis                              = false;
-                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( retGroup->size() ); rIt++ )
-                {
-                    if ( ( ( ( axX + 0.1 ) > ret->at(retGroup->at(rIt))[1] ) && ( ( axX - 0.1 ) < ret->at(retGroup->at(rIt))[1] ) ) &&
-                         ( ( ( axY + 0.1 ) > ret->at(retGroup->at(rIt))[2] ) && ( ( axY - 0.1 ) < ret->at(retGroup->at(rIt))[2] ) ) &&
-                         ( ( ( axZ + 0.1 ) > ret->at(retGroup->at(rIt))[3] ) && ( ( axZ - 0.1 ) < ret->at(retGroup->at(rIt))[3] ) ) ) { skipAxis = true; }
-                }
-                if ( skipAxis ) { continue; }
-                
-                //==================================== Find if axis fits the group and save if need be
-                ProSHADE_internal_symmetry::checkFittingAxisDualAndSave ( retGroup, ret, fold, axX, axY, axZ, groupAvg, &prosp, axErr, noMatchesG1, angle1, noMatchesG2, angle2, dataObj );
-            }
-        }
+        ProSHADE_internal_symmetry::addAxisUnlessSame ( CSymList->at(possibilities->at(prIt))[0],
+                                                        CSymList->at(possibilities->at(prIt))[1],
+                                                        CSymList->at(possibilities->at(prIt))[2],
+                                                        CSymList->at(possibilities->at(prIt))[3],
+                                                        CSymList->at(possibilities->at(prIt))[5], &prosp, axErr );
     }
     
-    //================================================ Found
-    if ( prosp.size() == requiredNoAxes )
+    //================================================ Start generating possible solutions
+    for ( proshade_unsign rgIt1 = 0; rgIt1 < static_cast<proshade_unsign> ( retGroup->size() ); rgIt1++ )
     {
-        //============================================ For each found missing axis
-        for ( proshade_unsign axIt = alreadyKnown; axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ )
+        for ( proshade_unsign rgIt2 = 0; rgIt2 < static_cast<proshade_unsign> ( retGroup->size() ); rgIt2++ )
         {
-            //======================================== Add
-            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(axIt) );
-            ProSHADE_internal_misc::addToUnsignVector ( possibilities, static_cast<proshade_unsign> ( CSymList->size()-1 ) );
+            //======================================== Use unique combinations (order matters here!)
+            if ( rgIt1 == rgIt2 ) { continue; }
+            
+            //======================================== Generate possible solution (1)
+            sol                                       = ProSHADE_internal_maths::findVectorFromTwoVAndTwoD ( ret->at(rgIt1)[1], ret->at(rgIt1)[2], ret->at(rgIt1)[3],
+                                                                                                             ret->at(rgIt2)[1], ret->at(rgIt2)[2], ret->at(rgIt2)[3], angle1, angle2 );
+            
+            //======================================== Check if solution fits the group completely
+            ProSHADE_internal_symmetry::checkFittingAxisDualAndSave ( retGroup, ret, fold, sol.at(0), sol.at(1), sol.at(2), &prosp, axErr, noMatchesG1, angle1, noMatchesG2, angle2, dataObj );
+            if ( prosp.size() == requiredNoAxes ) { break; }
+            
+            //======================================== Generate possible solution (2)
+            sol                                       = ProSHADE_internal_maths::findVectorFromTwoVAndTwoD ( ret->at(rgIt1)[1], ret->at(rgIt1)[2], ret->at(rgIt1)[3],
+                                                                                                             ret->at(rgIt2)[1], ret->at(rgIt2)[2], ret->at(rgIt2)[3], -angle1, -angle2 );
+            
+            //======================================== Check if solution fits the group completely
+            ProSHADE_internal_symmetry::checkFittingAxisDualAndSave ( retGroup, ret, fold, sol.at(0), sol.at(1), sol.at(2), &prosp, axErr, noMatchesG1, angle1, noMatchesG2, angle2, dataObj );
+            if ( prosp.size() == requiredNoAxes ) { break; }
         }
         
+        if ( prosp.size() == requiredNoAxes ) { break; }
+    }
+
+    //================================================ Found all required axes!
+    if ( static_cast<proshade_unsign> ( prosp.size() ) == requiredNoAxes )
+    {
+        //============================================ Copy the detected axes
+        for ( proshade_unsign iter = static_cast<proshade_unsign> ( possibilities->size() ); iter < static_cast<proshade_unsign> ( prosp.size() ); iter++ )
+        {
+            ProSHADE_internal_misc::addToUnsignVector ( possibilities, CSymList->size() );
+            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(iter) );
+        }
+        
+        //============================================ Done
         atLeastOne                                    = true;
         return                                        ( atLeastOne );
     }
-    else { for ( proshade_unsign axIt = alreadyKnown; axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ ) { delete[] prosp.at(axIt); } }
+    else
+    {
+        //============================================ Delete the created, but not used axes
+        for ( proshade_unsign iter = static_cast<proshade_unsign> ( possibilities->size() ); iter < static_cast<proshade_unsign> ( prosp.size() ); iter++ )
+        {
+            delete[] prosp.at(iter);
+        }
+    }
     
     //================================================ Done
     return                                            ( atLeastOne );
@@ -2321,16 +2321,16 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
 
 /*! \brief This function simply creates a new axis from information in aruments and tests if no such axis already exists, saving it if need be.
  
- This is a simple helper function, which takes all the new axis information and creates the ProSHADE axis representation from these. It then proceeds to check
- if such axis does not already exist in the supplied vector, if not, it saves the new axis; alternatively, it just discards the created axis and terminates.
+    This is a simple helper function, which takes all the new axis information and creates the ProSHADE axis representation from these. It then proceeds to check
+    if such axis does not already exist in the supplied vector, if not, it saves the new axis; alternatively, it just discards the created axis and terminates.
  
- \param[in] fold The fold of the searched for axis.
- \param[in] axX The x-axis element of the new axis.
- \param[in] axY The y-axis element of the new axis.
- \param[in] axZ The z-axis element of the new axis.
- \param[in] axHeight The average peak height of the new axis.
- \param[in] prosp The vector to which the axis is to be saved.
- \param[in] axErr The error tolerance on angle matching.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] axX The x-axis element of the new axis.
+    \param[in] axY The y-axis element of the new axis.
+    \param[in] axZ The z-axis element of the new axis.
+    \param[in] axHeight The average peak height of the new axis.
+    \param[in] prosp The vector to which the axis is to be saved.
+    \param[in] axErr The error tolerance on angle matching.
  */
 void ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr )
 {
@@ -2363,26 +2363,26 @@ void ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign fold, prosh
 
 /*! \brief This function takes a newly detected "missing" axis and tests it for belonging to the group, checking the height and replacing lower height members with better members.
  
- This function takes the list of already detected axes, information about the tested new axis and the conditions for belonging. It then proceeds to check if the
- new axis conforms to the conditions of belonging. If so, it then checks if the axis height is high enough to be considered as part of the group. Again, if so,
- it will save this new axis to the old set, replacing any old axis with this new one, if it is the same and has better height.
+    This function takes the list of already detected axes, information about the tested new axis and the conditions for belonging. It then proceeds to check if the
+    new axis conforms to the conditions of belonging. If so, it then checks if the axis height is high enough to be considered as part of the group. Again, if so,
+    it will save this new axis to the old set, replacing any old axis with this new one, if it is the same and has better height.
  
- \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
- \param[in] ret A list of already detected axes.
- \param[in] fold The fold of the searched for axis.
- \param[in] axX The x-axis element of the new axis.
- \param[in] axY The y-axis element of the new axis.
- \param[in] axZ The z-axis element of the new axis.
- \param[in] groupAvg The average peak height of the already detected group.
- \param[in] prosp The vector to which the axis is to be saved.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
- \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
- \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
- \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
+    \param[in] ret A list of already detected axes.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] axX The x-axis element of the new axis.
+    \param[in] axY The y-axis element of the new axis.
+    \param[in] axZ The z-axis element of the new axis.
+    \param[in] prosp The vector to which the axis is to be saved.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
+    \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
+    \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
+    \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[out] Bool True if the axis was added to the group, false otherwise.
  */
-void ProSHADE_internal_symmetry::checkFittingAxisDualAndSave ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret, proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double groupAvg, std::vector< proshade_double* >* prosp, proshade_double axErr, proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2, ProSHADE_internal_data::ProSHADE_data* dataObj )
+bool ProSHADE_internal_symmetry::checkFittingAxisDualAndSave ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret, proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, std::vector< proshade_double* >* prosp, proshade_double axErr, proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2, ProSHADE_internal_data::ProSHADE_data* dataObj )
 {
     //================================================ Initialise variables
     proshade_unsign noG1                              = 0;
@@ -2411,26 +2411,28 @@ void ProSHADE_internal_symmetry::checkFittingAxisDualAndSave ( std::vector< pros
         //============================================ If so, save
         if ( axHeight > 0.1 )
         {
+            proshade_unsign prevProsp                 = static_cast<proshade_unsign> ( prosp->size() );
             ProSHADE_internal_symmetry::addAxisUnlessSame ( fold, axX, axY, axZ, axHeight, prosp, axErr );
+            
+            if ( static_cast<proshade_unsign> ( prosp->size() ) > prevProsp ) { return ( true ); }
+            else                                                              { return ( false ); }
         }
     }
     
     //================================================ Done
-    return ;
+    return                                            ( false );
     
 }
 
 /*! \brief This function obtains a list of all I symmetry axes from the already computed C symmetries list.
  
- ...
+    This function starts by checking if there is a pair of C3 and C4 symmetries with the octahedron dihedral angle ( acos ( 1/sqrt(3) ) ). If so, it will
+    then assume existence of octahedral symmetry and it will search for three C4 axes, four C3 axes and six C2 axes with the correct angle to each other
+    and within the group. If all required axes are detected, it will return a list of 13 axes, otherwise it will return empty or shorter list. Automated
+    missing symmetry axis detection is also included.
  
- This function starts by checking if there is a pair of C3 and C4 symmetries with the octahedron dihedral angle ( acos ( 1/sqrt(3) ) ). If so, it will
- then assume existence of octahedral symmetry and it will search for three C4 axes, four C3 axes and six C2 axes with the correct angle to each other
- and within the group. If all required axes are detected, it will return a list of 13 axes, otherwise it will return empty or shorter list. Automated
- missing symmetry axis detection is also included.
- 
- \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
  */
 std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
 {
@@ -2464,14 +2466,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
 
 /*! \brief This function takes the list of C symmetries and decides whether basic requirements for isosahedral symmetry are there.
  
- This function first finds all the C5 symmetries in the C symmetries list and then it checks each present C5 against all C3 symmetries for having
- the angle between the pair equal to the dihedral angle of an icosahedron ( acos( sqrt(5)/3 ) ). If a single such pair is detected, this is
- likely an icosahedral symmetry and all other axes need to be located. Otherwise, false is returned.
+    This function first finds all the C5 symmetries in the C symmetries list and then it checks each present C5 against all C3 symmetries for having
+    the angle between the pair equal to the dihedral angle of an icosahedron ( acos( sqrt(5)/3 ) ). If a single such pair is detected, this is
+    likely an icosahedral symmetry and all other axes need to be located. Otherwise, false is returned.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height required for symmetry axis to be considered.
- \param[out] X Boolean value telling whether there are C5 and C3 symmetries with icosahedral dihhedral angle.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height required for symmetry axis to be considered.
+    \param[out] X Boolean value telling whether there are C5 and C3 symmetries with icosahedral dihhedral angle.
  */
 bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight )
 {
@@ -2516,20 +2518,20 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
 
 /*! \brief This function takes the list of C symmetries and finds the six C5 symmetries with given angles required for full icosahedral symmetry.
  
- This function searches the list of all detected C symmetries for the presence of six C5 symmetries, which have the angle of acos (0.5) to each other; this
- ability is specifically required for detection of icosahedral symmetry. This function allows for multiple groups of C5 symmetries, doing the missing symmetry
- axis checks and returning the group with highest average peak height. If successfull, the ret vector will have 6 entries, otherwise it will be empty.
+    This function searches the list of all detected C symmetries for the presence of six C5 symmetries, which have the angle of acos (0.5) to each other; this
+    ability is specifically required for detection of icosahedral symmetry. This function allows for multiple groups of C5 symmetries, doing the missing symmetry
+    axis checks and returning the group with highest average peak height. If successfull, the ret vector will have 6 entries, otherwise it will be empty.
  
- This function is specific to detecting the octahedral symmetry. It should be called once octahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the three C4 symmetries which must all be detected in order to fully
- describe octahedral symmetry. If all three are found, the ret vector will contain these as its only four entries, while it will be empty if some of the
- C4 symmetries are not found. The missing symmetry axis detection is implemented as part of this function as well.
+    This function is specific to detecting the octahedral symmetry. It should be called once octahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the three C4 symmetries which must all be detected in order to fully
+    describe octahedral symmetry. If all three are found, the ret vector will contain these as its only four entries, while it will be empty if some of the
+    C4 symmetries are not found. The missing symmetry axis detection is implemented as part of this function as well.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector .
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[in] verobse How loud the announcments should be?
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector .
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] verobse How loud the announcments should be?
  */
 void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -2559,7 +2561,7 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     }
     
     //================================================ Test for missing symmetry axes, if need be
-    ProSHADE_internal_symmetry::findMissingAxes       ( &C5Possibilities, CSymList, 6, axErr, 1.0 / 2.0, 5, dataObj, true, minPeakHeight );
+    ProSHADE_internal_symmetry::findMissingAxes       ( &C5Possibilities, CSymList, 6, axErr, 1.0 / 2.0, 5, dataObj, minPeakHeight );
 
     //======================================== ========Any group has 6 entries? If more such groups, take the one with highest average height.
     proshade_double maxHeight = 0.0; proshade_unsign maxGrp = 0;
@@ -2584,16 +2586,16 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
 
 /*! \brief This function takes the list of C symmetries and finds the ten C3 symmetries with correct angles required for full icosahedral symmetry.
  
- This function is specific to detecting the icosahedral symmetry. It should be called once icosahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the ten C3 symmetries which must all be detected in order to fully
- describe icosahedral symmetry. If all ten are found, the ret vector will have these ten axes added to the already present six C5 axes; alternatively,
- the ret array size will not change.
+    This function is specific to detecting the icosahedral symmetry. It should be called once icosahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the ten C3 symmetries which must all be detected in order to fully
+    describe icosahedral symmetry. If all ten are found, the ret vector will have these ten axes added to the already present six C5 axes; alternatively,
+    the ret array size will not change.
  
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[in] verobse How loud the announcments should be?
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] verobse How loud the announcments should be?
  */
 void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -2656,18 +2658,16 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
 
 /*! \brief This function takes the list of C symmetries and finds the fifteen C3 symmetries with correct angles required for full icosahedral symmetry.
  
- ...
+    This function is specific to detecting the icosahedral symmetry. It should be called once icosahedral symmetry is suspected (by detecting its dihedral
+    angles) and it needs to be fully described. This function specifically searches for the ten C3 symmetries which must all be detected in order to fully
+    describe icosahedral symmetry. If all ten are found, the ret vector will have these ten axes added to the already present six C5 axes; alternatively,
+    the ret array size will not change.
  
- This function is specific to detecting the icosahedral symmetry. It should be called once icosahedral symmetry is suspected (by detecting its dihedral
- angles) and it needs to be fully described. This function specifically searches for the ten C3 symmetries which must all be detected in order to fully
- describe icosahedral symmetry. If all ten are found, the ret vector will have these ten axes added to the already present six C5 axes; alternatively,
- the ret array size will not change.
- 
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] minPeakHeight The minimum average peak height for axis to be considered.
- \param[in] verobse How loud the announcments should be?
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] verobse How loud the announcments should be?
  */
 void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
@@ -2729,76 +2729,91 @@ void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >
     
 }
 
-/*! \brief This function tries to find a particular symmetry which would complete a group of symmetries with three different angle requirement to another group.
+/*! \brief This function tries to find a particular symmetry axis which would complete a group of symmetries with three different angle requirement to another group.
  
- This function takes a single group of already found axes and tries to locate missing axes which would have particular angles in a given frequencies to the
- already detected axes. It also makes sure that the newly detected axes are different from each other. If successfull, the list of axes will be extended by the
- newly detected axes and true is returned. Alternatively, if not enough axes are found (as determined by the requiredNoAxes argument), false is returned and the
- list of axes is not modified, not even by the already detected missing axes.
+    Assuming there is a group of symmetry axis, which have particular number of particular angles to each other, but some are missing, this function tries to find any such
+    missing axes. This is a solution for the group of axes having three different angles to the other group members. For all newly detected group members, the average peak
+    height and the uniqueness are both tested for.
  
- \param[in] possibilities A vector of already detected axis indices which should be extended.
- \param[in] CSymList A vector containing the already detected Cyclic symmetries.
- \param[in] ret A list of already detected octahedral axes.
- \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
- \param[in] requiredNoAxes Number of axes required for positive result.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
- \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
- \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
- \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
- \param[in] noMatchesG3 The number of axes from ret that need to be matched with angle3.
- \param[in] angle3 The angle with which noMatchesG3 axes need to be matched with the retGroup axes.
- \param[in] fold The fold of the searched for axis.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
+    \param[in] possibilities A vector of already detected axis indices which should be extended.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret A list of already detected octahedral axes.
+    \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
+    \param[in] requiredNoAxes Number of axes required for positive result.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
+    \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
+    \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
+    \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
+    \param[in] noMatchesG3 The number of axes from ret that need to be matched with angle3.
+    \param[in] angle3 The angle with which noMatchesG3 axes need to be matched with the retGroup axes.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[out] atLeastOne Boolean value speciying whether at least the minimum required number of axes was found.
  */
 bool ProSHADE_internal_symmetry::findMissingAxesTriple ( std::vector< proshade_unsign >* possibilities, std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, std::vector< proshade_unsign >* retGroup, proshade_unsign requiredNoAxes, proshade_double axErr, proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3, proshade_unsign fold, ProSHADE_internal_data::ProSHADE_data* dataObj )
 {
     //================================================ Initialise variables
-    proshade_double axNorm, axX, axY, axZ, groupAvg = 0.0;
     bool atLeastOne                                   = false;
     std::vector< proshade_double* > prosp;
-    proshade_unsign alreadyKnown                      = static_cast<proshade_unsign> ( possibilities->size() );
+    std::vector< proshade_double > sol;
     
     //================================================ Proceed only if need be
     if ( static_cast<proshade_unsign> ( possibilities->size() ) == requiredNoAxes ) { atLeastOne = true; return ( atLeastOne ); }
     
-    //================================================ Get group average
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( possibilities->size() ); iter++ ) { groupAvg += CSymList->at(possibilities->at(iter))[5]; ProSHADE_internal_misc::addToDblPtrVector ( &prosp, CSymList->at(possibilities->at(iter)) ); }
-    groupAvg                                         /= static_cast<proshade_double> ( possibilities->size() );
-    
-    //================================================ Try all possible axes
-    for ( proshade_double xIt = -1.0; xIt < 1.001; xIt += 0.1 )
+    //================================================ Copy already found to prospective
+    for ( proshade_unsign prIt = 0; prIt < static_cast<proshade_unsign> ( possibilities->size() ); prIt++ )
     {
-        for ( proshade_double yIt = -1.0; yIt < 1.001; yIt += 0.1 )
-        {
-            for ( proshade_double zIt = -1.0; zIt < 1.001; zIt += 0.1 )
-            {
-                //==================================== Possible axes only
-                if ( xIt == 0.0 && yIt == 0.0 && zIt == 0.0 ) { continue; }
-                
-                //==================================== Get the axis elements
-                axNorm                                = sqrt ( pow ( xIt, 2.0 ) + pow ( yIt, 2.0 ) + pow ( zIt, 2.0 ) );
-                axX                                   = xIt / axNorm;
-                axY                                   = yIt / axNorm;
-                axZ                                   = zIt / axNorm;
-                
-                //==================================== Set largest axis element to positive
-                if ( ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axX ) ) && ( axX < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axY ) ) && ( axY < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( axX ), std::max( std::abs ( axY ), std::abs ( axZ ) ) ) == std::abs ( axZ ) ) && ( axZ < 0.0 ) ) ) { axX *= -1.0; axY *= -1.0; axZ *= -1.0; }
-                
-                //==================================== Find if axis fits the group and save if need be
-                ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( retGroup, ret, fold, axX, axY, axZ, groupAvg, &prosp, axErr, noMatchesG1, angle1, noMatchesG2, angle2, noMatchesG3, angle3, dataObj );
-            }
-        }
+        ProSHADE_internal_symmetry::addAxisUnlessSame ( CSymList->at(possibilities->at(prIt))[0],
+                                                        CSymList->at(possibilities->at(prIt))[1],
+                                                        CSymList->at(possibilities->at(prIt))[2],
+                                                        CSymList->at(possibilities->at(prIt))[3],
+                                                        CSymList->at(possibilities->at(prIt))[5], &prosp, axErr );
     }
     
-    //================================================ Found
+    //================================================ Start generating possible solutions
+    for ( proshade_unsign rgIt1 = 0; rgIt1 < static_cast<proshade_unsign> ( retGroup->size() ); rgIt1++ )
+    {
+        for ( proshade_unsign rgIt2 = 0; rgIt2 < static_cast<proshade_unsign> ( retGroup->size() ); rgIt2++ )
+        {
+            //======================================== Use unique combinations (order matters here!)
+            if ( rgIt1 == rgIt2 ) { continue; }
+            
+            for ( proshade_unsign rgIt3 = 0; rgIt3 < static_cast<proshade_unsign> ( retGroup->size() ); rgIt3++ )
+            {
+                //==================================== Use unique combinations (order matters here!)
+                if ( ( rgIt1 == rgIt3 ) || ( rgIt2 == rgIt3 ) ) { continue; }
+                
+                //==================================== Generate possible solution (1)
+                sol                                   = ProSHADE_internal_maths::findVectorFromThreeVAndThreeD ( ret->at(rgIt1)[1], ret->at(rgIt1)[2], ret->at(rgIt1)[3],
+                                                                                                                 ret->at(rgIt2)[1], ret->at(rgIt2)[2], ret->at(rgIt2)[3],
+                                                                                                                 ret->at(rgIt3)[1], ret->at(rgIt3)[2], ret->at(rgIt3)[3], angle1, angle2, angle3 );
+                
+                //==================================== Check if solution fits the group completely
+                ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( retGroup, ret, fold, sol.at(0), sol.at(1), sol.at(2), &prosp, axErr, noMatchesG1, angle1, noMatchesG2, angle2, noMatchesG3, angle3, dataObj );
+                if ( prosp.size() == requiredNoAxes ) { break; }
+                
+                //==================================== Generate possible solution (2)
+                sol                                   = ProSHADE_internal_maths::findVectorFromThreeVAndThreeD ( ret->at(rgIt1)[1], ret->at(rgIt1)[2], ret->at(rgIt1)[3],
+                                                                                                                 ret->at(rgIt2)[1], ret->at(rgIt2)[2], ret->at(rgIt2)[3],
+                                                                                                                 ret->at(rgIt3)[1], ret->at(rgIt3)[2], ret->at(rgIt3)[3], -angle1, -angle2, -angle3 );
+                
+                //==================================== Check if solution fits the group completely
+                ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( retGroup, ret, fold, sol.at(0), sol.at(1), sol.at(2), &prosp, axErr, noMatchesG1, angle1, noMatchesG2, angle2, noMatchesG3, angle3, dataObj );
+                if ( prosp.size() == requiredNoAxes ) { break; }
+            }
+            
+            if ( prosp.size() == requiredNoAxes ) { break; }
+        }
+        
+        if ( prosp.size() == requiredNoAxes ) { break; }
+    }
+    
+    //================================================ Found all required axes
     if ( prosp.size() == requiredNoAxes )
     {
         //============================================ For each found missing axis
-        for ( proshade_unsign axIt = alreadyKnown; axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ )
+        for ( proshade_unsign axIt = static_cast<proshade_unsign> ( possibilities->size() ); axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ )
         {
             //======================================== Add
             ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(axIt) );
@@ -2808,7 +2823,14 @@ bool ProSHADE_internal_symmetry::findMissingAxesTriple ( std::vector< proshade_u
         atLeastOne                                    = true;
         return                                        ( atLeastOne );
     }
-    else { for ( proshade_unsign axIt = alreadyKnown; axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ ) { delete[] prosp.at(axIt); } }
+    else
+    {
+        //============================================ Delete all found, but unnecessary axes
+        for ( proshade_unsign axIt = static_cast<proshade_unsign> ( possibilities->size() ); axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ )
+        {
+            delete[] prosp.at(axIt);
+        }
+    }
     
     //================================================ Done
     return                                            ( atLeastOne );
@@ -2817,28 +2839,27 @@ bool ProSHADE_internal_symmetry::findMissingAxesTriple ( std::vector< proshade_u
 
 /*! \brief This function takes a newly detected "missing" axis and tests it for belonging to the group, checking the height and replacing lower height members with better members.
  
- This function takes the list of already detected axes, information about the tested new axis and the conditions for belonging. It then proceeds to check if the
- new axis conforms to the conditions of belonging. If so, it then checks if the axis height is high enough to be considered as part of the group. Again, if so,
- it will save this new axis to the old set, replacing any old axis with this new one, if it is the same and has better height.
+    This function takes the list of already detected axes, information about the tested new axis and the conditions for belonging. It then proceeds to check if the
+    new axis conforms to the conditions of belonging. If so, it then checks if the axis height is high enough to be considered as part of the group. Again, if so,
+    it will save this new axis to the old set, replacing any old axis with this new one, if it is the same and has better height.
  
- \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
- \param[in] ret A list of already detected axes.
- \param[in] fold The fold of the searched for axis.
- \param[in] axX The x-axis element of the new axis.
- \param[in] axY The y-axis element of the new axis.
- \param[in] axZ The z-axis element of the new axis.
- \param[in] groupAvg The average peak height of the already detected group.
- \param[in] prosp The vector to which the axis is to be saved.
- \param[in] axErr The error tolerance on angle matching.
- \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
- \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
- \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
- \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
- \param[in] noMatchesG3 The number of axes from ret that need to be matched with angle3.
- \param[in] angle3 The angle with which noMatchesG3 axes need to be matched with the retGroup axes.
- \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+    \param[in] retGroup A vector of indices in the ret list which form the group to which new axes are compared to.
+    \param[in] ret A list of already detected axes.
+    \param[in] fold The fold of the searched for axis.
+    \param[in] axX The x-axis element of the new axis.
+    \param[in] axY The y-axis element of the new axis.
+    \param[in] axZ The z-axis element of the new axis.
+    \param[in] prosp The vector to which the axis is to be saved.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] noMatchesG1 The number of axes from ret that need to be matched with angle1.
+    \param[in] angle1 The angle with which noMatchesG1 axes need to be matched with the retGroup axes.
+    \param[in] noMatchesG2 The number of axes from ret that need to be matched with angle2.
+    \param[in] angle2 The angle with which noMatchesG2 axes need to be matched with the retGroup axes.
+    \param[in] noMatchesG3 The number of axes from ret that need to be matched with angle3.
+    \param[in] angle3 The angle with which noMatchesG3 axes need to be matched with the retGroup axes.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
  */
-void ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret, proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double groupAvg, std::vector< proshade_double* >* prosp, proshade_double axErr, proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3, ProSHADE_internal_data::ProSHADE_data* dataObj )
+void ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret, proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, std::vector< proshade_double* >* prosp, proshade_double axErr, proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2, proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3, ProSHADE_internal_data::ProSHADE_data* dataObj )
 {
     //================================================ Initialise variables
     proshade_unsign noG1                              = 0;
@@ -2867,7 +2888,7 @@ void ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( std::vector< pr
         axHeight                                      = ProSHADE_internal_symmetry::missingAxisHeight ( axX, axY, axZ, dataObj, fold, axErr );
         
         //============================================ If so, save
-        if ( axHeight > ( groupAvg * 0.2 ) )
+        if ( axHeight > 0.1 )
         {
             ProSHADE_internal_symmetry::addAxisUnlessSame ( fold, axX, axY, axZ, axHeight, prosp, axErr );
         }

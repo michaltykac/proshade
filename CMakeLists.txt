@@ -76,7 +76,7 @@ set     ( INSTALL_INC_DIR        include CACHE PATH   "Installation directory fo
 set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"                     )
 set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
 set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
-set     ( NO_PYTHON              ON      CACHE BOOL   "Should python modules be build?"        )
+set     ( NO_PYTHON              TRUE    CACHE BOOL   "Should python modules be build?"        )
 
 ##########################################################################################
 ################################### Warn if non-local installation - sudo may be needed
@@ -301,8 +301,8 @@ add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/lib                           
 ################################### Link python module
 if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 	if     ( NO_PYTHON )
-		message ( STATUS "No python module is to be build." )
-	elseif ( NO_PYTHON )
+		message ( STATUS "No python module is to be build."                               )
+	elseif ( NOT NO_PYTHON )
     	add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python                              )
     endif  ( NO_PYTHON )
 endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
@@ -311,7 +311,8 @@ endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 ################################### Link python3 module
 if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 	if     ( NO_PYTHON )
-	elseif ( NO_PYTHON )
+		message ( STATUS "No python3 module is to be build."                              )
+	elseif ( NOT NO_PYTHON )
     	add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python3                             )
     endif  ( NO_PYTHON )
 endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )

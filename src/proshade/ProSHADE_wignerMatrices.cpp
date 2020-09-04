@@ -24,7 +24,7 @@
 
 /*! \brief This function allocates the memory for the Wigner matrices for the calling object.
  
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateWignerMatricesSpace ( ProSHADE_settings* settings )
 {
@@ -60,19 +60,19 @@ void ProSHADE_internal_data::ProSHADE_data::allocateWignerMatricesSpace ( ProSHA
 
 /*! \brief This function allocates the memory for the Wigner matrices computation.
  
- This function allocates all the internal computation space, which will be required only for the duration of the computation
- and not after.
+    This function allocates all the internal computation space, which will be required only for the duration of the computation
+    and not after.
  
- \param[in] matIn A pointer to the array holding the inputs for Wigner d matrix computation by SOFT.
- \param[in] matOut A pointer to the array holding the outputs for Wigner d matrix computation by SOFT.
- \param[in] sqrts Array of square roots of the bands.
- \param[in] workspace Array required by SOFT for internal computation space.
- \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
- \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
- \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
- \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
- \param[in] trigs Array of 2 doubles holding the  trigonometric results for the beta angle.
- \param[in] compBand The bendwidth of the computation.
+    \param[in] matIn A pointer to the array holding the inputs for Wigner d matrix computation by SOFT.
+    \param[in] matOut A pointer to the array holding the outputs for Wigner d matrix computation by SOFT.
+    \param[in] sqrts Array of square roots of the bands.
+    \param[in] workspace Array required by SOFT for internal computation space.
+    \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
+    \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
+    \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
+    \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
+    \param[in] trigs Array of 2 doubles holding the  trigonometric results for the beta angle.
+    \param[in] compBand The bendwidth of the computation.
  */
 void ProSHADE_internal_wigner::allocateWignerWorkspace ( proshade_double*& matIn, proshade_double*& matOut, proshade_double*& sqrts, proshade_double*& workspace, proshade_double*& alphaExponentReal, proshade_double*& alphaExponentImag, proshade_double*& gammaExponentReal, proshade_double*& gammaExponentImag, proshade_double*& trigs, proshade_unsign compBand )
 {
@@ -106,14 +106,14 @@ void ProSHADE_internal_wigner::allocateWignerWorkspace ( proshade_double*& matIn
 
 /*! \brief This function releases the memory for the Wigner matrices computation.
  
- \param[in] matIn A pointer to the array holding the inputs for Wigner d matrix computation by SOFT.
- \param[in] matOut A pointer to the array holding the outputs for Wigner d matrix computation by SOFT.
- \param[in] sqrts Array of square roots of the bands.
- \param[in] workspace Array required by SOFT for internal computation space.
- \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
- \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
- \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
- \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
+    \param[in] matIn A pointer to the array holding the inputs for Wigner d matrix computation by SOFT.
+    \param[in] matOut A pointer to the array holding the outputs for Wigner d matrix computation by SOFT.
+    \param[in] sqrts Array of square roots of the bands.
+    \param[in] workspace Array required by SOFT for internal computation space.
+    \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
+    \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
+    \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
+    \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
  */
 void ProSHADE_internal_wigner::releaseWignerWorkspace ( proshade_double*& matIn, proshade_double*& matOut, proshade_double*& sqrts, proshade_double*& workspace, proshade_double*& alphaExponentReal, proshade_double*& alphaExponentImag, proshade_double*& gammaExponentReal, proshade_double*& gammaExponentImag, proshade_double*& trigs )
 {
@@ -135,16 +135,16 @@ void ProSHADE_internal_wigner::releaseWignerWorkspace ( proshade_double*& matIn,
 
 /*! \brief This function sets all the values repeatedly required for the computation.
  
- \param[in] sqrts Array of square roots of the bands.
- \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
- \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
- \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
- \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
- \param[in] trigs proshade_complex pointer which will hold the beta angle trigonometric function results.
- \param[in] compBand The bendwidth of the computation.
- \param[in] angAlpha The Euler alpha angle by which to rotate.
- \param[in] angBeta The Euler beta angle by which to rotate.
- \param[in] angGamma The Euler gamma angle by which to rotate.
+    \param[in] sqrts Array of square roots of the bands.
+    \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
+    \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
+    \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
+    \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
+    \param[in] trigs proshade_complex pointer which will hold the beta angle trigonometric function results.
+    \param[in] compBand The bendwidth of the computation.
+    \param[in] angAlpha The Euler alpha angle by which to rotate.
+    \param[in] angBeta The Euler beta angle by which to rotate.
+    \param[in] angGamma The Euler gamma angle by which to rotate.
  */
 void ProSHADE_internal_wigner::prepareTrigsSqrtsAndExponents ( proshade_double* sqrts, proshade_double* alphaExponentReal, proshade_double* alphaExponentImag, proshade_double* gammaExponentReal, proshade_double* gammaExponentImag, proshade_double* trigs, proshade_unsign compBand, proshade_double angAlpha, proshade_double angBeta, proshade_double angGamma )
 {
@@ -169,22 +169,22 @@ void ProSHADE_internal_wigner::prepareTrigsSqrtsAndExponents ( proshade_double* 
 
 /*! \brief This function does the actual computation of the Wigner D matrices.
  
- This function is the workhorse of the Wigner D matrices computation. It does iterate throught all the appropriate bands and order combinations
- and it computes the Wigner D matrix (l,m,m') values using the Wigner d matrices (which only take into account the beta Euler ZXZ angle) and the
- exponents obtained using the Euler ZXZ alpha and gamma angles. It also deals with the signs, but it does not deal with the memory allocation,
- release and general value set-up.
+    This function is the workhorse of the Wigner D matrices computation. It does iterate throught all the appropriate bands and order combinations
+    and it computes the Wigner D matrix (l,m,m') values using the Wigner d matrices (which only take into account the beta Euler ZXZ angle) and the
+    exponents obtained using the Euler ZXZ alpha and gamma angles. It also deals with the signs, but it does not deal with the memory allocation,
+    release and general value set-up.
  
- \param[in] settings A pointer to settings class containing all the information required for the task.
- \param[in] obj A ProSHADE_data class object for which the Wigner matrices should be computed.
- \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
- \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
- \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
- \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
- \param[in] matIn A pointer to the array holding the inputs for Wigner d matrix computation by SOFT.
- \param[in] matOut A pointer to the array holding the outputs for Wigner d matrix computation by SOFT.
- \param[in] trigs proshade_complex pointer which holds the beta angle trigonometric function results.
- \param[in] sqrts Array of square roots of the bands.
- \param[in] workspace Array required by SOFT for internal computation space.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj A ProSHADE_data class object for which the Wigner matrices should be computed.
+    \param[in] alphaExponentReal An array of exponents of the alpha angle for the real part of the Wigner matrices.
+    \param[in] alphaExponentImag An array of exponents of the alpha angle for the imaginary part of the Wigner matrices.
+    \param[in] gammaExponentReal An array of exponents of the gamma angle for the real part of the Wigner matrices.
+    \param[in] gammaExponentImag An array of exponents of the gamma angle for the imaginary part of the Wigner matrices.
+    \param[in] matIn A pointer to the array holding the inputs for Wigner d matrix computation by SOFT.
+    \param[in] matOut A pointer to the array holding the outputs for Wigner d matrix computation by SOFT.
+    \param[in] trigs proshade_complex pointer which holds the beta angle trigonometric function results.
+    \param[in] sqrts Array of square roots of the bands.
+    \param[in] workspace Array required by SOFT for internal computation space.
  */
 void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj, proshade_double* alphaExponentReal, proshade_double* alphaExponentImag, proshade_double* gammaExponentReal, proshade_double* gammaExponentImag, proshade_double* matIn, proshade_double* matOut, proshade_double* trigs, proshade_double* sqrts, proshade_double* workspace )
 {
@@ -247,15 +247,15 @@ void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settin
 
 /*! \brief This function computes the Wigner D matrices for a particular set of Euler angles.
  
- This function starts by allocating the required memory to store the Wigner D matrices for a particular object and then it
- proceeds to allocate all the computation memory as well. Subsequently, it prepares all the values needed for the computation
- and it calls the workhhorse computing function. Once complete, it deletes all the now redundant memory and exits.
+    This function starts by allocating the required memory to store the Wigner D matrices for a particular object and then it
+    proceeds to allocate all the computation memory as well. Subsequently, it prepares all the values needed for the computation
+    and it calls the workhhorse computing function. Once complete, it deletes all the now redundant memory and exits.
  
- \param[in] settings A pointer to settings class containing all the information required for the task.
- \param[in] obj A ProSHADE_data class object for which the Wigner matrices should be computed.
- \param[in] eulerAlpha The Euler ZXZ convention alpha angle value for the rotation in SO(3) space.
- \param[in] eulerBeta The Euler ZXZ convention beta angle value for the rotation in SO(3) space.
- \param[in] eulerGamma The Euler ZXZ convention gamma angle value for the rotation in SO(3) space.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj A ProSHADE_data class object for which the Wigner matrices should be computed.
+    \param[in] eulerAlpha The Euler ZXZ convention alpha angle value for the rotation in SO(3) space.
+    \param[in] eulerBeta The Euler ZXZ convention beta angle value for the rotation in SO(3) space.
+    \param[in] eulerGamma The Euler ZXZ convention gamma angle value for the rotation in SO(3) space.
  */
 void ProSHADE_internal_wigner::computeWignerMatricesForRotation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma )
 {

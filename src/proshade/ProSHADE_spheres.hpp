@@ -29,13 +29,13 @@
 
 //==================================================== ProSHADE_internal_spheres Namespace
 /*! \namespace ProSHADE_internal_spheres
- \brief This namespace contains the structure and functions required for storing internal map projections onto a set of concentric spheres.
+    \brief This namespace contains the structure and functions required for storing internal map projections onto a set of concentric spheres.
  
  
- The ProSHADE_internal_spheres namespace contains the the structure and functions required to map the internal map data onto a set of concentric
- spheres as required by ProSHADE. It also has the ability to store sphere specific versions of the values such as bandwidth and angular resolution,
- as well as the functionality for computing spherical harmonics. Finally, the automatic spherical harmonics computation variables determination function
- live here.
+    The ProSHADE_internal_spheres namespace contains the the structure and functions required to map the internal map data onto a set of concentric
+    spheres as required by ProSHADE. It also has the ability to store sphere specific versions of the values such as bandwidth and angular resolution,
+    as well as the functionality for computing spherical harmonics. Finally, the automatic spherical harmonics computation variables determination function
+    live here.
  */
 namespace ProSHADE_internal_spheres
 {

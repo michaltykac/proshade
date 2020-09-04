@@ -28,11 +28,11 @@
 
 //==================================================== ProSHADE_internal_tasks Namespace
 /*! \namespace ProSHADE_internal_tasks
- \brief This namespace contains the main driving functions for each task.
+    \brief This namespace contains the main driving functions for each task.
  
- The ProSHADE_internal_tasks namespace contains the driving functions for all the tasks that can be
- accomplished by the ProSHADE tool. The user should not need to access
- this namespace when using the library.
+    The ProSHADE_internal_tasks namespace contains the driving functions for all the tasks that can be
+    accomplished by the ProSHADE tool. The user should not need to access
+    this namespace when using the library.
  */
 namespace ProSHADE_internal_tasks
 {

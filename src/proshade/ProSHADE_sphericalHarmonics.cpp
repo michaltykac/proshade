@@ -24,17 +24,17 @@
 
 /*! \brief This function determines the integration order for the between spheres integration.
  
- This function simply takes all pointer variables required for the spherical harmonics computation and allocates the required
- amount of memory for them. It also does the memory checks in case memory allocation fails.
+    This function simply takes all pointer variables required for the spherical harmonics computation and allocates the required
+    amount of memory for them. It also does the memory checks in case memory allocation fails.
  
- \param[in] band The bandwidth to which the computation will be done.
- \param[in] inputReal The real part of the input will be copied here.
- \param[in] inputImag The immaginary part of the input will be copied here.
- \param[in] outputReal The real part of the output will be saved here.
- \param[in] outputImag The immaginary part of the output will be saved here.
- \param[in] shWeights The weights for spherical harmonics computation will be stored here.
- \param[in] tableSpaceHelper This space is required by SOFT for pre-computing values into this table.
- \param[in] workspace The space where multiple minor results are saved by SOFT.
+    \param[in] band The bandwidth to which the computation will be done.
+    \param[in] inputReal The real part of the input will be copied here.
+    \param[in] inputImag The immaginary part of the input will be copied here.
+    \param[in] outputReal The real part of the output will be saved here.
+    \param[in] outputImag The immaginary part of the output will be saved here.
+    \param[in] shWeights The weights for spherical harmonics computation will be stored here.
+    \param[in] tableSpaceHelper This space is required by SOFT for pre-computing values into this table.
+    \param[in] workspace The space where multiple minor results are saved by SOFT.
  */
 void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, proshade_double*& shWeights, proshade_double*& tableSpaceHelper, fftw_complex*& workspace )
 {
@@ -71,15 +71,15 @@ void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_
 
 /*! \brief This function takes the workspace pointer and correctly places the other internal pointers.
  
- This is a simple helper function, which places the internal workspace pointers to the correct addresses as
- required by the SOFT2.0 dependency.
+    This is a simple helper function, which places the internal workspace pointers to the correct addresses as
+    required by the SOFT2.0 dependency.
  
- \param[in] workspace Pointer to the allocated workspace, within which the other pointers will be placed.
- \param[in] oDim The size of the single transform dimension (twice the transform bandwidth).
- \param[in] rres Pointer to where the real part of the results will be temporarily saved.
- \param[in] ires Pointer to where the imaginary part of the results will be temporarily saved.
- \param[in] fltres Pointer to where the temporary bandwise results will be saved.
- \param[in] scratchpad Pointer to extra space which is internally used (but not allocated) by SOFT2.0.
+    \param[in] workspace Pointer to the allocated workspace, within which the other pointers will be placed.
+    \param[in] oDim The size of the single transform dimension (twice the transform bandwidth).
+    \param[in] rres Pointer to where the real part of the results will be temporarily saved.
+    \param[in] ires Pointer to where the imaginary part of the results will be temporarily saved.
+    \param[in] fltres Pointer to where the temporary bandwise results will be saved.
+    \param[in] scratchpad Pointer to extra space which is internally used (but not allocated) by SOFT2.0.
  */
 void ProSHADE_internal_sphericalHarmonics::placeWithinWorkspacePointers ( fftw_complex*& workspace, proshade_unsign oDim, proshade_double*& rres, proshade_double*& ires, proshade_double*& fltres, proshade_double*& scratchpad )
 {
@@ -96,17 +96,17 @@ void ProSHADE_internal_sphericalHarmonics::placeWithinWorkspacePointers ( fftw_c
 
 /*! \brief This function initialises the FFTW plans.
  
- This function initialises the FFTW plans for the spherical harmonics computations as required by the SOFT2.0
- library.
+    This function initialises the FFTW plans for the spherical harmonics computations as required by the SOFT2.0
+    library.
  
- \param[in] band The bandwidth to which the computation will be done.
- \param[in] fftPlan pointer to the variable where the Fourier transform should be set.
- \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform should be set.
- \param[in] inputReal pointer to the array containing (or which will contain) the input real values.
- \param[in] inputImag pointer to the array containing (or which will contain) the input imaginary values.
- \param[in] rres pointer to the array where the real values of result should be saved.
- \param[in] ires pointer to the array where the imaginary values of result should be saved.
- \param[in] scratchpad pointer to the array where temporary results will be saved.
+    \param[in] band The bandwidth to which the computation will be done.
+    \param[in] fftPlan pointer to the variable where the Fourier transform should be set.
+    \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform should be set.
+    \param[in] inputReal pointer to the array containing (or which will contain) the input real values.
+    \param[in] inputImag pointer to the array containing (or which will contain) the input imaginary values.
+    \param[in] rres pointer to the array where the real values of result should be saved.
+    \param[in] ires pointer to the array where the imaginary values of result should be saved.
+    \param[in] scratchpad pointer to the array where temporary results will be saved.
  */
 void ProSHADE_internal_sphericalHarmonics::initialiseFFTWPlans ( proshade_unsign band, fftw_plan& fftPlan, fftw_plan& dctPlan, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& rres, proshade_double*& ires, proshade_double*& scratchpad )
 {
@@ -151,19 +151,19 @@ void ProSHADE_internal_sphericalHarmonics::initialiseFFTWPlans ( proshade_unsign
 
 /*! \brief This function computes the spherical harmonics of a aingle shell, saving them in supplied pointer.
  
- This function takes all the pointers required for the spherical harmonics computation and releases all the
- memory.
+    This function takes all the pointers required for the spherical harmonics computation and releases all the
+    memory.
  
- \param[in] inputReal pointer to the array that contained the input real values to be freed.
- \param[in] inputImag pointer to the array that contained the input imaginary values to be freed.
- \param[in] outputReal pointer to the array that contained the output real values to be freed.
- \param[in] outputImag pointer to the array that contained the output imaginary values to be freed.
- \param[in] tableSpaceHelper pointer to the helper array for Legendre polynomials values to be freed.
- \param[in] tableSpace pointer to the array of Legendre polynomials values to be freed.
- \param[in] shWeights pointer to the array spherical harmonics weighhts to be freed.
- \param[in] workspace pointer to the array for miscellaneous temporary results to be freed.
- \param[in] fftPlan pointer to the variable where the Fourier transform was done to be freed.
- \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform was done to be freed.
+    \param[in] inputReal pointer to the array that contained the input real values to be freed.
+    \param[in] inputImag pointer to the array that contained the input imaginary values to be freed.
+    \param[in] outputReal pointer to the array that contained the output real values to be freed.
+    \param[in] outputImag pointer to the array that contained the output imaginary values to be freed.
+    \param[in] tableSpaceHelper pointer to the helper array for Legendre polynomials values to be freed.
+    \param[in] tableSpace pointer to the array of Legendre polynomials values to be freed.
+    \param[in] shWeights pointer to the array spherical harmonics weighhts to be freed.
+    \param[in] workspace pointer to the array for miscellaneous temporary results to be freed.
+    \param[in] fftPlan pointer to the variable where the Fourier transform was done to be freed.
+    \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform was done to be freed.
  */
 void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, double*& tableSpaceHelper, double**& tableSpace, double*& shWeights, fftw_complex*& workspace, fftw_plan& fftPlan, fftw_plan& dctPlan )
 {
@@ -194,24 +194,24 @@ void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_dou
 
 /*! \brief This function initialises all the memory required for spherical harmonics computation.
  
- This function takes on all the memory allocation and filling in all data required later for the
- spherical harmonics computation by the SOFT2.0 library.
+    This function takes on all the memory allocation and filling in all data required later for the
+    spherical harmonics computation by the SOFT2.0 library.
  
- \param[in] band The bandwidth to which the computation will be done.
- \param[in] inputReal The real part of the input will be copied here.
- \param[in] inputImag The immaginary part of the input will be copied here.
- \param[in] outputReal The real part of the output will be saved here.
- \param[in] outputImag The immaginary part of the output will be saved here.
- \param[in] shWeights The weights for spherical harmonics computation will be stored here.
- \param[in] tableSpace This space is required by SOFT for pre-computing values into this table.
- \param[in] tableSpaceHelper This space is required by SOFT for proper computation of the table space.
- \param[in] workspace The space where multiple minor results are saved by SOFT2.0.
- \param[in] rres Pointer to where the real part of the results will be temporarily saved.
- \param[in] ires Pointer to where the imaginary part of the results will be temporarily saved.
- \param[in] fltres Pointer to where the temporary bandwise results will be saved.
- \param[in] scratchpad Pointer to extra space which is internally used (but not allocated) by SOFT2.0.
- \param[in] fftPlan pointer to the variable where the Fourier transform should be set.
- \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform should be set.
+    \param[in] band The bandwidth to which the computation will be done.
+    \param[in] inputReal The real part of the input will be copied here.
+    \param[in] inputImag The immaginary part of the input will be copied here.
+    \param[in] outputReal The real part of the output will be saved here.
+    \param[in] outputImag The immaginary part of the output will be saved here.
+    \param[in] shWeights The weights for spherical harmonics computation will be stored here.
+    \param[in] tableSpace This space is required by SOFT for pre-computing values into this table.
+    \param[in] tableSpaceHelper This space is required by SOFT for proper computation of the table space.
+    \param[in] workspace The space where multiple minor results are saved by SOFT2.0.
+    \param[in] rres Pointer to where the real part of the results will be temporarily saved.
+    \param[in] ires Pointer to where the imaginary part of the results will be temporarily saved.
+    \param[in] fltres Pointer to where the temporary bandwise results will be saved.
+    \param[in] scratchpad Pointer to extra space which is internally used (but not allocated) by SOFT2.0.
+    \param[in] fftPlan pointer to the variable where the Fourier transform should be set.
+    \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform should be set.
  */
 void ProSHADE_internal_sphericalHarmonics::initialiseAllMemory ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, double*& shWeights, double**& tableSpace, double*& tableSpaceHelper, fftw_complex*& workspace, proshade_double*& rres, proshade_double*& ires, proshade_double*& fltres, proshade_double*& scratchpad, fftw_plan& fftPlan, fftw_plan& dctPlan )
 {
@@ -240,18 +240,18 @@ void ProSHADE_internal_sphericalHarmonics::initialiseAllMemory ( proshade_unsign
 
 /*! \brief This function computes the spherical harmonics of a aingle shell, saving them in supplied pointer.
  
- This function takes the already initialised and prepared pointers and values and proceeds to load the data
- into the proper places and compute the split discrete Fourier transform, thus preparing for the spherical
- transform to be done.
+    This function takes the already initialised and prepared pointers and values and proceeds to load the data
+    into the proper places and compute the split discrete Fourier transform, thus preparing for the spherical
+    transform to be done.
  
- \param[in] oneDim This is the size of any dimension of the transform (2 * bandwidth).
- \param[in] inputReal Pointer to array which should be subjected to the transform (real part).
- \param[in] inputReal Pointer to array which should be subjected to the transform (imaginary part).
- \param[in] rres Pointer to array where the transform results will be saved (real part).
- \param[in] ires Pointer to array where the transform results will be saved (imaginary part).
- \param[in] mappedData Pointer to the data which should be decomposed.
- \param[in] fftPlan The prepared plan which states how the transform will be done as set by the initialiseFFTWPlans() function.
- \param[in] normCoeff The transform normalisation factor.
+    \param[in] oneDim This is the size of any dimension of the transform (2 * bandwidth).
+    \param[in] inputReal Pointer to array which should be subjected to the transform (real part).
+    \param[in] inputReal Pointer to array which should be subjected to the transform (imaginary part).
+    \param[in] rres Pointer to array where the transform results will be saved (real part).
+    \param[in] ires Pointer to array where the transform results will be saved (imaginary part).
+    \param[in] mappedData Pointer to the data which should be decomposed.
+    \param[in] fftPlan The prepared plan which states how the transform will be done as set by the initialiseFFTWPlans() function.
+    \param[in] normCoeff The transform normalisation factor.
  */
 void ProSHADE_internal_sphericalHarmonics::initialSplitDiscreteTransform ( proshade_unsign oneDim, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& rres, proshade_double*& ires, proshade_double* mappedData, fftw_plan& fftPlan, proshade_double normCoeff )
 {
@@ -279,22 +279,22 @@ void ProSHADE_internal_sphericalHarmonics::initialSplitDiscreteTransform ( prosh
 
 /*! \brief This function takes the split discrete transform and proceeds to complete the spherical harmonics decomposition.
  
- This function takes the results of the initial split discrete transform and proceeds to compute the spherical harmonics
- coefficients for all applicable bands using all the pre-computed valus (i.e. the Legendre polynomials table and the weights).
- To do this, the SOFT2.0 function is called and for more details, see SOFT2.0.
+    This function takes the results of the initial split discrete transform and proceeds to compute the spherical harmonics
+    coefficients for all applicable bands using all the pre-computed valus (i.e. the Legendre polynomials table and the weights).
+    To do this, the SOFT2.0 function is called and for more details, see SOFT2.0.
  
- \param[in] band The bandwidth to which the computation will be done.
- \param[in] rdataptr Pointer to be used as iterative locator in the large results array for real results.
- \param[in] idataptr Pointer to be used as iterative locator in the large results array for imaginary results.
- \param[in] outputReal An array for storing the real results of the completed transform.
- \param[in] outputImag An array for storing the imaginary results of the completed transform.
- \param[in] rres Array containing the real results of the initial split discrete transform.
- \param[in] ires Array containing the imaginary results of the initial split discrete transform.
- \param[in] fltres Helper array for transform computations.
- \param[in] scratchpad Array for keeping temporary results of the transform computations.
- \param[in] tablePml Pre-computed array of the Legendre polynomials as done by SOFT2.0.
- \param[in] shWeights The weights for the spherical harmonics.
- \param[in] dctPlan The FFTW plan for the final spherical harmonics transform.
+    \param[in] band The bandwidth to which the computation will be done.
+    \param[in] rdataptr Pointer to be used as iterative locator in the large results array for real results.
+    \param[in] idataptr Pointer to be used as iterative locator in the large results array for imaginary results.
+    \param[in] outputReal An array for storing the real results of the completed transform.
+    \param[in] outputImag An array for storing the imaginary results of the completed transform.
+    \param[in] rres Array containing the real results of the initial split discrete transform.
+    \param[in] ires Array containing the imaginary results of the initial split discrete transform.
+    \param[in] fltres Helper array for transform computations.
+    \param[in] scratchpad Array for keeping temporary results of the transform computations.
+    \param[in] tablePml Pre-computed array of the Legendre polynomials as done by SOFT2.0.
+    \param[in] shWeights The weights for the spherical harmonics.
+    \param[in] dctPlan The FFTW plan for the final spherical harmonics transform.
  */
 void ProSHADE_internal_sphericalHarmonics::computeSphericalTransformCoeffs ( proshade_unsign band, proshade_double*& rdataptr, proshade_double*& idataptr, proshade_double*& outputReal, proshade_double*& outputImag, proshade_double*& rres, proshade_double*& ires, proshade_double*& fltres, proshade_double*& scratchpad, double**& tablePml, double*& shWeights, fftw_plan& dctPlan )
 {
@@ -339,14 +339,14 @@ void ProSHADE_internal_sphericalHarmonics::computeSphericalTransformCoeffs ( pro
 
 /*! \brief This is the final step in computing the full spherical harmonics decomposition of the input data.
  
- This is the final function that is needed for the complete spherical harmonics decomposition. It applied the
- Condon-Shortley phase as well as computing the negative orders, then saving the output into the final results
- array for further processing.
+    This is the final function that is needed for the complete spherical harmonics decomposition. It applied the
+    Condon-Shortley phase as well as computing the negative orders, then saving the output into the final results
+    array for further processing.
  
- \param[in] band The bandwidth to which the computation will be done.
- \param[in] outputReal The real results of the complete transform as done by the initialSplitDiscreteTransform() and computeSphericalTransformCoeffs() functions.
- \param[in] outputImag The imaginary results of the complete transform as done by the initialSplitDiscreteTransform() and computeSphericalTransformCoeffs() functions.
- \param[in] shArray An array of complex numbers to which the results of the spherical harmonics decomposition are to be saved.
+    \param[in] band The bandwidth to which the computation will be done.
+    \param[in] outputReal The real results of the complete transform as done by the initialSplitDiscreteTransform() and computeSphericalTransformCoeffs() functions.
+    \param[in] outputImag The imaginary results of the complete transform as done by the initialSplitDiscreteTransform() and computeSphericalTransformCoeffs() functions.
+    \param[in] shArray An array of complex numbers to which the results of the spherical harmonics decomposition are to be saved.
  */
 void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_unsign band, proshade_double* outputReal, proshade_double* outputImag, proshade_complex*& shArray )
 {
@@ -381,14 +381,14 @@ void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_u
 
 /*! \brief This function computes the spherical harmonics of a aingle shell, saving them in supplied pointer.
  
- This function does all the spherical harmonics computations for a single shell, including the memory allocation and
- releasing and the FFTW transforms. Because the shells can have different resolutions, the memory management is left
- until here, but possible speed-up could be gained from having the same resolution on all shells as in the older ProSHADE
- versions.
+    This function does all the spherical harmonics computations for a single shell, including the memory allocation and
+    releasing and the FFTW transforms. Because the shells can have different resolutions, the memory management is left
+    until here, but possible speed-up could be gained from having the same resolution on all shells as in the older ProSHADE
+    versions.
  
- \param[in] band The bandwidth to which the computation will be done.
- \param[in] sphereMappedData An array of doubles containing the mapped data onto a sphere for the sphere to be decomposed.
- \param[in] shArray An array of complex numbers to which the results of the spherical harmonics decomposition are to be saved.
+    \param[in] band The bandwidth to which the computation will be done.
+    \param[in] sphereMappedData An array of doubles containing the mapped data onto a sphere for the sphere to be decomposed.
+    \param[in] shArray An array of complex numbers to which the results of the spherical harmonics decomposition are to be saved.
  */
 void ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( proshade_unsign band, proshade_double* sphereMappedData, proshade_complex*& shArray )
 {

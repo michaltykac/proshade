@@ -32,7 +32,7 @@ int main ( int argc, char **argv )
 
     //================================================ Set up the run
     settings->verbose                                 = 1;                                   // How verbose should the run be? -1 Means no verbal output at all.
-    settings->setResolution                           ( 12.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setResolution                           ( 8.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->addStructure                            ( "./emd_6324.map" );                  // A path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
     
     //================================================ Further useful settings
@@ -93,8 +93,9 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry C of fold 12. The symmetry axes are:
-//  ... FOLD: 12 | XYZ: -0.0116461 ; 0.00435832 ; 0.999546 | Angle: 0.523599 | Peak: 0.962099
+//  Detected C symmetry with fold 12 .
+//  ...   Fold       X           Y          Z           Angle        Height
+//  ...    +12     -0.01165   +0.00436   +0.99955     +0.52360      +0.96210
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

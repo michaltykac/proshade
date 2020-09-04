@@ -25,15 +25,15 @@
 
 /*! \brief This function finds all indices with higher value then all neighbours.
  
- This function finds all map indices with higher height than all their neighbours (the size of neighbours in terms of surrounding points can be changed)
- and saves these as well as the neighbours into the output vector of double*. It also keeps track of the non-peak values and saves their median height
- and its IQR, so that the output vector could be cleared from these small (background) values.
+    This function finds all map indices with higher height than all their neighbours (the size of neighbours in terms of surrounding points can be changed)
+    and saves these as well as the neighbours into the output vector of double*. It also keeps track of the non-peak values and saves their median height
+    and its IQR, so that the output vector could be cleared from these small (background) values.
  
- \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[in] medianIQR Pointer to double[2] array where median and IQR of non-peak values will be saved.
- \param[out] X Vector of pointers to double numbers, first is the 'peak' (x,y,z and height) and then all neighbours follow in sets of 4 numbers.
+    \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[in] medianIQR Pointer to double[2] array where median and IQR of non-peak values will be saved.
+    \param[out] X Vector of pointers to double numbers, first is the 'peak' (x,y,z and height) and then all neighbours follow in sets of 4 numbers.
  */
 std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAboveNeighbours ( proshade_complex* map, proshade_unsign dim, proshade_signed peakSize, proshade_double* medianIQR )
 {
@@ -121,13 +121,13 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
 
 /*! \brief This function clears the 'higher than neighbour' vector from background values.
  
- This function simply takes all the 'higher than all neighbours' indices vector and a threshold defining values and proceeds to
- compute the threshold for calling the indice a peak. Then, it applies this threshold to the vector, keeping only the indices
- which have higher value than the threshold.
+    This function simply takes all the 'higher than all neighbours' indices vector and a threshold defining values and proceeds to
+    compute the threshold for calling the indice a peak. Then, it applies this threshold to the vector, keeping only the indices
+    which have higher value than the threshold.
  
- \param[in] pointVec Vector of double pointers as returned by findAllPointsAboveNeighbours().
- \param[in] medianIQR Array of two numbers, the median and IQR for which should be used to remove 'background' points in the vector.
- \param[in] noIQRs The number of IQRs from median to be used to create the cut-off threshold.
+    \param[in] pointVec Vector of double pointers as returned by findAllPointsAboveNeighbours().
+    \param[in] medianIQR Array of two numbers, the median and IQR for which should be used to remove 'background' points in the vector.
+    \param[in] noIQRs The number of IQRs from median to be used to create the cut-off threshold.
  */
 void ProSHADE_internal_peakSearch::pointsAboveNeighboursRemoveSmallHeight ( std::vector< proshade_double* >* pointVec, proshade_double* medianIQR, proshade_double noIQRs )
 {
@@ -702,19 +702,19 @@ void ProSHADE_internal_peakSearch::getZAxisArraysSmoothedZScorePeaks ( proshade_
     
 }
 
-/*! \brief ...
+/*! \brief This is a support function for the Z-score peak detection. It is currently not being used.
  
- ...
+    This function should not really be present here, it is a support function for smoothed Z-score peak detection, which is currently not being used.
  
- \param[in] YZMap The map containing peaks detected along the X-axis dimension using the smoothed Z score method.
- \param[in] XZMap The map containing peaks detected along the Y-axis dimension using the smoothed Z score method.
- \param[in] XYMap The map containing peaks detected along the z-axis dimension using the smoothed Z score method.
- \param[in] visitedMap The map with 0 if point not yet considered and 1 if already done.
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] x The X-axis position of the currently considered point.
- \param[in] y The Y-axis position of the currently considered point.
- \param[in] z The Z-axis position of the currently considered point.
- \param[in] retVals A vector to which all neighbour indices will be added.
+    \param[in] YZMap The map containing peaks detected along the X-axis dimension using the smoothed Z score method.
+    \param[in] XZMap The map containing peaks detected along the Y-axis dimension using the smoothed Z score method.
+    \param[in] XYMap The map containing peaks detected along the z-axis dimension using the smoothed Z score method.
+    \param[in] visitedMap The map with 0 if point not yet considered and 1 if already done.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] x The X-axis position of the currently considered point.
+    \param[in] y The Y-axis position of the currently considered point.
+    \param[in] z The Z-axis position of the currently considered point.
+    \param[in] retVals A vector to which all neighbour indices will be added.
  */
 
 void ProSHADE_internal_peakSearch::findAllPointNeighbours ( proshade_double* YZMap, proshade_double* XZMap, proshade_double* XYMap, proshade_unsign* visitedMap, proshade_signed dim, proshade_signed x, proshade_signed y, proshade_signed z, std::vector< proshade_unsign >* retVals )
@@ -910,14 +910,14 @@ void ProSHADE_internal_peakSearch::findAllSmoothedZScorePeaksWithNeighbours ( pr
 
 /*! \brief This function finds peaks in the 3D map using the smoothed Z score approach.
  
- ...
+    This function implements the smoothed Z-score peak detection. It is currently not being used and is most likely severly bugged.
  
- \param[in] map Pointer to 1D array holding the 3D map values in which the peaks are to be found. Map must be cube!
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[out] X Vector of located peaks with pointers to arrays of 5 values: x, y, z, angle and peak heighht.
+    \param[in] map Pointer to 1D array holding the 3D map values in which the peaks are to be found. Map must be cube!
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[out] X Vector of located peaks with pointers to arrays of 5 values: x, y, z, angle and peak heighht.
  */
 std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksSmoothedZ ( proshade_complex* map, proshade_unsign dim, proshade_double smoothingFraction, proshade_double noIQRs, proshade_signed peakSize )
 {
@@ -962,15 +962,15 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksSmoothe
 
 /*! \brief This function finds the highest peaks optimised Euler angles using the smoothed Z score approach.
  
- ...
+    This function uses the best peak detected using the smoothed Z-score peak detection to compute its Euler angles. It is currently not being used and is most likely severly bugged.
  
- \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
- \param[in] eulA Pointer to where the Euler alpha angle value will be saved.
- \param[in] eulB Pointer to where the Euler beta angle value will be saved.
- \param[in] eulG Pointer to where the Euler gamma angle value will be saved.
+    \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
+    \param[in] eulA Pointer to where the Euler alpha angle value will be saved.
+    \param[in] eulB Pointer to where the Euler beta angle value will be saved.
+    \param[in] eulG Pointer to where the Euler gamma angle value will be saved.
  */
 void ProSHADE_internal_peakSearch::getBestPeakEulerAngsSmoothedZ ( proshade_complex* map, proshade_unsign dim, proshade_double smoothingFraction, proshade_double noIQRs, proshade_signed peakSize, proshade_double* eulA, proshade_double* eulB, proshade_double* eulG )
 {
