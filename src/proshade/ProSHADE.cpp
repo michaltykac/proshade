@@ -36,6 +36,11 @@ ProSHADE_settings::ProSHADE_settings ( )
     //================================================ Settings regarding the task at hand
     this->task                                        = NA;
     
+    //================================================ Settings regarding input files
+    this->forceP1                                     = true;
+    this->removeWaters                                = true;
+    this->firstModelOnly                              = true;
+    
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
     this->changeMapResolution                         = false;
@@ -139,6 +144,11 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
 {
     //================================================ Settings regarding the task at hand
     this->task                                        = taskToPerform;
+    
+    //================================================ Settings regarding input files
+    this->forceP1                                     = true;
+    this->removeWaters                                = true;
+    this->firstModelOnly                              = true;
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
@@ -1463,6 +1473,9 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "symmetry",        no_argument,        NULL, 'S' },
         { "overlay",         no_argument,        NULL, 'O' },
         { "file",            required_argument,  NULL, 'f' },
+        { "forceSpgP1",      no_argument,        NULL, 'u' },
+        { "removeWaters",    no_argument,        NULL, 'w' },
+        { "firstModel",      no_argument,        NULL, 'x' },
         { "resolution",      required_argument,  NULL, 'r' },
         { "bandwidth",       required_argument,  NULL, 'b' },
         { "sphereDists",     required_argument,  NULL, 's' },
@@ -1504,7 +1517,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:v!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwx!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1582,6 +1595,27 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case 'f':
              {
                  this->addStructure                   ( std::string ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Force the input PDB files to have P1 spacegroup
+             case 'u':
+             {
+                 this->forceP1                        = !this->forceP1;
+                 continue;
+             }
+                 
+             //======================================= Remove waters from PDB input files?
+             case 'w':
+             {
+                 this->removeWaters                   = !this->removeWaters;
+                 continue;
+             }
+                 
+             //======================================= Use all models, or just the first one?
+             case 'x':
+             {
+                 this->firstModelOnly                 = !this->firstModelOnly;
                  continue;
              }
                  
@@ -1955,6 +1989,18 @@ void ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->addExtraSpace;
     printf ( "Extra space         : %37s\n", strstr.str().c_str() );
+
+    strstr.str(std::string());
+    if ( this->forceP1 ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Force P1 spacegroup : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->removeWaters ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Waters removed      : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->firstModelOnly ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Only 1st model      : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->integOrder;

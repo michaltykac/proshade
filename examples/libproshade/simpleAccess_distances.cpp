@@ -41,6 +41,9 @@ int main ( int argc, char **argv )
     settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/ig/3IGU_A_dom_1.pdb" );  // A BALBES domain 3IGU_A_dom_1
     
     //================================================ Further useful settings
+    settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
+    settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
     settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?

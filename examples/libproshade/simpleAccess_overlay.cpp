@@ -37,6 +37,9 @@ int main ( int argc, char **argv )
     settings->addStructure                            ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb" );    // A path to the structure to be processed. This is a BALBES domain 1H8N_A_dom_1.
     
     //================================================ Further useful settings
+    settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
+    settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?

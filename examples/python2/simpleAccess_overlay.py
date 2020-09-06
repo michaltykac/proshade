@@ -48,6 +48,9 @@ pSet.addStructure                             ( "/Users/mysak/LMB/1_ProteinDomai
 
 
 ### Useful settings
+pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
+pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
+pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
 pSet.setMasking                               ( False )                                # Should maps be masked by blurring?

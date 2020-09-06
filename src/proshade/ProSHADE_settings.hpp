@@ -90,6 +90,9 @@ public:
     
     //================================================ Settings regarding the input files
     std::vector < std::string > inputFiles;           //!< This vector contains the filenames of all input structure files.
+    bool forceP1;                                     //!< Should the P1 spacegroup be forced on the input PDB files?
+    bool removeWaters;                                //!< Should all waters be removed from input PDB files?
+    bool firstModelOnly;                              //!< Shoud only the first PDB model be used, or should all models be used?
     
     //================================================ Settings regarding the resolution of calculations
     proshade_single requestedResolution;              //!< The resolution to which the calculations are to be done.

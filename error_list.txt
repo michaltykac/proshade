@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00055 ==
+== NEXT FREE MESSAGE NUMBER: 00056 ==
 
 ========
 GENERAL:
@@ -118,6 +118,13 @@ EP00045		Structure class input dimensions not in line with map to/from indices.	
 ===== ProSHADE warning messages: =====
 ======================================
 ======================================
+
+============
+PDB READING:
+============
+
+CODE:		Message:																												Comment:
+WP00055		Found multiple models in co-ordinate file while single is used.															This warning occurs when ProSHADE is run with the default PDB file single model usage, but the input PDB file has multiple models. If you want to use multiple models, please supply ProSHADE with the '-x' option.
 
 ============
 MAP READING:
