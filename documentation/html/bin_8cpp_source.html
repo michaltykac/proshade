@@ -91,28 +91,28 @@ $(document).ready(function(){initNavTree('bin_8cpp_source.html',''); initResizab
 <a href="bin_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">//==================================================== DOxygen main page specifications</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l01176"></a><span class="lineno"> 1176</span>&#160;<span class="comment">//==================================================== ProSHADE</span></div>
-<div class="line"><a name="l01177"></a><span class="lineno"> 1177</span>&#160;<span class="preprocessor">#include &quot;../proshade/ProSHADE.hpp&quot;</span></div>
-<div class="line"><a name="l01178"></a><span class="lineno"> 1178</span>&#160; </div>
-<div class="line"><a name="l01179"></a><span class="lineno"> 1179</span>&#160;<span class="comment">//==================================================== Main</span></div>
-<div class="line"><a name="l01180"></a><span class="lineno"> 1180</span>&#160;<span class="keywordtype">int</span> main ( <span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv )</div>
-<div class="line"><a name="l01181"></a><span class="lineno"> 1181</span>&#160;{</div>
-<div class="line"><a name="l01182"></a><span class="lineno"> 1182</span>&#160;    <span class="comment">//================================================ Create the settings object and parse the command line arguments</span></div>
-<div class="line"><a name="l01183"></a><span class="lineno"> 1183</span>&#160;    <a class="code" href="class_pro_s_h_a_d_e__settings.html">ProSHADE_settings</a>* settings                       = <span class="keyword">new</span> <a class="code" href="class_pro_s_h_a_d_e__settings.html">ProSHADE_settings</a> ( );</div>
-<div class="line"><a name="l01184"></a><span class="lineno"> 1184</span>&#160;    settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a52c1b3d4e86737c42785c0740b1f5497">getCommandLineParams</a>                    ( argc, argv );</div>
-<div class="line"><a name="l01185"></a><span class="lineno"> 1185</span>&#160;    </div>
-<div class="line"><a name="l01186"></a><span class="lineno"> 1186</span>&#160;    <span class="comment">//================================================ Execute</span></div>
-<div class="line"><a name="l01187"></a><span class="lineno"> 1187</span>&#160;    <a class="code" href="class_pro_s_h_a_d_e__run.html">ProSHADE_run</a> *run                                 = <span class="keyword">new</span> <a class="code" href="class_pro_s_h_a_d_e__run.html">ProSHADE_run</a> ( settings );</div>
-<div class="line"><a name="l01188"></a><span class="lineno"> 1188</span>&#160; </div>
-<div class="line"><a name="l01189"></a><span class="lineno"> 1189</span>&#160;    <span class="comment">//================================================ Release the settings object</span></div>
-<div class="line"><a name="l01190"></a><span class="lineno"> 1190</span>&#160;    <span class="keyword">delete</span> settings;</div>
-<div class="line"><a name="l01191"></a><span class="lineno"> 1191</span>&#160;    </div>
-<div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160;    <span class="comment">//================================================ Release the executive object</span></div>
-<div class="line"><a name="l01193"></a><span class="lineno"> 1193</span>&#160;    <span class="keyword">delete</span> run;</div>
-<div class="line"><a name="l01194"></a><span class="lineno"> 1194</span>&#160;    </div>
-<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;    <span class="comment">//================================================ DONE</span></div>
-<div class="line"><a name="l01196"></a><span class="lineno"> 1196</span>&#160;    <span class="keywordflow">return</span>                                            ( 0 );</div>
-<div class="line"><a name="l01197"></a><span class="lineno"> 1197</span>&#160;}</div>
+<div class="line"><a name="l01180"></a><span class="lineno"> 1180</span>&#160;<span class="comment">//==================================================== ProSHADE</span></div>
+<div class="line"><a name="l01181"></a><span class="lineno"> 1181</span>&#160;<span class="preprocessor">#include &quot;../proshade/ProSHADE.hpp&quot;</span></div>
+<div class="line"><a name="l01182"></a><span class="lineno"> 1182</span>&#160; </div>
+<div class="line"><a name="l01183"></a><span class="lineno"> 1183</span>&#160;<span class="comment">//==================================================== Main</span></div>
+<div class="line"><a name="l01184"></a><span class="lineno"> 1184</span>&#160;<span class="keywordtype">int</span> main ( <span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv )</div>
+<div class="line"><a name="l01185"></a><span class="lineno"> 1185</span>&#160;{</div>
+<div class="line"><a name="l01186"></a><span class="lineno"> 1186</span>&#160;    <span class="comment">//================================================ Create the settings object and parse the command line arguments</span></div>
+<div class="line"><a name="l01187"></a><span class="lineno"> 1187</span>&#160;    <a class="code" href="class_pro_s_h_a_d_e__settings.html">ProSHADE_settings</a>* settings                       = <span class="keyword">new</span> <a class="code" href="class_pro_s_h_a_d_e__settings.html">ProSHADE_settings</a> ( );</div>
+<div class="line"><a name="l01188"></a><span class="lineno"> 1188</span>&#160;    settings-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a52c1b3d4e86737c42785c0740b1f5497">getCommandLineParams</a>                    ( argc, argv );</div>
+<div class="line"><a name="l01189"></a><span class="lineno"> 1189</span>&#160;    </div>
+<div class="line"><a name="l01190"></a><span class="lineno"> 1190</span>&#160;    <span class="comment">//================================================ Execute</span></div>
+<div class="line"><a name="l01191"></a><span class="lineno"> 1191</span>&#160;    <a class="code" href="class_pro_s_h_a_d_e__run.html">ProSHADE_run</a> *run                                 = <span class="keyword">new</span> <a class="code" href="class_pro_s_h_a_d_e__run.html">ProSHADE_run</a> ( settings );</div>
+<div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160; </div>
+<div class="line"><a name="l01193"></a><span class="lineno"> 1193</span>&#160;    <span class="comment">//================================================ Release the settings object</span></div>
+<div class="line"><a name="l01194"></a><span class="lineno"> 1194</span>&#160;    <span class="keyword">delete</span> settings;</div>
+<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160;    </div>
+<div class="line"><a name="l01196"></a><span class="lineno"> 1196</span>&#160;    <span class="comment">//================================================ Release the executive object</span></div>
+<div class="line"><a name="l01197"></a><span class="lineno"> 1197</span>&#160;    <span class="keyword">delete</span> run;</div>
+<div class="line"><a name="l01198"></a><span class="lineno"> 1198</span>&#160;    </div>
+<div class="line"><a name="l01199"></a><span class="lineno"> 1199</span>&#160;    <span class="comment">//================================================ DONE</span></div>
+<div class="line"><a name="l01200"></a><span class="lineno"> 1200</span>&#160;    <span class="keywordflow">return</span>                                            ( 0 );</div>
+<div class="line"><a name="l01201"></a><span class="lineno"> 1201</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclass_pro_s_h_a_d_e__run_html"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html">ProSHADE_run</a></div><div class="ttdoc">This class provides the access point to the library.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8hpp_source.html#l00038">ProSHADE.hpp:39</a></div></div>

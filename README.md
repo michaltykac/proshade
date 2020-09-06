@@ -111,6 +111,9 @@ The installation of the ProSHADE software should be done using the CMake system 
   **-DCUSTOM_LAPACK_LIB_PATH=/path**
   - This option is used to supply the path to the liblapack.a/so/dylib in the case where ProSHADE CMake installation fails to detect the LAPACK dependency. This is typically the case when the LAPACK is installed outside of the standard LAPACK installation locations.
  
+  **-DNO_PYTHON=TRUE**
+  - This option controls whether python modules should be build or not. If you have installed ProSHADE python modules using pip or if you are not interested in using the python modules, leave this option at default TRUE. On the other hand, if you want to install the python modules from source (not really recommended), then you will need to switch this option to FALSE.
+ 
  ## Other dependencies
  
   ProSHADE also depends on the *Gemmi* and *SOFT2.0* libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation. Please note that these dependencies do have their own licences (the CCP4 licence, the GPL licence, ...) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
