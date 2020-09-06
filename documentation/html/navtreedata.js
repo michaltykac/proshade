@@ -36,6 +36,11 @@ var NAVTREE =
         [ "Install", "index.html#installcode", null ],
         [ "Uninstall", "index.html#uninstall", null ]
       ] ],
+      [ "Input PDB files", "index.html#pdbInput", [
+        [ "Spacegroups", "index.html#spaceGroups", null ],
+        [ "Waters", "index.html#waterMols", null ],
+        [ "Models", "index.html#firstModel", null ]
+      ] ],
       [ "Using the ProSHADE binary", "index.html#proshadeBinary", [
         [ "Symmetry Detection", "index.html#symDetection", null ],
         [ "Shape similarity distances", "index.html#distDetection", null ],
@@ -81,8 +86,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_pro_s_h_a_d_e_8cpp.html",
-"_pro_s_h_a_d_e__symmetry_8hpp.html#ad0d6480c4de06bce2b7d05c0471eb000",
-"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#afef6a064a54eb016776cb0879efb0b31"
+"_pro_s_h_a_d_e__symmetry_8hpp.html#ac03088b2929641cd6fc3e2e4e20d874b",
+"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#afcb4202e9ffea1b99c59f73faf06d899",
+"namespaces.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

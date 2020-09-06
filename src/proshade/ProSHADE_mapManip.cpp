@@ -25,8 +25,8 @@
 //==================================================== Define round for C++98
 /*! \brief Calls the appropriate version of round function depending on compiler version.
  
- \param[in] x A decimal point number to be rounded.
- \param[out] X The rounded number.
+    \param[in] x A decimal point number to be rounded.
+    \param[out] X The rounded number.
  */
 proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
 {
@@ -39,18 +39,19 @@ proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
 
 /*! \brief Function for finding the PDB file ranges.
  
- This function does a quick read-through the PDB file and reports the x, y and z to and from values. This is used to determine if these
- need to be changed for proper theoretical map computation operation.
+    This function does a quick read-through the PDB file and reports the x, y and z to and from values. This is used to determine if these
+    need to be changed for proper theoretical map computation operation.
  
- \param[in] pdbFile A gemmi::Structure object read in from the input file.
- \param[in] xFrom Address to a variable to save the x axis minimal atom position.
- \param[in] xTo Address to a variable to save the x axis maximum atom position.
- \param[in] yFrom Address to a variable to save the y axis minimal atom position.
- \param[in] yTo Address to a variable to save the y axis maximum atom position.
- \param[in] zFrom Address to a variable to save the z axis minimal atom position.
- \param[in] zTo Address to a variable to save the z axis maximum atom position.
+    \param[in] pdbFile A gemmi::Structure object read in from the input file.
+    \param[in] xFrom Address to a variable to save the x axis minimal atom position.
+    \param[in] xTo Address to a variable to save the x axis maximum atom position.
+    \param[in] yFrom Address to a variable to save the y axis minimal atom position.
+    \param[in] yTo Address to a variable to save the y axis maximum atom position.
+    \param[in] zFrom Address to a variable to save the z axis minimal atom position.
+    \param[in] zTo Address to a variable to save the z axis maximum atom position.
+    \param[in] firstModel Should only the first, or all models be used?
  */
-void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo )
+void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, bool firstModel )
 {
     //================================================ Initialise structure crawl
     bool firstAtom                                    = true;
@@ -58,46 +59,53 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, 
     //================================================ Use the first model, if it exists
     if ( pdbFile.models.size() > 0 )
     {
-        //============================================ Get the model
-        gemmi::Model model                            = pdbFile.models.at(0);
-        
-        //============================================ For each chain
-        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); sIt++ )
         {
-            //======================================== Get chain
-            gemmi::Chain chain                        = model.chains.at(mIt);
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
             
-            //======================================== For each residue
-            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
+            //======================================== Get model
+            gemmi::Model model                        = pdbFile.models.at(sIt);
+        
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
             {
-                //==================================== Get residue
-                gemmi::Residue residue                = chain.residues.at(rIt);
+                //==================================== Get chain
+                gemmi::Chain chain                    = model.chains.at(mIt);
                 
-                //==================================== For each atom
-                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
                 {
-                    //================================ Get atom
-                    gemmi::Atom atom                  = residue.atoms.at(aIt);
+                    //================================ Get residue
+                    gemmi::Residue residue            = chain.residues.at(rIt);
                     
-                    //================================ Find the coordinate ranges
-                    if ( firstAtom )
+                    //================================ For each atom
+                    for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
                     {
-                        *xTo                          = static_cast<proshade_single> ( atom.pos.x );
-                        *xFrom                        = static_cast<proshade_single> ( atom.pos.x );
-                        *yTo                          = static_cast<proshade_single> ( atom.pos.y );
-                        *yFrom                        = static_cast<proshade_single> ( atom.pos.y );
-                        *zTo                          = static_cast<proshade_single> ( atom.pos.z );
-                        *zFrom                        = static_cast<proshade_single> ( atom.pos.z );
-                        firstAtom                     = false;
-                    }
-                    else
-                    {
-                        if ( static_cast<proshade_single> ( atom.pos.x ) > *xTo   ) { *xTo   = static_cast<proshade_single> ( atom.pos.x ); }
-                        if ( static_cast<proshade_single> ( atom.pos.x ) < *xFrom ) { *xFrom = static_cast<proshade_single> ( atom.pos.x ); }
-                        if ( static_cast<proshade_single> ( atom.pos.y ) > *yTo   ) { *yTo   = static_cast<proshade_single> ( atom.pos.y ); }
-                        if ( static_cast<proshade_single> ( atom.pos.y ) < *yFrom ) { *yFrom = static_cast<proshade_single> ( atom.pos.y ); }
-                        if ( static_cast<proshade_single> ( atom.pos.z ) > *zTo   ) { *zTo   = static_cast<proshade_single> ( atom.pos.z ); }
-                        if ( static_cast<proshade_single> ( atom.pos.z ) < *zFrom ) { *zFrom = static_cast<proshade_single> ( atom.pos.z ); }
+                        //============================ Get atom
+                        gemmi::Atom atom              = residue.atoms.at(aIt);
+                        
+                        //============================ Find the coordinate ranges
+                        if ( firstAtom )
+                        {
+                            *xTo                      = static_cast<proshade_single> ( atom.pos.x );
+                            *xFrom                    = static_cast<proshade_single> ( atom.pos.x );
+                            *yTo                      = static_cast<proshade_single> ( atom.pos.y );
+                            *yFrom                    = static_cast<proshade_single> ( atom.pos.y );
+                            *zTo                      = static_cast<proshade_single> ( atom.pos.z );
+                            *zFrom                    = static_cast<proshade_single> ( atom.pos.z );
+                            firstAtom                 = false;
+                        }
+                        else
+                        {
+                            if ( static_cast<proshade_single> ( atom.pos.x ) > *xTo   ) { *xTo   = static_cast<proshade_single> ( atom.pos.x ); }
+                            if ( static_cast<proshade_single> ( atom.pos.x ) < *xFrom ) { *xFrom = static_cast<proshade_single> ( atom.pos.x ); }
+                            if ( static_cast<proshade_single> ( atom.pos.y ) > *yTo   ) { *yTo   = static_cast<proshade_single> ( atom.pos.y ); }
+                            if ( static_cast<proshade_single> ( atom.pos.y ) < *yFrom ) { *yFrom = static_cast<proshade_single> ( atom.pos.y ); }
+                            if ( static_cast<proshade_single> ( atom.pos.z ) > *zTo   ) { *zTo   = static_cast<proshade_single> ( atom.pos.z ); }
+                            if ( static_cast<proshade_single> ( atom.pos.z ) < *zFrom ) { *zFrom = static_cast<proshade_single> ( atom.pos.z ); }
+                        }
                     }
                 }
             }
@@ -117,14 +125,15 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, 
 
 /*! \brief This function finds the Centre of Mass for the co-ordinate file.
 
-This function takes the gemmi::Structure object read from a co-odinate file and procceds to compute the Centre of Mass of this object.
+    This function takes the gemmi::Structure object read from a co-odinate file and procceds to compute the Centre of Mass of this object.
 
-\param[in] pdbFile A gemmi::Structure object read in from input file.
-\param[in] xCom A pointer to proshade_double variable where the PDB file COM along the X-axis will be saved.
-\param[in] yCom A pointer to proshade_double variable where the PDB file COM along the Y-axis will be saved.
-\param[in] zCom A pointer to proshade_double variable where the PDB file COM along the Z-axis will be saved.
+    \param[in] pdbFile A gemmi::Structure object read in from input file.
+    \param[in] xCom A pointer to proshade_double variable where the PDB file COM along the X-axis will be saved.
+    \param[in] yCom A pointer to proshade_double variable where the PDB file COM along the Y-axis will be saved.
+    \param[in] zCom A pointer to proshade_double variable where the PDB file COM along the Z-axis will be saved.
+    \param[in] firstModel Should only the first, or all models be used?
 */
-void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom )
+void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel )
 {
     //================================================ Initialise structure crawl
     proshade_double totAtoms                          = 0.0;
@@ -135,32 +144,39 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
     //================================================ Use the first model, if it exists
     if ( pdbFile.models.size() > 0 )
     {
-        //============================================ Get the model
-        gemmi::Model model                            = pdbFile.models.at(0);
-        
-        //============================================ For each chain
-        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); sIt++ )
         {
-            //======================================== Get chain
-            gemmi::Chain chain                        = model.chains.at(mIt);
+            //======================================== Get model
+            gemmi::Model model                        = pdbFile.models.at(sIt);
             
-            //======================================== For each residue
-            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
+            
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model.chains.size() ); mIt++ )
             {
-                //==================================== Get residue
-                gemmi::Residue residue                = chain.residues.at(rIt);
+                //==================================== Get chain
+                gemmi::Chain chain                    = model.chains.at(mIt);
                 
-                //==================================== For each atom
-                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
                 {
-                    //================================ Get atom
-                    gemmi::Atom atom                  = residue.atoms.at(aIt);
+                    //================================ Get residue
+                    gemmi::Residue residue            = chain.residues.at(rIt);
                     
-                    //================================ Save the COM sums
-                   *xCom                             += atom.pos.x;
-                   *yCom                             += atom.pos.y;
-                   *zCom                             += atom.pos.z;
-                    totAtoms                         += 1.0;
+                    //================================ For each atom
+                    for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
+                    {
+                        //============================ Get atom
+                        gemmi::Atom atom              = residue.atoms.at(aIt);
+                        
+                        //============================ Save the COM sums
+                       *xCom                         += atom.pos.x * atom.element.weight();
+                       *yCom                         += atom.pos.y * atom.element.weight();
+                       *zCom                         += atom.pos.z * atom.element.weight();
+                        totAtoms                     += atom.element.weight();
+                    }
                 }
             }
         }
@@ -182,18 +198,75 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
     
 }
 
+/*! \brief This function finds the Centre of Mass for a map.
+
+    This function takes the proshade map object and procceds to compute the Centre of Mass of this object in Angstroms in real space.
+
+    \param[in] map A pointer to prshade density map.
+    \param[in] xCom A pointer to proshade_double variable where the MAP file COM along the X-axis will be saved.
+    \param[in] yCom A pointer to proshade_double variable where the MAP file COM along the Y-axis will be saved.
+    \param[in] zCom A pointer to proshade_double variable where the MAP file COM along the Z-axis will be saved.
+    \param[in] xAngs The map size in Angstroms along the X axis.
+    \param[in] yAngs The map size in Angstroms along the Y axis.
+    \param[in] zAngs The map size in Angstroms along the Z axis.
+    \param[in] xFrom The initial index of the x dimension of the map.
+    \param[in] xTo The terminal index of the x dimension of the map.
+    \param[in] yFrom The initial index of the y dimension of the map.
+    \param[in] yTo The terminal index of the y dimension of the map.
+    \param[in] zFrom The initial index of the z dimension of the map.
+    \param[in] zTo The terminal index of the z dimension of the map.
+*/
+void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom, proshade_signed zTo )
+{
+    //================================================ Initialise computation
+    proshade_double totDensity                        = 0.0;
+   *xCom                                              = 0.0;
+   *yCom                                              = 0.0;
+   *zCom                                              = 0.0;
+    proshade_signed arrPos                            = 0;
+    proshade_double xSampRate                         = xAngs / static_cast<proshade_single> ( xTo - xFrom );
+    proshade_double ySampRate                         = yAngs / static_cast<proshade_single> ( yTo - yFrom );
+    proshade_double zSampRate                         = zAngs / static_cast<proshade_single> ( zTo - zFrom );
+    
+    //================================================ For each map point
+    for ( proshade_signed xIt = xFrom; xIt < xTo; xIt++ )
+    {
+        for ( proshade_signed yIt = yFrom; yIt < yTo; yIt++ )
+        {
+            for ( proshade_signed zIt = zFrom; zIt < zTo; zIt++ )
+            {
+                arrPos                                = (zIt-zFrom) + ( zTo - zFrom ) * ( (yIt-yFrom) + ( yTo - yFrom ) * (xIt-xFrom) );
+                totDensity                           += map[arrPos];
+                *xCom                                += static_cast<proshade_double> ( xIt * xSampRate ) * map[arrPos];
+                *yCom                                += static_cast<proshade_double> ( yIt * ySampRate ) * map[arrPos];
+                *zCom                                += static_cast<proshade_double> ( zIt * zSampRate ) * map[arrPos];
+            }
+        }
+    }
+    
+    //================================================ Normalise sums to COM
+   *xCom                                             /= totDensity;
+   *yCom                                             /= totDensity;
+   *zCom                                             /= totDensity;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Function for rotating the PDB file co-ordinates by Euler angles.
  
- This function takes the three Euler angles and a pointer to a gemmi::Structure and it then proceeds to compute the rotation matrix from the Euler angles. This matrix is then applied to
- the co-ordinates in the gemmi::Structure in a way so that the rotation is done over the centre of the co-ordinates, but the co-ordinate positions stay unchanged.
+    This function takes the three Euler angles and a pointer to a gemmi::Structure and it then proceeds to compute the rotation matrix from the Euler angles. This matrix is then applied to
+    the co-ordinates in the gemmi::Structure in a way so that the rotation is done over the centre of the co-ordinates, but the co-ordinate positions stay unchanged.
  
- \param[in] pdbFile Pointer to a gemmi::Structure object which will have its co-ordinates rotated.
- \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated.
- \param[in] euB The Euler angle beta by which the co-ordinates should be rotated.
- \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated.
+    \param[in] pdbFile Pointer to a gemmi::Structure object which will have its co-ordinates rotated.
+    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated.
+    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated.
+    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated.
+    \param[in] firstModel Should only the first, or all models be used?
  */
 void ProSHADE_internal_mapManip::rotatePDBCoordinates ( gemmi::Structure *pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
-proshade_double yCom, proshade_double zCom )
+proshade_double yCom, proshade_double zCom, bool firstModel )
 {
     //================================================ Convert Euler angles to rotation matrix
     proshade_double *rotMat                           = new proshade_double[9];
@@ -206,41 +279,48 @@ proshade_double yCom, proshade_double zCom )
     //================================================ Use the first model, if it exists
     if ( pdbFile->models.size() > 0 )
     {
-        //============================================ Get the model
-        gemmi::Model *model                           = &pdbFile->models.at(0);
-        
-        //============================================ For each chain
-        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
         {
-            //======================================== Get chain
-            gemmi::Chain *chain                       = &model->chains.at(mIt);
+            //======================================== Get model
+            gemmi::Model *model                       = &pdbFile->models.at(sIt);
             
-            //======================================== For each residue
-            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
+            
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
             {
-                //==================================== Get residue
-                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                //==================================== Get chain
+                gemmi::Chain *chain                   = &model->chains.at(mIt);
                 
-                //==================================== For each atom
-                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
                 {
-                    //================================ Get atom
-                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
+                    //================================ Get residue
+                    gemmi::Residue *residue           = &chain->residues.at(rIt);
                     
-                    //================================ Move to mid-point
-                    xTmp                              = atom->pos.x - xCom;
-                    yTmp                              = atom->pos.y - yCom;
-                    zTmp                              = atom->pos.z - zCom;
-                    
-                    //================================ Rotate the atom position
-                    atom->pos.x                       = ( xTmp * rotMat[0] ) + ( yTmp * rotMat[1] ) + ( zTmp * rotMat[2] );
-                    atom->pos.y                       = ( xTmp * rotMat[3] ) + ( yTmp * rotMat[4] ) + ( zTmp * rotMat[5] );
-                    atom->pos.z                       = ( xTmp * rotMat[6] ) + ( yTmp * rotMat[7] ) + ( zTmp * rotMat[8] );
-                    
-                    //================================ Move back
-                    atom->pos.x                       = atom->pos.x + xCom;
-                    atom->pos.y                       = atom->pos.y + yCom;
-                    atom->pos.z                       = atom->pos.z + zCom;
+                    //================================ For each atom
+                    for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                    {
+                        //============================ Get atom
+                        gemmi::Atom *atom             = &residue->atoms.at(aIt);
+                        
+                        //============================ Move to mid-point
+                        xTmp                          = atom->pos.x - xCom;
+                        yTmp                          = atom->pos.y - yCom;
+                        zTmp                          = atom->pos.z - zCom;
+                        
+                        //============================ Rotate the atom position
+                        atom->pos.x                   = ( xTmp * rotMat[0] ) + ( yTmp * rotMat[1] ) + ( zTmp * rotMat[2] );
+                        atom->pos.y                   = ( xTmp * rotMat[3] ) + ( yTmp * rotMat[4] ) + ( zTmp * rotMat[5] );
+                        atom->pos.z                   = ( xTmp * rotMat[6] ) + ( yTmp * rotMat[7] ) + ( zTmp * rotMat[8] );
+                        
+                        //============================ Move back
+                        atom->pos.x                   = atom->pos.x + xCom;
+                        atom->pos.y                   = atom->pos.y + yCom;
+                        atom->pos.z                   = atom->pos.z + zCom;
+                    }
                 }
             }
         }
@@ -262,43 +342,51 @@ proshade_double yCom, proshade_double zCom )
 
 /*! \brief Function for translating the PDB file co-ordinates by given distances in Angstroms.
  
- This function simply iterates through the given structure object and adds the required shift to all atoms in the first model along the three axes.
+    This function simply iterates through the given structure object and adds the required shift to all atoms in the first model along the three axes.
  
- \param[in] pdbFile Pointer to a gemmi::Structure object whose co-ordinates are to be translated.
- \param[in] transX The
- \param[in] transY The
- \param[in] transZ The
+    \param[in] pdbFile Pointer to a gemmi::Structure object whose co-ordinates are to be translated.
+    \param[in] transX The
+    \param[in] transY The
+    \param[in] transZ The
+    \param[in] firstModel Should only the first, or all models be used?
  */
-void ProSHADE_internal_mapManip::translatePDBCoordinates ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ )
+void ProSHADE_internal_mapManip::translatePDBCoordinates ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ, bool firstModel )
 {
     //================================================ Use the first model, if it exists
     if ( pdbFile->models.size() > 0 )
     {
-        //============================================ Get the model
-        gemmi::Model *model                           = &pdbFile->models.at(0);
-        
-        //============================================ For each chain
-        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
         {
-            //======================================== Get chain
-            gemmi::Chain *chain                       = &model->chains.at(mIt);
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
             
-            //======================================== For each residue
-            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
+            //======================================== Get model
+            gemmi::Model *model                       = &pdbFile->models.at(sIt);
+            
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
             {
-                //==================================== Get residue
-                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                //==================================== Get chain
+                gemmi::Chain *chain                   = &model->chains.at(mIt);
                 
-                //==================================== For each atom
-                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
                 {
-                    //================================ Get atom
-                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
+                    //================================ Get residue
+                    gemmi::Residue *residue           = &chain->residues.at(rIt);
                     
-                    //================================ Translate
-                    atom->pos.x                      += transX;
-                    atom->pos.y                      += transY;
-                    atom->pos.z                      += transZ;
+                    //================================ For each atom
+                    for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                    {
+                        //============================ Get atom
+                        gemmi::Atom *atom             = &residue->atoms.at(aIt);
+                        
+                        //============================ Translate
+                        atom->pos.x                  += transX;
+                        atom->pos.y                  += transY;
+                        atom->pos.z                  += transZ;
+                    }
                 }
             }
         }
@@ -317,41 +405,115 @@ void ProSHADE_internal_mapManip::translatePDBCoordinates ( gemmi::Structure *pdb
 
 /*! \brief Function for changing the PDB B-factor values to a specific single value.
  
- This function does a quick read-through the PDB file and changes all the atom B-factor values to a single, pre-set value. This is
- important for PDB files which have all atoms with B-factor value 0, as these then produce bad maps, which fail further processing
- by ProSHADE.
+    This function does a quick read-through the PDB file and changes all the atom B-factor values to a single, pre-set value. This is
+    important for PDB files which have all atoms with B-factor value 0, as these then produce bad maps, which fail further processing
+    by ProSHADE.
  
- \param[in] pdbFile A pointer to gemmi::Structure object read in from the input file.
- \param[in] newBFactorValue The value with which all atom B-factor values should be replaced.
+    \param[in] pdbFile A pointer to gemmi::Structure object read in from the input file.
+    \param[in] newBFactorValue The value with which all atom B-factor values should be replaced.
+    \param[in] firstModel Should only the first, or all models be used?
  */
-void ProSHADE_internal_mapManip::changePDBBFactors ( gemmi::Structure *pdbFile, proshade_double newBFactorValue )
+void ProSHADE_internal_mapManip::changePDBBFactors ( gemmi::Structure *pdbFile, proshade_double newBFactorValue, bool firstModel )
 {
     //================================================ Use the first model, if it exists
     if ( pdbFile->models.size() > 0 )
     {
-        //============================================ Get the model
-        gemmi::Model *model                           = &pdbFile->models.at(0);
-        
-        //============================================ For each chain
-        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
         {
-            //======================================== Get chain
-            gemmi::Chain *chain                       = &model->chains.at(mIt);
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
             
-            //======================================== For each residue
-            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
+            //======================================== Get model
+            gemmi::Model *model                       = &pdbFile->models.at(sIt);
+            
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
             {
-                //==================================== Get residue
-                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                //==================================== Get chain
+                gemmi::Chain *chain                   = &model->chains.at(mIt);
                 
-                //==================================== For each atom
-                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
                 {
-                    //================================ Get atom
-                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
+                    //================================ Get residue
+                    gemmi::Residue *residue           = &chain->residues.at(rIt);
                     
-                    //================================ Change the B-factors
-                    atom->b_iso                       = newBFactorValue;
+                    //================================ For each atom
+                    for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                    {
+                        //============================ Get atom
+                        gemmi::Atom *atom             = &residue->atoms.at(aIt);
+                        
+                        //============================ Change the B-factors
+                        atom->b_iso                   = newBFactorValue;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function removed all waters from PDB input file.
+ 
+    This function does a quick read-through the PDB file and deletes all water molecules from the PDB file. This is important as
+    comparing two similar structures, one with hundreds of waters (with high occupancy in some cases) and one without will lead
+    to the structures being different in ProSHADE's eyes.
+ 
+    \param[in] pdbFile A pointer to gemmi::Structure object read in from the input file.
+    \param[in] firstModel Should only the first, or all models be used?
+ */
+void ProSHADE_internal_mapManip::removeWaters ( gemmi::Structure *pdbFile, bool firstModel )
+{
+    //================================================ Use the first model, if it exists
+    if ( pdbFile->models.size() > 0 )
+    {
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
+        {
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
+            
+            //======================================== Get model
+            gemmi::Model *model                       = &pdbFile->models.at(sIt);
+            
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
+            {
+                //==================================== Get chain
+                gemmi::Chain *chain                   = &model->chains.at(mIt);
+                
+                //==================================== Initialise del vector
+                std::vector< proshade_unsign > delVec;
+                
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
+                {
+                    //================================ Get residue
+                    gemmi::Residue *residue           = &chain->residues.at(rIt);
+                    
+                    //================================ If residue is water
+                    if ( residue->is_water() )
+                    {
+                        ProSHADE_internal_misc::addToUnsignVector ( &delVec, rIt );
+                    }
+                }
+                
+                //==================================== Delete from end to avoid indexing issues
+                std::sort                             ( delVec.begin(), delVec.end(), std::greater<int>() );
+                for ( proshade_unsign vecIt = 0; vecIt < static_cast<proshade_unsign> ( delVec.size() ); vecIt++ )
+                {
+                    chain->residues.erase             ( chain->residues.begin() + delVec.at(vecIt) );
                 }
             }
         }
@@ -370,45 +532,54 @@ void ProSHADE_internal_mapManip::changePDBBFactors ( gemmi::Structure *pdbFile, 
 
 /*! \brief Function for moving co-ordinate atoms to better suit theoretical map computation.
  
- This function translates all atoms by a given x, y and z distances. This is required as theoretical map computation can only output map cells starting from
- 0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect should be
- reversed later.
+    This function translates all atoms by a given x, y and z distances. This is required as theoretical map computation can only output map cells starting from
+    0, 0, 0 and therefore to avoid density being in corners for PDB atoms not located in posivite axes, the atoms need to be moved. This effect should be
+    reversed later.
  
- \param[in] pdbFile A pointer to the gemmi::Structure object as read in from the input file.
- \param[in] xMov How many angstroms should the atoms be moved along the x axis.
- \param[in] yMov How many angstroms should the atoms be moved along the y axis.
- \param[in] zMov How many angstroms should the atoms be moved along the z axis.
+    \param[in] pdbFile A pointer to the gemmi::Structure object as read in from the input file.
+    \param[in] xMov How many angstroms should the atoms be moved along the x axis.
+    \param[in] yMov How many angstroms should the atoms be moved along the y axis.
+    \param[in] zMov How many angstroms should the atoms be moved along the z axis.
+    \param[in] firstModel Should only the first, or all models be used?
  */
-void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov )
+void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov, bool firstModel )
 {
     //================================================ Use the first model, if it exists
     if ( pdbFile->models.size() > 0 )
     {
-        //============================================ Get the model
-        gemmi::Model *model                           = &pdbFile->models.at(0);
-        
-        //============================================ For each chain
-        for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
+        //============================================ For each model
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
         {
-            //======================================== Get chain
-            gemmi::Chain *chain                       = &model->chains.at(mIt);
+            //======================================== Check if multiple models are allowed
+            if ( firstModel && ( sIt != 0 ) ) { break; }
             
-            //======================================== For each residue
-            for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
+            //======================================== Get model
+            gemmi::Model *model                       = &pdbFile->models.at(sIt);
+            
+            //======================================== For each chain
+            for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( model->chains.size() ); mIt++ )
             {
-                //==================================== Get residue
-                gemmi::Residue *residue               = &chain->residues.at(rIt);
+                //==================================== Get chain
+                gemmi::Chain *chain                   = &model->chains.at(mIt);
                 
-                //==================================== For each atom
-                for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                //==================================== For each residue
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain->residues.size() ); rIt++ )
                 {
-                    //================================ Get atom
-                    gemmi::Atom *atom                 = &residue->atoms.at(aIt);
+                    //================================ Get residue
+                    gemmi::Residue *residue           = &chain->residues.at(rIt);
                     
-                    //================================ Move the atoms
-                    atom->pos                         = gemmi::Position ( atom->pos.x + xMov, atom->pos.y + yMov, atom->pos.z + zMov );
+                    //================================ For each atom
+                    for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue->atoms.size() ); aIt++ )
+                    {
+                        //============================ Get atom
+                        gemmi::Atom *atom             = &residue->atoms.at(aIt);
+                        
+                        //============================ Move the atoms
+                        atom->pos                     = gemmi::Position ( atom->pos.x + xMov, atom->pos.y + yMov, atom->pos.z + zMov );
+                    }
                 }
             }
+
         }
     }
     else
@@ -424,21 +595,25 @@ void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, 
 
 /*! \brief This function generates a theoretical map from co-ordinate input files.
  
- This function makes use of the Gemmi internal functionality to firstly create a properly sized cell object, then to check the input co-ordinate file for containing known elements as well as
- elements for which Gemmi knows the form factors. Then, this function proceeds to compute the F's using Cromer & Libermann method (from Gemmi) to finally compute the theoretical
- map using these. This map is then copied to the variable supplied in the second argument, presumably the ProSHADE internal map variable.
+    This function makes use of the Gemmi internal functionality to firstly create a properly sized cell object, then to check the input co-ordinate file for containing known elements as well as
+    elements for which Gemmi knows the form factors. Then, this function proceeds to compute the F's using Cromer & Libermann method (from Gemmi) to finally compute the theoretical
+    map using these. This map is then copied to the variable supplied in the second argument, presumably the ProSHADE internal map variable.
  
- \param[in] pdbFile A gemmi::Structure object read in from the input file.
- \param[in] map Pointer reference to a variable to save the map data.
- \param[in] requestedResolution Map resolution to which the map should be computed.
- \param[in] xCell The size of the map cell to be created.
- \param[in] yCell The size of the map cell to be created.
- \param[in] zCell The size of the map cell to be created.
- \param[in] xTo Pointer to variable where the map size along the x-axis in indices will be saved.
- \param[in] yTo Pointer to variable where the map size along the y-axis in indices will be saved.
- \param[in] zTo Pointer to variable where the map size along the z-axis in indices will be saved.
+    \param[in] pdbFile A gemmi::Structure object read in from the input file.
+    \param[in] map Pointer reference to a variable to save the map data.
+    \param[in] requestedResolution Map resolution to which the map should be computed.
+    \param[in] xCell The size of the map cell to be created.
+    \param[in] yCell The size of the map cell to be created.
+    \param[in] zCell The size of the map cell to be created.
+    \param[in] xTo Pointer to variable where the map size along the x-axis in indices will be saved.
+    \param[in] yTo Pointer to variable where the map size along the y-axis in indices will be saved.
+    \param[in] zTo Pointer to variable where the map size along the z-axis in indices will be saved.
+    \param[in] forceP1 Should the P1 spacegroup be forced?
+    \param[in] firstModel Should only the first, or all models be used?
+ 
+    \warning By default, this function will force the P1 spacegroup!
  */
-void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo )
+void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo, bool forceP1, bool firstModel )
 {
     //================================================ Set cell dimensions from the increased ranges (we need to add some space) and re-calculate cell properties
     pdbFile.cell.a                                    = xCell;
@@ -448,7 +623,23 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 
     //================================================ Establish the Structure Factor Calculater object, which will compute the f's required later.
     gemmi::StructureFactorCalculator < gemmi::IT92 < double > > calc ( pdbFile.cell );
-    std::bitset<(size_t)gemmi::El::END> present_elems = pdbFile.models[0].present_elements ( );
+    
+    std::string totElString;
+    for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); mIt++ )
+    {
+        //============================================ Check if multiple models are allowed
+        if ( firstModel && ( mIt != 0 ) )
+        {
+            std::stringstream hlpSS;
+            hlpSS << "!!! ProSHADE WARNING !!! Found multiple models (" << pdbFile.models.size() << ") in input file " << pdbFile.name << ", while the settings state that only the first PDB file model should be used. If all models should be used, please supply ProSHADE with the \"-x\" option.";
+            ProSHADE_internal_messages::printWarningMessage ( 0, hlpSS.str(), "WP00055" );
+            break;
+        }
+        
+        std::string hlpStr                            = pdbFile.models[mIt].present_elements ( ).to_string<char,std::char_traits<char>,std::allocator<char> >();
+        totElString                                   = totElString + hlpStr;
+    }
+    std::bitset<(size_t)gemmi::El::END> present_elems ( totElString );
     
     //================================================ Sanity checks
     if ( present_elems[static_cast<int> ( gemmi::El::X )] )
@@ -478,8 +669,18 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     for ( std::map<gemmi::El, double>::const_iterator mapIt = calc.fprimes().begin(); mapIt != calc.fprimes().end(); mapIt++ ) { dencalc.fprimes[static_cast<int> ( mapIt->first )] = static_cast<float> ( mapIt->second ); }
     dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
     
-    //================================================ Compute the theoretical map
-    dencalc.put_model_density_on_grid                 ( pdbFile.models[0] );
+    //================================================ Force P1 spacegroup
+    if ( forceP1 ) { dencalc.grid.spacegroup          = &gemmi::get_spacegroup_p1(); }
+    
+    //================================================ Compute the theoretical map for each model
+    dencalc.grid.data.clear                           ( );
+    dencalc.grid.set_size_from_spacing                ( dencalc.d_min / ( 2.0 * dencalc.rate), true );
+    for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); mIt++ )
+    {
+        if ( firstModel && ( mIt != 0 ) ) { break; }
+        dencalc.add_model_density_to_grid             ( pdbFile.models[mIt] );
+        dencalc.grid.symmetrize                       ( [](float a, float b) { return a + b; } );
+    }
     
     //================================================ Get the map
     const gemmi::Grid<float>& grid                    = dencalc.grid;
@@ -513,25 +714,25 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 
 /*! \brief Function for moving map back to original PDB location by changing the indices.
  
- This function translates the map by changing the to and from index values so that the location of the map will be
- the same as the location of the original PDB file. This most likely cannot be done exactly as it allows only
- movement by increments of the sampling rate, but it is a decent start.
+    This function translates the map by changing the to and from index values so that the location of the map will be
+    the same as the location of the original PDB file. This most likely cannot be done exactly as it allows only
+    movement by increments of the sampling rate, but it is a decent start.
  
- \param[in] xMov Pointer to the NEGATIVE value by how many angstroms should the x axis be moved.
- \param[in] yMov Pointer to the NEGATIVE value by how many angstroms should the y axis be moved.
- \param[in] zMov Pointer to the NEGATIVE value by how many angstroms should the z axis be moved.
- \param[in] xAngs How many angstroms are there along the x dimension.
- \param[in] yAngs How many angstroms are there along the y dimension.
- \param[in] zAngs How many angstroms are there along the z dimension.
- \param[in] xFrom The initial index of the x dimension of the map.
- \param[in] xTo The terminal index of the x dimension of the map.
- \param[in] yFrom The initial index of the y dimension of the map.
- \param[in] yTo The terminal index of the y dimension of the map.
- \param[in] zFrom The initial index of the z dimension of the map.
- \param[in] zTo The terminal index of the z dimension of the map.
- \param[in] xOrigin The first value of the x axis index.
- \param[in] yOrigin The first value of the y axis index.
- \param[in] zOrigin The first value of the z axis index.
+    \param[in] xMov Pointer to the NEGATIVE value by how many angstroms should the x axis be moved.
+    \param[in] yMov Pointer to the NEGATIVE value by how many angstroms should the y axis be moved.
+    \param[in] zMov Pointer to the NEGATIVE value by how many angstroms should the z axis be moved.
+    \param[in] xAngs How many angstroms are there along the x dimension.
+    \param[in] yAngs How many angstroms are there along the y dimension.
+    \param[in] zAngs How many angstroms are there along the z dimension.
+    \param[in] xFrom The initial index of the x dimension of the map.
+    \param[in] xTo The terminal index of the x dimension of the map.
+    \param[in] yFrom The initial index of the y dimension of the map.
+    \param[in] yTo The terminal index of the y dimension of the map.
+    \param[in] zFrom The initial index of the z dimension of the map.
+    \param[in] zTo The terminal index of the z dimension of the map.
+    \param[in] xOrigin The first value of the x axis index.
+    \param[in] yOrigin The first value of the y axis index.
+    \param[in] zOrigin The first value of the z axis index.
  */
 void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
 {
@@ -565,21 +766,21 @@ void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, prosh
 
 /*! \brief Function for moving map back to original PDB location by using Fourier transformation.
  
- This function translates the map by changing the phase information of the map Fourier transform and then
- doing the inverse Fourier. This allows for movement smaller than one index distance, but should not be
- used over long distances (could move out of boundaries and meet pariodicity problem such as map from
- different cell now being moved into this cell).
+    This function translates the map by changing the phase information of the map Fourier transform and then
+    doing the inverse Fourier. This allows for movement smaller than one index distance, but should not be
+    used over long distances (could move out of boundaries and meet pariodicity problem such as map from
+    different cell now being moved into this cell).
  
- \param[in] map A Reference Pointer to the map which should be shifted.
- \param[in] xMov The NEGATIVE value by how many angstroms should the x axis be moved.
- \param[in] yMov The NEGATIVE value by how many angstroms should the y axis be moved.
- \param[in] zMov The NEGATIVE value by how many angstroms should the z axis be moved.
- \param[in] xAngs How many angstroms are there along the x dimension.
- \param[in] yAngs How many angstroms are there along the y dimensionzAngs
- \param[in] zAngs How many angstroms are there along the z dimension.
- \param[in] xDim How many indices are there along the x dimension.
- \param[in] yDim How many indices are there along the y dimension.
- \param[in] zDim How many indices are there along the z dimension.
+    \param[in] map A Reference Pointer to the map which should be shifted.
+    \param[in] xMov The NEGATIVE value by how many angstroms should the x axis be moved.
+    \param[in] yMov The NEGATIVE value by how many angstroms should the y axis be moved.
+    \param[in] zMov The NEGATIVE value by how many angstroms should the z axis be moved.
+    \param[in] xAngs How many angstroms are there along the x dimension.
+    \param[in] yAngs How many angstroms are there along the y dimensionzAngs
+    \param[in] zAngs How many angstroms are there along the z dimension.
+    \param[in] xDim How many indices are there along the x dimension.
+    \param[in] yDim How many indices are there along the y dimension.
+    \param[in] zDim How many indices are there along the z dimension.
  */
 void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
@@ -687,19 +888,19 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
 
 /*! \brief Function for blurring/sharpening maps.
  
- This function takes the internal map representation information from the parameters as well as the internal map itself
- and proceeds to compute blue/sharpen the map by changing its overall B-factors by adding a specific value. If this value
- is negative, then the map is sharpened, while if the value is positive, the map is blurred.
+    This function takes the internal map representation information from the parameters as well as the internal map itself
+    and proceeds to compute blue/sharpen the map by changing its overall B-factors by adding a specific value. If this value
+    is negative, then the map is sharpened, while if the value is positive, the map is blurred.
  
- \param[in] map A Reference Pointer to the map which should be blurred/sharpened.
- \param[in] blurredMap A Reference Pointer to the variable which will store the modified map.
- \param[in] xDimS The number of indices along the x axis of the map.
- \param[in] yDimS The number of indices along the y axis of the map.
- \param[in] zDimS The number of indices along the z axis of the map.
- \param[in] xAngs The size of the x dimension of the map in angstroms.
- \param[in] yAngs The size of the y dimension of the map in angstroms.
- \param[in] zAngs The size of the z dimension of the map in angstroms.
- \param[in] blurringFactor The amount of B-factor change that should be applied to the map. (I.e. increasing the map overall B-factors by 20 will be done by supplying 20 as a value for this parameter).
+    \param[in] map A Reference Pointer to the map which should be blurred/sharpened.
+    \param[in] blurredMap A Reference Pointer to the variable which will store the modified map.
+    \param[in] xDimS The number of indices along the x axis of the map.
+    \param[in] yDimS The number of indices along the y axis of the map.
+    \param[in] zDimS The number of indices along the z axis of the map.
+    \param[in] xAngs The size of the x dimension of the map in angstroms.
+    \param[in] yAngs The size of the y dimension of the map in angstroms.
+    \param[in] zAngs The size of the z dimension of the map in angstroms.
+    \param[in] blurringFactor The amount of B-factor change that should be applied to the map. (I.e. increasing the map overall B-factors by 20 will be done by supplying 20 as a value for this parameter).
  */
 void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshade_double*& blurredMap, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single blurringFactor )
 {
@@ -789,17 +990,17 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
 
 /*! \brief Function for computing mask from blurred map.
  
- This function takes a blurred map and proceeds to compute the cut-off threshold for masking. It then applies
- this mask to the blurred map and applies the masking to the second input map. The assumption is that this
- second map is the map before blurring, as non-zero mask points will not be changed. Careful about this!!! It,
- however, does not output the mask.
+    This function takes a blurred map and proceeds to compute the cut-off threshold for masking. It then applies
+    this mask to the blurred map and applies the masking to the second input map. The assumption is that this
+    second map is the map before blurring, as non-zero mask points will not be changed. Careful about this!!! It,
+    however, does not output the mask.
  
- \param[in] blurMap A Reference Pointer to the map which has been blurred for mask computation.
- \param[in] outMap A Reference Pointer to the map which will be masked - this map should be the map before blurring.
- \param[in] xDim The number of indices along the x axis of the map.
- \param[in] yDim The number of indices along the y axis of the map.
- \param[in] zDim The number of indices along the z axis of the map.
- \param[in] noIQRs The number of inter-quartile ranges from the median which should be used to compute the threshold for masking.
+    \param[in] blurMap A Reference Pointer to the map which has been blurred for mask computation.
+    \param[in] outMap A Reference Pointer to the map which will be masked - this map should be the map before blurring.
+    \param[in] xDim The number of indices along the x axis of the map.
+    \param[in] yDim The number of indices along the y axis of the map.
+    \param[in] zDim The number of indices along the z axis of the map.
+    \param[in] noIQRs The number of inter-quartile ranges from the median which should be used to compute the threshold for masking.
  */
 void ProSHADE_internal_mapManip::getMaskFromBlurr ( proshade_double*& blurMap, proshade_double*& outMap, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_single noIQRs )
 {
@@ -842,17 +1043,17 @@ void ProSHADE_internal_mapManip::getMaskFromBlurr ( proshade_double*& blurMap, p
 
 /*! \brief Function for finding the map boundaries enclosing positive only values.
  
- This function takes a map and searches for minimum and maximum map indices in all three dimensions, which enclose
- all the non-zero map values. 
+    This function takes a map and searches for minimum and maximum map indices in all three dimensions, which enclose
+    all the non-zero map values.
  
- \param[in] map A pointer to the map for which the bounds are to be found.
- \param[in] xDim The number of indices along the x axis of the map.
- \param[in] yDim The number of indices along the y axis of the map.
- \param[in] zDim The number of indices along the z axis of the map.
- \param[in] xAngs The size of the x dimension of the map in angstroms.
- \param[in] yAngs The size of the y dimension of the map in angstroms.
- \param[in] zAngs The size of the z dimension of the map in angstroms.
- \param[in] ret A proshade_unsign pointer to array of 6 to which the results will be saved (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] map A pointer to the map for which the bounds are to be found.
+    \param[in] xDim The number of indices along the x axis of the map.
+    \param[in] yDim The number of indices along the y axis of the map.
+    \param[in] zDim The number of indices along the z axis of the map.
+    \param[in] xAngs The size of the x dimension of the map in angstroms.
+    \param[in] yAngs The size of the y dimension of the map in angstroms.
+    \param[in] zAngs The size of the z dimension of the map in angstroms.
+    \param[in] ret A proshade_unsign pointer to array of 6 to which the results will be saved (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
  */
 void ProSHADE_internal_mapManip::getNonZeroBounds ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed*& ret )
 {
@@ -898,18 +1099,18 @@ void ProSHADE_internal_mapManip::getNonZeroBounds ( proshade_double* map, prosha
 
 /*! \brief This function takes a set of bounds and adds a given number of Angstroms to them.
  
- This function adds an extra distance to a set of bounds as given by the number of angstroms to be added. If the resulting bounds
- are larger than the maximum map bounds, the maxima and minima are returned instead, thus partially ignoring the requested extra
- space. !!! If the resulting index ranges would be odd, extra one idice is added to make them even. !!!
+    This function adds an extra distance to a set of bounds as given by the number of angstroms to be added. If the resulting bounds
+    are larger than the maximum map bounds, the maxima and minima are returned instead, thus partially ignoring the requested extra
+    space. !!! If the resulting index ranges would be odd, extra one idice is added to make them even. !!!
  
- \param[in] xDim The number of indices along the x axis of the map.
- \param[in] yDim The number of indices along the y axis of the map.
- \param[in] zDim The number of indices along the z axis of the map.
- \param[in] xAngs The size of the x dimension of the map in angstroms.
- \param[in] yAngs The size of the y dimension of the map in angstroms.
- \param[in] zAngs The size of the z dimension of the map in angstroms.
- \param[in] bounds A proshade_unsign pointer reference to array of 6 which has the current bounds (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
- \param[in] extraSpace The number of angstroms to be added to each dimension (both to start and to end).
+    \param[in] xDim The number of indices along the x axis of the map.
+    \param[in] yDim The number of indices along the y axis of the map.
+    \param[in] zDim The number of indices along the z axis of the map.
+    \param[in] xAngs The size of the x dimension of the map in angstroms.
+    \param[in] yAngs The size of the y dimension of the map in angstroms.
+    \param[in] zAngs The size of the z dimension of the map in angstroms.
+    \param[in] bounds A proshade_unsign pointer reference to array of 6 which has the current bounds (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] extraSpace The number of angstroms to be added to each dimension (both to start and to end).
  */
 void ProSHADE_internal_mapManip::addExtraBoundSpace ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed*& bounds, proshade_single extraSpace )
 {
@@ -933,18 +1134,18 @@ void ProSHADE_internal_mapManip::addExtraBoundSpace ( proshade_unsign xDim, pros
 
 /*! \brief This function re-samples a map to conform to given resolution using tri-linear interpolation.
  
- This function takes a map and resolution value and it proceeds to create a new map, which has sampling resolution/2 and is
- large enough to contain the original map. It then proceeds to interpolate the new map values from the old map values, re-writing
- the old map once interpolation is done.
+    This function takes a map and resolution value and it proceeds to create a new map, which has sampling resolution/2 and is
+    large enough to contain the original map. It then proceeds to interpolate the new map values from the old map values, re-writing
+    the old map once interpolation is done.
  
- \param[in] map A Reference Pointer to the map for which the bounds are to be found.
- \param[in] resolution The required resolution value.
- \param[in] xDimS The number of indices along the x axis of the map.
- \param[in] yDimS The number of indices along the y axis of the map.
- \param[in] zDimS The number of indices along the z axis of the map.
- \param[in] xAngs The size of the x dimension of the map in angstroms.
- \param[in] yAngs The size of the y dimension of the map in angstroms.
- \param[in] zAngs The size of the z dimension of the map in angstroms.
+    \param[in] map A Reference Pointer to the map for which the bounds are to be found.
+    \param[in] resolution The required resolution value.
+    \param[in] xDimS The number of indices along the x axis of the map.
+    \param[in] yDimS The number of indices along the y axis of the map.
+    \param[in] zDimS The number of indices along the z axis of the map.
+    \param[in] xAngs The size of the x dimension of the map in angstroms.
+    \param[in] yAngs The size of the y dimension of the map in angstroms.
+    \param[in] zAngs The size of the z dimension of the map in angstroms.
  \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
  */
 void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
@@ -1245,21 +1446,21 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
 
 /*! \brief This function allocates and checks the allocatio of the memory required by the Fourier resampling.
  
- This function allocates the memory required for the Fourier space re-sampling of density maps. It allocates the original map and original map coefficients arrays (these need to be of the fftw_complex type) as well as the
- re-sampled map and re-sampled map coefficients. It then also proceeds to check the memory allocation and creating the FFTW transform plans for both, the forward and re-sampled backward operations.
+    This function allocates the memory required for the Fourier space re-sampling of density maps. It allocates the original map and original map coefficients arrays (these need to be of the fftw_complex type) as well as the
+    re-sampled map and re-sampled map coefficients. It then also proceeds to check the memory allocation and creating the FFTW transform plans for both, the forward and re-sampled backward operations.
  
- \param[in] origMap A Reference pointer to an array where the original map data will be stored.
- \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data will be stored.
- \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data will be stored.
- \param[in] newMap A Reference pointer to an array where the re-sampled map data will be stored.
- \param[in] planForwardFourier FFTW_plan which will compute the original map to Fourier coefficients transform.
- \param[in] planBackwardRescaledFourier FFTW_plan which will compute the re-sampled Fourier coefficients to re-sampled map transform.
- \param[in] xDimOld The number of indices along the x-axis of the original map.
- \param[in] yDimOld The number of indices along the y-axis of the original map.
- \param[in] zDimOld The number of indices along the z-axis of the original map.
- \param[in] xDimNew The number of indices along the x-axis of the re-sampled map.
- \param[in] yDimNew The number of indices along the y-axis of the re-sampled map.
- \param[in] zDimNew The number of indices along the z-axis of the re-sampled map.
+    \param[in] origMap A Reference pointer to an array where the original map data will be stored.
+    \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data will be stored.
+    \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data will be stored.
+    \param[in] newMap A Reference pointer to an array where the re-sampled map data will be stored.
+    \param[in] planForwardFourier FFTW_plan which will compute the original map to Fourier coefficients transform.
+    \param[in] planBackwardRescaledFourier FFTW_plan which will compute the re-sampled Fourier coefficients to re-sampled map transform.
+    \param[in] xDimOld The number of indices along the x-axis of the original map.
+    \param[in] yDimOld The number of indices along the y-axis of the original map.
+    \param[in] zDimOld The number of indices along the z-axis of the original map.
+    \param[in] xDimNew The number of indices along the x-axis of the re-sampled map.
+    \param[in] yDimNew The number of indices along the y-axis of the re-sampled map.
+    \param[in] zDimNew The number of indices along the z-axis of the re-sampled map.
  */
 void ProSHADE_internal_mapManip::allocateResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier, proshade_unsign xDimOld, proshade_unsign yDimOld, proshade_unsign zDimOld, proshade_unsign xDimNew, proshade_unsign yDimNew, proshade_unsign zDimNew )
 {
@@ -1286,14 +1487,14 @@ void ProSHADE_internal_mapManip::allocateResolutionFourierMemory ( fftw_complex*
 
 /*! \brief This function releases the memory required by the Fourier resampling.
  
- This function simply deletes all the memory allocated by the allocateResolutionFourierMemory() function.
+    This function simply deletes all the memory allocated by the allocateResolutionFourierMemory() function.
  
- \param[in] origMap A Reference pointer to an array where the original map data were stored.
- \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data were stored.
- \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data were stored.
- \param[in] newMap A Reference pointer to an array where the re-sampled map data were stored.
- \param[in] planForwardFourier FFTW_plan which computed the original map to Fourier coefficients transform.
- \param[in] planBackwardRescaledFourier FFTW_plan which computed the re-sampled Fourier coefficients to re-sampled map transform.
+    \param[in] origMap A Reference pointer to an array where the original map data were stored.
+    \param[in] fCoeffs A Reference pointer to an array where the original map Fourier coefficients data were stored.
+    \param[in] newFCoeffs A Reference pointer to an array where the re-sampled map Fourier coefficients data were stored.
+    \param[in] newMap A Reference pointer to an array where the re-sampled map data were stored.
+    \param[in] planForwardFourier FFTW_plan which computed the original map to Fourier coefficients transform.
+    \param[in] planBackwardRescaledFourier FFTW_plan which computed the re-sampled Fourier coefficients to re-sampled map transform.
  */
 void ProSHADE_internal_mapManip::releaseResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier )
 {
@@ -1314,15 +1515,15 @@ void ProSHADE_internal_mapManip::releaseResolutionFourierMemory ( fftw_complex*&
 
 /*! \brief This function changes the order of Fourier coefficients in a 3D array between positive first (default) and negative first (mass centered at xMax/2, yMax/2, zMax/2 instead of 0,0,0)
  
- This function firstly determines the start and end of the positive and negative Fourier coefficients for all three axes (it assumes 3D array); this works for both odd and even axis sizes. To do this properly, in the case of
- odd axis sizes, the function needs to know whether we are changing the order from FFTW defaul positive first, or if we are changing the other way around - the last parameter serves the purpose of passing this information.
- Finally, the function then switches the order of the Fourier coefficients as requested using a temporary array that it allocates and deletes within itself.
+    This function firstly determines the start and end of the positive and negative Fourier coefficients for all three axes (it assumes 3D array); this works for both odd and even axis sizes. To do this properly, in the case of
+    odd axis sizes, the function needs to know whether we are changing the order from FFTW defaul positive first, or if we are changing the other way around - the last parameter serves the purpose of passing this information.
+    Finally, the function then switches the order of the Fourier coefficients as requested using a temporary array that it allocates and deletes within itself.
  
- \param[in] fCoeffs A Reference pointer to an array where the Fourier coefficients for re-ordering are stored.
- \param[in] xDim The size of the x-axis dimension of the fCoeffs array.
- \param[in] yDim The size of the x-axis dimension of the fCoeffs array.
- \param[in] zDim The size of the x-axis dimension of the fCoeffs array.
- \param[in] negativeFirst Should the coefficients be stored negarive first (TRUE), or are we reversing already re-ordered array (FALSE)?
+    \param[in] fCoeffs A Reference pointer to an array where the Fourier coefficients for re-ordering are stored.
+    \param[in] xDim The size of the x-axis dimension of the fCoeffs array.
+    \param[in] yDim The size of the x-axis dimension of the fCoeffs array.
+    \param[in] zDim The size of the x-axis dimension of the fCoeffs array.
+    \param[in] negativeFirst Should the coefficients be stored negarive first (TRUE), or are we reversing already re-ordered array (FALSE)?
  */
 void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool negativeFirst )
 {
@@ -1387,14 +1588,14 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
 
 /*! \brief This function removes the phase from reciprocal (frequency) map.
  
- This function takes an already FFTW-ed map and its dimensions as the input and proceeds to remove the phase
- from the map. It writes over the map and does not release any memory - it is the role of the calling function
- to deal with both these features.
+    This function takes an already FFTW-ed map and its dimensions as the input and proceeds to remove the phase
+    from the map. It writes over the map and does not release any memory - it is the role of the calling function
+    to deal with both these features.
  
- \param[in] mapCoeffs A Reference Pointer to the frequency map, from which phase is to be removed.
- \param[in] xDim The number of indices along the x-axis of the input map.
- \param[in] yDim The number of indices along the y-axis of the input map.
- \param[in] zDim The number of indices along the z-axis of the input map.
+    \param[in] mapCoeffs A Reference Pointer to the frequency map, from which phase is to be removed.
+    \param[in] xDim The number of indices along the x-axis of the input map.
+    \param[in] yDim The number of indices along the y-axis of the input map.
+    \param[in] zDim The number of indices along the z-axis of the input map.
  */
 void ProSHADE_internal_mapManip::removeMapPhase ( fftw_complex*& mapCoeffs, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim )
 {
@@ -1433,17 +1634,17 @@ void ProSHADE_internal_mapManip::removeMapPhase ( fftw_complex*& mapCoeffs, pros
 
 /*! \brief Function for creating "fake" half-maps.
  
- This function takes the internal map and an empty map array and proceeds to find all neighbours within the kernel distance to each
- map points. It then computes the average of these neighbours and saves this average as the value of the "fake" half-map. These are
- then useul for map masking, as the correlation between the "fake" half-maps and the original maps give nice masks according to Rangana
- - see him about how well these work.
+    This function takes the internal map and an empty map array and proceeds to find all neighbours within the kernel distance to each
+    map points. It then computes the average of these neighbours and saves this average as the value of the "fake" half-map. These are
+    then useul for map masking, as the correlation between the "fake" half-maps and the original maps give nice masks according to Rangana
+    - see him about how well these work.
  
- \param[in] map A Reference Pointer to the map which should be blurred/sharpened.
- \param[in] blurredMap A Reference Pointer to the variable which will store the modified map.
- \param[in] xDimS The number of indices along the x axis of the map.
- \param[in] yDimS The number of indices along the y axis of the map.
- \param[in] zDimS The number of indices along the z axis of the map.
- \param[in] fakeMapKernel The amount of neighbours in any direction whose average is to be used to get the current point.
+    \param[in] map A Reference Pointer to the map which should be blurred/sharpened.
+    \param[in] blurredMap A Reference Pointer to the variable which will store the modified map.
+    \param[in] xDimS The number of indices along the x axis of the map.
+    \param[in] yDimS The number of indices along the y axis of the map.
+    \param[in] zDimS The number of indices along the z axis of the map.
+    \param[in] fakeMapKernel The amount of neighbours in any direction whose average is to be used to get the current point.
  */
 void ProSHADE_internal_mapManip::getFakeHalfMap ( proshade_double*& map, proshade_double*& fakeHalfMap, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_signed fakeMapKernel )
 {
@@ -1569,17 +1770,17 @@ void ProSHADE_internal_mapManip::getCorrelationMapMask ( proshade_double*& map, 
 
 /*! \brief This function converts distance in Angstroms to distance in map indices.
  
- This function finds out how many indices are required to cover a space of size "dist" in Angstroms.
- If you need this rounded in any way (ceil, floor, ...), just apply appropriate function to the output
- of this function.
+    This function finds out how many indices are required to cover a space of size "dist" in Angstroms.
+    If you need this rounded in any way (ceil, floor, ...), just apply appropriate function to the output
+    of this function.
  
- \param[in] xDim The number of map indices along the x-axis.
- \param[in] yDim The number of map indices along the y-axis.
- \param[in] zDim The number of map indices along the z-axis.
- \param[in] xAngs The map size in Angstroms along the x-axis.
- \param[in] yAngs The map size in Angstroms along the y-axis.
- \param[in] zAngs The map size in Angstroms along the z-axis.
- \param[in] dist The distance in Angstroms to be converted
+    \param[in] xDim The number of map indices along the x-axis.
+    \param[in] yDim The number of map indices along the y-axis.
+    \param[in] zDim The number of map indices along the z-axis.
+    \param[in] xAngs The map size in Angstroms along the x-axis.
+    \param[in] yAngs The map size in Angstroms along the y-axis.
+    \param[in] zAngs The map size in Angstroms along the z-axis.
+    \param[in] dist The distance in Angstroms to be converted
  */
 proshade_single ProSHADE_internal_mapManip::getIndicesFromAngstroms ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single dist )
 {
@@ -1595,14 +1796,14 @@ proshade_single ProSHADE_internal_mapManip::getIndicesFromAngstroms ( proshade_u
 
 /*! \brief This function connects blobs in mask.
  
- \param[in] mask A pointer reference to mask map in which blobs should be connected.
- \param[in] xDim The number of map indices along the x-axis.
- \param[in] yDim The number of map indices along the y-axis.
- \param[in] zDim The number of map indices along the z-axis.
- \param[in] xAngs The map size in Angstroms along the x-axis.
- \param[in] yAngs The map size in Angstroms along the y-axis.
- \param[in] zAngs The map size in Angstroms along the z-axis.
- \param[in] maskThres The threshold which will be used for applying mask.
+    \param[in] mask A pointer reference to mask map in which blobs should be connected.
+    \param[in] xDim The number of map indices along the x-axis.
+    \param[in] yDim The number of map indices along the y-axis.
+    \param[in] zDim The number of map indices along the z-axis.
+    \param[in] xAngs The map size in Angstroms along the x-axis.
+    \param[in] yAngs The map size in Angstroms along the y-axis.
+    \param[in] zAngs The map size in Angstroms along the z-axis.
+    \param[in] maskThres The threshold which will be used for applying mask.
  */
 void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single maskThres )
 {
@@ -1671,16 +1872,16 @@ void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, pros
 
 /*! \brief Function for modifying boundaries to a mathematically more pleasant values.
  
- This function does two things. Firstly, it attempts to find even boundaries which have a small sum of the prime factors - i.e.
- this is good for further processing. Secondly, it attempts to make boundaries with sizes within some threshold the same. This
- is purely human thing :-).
+    This function does two things. Firstly, it attempts to find even boundaries which have a small sum of the prime factors - i.e.
+    this is good for further processing. Secondly, it attempts to make boundaries with sizes within some threshold the same. This
+    is purely human thing :-).
  
- \param[in] bounds A proshade_signed pointer to array of 6 in which the current bounds are (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
- \param[in] xDim The number of indices along the x axis of the map.
- \param[in] yDim The number of indices along the y axis of the map.
- \param[in] zDim The number of indices along the z axis of the map.
- \param[in] boundsDiffThres Number of indices by which boudaries in different dimensions can differ and still be made the same.
- \param[in] verbose The verbosity of this run - this is needed for the warnings only.
+    \param[in] bounds A proshade_signed pointer to array of 6 in which the current bounds are (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] xDim The number of indices along the x axis of the map.
+    \param[in] yDim The number of indices along the y axis of the map.
+    \param[in] zDim The number of indices along the z axis of the map.
+    \param[in] boundsDiffThres Number of indices by which boudaries in different dimensions can differ and still be made the same.
+    \param[in] verbose The verbosity of this run - this is needed for the warnings only.
  */
 void ProSHADE_internal_mapManip::beautifyBoundaries ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_signed boundsDiffThres, proshade_signed verbose )
 {
@@ -1744,13 +1945,13 @@ void ProSHADE_internal_mapManip::beautifyBoundaries ( proshade_signed*& bounds, 
 
 /*! \brief Function for finding close numbers with better prime factors.
  
- This function takes a range of integer numbers and proceeds to find if a close number in the range to the range start
- does not have better (smaller sum of) prime factors, taking into account the distance of this better number to the
- starting position. This is useful for finding boundaries with nice prime number sizes.
+    This function takes a range of integer numbers and proceeds to find if a close number in the range to the range start
+    does not have better (smaller sum of) prime factors, taking into account the distance of this better number to the
+    starting position. This is useful for finding boundaries with nice prime number sizes.
  
- \param[in] fromRange Which number the search will be from and possibilities compared to.
- \param[in] toRange The maximum number to which the posibilities should be searched.
- \param[out] X The value in the range which has better prime factors, or the first value if none other has.
+    \param[in] fromRange Which number the search will be from and possibilities compared to.
+    \param[in] toRange The maximum number to which the posibilities should be searched.
+    \param[out] X The value in the range which has better prime factors, or the first value if none other has.
  */
 proshade_signed ProSHADE_internal_mapManip::betterClosePrimeFactors ( proshade_signed fromRange, proshade_signed toRange )
 {
@@ -1789,14 +1990,14 @@ proshade_signed ProSHADE_internal_mapManip::betterClosePrimeFactors ( proshade_s
 
 /*! \brief Function for adding space to boundaries within the map confines.
  
- This function takes the current boudaries and attempts to add the extra space specified by the parameters 3 and 4 equally
- to both the top and bottom boundaries, making sure the bottom boundary does not go belowe 0 and the top boundary does not
- exceed the final parameter.
+    This function takes the current boudaries and attempts to add the extra space specified by the parameters 3 and 4 equally
+    to both the top and bottom boundaries, making sure the bottom boundary does not go belowe 0 and the top boundary does not
+    exceed the final parameter.
  
- \param[in] minBound Reference to where the lower boundary value is held.
- \param[in] maxBound Reference to where the upper boundary value is held.
- \param[in] oldBoundRange The range between the original boundaries.
- \param[in] newBoundRange The range which should be between the new boundaries.
+    \param[in] minBound Reference to where the lower boundary value is held.
+    \param[in] maxBound Reference to where the upper boundary value is held.
+    \param[in] oldBoundRange The range between the original boundaries.
+    \param[in] newBoundRange The range which should be between the new boundaries.
  */
 void ProSHADE_internal_mapManip::distributeSpaceToBoundaries ( proshade_signed& minBound, proshade_signed& maxBound, proshade_signed oldBoundRange, proshade_signed newBoundRange )
 {
@@ -1826,27 +2027,27 @@ void ProSHADE_internal_mapManip::distributeSpaceToBoundaries ( proshade_signed& 
 
 /*! \brief This function copies an old map to a new map with different boundaries.
  
- This function takes old and new structure details and the original structure map. It then proceed to iterate through the
- new structure map, checking if this particular point is inside the original structure's map and if it is, it will copy the
- value of this point from the original to the new map. Otherwise, it will set the new map's point value to 0.0. This is used
- when creating a new structure from an old structure given new bounds, which can be larger or smaller than the originals.
+    This function takes old and new structure details and the original structure map. It then proceed to iterate through the
+    new structure map, checking if this particular point is inside the original structure's map and if it is, it will copy the
+    value of this point from the original to the new map. Otherwise, it will set the new map's point value to 0.0. This is used
+    when creating a new structure from an old structure given new bounds, which can be larger or smaller than the originals.
  
- \param[in] xFrom The starting x-axis index of the new map.
- \param[in] xTo The last x-axis index of the new map.
- \param[in] yFrom The starting y-axis index of the new map.
- \param[in] yTo The last y-axis index of the new map.
- \param[in] zFrom The starting z-axis index of the new map.
- \param[in] zTo The last z-axis index of the new map.
- \param[in] origXFrom The starting x-axis index of the original (copied) map.
- \param[in] origYFrom The starting y-axis index of the original (copied) map.
- \param[in] origZFrom The starting z-axis index of the original (copied) map.
- \param[in] yDimIndices The size of the y-axis dimension in the new map.
- \param[in] zDimIndices The size of the z-axis dimension in the new map.
- \param[in] origXDimIndices The size of the x-axis dimension in the old map.
- \param[in] origYDimIndices The size of the y-axis dimension in the old map.
- \param[in] origZDimIndices The size of the z-axis dimension in the old map.
- \param[in] newMap Pointer reference to the array where new map will be saved to.
- \param[in] origMap Pointer to the array where the original map can be accessed.
+    \param[in] xFrom The starting x-axis index of the new map.
+    \param[in] xTo The last x-axis index of the new map.
+    \param[in] yFrom The starting y-axis index of the new map.
+    \param[in] yTo The last y-axis index of the new map.
+    \param[in] zFrom The starting z-axis index of the new map.
+    \param[in] zTo The last z-axis index of the new map.
+    \param[in] origXFrom The starting x-axis index of the original (copied) map.
+    \param[in] origYFrom The starting y-axis index of the original (copied) map.
+    \param[in] origZFrom The starting z-axis index of the original (copied) map.
+    \param[in] yDimIndices The size of the y-axis dimension in the new map.
+    \param[in] zDimIndices The size of the z-axis dimension in the new map.
+    \param[in] origXDimIndices The size of the x-axis dimension in the old map.
+    \param[in] origYDimIndices The size of the y-axis dimension in the old map.
+    \param[in] origZDimIndices The size of the z-axis dimension in the old map.
+    \param[in] newMap Pointer reference to the array where new map will be saved to.
+    \param[in] origMap Pointer to the array where the original map can be accessed.
  */
 void ProSHADE_internal_mapManip::copyMapByBounds ( proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom, proshade_signed zTo, proshade_signed origXFrom, proshade_signed origYFrom, proshade_signed origZFrom, proshade_signed yDimIndices, proshade_signed zDimIndices, proshade_signed origXDimIndices, proshade_signed origYDimIndices, proshade_signed origZDimIndices, proshade_double*& newMap, proshade_double* origMap )
 {

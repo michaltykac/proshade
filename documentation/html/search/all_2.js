@@ -5,7 +5,7 @@ var searchData=
   ['changefourierorder_45',['changeFourierOrder',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#adc0d808ba88ad0e023ba8391aa44be95',1,'ProSHADE_internal_mapManip']]],
   ['changemapresolution_46',['changeMapResolution',['../class_pro_s_h_a_d_e__settings.html#ab61d2183930ea26b3d49e7662052e83b',1,'ProSHADE_settings']]],
   ['changemapresolutiontrilinear_47',['changeMapResolutionTriLinear',['../class_pro_s_h_a_d_e__settings.html#a4f49a4f2263aa12ccb1737f8dc32c9ac',1,'ProSHADE_settings']]],
-  ['changepdbbfactors_48',['changePDBBFactors',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a9cf227397ba62db3394d6e404006df97',1,'ProSHADE_internal_mapManip']]],
+  ['changepdbbfactors_48',['changePDBBFactors',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#afe3659ed2939880f96701cb162d8a12d',1,'ProSHADE_internal_mapManip']]],
   ['checkdistancessettings_49',['checkDistancesSettings',['../namespace_pro_s_h_a_d_e__internal__tasks.html#a381e43e3bc24c15d616841f68acae3d8',1,'ProSHADE_internal_tasks']]],
   ['checkexpectedagainstfound_50',['checkExpectedAgainstFound',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a074d9c1d40d7491ea9f9f9639744e18d',1,'ProSHADE_internal_symmetry']]],
   ['checkfittingaxisdualandsave_51',['checkFittingAxisDualAndSave',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a210ee0af651d440b68168882ead71c66',1,'ProSHADE_internal_symmetry']]],

@@ -518,10 +518,12 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
 
 /*! \brief Function for reading pdb data.
  
- This function reads in the pdb data using the information from the settings object, converts the  co-ordinates onto
- a theoretical map and and saves all the results into the structure calling it.
+    This function reads in the pdb data using the information from the settings object, converts the  co-ordinates onto
+    a theoretical map and and saves all the results into the structure calling it.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+ 
+    \warning For multiple models, this function works, but the map is not perfectly fitted to the PDB file.
  */
 void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* settings )
 {
@@ -537,18 +539,28 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     //================================================ Change B-factors if need be
     if ( settings->pdbBFactorNewVal >= 0.0 )
     {
-        ProSHADE_internal_mapManip::changePDBBFactors ( &pdbFile, settings->pdbBFactorNewVal );
+        ProSHADE_internal_mapManip::changePDBBFactors ( &pdbFile, settings->pdbBFactorNewVal, settings->firstModelOnly );
     }
+    
+    //================================================ Remove waters if required
+    if ( settings->removeWaters )
+    {
+        ProSHADE_internal_mapManip::removeWaters      ( &pdbFile, settings->firstModelOnly );
+    }
+    
+    //================================================ Get PDB COM values
+    proshade_double xCOMPdb, yCOMPdb, zCOMPdb;
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
     
     //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
-    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT );
+    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
 
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = 20.0 - xF;
     proshade_single yMov                              = 20.0 - yF;
     proshade_single zMov                              = 20.0 - zF;
-    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov );
+    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov, settings->firstModelOnly );
 
     //================================================ Set the angstrom sizes
     this->xDimSize                                    = xT - xF + 40.0;
@@ -556,18 +568,31 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     this->zDimSize                                    = zT - zF + 40.0;
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
-    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo );
+    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
     
     //================================================ Set the internal variables to correct values
     this->setPDBMapValues                             ( );
-
+    
+    //================================================ Compute reverse movement based on COMs. If there is more than 1 models, simply moving back the xyzMov is not enough.
+    proshade_double xCOMMap, yCOMMap, zCOMMap;
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOMMap, &yCOMMap, &zCOMMap,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    
+    if ( pdbFile.models.size() > 1 )
+    {
+        xMov                                          = xCOMMap - xCOMPdb;
+        yMov                                          = yCOMMap - yCOMPdb;
+        zMov                                          = zCOMMap - zCOMPdb;
+    }
+    
     //================================================ Move map back to the original PDB location
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
                                                         &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices );
-
+   
     //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
@@ -581,7 +606,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
 
 /*! \brief Function for determining iterator start and stop positions.
  
- This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations.
+    This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations.
  */
 void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 {
@@ -698,18 +723,19 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
 
 /*! \brief This function writes out the PDB formatted file coresponding to the structure.
 
-This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
-it will proceed to
+    This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
+    it will proceed to
 
-\param[in] fName The filename (including path) to where the output PDB file should be saved.
-\param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
-\param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
-\param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
-\param[in] transX The translation to be done along the X-axis in Angstroms.
-\param[in] transY The translation to be done along the Y-axis in Angstroms.
-\param[in] transZ The translation to be done along the Z-axis in Angstroms.
+    \param[in] fName The filename (including path) to where the output PDB file should be saved.
+    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] transX The translation to be done along the X-axis in Angstroms.
+    \param[in] transY The translation to be done along the Y-axis in Angstroms.
+    \param[in] transZ The translation to be done along the Z-axis in Angstroms.
+    \param[in] firstModel Should only the first model, or rather all of them be used?
 */
-void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ )
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ, bool firstModel )
 {
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
@@ -725,7 +751,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     {
         //============================================ Save original PDB COM position
         proshade_double xCOMOriginal = 0.0, yCOMOriginal = 0.0, zCOMOriginal = 0.0;
-        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMOriginal, &yCOMOriginal, &zCOMOriginal );
+        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMOriginal, &yCOMOriginal, &zCOMOriginal, firstModel );
         
         //============================================ Compute the rotation centre for the co-ordinates
         proshade_double xRotPos                       = ( ( static_cast<proshade_double> ( this->xDimIndicesOriginal / 2 ) - this->xAxisOriginOriginal ) *
@@ -739,11 +765,11 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
                                                         (this->originalMapZCom - zCOMOriginal);
         
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos );
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos, firstModel );
 
         //============================================ Compute the after rotation PDB COM position
         proshade_double xCOMRotated = 0.0, yCOMRotated = 0.0, zCOMRotated = 0.0;
-        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated );
+        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated, firstModel );
 
         //============================================ Compute the after rotation position correction
         proshade_double xPDBTrans                     = ( xCOMRotated - xCOMOriginal ) + ( this->mapPostRotXCom - this->originalMapXCom );
@@ -751,11 +777,11 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         proshade_double zPDBTrans                     = ( zCOMRotated - zCOMOriginal ) + ( this->mapPostRotZCom - this->originalMapZCom );
 
         //============================================ Correct the co-ordinate position after rotation
-        ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, xPDBTrans, yPDBTrans, zPDBTrans );
+        ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, xPDBTrans, yPDBTrans, zPDBTrans, firstModel );
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ );
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ, firstModel );
 
     //================================================ Write the PDB file
     std::ofstream outCoOrdFile;
@@ -1491,7 +1517,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Add extra space
     if ( settings->addExtraSpace != 0.0 ) { this->addExtraSpace ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Extra space not requested." ); }
-  
+    
     //================================================ Remove phase, if required
     if ( !settings->usePhase ) { this->removePhaseInormation ( settings ); ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information removed from the data." ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information retained in the data." ); }

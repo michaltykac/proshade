@@ -48,6 +48,9 @@ pSet.addStructure                             ( "./emd_5762.map" )              
 
 
 ### Useful settings
+pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
+pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
+pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setMasking                               ( True )                                 # Should maps be masked by blurring?
 pSet.setMapReboxing                           ( True )                                 # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
