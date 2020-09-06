@@ -60,27 +60,35 @@
  *
  * 4.5) \ref uninstall
  *
- * 5) \ref proshadeBinary
+ * 5) \ref pdbInput
  *
- * 5.1) \ref symDetection
+ * 5.1) \ref spaceGroups
  *
- * 5.2) \ref distDetection
+ * 5.2) \ref waterMols
  *
- * 5.3) \ref reboxingUsage
+ * 5.3) \ref firstModel
  *
- * 5.4) \ref overlayExample
+ * 6) \ref proshadeBinary
  *
- * 6) \ref libuse
+ * 6.1) \ref symDetection
  *
- * 6.1) \ref liblink
+ * 6.2) \ref distDetection
  *
- * 6.2) \ref libexamples
+ * 6.3) \ref reboxingUsage
  *
- * 7) \ref pyusage
+ * 6.4) \ref overlayExample
  *
- * 7.1) \ref pyinstall
+ * 7) \ref libuse
  *
- * 7.2) \ref pyexamples
+ * 7.1) \ref liblink
+ *
+ * 7.2) \ref libexamples
+ *
+ * 8) \ref pyusage
+ *
+ * 8.1) \ref pyinstall
+ *
+ * 8.2) \ref pyexamples
  *
  * \section install Installation
  *
@@ -142,6 +150,10 @@
  * - This option is used to supply the path to the liblapack.a/so/dylib in the case where ProSHADE CMake installation fails to detect the LAPACK dependency. This is typically the case when the LAPACK is installed
  * outside of the standard LAPACK installation locations.
  *
+ * \b -DNO_PYTHON=TRUE
+ * - This option controls whether python modules should be build or not. If you have installed ProSHADE python modules using pip or if you are not interested in using the python modules, leave this option at default TRUE. On
+ * the other hand, if you want to install the python modules from source (not really recommended), then you will need to switch this option to FALSE.
+ *
  * \subsection otherDependencies Other dependencies
  *
  * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are
@@ -164,6 +176,29 @@
  *
  * To remove the installed ProSHADE components, the command \c make \c remove needs to be issued to the makefile originally created by the CMake call. Please note that \c sudo may need to be used if the installation was
  * done into the system folders and your current user does not have admin rights.
+ *
+ * \section pdbInput Input PDB files
+ *
+ * There are several caveats to inputting PDB files; most of these have to do with the fact that PDB files encode much more information than ProSHADE is intended to use. Therefore, ProSHADE is be default set to disregard information
+ * it does not need; however, if the user so requires, the information an be used, albeit it may pose some unexpected problems.
+ *
+ * \subsection spaceGroups Spacegroups
+ *
+ * By default, ProSHADE will ignore the PDB file encoded spacegroup and will instead force the P1 spacegroup onto the input files. The reason for this behaviour is that when computing the theoretical density map, some spacegroups will
+ * cause density from other cells to be added as well (\e e.g. P21 21 21). Since ProSHADE is intended to use the structure shape irrespective of the experimental method (\e i.e. irrespective of crystal packaging), having density
+ * from other cells would cause ProSHADE to perceive differences where the structures could be identical except for the spacegroup. To force ProSHADE to make use of the spacegroup, please supply the \c -u command line option.
+ *
+ * \subsection waterMols Waters
+ *
+ * By default, ProSHADE will remove all water molecules from any input PDB files. The reason is similar to above, as ProSHADE is intended to compare protein shapes and as waters are in most cases not an integral part of the protein,
+ * this behaviour is attempting to avoid situations where two identical structures with one having hundreds of waters and one not would be perceived by ProSHADE as significantly different. Should the user require the water molecules to
+ * be used by ProSHADE, please supply the \c -w command line option.
+ *
+ * \subsection firstModel Models
+ *
+ * There are examples of both, PDB files containing multiple models of the same structure (with minor differences, \e e.g. trajectory files) and PDB files which have their chains (or collections of chains) separated into different models. Given
+ * this state of affairs, ProSHADE will by default use only the first model of each input PDB file and will print a warning message (which can be supressed by setting verbosity below 0) for each file it reads which has more than one model. Should
+ * the user want to use all available models for the input PDB files, please supply ProSHADE with the \c -x command line option.
  *
  * \section proshadeBinary Using the ProSHADE binary
  *

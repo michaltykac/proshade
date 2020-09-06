@@ -36,6 +36,9 @@ int main ( int argc, char **argv )
     settings->setMapReboxing                          ( true );                              // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     
     //================================================ Further useful settings
+    settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
+    settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setOutputFilename                       ( "reBoxed" );                         // Filename to where re-boxed structure will be written to.
     settings->setBoundsSpace                          ( 3.0 );                               // The extra space in Angs to add to the minimal boundaries when re-boxing.
     settings->setBoundsThreshold                      ( 0 );                                 // If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.

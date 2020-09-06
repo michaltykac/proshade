@@ -51,6 +51,9 @@ pSet.requestedSymmetryFold                    = 12
 
 
 ### Useful settings
+pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
+pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
+pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
 pSet.setMapResolutionChangeTriLinear          ( True )                                 # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?

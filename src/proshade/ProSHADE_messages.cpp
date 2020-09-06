@@ -179,6 +179,18 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            File name (including path) of the input coordinate or map file.     " << std::endl;
     std::cout << "            For multiple files, use the option multiple times.                  " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -u                                              [DEFAULT:         TRUE]     " << std::endl;
+    std::cout << "            Switch the value of this boolean. If true, any input PDB files      " << std::endl;
+    std::cout << "            will be forced to have P1 spacegroup, CRYST1 value otherwise.       " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    -w                                              [DEFAULT:         TRUE]     " << std::endl;
+    std::cout << "            Switch the value of this boolean. If true, all water molecules      " << std::endl;
+    std::cout << "            in input PDB files will be removed.                                 " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    -x                                              [DEFAULT:         TRUE]     " << std::endl;
+    std::cout << "            Switch the value of this boolean. If true, only the first PDB       " << std::endl;
+    std::cout << "            file model will be used, all models will be used otherwise.         " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    -r or --resolution                              [DEFAULT:         NONE]     " << std::endl;
     std::cout << "            The resolution to which the calculations are to be done and to      " << std::endl;
     std::cout << "            which PDB files theoretical maps will be sampled to.                " << std::endl;

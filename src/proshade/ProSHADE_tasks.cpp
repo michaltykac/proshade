@@ -395,7 +395,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        movingStructure->writePdb                     ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ );
+        movingStructure->writePdb                     ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ, settings->firstModelOnly );
     }
     
     //================================================ Release memory

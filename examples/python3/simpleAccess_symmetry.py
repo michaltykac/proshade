@@ -49,6 +49,9 @@ pSet.addStructure                             ( "./emd_6324.map" )              
 
 
 ### Useful settings
+pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
+pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
+pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setMapResolutionChange                   ( True )                                 # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
 pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?

@@ -38,16 +38,21 @@ namespace ProSHADE_internal_mapManip
 {
     proshade_signed myRound                           ( proshade_double x );
     void determinePDBRanges                           ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
-                                                        proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo );
-    void findPDBCOMValues                             ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom );
+                                                        proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, bool firstModel );
+    void findPDBCOMValues                             ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel );
+    void findMAPCOMValues                             ( proshade_double* map, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom,
+                                                        proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xFrom,
+                                                        proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom,
+                                                        proshade_signed zTo );
     void rotatePDBCoordinates                         ( gemmi::Structure *pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
-                                                        proshade_double yCom, proshade_double zCom );
-    void translatePDBCoordinates                      ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ );
-    void changePDBBFactors                            ( gemmi::Structure *pdbFile, proshade_double newBFactorValue );
-    void movePDBForMapCalc                            ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov );
+                                                        proshade_double yCom, proshade_double zCom, bool firstModel );
+    void translatePDBCoordinates                      ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ, bool firstModel );
+    void changePDBBFactors                            ( gemmi::Structure *pdbFile, proshade_double newBFactorValue, bool firstModel );
+    void removeWaters                                 ( gemmi::Structure *pdbFile, bool firstModel );
+    void movePDBForMapCalc                            ( gemmi::Structure *pdbFile, proshade_single xMov, proshade_single yMov, proshade_single zMov, bool firstModel );
     void generateMapFromPDB                           ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution,
                                                         proshade_single xCell, proshade_single yCell, proshade_single zCell, proshade_signed* xTo,
-                                                        proshade_signed* yTo, proshade_signed* zTo );
+                                                        proshade_signed* yTo, proshade_signed* zTo, bool forceP1, bool firstModel );
     void moveMapByIndices                             ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs,
                                                         proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo,
                                                         proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin,
