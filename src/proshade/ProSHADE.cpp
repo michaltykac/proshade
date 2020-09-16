@@ -18,7 +18,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -124,6 +124,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
+    this->rotTrsJSONFile                              = "movedStructureOperations.json";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
@@ -230,6 +231,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
+    this->rotTrsJSONFile                              = "movedStructureOperations.json";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
@@ -1081,6 +1083,20 @@ void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
     
 }
 
+/*! \brief Sets the filename to which the overlay operations are to be save into.
+ 
+    \param[in] filename The filename to which the overlay operations are to be saved to.
+ */
+void ProSHADE_settings::setOverlayJsonFile ( std::string filename )
+{
+    //================================================ Set the value
+    this->rotTrsJSONFile                              = filename;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1276,7 +1292,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
         switch ( settings->task )
         {
             case NA:
-                throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Symmetry, Distances,\n                    : Features, RotateMap, OverlayMap, SimpleRebox." );
+                throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Distances, Symmetry,\n                    : OverlayMap or MapManip." );
                 break;
                 
             case Symmetry:
@@ -1512,12 +1528,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
+        { "overlayJSONFile", required_argument,  NULL, 'y' },
         { "angUncertain",    required_argument,  NULL, ';' },
         { NULL,              0,                  NULL,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwx!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1916,6 +1933,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case '}':
              {
                  this->setOverlaySaveFile             ( static_cast<std::string> ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as filename to save the overlay operations to value
+             case 'y':
+             {
+                 this->setOverlayJsonFile             ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  

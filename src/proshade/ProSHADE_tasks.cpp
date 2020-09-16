@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -373,7 +373,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ First, run without phase and find best rotation angles
     settings->usePhase                                = false;
     ProSHADE_internal_overlay::getOptimalRotation     ( settings, staticStructure, movingStructure, &eulA, &eulB, &eulG );
-    
+
     //================================================ Release memory
     delete staticStructure;
     delete movingStructure;
@@ -387,16 +387,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     settings->changeMapResolution                     = true;
     ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG );
     
-    //================================================ Write out rotated map and PDB (if possible)
-    std::stringstream fNameHlp;
-    fNameHlp << settings->overlayStructureName << ".map";
-    movingStructure->writeMap                         ( fNameHlp.str() );
-    if ( ProSHADE_internal_io::isFilePDB ( movingStructure->fileName ) )
-    {
-        fNameHlp.str("");
-        fNameHlp << settings->overlayStructureName << ".pdb";
-        movingStructure->writePdb                     ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ, settings->firstModelOnly );
-    }
+    //== WRITE OUT EVERYTHING!
     
     //================================================ Release memory
     delete staticStructure;

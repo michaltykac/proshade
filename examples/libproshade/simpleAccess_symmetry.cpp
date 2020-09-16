@@ -16,7 +16,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
 */
 
@@ -63,6 +63,7 @@ int main ( int argc, char **argv )
     settings->setOutputFilename                       ( "reBoxed" );                         // Filename to where re-boxed structure will be written to.
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
+    settings->setOverlayJsonFile                      ( "movedStructureOperations.json" );   // Filename where the overlay operations should be saved.
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?

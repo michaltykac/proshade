@@ -16,7 +16,7 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -25,10 +25,10 @@
 
 /*! \brief This function allocates the required memory for the RRP matrices.
  
- This function belongs to the ProSHADE_data class and its role is to allocate the require memory
- for the RRP matrices, given the already determined bandwidths and shell count.
+    This function belongs to the ProSHADE_data class and its role is to allocate the require memory
+    for the RRP matrices, given the already determined bandwidths and shell count.
  
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( ProSHADE_settings* settings )
 {
@@ -52,11 +52,11 @@ void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( ProSHADE_setting
 
 /*! \brief This function pre-computes the RRP matrices for a data object.
  
- This function belongs to the ProSHADE_data class and its role is to set the objects internal
- variables properly and provide all the required calculations, so that the object will in the
- end have all the RRP matrices computed and be ready for the energy levels calculation.
+    This function belongs to the ProSHADE_data class and its role is to set the objects internal
+    variables properly and provide all the required calculations, so that the object will in the
+    end have all the RRP matrices computed and be ready for the energy levels calculation.
  
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settings* settings )
 {
@@ -133,12 +133,12 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
 
 /*! \brief This function checks if a band is available for a given shell.
  
- This function simply checks if a particular sphere bandwidth limit is higher than a requested
- band, returning true if it is and false if not.
+    This function simply checks if a particular sphere bandwidth limit is higher than a requested
+    band, returning true if it is and false if not.
  
- \param[in] bandInQuestion The value of the band existence of which is to be checked.
- \param[in] shellInQuestion The index of the shell for which the band existence is checked.
- \param[in] spheres The ProSHADE structure holding all the shells and their information.
+    \param[in] bandInQuestion The value of the band existence of which is to be checked.
+    \param[in] shellInQuestion The index of the shell for which the band existence is checked.
+    \param[in] spheres The ProSHADE structure holding all the shells and their information.
  */
 bool ProSHADE_internal_distances::isBandWithinShell ( proshade_unsign bandInQuestion, proshade_unsign shellInQuestion, ProSHADE_internal_spheres::ProSHADE_sphere** spheres )
 {
@@ -154,13 +154,13 @@ bool ProSHADE_internal_distances::isBandWithinShell ( proshade_unsign bandInQues
 
 /*! \brief This function computes the energy levels descriptor value between two objects.
  
- This function is where the enery levels descriptor computation is controlled and done from. It starts by
- making sure that both input data objects have the RRP matrices computed and then it proceeds to compute the
- Pearson's coefficients for each band, finally averaging the band values and returning the descriptos.
+    This function is where the enery levels descriptor computation is controlled and done from. It starts by
+    making sure that both input data objects have the RRP matrices computed and then it proceeds to compute the
+    Pearson's coefficients for each band, finally averaging the band values and returning the descriptos.
  
- \param[in] obj1 The first ProSHADE_data object against which comparison is done.
- \param[in] obj2 The second ProSHADE_data object which is compared to the first.
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
+    \param[in] obj2 The second ProSHADE_data object which is compared to the first.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
@@ -202,15 +202,15 @@ proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( Pro
 
 /*! \brief This function gets the Pearson's coefficients or all bands between two objects.
  
- This function takes two data objects with their RRP matrices computed and proceeds to compute the
- Pearson's correlation coefficient for each band, saving it into the supplied vector.
+    This function takes two data objects with their RRP matrices computed and proceeds to compute the
+    Pearson's correlation coefficient for each band, saving it into the supplied vector.
  
- \param[in] obj1 The first ProSHADE_data object against which comparison is done.
- \param[in] obj2 The second ProSHADE_data object which is compared to the first.
- \param[in] settings A pointer to settings class containing all the information required for the task.
- \param[in] minCommonBands The number of common bands between the two objects.
- \param[in] minCommonShells The index of highest common shell in both objects.
- \param[in] bandDists Empty vector of proshade_doubles to which the Pearson's Coefficients will be saved for each band.
+    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
+    \param[in] obj2 The second ProSHADE_data object which is compared to the first.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] minCommonBands The number of common bands between the two objects.
+    \param[in] minCommonShells The index of highest common shell in both objects.
+    \param[in] bandDists Empty vector of proshade_doubles to which the Pearson's Coefficients will be saved for each band.
  */
 void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings, proshade_unsign minCommonBands, proshade_unsign minCommonShells, std::vector<proshade_double>* bandDists )
 {
@@ -270,12 +270,12 @@ void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_inter
 
 /*! \brief This function allocates the required memory for the E matrices.
  
- This function belongs to the ProSHADE_data class and its role is to allocate the require memory
- for the E matrices required by both, the Trace Sigma and Full Rotational descriptors, as well as
- symmetry and rotation tasks.
+    This function belongs to the ProSHADE_data class and its role is to allocate the require memory
+    for the E matrices required by both, the Trace Sigma and Full Rotational descriptors, as well as
+    symmetry and rotation tasks.
  
- \param[in] settings A pointer to settings class containing all the information required for the task.
- \param[in] band The minimal band of the comparison for which E matrices are computed.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] band The minimal band of the comparison for which E matrices are computed.
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( ProSHADE_settings* settings, proshade_unsign  band )
 {
@@ -306,13 +306,13 @@ void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( ProSHADE_setting
 
 /*! \brief This helper function is responsible for allocating the workspace memory required for trace sigma descriptor computation.
  
- \param[in] minSpheres The minima of the number of spheres available in the compared objects.
- \param[in] intOrder The integration order for the computation.
- \param[in] obj1Vals Array to hold the shell values for the first object integgration.
- \param[in] obj2Vals Array to hold the shell values for the second object integgration.
- \param[in] GLabscissas An array to hold the pre-computed anscissas for the Gauss-Legendre integration.
- \param[in] glWeights An array to hold the pre-computed weights for the Gauss-Legendre integration.
- \param[in] radiiVals A complex array to hold the results of combining spherical harmonics coefficients of the two objects for each shell.
+    \param[in] minSpheres The minima of the number of spheres available in the compared objects.
+    \param[in] intOrder The integration order for the computation.
+    \param[in] obj1Vals Array to hold the shell values for the first object integgration.
+    \param[in] obj2Vals Array to hold the shell values for the second object integgration.
+    \param[in] GLabscissas An array to hold the pre-computed anscissas for the Gauss-Legendre integration.
+    \param[in] glWeights An array to hold the pre-computed weights for the Gauss-Legendre integration.
+    \param[in] radiiVals A complex array to hold the results of combining spherical harmonics coefficients of the two objects for each shell.
  */
 void ProSHADE_internal_distances::allocateTrSigmaWorkspace ( proshade_unsign minSpheres, proshade_unsign intOrder, proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas, proshade_double*& GLweights, proshade_complex*& radiiVals )
 {
@@ -337,11 +337,11 @@ void ProSHADE_internal_distances::allocateTrSigmaWorkspace ( proshade_unsign min
 
 /*! \brief This function computes the magnitude of a particular spherical harmonics position for a given object, weighting it by the radius^2 (for integration).
  
- \param[in] obj The ProSHADE_data object for which the computation is to be done.
- \param[in] band The bandwidth of the SH value for which this should be done.
- \param[in] order The order of the SH value for which this should be done.
- \param[in] radius The shell of the SH value for which this should be done.
- \param[in] result The location where the result is to be saved.
+    \param[in] obj The ProSHADE_data object for which the computation is to be done.
+    \param[in] band The bandwidth of the SH value for which this should be done.
+    \param[in] order The order of the SH value for which this should be done.
+    \param[in] radius The shell of the SH value for which this should be done.
+    \param[in] result The location where the result is to be saved.
  */
 void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_internal_data::ProSHADE_data* obj, proshade_unsign band, proshade_unsign order, proshade_unsign radius, proshade_double* result )
 {
@@ -361,16 +361,16 @@ void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_
 
 /*! \brief This function computes the E matrix un-weighted values for a given band and order and saves these into the obj2 parameter.
  
- \param[in] obj1 The ProSHADE_data object for which the comparison is done in regards to.
- \param[in] obj2 The ProSHADE_data object for which the comparison is done in regards from - the E matrices will be saved into this object.
- \param[in] band The bandwidth of the SH value for which this should be done.
- \param[in] order The order of the SH value for which this should be done.
- \param[in] radiiVals Already allocated array of proshade_complex to which integrated values will be saved. It must have size equal to minimum of spheres in the two compared objects.
- \param[in] integOrder The Gauss-Legendre integration order to be used.
- \param[in] abscissas The pre-computed abscissas for the Gauss-Legendre integration.
- \param[in] weights The pre-computed weights for the Gauss-Legendre integration.
- \param[in] integRange The range in angstroms between the smalleds and largest shell which are integrated over (might not be 0 to max for progressive shell sampling).
- \param[in] sphereDist The distance between any two spheres.
+    \param[in] obj1 The ProSHADE_data object for which the comparison is done in regards to.
+    \param[in] obj2 The ProSHADE_data object for which the comparison is done in regards from - the E matrices will be saved into this object.
+    \param[in] band The bandwidth of the SH value for which this should be done.
+    \param[in] order The order of the SH value for which this should be done.
+    \param[in] radiiVals Already allocated array of proshade_complex to which integrated values will be saved. It must have size equal to minimum of spheres in the two compared objects.
+    \param[in] integOrder The Gauss-Legendre integration order to be used.
+    \param[in] abscissas The pre-computed abscissas for the Gauss-Legendre integration.
+    \param[in] weights The pre-computed weights for the Gauss-Legendre integration.
+    \param[in] integRange The range in angstroms between the smalleds and largest shell which are integrated over (might not be 0 to max for progressive shell sampling).
+    \param[in] sphereDist The distance between any two spheres.
  */
 void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_complex* radiiVals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist )
 {
@@ -422,18 +422,18 @@ void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data
 
 /*! \brief This function computes the E matrix weight values for a given band and order and saves these into the appropriate objects.
  
- \param[in] obj1 The ProSHADE_data object for which the comparison is done in regards to.
- \param[in] obj2 The ProSHADE_data object for which the comparison is done in regards from - the E matrices will be saved into this object.
- \param[in] band The bandwidth of the SH value for which this should be done.
- \param[in] order The order of the SH value for which this should be done.
- \param[in] obj1Vals Already allocated array of proshade_double to which integrated values will be saved. It must have size equal to minimum of spheres in the two compared objects.
- \param[in] obj2Vals Already allocated array of proshade_double to which integrated values will be saved. It must have size equal to minimum of spheres in the two compared objects.
- \param[in] integOrder The Gauss-Legendre integration order to be used.
- \param[in] abscissas The pre-computed abscissas for the Gauss-Legendre integration.
- \param[in] weights The pre-computed weights for the Gauss-Legendre integration.
- \param[in] integRange The range in angstroms between the smalleds and largest shell which are integrated over (might not be 0 to max for progressive shell sampling).
- \param[in] sphereDist The distance between any two spheres.
- \param[out] sphereRange The distance between the smallest and largest usable sphere (usable as in having the required band).
+    \param[in] obj1 The ProSHADE_data object for which the comparison is done in regards to.
+    \param[in] obj2 The ProSHADE_data object for which the comparison is done in regards from - the E matrices will be saved into this object.
+    \param[in] band The bandwidth of the SH value for which this should be done.
+    \param[in] order The order of the SH value for which this should be done.
+    \param[in] obj1Vals Already allocated array of proshade_double to which integrated values will be saved. It must have size equal to minimum of spheres in the two compared objects.
+    \param[in] obj2Vals Already allocated array of proshade_double to which integrated values will be saved. It must have size equal to minimum of spheres in the two compared objects.
+    \param[in] integOrder The Gauss-Legendre integration order to be used.
+    \param[in] abscissas The pre-computed abscissas for the Gauss-Legendre integration.
+    \param[in] weights The pre-computed weights for the Gauss-Legendre integration.
+    \param[in] integRange The range in angstroms between the smalleds and largest shell which are integrated over (might not be 0 to max for progressive shell sampling).
+    \param[in] sphereDist The distance between any two spheres.
+    \param[out] sphereRange The distance between the smallest and largest usable sphere (usable as in having the required band).
  */
 proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double sphereDist )
 {
@@ -474,11 +474,11 @@ proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( P
 
 /*! \brief This helper function is responsible for deleting the workspace memory required for trace sigma descriptor computation.
  
- \param[in] obj1Vals Array to hold the shell values for the first object integgration.
- \param[in] obj2Vals Array to hold the shell values for the second object integgration.
- \param[in] GLabscissas An array to hold the pre-computed anscissas for the Gauss-Legendre integration.
- \param[in] glWeights An array to hold the pre-computed weights for the Gauss-Legendre integration.
- \param[in] radiiVals A complex array to hold the results of combining spherical harmonics coefficients of the two objects for each shell.
+    \param[in] obj1Vals Array to hold the shell values for the first object integgration.
+    \param[in] obj2Vals Array to hold the shell values for the second object integgration.
+    \param[in] GLabscissas An array to hold the pre-computed anscissas for the Gauss-Legendre integration.
+    \param[in] glWeights An array to hold the pre-computed weights for the Gauss-Legendre integration.
+    \param[in] radiiVals A complex array to hold the results of combining spherical harmonics coefficients of the two objects for each shell.
  */
 void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas, proshade_double*& GLweights, proshade_complex*& radiiVals )
 {
@@ -503,14 +503,14 @@ void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& ob
 
 /*! \brief This function computes the complete E matrices and their weights between any two objects.
  
- This function allocates the space required for storing the E matrices, allocates all the workspace requierd for the computation
- and proceeds to compute the values for all band (l), order1(m) and order2(m') E matrix values. It then proceeds to release all
- non required memory and terminates, leaving all its results in the second ProSHADE data object supplied. This function does NOT
- apply the weights to the matrices, it needs to be done subsequently!
+    This function allocates the space required for storing the E matrices, allocates all the workspace requierd for the computation
+    and proceeds to compute the values for all band (l), order1(m) and order2(m') E matrix values. It then proceeds to release all
+    non required memory and terminates, leaving all its results in the second ProSHADE data object supplied. This function does NOT
+    apply the weights to the matrices, it needs to be done subsequently!
  
- \param[in] obj1 The first ProSHADE_data object for which the computation is done.
- \param[in] obj2 The second ProSHADE_data object for which the computation is done.
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj1 The first ProSHADE_data object for which the computation is done.
+    \param[in] obj2 The second ProSHADE_data object for which the computation is done.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
@@ -567,13 +567,13 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
 
 /*! \brief This function normalises the E matrices.
  
- This function assumes that the E matrices and integration magnitude weights were already computed. It now proceeds to compute the weighting
- factor (sqrt of the product of the magnitudes of the two objects) and apply it to the E matrices. This normalisation is similar in formula
- and meaning to the Pearson's correlation coefficient normalisation.
+    This function assumes that the E matrices and integration magnitude weights were already computed. It now proceeds to compute the weighting
+    factor (sqrt of the product of the magnitudes of the two objects) and apply it to the E matrices. This normalisation is similar in formula
+    and meaning to the Pearson's correlation coefficient normalisation.
  
- \param[in] obj1 The first ProSHADE_data object for which the computation is done.
- \param[in] obj2 The second ProSHADE_data object for which the computation is done.
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj1 The first ProSHADE_data object for which the computation is done.
+    \param[in] obj2 The second ProSHADE_data object for which the computation is done.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
@@ -608,16 +608,16 @@ void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::P
 
 /*! \brief This function computes the trace sigma descriptor value between two objects.
  
- This function starts by checking if the trace sigma descriptor was requested and if so, proceeds to compute the E matrices.
- These are 3D matrices with each l,m,m' value being the combination of the c_{l,m} and c*_{l,m'} spherical harmonics coefficients.
- Once computed, the E matrices are normalised by the magnitudes of the objects spherical harmonics coefficients and the SVD is computed
- for each l (i.e. on each m x m' matrix). The sum of the trace of the sigmas of the SVD is then the trace sigma descriptor, whose value
- is returned.
+    This function starts by checking if the trace sigma descriptor was requested and if so, proceeds to compute the E matrices.
+    These are 3D matrices with each l,m,m' value being the combination of the c_{l,m} and c*_{l,m'} spherical harmonics coefficients.
+    Once computed, the E matrices are normalised by the magnitudes of the objects spherical harmonics coefficients and the SVD is computed
+    for each l (i.e. on each m x m' matrix). The sum of the trace of the sigmas of the SVD is then the trace sigma descriptor, whose value
+    is returned.
  
- \param[in] obj1 The first ProSHADE_data object against which comparison is done.
- \param[in] obj2 The second ProSHADE_data object which is compared to the first.
- \param[in] settings A pointer to settings class containing all the information required for the task.
- \param[out] ret The final normalised value of the trace sigma descriptor for the two objects.
+    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
+    \param[in] obj2 The second ProSHADE_data object which is compared to the first.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[out] ret The final normalised value of the trace sigma descriptor for the two objects.
  */
 proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
@@ -676,7 +676,7 @@ proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSH
 
 /*! \brief This function allocates the memory for the SO(3) coefficients and the inverse for that calling object.
  
- \param[in] band The bandwidth to which the computation will be done.
+    \param[in] band The bandwidth to which the computation will be done.
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_unsign band )
 {
@@ -695,14 +695,14 @@ void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_un
 
 /*! \brief This function converts the E matrices to SO(3) coefficients.
  
- This function starts by allocating the memory for the SO(3) coefficients and their inverse. It then
- proceeds to convert the E matrix values into the SO(3) transform coefficients by applying the Wigner
- normalisation factor and changing the sign as required by SOFT library. Upon termination, the coeffs
- will be saved in the obj2 class.
+    This function starts by allocating the memory for the SO(3) coefficients and their inverse. It then
+    proceeds to convert the E matrix values into the SO(3) transform coefficients by applying the Wigner
+    normalisation factor and changing the sign as required by SOFT library. Upon termination, the coeffs
+    will be saved in the obj2 class.
  
- \param[in] obj1 The first ProSHADE_data object against which comparison is done.
- \param[in] obj2 The second ProSHADE_data object which is compared to the first.
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
+    \param[in] obj2 The second ProSHADE_data object which is compared to the first.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
@@ -759,10 +759,10 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
 
 /*! \brief This function allocates the workspaces required to compute the inverse SOFT transform.
  
- \param[in] work1 The first workspace pointer to be allocated.
- \param[in] work2 The second workspace pointer to be allocated.
- \param[in] work3 The third workspace pointer to be allocated.
- \param[in] band The bandwidth of the computations (this determines how much workspace will be required).
+    \param[in] work1 The first workspace pointer to be allocated.
+    \param[in] work2 The second workspace pointer to be allocated.
+    \param[in] work3 The third workspace pointer to be allocated.
+    \param[in] band The bandwidth of the computations (this determines how much workspace will be required).
  */
 void ProSHADE_internal_distances::allocateInvSOFTWorkspaces ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3, proshade_unsign band )
 {
@@ -783,10 +783,10 @@ void ProSHADE_internal_distances::allocateInvSOFTWorkspaces ( proshade_complex*&
 
 /*! \brief This function prepares the FFTW plan for the inverse SO(3) transform.
  
- \param[in] inverseSO3 The FFTW_PLAN pointer where the result will be saved.
- \param[in] band The bandwidth of the computations.
- \param[in] work1 The workspace to be used for the computation.
- \param[in] invCoeffs The pointer to where the inverse SOFT transform results will be saved.
+    \param[in] inverseSO3 The FFTW_PLAN pointer where the result will be saved.
+    \param[in] band The bandwidth of the computations.
+    \param[in] work1 The workspace to be used for the computation.
+    \param[in] invCoeffs The pointer to where the inverse SOFT transform results will be saved.
  */
 void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, proshade_unsign band, fftw_complex* work1, proshade_complex* invCoeffs )
 {
@@ -831,9 +831,9 @@ void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, pr
 
 /*! \brief This function releases the memory used for computation of the inverse SOFT transform.
  
- \param[in] work1 The first workspace pointer to be released.
- \param[in] work2 The second workspace pointer to be released.
- \param[in] work3 The third workspace pointer to be released.
+    \param[in] work1 The first workspace pointer to be released.
+    \param[in] work2 The second workspace pointer to be released.
+    \param[in] work3 The third workspace pointer to be released.
  */
 void ProSHADE_internal_distances::releaseInvSOFTMemory ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3 )
 {
@@ -848,14 +848,14 @@ void ProSHADE_internal_distances::releaseInvSOFTMemory ( proshade_complex*& work
 
 /*! \brief This function computes the inverse SO(3) transform.
  
- This function firstly allocates all the required workspaces for the inverse SO(3) Fourier Transform, then it
- prepares the FFTW plans for performing the FFTW inverse Fourier transform in the SO(3) space using FFTW and
- finally it subjects the SO(3) coeffficients available at this point to the computation. The results are saved
- into the second object, memory is released and function terminates.
+    This function firstly allocates all the required workspaces for the inverse SO(3) Fourier Transform, then it
+    prepares the FFTW plans for performing the FFTW inverse Fourier transform in the SO(3) space using FFTW and
+    finally it subjects the SO(3) coeffficients available at this point to the computation. The results are saved
+    into the second object, memory is released and function terminates.
  
- \param[in] obj1 The first ProSHADE_data object against which comparison is done.
- \param[in] obj2 The second ProSHADE_data object which is compared to the first.
- \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
+    \param[in] obj2 The second ProSHADE_data object which is compared to the first.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
 void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
@@ -897,17 +897,17 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
 
 /*! \brief This function computes the rotation function descriptor value between two objects.
  
- This function starts by sanity checks and computation and normalisation of the E matrices used for the trace sigma
- descriptor (these only need to be computed if trace sigma descriptor is NOT computed, otherwise the stored values are
- used to save time). It then converts the E matrix values to SO(3) transform coefficients and invers these using the
- SOFT library. From the resulting rotation function map, it selects the highest peak and applies its rotation to the
- E matrix values. The resulting values are simply summed, as this sum can be proven to be the argmin of the distance
- between the two objects in their spherical harmonics decomposition space.
+    This function starts by sanity checks and computation and normalisation of the E matrices used for the trace sigma
+    descriptor (these only need to be computed if trace sigma descriptor is NOT computed, otherwise the stored values are
+    used to save time). It then converts the E matrix values to SO(3) transform coefficients and invers these using the
+    SOFT library. From the resulting rotation function map, it selects the highest peak and applies its rotation to the
+    E matrix values. The resulting values are simply summed, as this sum can be proven to be the argmin of the distance
+    between the two objects in their spherical harmonics decomposition space.
  
- \param[in] obj1 The first ProSHADE_data object against which comparison is done.
- \param[in] obj2 The second ProSHADE_data object which is compared to the first.
- \param[in] settings A pointer to settings class containing all the information required for the task.
- \param[out] ret The final normalised value of the rotation function descriptor for the two objects.
+    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
+    \param[in] obj2 The second ProSHADE_data object which is compared to the first.
+    \param[in] settings A pointer to settings class containing all the information required for the task.
+    \param[out] ret The final normalised value of the rotation function descriptor for the two objects.
  */
 proshade_double ProSHADE_internal_distances::computeRotationunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {

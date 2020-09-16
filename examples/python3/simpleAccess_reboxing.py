@@ -19,7 +19,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -78,6 +78,7 @@ pSet.setMinimumPeakForAxis                    ( 0.3 )                           
 pSet.setRequestedSymmetry                     ( "" )                                   # Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 pSet.setRequestedFold                         ( 0 )                                    # For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
 pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
+pSet.setOverlayJsonFile                       ( "movedStructureOperations.json" )      # Filename where the overlay operations should be saved.
 pSet.setMapInversion                          ( False )                                # Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand ...
                                                                                        # ... as a result of first runs of map computation.
 pSet.setBandwidth                             ( 0 )                                    # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.

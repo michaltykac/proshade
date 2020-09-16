@@ -34,7 +34,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################

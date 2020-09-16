@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -28,11 +28,11 @@
 
 //==================================================== ProSHADE_internal_mapManip namespace
 /*! \namespace ProSHADE_internal_mapManip
- \brief This namespace contains the internal functions for manipulating maps already present in the internal structures.
+    \brief This namespace contains the internal functions for manipulating maps already present in the internal structures.
  
- The ProSHADE_internal_mapManip namespace contains helper functions for map manipulation and processing. However, these functions do make
- minimum assumptions about the map internal organisation and variables and simply perform tasks on generic variables. None of these
- functions should be used directly be the user.
+    The ProSHADE_internal_mapManip namespace contains helper functions for map manipulation and processing. However, these functions do make
+    minimum assumptions about the map internal organisation and variables and simply perform tasks on generic variables. None of these
+    functions should be used directly be the user.
  */
 namespace ProSHADE_internal_mapManip
 {

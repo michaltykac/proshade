@@ -18,7 +18,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -54,6 +54,7 @@ pSet.removeWaters                             = True;                           
 pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
+pSet.setOverlayJsonFile                       ( "movedStructureOperations.json" )      # Filename where the overlay operations should be saved.
 pSet.setMasking                               ( False )                                # Should maps be masked by blurring?
 pSet.setMapReboxing                           ( False )                                # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?

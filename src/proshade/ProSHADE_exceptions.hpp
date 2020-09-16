@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -28,10 +28,10 @@
 #define __PROSHADE_EXCEPTIONS__
 
 /*! \class ProSHADE_exception
- \brief This class is the representation of ProSHADE exception.
+    \brief This class is the representation of ProSHADE exception.
  
- An object of this class is thrown whenever ProSHADE encounters exceptional case and needs handling it in unusual
- manner. It is a slight expansion on the usual C++ extension class.
+    An object of this class is thrown whenever ProSHADE encounters exceptional case and needs handling it in unusual
+    manner. It is a slight expansion on the usual C++ extension class.
  */
 class ProSHADE_exception : public std::runtime_error
 {

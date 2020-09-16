@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -24,13 +24,13 @@
 
 /*! \brief This function computes the overlay rotation function (i.e. the correlation function in SO(3) space).
  
- This function assumes it is called from the object to which the rotation function is to be assigned to (presumably the
- moving rather than static structure). It starts by computing the E matrices, normalising these using the Patterson-like
- normalisation, generating SO(3) coefficients from the E matrices and finally computing their inverse SOFT transform to
- get the rotation function.
+    This function assumes it is called from the object to which the rotation function is to be assigned to (presumably the
+    moving rather than static structure). It starts by computing the E matrices, normalising these using the Patterson-like
+    normalisation, generating SO(3) coefficients from the E matrices and finally computing their inverse SOFT transform to
+    get the rotation function.
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- \param[in] obj2 A pointer to the data class object of the other ( static ) structure.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] obj2 A pointer to the data class object of the other ( static ) structure.
  */
 void ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj2 )
 {
@@ -59,17 +59,17 @@ void ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction ( ProSHAD
 
 /*! \brief This function finds the optimal rotation between two structures as described by the settings object.
  
- This function takes the settings and two structure classes. It then reads in and processes both structures so that the
- globally optimal rotation overlay Euler angles are detected. However, this is only the case for rotation along the centre
- of the map of the second structure; therefore, either use Patterson data (usePhase = false), or be aware that better rotation
- may exist for different centre of rotation.
+    This function takes the settings and two structure classes. It then reads in and processes both structures so that the
+    globally optimal rotation overlay Euler angles are detected. However, this is only the case for rotation along the centre
+    of the map of the second structure; therefore, either use Patterson data (usePhase = false), or be aware that better rotation
+    may exist for different centre of rotation.
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- \param[in] obj1 A pointer to the data class object of the other ( static ) structure.
- \param[in] obj2 A pointer to the data class object of the first ( moving ) structure.
- \param[in] eulA The variable to which the best Euler alpha angle value will be saved to.
- \param[in] eulB The variable to which the best Euler beta angle value will be saved to.
- \param[in] eulG The variable to which the best Euler gamma angle value will be saved to.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] obj1 A pointer to the data class object of the other ( static ) structure.
+    \param[in] obj2 A pointer to the data class object of the first ( moving ) structure.
+    \param[in] eulA The variable to which the best Euler alpha angle value will be saved to.
+    \param[in] eulB The variable to which the best Euler beta angle value will be saved to.
+    \param[in] eulG The variable to which the best Euler gamma angle value will be saved to.
  */
 void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* eulA, proshade_double* eulB, proshade_double* eulG )
 {
@@ -104,21 +104,21 @@ void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings
 
 /*! \brief This function finds the optimal translation between two structures as described by the settings object given a rotation between the two objects.
  
- This function starts by loading and processing the structures according to the settings object (keeping phase is assumed, but callers
- responsibility). It then applies the required rotation to the second (moing) strucutre and then it follows with zero padding to make sure
- the structures have the same dimensions (again, it assumes map re-sampling was done,
- but setting to is callers responsibility). It then computes the translation function, finds the highest peak and returns the positions
- as well as height of this peak.
+    This function starts by loading and processing the structures according to the settings object (keeping phase is assumed, but callers
+    responsibility). It then applies the required rotation to the second (moing) strucutre and then it follows with zero padding to make sure
+    the structures have the same dimensions (again, it assumes map re-sampling was done,
+    but setting to is callers responsibility). It then computes the translation function, finds the highest peak and returns the positions
+    as well as height of this peak.
  
- \param[in] settings A pointer to settings class containing all the information required for map overlay computation.
- \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
- \param[in] movingStructure A pointer to the data class object of the first ( moving ) structure.
- \param[in] trsX The variable to which the best X-axis position value will be saved to.
- \param[in] trsY The variable to which the best Y-axis position value will be saved to.
- \param[in] trsZ The variable to which the best Z-axis position value will be saved to.
- \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
- \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
- \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
+    \param[in] settings A pointer to settings class containing all the information required for map overlay computation.
+    \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
+    \param[in] movingStructure A pointer to the data class object of the first ( moving ) structure.
+    \param[in] trsX The variable to which the best X-axis position value will be saved to.
+    \param[in] trsY The variable to which the best Y-axis position value will be saved to.
+    \param[in] trsZ The variable to which the best Z-axis position value will be saved to.
+    \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
+    \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
+    \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
  */
 void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG )
 {    
@@ -208,8 +208,8 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
 
 /*! \brief This function gets the optimal translation vector and returns it as a standard library vector.
 
-\param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
-\param[out] X A vector of doubles with the optimal translation vector in Angstroms.
+    \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
+    \param[out] X A vector of doubles with the optimal translation vector in Angstroms.
 */
 std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure )
 {
@@ -257,12 +257,12 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
 
 /*! \brief This function does the computation of the translation map.
 
-This function takes the static structure, the optimal translation to which should be found and then it
-proceeds to compute the Fourier transform of both this and the static structures. It then combines the
-coefficients for translation function and computes the inverse Fourier transform, thus obtaining the
-translation function. This function is then saved, while all other internal data are deleted.
+    This function takes the static structure, the optimal translation to which should be found and then it
+    proceeds to compute the Fourier transform of both this and the static structures. It then combines the
+    coefficients for translation function and computes the inverse Fourier transform, thus obtaining the
+    translation function. This function is then saved, while all other internal data are deleted.
 
-\param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
+    \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
 */
 void ProSHADE_internal_data::ProSHADE_data::computeTranslationMap ( ProSHADE_internal_data::ProSHADE_data* staticStructure )
 {
@@ -294,18 +294,18 @@ void ProSHADE_internal_data::ProSHADE_data::computeTranslationMap ( ProSHADE_int
 
 /*! \brief This function allocates the memory for the Fourier transforms required for translation function computation.
  
- \param[in] tmpIn1 Array to hold the static structure Fourier inputs.
- \param[in] tmpOut1 Array to hold the static structure Fourier outputs.
- \param[in] tmpIn2 Array to hold the moving structure Fourier inputs.
- \param[in] tmpOut2 Array to hold the moving structure Fourier outputs.
- \param[in] resIn Array to hold the final translation function values.
- \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
- \param[in] forwardFourierObj1 FFTW plan for the forward Fourier of the static structure.
- \param[in] forwardFourierObj2 FFTW plan for the forward Fourier of the moving structure.
- \param[in] inverseFourierCombo FFTW plan for the backward Fourier of the combined Fourier factors of both structures.
- \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] tmpIn1 Array to hold the static structure Fourier inputs.
+    \param[in] tmpOut1 Array to hold the static structure Fourier outputs.
+    \param[in] tmpIn2 Array to hold the moving structure Fourier inputs.
+    \param[in] tmpOut2 Array to hold the moving structure Fourier outputs.
+    \param[in] resIn Array to hold the final translation function values.
+    \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
+    \param[in] forwardFourierObj1 FFTW plan for the forward Fourier of the static structure.
+    \param[in] forwardFourierObj2 FFTW plan for the forward Fourier of the moving structure.
+    \param[in] inverseFourierCombo FFTW plan for the backward Fourier of the combined Fourier factors of both structures.
+    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
  */
 void ProSHADE_internal_overlay::allocateTranslationFunctionMemory ( fftw_complex*& tmpIn1, fftw_complex*& tmpOut1, fftw_complex*& tmpIn2, fftw_complex*& tmpOut2, fftw_complex*& resIn, fftw_complex*& resOut, fftw_plan& forwardFourierObj1, fftw_plan& forwardFourierObj2, fftw_plan& inverseFourierCombo, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD )
 {
@@ -337,14 +337,14 @@ void ProSHADE_internal_overlay::allocateTranslationFunctionMemory ( fftw_complex
 
 /*! \brief This function releases the memory for the Fourier transforms required for translation function computation.
  
- \param[in] tmpIn1 Array to hold the static structure Fourier inputs.
- \param[in] tmpOut1 Array to hold the static structure Fourier outputs.
- \param[in] tmpIn2 Array to hold the moving structure Fourier inputs.
- \param[in] tmpOut2 Array to hold the moving structure Fourier outputs.
- \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
- \param[in] forwardFourierObj1 FFTW plan for the forward Fourier of the static structure.
- \param[in] forwardFourierObj2 FFTW plan for the forward Fourier of the moving structure.
- \param[in] inverseFourierCombo FFTW plan for the backward Fourier of the combined Fourier factors of both structures.
+    \param[in] tmpIn1 Array to hold the static structure Fourier inputs.
+    \param[in] tmpOut1 Array to hold the static structure Fourier outputs.
+    \param[in] tmpIn2 Array to hold the moving structure Fourier inputs.
+    \param[in] tmpOut2 Array to hold the moving structure Fourier outputs.
+    \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
+    \param[in] forwardFourierObj1 FFTW plan for the forward Fourier of the static structure.
+    \param[in] forwardFourierObj2 FFTW plan for the forward Fourier of the moving structure.
+    \param[in] inverseFourierCombo FFTW plan for the backward Fourier of the combined Fourier factors of both structures.
  */
 void ProSHADE_internal_overlay::freeTranslationFunctionMemory ( fftw_complex*& tmpIn1, fftw_complex*& tmpOut1, fftw_complex*& tmpIn2, fftw_complex*& tmpOut2, fftw_complex*& resOut, fftw_plan& forwardFourierObj1, fftw_plan& forwardFourierObj2, fftw_plan& inverseFourierCombo )
 {
@@ -365,12 +365,12 @@ void ProSHADE_internal_overlay::freeTranslationFunctionMemory ( fftw_complex*& t
 
 /*! \brief This function combines Fourier coefficients of two structures in a way, so that inverse Fourier of the combination will be the translation function.
  
- \param[in] tmpOut1 Array holding the static structure Fourier outputs.
- \param[in] tmpOut2 Array holding the moving structure Fourier outputs.
- \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
- \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] tmpOut1 Array holding the static structure Fourier outputs.
+    \param[in] tmpOut2 Array holding the moving structure Fourier outputs.
+    \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
+    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
  */
 void ProSHADE_internal_overlay::combineFourierForTranslation ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD )
 {
@@ -424,14 +424,14 @@ void ProSHADE_internal_overlay::combineFourierForTranslation ( fftw_complex* tmp
 
 /*! \brief This function simply finds the highest value in fftw_complex map and returns its position and value.
  
- \param[in] resIn Array holding the translation function values.
- \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
- \param[in] trsX Variable to which the X axis translation function peak position will be saved to.
- \param[in] trsY Variable to which the Y axis translation function peak position will be saved to.
- \param[in] trsZ Variable to which the Z axis translation function peak position will be saved to.
- \param[in] mapPeak Variable to which the height of the translation function peak will be saved to.
+    \param[in] resIn Array holding the translation function values.
+    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] trsX Variable to which the X axis translation function peak position will be saved to.
+    \param[in] trsY Variable to which the Y axis translation function peak position will be saved to.
+    \param[in] trsZ Variable to which the Z axis translation function peak position will be saved to.
+    \param[in] mapPeak Variable to which the height of the translation function peak will be saved to.
  */
 void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak )
 {
@@ -465,13 +465,13 @@ void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, pro
 
 /*! \brief This function increases the size of a structure to fit the supplied new limits.
  
- This function increases the map size by symetrically adding zeroes in each required dimension. The first zero is
- always added AFTER the structure, so for even size increases, there will be misplacement of centre of mass. The
- map position in the "real" world should not change.
+    This function increases the map size by symetrically adding zeroes in each required dimension. The first zero is
+    always added AFTER the structure, so for even size increases, there will be misplacement of centre of mass. The
+    map position in the "real" world should not change.
  
- \param[in] xDim The X dimension size to which this structure should be padded into.
- \param[in] yDim The Y dimension size to which this structure should be padded into.
- \param[in] zDim The Z dimension size to which this structure should be padded into.
+    \param[in] xDim The X dimension size to which this structure should be padded into.
+    \param[in] yDim The Y dimension size to which this structure should be padded into.
+    \param[in] zDim The Z dimension size to which this structure should be padded into.
  */
 void ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim )
 {
@@ -519,18 +519,18 @@ void ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims ( proshade_unsign xDi
 
 /*! \brief This function finds the number of zeroes to be added after and before the structure along each dimension.
  
- \param[in] addXPre Variable pointer where the number of zeroes to be added before the map along X axis is saved.
- \param[in] addYPre Variable pointer where the number of zeroes to be added before the map along Y axis is saved.
- \param[in] addZPre Variable pointer where the number of zeroes to be added before the map along Z axis is saved.
- \param[in] addXPost Variable pointer where the number of zeroes to be added after the map along X axis is saved.
- \param[in] addYPost Variable pointer where the number of zeroes to be added after the map along Y axis is saved.
- \param[in] addZPost Variable pointer where the number of zeroes to be added after the map along Z axis is saved.
- \param[in] xDim The X dimension size in indices of the new map.
- \param[in] yDim The Y dimension size in indices of the new map.
- \param[in] zDim The Z dimension size in indices of the new map.
- \param[in] xDimIndices The X dimension size in indices of the old map.
- \param[in] yDimIndices The Y dimension size in indices of the old map.
- \param[in] zDimIndices The Z dimension size in indices of the old map.
+    \param[in] addXPre Variable pointer where the number of zeroes to be added before the map along X axis is saved.
+    \param[in] addYPre Variable pointer where the number of zeroes to be added before the map along Y axis is saved.
+    \param[in] addZPre Variable pointer where the number of zeroes to be added before the map along Z axis is saved.
+    \param[in] addXPost Variable pointer where the number of zeroes to be added after the map along X axis is saved.
+    \param[in] addYPost Variable pointer where the number of zeroes to be added after the map along Y axis is saved.
+    \param[in] addZPost Variable pointer where the number of zeroes to be added after the map along Z axis is saved.
+    \param[in] xDim The X dimension size in indices of the new map.
+    \param[in] yDim The Y dimension size in indices of the new map.
+    \param[in] zDim The Z dimension size in indices of the new map.
+    \param[in] xDimIndices The X dimension size in indices of the old map.
+    \param[in] yDimIndices The Y dimension size in indices of the old map.
+    \param[in] zDimIndices The Z dimension size in indices of the old map.
  */
 void ProSHADE_internal_overlay::computeBeforeAfterZeroCounts ( proshade_unsign* addXPre, proshade_unsign* addYPre, proshade_unsign* addZPre, proshade_unsign* addXPost, proshade_unsign* addYPost, proshade_unsign* addZPost, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_unsign xDimIndices, proshade_unsign yDimIndices, proshade_unsign zDimIndices )
 {
@@ -549,17 +549,17 @@ void ProSHADE_internal_overlay::computeBeforeAfterZeroCounts ( proshade_unsign* 
 
 /*! \brief This function adds zeroes before and after the central map and copies the central map values into a new map.
  
- \param[in] oldMap The original, unpadded map.
- \param[in] newMap The array to which the new map will be saved into.
- \param[in] xDim The X dimension size of the new map.
- \param[in] yDim The Y dimension size of the new map.
- \param[in] zDim The Z dimension size of the new map.
- \param[in] xDimIndices The X dimension size in indices of the old map.
- \param[in] yDimIndices The Y dimension size in indices of the old map.
- \param[in] zDimIndices The Z dimension size in indices of the old map.
- \param[in] addXPre How many zeroes are to be added before the central map along the X axis?
- \param[in] addYPre How many zeroes are to be added before the central map along the Y axis?
- \param[in] addZPre How many zeroes are to be added before the central map along the Z axis?
+    \param[in] oldMap The original, unpadded map.
+    \param[in] newMap The array to which the new map will be saved into.
+    \param[in] xDim The X dimension size of the new map.
+    \param[in] yDim The Y dimension size of the new map.
+    \param[in] zDim The Z dimension size of the new map.
+    \param[in] xDimIndices The X dimension size in indices of the old map.
+    \param[in] yDimIndices The Y dimension size in indices of the old map.
+    \param[in] zDimIndices The Z dimension size in indices of the old map.
+    \param[in] addXPre How many zeroes are to be added before the central map along the X axis?
+    \param[in] addYPre How many zeroes are to be added before the central map along the Y axis?
+    \param[in] addZPre How many zeroes are to be added before the central map along the Z axis?
  */
 void ProSHADE_internal_overlay::paddMapWithZeroes ( proshade_double* oldMap, proshade_double*& newMap, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_unsign xDimIndices, proshade_unsign yDimIndices, proshade_unsign zDimIndices, proshade_unsign addXPre, proshade_unsign addYPre, proshade_unsign addZPre )
 {
@@ -601,15 +601,15 @@ void ProSHADE_internal_overlay::paddMapWithZeroes ( proshade_double* oldMap, pro
 
 /*! \brief This function rotates a map based on the given Euler angles.
  
- This function starts by computing the Wigner D matrices for the given Euler angles and then it proceeds to multiply the
- spherical harmonics coefficients with these, thus producing spherical harmonics coefficients of a rotated structure. Then,
- it computes the inverse spherical harmonics decomposition, thus obtaining the sphere mapped values for the rotated structure.
- Finally, it interpolates these sphere mapped values back to Cartesian grid, thus obtaining a map rotated by the given Euler angles.
+    This function starts by computing the Wigner D matrices for the given Euler angles and then it proceeds to multiply the
+    spherical harmonics coefficients with these, thus producing spherical harmonics coefficients of a rotated structure. Then,
+    it computes the inverse spherical harmonics decomposition, thus obtaining the sphere mapped values for the rotated structure.
+    Finally, it interpolates these sphere mapped values back to Cartesian grid, thus obtaining a map rotated by the given Euler angles.
  
- \param[in] settings The settings object specifying how exactly the rotation is to be done.
- \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
- \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
- \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
+    \param[in] settings The settings object specifying how exactly the rotation is to be done.
+    \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
+    \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
+    \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
  */
 void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma )
 {
@@ -662,13 +662,13 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
 
 /*! \brief This function simply translates the map by a given number of Angstroms along the three axes.
  
- This function calls the internal functions to first provide the maximum possible movement by changing the frame
- of the map and secondly, it make the precise movement within this new frame using the Fourier translation approach.
+    This function calls the internal functions to first provide the maximum possible movement by changing the frame
+    of the map and secondly, it make the precise movement within this new frame using the Fourier translation approach.
  
- \param[in] settings The settings object specifying how exactly the rotation is to be done.
- \param[in] trsX The translation expressed as a number of angstroms to move by along the x-axis.
- \param[in] trsY The translation expressed as a number of angstroms to move by along the y-axis.
- \param[in] trsZ The translation expressed as a number of angstroms to move by along the z-axis.
+    \param[in] settings The settings object specifying how exactly the rotation is to be done.
+    \param[in] trsX The translation expressed as a number of angstroms to move by along the x-axis.
+    \param[in] trsY The translation expressed as a number of angstroms to move by along the y-axis.
+    \param[in] trsZ The translation expressed as a number of angstroms to move by along the z-axis.
  */
 void ProSHADE_internal_data::ProSHADE_data::translateMap ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
 {
@@ -691,7 +691,7 @@ void ProSHADE_internal_data::ProSHADE_data::translateMap ( ProSHADE_settings* se
 
 /*! \brief This function allocates the memory required for storing the rotated Spherical Harmonics coefficients.
  
- \param[in] settings The settings object specifying how exactly the rotation is to be done.
+    \param[in] settings The settings object specifying how exactly the rotation is to be done.
  */
 void ProSHADE_internal_data::ProSHADE_data::allocateRotatedSHMemory ( ProSHADE_settings* settings )
 {
@@ -721,7 +721,7 @@ void ProSHADE_internal_data::ProSHADE_data::allocateRotatedSHMemory ( ProSHADE_s
 
 /*! \brief This function multiplies the objects spherical harmonics with the Wigner D matrices, obtaining rotated spherical harmonics coefficients.
  
- \param[in] settings The settings object specifying how exactly the rotation is to be done.
+    \param[in] settings The settings object specifying how exactly the rotation is to be done.
  */
 void ProSHADE_internal_data::ProSHADE_data::computeRotatedSH ( ProSHADE_settings* settings )
 {
@@ -767,15 +767,15 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotatedSH ( ProSHADE_settings
 
 /*! \brief This function initialises internal variables for inverse Spherical Harmonics computation.
  
- \param[in] shBand The bandwidth for this particular shell.
- \param[in] sigR Pointer to be initialised for the real signal values.
- \param[in] sigI Pointer to be initialised for the imaginary signal values.
- \param[in] rcoeffs Pointer to be initialised for the real coefficient values.
- \param[in] icoeffs Pointer to be initialised for the imaginary coefficient values.
- \param[in] weights Pointer to be initialised for the transform weight values.
- \param[in] workspace Pointer to be initialised for the computation screatch space.
- \param[in] idctPlan Pointer reference to the cosine/sine transform plan to be created.
- \param[in] ifftPlan Pointer reference to the discrete 3D Fourier transform plan to be created.
+    \param[in] shBand The bandwidth for this particular shell.
+    \param[in] sigR Pointer to be initialised for the real signal values.
+    \param[in] sigI Pointer to be initialised for the imaginary signal values.
+    \param[in] rcoeffs Pointer to be initialised for the real coefficient values.
+    \param[in] icoeffs Pointer to be initialised for the imaginary coefficient values.
+    \param[in] weights Pointer to be initialised for the transform weight values.
+    \param[in] workspace Pointer to be initialised for the computation screatch space.
+    \param[in] idctPlan Pointer reference to the cosine/sine transform plan to be created.
+    \param[in] ifftPlan Pointer reference to the discrete 3D Fourier transform plan to be created.
  */
 void ProSHADE_internal_overlay::initialiseInverseSHComputation ( proshade_unsign shBand, double*& sigR, double*& sigI, double*& rcoeffs, double*& icoeffs, double*& weights, double*& workspace, fftw_plan& idctPlan, fftw_plan& ifftPlan )
 {
@@ -889,9 +889,9 @@ void ProSHADE_internal_data::ProSHADE_data::invertSHCoefficients ( )
 
 /*! \brief This function computes the angular thresholds for longitude and lattitude angles.
 
-\param[in] lonCO Pointer to vector where longitude thresholds are to be stored at.
-\param[in] latCO Pointer to vector where lattitude thresholds are to be stored at.
-\param[in] angRes The angular resolution of the computation.
+    \param[in] lonCO Pointer to vector where longitude thresholds are to be stored at.
+    \param[in] latCO Pointer to vector where lattitude thresholds are to be stored at.
+    \param[in] angRes The angular resolution of the computation.
 */
 void ProSHADE_internal_overlay::computeAngularThreshold ( std::vector<proshade_double>* lonCO, std::vector<proshade_double>* latCO, proshade_unsign angRes )
 {
@@ -914,8 +914,8 @@ void ProSHADE_internal_overlay::computeAngularThreshold ( std::vector<proshade_d
 
 /*! \brief This function interpolates the density map from the sphere mapped data.
  
- \param[in] settings The settings object specifying how exactly the rotation is to be done.
- \param[in] densityMapRotated The pointer to allocated memory where the new map values will be held.
+    \param[in] settings The settings object specifying how exactly the rotation is to be done.
+    \param[in] densityMapRotated The pointer to allocated memory where the new map values will be held.
  */
 void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE_settings* settings, proshade_double*& densityMapRotated )
 {
@@ -1100,8 +1100,8 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE
 
 /*! \brief This function returns a vector of three floats, the three Euler angles of the best peak in the rotation map.
 
-\param[in] settings A pointer to settings class containing all the information required for map overlay.
-\param[out] val A vector of the Euler angles of the best peak in the rotation function map.
+    \param[in] settings A pointer to settings class containing all the information required for map overlay.
+    \param[out] val A vector of the Euler angles of the best peak in the rotation function map.
 */
 std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestRotationMapPeaksEulerAngles ( ProSHADE_settings* settings )
 {

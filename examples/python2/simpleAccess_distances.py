@@ -19,7 +19,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -92,6 +92,7 @@ pSet.setMinimumPeakForAxis                    ( 0.3 )                           
 pSet.setRequestedSymmetry                     ( "" )                                   # Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 pSet.setRequestedFold                         ( 0 )                                    # For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
 pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
+pSet.setOverlayJsonFile                       ( "movedStructureOperations.json" )      # Filename where the overlay operations should be saved.
 
 ##############################################
 ### Print the settings for reference

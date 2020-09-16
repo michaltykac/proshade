@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -24,10 +24,10 @@
 
 /*! \brief Function determining if the input data type is PDB.
  
- This function checks if the input file is a PDB file and can be read by the gemmi library.
+    This function checks if the input file is a PDB file and can be read by the gemmi library.
  
- \param[in] fName The file name of the file for which the type should be determined.
- \param[out] X Bool value true if the file is a PDB file readable by gemmi and false otherwise.
+    \param[in] fName The file name of the file for which the type should be determined.
+    \param[out] X Bool value true if the file is a PDB file readable by gemmi and false otherwise.
  */
 bool ProSHADE_internal_io::isFilePDB ( std::string fName )
 {
@@ -49,10 +49,10 @@ bool ProSHADE_internal_io::isFilePDB ( std::string fName )
 
 /*! \brief Function determining if the input data type is MAP.
  
- This function checks if the input file is a MAP file and can be read by the CMAP library.
+    This function checks if the input file is a MAP file and can be read by the CMAP library.
  
- \param[in] fName The file name of the file for which the type should be determined.
- \param[out] X Bool value true if the file is a MAP file readable by CMAP and false otherwise.
+    \param[in] fName The file name of the file for which the type should be determined.
+    \param[out] X Bool value true if the file is a MAP file readable by CMAP and false otherwise.
  */
 bool ProSHADE_internal_io::isFileMAP ( std::string fName )
 {
@@ -74,31 +74,31 @@ bool ProSHADE_internal_io::isFileMAP ( std::string fName )
 
 /*! \brief This function parses the CCP4 MAP file header as read in by gemmi.
  
- This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
- information from the header and saving it to the supplied variables.
+    This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
+    information from the header and saving it to the supplied variables.
  
- \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
- \param[in] xDimInds Address to a variable to save the x-axis size in indices.
- \param[in] yDimInds Address to a variable to save the y-axis size in indices.
- \param[in] zDimInds Address to a variable to save the z-axis size in indices.
- \param[in] xDim Address to a variable to save the x dimension size in angstroms.
- \param[in] yDim Address to a variable to save the y dimension size in angstroms.
- \param[in] zDim Address to a variable to save the z dimension size in angstroms.
- \param[in] aAng Address to a variable to save the a angle in degrees.
- \param[in] bAng Address to a variable to save the b angle in degrees.
- \param[in] cAng Address to a variable to save the c angle in degrees.
- \param[in] xFrom Address to a variable to save the starting index along the x-axis.
- \param[in] yFrom Address to a variable to save the starting index along the y-axis.
- \param[in] zFrom Address to a variable to save the starting index along the z-axis.
- \param[in] xAxOrigin Address to a variable to save the map origin positon along the x-axis.
- \param[in] yAxOrigin Address to a variable to save the map origin positon along the y-axis.
- \param[in] zAxOrigin Address to a variable to save the map origin positon along the z-axis.
- \param[in] xAxOrder Address to a variable to save the order of x axis.
- \param[in] yAxOrder Address to a variable to save the order of y axis.
- \param[in] zAxOrder Address to a variable to save the order of z axis.
- \param[in] xGridInds Address to a variable to save the grid indices count along the x-axis.
- \param[in] yGridInds Address to a variable to save the grid indices count along the y-axis.
- \param[in] zGridInds Address to a variable to save the grid indices count along the z-axis.
+    \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
+    \param[in] xDimInds Address to a variable to save the x-axis size in indices.
+    \param[in] yDimInds Address to a variable to save the y-axis size in indices.
+    \param[in] zDimInds Address to a variable to save the z-axis size in indices.
+    \param[in] xDim Address to a variable to save the x dimension size in angstroms.
+    \param[in] yDim Address to a variable to save the y dimension size in angstroms.
+    \param[in] zDim Address to a variable to save the z dimension size in angstroms.
+    \param[in] aAng Address to a variable to save the a angle in degrees.
+    \param[in] bAng Address to a variable to save the b angle in degrees.
+    \param[in] cAng Address to a variable to save the c angle in degrees.
+    \param[in] xFrom Address to a variable to save the starting index along the x-axis.
+    \param[in] yFrom Address to a variable to save the starting index along the y-axis.
+    \param[in] zFrom Address to a variable to save the starting index along the z-axis.
+    \param[in] xAxOrigin Address to a variable to save the map origin positon along the x-axis.
+    \param[in] yAxOrigin Address to a variable to save the map origin positon along the y-axis.
+    \param[in] zAxOrigin Address to a variable to save the map origin positon along the z-axis.
+    \param[in] xAxOrder Address to a variable to save the order of x axis.
+    \param[in] yAxOrder Address to a variable to save the order of y axis.
+    \param[in] zAxOrder Address to a variable to save the order of z axis.
+    \param[in] xGridInds Address to a variable to save the grid indices count along the x-axis.
+    \param[in] yGridInds Address to a variable to save the grid indices count along the y-axis.
+    \param[in] zGridInds Address to a variable to save the grid indices count along the z-axis.
  */
 void ProSHADE_internal_io::readInMapHeader ( gemmi::Ccp4<float> *map, proshade_unsign *xDimInds, proshade_unsign *yDimInds, proshade_unsign *zDimInds, proshade_single *xDim, proshade_single *yDim, proshade_single *zDim, proshade_single *aAng, proshade_single *bAng, proshade_single *cAng, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom, proshade_signed *xAxOrigin, proshade_signed *yAxOrigin, proshade_signed *zAxOrigin, proshade_unsign *xAxOrder, proshade_unsign *yAxOrder, proshade_unsign *zAxOrder, proshade_unsign *xGridInds, proshade_unsign *yGridInds, proshade_unsign *zGridInds )
 {
@@ -134,13 +134,13 @@ void ProSHADE_internal_io::readInMapHeader ( gemmi::Ccp4<float> *map, proshade_u
 
 /*! \brief This function parses the CCP4 MAP file header as read in by gemmi from values.
  
- This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
- information about the axes starting points.
+    This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
+    information about the axes starting points.
  
- \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
- \param[in] xFrom Address to a variable to save the starting index along the x-axis.
- \param[in] yFrom Address to a variable to save the starting index along the y-axis.
- \param[in] zFrom Address to a variable to save the starting index along the z-axis.
+    \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
+    \param[in] xFrom Address to a variable to save the starting index along the x-axis.
+    \param[in] yFrom Address to a variable to save the starting index along the y-axis.
+    \param[in] zFrom Address to a variable to save the starting index along the z-axis.
  */
 void ProSHADE_internal_io::readInMapHeaderFroms ( gemmi::Ccp4<float> *map, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom )
 {
@@ -156,17 +156,17 @@ void ProSHADE_internal_io::readInMapHeaderFroms ( gemmi::Ccp4<float> *map, prosh
 
 /*! \brief This function converts the gemmi Ccp4 object data to ProSHADE internal map representation.
  
- This function firstly allocates the required memory for the ProSHADE internal map representation variable according to the grid size. Then, it iterates over the axes in such a way, so that the resulting ProSHADE
- variable would have XYZ axis order independently on the axis order of the Ccp4 gemmi object. This should not be necessary as the gemmi setup function should have been called by now, but one never knows.
+    This function firstly allocates the required memory for the ProSHADE internal map representation variable according to the grid size. Then, it iterates over the axes in such a way, so that the resulting ProSHADE
+    variable would have XYZ axis order independently on the axis order of the Ccp4 gemmi object. This should not be necessary as the gemmi setup function should have been called by now, but one never knows.
  
- \param[in] gemmiMap Pointer to a gemmi Ccp4 object containing the read in MAP file information.
- \param[in] map Pointer reference to a variable to save the map data.
- \param[in] xDimInds The size of x dimension in indices.
- \param[in] yDimInds The size of y dimension in indices.
- \param[in] zDimInds The size of z dimension in indices.
- \param[in] xAxOrder The order of the x-axis.
- \param[in] yAxOrder The order of the y-axis.
- \param[in] zAxOrder The order of the z-axis.
+    \param[in] gemmiMap Pointer to a gemmi Ccp4 object containing the read in MAP file information.
+    \param[in] map Pointer reference to a variable to save the map data.
+    \param[in] xDimInds The size of x dimension in indices.
+    \param[in] yDimInds The size of y dimension in indices.
+    \param[in] zDimInds The size of z dimension in indices.
+    \param[in] xAxOrder The order of the x-axis.
+    \param[in] yAxOrder The order of the y-axis.
+    \param[in] zAxOrder The order of the z-axis.
  */
 void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<float> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder )
 {
@@ -210,33 +210,33 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<float> *gemmiMap, proshad
 
 /*! \brief This function parses the CCP4 MAP file header as read in by gemmi.
  
- This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
- information from the header and saving it to the supplied variables.
+    This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
+    information from the header and saving it to the supplied variables.
  
- \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
- \param[in] xDimInds Variable holding the x-axis size in indices.
- \param[in] yDimInds Variable holding the y-axis size in indices.
- \param[in] zDimInds Variable holding the z-axis size in indices.
- \param[in] xDim Variable holding the x dimension size in angstroms.
- \param[in] yDim Variable holding the y dimension size in angstroms.
- \param[in] zDim Variable holding the z dimension size in angstroms.
- \param[in] aAng Variable holding the a angle in degrees.
- \param[in] bAng Variable holding the b angle in degrees.
- \param[in] cAng Variable holding the c angle in degrees.
- \param[in] xFrom Variable holding the starting index along the x-axis.
- \param[in] yFrom Variable holding the starting index along the y-axis.
- \param[in] zFrom Variable holding the starting index along the z-axis.
- \param[in] xAxOrigin Variable holding the map origin positon along the x-axis.
- \param[in] yAxOrigin Variable holding the map origin positon along the y-axis.
- \param[in] zAxOrigin Variable holding the map origin positon along the z-axis.
- \param[in] xAxOrder Variable holding the order of x axis.
- \param[in] yAxOrder Variable holding the order of y axis.
- \param[in] zAxOrder Variable holding the order of z axis.
- \param[in] xGridInds Variable holding the grid indices count along the x-axis.
- \param[in] yGridInds Variable holding the grid indices count along the y-axis.
- \param[in] zGridInds Variable holding the grid indices count along the z-axis.
- \param[in] title The title to be written into the MAP file.
- \param[in] mode The variable type of the data, please leave two (float) unless you require any specific other mode.
+    \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
+    \param[in] xDimInds Variable holding the x-axis size in indices.
+    \param[in] yDimInds Variable holding the y-axis size in indices.
+    \param[in] zDimInds Variable holding the z-axis size in indices.
+    \param[in] xDim Variable holding the x dimension size in angstroms.
+    \param[in] yDim Variable holding the y dimension size in angstroms.
+    \param[in] zDim Variable holding the z dimension size in angstroms.
+    \param[in] aAng Variable holding the a angle in degrees.
+    \param[in] bAng Variable holding the b angle in degrees.
+    \param[in] cAng Variable holding the c angle in degrees.
+    \param[in] xFrom Variable holding the starting index along the x-axis.
+    \param[in] yFrom Variable holding the starting index along the y-axis.
+    \param[in] zFrom Variable holding the starting index along the z-axis.
+    \param[in] xAxOrigin Variable holding the map origin positon along the x-axis.
+    \param[in] yAxOrigin Variable holding the map origin positon along the y-axis.
+    \param[in] zAxOrigin Variable holding the map origin positon along the z-axis.
+    \param[in] xAxOrder Variable holding the order of x axis.
+    \param[in] yAxOrder Variable holding the order of y axis.
+    \param[in] zAxOrder Variable holding the order of z axis.
+    \param[in] xGridInds Variable holding the grid indices count along the x-axis.
+    \param[in] yGridInds Variable holding the grid indices count along the y-axis.
+    \param[in] zGridInds Variable holding the grid indices count along the z-axis.
+    \param[in] title The title to be written into the MAP file.
+    \param[in] mode The variable type of the data, please leave two (float) unless you require any specific other mode.
  */
 void ProSHADE_internal_io::writeOutMapHeader ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim, proshade_single yDim, proshade_single zDim, proshade_single aAng, proshade_single bAng, proshade_single cAng, proshade_signed xFrom, proshade_signed yFrom, proshade_signed zFrom, proshade_signed xAxOrigin, proshade_signed yAxOrigin, proshade_signed zAxOrigin, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder, proshade_unsign xGridInds, proshade_unsign yGridInds, proshade_unsign zGridInds, std::string title, int mode )
 {
@@ -282,11 +282,11 @@ void ProSHADE_internal_io::writeOutMapHeader ( gemmi::Ccp4<float> *map, proshade
 
 /*! \brief Function determining input data type.
  
- This function determines the type of the input structure. The possible outputs are MAP for MRC map files, PDB for mmCIF or PDB formatted data,
- or UNKNOWN if gemmi fail to read the file as co-ordinates as well as map.
+    This function determines the type of the input structure. The possible outputs are MAP for MRC map files, PDB for mmCIF or PDB formatted data,
+    or UNKNOWN if gemmi fail to read the file as co-ordinates as well as map.
  
- \param[in] fName The file name of the file for which the type should be determined.
- \param[out] X ProSHADE InputType variable with values UNKNOWN, MAP or PDB depending on the type of the input file.
+    \param[in] fName The file name of the file for which the type should be determined.
+    \param[out] X ProSHADE InputType variable with values UNKNOWN, MAP or PDB depending on the type of the input file.
  */
 ProSHADE_internal_io::InputType ProSHADE_internal_io::figureDataType ( std::string fName )
 {
@@ -306,5 +306,63 @@ ProSHADE_internal_io::InputType ProSHADE_internal_io::figureDataType ( std::stri
     return                                            ( UNKNOWN );
     
     //================================================ Done
+    
+}
+
+/*! \brief Function for writing out the optimal rotation and translation into a JSON file.
+ 
+    This function takes the initial translation (assuming that the centre of rotation is not at the centre of indices), the
+    rotation (in terms of the Euler angles) and the translation detected by the overlay task and proceeds to
+    write a JSON file containing all of these information in the order in which they should be applied.
+ 
+    This function assumes that the second translation includes the reverse of the first translation already.
+ 
+    \param[in] trsX1 The translation required to get the rotation centre to origin along the x-axis.
+    \param[in] trsY1 The translation required to get the rotation centre to origin along the y-axis.
+    \param[in] trsZ1 The translation required to get the rotation centre to origin along the z-axis.
+    \param[in] eulA The optimal rotation Euler angle alpha.
+    \param[in] eulB The optimal rotation Euler angle beta.
+    \param[in] eulG The optimal rotation Euler angle gamma.
+    \param[in] trsX2 The optimal translation along the x-axis + reverse of the trsX1.
+    \param[in] trsY2 The optimal translation along the y-axis + reverse of the trsY1..
+    \param[in] trsZ2 The optimal translation along the z-axis + reverse of the trsZ1..
+    \param[in] fileName The file name of the file for which the information should be written into.
+ */
+void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, std::string fileName )
+{
+    //================================================ Open file for writing
+    std::ofstream jsonFile;
+    jsonFile.open                                     ( fileName );
+    
+    //================================================ Check file opening success
+    if ( !jsonFile.is_open( ) )
+    {
+        throw ProSHADE_exception ( "Failed to open JSON output file.", "E000056", __FILE__, __LINE__, __func__, "Failed to open json file to which the rotation and\n                    : translation would be written into. Most likely cause is\n                    : lack of rights to write in the current folder." );
+    }
+    
+    //================================================ Get rotation matrix from Euler angles
+    proshade_double* rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, rotMat );
+    
+    //================================================ Write the info
+    jsonFile << "{\n";
+    jsonFile << "   \"translation1\" : [ " << trsX1 << ", " << trsY1 << ", " << trsZ1 << " ], \n";
+    
+    jsonFile << "   \"rotationMatrix:\" : [ " << rotMat[0] << ", " << rotMat[1] << ", " << rotMat[2] << ", \n";
+    jsonFile << "                         " << rotMat[3] << ", " << rotMat[4] << ", " << rotMat[5] << ", \n";
+    jsonFile << "                         " << rotMat[6] << ", " << rotMat[7] << ", " << rotMat[8] << "], \n";
+
+    jsonFile << "   \"translation2\" : [ " << trsX2 << ", " << trsY2 << ", " << trsZ2 << " ] \n";
+    jsonFile << "}\n";
+    
+    //================================================ Close file
+    jsonFile.close                                    ( );
+    
+    //================================================ Release memory
+    delete[] rotMat;
+    
+    //================================================ Done
+    return ;
     
 }
