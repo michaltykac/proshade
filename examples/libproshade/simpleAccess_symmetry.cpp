@@ -98,8 +98,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected C symmetry with fold 12 .
-//  ...   Fold       X           Y          Z           Angle        Height
-//  ...    +12     -0.01165   +0.00436   +0.99955     +0.52360      +0.96210
+//   ...   Fold       X           Y          Z           Angle        Height
+//   ...    +12     -0.00407   +0.01259   +0.99983     +0.52360      +0.95517
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

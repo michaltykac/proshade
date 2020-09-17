@@ -120,7 +120,7 @@ int main ( int argc, char **argv )
     //================================================ Expected output
 //  Energy levels distance       : 0.89531
 //  Trace sigma distance         : 0.96045
-//  Rotation function distance   : 0.75628
+//  Rotation function distance   : 0.73264
 
     //================================================ Release the settings and runProshade objects
     delete structure1;

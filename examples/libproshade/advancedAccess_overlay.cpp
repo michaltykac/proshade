@@ -118,7 +118,7 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      5.49775 ; 0.773114 ; 3.87796
+//  Optimal rotation Euler angles are:      5.54682 ; 0.773114 ; 3.92702
 //  Optimal rotation matrix is       :      -0.849875 ; -0.0998845 ; 0.517431
 //                                   :      -0.184035 ; -0.863799 ; -0.469023
 //                                   :      0.493804 ; -0.493836 ; 0.715739
@@ -165,23 +165,37 @@ int main ( int argc, char **argv )
     
     //================================================ Find the optimal translation vector from the translation map
     std::vector< proshade_double > optimalTranslation = movingStr->getBestTranslationMapPeaksAngstrom ( staticStr ); // This function finds the best translation from the translation map using peak search algorithm.
-    std::cout << "Optimal translation in Angstroms is:    " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
+    
+    //================================================ Find the translation vectors
+    std::vector< proshade_double > rotationCentre, mapBoxMovement, finalTranslation;
+    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &finalTranslation, optimalTranslation.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &finalTranslation, optimalTranslation.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &finalTranslation, optimalTranslation.at(2) );
+    movingStr->computeOverlayTranslations             ( &rotationCentre.at(0),   &rotationCentre.at(1),   &rotationCentre.at(2),
+                                                        &finalTranslation.at(0), &finalTranslation.at(1), &finalTranslation.at(2) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &mapBoxMovement, movingStr->comMovX );
+    ProSHADE_internal_misc::addToDoubleVector         ( &mapBoxMovement, movingStr->comMovY );
+    ProSHADE_internal_misc::addToDoubleVector         ( &mapBoxMovement, movingStr->comMovZ );
+    
+    //================================================ Write out the translations
+    std::cout << "Rot. Centre to origin translation:      " << rotationCentre.at(0) << " ; " << rotationCentre.at(1) << " ; " << rotationCentre.at(2) << std::endl;
+    std::cout << "Sum of internal translations     :      " << mapBoxMovement.at(0) << " ; " << mapBoxMovement.at(1) << " ; " << mapBoxMovement.at(2) << std::endl;
+    std::cout << "Origin to optimal overlay translation:  " << finalTranslation.at(0) << " ; " << finalTranslation.at(1) << " ; " << finalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Optimal translation in Angstroms is:    8 ; 8 ; -6
+//  Rot. Centre to origin translation:      0 ; 0 ; 0
+//  Sum of internal translations     :      0 ; 0 ; 0
+//  Origin to optimal overlay translation:  8 ; 8 ; -6
     
     //================================================ Translate the internal map
     movingStr->translateMap                           ( settings, optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2) ); // This function translates the internal map representation by the required number of Angstroms.
     
-    //================================================ Write out the rotated and translated map
-    std::stringstream hlpName;
-    hlpName << settings->overlayStructureName << ".map";
-    movingStr->writeMap                               ( hlpName.str() ); // Write out the current state of the internal map representation as map.
-    
-    //================================================ Write out a PDB file with the rotated and translated co-ordinates. NOTE: This is only available if the moving structure input format was co-ordinate file!
-    hlpName.str("");
-    hlpName << settings->overlayStructureName << ".pdb";
-    movingStr->writePdb                               ( hlpName.str(), optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2) ); // Write out the input co-ordinate file with rotation and translation applied. This can only be done if the input file had co-ordinates.
+    //================================================ Write out the output files
+    movingStr->writeOutOverlayFiles                   ( settings, optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2),
+                                                        optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &finalTranslation );
     
     //================================================ Release the settings and runProshade objects
     delete[] rotMat;
