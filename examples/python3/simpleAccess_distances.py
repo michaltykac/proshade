@@ -19,7 +19,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -93,6 +93,7 @@ pSet.setMinimumPeakForAxis                    ( 0.3 )                           
 pSet.setRequestedSymmetry                     ( "" )                                   # Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 pSet.setRequestedFold                         ( 0 )                                    # For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
 pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
+pSet.setOverlayJsonFile                       ( "movedStructureOperations.json" )      # Filename where the overlay operations should be saved.
 
 ##############################################
 ### Print the settings for reference
@@ -123,7 +124,7 @@ print ( "Rotation function distances  : " + str( rotFunDistances[0] ) + "\t" + s
 ### Expected output
 #   Energy levels distances      : 0.8984338794121268    0.6012626312302949
 #   Trace sigma distances        : 0.9586515647570873    0.7669313554309691
-#   Rotation function distances  : 0.7942379183355734    0.5949845163438436
+#   Rotation function distances  : 0.6263392558812969    0.5360650709850836
 
 ##############################################
 ### Done

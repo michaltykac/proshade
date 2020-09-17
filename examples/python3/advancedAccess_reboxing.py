@@ -19,7 +19,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -109,7 +109,7 @@ print ( "Saved %+1.3f percents of indices and thus made the processing of the ma
 print ( "Map average is %+1.3f" % ( numpy.mean ( initialMapArray ) ) )
 
 ### Expected output
-#   Original dimensions were: +100  x  +120  x  +60
+#   Original dimensions were: +100  x  +120  x  +60 
 #   Current dimensions are:   +42  x  +42  x  +42
 #   Saved +89.710 percents of indices and thus made the processing of the map +9.718 times faster.
 #   Map average is +0.031

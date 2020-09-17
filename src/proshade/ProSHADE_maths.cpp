@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -25,15 +25,15 @@
 
 /*! \brief Function to multiply two complex numbers.
  
- This function takes pointers to the real and imaginary parts of two complex numbers and
- returns the result of their multiplication.
+    This function takes pointers to the real and imaginary parts of two complex numbers and
+    returns the result of their multiplication.
  
- \param[in] r1 Pointer to the real value of number 1.
- \param[in] i1 Pointer to the imaginary value of number 1.
- \param[in] r2 Pointer to the real value of number 2.
- \param[in] i2 Pointer to the imaginary value of number 2.
- \param[in] retReal Pointer to the real part of the complex variable to which the result will be saved.
- \param[in] retImag Pointer to the imaginary part of the complex variable to which the result will be saved.
+    \param[in] r1 Pointer to the real value of number 1.
+    \param[in] i1 Pointer to the imaginary value of number 1.
+    \param[in] r2 Pointer to the real value of number 2.
+    \param[in] i2 Pointer to the imaginary value of number 2.
+    \param[in] retReal Pointer to the real part of the complex variable to which the result will be saved.
+    \param[in] retImag Pointer to the imaginary part of the complex variable to which the result will be saved.
  */
 void ProSHADE_internal_maths::complexMultiplication ( proshade_double* r1, proshade_double* i1, proshade_double* r2, proshade_double* i2, proshade_double* retReal, proshade_double* retImag )
 {
@@ -48,16 +48,16 @@ void ProSHADE_internal_maths::complexMultiplication ( proshade_double* r1, prosh
 
 /*! \brief Function to multiply two complex numbers by using the second number's conjugate.
  
- This function takes pointers to the real and imaginary parts of two complex numbers and
- returns the result of their multiplication, while using the conjugate of the second complex
- number.
+    This function takes pointers to the real and imaginary parts of two complex numbers and
+    returns the result of their multiplication, while using the conjugate of the second complex
+    number.
  
- \param[in] r1 Pointer to the real value of number 1.
- \param[in] i1 Pointer to the imaginary value of number 1.
- \param[in] r2 Pointer to the real value of number 2.
- \param[in] i2 Pointer to the imaginary value of number 2.
- \param[in] retReal Pointer to the real part of the complex variable to which the result will be saved.
- \param[in] retImag Pointer to the imaginary part of the complex variable to which the result will be saved.
+    \param[in] r1 Pointer to the real value of number 1.
+    \param[in] i1 Pointer to the imaginary value of number 1.
+    \param[in] r2 Pointer to the real value of number 2.
+    \param[in] i2 Pointer to the imaginary value of number 2.
+    \param[in] retReal Pointer to the real part of the complex variable to which the result will be saved.
+    \param[in] retImag Pointer to the imaginary part of the complex variable to which the result will be saved.
  */
 void ProSHADE_internal_maths::complexMultiplicationConjug ( proshade_double* r1, proshade_double* i1, proshade_double* r2, proshade_double* i2, proshade_double* retReal, proshade_double* retImag )
 {
@@ -72,13 +72,13 @@ void ProSHADE_internal_maths::complexMultiplicationConjug ( proshade_double* r1,
 
 /*! \brief Function to multiply two complex numbers and return the real part only.
  
- This function takes pointers to the real and imaginary parts of two complex numbers and
- returns the real part of the result of their multiplication.
+    This function takes pointers to the real and imaginary parts of two complex numbers and
+    returns the real part of the result of their multiplication.
  
- \param[in] r1 Pointer to the real value of number 1.
- \param[in] i1 Pointer to the imaginary value of number 1.
- \param[in] r2 Pointer to the real value of number 2.
- \param[in] i2 Pointer to the imaginary value of number 2.
+    \param[in] r1 Pointer to the real value of number 1.
+    \param[in] i1 Pointer to the imaginary value of number 1.
+    \param[in] r2 Pointer to the real value of number 2.
+    \param[in] i2 Pointer to the imaginary value of number 2.
  */
 proshade_double ProSHADE_internal_maths::complexMultiplicationRealOnly ( proshade_double* r1, proshade_double* i1, proshade_double* r2, proshade_double* i2 )
 {
@@ -92,13 +92,13 @@ proshade_double ProSHADE_internal_maths::complexMultiplicationRealOnly ( proshad
 
 /*! \brief Function to conjuggate multiply two complex numbers and return the real part only.
  
- This function takes pointers to the real and imaginary parts of two complex numbers and
- returns the real part of the result of their conjugate multiplication.
+    This function takes pointers to the real and imaginary parts of two complex numbers and
+    returns the real part of the result of their conjugate multiplication.
  
- \param[in] r1 Pointer to the real value of number 1.
- \param[in] i1 Pointer to the imaginary value of number 1.
- \param[in] r2 Pointer to the real value of number 2.
- \param[in] i2 Pointer to the imaginary value of number 2.
+    \param[in] r1 Pointer to the real value of number 1.
+    \param[in] i1 Pointer to the imaginary value of number 1.
+    \param[in] r2 Pointer to the real value of number 2.
+    \param[in] i2 Pointer to the imaginary value of number 2.
  */
 proshade_double ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( proshade_double* r1, proshade_double* i1, proshade_double* r2, proshade_double* i2 )
 {
@@ -112,11 +112,11 @@ proshade_double ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( p
 
 /*! \brief Function to get vector mean and standard deviation.
  
- This function takes a pointer to a vector of proshade_double's and returns the mean and standard deviation of
- such vector.
+    This function takes a pointer to a vector of proshade_double's and returns the mean and standard deviation of
+    such vector.
  
- \param[in] vec Pointer to a vector of proshade_double's for which mean and sd should be obtained.
- \param[in] ret Pointer to array of 2 proshade_double's, which will be the return values - first mean and second sd.
+    \param[in] vec Pointer to a vector of proshade_double's for which mean and sd should be obtained.
+    \param[in] ret Pointer to array of 2 proshade_double's, which will be the return values - first mean and second sd.
  */
 void ProSHADE_internal_maths::vectorMeanAndSD ( std::vector<proshade_double>* vec, proshade_double*& ret )
 {
@@ -134,11 +134,11 @@ void ProSHADE_internal_maths::vectorMeanAndSD ( std::vector<proshade_double>* ve
 
 /*! \brief Function to get vector median and inter-quartile range.
  
- This function takes a pointer to a vector of proshade_double's and returns the median and the inter-quartile range of
- such vector.
+    This function takes a pointer to a vector of proshade_double's and returns the median and the inter-quartile range of
+    such vector.
  
- \param[in] vec Pointer to a vector of proshade_double's for which median and IQR should be obtained.
- \param[in] ret Pointer to array of 2 proshade_double's, which will be the return values - first median and second IQR.
+    \param[in] vec Pointer to a vector of proshade_double's for which median and IQR should be obtained.
+    \param[in] ret Pointer to array of 2 proshade_double's, which will be the return values - first median and second IQR.
  */
 void ProSHADE_internal_maths::vectorMedianAndIQR ( std::vector<proshade_double>* vec, proshade_double*& ret )
 {
@@ -184,12 +184,12 @@ void ProSHADE_internal_maths::vectorMedianAndIQR ( std::vector<proshade_double>*
 
 /*! \brief Function to get array median and inter-quartile range.
  
- This function takes a pointer to a array of proshade_double's and returns the median and the inter-quartile range of
- such vector.
+    This function takes a pointer to a array of proshade_double's and returns the median and the inter-quartile range of
+    such vector.
  
- \param[in] vec Pointer to an array of proshade_double's for which median and IQR should be obtained.
- \param[in] vecSize The length of the array.
- \param[in] ret Pointer to array of 2 proshade_double's, which will be the return values - first median and second IQR.
+    \param[in] vec Pointer to an array of proshade_double's for which median and IQR should be obtained.
+    \param[in] vecSize The length of the array.
+    \param[in] ret Pointer to array of 2 proshade_double's, which will be the return values - first median and second IQR.
  */
 void ProSHADE_internal_maths::arrayMedianAndIQR ( proshade_double* vec, proshade_unsign vecSize, proshade_double*& ret )
 {
@@ -229,13 +229,13 @@ void ProSHADE_internal_maths::arrayMedianAndIQR ( proshade_double* vec, proshade
 
 /*! \brief Function for computing the Pearson's correlation coefficient.
  
- This function takes two numerical arrays of same length and proceeds to compute the Pearson's
- correlation coefficient, which it then returns.
+    This function takes two numerical arrays of same length and proceeds to compute the Pearson's
+    correlation coefficient, which it then returns.
  
- \param[in] valSet1 This is the set of x-values.
- \param[in] valSet2 This is the set of y-values.
- \param[in] length The length of both arrays (both arrays have to have the same length).
- \param[out] X The Pearson's correlation coefficient value.
+    \param[in] valSet1 This is the set of x-values.
+    \param[in] valSet2 This is the set of y-values.
+    \param[in] length The length of both arrays (both arrays have to have the same length).
+    \param[out] X The Pearson's correlation coefficient value.
  */
 proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* valSet1, proshade_double* valSet2, proshade_unsign length )
 {
@@ -332,13 +332,13 @@ void ProSHADE_internal_maths::getLegendreAbscAndWeights ( proshade_unsign order,
 
 /*! \brief This function obtains the Legendre polynomial values and its derivative at zero for any positive integer order polynomial.
  
- This function takes the positive integer order of the Legendre polynomial and uses the recursive
- properties of the polynomials to work up to the order, computing the value at zero and its derivative
- for all lesser orders. It then returns the final values.
+    This function takes the positive integer order of the Legendre polynomial and uses the recursive
+    properties of the polynomials to work up to the order, computing the value at zero and its derivative
+    for all lesser orders. It then returns the final values.
  
- \param[in] order Positive integer order of the Legendre polynomial which value at zero we want.
- \param[in] polyValue Pointer to variable which will store the resulting polynomial value at zero.
- \param[in] deriValue Pointer to variable which will store the derivative of the zero value.
+    \param[in] order Positive integer order of the Legendre polynomial which value at zero we want.
+    \param[in] polyValue Pointer to variable which will store the resulting polynomial value at zero.
+    \param[in] deriValue Pointer to variable which will store the derivative of the zero value.
  */
 void ProSHADE_internal_maths::getGLPolyAtZero ( proshade_unsign order, proshade_double *polyValue, proshade_double *deriValue )
 {
@@ -367,15 +367,15 @@ void ProSHADE_internal_maths::getGLPolyAtZero ( proshade_unsign order, proshade_
 
 /*! \brief This function finds the first root for Legendre polynomials of odd order.
  
- The Legendre polynomials with odd order have zero as the first root, but the even oder polenomials
- have different value and this function serves the purpose of finding this value (i.e. the first
- root of the polynomial if the order is even).
+    The Legendre polynomials with odd order have zero as the first root, but the even oder polenomials
+    have different value and this function serves the purpose of finding this value (i.e. the first
+    root of the polynomial if the order is even).
  
- \param[in] polyAtZero The value of the polynomial at zero.
- \param[in] order The positive integer value of the polynomial order.
- \param[in] abscAtZero Pointer to variable storing the abscissa value at zero.
- \param[in] weightAtZero Pointer to variable storing the weight value at zero.
- \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] polyAtZero The value of the polynomial at zero.
+    \param[in] order The positive integer value of the polynomial order.
+    \param[in] abscAtZero Pointer to variable storing the abscissa value at zero.
+    \param[in] weightAtZero Pointer to variable storing the weight value at zero.
+    \param[in] taylorSeriesCap The limit on the Taylor series.
  */
 void ProSHADE_internal_maths::getGLFirstEvenRoot ( proshade_double polyAtZero, proshade_unsign order, proshade_double *abscAtZero, proshade_double *weighAtZero, proshade_unsign taylorSeriesCap )
 {
@@ -431,14 +431,14 @@ void ProSHADE_internal_maths::getGLFirstEvenRoot ( proshade_double polyAtZero, p
 
 /*! \brief This function evaluates the Taylor expansion.
  
- This function takes the series array, the target value and the cap on Taylor expansion and proceeds to
- evaluate the series. The main use of this is to evaluate the series twice, one where the series evaluation
- 'overshoots' and once where it 'undershoots' and taking value in between those, thus adding accuracy.
+    This function takes the series array, the target value and the cap on Taylor expansion and proceeds to
+    evaluate the series. The main use of this is to evaluate the series twice, one where the series evaluation
+    'overshoots' and once where it 'undershoots' and taking value in between those, thus adding accuracy.
  
- \param[in] series Pointer to array with the series values.
- \param[in] target The target location on the series value.
- \param[in] terms The Taylor expansion cap.
- \param[out] X The value of the series at the target location.
+    \param[in] series Pointer to array with the series values.
+    \param[in] target The target location on the series value.
+    \param[in] terms The Taylor expansion cap.
+    \param[out] X The value of the series at the target location.
  */
 proshade_double ProSHADE_internal_maths::evaluateGLSeries ( proshade_double *series, proshade_double target, proshade_unsign terms )
 {
@@ -460,15 +460,15 @@ proshade_double ProSHADE_internal_maths::evaluateGLSeries ( proshade_double *ser
 
 /*! \brief This function finds the next value of the polynomial.
  
- Given the previous value of the polynomial, the distance to proceed and the number of steps to
- take, this function finds the next value of the polynomial using the Taylor series.
+    Given the previous value of the polynomial, the distance to proceed and the number of steps to
+    take, this function finds the next value of the polynomial using the Taylor series.
  
- \param[in] from Current polynomial position.
- \param[in] to Polynomial position to move to.
- \param[in] valAtFrom The current value of the polynomial at the <from> position.
- \param[in] noSteps Number of steps in which to reach the <to> position.
- \param[in] taylorSeriesCap The limit on the Taylor series.
- \param[out] X The polynomial value at the <to> position.
+    \param[in] from Current polynomial position.
+    \param[in] to Polynomial position to move to.
+    \param[in] valAtFrom The current value of the polynomial at the <from> position.
+    \param[in] noSteps Number of steps in which to reach the <to> position.
+    \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[out] X The polynomial value at the <to> position.
  */
 proshade_double ProSHADE_internal_maths::advanceGLPolyValue ( proshade_double from, proshade_double to, proshade_double valAtFrom, proshade_unsign noSteps, proshade_unsign taylorSeriesCap )
 {
@@ -506,13 +506,13 @@ proshade_double ProSHADE_internal_maths::advanceGLPolyValue ( proshade_double fr
 
 /*! \brief This function completes the Legendre polynomial series assuming you have obtained the first values.
  
- Given that the polynomial value at zero is known, this function will complete the Legendre polynomial and with it
- the absicassas and weights for the Gauss-Legendre integration using the other functions defined above.
+    Given that the polynomial value at zero is known, this function will complete the Legendre polynomial and with it
+    the absicassas and weights for the Gauss-Legendre integration using the other functions defined above.
  
- \param[in] order The positive integer value of the polynomial order.
- \param[in] abscissas Pointer to an array of abscissas containing the first value.
- \param[in] weights Pointer to an array of weights containing the first value.
- \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] order The positive integer value of the polynomial order.
+    \param[in] abscissas Pointer to an array of abscissas containing the first value.
+    \param[in] weights Pointer to an array of weights containing the first value.
+    \param[in] taylorSeriesCap The limit on the Taylor series.
  */
 void ProSHADE_internal_maths::completeLegendreSeries ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_unsign taylorSeriesCap )
 {
@@ -599,18 +599,18 @@ void ProSHADE_internal_maths::completeLegendreSeries ( proshade_unsign order, pr
 
 /*! \brief Function to compute real part of the Gauss-Legendre integration over spherical harmonic values in different shells.
  
- This function takes the real parts of the spherical harmonics value in different shells and proceeds to compute
- the Gauss-Legendre integration over them. It uses the shell positions to appropriately place abscissas and their
- weights, which it assumes were pre-computed by the getLegendreAbscAndWeights() function.
+    This function takes the real parts of the spherical harmonics value in different shells and proceeds to compute
+    the Gauss-Legendre integration over them. It uses the shell positions to appropriately place abscissas and their
+    weights, which it assumes were pre-computed by the getLegendreAbscAndWeights() function.
  
- \param[in] vals Pointer to an array of values over which the integration to be done.
- \param[in] valsSize The length of the input array.
- \param[in] order The integration order value.
- \param[in] abscissas The allocated array for holding the abscissa values.
- \param[in] weights The allocated array for holding the weight values.
- \param[in] integralOverRange The range of the intgral. If progressive shell mapping is used, this will not be max shell radius.
- \param[in] maxSphereDists Distance between two shells.
- \param[out] X The real part of Gauss-Legendre integration over the shperical harmonics values.
+    \param[in] vals Pointer to an array of values over which the integration to be done.
+    \param[in] valsSize The length of the input array.
+    \param[in] order The integration order value.
+    \param[in] abscissas The allocated array for holding the abscissa values.
+    \param[in] weights The allocated array for holding the weight values.
+    \param[in] integralOverRange The range of the intgral. If progressive shell mapping is used, this will not be max shell radius.
+    \param[in] maxSphereDists Distance between two shells.
+    \param[out] X The real part of Gauss-Legendre integration over the shperical harmonics values.
  */
 proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade_double* vals, proshade_unsign valsSize, proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_double integralOverRange, proshade_double maxSphereDists )
 {
@@ -688,19 +688,19 @@ proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade
 
 /*! \brief Function to compute the complete complex Gauss-Legendre integration over spherical harmonic values in different shells.
  
- This function takes the real parts of the spherical harmonics value in different shells and proceeds to compute
- the Gauss-Legendre integration over them. It uses the shell positions to appropriately place abscissas and their
- weights, which it assumes were pre-computed by the getLegendreAbscAndWeights() function.
+    This function takes the real parts of the spherical harmonics value in different shells and proceeds to compute
+    the Gauss-Legendre integration over them. It uses the shell positions to appropriately place abscissas and their
+    weights, which it assumes were pre-computed by the getLegendreAbscAndWeights() function.
  
- \param[in] vals Pointer to a complex array of values over which the integration to be done.
- \param[in] valsSize The length of the input array.
- \param[in] order The integration order value.
- \param[in] abscissas The allocated array for holding the abscissa values.
- \param[in] weights The allocated array for holding the weight values.
- \param[in] integralOverRange The range of the intgral. If progressive shell mapping is used, this will not be max shell radius.
- \param[in] maxSphereDists Distance between two shells.
- \param[in] retReal The real part of the complex result of Gauss-Legendre integration over the shperical harmonics values.
- \param[in] retImag The imaginary part of the complex result of Gauss-Legendre integration over the shperical harmonics values.
+    \param[in] vals Pointer to a complex array of values over which the integration to be done.
+    \param[in] valsSize The length of the input array.
+    \param[in] order The integration order value.
+    \param[in] abscissas The allocated array for holding the abscissa values.
+    \param[in] weights The allocated array for holding the weight values.
+    \param[in] integralOverRange The range of the intgral. If progressive shell mapping is used, this will not be max shell radius.
+    \param[in] maxSphereDists Distance between two shells.
+    \param[in] retReal The real part of the complex result of Gauss-Legendre integration over the shperical harmonics values.
+    \param[in] retImag The imaginary part of the complex result of Gauss-Legendre integration over the shperical harmonics values.
  */
 void ProSHADE_internal_maths::gaussLegendreIntegration ( proshade_complex* vals, proshade_unsign valsSize, proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_double integralOverRange, proshade_double maxSphereDists, proshade_double* retReal, proshade_double* retImag )
 {
@@ -785,15 +785,15 @@ void ProSHADE_internal_maths::gaussLegendreIntegration ( proshade_complex* vals,
 
 /*! \brief Function to compute the complete complex matrix SVD and return only the sigmas.
  
- This function converts the input proshade_complex matrix of dimensions dim onto the LAPACK compatible
- std::complex<double> matrix. It then proceeds to create a dummy variables for the U and V matrices for
- saving the SVD results as well as other required variables. It finally proceeds to call LAPACK ZGESDD
- function to compute the SVD of the complex matrix input, checks the results and terminates. Note that
- this function does not make use of most of the LAPACK capabilities and is limitted onto square matrices.
+    This function converts the input proshade_complex matrix of dimensions dim onto the LAPACK compatible
+    std::complex<double> matrix. It then proceeds to create a dummy variables for the U and V matrices for
+    saving the SVD results as well as other required variables. It finally proceeds to call LAPACK ZGESDD
+    function to compute the SVD of the complex matrix input, checks the results and terminates. Note that
+    this function does not make use of most of the LAPACK capabilities and is limitted onto square matrices.
  
- \param[in] mat Pointer to a complex square matrix with dimensions dim * dim.
- \param[in] dim The dimension of the complex matrix.
- \param[in] singularValues Empty array of size dim where the singular values will be saved.
+    \param[in] mat Pointer to a complex square matrix with dimensions dim * dim.
+    \param[in] dim The dimension of the complex matrix.
+    \param[in] singularValues Empty array of size dim where the singular values will be saved.
  */
 void ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( proshade_complex** mat, int dim, double*& singularValues )
 {
@@ -850,17 +850,17 @@ void ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( proshade_complex** ma
 
 /*! \brief Function to compute the real matrix SVD and return the U and V matrices.
  
- This function converts the input proshade_double array of dimensions dim*dim onto the LAPACK compatible
- std::complex<double> matrix. It then proceeds to create a dummy variables for the U and V matrices for
- saving the SVD results as well as other required variables. It finally proceeds to call LAPACK ZGESDD
- function to compute the SVD of the real matrix input, checks the results and saves the U and V matrices
- for output. Note that this function does not make use of most of the LAPACK capabilities and is limitted
- onto square matrices.
+    This function converts the input proshade_double array of dimensions dim*dim onto the LAPACK compatible
+    std::complex<double> matrix. It then proceeds to create a dummy variables for the U and V matrices for
+    saving the SVD results as well as other required variables. It finally proceeds to call LAPACK ZGESDD
+    function to compute the SVD of the real matrix input, checks the results and saves the U and V matrices
+    for output. Note that this function does not make use of most of the LAPACK capabilities and is limitted
+    onto square matrices.
  
- \param[in] mat Pointer to a real square matrix with dimensions dim * dim.
- \param[in] dim The dimension of the real matrix.
- \param[in] uAndV Empty and allocated array of size dim*6 where the U and V matrices will be saved.
- \param[in] fail If true and an error is encountered (typically algorithm not converging), this function will stop the program (useful for distances computations). However, if false, the function will simply return -777 as the first matrix element and not fail.
+    \param[in] mat Pointer to a real square matrix with dimensions dim * dim.
+    \param[in] dim The dimension of the real matrix.
+    \param[in] uAndV Empty and allocated array of size dim*6 where the U and V matrices will be saved.
+    \param[in] fail If true and an error is encountered (typically algorithm not converging), this function will stop the program (useful for distances computations). However, if false, the function will simply return -777 as the first matrix element and not fail.
  */
 void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail )
 {
@@ -943,17 +943,17 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
 
 /*! \brief Function to find Euler angles (ZXZ convention) from index position in the inverse SOFT map.
  
- This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZXZ convention angles, saving
- these into the inputted pointers. It also changes the Euler angle ranges from (0,2PI> to (-PI,PI> as preferred by
- the functions using the results.
+    This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZXZ convention angles, saving
+    these into the inputted pointers. It also changes the Euler angle ranges from (0,2PI> to (-PI,PI> as preferred by
+    the functions using the results.
  
- \param[in] band The maximum bandwidth of the computation.
- \param[in] x The x-axis position in the inverse SOFT map.
- \param[in] y The x-axis position in the inverse SOFT map.
- \param[in] z The x-axis position in the inverse SOFT map.
- \param[in] eulerAlpha Pointer to where the Euler alpha angle will be saved.
- \param[in] eulerBeta Pointer to where the Euler beta angle will be saved.
- \param[in] eulerGamma Pointer to where the Euler gamma angle will be saved.
+    \param[in] band The maximum bandwidth of the computation.
+    \param[in] x The x-axis position in the inverse SOFT map.
+    \param[in] y The x-axis position in the inverse SOFT map.
+    \param[in] z The x-axis position in the inverse SOFT map.
+    \param[in] eulerAlpha Pointer to where the Euler alpha angle will be saved.
+    \param[in] eulerBeta Pointer to where the Euler beta angle will be saved.
+    \param[in] eulerGamma Pointer to where the Euler gamma angle will be saved.
  */
 void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
 {
@@ -969,26 +969,26 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
 
 /*! \brief Function to find the rotation matrix from Euler angles (ZXZ convention).
  
- \param[in] eulerAlpha The Euler alpha angle value.
- \param[in] eulerBeta The Euler beta angle value.
- \param[in] eulerGamma The Euler gamma angle value.
- \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
+    \param[in] eulerAlpha The Euler alpha angle value.
+    \param[in] eulerBeta The Euler beta angle value.
+    \param[in] eulerGamma The Euler gamma angle value.
+    \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
  */
 void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
 {
     //================================================ First row
     matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
+    matrix[3]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[6]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
   
     //================================================ Second row
-    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[1]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
     matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
-    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
+    matrix[7]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
   
     //================================================ Third row
-    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
-    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[2]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[5]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
     matrix[8]                                         =  cos ( eulerBeta  );
     
     //================================================ Done
@@ -998,15 +998,15 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
 
 /*! \brief This function converts rotation matrix to the axis-angle representation.
  
- This function takes a rotation matrix as an array of 9 numbers and converts it to the Angle-Axis representation,
- which is the main rotation representation used in ProSHADE. This function deals with both the North and South
- pole singularity of the rotation matrices.
+    This function takes a rotation matrix as an array of 9 numbers and converts it to the Angle-Axis representation,
+    which is the main rotation representation used in ProSHADE. This function deals with both the North and South
+    pole singularity of the rotation matrices.
  
- \param[in] rotMat Rotation matrix as an array of 9 values.
- \param[in] x Pointer to which the x-axis value of the axis vector will be saved.
- \param[in] y Pointer to which the y-axis value of the axis vector will be saved.
- \param[in] z Pointer to which the z-axis value of the axis vector will be saved.
- \param[in] ang Pointer to which the angle value will be saved.
+    \param[in] rotMat Rotation matrix as an array of 9 values.
+    \param[in] x Pointer to which the x-axis value of the axis vector will be saved.
+    \param[in] y Pointer to which the y-axis value of the axis vector will be saved.
+    \param[in] z Pointer to which the z-axis value of the axis vector will be saved.
+    \param[in] ang Pointer to which the angle value will be saved.
  */
  void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang )
 {
@@ -1133,11 +1133,11 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
 
 /*! \brief This function converts the axis-angle representation to the rotation matrix representation.
  
- \param[in] rotMat Rotation matrix as an array of 9 values will be saved to this pointer, must already be allocated.
- \param[in] x The x-axis value of the axis vector.
- \param[in] y The y-axis value of the axis vector.
- \param[in] z The z-axis value of the axis vector.
- \param[in] angThe angle value.
+    \param[in] rotMat Rotation matrix as an array of 9 values will be saved to this pointer, must already be allocated.
+    \param[in] x The x-axis value of the axis vector.
+    \param[in] y The y-axis value of the axis vector.
+    \param[in] z The z-axis value of the axis vector.
+    \param[in] angThe angle value.
  */
 void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang )
 {
@@ -1185,10 +1185,10 @@ void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_double* 
 
 /*! \brief This function converts rotation matrix to the Euler ZXZ angles representation.
  
- \param[in] rotMat Rotation matrix as an array of 9 values.
- \param[in] eA Pointer to which the Euler angle alpha value will be saved.
- \param[in] eB Pointer to which the Euler angle beta value will be saved.
- \param[in] eG Pointer to which the Euler angle gamma value will be saved.
+    \param[in] rotMat Rotation matrix as an array of 9 values.
+    \param[in] eA Pointer to which the Euler angle alpha value will be saved.
+    \param[in] eB Pointer to which the Euler angle beta value will be saved.
+    \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
 void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
@@ -1223,12 +1223,12 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
 
 /*! \brief Function to compute matrix multiplication.
  
- \warning This function assumes the second matrix has been transposed already!
+    \param[in] A The left matrix of the matrix multiplication to be solved.
+    \param[in] B The right matrix of the matrix multiplication to be solved. (Assuming it already has been transposed).
+    \param[in] res Matrix containing the results.
+    \param[in] dim The dimension of all the matrices (i.e. assuming square dim*dim matrices).
  
- \param[in] A The left matrix of the matrix multiplication to be solved.
- \param[in] B The right matrix of the matrix multiplication to be solved. (Assuming it already has been transposed).
- \param[in] res Matrix containing the results.
- \param[in] dim The dimension of all the matrices (i.e. assuming square dim*dim matrices).
+    \warning This function assumes the second matrix has been transposed already!
  */
 void ProSHADE_internal_maths::multiplyTwoSquareMatrices ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim )
 {
@@ -1251,7 +1251,7 @@ void ProSHADE_internal_maths::multiplyTwoSquareMatrices ( proshade_double* A, pr
 
 /*! \brief Function to find prime factors of an integer.
  
- \param[in] number A single integer number to be decomposed into its prime factors.
+    \param[in] number A single integer number to be decomposed into its prime factors.
  */
 std::vector < proshade_signed > ProSHADE_internal_maths::primeFactorsDecomp ( proshade_signed number )
 {
@@ -1297,10 +1297,10 @@ std::vector < proshade_signed > ProSHADE_internal_maths::primeFactorsDecomp ( pr
 
 /*! \brief Function to the heiht of normal distribution given by mean and standard deviation for a given value.
  
- \param[in] mean The mean of the normal distribution.
- \param[in] standardDev The standard deviation of the normal distribution.
- \param[in] value The value on the axis for which the height of the normal distribution is to be obtained.
- \param[out] X The height of the normal distribution at point given by the value.
+    \param[in] mean The mean of the normal distribution.
+    \param[in] standardDev The standard deviation of the normal distribution.
+    \param[in] value The value on the axis for which the height of the normal distribution is to be obtained.
+    \param[out] X The height of the normal distribution at point given by the value.
  */
 proshade_double ProSHADE_internal_maths::normalDistributionValue ( proshade_double mean, proshade_double standardDev, proshade_double value )
 {
@@ -1311,12 +1311,12 @@ proshade_double ProSHADE_internal_maths::normalDistributionValue ( proshade_doub
 
 /*! \brief Simple 3D vector dot product computation.
  
- \param[in] x1 The x-axis element of the first vector.
- \param[in] y1 The y-axis element of the first vector.
- \param[in] z1 The z-axis element of the first vector.
- \param[in] x2 The x-axis element of the second vector.
- \param[in] y2 The y-axis element of the second vector.
- \param[in] z2 The z-axis element of the second vector.
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
  */
 proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2, proshade_double* z2 )
 {

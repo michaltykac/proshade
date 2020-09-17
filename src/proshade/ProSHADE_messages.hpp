@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -28,10 +28,10 @@
 
 //============================================ ProSHADE_internal_messages Namespace
 /*! \namespace ProSHADE_internal_messages
- \brief This namespace contains all the functions used for reporting back to the user.
+    \brief This namespace contains all the functions used for reporting back to the user.
  
- The ProSHADE_internal_messages namespace wraps all functions for reporting back to the user. The user should not need to access this namespace when using
- the  library.
+    The ProSHADE_internal_messages namespace wraps all functions for reporting back to the user. The user should not need to access this namespace when using
+    the  library.
  */
 namespace ProSHADE_internal_messages
 {

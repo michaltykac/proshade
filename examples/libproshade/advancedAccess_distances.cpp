@@ -17,7 +17,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
 */
 
@@ -80,6 +80,7 @@ int main ( int argc, char **argv )
     settings->setRequestedSymmetry                    ( "" );                                // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 0 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setOverlaySaveFile                      ( "moved" );                           // Filename where the overlayed moving structure should be saved.
+    settings->setOverlayJsonFile                      ( "movedStructureOperations.json" );   // Filename where the overlay operations should be saved.
 
     //================================================ Print all the settings values
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
@@ -119,7 +120,7 @@ int main ( int argc, char **argv )
     //================================================ Expected output
 //  Energy levels distance       : 0.89531
 //  Trace sigma distance         : 0.96045
-//  Rotation function distance   : 0.75628
+//  Rotation function distance   : 0.73264
 
     //================================================ Release the settings and runProshade objects
     delete structure1;

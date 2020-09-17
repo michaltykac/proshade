@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00056 ==
+== NEXT FREE MESSAGE NUMBER: 00057 ==
 
 ========
 GENERAL:
@@ -16,6 +16,7 @@ E000005		The instance of ProSHADE_data which is trying to read in structure XXX 
 E000006		The structure XXX is of unknown type or does not exist.																	Could not determine the type (PDB or MAP) of the input file when attempting to read it.
 E000007		Failed to allocate memory.																								Generic error when malloc fails against nullptr.
 E000014		No task has been specified for task specific constructor.																ProSHADE_settings class constructor", "This ProSHADE_settings class constructor is intended to set the internal variables to default value given a particular taks. By supplying this task as NA, this beats the purpose of the constructor. Please use the non-argumental constructor if task is not yet known.
+E000056		Failed to open JSON output file.																						Failed to open json file to which the rotation and translation would be written into. Most likely cause is lack of rights to write in the current folder.
 
 ============
 MAP READING:

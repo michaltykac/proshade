@@ -16,7 +16,7 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
 */
 
@@ -30,11 +30,11 @@
 //============================================ ProSHADE_internal_distances Namespace
 
 /*! \namespace ProSHADE_internal_distances
- \brief This namespace contains the functions used for computing distances between two structures as represented by the ProSHADE_data class.
+    \brief This namespace contains the functions used for computing distances between two structures as represented by the ProSHADE_data class.
  
  
- The ProSHADE_internal_distances namespace contains all the functionality required to compute distances between two or more ProSHADE_data
- objects and also all of the pre-computation functions.
+    The ProSHADE_internal_distances namespace contains all the functionality required to compute distances between two or more ProSHADE_data
+    objects and also all of the pre-computation functions.
  */
 namespace ProSHADE_internal_distances
 {

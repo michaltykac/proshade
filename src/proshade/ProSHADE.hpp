@@ -18,7 +18,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -57,7 +57,9 @@ private:
     
     //================================================ Variables regarding overlay optimisation
     std::vector < proshade_double > eulerAngles;      //!< Vector of three Euler angles (ZXZ convention) specifying the rotation required to best overlay two structures.
-    std::vector < proshade_double > translation;      //!< Vector of three translation vectors specifying the translation required to best overlat two structures.
+    std::vector < proshade_double > rotationCentre;   //!< Vector specifying the rotation centre about which the optimal overlay rotation should be done.
+    std::vector < proshade_double > mapBoxMovement;   //!< Vector specifying the movement done internally to map centre. This is needed for correct map rotation.
+    std::vector < proshade_double > finalTranslation; //!< Final translation to be applied after rotation in the overlay mode.
     
     //================================================ Variables regarding symmetry detection
     std::string symRecommType;                        //!< The resulting recommended symmetry type for the symmetry detection task.
@@ -111,7 +113,9 @@ public:
     //================================================ Overlay results accessor functions
     std::vector< proshade_double > getEulerAngles     ( void );
     std::vector< proshade_double > getOptimalRotMat   ( void );
-    std::vector< proshade_double > getTranslation     ( void );
+    std::vector< proshade_double > getTranslationToOrigin ( void );
+    std::vector< proshade_double > getTranslationToMapCentre ( void );
+    std::vector< proshade_double > getOriginToOverlayTranslation ( void );
 };
 
 //==================================================== These functions should be in ProSHADE_run class, but I cannot make them work with Numpy from there, so they are here.
@@ -124,6 +128,8 @@ void getReBoxedBoundsVectorNumpy                      ( ProSHADE_run* run, prosh
 void getReBoxedMap                                    ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
                   
 void getOptimalEulerAngles                            ( ProSHADE_run* run, double *eulerAngs, int len );
-void getOptimalTranslation                            ( ProSHADE_run* run, double *translate, int len );
+void getToOriginTranslation                           ( ProSHADE_run* run, double *toOriginTranslation, int len );
+void getToMapCentreTranslation                        ( ProSHADE_run* run, double *toMapCentreTranslation, int len );
+void getOriginToOverlayTranslation                    ( ProSHADE_run* run, double *originToOverlayTranslation, int len );
 
 #endif

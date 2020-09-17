@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -24,11 +24,11 @@
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of strings and a single string element and adds this element to the end of
- the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of strings and a single string element and adds this element to the end of
+    the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of strings which should be elongated.
- \param[in] elementToAdd String to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of strings which should be elongated.
+    \param[in] elementToAdd String to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToStringVector ( std::vector < std::string >* vecToAddTo, std::string elementToAdd )
 {
@@ -46,11 +46,11 @@ void ProSHADE_internal_misc::addToStringVector ( std::vector < std::string >* ve
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of proshade_single and a single proshade_single element and adds this element to the end of
- the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of proshade_single and a single proshade_single element and adds this element to the end of
+    the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of proshade_single's which should be elongated.
- \param[in] elementToAdd proshade_single to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of proshade_single's which should be elongated.
+    \param[in] elementToAdd proshade_single to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToSingleVector ( std::vector < proshade_single >* vecToAddTo, proshade_single elementToAdd )
 {
@@ -68,11 +68,11 @@ void ProSHADE_internal_misc::addToSingleVector ( std::vector < proshade_single >
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of proshade_double and a single proshade_double element and adds this element to the end of
- the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of proshade_double and a single proshade_double element and adds this element to the end of
+    the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of proshade_double's which should be elongated.
- \param[in] elementToAdd proshade_double to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of proshade_double's which should be elongated.
+    \param[in] elementToAdd proshade_double to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToDoubleVector ( std::vector < proshade_double >* vecToAddTo, proshade_double elementToAdd )
 {
@@ -90,11 +90,11 @@ void ProSHADE_internal_misc::addToDoubleVector ( std::vector < proshade_double >
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of proshade_unsign and a single proshade_unsign element and adds this element to the end of
- the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of proshade_unsign and a single proshade_unsign element and adds this element to the end of
+    the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of proshade_unsign's which should be elongated.
- \param[in] elementToAdd proshade_unsign to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of proshade_unsign's which should be elongated.
+    \param[in] elementToAdd proshade_unsign to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToUnsignVector ( std::vector < proshade_unsign >* vecToAddTo, proshade_unsign elementToAdd )
 {
@@ -112,11 +112,11 @@ void ProSHADE_internal_misc::addToUnsignVector ( std::vector < proshade_unsign >
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of proshade_signed and a single proshade_signed element and adds this element to the end of
- the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of proshade_signed and a single proshade_signed element and adds this element to the end of
+    the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of proshade_signed's which should be elongated.
- \param[in] elementToAdd proshade_signed to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of proshade_signed's which should be elongated.
+    \param[in] elementToAdd proshade_signed to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToSignedVector ( std::vector < proshade_signed >* vecToAddTo, proshade_signed elementToAdd )
 {
@@ -134,11 +134,11 @@ void ProSHADE_internal_misc::addToSignedVector ( std::vector < proshade_signed >
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of complex<double> and a single complex<double> element and adds this element to the end of
- the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of complex<double> and a single complex<double> element and adds this element to the end of
+    the vector. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of complex<double>'s which should be elongated.
- \param[in] elementToAdd complex<double> to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of complex<double>'s which should be elongated.
+    \param[in] elementToAdd complex<double> to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToDblPtrVector ( std::vector < proshade_double* >* vecToAddTo, proshade_double* elementToAdd )
 {
@@ -156,12 +156,12 @@ void ProSHADE_internal_misc::addToDblPtrVector ( std::vector < proshade_double* 
 
 /*! \brief Adds the element to the vector.
  
- This function takes a pointer to a vector of proshade_signed pointers and a single proshade_signed pointer and adds this
- element to the end of the vector. The reason for this function is to make vector elongation C++ standard independent
- (push_back vs. emplace_back)
+    This function takes a pointer to a vector of proshade_signed pointers and a single proshade_signed pointer and adds this
+    element to the end of the vector. The reason for this function is to make vector elongation C++ standard independent
+    (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of complex<double>'s which should be elongated.
- \param[in] elementToAdd complex<double> to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of complex<double>'s which should be elongated.
+    \param[in] elementToAdd complex<double> to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToSigPtrVector ( std::vector < proshade_signed* >* vecToAddTo, proshade_signed* elementToAdd )
 {
@@ -179,11 +179,11 @@ void ProSHADE_internal_misc::addToSigPtrVector ( std::vector < proshade_signed* 
 
 /*! \brief Adds the element to the vector of vectors.
  
- This function takes a pointer to a vector of vectors of unsigns and a single vector of unsigns adds this element to the end of
- the vector of vectors. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+    This function takes a pointer to a vector of vectors of unsigns and a single vector of unsigns adds this element to the end of
+    the vector of vectors. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
  
- \param[in] vecToAddTo Pointer to vector of vectors of unsigns which should be elongated.
- \param[in] elementToAdd vector of unsigns to be added to the back of the vector.
+    \param[in] vecToAddTo Pointer to vector of vectors of unsigns which should be elongated.
+    \param[in] elementToAdd vector of unsigns to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToUnsignVectorVector ( std::vector < std::vector < proshade_unsign  > >* vecToAddTo, std::vector < proshade_unsign  > elementToAdd )
 {
@@ -201,9 +201,9 @@ void ProSHADE_internal_misc::addToUnsignVectorVector ( std::vector < std::vector
 
 /*! \brief This function compares two arrays of two based on the fifth number, sorting lowest first.
  
- \param[in] a The first array to compare.
- \param[in] b The second array to compare.
- \param[out] X Boolean whether the first is smaller than the second.
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
  */
 bool ProSHADE_internal_misc::sortSymHlp ( const proshade_double* a, const proshade_double* b )
 {
@@ -214,9 +214,9 @@ bool ProSHADE_internal_misc::sortSymHlp ( const proshade_double* a, const prosha
 
 /*! \brief This function compares two arrays of two based on the fifth number, sorting highest first.
  
- \param[in] a The first array to compare.
- \param[in] b The second array to compare.
- \param[out] X Boolean whether the first is smaller than the second.
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
  */
 bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const proshade_double* b )
 {
@@ -227,9 +227,9 @@ bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const pro
 
 /*! \brief This function compares two arrays of the ProSHADE dihedral symmetry list based on combination of axes folds and heightst.
  
- \param[in] a The first array to compare.
- \param[in] b The second array to compare.
- \param[out] X Boolean whether the first is smaller than the second.
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
  */
 bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const proshade_double* b )
 {
@@ -244,10 +244,10 @@ bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const pr
 
 /*! \brief Does a deep copy of a double array to a vector of double arrays.
  
- This function deep copies a single symmetry axis ( proshade_double[6] ) into a vector of such arrays.
+    This function deep copies a single symmetry axis ( proshade_double[6] ) into a vector of such arrays.
  
- \param[in] dblPtrVec Pointer to vector of proshade_double arrays to which the second argument is to be deep copied.
- \param[in] axis The proshade_double array to be copied to the first argument.
+    \param[in] dblPtrVec Pointer to vector of proshade_double arrays to which the second argument is to be deep copied.
+    \param[in] axis The proshade_double array to be copied to the first argument.
  */
 void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_double* >* dblPtrVec, proshade_double* axis )
 {
@@ -276,15 +276,15 @@ void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_
 
 /*! \brief Does a deep copy of a signed int array to a vector of signed int arrays.
  
- This function deep copies a single bounds array ( proshade_signed[6] ) into a vector of such arrays.
+    This function deep copies a single bounds array ( proshade_signed[6] ) into a vector of such arrays.
  
- \param[in] sigPtrVec Pointer to vector of proshade_signed arrays to which the second argument is to be deep copied.
- \param[in] xFrom Pointer to the index value from which the x dimension start.
- \param[in] xTo Pointer to the index value to which the x dimensions runs.
- \param[in] yFrom Pointer to the index value from which the y dimension start.
- \param[in] yTo Pointer to the index value to which the y dimensions runs.
- \param[in] zFrom Pointer to the index value from which the z dimension start.
- \param[in] zTo Pointer to the index value to which the z dimensions runs.
+    \param[in] sigPtrVec Pointer to vector of proshade_signed arrays to which the second argument is to be deep copied.
+    \param[in] xFrom Pointer to the index value from which the x dimension start.
+    \param[in] xTo Pointer to the index value to which the x dimensions runs.
+    \param[in] yFrom Pointer to the index value from which the y dimension start.
+    \param[in] yTo Pointer to the index value to which the y dimensions runs.
+    \param[in] zFrom Pointer to the index value from which the z dimension start.
+    \param[in] zTo Pointer to the index value to which the z dimensions runs.
  */
 void ProSHADE_internal_misc::deepCopyBoundsSigPtrVector ( std::vector < proshade_signed* >* sigPtrVec, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo  )
 {

@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -177,14 +177,11 @@ public:
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
+    std::string rotTrsJSONFile;                       //!< The filename to which the rotation and translation operations are to be saved into.
     
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
-    
-private:
-    //================================================ These settings are used to determine if user overwrote the defaults or not.
-
-    
+        
 public: // maybe make this protected?
     //================================================ Variable modifying functions
     void determineBandwidthFromAngle                  ( proshade_double uncertainty );
@@ -246,6 +243,7 @@ public:
     void setRequestedFold                             ( proshade_unsign val );
     void setDetectedSymmetry                          ( proshade_double* sym );
     void setOverlaySaveFile                           ( std::string filename );
+    void setOverlayJsonFile                           ( std::string filename );
     
     //================================================ Command line options parsing
     void getCommandLineParams                         ( int argc, char** argv );

@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -151,12 +151,12 @@ void ProSHADE_internal_peakSearch::pointsAboveNeighboursRemoveSmallHeight ( std:
 
 /*! \brief This function allocates and checks all the peak optimisation memory.
  
- \param[in] avgMat The matrix which will take the weighted sum of the neighbour values.
- \param[in] hlpMat The helper matrix to store temporary results.
- \param[in] eA The Euler angle alpha value.
- \param[in] eB The Euler beta alpha value.
- \param[in] eG The Euler gamma alpha value.
- \param[in] uAV The U and V^T matrices resulting from the SVD.
+    \param[in] avgMat The matrix which will take the weighted sum of the neighbour values.
+    \param[in] hlpMat The helper matrix to store temporary results.
+    \param[in] eA The Euler angle alpha value.
+    \param[in] eB The Euler beta alpha value.
+    \param[in] eG The Euler gamma alpha value.
+    \param[in] uAV The U and V^T matrices resulting from the SVD.
  */
 void ProSHADE_internal_peakSearch::allocatePeakOptimisationMemory ( proshade_double*& avgMat, proshade_double*& hlpMat, proshade_double*& eA, proshade_double*& eB, proshade_double*& eG, proshade_double*& uAV )
 {
@@ -183,12 +183,12 @@ void ProSHADE_internal_peakSearch::allocatePeakOptimisationMemory ( proshade_dou
 
 /*! \brief This function deletes all the peak optimisation memory.
  
- \param[in] avgMat The matrix which will take the weighted sum of the neighbour values.
- \param[in] hlpMat The helper matrix to store temporary results.
- \param[in] eA The Euler angle alpha value.
- \param[in] eB The Euler beta alpha value.
- \param[in] eG The Euler gamma alpha value.
- \param[in] uAV The U and V^T matrices resulting from the SVD.
+    \param[in] avgMat The matrix which will take the weighted sum of the neighbour values.
+    \param[in] hlpMat The helper matrix to store temporary results.
+    \param[in] eA The Euler angle alpha value.
+    \param[in] eB The Euler beta alpha value.
+    \param[in] eG The Euler gamma alpha value.
+    \param[in] uAV The U and V^T matrices resulting from the SVD.
  */
 void ProSHADE_internal_peakSearch::releasePeakOptimisationMemory ( proshade_double*& avgMat, proshade_double*& hlpMat, proshade_double*& eA, proshade_double*& eB, proshade_double*& eG, proshade_double*& uAV )
 {
@@ -207,16 +207,16 @@ void ProSHADE_internal_peakSearch::releasePeakOptimisationMemory ( proshade_doub
 
 /*! \brief This function optimises all the peaks in the input vector using the values of their neighbours.
  
- This function takes the vector of arrays containing the peak and all its neighbours and proceeds to obtain the
- rotation matrices for the peak and all its neighbours. It then computes the weighted average matrix from the combination
- of all the matrices. By subjecting this weighted average matrix to SVD (using LAPACK) and combining the two rotation
- matrices (U and V^T), the optimised rotation matrix is obtained. This rotation matrix is then converted to Euler angles
- representation and these values are finally saved over the old all neighbours containing pointers. Thus, the number
- of peaks does not change, but each peak now only has 4 values - alpha, beta, gamma and peak height.
+    This function takes the vector of arrays containing the peak and all its neighbours and proceeds to obtain the
+    rotation matrices for the peak and all its neighbours. It then computes the weighted average matrix from the combination
+    of all the matrices. By subjecting this weighted average matrix to SVD (using LAPACK) and combining the two rotation
+    matrices (U and V^T), the optimised rotation matrix is obtained. This rotation matrix is then converted to Euler angles
+    representation and these values are finally saved over the old all neighbours containing pointers. Thus, the number
+    of peaks does not change, but each peak now only has 4 values - alpha, beta, gamma and peak height.
  
- \param[in] pointVec Vector of double pointers as returned by pointsAboveNeighboursRemoveSmallHeight().
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[in] band The maximum bandwidth of the computation.
+    \param[in] pointVec Vector of double pointers as returned by pointsAboveNeighboursRemoveSmallHeight().
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[in] band The maximum bandwidth of the computation.
  */
 void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade_double* >* pointVec, proshade_signed peakSize, proshade_signed band )
 {
@@ -299,18 +299,18 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
 
 /*! \brief This function finds peaks in the 3D map using the "naive" approach.
  
- This function uses the "naive" approach (used in early versions of ProSHADE) to find all significant peaks in a map. To do this,
- it firstly locates all map points which have higher value than all their neighbours in all directions. It also computes the median
- and IQR of all non-higher points and it then uses the median + x * IQR threshold (x is the noIQRs parameter) to remove all map points
- with value under this thereshold. Finally, it optimises all the remaining values using the weighted average of all the neighbour
- points. The final output then is a vector with a single entry for each passing peak; this array has 4 values, the alpha, beta and gamma
- Euler angle values and the maximum peak heigh.
+    This function uses the "naive" approach (used in early versions of ProSHADE) to find all significant peaks in a map. To do this,
+    it firstly locates all map points which have higher value than all their neighbours in all directions. It also computes the median
+    and IQR of all non-higher points and it then uses the median + x * IQR threshold (x is the noIQRs parameter) to remove all map points
+    with value under this thereshold. Finally, it optimises all the remaining values using the weighted average of all the neighbour
+    points. The final output then is a vector with a single entry for each passing peak; this array has 4 values, the alpha, beta and gamma
+    Euler angle values and the maximum peak heigh.
  
- \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
- \param[out] X Vector of located peaks with pointers to arrays of 4 values: alpha, beta, gamma and peak heighht.
+    \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
+    \param[out] X Vector of located peaks with pointers to arrays of 4 values: alpha, beta, gamma and peak heighht.
  */
 std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksNaive ( proshade_complex* map, proshade_unsign dim, proshade_signed peakSize, proshade_double noIQRs )
 {
@@ -336,17 +336,17 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksNaive (
 
 /*! \brief This function finds the highest peaks optimised Euler angles using the "naive" approach.
  
- This function uses the same "naive" approach as discussed in the previous function. It firstly gets the full list of all
- "naive" peaks, it then optimises all such peaks and finds the largest (i.e. highest height) peak. For this single best
- peak, it finally returns the Euler angle values.
+    This function uses the same "naive" approach as discussed in the previous function. It firstly gets the full list of all
+    "naive" peaks, it then optimises all such peaks and finds the largest (i.e. highest height) peak. For this single best
+    peak, it finally returns the Euler angle values.
  
- \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
- \param[in] eulA Pointer to where the Euler alpha angle value will be saved.
- \param[in] eulB Pointer to where the Euler beta angle value will be saved.
- \param[in] eulG Pointer to where the Euler gamma angle value will be saved.
- \param[in] settings The ProSHADE_settings object containing all the values required for making decisions.
+    \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] noIQRs The number of IQRs from the median to determine minimal peak height.
+    \param[in] eulA Pointer to where the Euler alpha angle value will be saved.
+    \param[in] eulB Pointer to where the Euler beta angle value will be saved.
+    \param[in] eulG Pointer to where the Euler gamma angle value will be saved.
+    \param[in] settings The ProSHADE_settings object containing all the values required for making decisions.
  */
 void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex* map, proshade_unsign dim, proshade_double* eulA, proshade_double* eulB, proshade_double* eulG, ProSHADE_settings* settings )
 {
@@ -401,19 +401,19 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex*
 
 /*! \brief This function allocates the memory required for smoothed Z score computation.
  
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map will be saved.
- \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
- \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
- \param[in] avgFilter Pointer to where the median values will be saved.
- \param[in] stdFilter Pointer to where the IQR values will be saved.
- \param[in] subVec Pointer to where temporary  computations will be done.
- \param[in] medianIQR Pointer to simple array of 2 for returning results.
- \param[in] YZMap Pointer to where the X-axis peaks will be saved.
- \param[in] XZMap Pointer to where the Y-axis peaks will be saved.
- \param[in] XYMap Pointer to where the Z-axis peaks will be saved.
- \param[in] PeakMap Pointer to where the axis peak combinations will be saved.
- \param[in] smLag The size of the smoothing window.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map will be saved.
+    \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
+    \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
+    \param[in] avgFilter Pointer to where the median values will be saved.
+    \param[in] stdFilter Pointer to where the IQR values will be saved.
+    \param[in] subVec Pointer to where temporary  computations will be done.
+    \param[in] medianIQR Pointer to simple array of 2 for returning results.
+    \param[in] YZMap Pointer to where the X-axis peaks will be saved.
+    \param[in] XZMap Pointer to where the Y-axis peaks will be saved.
+    \param[in] XYMap Pointer to where the Z-axis peaks will be saved.
+    \param[in] PeakMap Pointer to where the axis peak combinations will be saved.
+    \param[in] smLag The size of the smoothing window.
  */
 void ProSHADE_internal_peakSearch::allocateSmoothingZScoreMemory ( proshade_unsign dim, proshade_double*& scoreOverVals, proshade_signed*& signals, proshade_double*& filteredY, proshade_double*& avgFilter, proshade_double*& stdFilter, proshade_double*& subVec, proshade_double*& medianIQR, proshade_double*& YZMap, proshade_double*& XZMap, proshade_double*& XYMap, proshade_unsign smLag )
 {
@@ -448,16 +448,16 @@ void ProSHADE_internal_peakSearch::allocateSmoothingZScoreMemory ( proshade_unsi
 
 /*! \brief This function releases the memory required for smoothed Z score computation.
  
- \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map will be saved.
- \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
- \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
- \param[in] avgFilter Pointer to where the median values will be saved.
- \param[in] stdFilter Pointer to where the IQR values will be saved.
- \param[in] subVec Pointer to where temporary  computations will be done.
- \param[in] medianIQR Pointer to simple array of 2 for returning results.
- \param[in] YZMap Pointer to where the X-axis peaks will be saved.
- \param[in] XZMap Pointer to where the Y-axis peaks will be saved.
- \param[in] XYMap Pointer to where the Z-axis peaks will be saved.
+    \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map will be saved.
+    \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
+    \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
+    \param[in] avgFilter Pointer to where the median values will be saved.
+    \param[in] stdFilter Pointer to where the IQR values will be saved.
+    \param[in] subVec Pointer to where temporary  computations will be done.
+    \param[in] medianIQR Pointer to simple array of 2 for returning results.
+    \param[in] YZMap Pointer to where the X-axis peaks will be saved.
+    \param[in] XZMap Pointer to where the Y-axis peaks will be saved.
+    \param[in] XYMap Pointer to where the Z-axis peaks will be saved.
  */
 void ProSHADE_internal_peakSearch::releaseSmoothingZScoreMemory ( proshade_double*& scoreOverVals, proshade_signed*& signals, proshade_double*& filteredY, proshade_double*& avgFilter, proshade_double*& stdFilter, proshade_double*& subVec, proshade_double*& medianIQR, proshade_double*& YZMap, proshade_double*& XZMap, proshade_double*& XYMap )
 {
@@ -480,22 +480,22 @@ void ProSHADE_internal_peakSearch::releaseSmoothingZScoreMemory ( proshade_doubl
 
 /*! \brief This function computes the 1D peaks for a 1D input array and returns array of int's as signal.
  
- This function implements the smoothed Z score peak searching algorithm. It takes a number of previous values (assuming
- periodicity) and computes the median and IQR. It then checks if the current value is X IQR's from the median and reports
- peak if so. In this case, it also saves the value with decreased weight to make sure the sliding window for following indices
- will not have too high values due to previous peaks. If no peak is found, it saves the value as is. Finally, the function pre-
- computes the median and IQR for the next index and iterates.
+    This function implements the smoothed Z score peak searching algorithm. It takes a number of previous values (assuming
+    periodicity) and computes the median and IQR. It then checks if the current value is X IQR's from the median and reports
+    peak if so. In this case, it also saves the value with decreased weight to make sure the sliding window for following indices
+    will not have too high values due to previous peaks. If no peak is found, it saves the value as is. Finally, the function pre-
+    computes the median and IQR for the next index and iterates.
  
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] smoothingLag The size of the smoothing window.
- \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
- \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
- \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
- \param[in] avgFilter Pointer to where the median values will be saved.
- \param[in] stdFilter Pointer to where the IQR values will be saved.
- \param[in] subVec Pointer to where temporary computations will be done.
- \param[in] medianIQR Pointer to simple array of 2 for returning results.
- \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] smoothingLag The size of the smoothing window.
+    \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
+    \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
+    \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
+    \param[in] avgFilter Pointer to where the median values will be saved.
+    \param[in] stdFilter Pointer to where the IQR values will be saved.
+    \param[in] subVec Pointer to where temporary computations will be done.
+    \param[in] medianIQR Pointer to simple array of 2 for returning results.
+    \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
  */
 void ProSHADE_internal_peakSearch::getSmoothedZScore1D ( proshade_unsign dim, proshade_unsign smoothingLag, proshade_double ZScoreThreshold, proshade_signed* signals, proshade_double* filteredY, proshade_double* avgFilter, proshade_double* stdFilter, proshade_double* subVec, proshade_double* medianIQR, proshade_double* scoreOverVals )
 {
@@ -557,22 +557,22 @@ void ProSHADE_internal_peakSearch::getSmoothedZScore1D ( proshade_unsign dim, pr
 
 /*! \brief This function runs the 1D smoothed Z score algorithm on all X-axis arrays as its inputs.
  
- This function iterates through all YZ map positions and at each, takes all the X values and subjects them to the
- 1D smoothed Z score peak search. It also saves the resulting signals into a map, which therefore contains all the
- X-axis peaks of the map.
+    This function iterates through all YZ map positions and at each, takes all the X values and subjects them to the
+    1D smoothed Z score peak search. It also saves the resulting signals into a map, which therefore contains all the
+    X-axis peaks of the map.
  
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] smoothingLag The size of the smoothing window.
- \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
- \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
- \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
- \param[in] avgFilter Pointer to where the median values will be saved.
- \param[in] stdFilter Pointer to where the IQR values will be saved.
- \param[in] subVec Pointer to where temporary  computations will be done.
- \param[in] medianIQR Pointer to simple array of 2 for returning results.
- \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
- \param[in] map The map in which the peaks are to be found.
- \param[in] YZMap The map where the results will be saved.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] smoothingLag The size of the smoothing window.
+    \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
+    \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
+    \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
+    \param[in] avgFilter Pointer to where the median values will be saved.
+    \param[in] stdFilter Pointer to where the IQR values will be saved.
+    \param[in] subVec Pointer to where temporary  computations will be done.
+    \param[in] medianIQR Pointer to simple array of 2 for returning results.
+    \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
+    \param[in] map The map in which the peaks are to be found.
+    \param[in] YZMap The map where the results will be saved.
  */
 void ProSHADE_internal_peakSearch::getXAxisArraysSmoothedZScorePeaks ( proshade_unsign dim, proshade_unsign smoothingLag, proshade_double ZScoreThreshold, proshade_signed* signals, proshade_double* filteredY, proshade_double* avgFilter, proshade_double* stdFilter, proshade_double* subVec, proshade_double* medianIQR, proshade_double* scoreOverVals, proshade_complex* map, proshade_double* YZMap )
 {
@@ -606,22 +606,22 @@ void ProSHADE_internal_peakSearch::getXAxisArraysSmoothedZScorePeaks ( proshade_
 
 /*! \brief This function runs the 1D smoothed Z score algorithm on all Y-axis arrays as its inputs.
  
- This function iterates through all YZ map positions and at each, takes all the Y values and subjects them to the
- 1D smoothed Z score peak search. It also saves the resulting signals into a map, which therefore contains all the
- Y-axis peaks of the map.
+    This function iterates through all YZ map positions and at each, takes all the Y values and subjects them to the
+    1D smoothed Z score peak search. It also saves the resulting signals into a map, which therefore contains all the
+    Y-axis peaks of the map.
  
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] smoothingLag The size of the smoothing window.
- \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
- \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
- \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
- \param[in] avgFilter Pointer to where the median values will be saved.
- \param[in] stdFilter Pointer to where the IQR values will be saved.
- \param[in] subVec Pointer to where temporary  computations will be done.
- \param[in] medianIQR Pointer to simple array of 2 for returning results.
- \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
- \param[in] map The map in which the peaks are to be found.
- \param[in] XZMap The map where the results will be saved.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] smoothingLag The size of the smoothing window.
+    \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
+    \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
+    \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
+    \param[in] avgFilter Pointer to where the median values will be saved.
+    \param[in] stdFilter Pointer to where the IQR values will be saved.
+    \param[in] subVec Pointer to where temporary  computations will be done.
+    \param[in] medianIQR Pointer to simple array of 2 for returning results.
+    \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
+    \param[in] map The map in which the peaks are to be found.
+    \param[in] XZMap The map where the results will be saved.
  */
 void ProSHADE_internal_peakSearch::getYAxisArraysSmoothedZScorePeaks ( proshade_unsign dim, proshade_unsign smoothingLag, proshade_double ZScoreThreshold, proshade_signed* signals, proshade_double* filteredY, proshade_double* avgFilter, proshade_double* stdFilter, proshade_double* subVec, proshade_double* medianIQR, proshade_double* scoreOverVals, proshade_complex* map, proshade_double* XZMap )
 {
@@ -655,22 +655,22 @@ void ProSHADE_internal_peakSearch::getYAxisArraysSmoothedZScorePeaks ( proshade_
 
 /*! \brief This function runs the 1D smoothed Z score algorithm on all Z-axis arrays as its inputs.
  
- This function iterates through all XY map positions and at each, takes all the Z values and subjects them to the
- 1D smoothed Z score peak search. It also saves the resulting signals into a map, which therefore contains all the
- Z-axis peaks of the map.
+    This function iterates through all XY map positions and at each, takes all the Z values and subjects them to the
+    1D smoothed Z score peak search. It also saves the resulting signals into a map, which therefore contains all the
+    Z-axis peaks of the map.
  
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] smoothingLag The size of the smoothing window.
- \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
- \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
- \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
- \param[in] avgFilter Pointer to where the median values will be saved.
- \param[in] stdFilter Pointer to where the IQR values will be saved.
- \param[in] subVec Pointer to where temporary  computations will be done.
- \param[in] medianIQR Pointer to simple array of 2 for returning results.
- \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
- \param[in] map The map in which the peaks are to be found.
- \param[in] XYMap The map where the results will be saved.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] smoothingLag The size of the smoothing window.
+    \param[in] ZScoreThreshold The number of IQRs from median forming a peak.
+    \param[in] signals Pointer to where the results of the 1D peak searches will be saved.
+    \param[in] filteredY Pointer to where the weighted smoothed scores will be saved.
+    \param[in] avgFilter Pointer to where the median values will be saved.
+    \param[in] stdFilter Pointer to where the IQR values will be saved.
+    \param[in] subVec Pointer to where temporary  computations will be done.
+    \param[in] medianIQR Pointer to simple array of 2 for returning results.
+    \param[in] scoreOverVals Pointer to where the 1D cuts from the 3D map live.
+    \param[in] map The map in which the peaks are to be found.
+    \param[in] XYMap The map where the results will be saved.
  */
 void ProSHADE_internal_peakSearch::getZAxisArraysSmoothedZScorePeaks ( proshade_unsign dim, proshade_unsign smoothingLag, proshade_double ZScoreThreshold, proshade_signed* signals, proshade_double* filteredY, proshade_double* avgFilter, proshade_double* stdFilter, proshade_double* subVec, proshade_double* medianIQR, proshade_double* scoreOverVals, proshade_complex* map, proshade_double* XYMap )
 {
@@ -763,17 +763,17 @@ void ProSHADE_internal_peakSearch::findAllPointNeighbours ( proshade_double* YZM
 
 /*! \brief This function combines the three Z score maps, locates individual islands and returns a vector of highest point indices for each such island.
  
- This function considers each point common to all the three input maps and checks if this point has a signal along all three axes
- (i.e. is a peak in terms of the 3D smoothed Z score). If so, it finds all its neighbours and from this set (island), it finds the
- one point with the highest height. It then saves the index of this point and proceeds to another common point in the three input
- maps.
+    This function considers each point common to all the three input maps and checks if this point has a signal along all three axes
+    (i.e. is a peak in terms of the 3D smoothed Z score). If so, it finds all its neighbours and from this set (island), it finds the
+    one point with the highest height. It then saves the index of this point and proceeds to another common point in the three input
+    maps.
  
- \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
- \param[in] YZMap The map containing peaks detected along the X-axis dimension using the smoothed Z score method.
- \param[in] XZMap The map containing peaks detected along the Y-axis dimension using the smoothed Z score method.
- \param[in] XYMap The map containing peaks detected along the z-axis dimension using the smoothed Z score method.
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] allIslandBests A vector which will be filled with the indices of the highest height point indices for each island.
+    \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
+    \param[in] YZMap The map containing peaks detected along the X-axis dimension using the smoothed Z score method.
+    \param[in] XZMap The map containing peaks detected along the Y-axis dimension using the smoothed Z score method.
+    \param[in] XYMap The map containing peaks detected along the z-axis dimension using the smoothed Z score method.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] allIslandBests A vector which will be filled with the indices of the highest height point indices for each island.
  */
 void ProSHADE_internal_peakSearch::findAllDisconnectedIslands ( proshade_complex* map, proshade_double* YZMap, proshade_double* XZMap, proshade_double* XYMap, proshade_unsign dim, std::vector< proshade_unsign >* allIslandBests )
 {
@@ -838,17 +838,17 @@ void ProSHADE_internal_peakSearch::findAllDisconnectedIslands ( proshade_complex
 
 /*! \brief This function firstly determines the highest peak of all smoothed Z score islands and then returns this point as well as all its neighbours.
  
- This function firstly uses the findAllDisconnectedIslands function to combine the smoothed Z score maps and detect all discontinuous inslands
- in the combined map. Then, it uses the highest point in each island, finds all its neighbours as well as its X, Y and Z position and returns
- a vector containing all these values in a proshade_double pointer, which it allocates.
+    This function firstly uses the findAllDisconnectedIslands function to combine the smoothed Z score maps and detect all discontinuous inslands
+    in the combined map. Then, it uses the highest point in each island, finds all its neighbours as well as its X, Y and Z position and returns
+    a vector containing all these values in a proshade_double pointer, which it allocates.
  
- \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
- \param[in] YZMap The map containing peaks detected along the X-axis dimension using the smoothed Z score method.
- \param[in] XZMap The map containing peaks detected along the Y-axis dimension using the smoothed Z score method.
- \param[in] XYMap The map containing peaks detected along the z-axis dimension using the smoothed Z score method.
- \param[in] dim The size of one dimension of the map (assuming cube map).
- \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
- \param[in] allPeaksWithNeighbours A vector which will have the x, y, and z positions and heights of all peaks and all their neighbours.
+    \param[in] map Pointer to 1D array holding the 3D map value in which the peaks are to be found. Map must be cube!
+    \param[in] YZMap The map containing peaks detected along the X-axis dimension using the smoothed Z score method.
+    \param[in] XZMap The map containing peaks detected along the Y-axis dimension using the smoothed Z score method.
+    \param[in] XYMap The map containing peaks detected along the z-axis dimension using the smoothed Z score method.
+    \param[in] dim The size of one dimension of the map (assuming cube map).
+    \param[in] peakSize The number of neighbouring points in single direction which should be considered as neighbours.
+    \param[in] allPeaksWithNeighbours A vector which will have the x, y, and z positions and heights of all peaks and all their neighbours.
  */
 void ProSHADE_internal_peakSearch::findAllSmoothedZScorePeaksWithNeighbours ( proshade_complex* map, proshade_double* YZMap, proshade_double* XZMap, proshade_double* XYMap, proshade_signed dim, proshade_signed peakSize, std::vector< proshade_double* >* allPeaksWithNeighbours )
 {

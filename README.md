@@ -166,8 +166,8 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
- ProSHADE 0.7.4 (SEP 2020):
- ==========================
+ ProSHADE 0.7.4.2 (SEP 2020):
+ ============================
 
   ... Starting to read the structure: ./emd_6324.map
   ... Map inversion (mirror image) not requested.
@@ -188,7 +188,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
  ======================
  ProSHADE run complete.
- Time taken: 16 seconds.
+ Time taken: 17 seconds.
  ======================
 ```
 
@@ -206,8 +206,8 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.4 (SEP 2020):
-  ==========================
+  ProSHADE 0.7.4.2 (SEP 2020):
+  ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
@@ -235,7 +235,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
   Energy levels distance    : 0.895313
   Trace sigma distance      : 0.960445
-  Rotation function distance: 0.756283
+  Rotation function distance: 0.732638
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
@@ -256,7 +256,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
   ======================
   ProSHADE run complete.
-  Time taken: 4 seconds.
+  Time taken: 5 seconds.
   ======================
 ```
  
@@ -273,9 +273,9 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 ![Re-boxing result for TubZ-Bt four-stranded filament](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_rebox.png)
  
 ```
- $ ./proshade -MRf ./emd_5762.map.gz
- ProSHADE 0.7.4 (SEP 2020):
- ==========================
+$ ./proshade -RMf ./emd_5762.map.gz 
+ ProSHADE 0.7.4.2 (SEP 2020):
+ ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
   ... Map inversion (mirror image) not requested.
@@ -300,14 +300,21 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
  Due to the requirement for the second stucture movement and rotation, it is worth noting that the structure may need to be re-sampled and/or moved to the same viewing position as the first structure. This is done so that only the internal representation is modified, but never the input file. However, when the overlay structure is outputted (a non-default name can be specified by the **--overlayFile** command line option) the header of this output file may differ from the second structure header. Furthermore, if there is no extra space around the structure, movement and rotation may move pieces of the structure through the box boundaries to the other side of the box. To avoid this, please use the **--extraSpace** option to add some extra space around the structure.
  
- As an example of the Overlay mode, we will be matching a single PDB structure (1BFO_A_dom_1 from the BALBES database, original structure code 1BFO) shown in part a) of the following figure to another PDB structure, this time the 1H8N_A_dom_1 structure from the BALBES database, shown in part b) of the following figure. Please note that ProSHADE can fit any allowed input (map or co-ordinates) to any allowed input, it is just this example which uses two PDB files. Part c) of the figure then shows the match obtained by the internal map representation of the moving structure (1H8N_A_dom_1) after rotation and translation with the static structure (1BFO_A_dom_1). Finally, part d) then shows the original static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity (**--verbose**) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
+ As an example of the Overlay mode, we will be matching a single PDB structure (1BFO_A_dom_1 from the BALBES database, original structure code 1BFO) shown in part a) of the following figure to another PDB structure, this time the 1H8N_A_dom_1 structure from the BALBES database, shown in part b) of the following figure. Please note that ProSHADE can fit any allowed input (map or co-ordinates) to any allowed input, it is just this example which uses two PDB files. Part c) of the figure then shows the match obtained by the internal map representation of the moving structure (1H8N_A_dom_1) after rotation and translation with the static structure (1BFO_A_dom_1). Finally, part d) then shows the original static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vectors are written into the output, but are better accessed programatically (see the following sections) if you are interested in using these further.
+ 
+ Regarding the output, ProSHADE outputs three different translation vectors with the following meaning:
+ - **1) Rotation centre to origin translation** - this translation vector takes the location of the point in "visualisation" space about which the rotation should be done and produces a translation vector which moves it to the origin on space (not cell), *i.e.* 0; 0; 0.
+ - **2) Within box translation** - this translation vector is the sum of all translations done by ProSHADE to the internal representation between reading it and computing the translation function.
+ - **3) Origin to overlay translation** - this translation assumes that the first translation vector has been applied to the structure and describes how the structure needs to be moved to be placed in optimal overlay position relative to the static structure.
+ 
+ Generally, which of these translation vectors you need to apply to move the moving structure to overlay with the static structure will depend on what is the input type and how exactly the rotation is done. For examples, if the input is co-ordinate file, then translation 1) needs to be done, then rotation needs to be applied and then translation 3) is required, but translation 2) is of no use. However, if the input is map, which will be rotated in the box (rather than at the space origin) and which will be rotated about the centre of the map box, then translation 2) needs to be applied (to move ProSHADE centre of rotation to the centre of map), the rotation needs to be done and finally translation 3) minus translation 1) will be the required final translation. 
  
  ![ProSHADE Overlay results for 2A2Q_T_dom_2.pdb](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_overlay.jpg)
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.4 (SEP 2020):
- ==========================
+ ProSHADE 0.7.4.2 (SEP 2020):
+ ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
   ... Starting to read the structure: ./1H8N_A_dom_1.pdb
@@ -351,9 +358,16 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   ... Starting spherical harmonics decomposition.
   ... Starting translation function computation.
 
+ The rotation centre to origin translation vector is: -0     -0     -0
+ The within box internal map translation vector is  : -2.95     -2.04     -0.0353
+ The rotation matrix about origin is                : -0.867     -0.0845     +0.492
+                                                    : -0.196     -0.848     -0.492
+                                                    : +0.459     -0.523     +0.719
+ The origin to overlay translation vector is        : +5.29     +4.93     -4.81
+
  ======================
  ProSHADE run complete.
- Time taken: 4 seconds.
+ Time taken: 5 seconds.
  ======================
 ```
 # Using the ProSHADE library
@@ -860,7 +874,7 @@ Band4OrderOneMin2OrderTwo3EMatrixValue        = eMat[4][-2+4][3+4] # Band = 4, O
 
 """ Obtain the SO(3) coefficients """
 so3Coeffs                                     = proshade.getSO3Coeffs( pStruct )
-so3CoeffsOrderOneMin1OrderTwo3Band5           = so3Coeffs[pStruct.so3CoeffsArrayIndex ( -1, 3, 5 )] # Order1 = -1; Order2 = 3, Band = 5
+so3CoeffsOrderOneMin1OrderTwo3Band5           = so3Coeffs[5][3][-1] # Accessing SO(3) coefficient value order1 = -1; order2 = 3, band = 5
 
 """ Obtain the self-rotation function """
 selfRotationFunction1D                        = proshade.getRotationFunction1D ( pStruct )

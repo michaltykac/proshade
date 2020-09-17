@@ -17,7 +17,7 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -30,11 +30,11 @@
 
 /*! \brief Constructor for getting empty ProSHADE_data class.
  
- This constructor creates an empty data structure which can later be filled with data and used to process
- these data further.
+    This constructor creates an empty data structure which can later be filled with data and used to process
+    these data further.
  
- \param[in] settings ProSHADE_settings object specifying what should be done.
- \param[out] X Empty data object with deault values.
+    \param[in] settings ProSHADE_settings object specifying what should be done.
+    \param[out] X Empty data object with deault values.
  */
 ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settings )
 {
@@ -89,6 +89,14 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->mapPostRotYCom                              = 0.0;
     this->mapPostRotZCom                              = 0.0;
     
+    // ... Variables regarding rotation and translation of original input files
+    this->originalPdbRotCenX                          = 0.0;
+    this->originalPdbRotCenY                          = 0.0;
+    this->originalPdbRotCenZ                          = 0.0;
+    this->originalPdbTransX                           = 0.0;
+    this->originalPdbTransY                           = 0.0;
+    this->originalPdbTransZ                           = 0.0;
+    
     // ... Variables regarding iterator positions
     this->xFrom                                       = 0;
     this->yFrom                                       = 0;
@@ -125,29 +133,29 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
 
 /*! \brief Constructor for creating ProSHADE_data structure with data.
  
- This constructor creates a data structure with all the map information, so that maps obtained from other software could
- be loeaded and used. This function makes a lot of assumptions (all angles are 90 degrees, axis grids are equal to indices,
- axis order is XYZ and axis origin is the first index in all dimensions). If any of these are not true, the user is required
- to change the appropriate internal values after this function has returned the object.
+    This constructor creates a data structure with all the map information, so that maps obtained from other software could
+    be loeaded and used. This function makes a lot of assumptions (all angles are 90 degrees, axis grids are equal to indices,
+    axis order is XYZ and axis origin is the first index in all dimensions). If any of these are not true, the user is required
+    to change the appropriate internal values after this function has returned the object.
  
- \param[in] settings ProSHADE_settings object specifying what should be done.
- \param[in] strName The name of the structure for reference.
- \param[in] mapVals A pointer to array where all the map data are.
- \param[in] len The length of this map values array.
- \param[in] xDmSz The size of the x-axis dimension in Angstroms.
- \param[in] yDmSz The size of the y-axis dimension in Angstroms.
- \param[in] zDmSz The size of the z-axis dimension in Angstroms.
- \param[in] xDmInd The size of the x-axis dimension in indices.
- \param[in] yDmInd The size of the y-axis dimension in indices.
- \param[in] zDmInd The size of the z-axis dimension in indices.
- \param[in] xFr The first index statting position along the x-axis.
- \param[in] yFr The first index statting position along the y-axis.
- \param[in] zFr The first index statting position along the z-axis.
- \param[in] xT The last index end position along the x-axis.
- \param[in] yT The last index end position along the y-axis.
- \param[in] zT The last index end position along the z-axis.
- \param[in] inputO The input order for this structure.
- \param[out] X Empty data object with filled in values and map.
+    \param[in] settings ProSHADE_settings object specifying what should be done.
+    \param[in] strName The name of the structure for reference.
+    \param[in] mapVals A pointer to array where all the map data are.
+    \param[in] len The length of this map values array.
+    \param[in] xDmSz The size of the x-axis dimension in Angstroms.
+    \param[in] yDmSz The size of the y-axis dimension in Angstroms.
+    \param[in] zDmSz The size of the z-axis dimension in Angstroms.
+    \param[in] xDmInd The size of the x-axis dimension in indices.
+    \param[in] yDmInd The size of the y-axis dimension in indices.
+    \param[in] zDmInd The size of the z-axis dimension in indices.
+    \param[in] xFr The first index statting position along the x-axis.
+    \param[in] yFr The first index statting position along the y-axis.
+    \param[in] zFr The first index statting position along the z-axis.
+    \param[in] xT The last index end position along the x-axis.
+    \param[in] yT The last index end position along the y-axis.
+    \param[in] zT The last index end position along the z-axis.
+    \param[in] inputO The input order for this structure.
+    \param[out] X Empty data object with filled in values and map.
  */
 ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settings, std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz, proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr, proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT, proshade_unsign inputO )
 {
@@ -201,6 +209,14 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->mapPostRotXCom                              = 0.0;
     this->mapPostRotYCom                              = 0.0;
     this->mapPostRotZCom                              = 0.0;
+    
+    // ... Variables regarding rotation and translation of original input files
+    this->originalPdbRotCenX                          = 0.0;
+    this->originalPdbRotCenY                          = 0.0;
+    this->originalPdbRotCenZ                          = 0.0;
+    this->originalPdbTransX                           = 0.0;
+    this->originalPdbTransY                           = 0.0;
+    this->originalPdbTransZ                           = 0.0;
     
     // ... Variables regarding iterator positions
     this->xFrom                                       = xFr;
@@ -269,9 +285,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
 
 /*! \brief Destructor for the ProSHADE_data class.
  
- This destructor is responsible for releasing all memory used by the data storing object
+    This destructor is responsible for releasing all memory used by the data storing object
  
- \param[out] X N/A.
+    \param[out] X N/A.
  */
 ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
 {
@@ -409,12 +425,12 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
 
 /*! \brief This function initialises the basic ProSHADE_data variables and reads in a single structure.
  
- This function is basically the constructor for the ProSHADE_data class. It reads in a structure (independent of the structure type) and
- fills in all the appropriate variables of the class.
+    This function is basically the constructor for the ProSHADE_data class. It reads in a structure (independent of the structure type) and
+    fills in all the appropriate variables of the class.
  
- \param[in] fName The file name of the file which should be loaded.
- \param[in] inputO The order of this structure in this run's input.
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] fName The file name of the file which should be loaded.
+    \param[in] inputO The order of this structure in this run's input.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
  */
 void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings )
 {
@@ -465,10 +481,10 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
 
 /*! \brief Function for reading map data using gemmi library.
  
- This function reads in the map data using the information from the settings object and saves all the results into the
- structure calling it.
+    This function reads in the map data using the information from the settings object and saves all the results into the
+    structure calling it.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
  */
 void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
 {
@@ -647,7 +663,7 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
 
 /*! \brief Function for determining iterator start and stop positions.
  
- This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations. It assumes that gemmi has read in the xFrom, yFrom and zFrom values already.
+    This function is called to set the xFrom, yFrom, ..., yTo and zTo iterator values for easier further calculations. It assumes that gemmi has read in the xFrom, yFrom and zFrom values already.
  */
 void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
 {
@@ -663,13 +679,13 @@ void ProSHADE_internal_data::ProSHADE_data::figureIndexStartStop ( void )
 
 /*! \brief Function for writing out the internal structure representation in MRC MAP format.
  
- This function takes all the internal map representation information from the calling object and proceeds to write all this information in MRC MAP format for
- visualisation and possibly further processing by other software. This function will write out axis order XYZ and spacegroup P1 irrespective of the input
- axis order and spacegroup.
+    This function takes all the internal map representation information from the calling object and proceeds to write all this information in MRC MAP format for
+    visualisation and possibly further processing by other software. This function will write out axis order XYZ and spacegroup P1 irrespective of the input
+    axis order and spacegroup.
  
- \param[in] fName The filename (including path) to where the output MAP file should be saved.
- \param[in] title String with the map title to be written into the header - default value is "Created by ProSHADE and written by GEMMI"
- \param[in] mode The type of the data, leave at default 2 (mean float type) unless you specifically required other types.
+    \param[in] fName The filename (including path) to where the output MAP file should be saved.
+    \param[in] title String with the map title to be written into the header - default value is "Created by ProSHADE and written by GEMMI"
+    \param[in] mode The type of the data, leave at default 2 (mean float type) unless you specifically required other types.
  */
 void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::string title, int mode )
 {
@@ -756,13 +772,18 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         //============================================ Compute the rotation centre for the co-ordinates
         proshade_double xRotPos                       = ( ( static_cast<proshade_double> ( this->xDimIndicesOriginal / 2 ) - this->xAxisOriginOriginal ) *
                                                           ( static_cast<proshade_double> ( this->xDimIndicesOriginal - 1 ) / this->xDimSizeOriginal ) ) -
-                                                        (this->originalMapXCom - xCOMOriginal);
+                                                          (this->originalMapXCom - xCOMOriginal);
         proshade_double yRotPos                       = ( ( static_cast<proshade_double> ( this->yDimIndicesOriginal / 2 ) - this->yAxisOriginOriginal ) *
                                                           ( static_cast<proshade_double> ( this->yDimIndicesOriginal - 1 ) / this->yDimSizeOriginal ) ) -
-                                                        (this->originalMapYCom - yCOMOriginal);
+                                                          (this->originalMapYCom - yCOMOriginal);
         proshade_double zRotPos                       = ( ( static_cast<proshade_double> ( this->zDimIndicesOriginal / 2 ) - this->zAxisOriginOriginal ) *
                                                           ( static_cast<proshade_double> ( this->zDimIndicesOriginal - 1 ) / this->zDimSizeOriginal ) ) -
-                                                        (this->originalMapZCom - zCOMOriginal);
+                                                          (this->originalMapZCom - zCOMOriginal);
+        
+        //============================================ Save the values
+        this->originalPdbRotCenX                      = xRotPos;
+        this->originalPdbRotCenY                      = yRotPos;
+        this->originalPdbRotCenZ                      = zRotPos;
         
         //============================================ Rotate the co-ordinates
         ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos, firstModel );
@@ -780,6 +801,11 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, xPDBTrans, yPDBTrans, zPDBTrans, firstModel );
     }
 
+    //================================================ Save the values
+    this->originalPdbTransX                           = this->comMovX + transX + this->originalPdbRotCenX;
+    this->originalPdbTransY                           = this->comMovY + transY + this->originalPdbRotCenY;
+    this->originalPdbTransZ                           = this->comMovZ + transZ + this->originalPdbRotCenZ;
+    
     //================================================ Translate by required translation and the map centering (if applied)
     ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ, firstModel );
 
@@ -807,11 +833,11 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
 
 /*! \brief Function for writing out a mask in MRC MAP format.
  
- This function takes a mask map and the filename and proceeds to write out the mask into the requested file name in th
- MRC MAP format. It assumes that the mask has the same dimmensions as the map.
+    This function takes a mask map and the filename and proceeds to write out the mask into the requested file name in th
+    MRC MAP format. It assumes that the mask has the same dimmensions as the map.
  
- \param[in] fileName The filename (including path) to where the output should be saved.
- \param[in] mask Pointer to the mask map array.
+    \param[in] fileName The filename (including path) to where the output should be saved.
+    \param[in] mask Pointer to the mask map array.
  */
 void ProSHADE_internal_data::ProSHADE_data::writeMask ( std::string fName, proshade_double* mask )
 {
@@ -844,11 +870,11 @@ void ProSHADE_internal_data::ProSHADE_data::writeMask ( std::string fName, prosh
 
 /*! \brief Function for inverting the map to its mirror image.
  
- This function switches all index values along the three axes from 0 ... max to max ... 0. This should not
- normally be done, but in the case where the wrong hand has been used in the map re-construction process, this
- may be helpful.
+    This function switches all index values along the three axes from 0 ... max to max ... 0. This should not
+    normally be done, but in the case where the wrong hand has been used in the map re-construction process, this
+    may be helpful.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
  */
 void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings* settings )
 {
@@ -898,11 +924,11 @@ void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings*
 
 /*! \brief Function for normalising the map to mean 0 and sd 1..
  
- This function takes the map and changes its value to have mean 0 and standard deviation of 1. This should make
- two maps with very different density levels more comparable, but it remains to be seen if this causes any trouble.
- Can be turned off using the settings options.
+    This function takes the map and changes its value to have mean 0 and standard deviation of 1. This should make
+    wo maps with very different density levels more comparable, but it remains to be seen if this causes any trouble.
+    Can be turned off using the settings options.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
  */
 void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* settings )
 {
@@ -945,11 +971,11 @@ void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* se
 
 /*! \brief Function for computing the map mask using blurring and X IQRs from median.
  
- This function takes all the internal map representation information from the calling object and the internal map itself
- and proceeds to write all this information in MRC MAP format for visualisation and further processing by other software.
- It is dependent on the internal information being correct.
+    This function takes all the internal map representation information from the calling object and the internal map itself
+    and proceeds to write all this information in MRC MAP format for visualisation and further processing by other software.
+    It is dependent on the internal information being correct.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
  */
 void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* settings )
 {
@@ -983,13 +1009,13 @@ void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* setting
 
 /*! \brief This function finds the boundaries enclosing positive map values and adds some extra space.
  
- This function firstly finds the boundaries which enclose the positive map values and then it proceeds to add a
- given amount of space to all dimensions (positive and negative) to make sure the map does not end exactly at the
- bounds. It returns the new boundaries in the ret variable if they are smaller than the original bounds, or just
- the original bounds in case decrease was not achieved.
+    This function firstly finds the boundaries which enclose the positive map values and then it proceeds to add a
+    given amount of space to all dimensions (positive and negative) to make sure the map does not end exactly at the
+    bounds. It returns the new boundaries in the ret variable if they are smaller than the original bounds, or just
+    the original bounds in case decrease was not achieved.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
- \param[in] ret A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] ret A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
  */
 void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settings* settings, proshade_signed*& ret )
 {
@@ -1037,15 +1063,15 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
 
 /*! \brief This function finds the boundaries enclosing positive map values and adds some extra space, returning values in Python friendly format.
  
- This function firstly finds the boundaries which enclose the positive map values and then it proceeds to add a
- given amount of space to all dimensions (positive and negative) to make sure the map does not end exactly at the
- bounds. It returns the new boundaries in the ret variable if they are smaller than the original bounds, or just
- the original bounds in case decrease was not achieved. The return format is Python friendly, otherwise it is the same
- function as the getReBoxBoundaries() function.
+    This function firstly finds the boundaries which enclose the positive map values and then it proceeds to add a
+    given amount of space to all dimensions (positive and negative) to make sure the map does not end exactly at the
+    bounds. It returns the new boundaries in the ret variable if they are smaller than the original bounds, or just
+    the original bounds in case decrease was not achieved. The return format is Python friendly, otherwise it is the same
+    function as the getReBoxBoundaries() function.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
- \param[in] ret A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
- \param[in] len The length of the ret array - must always be 6, but Swig/Numpy requires this number to be passed.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] ret A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] len The length of the ret array - must always be 6, but Swig/Numpy requires this number to be passed.
  */
 void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundariesPy ( ProSHADE_settings* settings, int* reBoxBounds, int len )
 {
@@ -1107,14 +1133,14 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundariesPy ( ProSHADE_sett
 
 /*! \brief This function creates a new structure from the calling structure and new bounds values.
  
- This function takes a pointer to uninitialised structure and fills it with the calling structure values adjusted for
- the new bounds. If the bounds are the same, the two structures should be identical except the file (the new structure
- does not have an input file associated) and the type (no type for the new structure). It can deal with both larger and
- smaller bounds than the original values.
+    This function takes a pointer to uninitialised structure and fills it with the calling structure values adjusted for
+    the new bounds. If the bounds are the same, the two structures should be identical except the file (the new structure
+    does not have an input file associated) and the type (no type for the new structure). It can deal with both larger and
+    smaller bounds than the original values.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
- \param[in] newStr A pointer reference to a new structure class which has all the same values except for the new bounds and adequately changed map.
- \param[in] newBounds A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] newStr A pointer reference to a new structure class which has all the same values except for the new bounds and adequately changed map.
+    \param[in] newBounds A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
  */
 void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds )
 {
@@ -1177,16 +1203,16 @@ void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_se
 
 /*! \brief This function creates a new structure from the calling structure and new bounds values in Python friendly format.
  
- This function takes a pointer to uninitialised structure and fills it with the calling structure values adjusted for
- the new bounds. If the bounds are the same, the two structures should be identical except the file (the new structure
- does not have an input file associated) and the type (no type for the new structure). It can deal with both larger and
- smaller bounds than the original values. This version of the function is identical to the createNewMapFromBounds()
- function, but it takes the input boundaries in Python friendly fassion.
+    This function takes a pointer to uninitialised structure and fills it with the calling structure values adjusted for
+    the new bounds. If the bounds are the same, the two structures should be identical except the file (the new structure
+    does not have an input file associated) and the type (no type for the new structure). It can deal with both larger and
+    smaller bounds than the original values. This version of the function is identical to the createNewMapFromBounds()
+    function, but it takes the input boundaries in Python friendly fassion.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
- \param[in] newStr A pointer reference to a new structure class which has all the same values except for the new bounds and adequately changed map.
- \param[in] newBounds A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
- \param[in] len The length of the newBounds array - this must always be 6, but Swig/Numpy requires this number to be passed.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] newStr A pointer reference to a new structure class which has all the same values except for the new bounds and adequately changed map.
+    \param[in] newBounds A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
+    \param[in] len The length of the newBounds array - this must always be 6, but Swig/Numpy requires this number to be passed.
  */
 void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBoundsPy ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len )
 {
@@ -1249,10 +1275,10 @@ void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBoundsPy ( ProSHADE_
 
 /*! \brief This function changes the internal map sampling to conform to particular resolution value.
  
- This function will take the requested resolution value from the settings object and will proceed to change the internal
- map sampling to conform to requested resolution / 2 and therefore to the requested resolution map.
+    This function will take the requested resolution value from the settings object and will proceed to change the internal
+    map sampling to conform to requested resolution / 2 and therefore to the requested resolution map.
  
- \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
  */
 void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* settings )
 {
@@ -1319,12 +1345,12 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
 
 /*! \brief This function shits the map so that its COM is in the centre of the map.
  
- This function finds the Centre Of Mass (COM) for the internal map and proceeds to use Fourier to shift
- the COM to the centre of the map. There is an assumption that the COM and centre of map are close, as if they
- were far apart, the shift could move some part of the map through the boundaries and cause the map to become
- messy.
+    This function finds the Centre Of Mass (COM) for the internal map and proceeds to use Fourier to shift
+    the COM to the centre of the map. There is an assumption that the COM and centre of map are close, as if they
+    were far apart, the shift could move some part of the map through the boundaries and cause the map to become
+    messy.
  
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* settings )
 {
@@ -1386,11 +1412,11 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
 
 /*! \brief This function increases the size of the map so that it can add empty space around it.
  
- This function adds a given number of angstroms (as given in the settings object) to the internal structure map. This requires all the internal
- variables to be adjusted for the extra space at the begginning and at the end, while also copying the map into a larger one with appropriate
- extra space.
+    This function adds a given number of angstroms (as given in the settings object) to the internal structure map. This requires all the internal
+    variables to be adjusted for the extra space at the begginning and at the end, while also copying the map into a larger one with appropriate
+    extra space.
  
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* settings )
 {
@@ -1489,11 +1515,11 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
 
 /*! \brief This function simply clusters several other functions which should be called together.
  
- This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
- into a single function. This allows for simpler code and does not take any control away, as all the decisions
- are ultimately driven by the settings.
+    This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
+    into a single function. This allows for simpler code and does not take any control away, as all the decisions
+    are ultimately driven by the settings.
  
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settings* settings )
 {
@@ -1532,12 +1558,12 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
 
 /*! \brief This function determines the sphere positions (radii) for sphere mapping.
 
- This function determines the radii of the concentric spheres (as measured from the centre of the map). This is
- done by checking if these values have already been as and if not, then the radii are placed between points of the
- map starting between the centre point and its neighbours and then adding spheres until the most outlying diagonal
- point is covered.
+    This function determines the radii of the concentric spheres (as measured from the centre of the map). This is
+    done by checking if these values have already been as and if not, then the radii are placed between points of the
+    map starting between the centre point and its neighbours and then adding spheres until the most outlying diagonal
+    point is covered.
 
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settings* settings )
 {
@@ -1587,11 +1613,11 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
 
 /*! \brief This function simply clusters several other functions which should be called together.
  
- This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
- into a single function. This allows for simpler code and does not take any control away, as all the decisions
- are ultimately driven by the settings.
+    This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
+    into a single function. This allows for simpler code and does not take any control away, as all the decisions
+    are ultimately driven by the settings.
  
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* settings )
 {
@@ -1630,11 +1656,11 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
 
 /*! \brief This function computes the spherical harmonics decomposition for the whole structure.
  
- This function is called to compute the spherical harmonics decomposition of the mapped data on every available
- sphere. This is done sphere-wise and there is some sub-optimal memory management stemming from different shells
- having different resolutions.
+    This function is called to compute the spherical harmonics decomposition of the mapped data on every available
+    sphere. This is done sphere-wise and there is some sub-optimal memory management stemming from different shells
+    having different resolutions.
  
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE_settings* settings )
 {
@@ -1672,12 +1698,12 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
 
 /*! \brief This function runs the symmetry detection algorithms on this structure and saves the results in the settings object.
  
- This function is the symmetry detection starting point. It decides whether a specific symmetry is being sought after, or whether
- a general symmetry search is required. Consequently, it calls the appropriate functions and ends up with saving the resulting
- predictions into the settings object supplied. 
+    This function is the symmetry detection starting point. It decides whether a specific symmetry is being sought after, or whether
+    a general symmetry search is required. Consequently, it calls the appropriate functions and ends up with saving the resulting
+    predictions into the settings object supplied.
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes )
 {
@@ -1758,10 +1784,10 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
 
 /*! \brief This function runs the symmetry detection algorithms on this structure saving the axes in the settings object only.
  
- This function runs the detectSymmetryInStructure() function without requiring the vector of double pointers arguments, so that
- it is simply callable from Python. The axes are saved in the settings object for later retrieval.
+    This function runs the detectSymmetryInStructure() function without requiring the vector of double pointers arguments, so that
+    it is simply callable from Python. The axes are saved in the settings object for later retrieval.
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( ProSHADE_settings* settings )
 {
@@ -1778,12 +1804,12 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
 
 /*! \brief This function locates the best scoring C symmetry axis, returning the score and best symmetry index.
  
- This function takes the list of detected C symmetries and decides which of them is the best, taking into account the folds and the average heights. This
- is not the best approach, I would look into MLE of symmetry presence givent the height and fold, but for now this should do.
+    This function takes the list of detected C symmetries and decides which of them is the best, taking into account the folds and the average heights. This
+    is not the best approach, I would look into MLE of symmetry presence givent the height and fold, but for now this should do.
  
- \param[in] CSym This is the complete list of the ProSHADE detected C axes in the ProSHADE format.
- \param[in] symInd A pointer to variable where the best symmetry axis index will be stored.
- \param[out] ret The score of the best scoring C axis.
+    \param[in] CSym This is the complete list of the ProSHADE detected C axes in the ProSHADE format.
+    \param[in] symInd A pointer to variable where the best symmetry axis index will be stored.
+    \param[out] ret The score of the best scoring C axis.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd )
 {
@@ -1824,12 +1850,12 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vec
 
 /*! \brief This function locates the best scoring D symmetry axis, returning the score and best symmetry index.
  
- This function takes the list of detected D symmetries and decides which of them is the best, taking into account the folds and the average heights. This
- is not the best approach, I would look into MLE of symmetry presence givent the height and folds, but for now this should do.
+    This function takes the list of detected D symmetries and decides which of them is the best, taking into account the folds and the average heights. This
+    is not the best approach, I would look into MLE of symmetry presence givent the height and folds, but for now this should do.
  
- \param[in] DSym This is the complete list of the ProSHADE detected D axes in the ProSHADE format.
- \param[in] symInd A pointer to variable where the best symmetry axis index will be stored.
- \param[out] ret The score of the best scoring D axis.
+    \param[in] DSym This is the complete list of the ProSHADE detected D axes in the ProSHADE format.
+    \param[in] symInd A pointer to variable where the best symmetry axis index will be stored.
+    \param[out] ret The score of the best scoring D axis.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findBestDScore ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd )
 {
@@ -1872,11 +1898,11 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestDScore ( std::vec
 
 /*! \brief This function takes the list of tetrahedral axes and returns a score for deciding whether T symmetry should be recommended.
  
- This function simply checks if the complete T symmetry is present (returning 0.0 if not). If present, the function will compute the
- fold weighted average axis height for the whole symmetry and return this number.
+    This function simply checks if the complete T symmetry is present (returning 0.0 if not). If present, the function will compute the
+    fold weighted average axis height for the whole symmetry and return this number.
  
- \param[in] TSym This is the complete list of the ProSHADE detected T symmetry axes in the ProSHADE format.
- \param[out] ret The score of the T symmetry.
+    \param[in] TSym This is the complete list of the ProSHADE detected T symmetry axes in the ProSHADE format.
+    \param[out] ret The score of the T symmetry.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findTScore ( std::vector< proshade_double* >* TSym )
 {
@@ -1905,11 +1931,11 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findTScore ( std::vector<
 
 /*! \brief This function takes the list of octahedral axes and returns a score for deciding whether O symmetry should be recommended.
  
- This function simply checks if the complete O symmetry is present (returning 0.0 if not). If present, the function will compute the
- fold weighted average axis height for the whole symmetry and return this number.
+    This function simply checks if the complete O symmetry is present (returning 0.0 if not). If present, the function will compute the
+    fold weighted average axis height for the whole symmetry and return this number.
  
- \param[in] OSym This is the complete list of the ProSHADE detected O symmetry axes in the ProSHADE format.
- \param[out] ret The score of the O symmetry.
+    \param[in] OSym This is the complete list of the ProSHADE detected O symmetry axes in the ProSHADE format.
+    \param[out] ret The score of the O symmetry.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findOScore ( std::vector< proshade_double* >* OSym )
 {
@@ -1938,11 +1964,11 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findOScore ( std::vector<
 
 /*! \brief This function takes the list of icosahedral axes and returns a score for deciding whether I symmetry should be recommended.
  
- This function simply checks if the complete I symmetry is present (returning 0.0 if not). If present, the function will compute the
- fold weighted average axis height for the whole symmetry and return this number.
+    This function simply checks if the complete I symmetry is present (returning 0.0 if not). If present, the function will compute the
+    fold weighted average axis height for the whole symmetry and return this number.
  
- \param[in] ISym This is the complete list of the ProSHADE detected I symmetry axes in the ProSHADE format.
- \param[out] ret The score of the I symmetry.
+    \param[in] ISym This is the complete list of the ProSHADE detected I symmetry axes in the ProSHADE format.
+    \param[out] ret The score of the I symmetry.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector< proshade_double* >* ISym )
 {
@@ -1971,17 +1997,17 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector<
 
 /*! \brief This function takes all the detected symmetry results and decides on which are to be recommended for this structure.
  
- This function starts by obtaining the scores (fold weighted height averages) for each of the detectable symmetry types. Then, it proceeds
- to compute which of these should be recommended by ProSHADE based on a little shaky combination of axes number and score. This part needs to
- be improved by using ML estimation, when I get the time.
+    This function starts by obtaining the scores (fold weighted height averages) for each of the detectable symmetry types. Then, it proceeds
+    to compute which of these should be recommended by ProSHADE based on a little shaky combination of axes number and score. This part needs to
+    be improved by using ML estimation, when I get the time.
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
- \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
- \param[in] TSym A vector of pointers to double arrays, all of which together form the axes of tetrahedral symmetry.
- \param[in] OSym A vector of pointers to double arrays, all of which together form the axes of octahedral symmetry.
- \param[in] ISym A vector of pointers to double arrays, all of which together form the axes of icosahedral symmetry.
- \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
+    \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
+    \param[in] TSym A vector of pointers to double arrays, all of which together form the axes of tetrahedral symmetry.
+    \param[in] OSym A vector of pointers to double arrays, all of which together form the axes of octahedral symmetry.
+    \param[in] ISym A vector of pointers to double arrays, all of which together form the axes of icosahedral symmetry.
+    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
 {
@@ -2063,14 +2089,14 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
 
 /*! \brief This function takes the C symmetries and searched for the requested symmetry.
  
- This is a simple search function, which searches the symmetry results for the requested symmetry fold, and if more such
- symmetries are found, takes the one with the highest average peak height. If the requested fold was found, it will save
- it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (albeit there
- may be other symmetries present).
+    This is a simple search function, which searches the symmetry results for the requested symmetry fold, and if more such
+    symmetries are found, takes the one with the highest average peak height. If the requested fold was found, it will save
+    it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (albeit there
+    may be other symmetries present).
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
- \param[in] axes A vector to which all the axes of the requested symmetry (if any) will be saved.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
+    \param[in] axes A vector to which all the axes of the requested symmetry (if any) will be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes )
 {
@@ -2113,14 +2139,14 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
 
 /*! \brief This function takes the D symmetries and searched for the requested symmetry.
  
- This is a simple search function, which searches the symmetry results for the requested symmetry fold, and if more such
- symmetries are found, takes the one with the highest average peak height sum. If the requested fold was found, it will
- save it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (albeit
- there may be other symmetries present).
+    This is a simple search function, which searches the symmetry results for the requested symmetry fold, and if more such
+    symmetries are found, takes the one with the highest average peak height sum. If the requested fold was found, it will
+    save it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (albeit
+    there may be other symmetries present).
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
- \param[in] axes A vector to which all the axes of the requested symmetry (if any) will be saved.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
+    \param[in] axes A vector to which all the axes of the requested symmetry (if any) will be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes )
 {
@@ -2165,10 +2191,10 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
 
 /*! \brief This function copies the internal map into the supplied pointer, which it also allocates.
  
- This function is provided so that the user can provide a pointer and have it allocated and filled with the map values.
+    This function is provided so that the user can provide a pointer and have it allocated and filled with the map values.
  
- \param[in] saveTo A pointer where the internal map should be deep copied into.
- \param[in] verbose How loud the run should be?
+    \param[in] saveTo A pointer where the internal map should be deep copied into.
+    \param[in] verbose How loud the run should be?
  */
 void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& saveTo, proshade_unsign verbose )
 {
@@ -2198,9 +2224,9 @@ void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& save
 
 /*! \brief This function takes prints the report for symmetry detection.
  
- This is a very simple function which provides the basic textual output for the symmetry detection task.
+    This is a very simple function which provides the basic textual output for the symmetry detection task.
  
- \param[in] settings A pointer to settings class containing all the information required for map symmetry detection reporting.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection reporting.
  */
 void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_settings* settings )
 {
@@ -2270,7 +2296,7 @@ void ProSHADE_internal_data::ProSHADE_data::setOriginalMapValues ()
 
 /*! \brief This function finds the centre of mass of the internal map representation.
 
-This function simply computes the centre of mass for the given ProSHADE_data object map in the "real space" (i.e. the space that counts Angstroms from the bottom left further corner). These are then saved into the ProSHADE_data object.
+    This function simply computes the centre of mass for the given ProSHADE_data object map in the "real space" (i.e. the space that counts Angstroms from the bottom left further corner). These are then saved into the ProSHADE_data object.
 */
 void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
 {
@@ -2314,11 +2340,12 @@ void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
     
     //================================================ Done
     return ;
+    
 }
 
 /*! \brief This function returns the number of spheres which contain the whole object.
  
- \param[out] X The total number of spheres to which the structure is mapped.
+    \param[out] X The total number of spheres to which the structure is mapped.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxSpheres ( )
 {
@@ -2328,8 +2355,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxSpheres ( )
 
 /*! \brief This function returns the internal map representation value of a particular array position.
  
- \param[in] pos The position in the map array, of which the value should be returned.
- \param[out] X The internal map representation value at position pos.
+    \param[in] pos The position in the map array, of which the value should be returned.
+    \param[out] X The internal map representation value at position pos.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getMapValue ( proshade_unsign pos )
 {
@@ -2339,7 +2366,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getMapValue ( proshade_un
 
 /*! \brief This function returns the maximum band value for the object.
  
- \param[out] X The largest number of bands used in any shell of the object.
+    \param[out] X The largest number of bands used in any shell of the object.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxBand ( )
 {
@@ -2349,7 +2376,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getMaxBand ( )
 
 /*! \brief This function allows access to the priva internal RRP matrices.
  
- \param[out] X The value of the internal private RRP matrix for the given indices.
+    \param[out] X The value of the internal private RRP matrix for the given indices.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getRRPValue ( proshade_unsign band, proshade_unsign sh1, proshade_unsign sh2 )
 {
@@ -2359,13 +2386,13 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getRRPValue ( proshade_un
 
 /*! \brief This function checks if particular shell has a  particular band.
  
- This function is useful for the progressive shell mapping, where it may not be clear in one part of the code
- whether a particular shell does or does not have a particular band value. Therefore, this function allows simple
- check.
+    This function is useful for the progressive shell mapping, where it may not be clear in one part of the code
+    whether a particular shell does or does not have a particular band value. Therefore, this function allows simple
+    check.
  
- \param[in] shell The index (number) of the shell for which the check should be done.
- \param[in] bandVal The band value which should be sought for the shell.
- \param[out] X True if the shell has the band, false otherwise.
+    \param[in] shell The index (number) of the shell for which the check should be done.
+    \param[in] bandVal The band value which should be sought for the shell.
+    \param[out] X True if the shell has the band, false otherwise.
  */
 bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign shell, proshade_unsign bandVal )
 {
@@ -2381,11 +2408,11 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
 
 /*! \brief This function removes phase from the map.
  
- This function is called when the phase information needs to be removed from the internal map representation. It
- does the forward Fourier transform, removes the phase from the Fourier coefficients and then the inverse Fourier
- transform, thus resulting with the Patterson map. It does write over the original map.
+    This function is called when the phase information needs to be removed from the internal map representation. It
+    does the forward Fourier transform, removes the phase from the Fourier coefficients and then the inverse Fourier
+    transform, thus resulting with the Patterson map. It does write over the original map.
  
- \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
 void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_settings* settings )
 {
@@ -2463,7 +2490,7 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
 
 /*! \brief This function allows access to the private internal real spherical harmonics values.
  
- \param[out] X Pointer to the value of the internal private spherical harmonics real value of the given index.
+    \param[out] X Pointer to the value of the internal private spherical harmonics real value of the given index.
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
 {
@@ -2476,7 +2503,7 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( pr
 
 /*! \brief This function allows access to the private internal imaginary spherical harmonics values.
  
- \param[out] X Pointer to the value of the internal private spherical harmonics imaginary value of the given index.
+    \param[out] X Pointer to the value of the internal private spherical harmonics imaginary value of the given index.
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getImagSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
 {
@@ -2489,7 +2516,7 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::getImagSphHarmValue ( pr
 
 /*! \brief This function allows access to the radius of any particular sphere.
  
- \param[out] X The distance of the requested sphere to the centre of the coordinates.
+    \param[out] X The distance of the requested sphere to the centre of the coordinates.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getAnySphereRadius ( proshade_unsign shell )
 {
@@ -2500,7 +2527,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getAnySphereRadius ( pros
 
 /*! \brief This function allows access to the integration weight for the object.
  
- \param[out] X The integration weight for the object or 0.0 if not yet computed.
+    \param[out] X The integration weight for the object or 0.0 if not yet computed.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getIntegrationWeight  ( void )
 {
@@ -2511,8 +2538,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getIntegrationWeight  ( v
 
 /*! \brief This function allows access to the bandwidth of a particular shell.
  
- \param[in] shell The index of the shell for which the bandwidth is required.
- \param[out] X The bandwidth of the requested shell.
+    \param[in] shell The index of the shell for which the bandwidth is required.
+    \param[out] X The bandwidth of the requested shell.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getShellBandwidth ( proshade_unsign shell )
 {
@@ -2523,8 +2550,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getShellBandwidth ( prosh
 
 /*! \brief This function allows access to sphere positions.
  
- \param[in] shell The index of the sphere for which the position (radius) is to be obtained.
- \param[out] X The radius of the sphere with index shell.
+    \param[in] shell The index of the sphere for which the position (radius) is to be obtained.
+    \param[out] X The radius of the sphere with index shell.
  */
 proshade_double ProSHADE_internal_data::ProSHADE_data::getSpherePosValue ( proshade_unsign shell )
 {
@@ -2535,8 +2562,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::getSpherePosValue ( prosh
 
 /*! \brief This function allows access to E matrix for a particular band.
  
- \param[in] band The band for which the E matrix subset order * order should be returned.
- \param[out] X Pointer to pointer of complex matrix with dimensions order * order of the E matrices.
+    \param[in] band The band for which the E matrix subset order * order should be returned.
+    \param[out] X Pointer to pointer of complex matrix with dimensions order * order of the E matrices.
  */
 proshade_complex** ProSHADE_internal_data::ProSHADE_data::getEMatrixByBand ( proshade_unsign band )
 {
@@ -2547,11 +2574,11 @@ proshade_complex** ProSHADE_internal_data::ProSHADE_data::getEMatrixByBand ( pro
 
 /*! \brief This function allows access to E matrix by knowing the band, order1 and order2 indices.
  
- \param[in] band The band for which the E matrix value should be returned.
- \param[in] order1 The first order for which the E matrix value should be returned.
- \param[in] order2 The second order for which the E matrix value should be returned.
- \param[in] valueReal The proshade_double number pointer to where the real part of the value will be saved.
- \param[in] valueImag The proshade_double number pointer to where the imaginary part of the value will be saved.
+    \param[in] band The band for which the E matrix value should be returned.
+    \param[in] order1 The first order for which the E matrix value should be returned.
+    \param[in] order2 The second order for which the E matrix value should be returned.
+    \param[in] valueReal The proshade_double number pointer to where the real part of the value will be saved.
+    \param[in] valueImag The proshade_double number pointer to where the imaginary part of the value will be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::getEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag )
 {
@@ -2566,7 +2593,7 @@ void ProSHADE_internal_data::ProSHADE_data::getEMatrixValue ( proshade_unsign ba
 
 /*! \brief This function allows access to the inverse SO(3) coefficients array.
  
- \param[out] X The internal inverse SO(3) coefficients array variable.
+    \param[out] X The internal inverse SO(3) coefficients array variable.
  */
 proshade_complex* ProSHADE_internal_data::ProSHADE_data::getInvSO3Coeffs ( )
 {
@@ -2577,7 +2604,7 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getInvSO3Coeffs ( )
 
 /*! \brief This function allows access to the SO(3) coefficients array.
  
- \param[out] X The internal SO(3) coefficients array variable.
+    \param[out] X The internal SO(3) coefficients array variable.
  */
 proshade_complex* ProSHADE_internal_data::ProSHADE_data::getSO3Coeffs ( )
 {
@@ -2588,7 +2615,7 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getSO3Coeffs ( )
 
 /*! \brief This function allows access to the maximum band for the comparison.
  
- \param[out] X The bandwidth used for this comparison.
+    \param[out] X The bandwidth used for this comparison.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getComparisonBand ( )
 {
@@ -2599,11 +2626,11 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getComparisonBand ( )
 
 /*! \brief This function allows access to the Wigner D matrix by knowing the band, order1 and order2 indices.
  
- \param[in] band The band for which the Wigner D matrix value should be returned.
- \param[in] order1 The first order for which the Wigner D matrix value should be returned.
- \param[in] order2 The second order for which the Wigner D matrix value should be returned.
- \param[in] valueReal The proshade_double number pointer to where the real part of the value will be saved.
- \param[in] valueImag The proshade_double number pointer to where the imaginary part of the value will be saved.
+    \param[in] band The band for which the Wigner D matrix value should be returned.
+    \param[in] order1 The first order for which the Wigner D matrix value should be returned.
+    \param[in] order2 The second order for which the Wigner D matrix value should be returned.
+    \param[in] valueReal The proshade_double number pointer to where the real part of the value will be saved.
+    \param[in] valueImag The proshade_double number pointer to where the imaginary part of the value will be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::getWignerMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag )
 {
@@ -2618,7 +2645,7 @@ void ProSHADE_internal_data::ProSHADE_data::getWignerMatrixValue ( proshade_unsi
 
 /*! \brief This function allows access to the map size in angstroms along the X axis.
  
- \param[out] xDimSize The size of the internal map in angstroms along the X axis.
+    \param[out] xDimSize The size of the internal map in angstroms along the X axis.
  */
 proshade_single ProSHADE_internal_data::ProSHADE_data::getXDimSize ( )
 {
@@ -2628,7 +2655,7 @@ proshade_single ProSHADE_internal_data::ProSHADE_data::getXDimSize ( )
 
 /*! \brief This function allows access to the map size in angstroms along the Y axis.
  
- \param[out] xDimSize The size of the internal map in angstroms along the Y axis.
+    \param[out] xDimSize The size of the internal map in angstroms along the Y axis.
  */
 proshade_single ProSHADE_internal_data::ProSHADE_data::getYDimSize ( )
 {
@@ -2638,7 +2665,7 @@ proshade_single ProSHADE_internal_data::ProSHADE_data::getYDimSize ( )
 
 /*! \brief This function allows access to the map size in angstroms along the Z axis.
  
- \param[out] xDimSize The size of the internal map in angstroms along the Z axis.
+    \param[out] xDimSize The size of the internal map in angstroms along the Z axis.
  */
 proshade_single ProSHADE_internal_data::ProSHADE_data::getZDimSize ( )
 {
@@ -2648,7 +2675,7 @@ proshade_single ProSHADE_internal_data::ProSHADE_data::getZDimSize ( )
 
 /*! \brief This function allows access to the map size in indices along the X axis.
  
- \param[out] xDimSize The size of the internal map in indices along the X axis.
+    \param[out] xDimSize The size of the internal map in indices along the X axis.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getXDim ( )
 {
@@ -2658,7 +2685,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getXDim ( )
 
 /*! \brief This function allows access to the map size in indices along the Y axis.
  
- \param[out] xDimSize The size of the internal map in indices along the Y axis.
+    \param[out] xDimSize The size of the internal map in indices along the Y axis.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getYDim ( )
 {
@@ -2668,7 +2695,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getYDim ( )
 
 /*! \brief This function allows access to the map size in indices along the Z axis.
  
- \param[out] xDimSize The size of the internal map in indices along the Z axis.
+    \param[out] xDimSize The size of the internal map in indices along the Z axis.
  */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getZDim ( )
 {
@@ -2678,7 +2705,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getZDim ( )
 
 /*! \brief This function allows access to the map start along the X axis.
  
- \param[out] xFrom Pointer to the starting index along the X axis.
+    \param[out] xFrom Pointer to the starting index along the X axis.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXFromPtr ( )
 {
@@ -2688,7 +2715,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXFromPtr ( )
 
 /*! \brief This function allows access to the map start along the Y axis.
  
- \param[out] yFrom Pointer to the starting index along the Y axis.
+    \param[out] yFrom Pointer to the starting index along the Y axis.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYFromPtr ( )
 {
@@ -2698,7 +2725,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYFromPtr ( )
 
 /*! \brief This function allows access to the map start along the Z axis.
  
- \param[out] zFrom Pointer to the starting index along the Z axis.
+    \param[out] zFrom Pointer to the starting index along the Z axis.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZFromPtr ( )
 {
@@ -2708,7 +2735,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZFromPtr ( )
 
 /*! \brief This function allows access to the map last position along the X axis.
  
- \param[out] xFrom Pointer to the final index along the X axis.
+    \param[out] xFrom Pointer to the final index along the X axis.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXToPtr ( )
 {
@@ -2718,7 +2745,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXToPtr ( )
 
 /*! \brief This function allows access to the map last position along the Y axis.
  
- \param[out] yFrom Pointer to the final index along the Y axis.
+    \param[out] yFrom Pointer to the final index along the Y axis.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYToPtr ( )
 {
@@ -2728,7 +2755,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYToPtr ( )
 
 /*! \brief This function allows access to the map last position along the Z axis.
  
- \param[out] zFrom Pointer to the final index along the Z axis.
+    \param[out] zFrom Pointer to the final index along the Z axis.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZToPtr ( )
 {
@@ -2738,7 +2765,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZToPtr ( )
 
 /*! \brief This function allows access to the map X axis origin value.
  
- \param[out] xAxisOrigin The value of X axis origin for the map.
+    \param[out] xAxisOrigin The value of X axis origin for the map.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXAxisOrigin ( )
 {
@@ -2748,7 +2775,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXAxisOrigin ( )
 
 /*! \brief This function allows access to the map Y axis origin value.
  
- \param[out] yAxisOrigin The value of Y axis origin for the map.
+    \param[out] yAxisOrigin The value of Y axis origin for the map.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYAxisOrigin ( )
 {
@@ -2758,7 +2785,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYAxisOrigin ( )
 
 /*! \brief This function allows access to the map Z axis origin value.
  
- \param[out] zAxisOrigin The value of Z axis origin for the map.
+    \param[out] zAxisOrigin The value of Z axis origin for the map.
  */
 proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZAxisOrigin ( )
 {
@@ -2768,7 +2795,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZAxisOrigin ( )
 
 /*! \brief This function allows access to the first map array value address.
 
-\param[out] internalMap Pointer to the first position in the internal map array.
+    \param[out] internalMap Pointer to the first position in the internal map array.
 */
 proshade_double*& ProSHADE_internal_data::ProSHADE_data::getInternalMap ( )
 {
@@ -2778,7 +2805,7 @@ proshade_double*& ProSHADE_internal_data::ProSHADE_data::getInternalMap ( )
 
 /*! \brief This function allows access to the translation function through a pointer.
 
-\param[out] translationMap Pointer to the first position in the translation function map array.
+    \param[out] translationMap Pointer to the first position in the translation function map array.
 */
 proshade_complex* ProSHADE_internal_data::ProSHADE_data::getTranslationFnPointer ( void )
 {
@@ -2788,7 +2815,7 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getTranslationFnPointer
 
 /*! \brief This function allows setting the integration weight for the object.
  
- \param[in] intW The integration weight to be set for this object.
+    \param[in] intW The integration weight to be set for this object.
  */
 void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeight ( proshade_double intW )
 {
@@ -2802,7 +2829,7 @@ void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeight ( proshade_doub
 
 /*! \brief This function allows setting the cumulative integration weight for the object.
  
- \param[in] intW The integration weight to be added to the current value for this object.
+    \param[in] intW The integration weight to be added to the current value for this object.
  */
 void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeightCumul ( proshade_double intW )
 {
@@ -2816,10 +2843,10 @@ void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeightCumul ( proshade
 
 /*! \brief This function allows setting the E matrix value.
  
- \param[in] band The band indice of the E matrix to which the value should be assigned.
- \param[in] order1 The first order indice of the E matrix to which the value should be assigned.
- \param[in] order2 The second order indice of the E matrix to which the value should be assigned.
- \param[in] val The value which should be saved.
+    \param[in] band The band indice of the E matrix to which the value should be assigned.
+    \param[in] order1 The first order indice of the E matrix to which the value should be assigned.
+    \param[in] order2 The second order indice of the E matrix to which the value should be assigned.
+    \param[in] val The value which should be saved.
  */
 void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_complex val )
 {
@@ -2834,10 +2861,10 @@ void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( proshade_unsign ba
 
 /*! \brief This function allows normalising the E matrix value.
  
- \param[in] band The band indice of the E matrix to which the value should be assigned.
- \param[in] order1 The first order indice of the E matrix to which the value should be assigned.
- \param[in] order2 The second order indice of the E matrix to which the value should be assigned.
- \param[in] normF The value by which the original E matrix value will be divided to normalise it.
+    \param[in] band The band indice of the E matrix to which the value should be assigned.
+    \param[in] order1 The first order indice of the E matrix to which the value should be assigned.
+    \param[in] order2 The second order indice of the E matrix to which the value should be assigned.
+    \param[in] normF The value by which the original E matrix value will be divided to normalise it.
  */
 void ProSHADE_internal_data::ProSHADE_data::normaliseEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double normF )
 {
@@ -2852,8 +2879,8 @@ void ProSHADE_internal_data::ProSHADE_data::normaliseEMatrixValue ( proshade_uns
 
 /*! \brief This function allows setting the SOFT coefficient values using array position and value.
  
- \param[in] position The 1D array position at which the new value should be saved.
- \param[in] val Complex value to be saved into the array.
+    \param[in] position The 1D array position at which the new value should be saved.
+    \param[in] val Complex value to be saved into the array.
  */
 void ProSHADE_internal_data::ProSHADE_data::setSO3CoeffValue ( proshade_unsign position, proshade_complex val )
 {
@@ -2868,10 +2895,10 @@ void ProSHADE_internal_data::ProSHADE_data::setSO3CoeffValue ( proshade_unsign p
 
 /*! \brief This function allows setting the Wigner D matrix value by its band, order1 and order2 co-ordinate.
  
- \param[in] val proshade_complex value of the Wigner D matrix at position band, order1, order2.
- \param[in] band The band of the Wigner D matrix value.
- \param[in] order1 The first order of the Wigner D matrix value.
- \param[in] order2 The second order of the Wigner D matrix value.
+    \param[in] val proshade_complex value of the Wigner D matrix at position band, order1, order2.
+    \param[in] band The band of the Wigner D matrix value.
+    \param[in] order1 The first order of the Wigner D matrix value.
+    \param[in] order2 The second order of the Wigner D matrix value.
  */
 void ProSHADE_internal_data::ProSHADE_data::setWignerMatrixValue ( proshade_complex val, proshade_unsign band, proshade_unsign order1, proshade_unsign order2 )
 {
@@ -2886,7 +2913,7 @@ void ProSHADE_internal_data::ProSHADE_data::setWignerMatrixValue ( proshade_comp
 
 /*! \brief This function simplyfies Python access to maps - it returns how long the map array is, so that the getMap function take take this value as input.
  
- \param[out] val The size of the map array.
+    \param[out] val The size of the map array.
  */
 int ProSHADE_internal_data::ProSHADE_data::getMapArraySizePython ( void )
 {
@@ -2897,8 +2924,8 @@ int ProSHADE_internal_data::ProSHADE_data::getMapArraySizePython ( void )
 
 /*! \brief This function takes an array and fills it with the internal map density data. This is necessary for Python Numpy arrays output.
 
-\param[in] mapArrayPython The array to which the map data will be saved into.
-\param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
+    \param[in] mapArrayPython The array to which the map data will be saved into.
+    \param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
 */
 void ProSHADE_internal_data::ProSHADE_data::getMapPython ( double *mapArrayPython, int len )
 {
@@ -2915,8 +2942,8 @@ void ProSHADE_internal_data::ProSHADE_data::getMapPython ( double *mapArrayPytho
 
 /*! \brief This function takes an array and re-writes the internal map value with the argument map values.
 
-\param[in] mapChangedInPython The array from which the map data will be read.
-\param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
+    \param[in] mapChangedInPython The array from which the map data will be read.
+    \param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
 */
 void ProSHADE_internal_data::ProSHADE_data::setMapPython ( double *mapChangedInPython, int len )
 {
@@ -2933,8 +2960,8 @@ void ProSHADE_internal_data::ProSHADE_data::setMapPython ( double *mapChangedInP
 
 /*! \brief This function takes an array, deletes old map, allocates a new map and fills the internal map values with the argument map values.
 
-\param[in] mapChangedInPython The array from which the map data will be read.
-\param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
+    \param[in] mapChangedInPython The array from which the map data will be read.
+    \param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
 */
 void ProSHADE_internal_data::ProSHADE_data::setNewMapPython ( double *mapChangedInPython, int len )
 {
@@ -2959,10 +2986,10 @@ void ProSHADE_internal_data::ProSHADE_data::setNewMapPython ( double *mapChanged
 
 /*! \brief This function fills a given array with the real parts of the spherical harmonics values for a given shell.
 
-\param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
-\param[in] verbose How loud this run should be.
-\param[in] sphericalHarmsReal The array to which the data will be loaded into.
-\param[in] len The length of the array.
+    \param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
+    \param[in] verbose How loud this run should be.
+    \param[in] sphericalHarmsReal The array to which the data will be loaded into.
+    \param[in] len The length of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealSphericalHarmonicsForShell ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len )
 {
@@ -2986,10 +3013,10 @@ void ProSHADE_internal_data::ProSHADE_data::getRealSphericalHarmonicsForShell ( 
 
 /*! \brief This function fills a given array with the imaginary parts of the spherical harmonics values for a given shell.
 
-\param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
-\param[in] verbose How loud this run should be.
-\param[in] sphericalHarmonics The array to which the data will be loaded into.
-\param[in] len The length of the array.
+    \param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
+    \param[in] verbose How loud this run should be.
+    \param[in] sphericalHarmonics The array to which the data will be loaded into.
+    \param[in] len The length of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagSphericalHarmonicsForShell ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len )
 {
@@ -3013,9 +3040,9 @@ void ProSHADE_internal_data::ProSHADE_data::getImagSphericalHarmonicsForShell ( 
 
 /*! \brief This function gets the spherical harmonics array length for a particular shell.
 
-\param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
-\param[in] verbose How loud this run should be.
-\param[out] val Length of spherical harmonics array or zero if error occured.
+    \param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
+    \param[in] verbose How loud this run should be.
+    \param[out] val Length of spherical harmonics array or zero if error occured.
 */
 int ProSHADE_internal_data::ProSHADE_data::getSphericalHarmonicsLenForShell  ( proshade_unsign shellNo, proshade_signed verbose )
 {
@@ -3032,10 +3059,10 @@ int ProSHADE_internal_data::ProSHADE_data::getSphericalHarmonicsLenForShell  ( p
 
 /*! \brief This function gets the spherical harmonics array index for a particular spherical harmonics band and order.
 
-\param[in] order The order for which the spherical harmonics value index is requested.
-\param[in] band The band for which the spherical harmonics value index is requested.
-\param[in] shell The shell for which the spherical harmonics value index is requested.
-\param[out] val Index value of the spherical harmonics value.
+    \param[in] order The order for which the spherical harmonics value index is requested.
+    \param[in] band The band for which the spherical harmonics value index is requested.
+    \param[in] shell The shell for which the spherical harmonics value index is requested.
+    \param[out] val Index value of the spherical harmonics value.
 */
 int ProSHADE_internal_data::ProSHADE_data::sphericalHarmonicsIndex ( proshade_signed order, proshade_signed band, proshade_signed shell )
 {
@@ -3045,10 +3072,10 @@ int ProSHADE_internal_data::ProSHADE_data::sphericalHarmonicsIndex ( proshade_si
 
 /*! \brief This function fills the input array with the real E matrix values for particular band and order1 (l as opposed to l').
 
-\param[in] band The band for which the real E matrix values are requested.
-\param[in] order The order for which the real E matrix values are requested.
-\param[in] eMatsLMReal The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] band The band for which the real E matrix values are requested.
+    \param[in] order The order for which the real E matrix values are requested.
+    \param[in] eMatsLMReal The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealEMatrixValuesForLM ( proshade_signed band, proshade_signed order1, double *eMatsLMReal, int len )
 {
@@ -3065,10 +3092,10 @@ void ProSHADE_internal_data::ProSHADE_data::getRealEMatrixValuesForLM ( proshade
 
 /*! \brief This function fills the input array with the imaginary E matrix values for particular band and order1 (l as opposed to l').
 
-\param[in] band The band for which the imaginary E matrix values are requested.
-\param[in] order The order for which the imaginary E matrix values are requested.
-\param[in] eMatsLMImag The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] band The band for which the imaginary E matrix values are requested.
+    \param[in] order The order for which the imaginary E matrix values are requested.
+    \param[in] eMatsLMImag The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagEMatrixValuesForLM ( proshade_signed band, proshade_signed order1, double *eMatsLMImag, int len )
 {
@@ -3085,8 +3112,8 @@ void ProSHADE_internal_data::ProSHADE_data::getImagEMatrixValuesForLM ( proshade
 
 /*! \brief This function fills the input array with the real SO(3) coefficient values.
 
-\param[in] so3CoefsReal The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] so3CoefsReal The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealSO3Coeffs ( double *so3CoefsReal, int len )
 {
@@ -3103,8 +3130,8 @@ void ProSHADE_internal_data::ProSHADE_data::getRealSO3Coeffs ( double *so3CoefsR
 
 /*! \brief This function fills the input array with the imaginary SO(3) coefficient values.
 
-\param[in] so3CoefsImag The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] so3CoefsImag The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagSO3Coeffs ( double *so3CoefsImag, int len )
 {
@@ -3121,12 +3148,12 @@ void ProSHADE_internal_data::ProSHADE_data::getImagSO3Coeffs ( double *so3CoefsI
 
 /*! \brief This function gets the SO(3) coefficients array index for a particular so(3) band, order1 and order2 position.
  
- It should be noted that this function assumes that the orders are in the format -l < 0 < l and NOT 0 < 2l + 1.
+    It should be noted that this function assumes that the orders are in the format -l < 0 < l and NOT 0 < 2l + 1.
 
-\param[in] order1 The first order for which the SO(3) value index is requested.
-\param[in] order2 The second order for which the SO(3) value index is requested.
-\param[in] band The band for which the SO(3) value index is requested.
-\param[out] val Index position of the SO(3) value.
+    \param[in] order1 The first order for which the SO(3) value index is requested.
+    \param[in] order2 The second order for which the SO(3) value index is requested.
+    \param[in] band The band for which the SO(3) value index is requested.
+    \param[out] val Index position of the SO(3) value.
 */
 int ProSHADE_internal_data::ProSHADE_data::so3CoeffsArrayIndex ( proshade_signed order1, proshade_signed order2, proshade_signed band )
 {
@@ -3136,8 +3163,8 @@ int ProSHADE_internal_data::ProSHADE_data::so3CoeffsArrayIndex ( proshade_signed
 
 /*! \brief This function fills the input array with the real rotation function values.
 
-\param[in] rotFunReal The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] rotFunReal The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealRotFunction ( double *rotFunReal, int len )
 {
@@ -3154,8 +3181,8 @@ void ProSHADE_internal_data::ProSHADE_data::getRealRotFunction ( double *rotFunR
 
 /*! \brief This function fills the input array with the imaginary rotation function values.
 
-\param[in] rotFunImag The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] rotFunImag The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagRotFunction ( double *rotFunImag, int len )
 {
@@ -3172,8 +3199,8 @@ void ProSHADE_internal_data::ProSHADE_data::getImagRotFunction ( double *rotFunI
 
 /*! \brief This function fills the input array with the real translation function values.
 
-\param[in] trsFunReal The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] trsFunReal The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getRealTranslationFunction ( double *trsFunReal, int len )
 {
@@ -3190,8 +3217,8 @@ void ProSHADE_internal_data::ProSHADE_data::getRealTranslationFunction ( double 
 
 /*! \brief This function fills the input array with the imaginary translation function values.
 
-\param[in] trsFunImag The array to which the values will be written into.
-\param[in] len The lenght of the array.
+    \param[in] trsFunImag The array to which the values will be written into.
+    \param[in] len The lenght of the array.
 */
 void ProSHADE_internal_data::ProSHADE_data::getImagTranslationFunction ( double *trsFunImag, int len )
 {
@@ -3208,11 +3235,11 @@ void ProSHADE_internal_data::ProSHADE_data::getImagTranslationFunction ( double 
 
 /*! \brief This function takes rotation function indices, converts them to Euler angles and these to rotation matrix, which it then returns.
 
-\param[in] aI The index along the Euler alpha dimension.
-\param[in] bI The index along the Euler beta dimension.
-\param[in] gI The index along the Euler gamma dimension.
-\param[in] rotMat The array to which the rotation matrix will be written into.
-\param[in] len The lenght of the array (must be 9).
+    \param[in] aI The index along the Euler alpha dimension.
+    \param[in] bI The index along the Euler beta dimension.
+    \param[in] gI The index along the Euler gamma dimension.
+    \param[in] rotMat The array to which the rotation matrix will be written into.
+    \param[in] len The lenght of the array (must be 9).
 */
 void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshade_signed aI, proshade_signed bI, proshade_signed gI, double *rotMat, int len )
 {
@@ -3244,7 +3271,7 @@ void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshad
 
 /*! \brief This function simply returns the detected recommended symmetry type.
 
-\param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
 */
 std::string ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType ( ProSHADE_settings* settings )
 {
@@ -3255,7 +3282,7 @@ std::string ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType ( 
 
 /*! \brief This function simply returns the detected recommended symmetry fold.
 
-\param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
 */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold ( ProSHADE_settings* settings )
 {
@@ -3266,8 +3293,8 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFol
 
 /*! \brief This function returns the number of detected recommended symmetry axes.
 
-\param[in] settings A pointer to settings class containing all the information required for map manipulation.
-\param[out] val The length of the recommended symmetry axes vector.
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[out] val The length of the recommended symmetry axes vector.
 */
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoSymmetryAxes ( ProSHADE_settings* settings )
 {
@@ -3277,9 +3304,9 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoSymmetryAxes ( ProSH
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.
 
-\param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-\param[in] axisNo The index of the axis to be returned.
-\param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle and peak height in this order.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] axisNo The index of the axis to be returned.
+    \param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle and peak height in this order.
 */
 std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxis ( ProSHADE_settings* settings, proshade_unsign axisNo )
 {
@@ -3321,5 +3348,144 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
     
     //================================================ Done
     return                                            ( ret );
+    
+}
+
+/*! \brief This function writes out the rotated map, co-ordinates and transformation JSON file.
+
+    This function takes basically all the results of the overlay mode and appropriately applies them to write out the
+    moved density map, if possible the moved co-ordinates and also the overlay operations listing JSON file.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[in] trsX The optimal x-axis translation value.
+    \param[in] trsY The optimal y-axis translation value.
+    \param[in] trsZ The optimal z-axis translation value.
+    \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
+    \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
+    \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
+    \param[in] rotCentre The rotation centre position as determined by the computeOverlayTranslations function.
+    \param[in] ultimateTranslation The final translation as determined by the computeOverlayTranslations function.
+*/
+void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre, std::vector< proshade_double >* ultimateTranslation )
+{
+    //================================================ Write out rotated map
+    std::stringstream fNameHlp;
+    fNameHlp << settings->overlayStructureName << ".map";
+    this->writeMap                                    ( fNameHlp.str() );
+    
+    //================================================ Write out rotated co-ordinates if possible
+    if ( ProSHADE_internal_io::isFilePDB ( this->fileName ) )
+    {
+        fNameHlp.str("");
+        fNameHlp << settings->overlayStructureName << ".pdb";
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ, settings->firstModelOnly );
+    }
+    
+    //================================================ Write out the json file with the results
+    ProSHADE_internal_io::writeRotationTranslationJSON ( -rotCentre->at(0), -rotCentre->at(1), -rotCentre->at(2),
+                                                         eulA, eulB, eulG,
+                                                         ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2),
+                                                         this->comMovX, this->comMovY, this->comMovZ, settings->rotTrsJSONFile );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function sets the correct translation values for the overlay mode.
+
+    This function takes the translation as computed by the translation function (in the last three input variables) and proceeds  to
+    compute and save the initial centre of rotation as well as the ultimate translation to be done after rotation to obtain the optimal
+    overlay of the moving structure over the static structure.
+    
+    \param[in] rcX Pointer to where to save the rotation centre position along the X-axis in Angstroms.
+    \param[in] rcY Pointer to where to save the rotation centre position along the Y-axis in Angstroms.
+    \param[in] rcZ Pointer to where to save the rotation centre position along the Z-axis in Angstroms.
+    \param[in] transX Pointer to where to save the translation to be done along the X-axis in Angstroms. This variable should already have the computed translation from the translation map.
+    \param[in] transY Pointer to where to save the translation to be done along the Y-axis in Angstroms. This variable should already have the computed translation from the translation map.
+    \param[in] transZ Pointer to where to save the translation to be done along the Z-axis in Angstroms. This variable should already have the computed translation from the translation map.
+*/
+void ProSHADE_internal_data::ProSHADE_data::computeOverlayTranslations ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ, proshade_double* transX, proshade_double* transY, proshade_double* transZ )
+{
+    //================================================ Write out the json file with the results
+    if ( ProSHADE_internal_io::isFilePDB ( this->fileName ) )
+    {
+        //============================================ If PDB, we already have these
+       *rcX                                           = this->originalPdbRotCenX;
+       *rcY                                           = this->originalPdbRotCenY;
+       *rcZ                                           = this->originalPdbRotCenZ;
+         
+       *transX                                        = *transX + this->originalPdbRotCenX;
+       *transY                                        = *transY + this->originalPdbRotCenY;
+       *transZ                                        = *transZ + this->originalPdbRotCenZ;
+    }
+    else
+    {
+        //============================================ Compute the rotation centre for the co-ordinates
+        proshade_double xRotPos                       = ( ( static_cast<proshade_double> ( this->xDimIndicesOriginal / 2 ) - this->xAxisOriginOriginal ) *
+                                                          ( static_cast<proshade_double> ( this->xDimIndicesOriginal - 1 ) / this->xDimSizeOriginal ) ) -
+                                                          (this->comMovX);
+        proshade_double yRotPos                       = ( ( static_cast<proshade_double> ( this->yDimIndicesOriginal / 2 ) - this->yAxisOriginOriginal ) *
+                                                          ( static_cast<proshade_double> ( this->yDimIndicesOriginal - 1 ) / this->yDimSizeOriginal ) ) -
+                                                          (this->comMovY);
+        proshade_double zRotPos                       = ( ( static_cast<proshade_double> ( this->zDimIndicesOriginal / 2 ) - this->zAxisOriginOriginal ) *
+                                                          ( static_cast<proshade_double> ( this->zDimIndicesOriginal - 1 ) / this->zDimSizeOriginal ) ) -
+                                                          (this->comMovZ);
+        
+        //============================================ And save
+        *rcX                                           = xRotPos;
+        *rcY                                           = yRotPos;
+        *rcZ                                           = zRotPos;
+          
+        *transX                                        = *transX + xRotPos;
+        *transY                                        = *transY + yRotPos;
+        *transZ                                        = *transZ + zRotPos;
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function reports the results of the overlay mode.
+
+    \param[in] settings ProSHADE_settings object specifying the details of how the computations should be done.
+    \param[in] rotationCentre Pointer to vector for saving the position of the centre of rotation about which the rotation is to be done.
+    \param[in] mapBoxMovement Pointer to vector for saving the sum of all translations done internally by ProSHADE to this input map.
+    \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
+    \param[in] finalTranslation Pointer to a vector where the translation required to move structure from origin to optimal overlay with static structure will be saved into.
+*/
+void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
+{
+    //================================================ Empty line
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "" );
+    
+    //================================================ Write out rotation centre translation results
+    std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is: " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str() );
+    
+    //================================================ Write out internal map translation results
+    std::stringstream mapBox; mapBox << std::setprecision (3) << std::showpos << "The within box internal map translation vector is  : " << mapBoxMovement->at(0) << "     " << mapBoxMovement->at(1) << "     " << mapBoxMovement->at(2);
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, mapBox.str() );
+    
+    //================================================ Write out rotation matrix about origin
+    proshade_double* rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulerAngles->at(0), eulerAngles->at(1), eulerAngles->at(2), rotMat );
+    
+    std::stringstream rotMatSS;
+    rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotMatSS.str() );
+    
+    delete[] rotMat;
+    
+    //================================================ Write out origin to overlay translation results
+    std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The origin to overlay translation vector is        : " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, finTrs.str() );
+    
+    //================================================ Done
+    return ;
     
 }

@@ -16,7 +16,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
 */
 
@@ -42,6 +42,7 @@ int main ( int argc, char **argv )
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
+    settings->setOverlayJsonFile                      ( "movedStructureOperations.json" );   // Filename where the overlay operations should be saved.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
@@ -87,7 +88,9 @@ int main ( int argc, char **argv )
     //================================================ Get results - these are already computed by the previous line, they are just copied by these commands.
     std::vector< proshade_double > eulerAngles        = runProshade->getEulerAngles   ( );     // This function returns the optimal rotation Euler angles (order: alpha, beta, gamma).
     std::vector< proshade_double > rotMatrix          = runProshade->getOptimalRotMat ( );     // This function returns the optimal rotation matrix. It is a vector of 9 numbers, the order is [0][0], [0][1], [0][2], [1][0], [1][1], [1][2], [2][0], [2][1], [2][2].
-    std::vector< proshade_double > translation        = runProshade->getTranslation   ( );     // This is how the optimal translation vector in Angstroms is obtained.
+    std::vector< proshade_double > rotCenTrans        = runProshade->getTranslationToOrigin ( ); // This is how the rotation centre to origin translation Angstroms is obtained.
+    std::vector< proshade_double > mapCentreToInternal= runProshade->getTranslationToMapCentre ( ); // This is how the sum of intenal translations in Angstroms is obtained.
+    std::vector< proshade_double > originToOverlay    = runProshade->getOriginToOverlayTranslation ( ); // This is how the translation from origin to optimal overlay position in Angstroms is obtained.
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;
@@ -98,14 +101,18 @@ int main ( int argc, char **argv )
     std::cout << "Optimal rotation matrix is       :      " << rotMatrix.at(0) << " ; " << rotMatrix.at(1) << " ; " << rotMatrix.at(2) << std::endl;
     std::cout << "                                 :      " << rotMatrix.at(3) << " ; " << rotMatrix.at(4) << " ; " << rotMatrix.at(5) << std::endl;
     std::cout << "                                 :      " << rotMatrix.at(6) << " ; " << rotMatrix.at(7) << " ; " << rotMatrix.at(8) << std::endl;
-    std::cout << "Optimal translation in Angstroms is:    " << translation.at(0) << " ; " << translation.at(1) << " ; " << translation.at(2) << std::endl;
+    std::cout << "Rot. Centre to origin translation:      " << rotCenTrans.at(0) << " ; " << rotCenTrans.at(1) << " ; " << rotCenTrans.at(2) << std::endl;
+    std::cout << "Sum of internal translations     :      " << mapCentreToInternal.at(0) << " ; " << mapCentreToInternal.at(1) << " ; " << mapCentreToInternal.at(2) << std::endl;
+    std::cout << "Origin to optimal overlay translation:  " << originToOverlay.at(0) << " ; " << originToOverlay.at(1) << " ; " << originToOverlay.at(2) << std::endl;
     
     //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
-//  Optimal rotation Euler angles are:      5.43251 ; 0.769003 ; 3.92701
+//  Optimal rotation Euler angles are:      5.49777 ; 0.769003 ; 3.99227
 //  Optimal rotation matrix is       :      -0.866653 ; -0.0843547 ; 0.491728
 //                                   :      -0.196441 ; -0.848292 ; -0.491743
 //                                   :      0.45861 ; -0.522767 ; 0.718604
-//  Optimal translation in Angstroms is:    8 ; 8 ; -6
+//  Rot. Centre to origin translation:      -0 ; -0 ; -0
+//  Sum of internal translations     :      0 ; 0 ; 0
+//  Origin to optimal overlay translation:  8 ; 8 ; -6
     
     //================================================ DONE
     return EXIT_SUCCESS;

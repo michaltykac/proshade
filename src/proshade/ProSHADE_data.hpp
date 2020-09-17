@@ -17,7 +17,7 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
 */
 
@@ -33,18 +33,18 @@
     \brief This namespace contains the structure and functions required for data reading and storing their derivates.
  
  
- The ProSHADE_internal_data namespace contains the data structure. It also has the data derivates storing variables,
- but it does not provide the computation code except for the forward declarations. The user should not need to access
- this namespace when using the library.
+    The ProSHADE_internal_data namespace contains the data structure. It also has the data derivates storing variables,
+    but it does not provide the computation code except for the forward declarations. The user should not need to access
+    this namespace when using the library.
  */
 namespace ProSHADE_internal_data
 {    
-    /*! \class ProSHADE_data
-        \brief This class contains all inputed and derived data for a single structure.
-     
-     This class codes the object that contains all the information about the input data and the derived information as well. It does not,
-     however, provide the computation code as that lives elsewhere, except for the forward declarations.
-     */
+/*! \class ProSHADE_data
+    \brief This class contains all inputed and derived data for a single structure.
+
+    This class codes the object that contains all the information about the input data and the derived information as well. It does not,
+    however, provide the computation code as that lives elsewhere, except for the forward declarations.
+ */
     class ProSHADE_data
     {
     public:
@@ -97,6 +97,14 @@ namespace ProSHADE_internal_data
         proshade_double mapPostRotXCom;               //!< The COM of the rotated map before it is processed in any other way. Along the X axis.
         proshade_double mapPostRotYCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Y axis.
         proshade_double mapPostRotZCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Z axis.
+        
+        //============================================ Variables regarding rotation and translation of original input files
+        proshade_double originalPdbRotCenX;           //!< The centre of rotation as it relates to the original PDB positions (and not the ProSHADE internal map) along the x-axis.
+        proshade_double originalPdbRotCenY;           //!< The centre of rotation as it relates to the original PDB positions (and not the ProSHADE internal map) along the y-axis.
+        proshade_double originalPdbRotCenZ;           //!< The centre of rotation as it relates to the original PDB positions (and not the ProSHADE internal map) along the z-axis.
+        proshade_double originalPdbTransX;            //!< The optimal translation vector as it relates to the original PDB positions (and not the ProSHADE internal map) along the x-axis.
+        proshade_double originalPdbTransY;            //!< The optimal translation vector as it relates to the original PDB positions (and not the ProSHADE internal map) along the y-axis.
+        proshade_double originalPdbTransZ;            //!< The optimal translation vector as it relates to the original PDB positions (and not the ProSHADE internal map) along the z-axis.
 
         //============================================ Variables regarding iterator positions
         proshade_signed xFrom;                        //!< This is the starting index along the x axis.
@@ -233,7 +241,14 @@ namespace ProSHADE_internal_data
         void invertSHCoefficients                     ( void );
         void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
-        void findMapCOM                               ( );
+        void findMapCOM                               ( void );
+        void computeOverlayTranslations               ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ,
+                                                        proshade_double* transX, proshade_double* transY, proshade_double* transZ );
+        void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ,
+                                                        proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
+                                                        std::vector< proshade_double >* ultimateTranslation );
+        void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement,
+                                                        std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation );
         
         //============================================ Python access functions
         void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );
