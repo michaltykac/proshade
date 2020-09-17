@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -29,10 +29,10 @@
 
 //==================================================== ProSHADE_internal_messages Namespace
 /*! \namespace ProSHADE_internal_misc
- \brief This namespace contains all the miscellaneous functions used throughout the code but unrelated to it.
+    \brief This namespace contains all the miscellaneous functions used throughout the code but unrelated to it.
  
- The ProSHADE_internal_misc namespace contains all the functions which are useful, but not really related to shape
- description or data processing.
+    The ProSHADE_internal_misc namespace contains all the functions which are useful, but not really related to shape
+    description or data processing.
  */
 namespace ProSHADE_internal_misc
 {
@@ -53,12 +53,12 @@ namespace ProSHADE_internal_misc
     void deepCopyBoundsSigPtrVector                   ( std::vector < proshade_signed* >* sigPtrVec, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom,
                                                         proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo );
     
-    /*! \brief Checks if memory was allocated properly.
-     
-     This function checks if the memory allocation has suceeded for a given pointer, printing error message if not.
-     
-     \param[in] checkVar Pointer to be checked.
-     */
+/*! \brief Checks if memory was allocated properly.
+
+    This function checks if the memory allocation has suceeded for a given pointer, printing error message if not.
+
+    \param[in] checkVar Pointer to be checked.
+ */
     
     template <class chVar> inline void checkMemoryAllocation ( chVar checkVar, std::string fileP, unsigned int lineP, std::string funcP, std::string infoP = "This error may occurs when ProSHADE requests memory to be\n                    : allocated to it and this operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes using a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : if this problem persists." )
     {

@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -263,6 +263,9 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
     \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated.
     \param[in] euB The Euler angle beta by which the co-ordinates should be rotated.
     \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated.
+    \param[in] xCom The x-axis position around which the rotation should be applied.
+    \param[in] yCom The y-axis position around which the rotation should be applied.
+    \param[in] zCom The z-axis position around which the rotation should be applied.
     \param[in] firstModel Should only the first, or all models be used?
  */
 void ProSHADE_internal_mapManip::rotatePDBCoordinates ( gemmi::Structure *pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,

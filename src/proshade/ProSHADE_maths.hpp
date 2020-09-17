@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -36,10 +36,10 @@ extern "C"
 
 //==================================================== ProSHADE_internal_io Namespace
 /*! \namespace ProSHADE_internal_maths
- \brief This namespace contains the internal functions for common mathematical operations.
+    \brief This namespace contains the internal functions for common mathematical operations.
  
- The ProSHADE_internal_maths namespace contains a set of common mathematical operations used in many places by ProSHADE. These
- typically include complex number operations and angle conversions.
+    The ProSHADE_internal_maths namespace contains a set of common mathematical operations used in many places by ProSHADE. These
+    typically include complex number operations and angle conversions.
  */
 namespace ProSHADE_internal_maths
 {

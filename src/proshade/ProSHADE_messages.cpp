@@ -15,7 +15,7 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
 */
 
@@ -24,15 +24,15 @@
 
 /*! \brief Wellcome message printing.
  
- This function prints the first message that appears when ProSHADE is being run.
+    This function prints the first message that appears when ProSHADE is being run.
  
- \param[in] verbose Signed int value stating how loud the user requested the ProSHADE run to be.
+    \param[in] verbose Signed int value stating how loud the user requested the ProSHADE run to be.
  */
 void ProSHADE_internal_messages::printWellcomeMessage ( proshade_signed verbose )
 {
     if ( verbose >= 0 )
     {
-        std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
+        std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "============================" << std::endl << std::endl << std::flush;
     }
     
     //================================================ Done
@@ -42,9 +42,9 @@ void ProSHADE_internal_messages::printWellcomeMessage ( proshade_signed verbose 
 
 /*! \brief Final message printing.
  
- This function prints the last message that appears when ProSHADE is being run, assuming the run ends with no problems.
+    This function prints the last message that appears when ProSHADE is being run, assuming the run ends with no problems.
  
- \param[in] verbose Signed int value stating how loud the user requested the ProSHADE run to be.
+    \param[in] verbose Signed int value stating how loud the user requested the ProSHADE run to be.
  */
 void ProSHADE_internal_messages::printTerminateMessage ( proshade_signed verbose )
 {
@@ -60,12 +60,12 @@ void ProSHADE_internal_messages::printTerminateMessage ( proshade_signed verbose
 
 /*! \brief General stdout message printing.
  
- This function is used to print progress messages to the stdout. It takes the verbosity level, the message inportance level and the
- message as such and decides whether the message should be printed, doing so if required.
+    This function is used to print progress messages to the stdout. It takes the verbosity level, the message inportance level and the
+    message as such and decides whether the message should be printed, doing so if required.
  
- \param[in] verbose Int value stating how loud the user requested the ProSHADE run to be.
- \param[in] messageLevel Int value stating how important the message is.
- \param[in] message String of the actual message to be displayed.
+    \param[in] verbose Int value stating how loud the user requested the ProSHADE run to be.
+    \param[in] messageLevel Int value stating how important the message is.
+    \param[in] message String of the actual message to be displayed.
  */
 void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose, proshade_signed messageLevel, std::string message )
 {
@@ -91,12 +91,12 @@ void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose,
 
 /*! \brief General stderr message printing (used for warnings).
  
- This function is used to print warnings to the user through the stderr (cerr) stream. It will not terminate the program
- run, as it is just a warning. Note that errors (exceptions) are handled elsewhere.
+    This function is used to print warnings to the user through the stderr (cerr) stream. It will not terminate the program
+    run, as it is just a warning. Note that errors (exceptions) are handled elsewhere.
  
- \param[in] verbose Int value stating how loud the user requested the ProSHADE run to be.
- \param[in] message String of the actual message to be displayed.
- \param[in] message String of the warning code to be displayed.
+    \param[in] verbose Int value stating how loud the user requested the ProSHADE run to be.
+    \param[in] message String of the actual message to be displayed.
+    \param[in] message String of the warning code to be displayed.
  */
 void ProSHADE_internal_messages::printWarningMessage ( proshade_signed verbose, std::string message, std::string warnCode )
 {
@@ -289,6 +289,11 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Filename to where the translated and rotated moving structure       " << std::endl;
     std::cout << "            with optimal placement relative to the static structure will be     " << std::endl;
     std::cout << "            saved to. Extension will be added automatically                     " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --overlayJSONFile or -y      [DEFAULT: \"movedStructureOperations.json\"]     " << std::endl;
+    std::cout << "            Filename to where the translations and rotation operations required " << std::endl;
+    std::cout << "            for moving the \"moving\" structure to overlay the \"static\" structure " << std::endl;
+    std::cout << "            will be written into.                                               " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "FLAGS:                                                                          " << std::endl;
     std::cout << "    The following options can be used to override the default values and        " << std::endl;

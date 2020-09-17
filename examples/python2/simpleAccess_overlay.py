@@ -18,7 +18,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4
+#   \version   0.7.4.2
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -53,6 +53,7 @@ pSet.removeWaters                             = True;                           
 pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setOverlaySaveFile                       ( "moved" )                              # Filename where the overlayed moving structure should be saved.
+pSet.setOverlayJsonFile                       ( "movedStructureOperations.json" )      # Filename where the overlay operations should be saved.
 pSet.setMasking                               ( False )                                # Should maps be masked by blurring?
 pSet.setMapReboxing                           ( False )                                # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
@@ -105,7 +106,9 @@ pRun                                          = proshade.ProSHADE_run ( pSet )
 ### Get the reboxed information and maps
 eulerAngles                                   = proshade.getEulerAngles ( pRun )
 rotMatrix                                     = proshade.getRotationMat ( pRun )
-translation                                   = proshade.getTranslation ( pRun )
+toOriginTranslation                           = proshade.getNumpyTranslationToOrigin ( pRun )
+toMapCenTranslation                           = proshade.getNumpyTranslationToMapCentre ( pRun )
+origToOverTranslation                         = proshade.getNumpyOriginToOverlayTranslation ( pRun )
 
 ##############################################
 ### Delete the C++ pointers
@@ -114,18 +117,22 @@ del pSet
 
 ##############################################
 ### Print the results
-print ( "Optimal overlay rotation (Euler angles) : %+2.4f   %+2.4f   %+2.4f" % ( eulerAngles[0] , eulerAngles[1] , eulerAngles[2] ) )
-print ( "Optimal overlay rotation (rot. matrix)  : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[0][0], rotMatrix[0][1], rotMatrix[0][2] ) )
-print ( "                                        : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2] ) )
-print ( "                                        : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[2][0], rotMatrix[2][1], rotMatrix[2][2] ) )
-print ( "Optimal overlay translation (Angstroms) : %+2.4f   %+2.4f   %+2.4f" % ( translation[0] , translation[1] , translation[2] ) )
+print ( "Optimal overlay rotation (Euler angles)        : %+2.4f   %+2.4f   %+2.4f" % ( eulerAngles[0] , eulerAngles[1] , eulerAngles[2] ) )
+print ( "Optimal overlay rotation (rot. matrix)         : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[0][0], rotMatrix[0][1], rotMatrix[0][2] ) )
+print ( "                                               : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2] ) )
+print ( "                                               : %+2.4f   %+2.4f   %+2.4f" % ( rotMatrix[2][0], rotMatrix[2][1], rotMatrix[2][2] ) )
+print ( "Translation to origin (Angstroms)              : %+2.4f   %+2.4f   %+2.4f" % ( toOriginTranslation[0] , toOriginTranslation[1] , toOriginTranslation[2] ) )
+print ( "Translation to map centre (Angstroms)          : %+2.4f   %+2.4f   %+2.4f" % ( toMapCenTranslation[0] , toMapCenTranslation[1] , toMapCenTranslation[2] ) )
+print ( "Translation from origin to overlat (Angstroms) : %+2.4f   %+2.4f   %+2.4f" % ( origToOverTranslation[0] , origToOverTranslation[1] , origToOverTranslation[2] ) )
 
 ### Expected output
-#   Optimal overlay rotation (Euler angles) : +5.5084   +0.7639   +3.8732
-#   Optimal overlay rotation (rot. matrix)  : -0.8513   -0.1015   +0.5147
-#                                           : -0.1758   -0.8692   -0.4621
-#                                           : +0.4943   -0.4839   +0.7222
-#   Optimal overlay translation (Angstroms) : +8.0000   +8.0000   -6.0000
+#   Optimal overlay rotation (Euler angles)        : +5.5516   +0.7639   +3.9163
+#   Optimal overlay rotation (rot. matrix)         : -0.8513   -0.1758   +0.4943
+#                                                  : -0.1015   -0.8692   -0.4839
+#                                                  : +0.5147   -0.4621   +0.7222
+#   Translation to origin (Angstroms)              : -0.0000   -0.0000   -0.0000
+#   Translation to map centre (Angstroms)          : +0.0000   +0.0000   +0.0000
+#   Translation from origin to overlat (Angstroms) : +8.0000   +8.0000   -6.0000
 
 ##############################################
 ### Done

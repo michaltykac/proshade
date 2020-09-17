@@ -18,7 +18,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -124,6 +124,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
+    this->rotTrsJSONFile                              = "movedStructureOperations.json";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
@@ -230,6 +231,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
+    this->rotTrsJSONFile                              = "movedStructureOperations.json";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
@@ -1081,6 +1083,20 @@ void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
     
 }
 
+/*! \brief Sets the filename to which the overlay operations are to be save into.
+ 
+    \param[in] filename The filename to which the overlay operations are to be saved to.
+ */
+void ProSHADE_settings::setOverlayJsonFile ( std::string filename )
+{
+    //================================================ Set the value
+    this->rotTrsJSONFile                              = filename;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1276,7 +1292,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
         switch ( settings->task )
         {
             case NA:
-                throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Symmetry, Distances,\n                    : Features, RotateMap, OverlayMap, SimpleRebox." );
+                throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Distances, Symmetry,\n                    : OverlayMap or MapManip." );
                 break;
                 
             case Symmetry:
@@ -1289,7 +1305,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case OverlayMap:
-                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->eulerAngles, &this->translation );
+                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->rotationCentre, &this->mapBoxMovement, &this->eulerAngles, &this->finalTranslation );
                 break;
                 
             case MapManip:
@@ -1512,12 +1528,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
+        { "overlayJSONFile", required_argument,  NULL, 'y' },
         { "angUncertain",    required_argument,  NULL, ';' },
         { NULL,              0,                  NULL,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwx!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1919,6 +1936,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                  continue;
              }
                  
+             //======================================= Save the argument as filename to save the overlay operations to value
+             case 'y':
+             {
+                 this->setOverlayJsonFile             ( static_cast<std::string> ( optarg ) );
+                 continue;
+             }
+                 
              //======================================= Save the argument as angular uncertainty for bandwidth determination
              case ';':
              {
@@ -2129,6 +2153,10 @@ void ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->overlayStructureName;
     printf ( "Overlay file        : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->rotTrsJSONFile;
+    printf ( "JSON overlay file   : %37s\n", strstr.str().c_str() );
     
     //================================================ Done
     return ;
@@ -2582,21 +2610,63 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
     
 }
 
-/*! \brief This function returns the vector of translation vectors with the best overlay correlation.
+/*! \brief This function returns the negative values of the position of the rotation centre (the point about which the rotation should be done).
 
-    \param[out] ret Vector of translations which lead to the globally best overlay correlation.
+    \param[out] ret Vector specifying the negative values of the rotation centre - i.e. the translation of the rotation centre to the origin.
 */
-std::vector< proshade_double > ProSHADE_run::getTranslation ( )
+std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
 {
-    //======================================== Sanity check
-    if ( this->eulerAngles.size() != 3 )
+    //================================================ Sanity check
+    if ( this->rotationCentre.size() != 3 )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
+        return                                        ( std::vector< proshade_double > ( ) );
+    }
+    
+    //================================================ Create return variable with negative values of the internal varariable
+    std::vector < proshade_double > ret;
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(2) );
+    
+    //================================================ Return required value
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function returns the vector of all translations done intenally to the input map.
+
+    \param[out] ret Vector of all translations done intenally to the input map.
+*/
+std::vector< proshade_double > ProSHADE_run::getTranslationToMapCentre ( )
+{
+    //================================================ Sanity check
+    if ( this->mapBoxMovement.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     
     //================================================ Return required value
-    return                                            ( this->translation );
+    return                                            ( this->mapBoxMovement );
+    
+}
+
+/*! \brief This function returns the translation required to move the structure from origin to optimal overlay.
+
+    \param[out] ret Translation required to move structure from origin to optimal overlay.
+*/
+std::vector< proshade_double > ProSHADE_run::getOriginToOverlayTranslation ( )
+{
+    //================================================ Sanity check
+    if ( this->mapBoxMovement.size() != 3 )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
+        return                                        ( std::vector< proshade_double > ( ) );
+    }
+    
+    //================================================ Return required value
+    return                                            ( this->finalTranslation );
     
 }
            
@@ -2623,22 +2693,68 @@ void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
     
 }
 
-/*! \brief This function returns the optimal translatoin (for Numpy).
+/*! \brief This function returns the translation to origin (for Numpy).
  
     \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] eulerAngs Array to which the values are to be loaded into.
+    \param[in] toOriginTranslation Array to which the values are to be loaded into.
     \param[in] len The length of the array.
  */
 
-void getOptimalTranslation ( ProSHADE_run* run, double *translate, int len )
+void getToOriginTranslation ( ProSHADE_run* run, double *toOriginTranslation, int len )
 {
     //================================================ Get values
-    std::vector< proshade_double > vals               = run->getTranslation ( );
+    std::vector< proshade_double > vals               = run->getTranslationToOrigin ( );
     
-    //================================================ Save the data into the output array
+    //======================================== Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
-        translate[iter]                               = static_cast<double> ( vals.at( iter ) );
+        toOriginTranslation[iter]                     = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns the internal translations sum (for Numpy).
+ 
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] toMapCentreTranslation Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getToMapCentreTranslation ( ProSHADE_run* run, double *toMapCentreTranslation, int len )
+{
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getTranslationToMapCentre ( );
+    
+    //======================================== Save the data into the output array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
+    {
+        toMapCentreTranslation[iter]                  = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns the translation from origin to the optimal overlay location (for Numpy).
+ 
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] originToOverlayTranslation Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getOriginToOverlayTranslation ( ProSHADE_run* run, double *originToOverlayTranslation, int len )
+{
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getOriginToOverlayTranslation ( );
+    
+    //======================================== Save the data into the output array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
+    {
+        originToOverlayTranslation[iter]              = static_cast<double> ( vals.at( iter ) );
     }
     
     //================================================ Done

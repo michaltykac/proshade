@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -28,10 +28,10 @@
 
 //==================================================== ProSHADE_internal_overlay Namespace
 /*! \namespace ProSHADE_internal_overlay
- \brief This namespace contains all the functions required for map overlays.
+    \brief This namespace contains all the functions required for map overlays.
  
- The map overlay task does have some specific functions that are betters groupped together for higher
- clarity of the code and also simple modifications later. This is where these live.
+    The map overlay task does have some specific functions that are betters groupped together for higher
+    clarity of the code and also simple modifications later. This is where these live.
  */
 namespace ProSHADE_internal_overlay
 {

@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4
+    \version   0.7.4.2
     \date      SEP 2020
  */
 
@@ -28,11 +28,11 @@
 
 //==================================================== ProSHADE_internal_io Namespace
 /*! \namespace ProSHADE_internal_io
- \brief This namespace contains the internal input/output functions. None of these should be directly accessed by the user.
+    \brief This namespace contains the internal input/output functions. None of these should be directly accessed by the user.
  
- The ProSHADE_internal_io namespace contains the helper functions for the data input and output. These should never be
- directly used by the user and these only serve to allow for self-documenting nature of the code. They are called internally
- by more advanced functions from the higher complexity classes.
+    The ProSHADE_internal_io namespace contains the helper functions for the data input and output. These should never be
+    directly used by the user and these only serve to allow for self-documenting nature of the code. They are called internally
+    by more advanced functions from the higher complexity classes.
  */
 namespace ProSHADE_internal_io
 {
@@ -56,6 +56,9 @@ namespace ProSHADE_internal_io
                                                         proshade_signed yFrom, proshade_signed zFrom, proshade_signed xAxOrigin, proshade_signed yAxOrigin, proshade_signed zAxOrigin,
                                                         proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder, proshade_unsign xGridInds, proshade_unsign yGridInds,
                                                        proshade_unsign zGridInds, std::string title, int mode );
+    void writeRotationTranslationJSON                 ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG,
+                                                        proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, proshade_double xMapCen, proshade_double yMapCen,
+                                                        proshade_double zMapCen, std::string fileName );
 }
 
 #endif
