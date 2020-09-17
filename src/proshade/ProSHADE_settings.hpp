@@ -181,11 +181,7 @@ public:
     
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
-    
-private:
-    //================================================ These settings are used to determine if user overwrote the defaults or not.
-
-    
+        
 public: // maybe make this protected?
     //================================================ Variable modifying functions
     void determineBandwidthFromAngle                  ( proshade_double uncertainty );

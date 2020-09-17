@@ -1305,7 +1305,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case OverlayMap:
-                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->eulerAngles, &this->translation );
+                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->rotationCentre, &this->mapBoxMovement, &this->eulerAngles, &this->finalTranslation );
                 break;
                 
             case MapManip:
@@ -2154,6 +2154,10 @@ void ProSHADE_settings::printSettings ( )
     strstr << this->overlayStructureName;
     printf ( "Overlay file        : %37s\n", strstr.str().c_str() );
     
+    strstr.str(std::string());
+    strstr << this->rotTrsJSONFile;
+    printf ( "JSON overlay file   : %37s\n", strstr.str().c_str() );
+    
     //================================================ Done
     return ;
     
@@ -2606,21 +2610,63 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
     
 }
 
-/*! \brief This function returns the vector of translation vectors with the best overlay correlation.
+/*! \brief This function returns the negative values of the position of the rotation centre (the point about which the rotation should be done).
 
-    \param[out] ret Vector of translations which lead to the globally best overlay correlation.
+    \param[out] ret Vector specifying the negative values of the rotation centre - i.e. the translation of the rotation centre to the origin.
 */
-std::vector< proshade_double > ProSHADE_run::getTranslation ( )
+std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
 {
-    //======================================== Sanity check
-    if ( this->eulerAngles.size() != 3 )
+    //================================================ Sanity check
+    if ( this->rotationCentre.size() != 3 )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
+        return                                        ( std::vector< proshade_double > ( ) );
+    }
+    
+    //================================================ Create return variable with negative values of the internal varariable
+    std::vector < proshade_double > ret;
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(2) );
+    
+    //================================================ Return required value
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function returns the vector of all translations done intenally to the input map.
+
+    \param[out] ret Vector of all translations done intenally to the input map.
+*/
+std::vector< proshade_double > ProSHADE_run::getTranslationToMapCentre ( )
+{
+    //================================================ Sanity check
+    if ( this->mapBoxMovement.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     
     //================================================ Return required value
-    return                                            ( this->translation );
+    return                                            ( this->mapBoxMovement );
+    
+}
+
+/*! \brief This function returns the translation required to move the structure from origin to optimal overlay.
+
+    \param[out] ret Translation required to move structure from origin to optimal overlay.
+*/
+std::vector< proshade_double > ProSHADE_run::getOriginToOverlayTranslation ( )
+{
+    //================================================ Sanity check
+    if ( this->mapBoxMovement.size() != 3 )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
+        return                                        ( std::vector< proshade_double > ( ) );
+    }
+    
+    //================================================ Return required value
+    return                                            ( this->finalTranslation );
     
 }
            
@@ -2654,18 +2700,19 @@ void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
     \param[in] len The length of the array.
  */
 
-void getOptimalTranslation ( ProSHADE_run* run, double *translate, int len )
-{
-    //================================================ Get values
-    std::vector< proshade_double > vals               = run->getTranslation ( );
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        translate[iter]                               = static_cast<double> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
+//void getOptimalTranslation ( ProSHADE_run* run, double *translate, int len )
+//{
+//    //================================================ Get values
+//    std::vector< proshade_double > vals               = run->getTranslation ( );
+//
+//    //================================================ Save the data into the output array
+//    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
+//    {
+//        translate[iter]                               = static_cast<double> ( vals.at( iter ) );
+//    }
+//
+//    //================================================ Done
+//    return ;
+//
+//}
+

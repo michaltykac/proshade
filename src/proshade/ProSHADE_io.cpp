@@ -313,7 +313,9 @@ ProSHADE_internal_io::InputType ProSHADE_internal_io::figureDataType ( std::stri
  
     This function takes the initial translation (assuming that the centre of rotation is not at the centre of indices), the
     rotation (in terms of the Euler angles) and the translation detected by the overlay task and proceeds to
-    write a JSON file containing all of these information in the order in which they should be applied.
+    write a JSON file containing all of these information in the order in which they should be applied with the exception
+    that depending on around which point the rotation should be done, either the translation to origin or to the map centre
+    should be applied.
  
     This function assumes that the second translation includes the reverse of the first translation already.
  
@@ -324,11 +326,14 @@ ProSHADE_internal_io::InputType ProSHADE_internal_io::figureDataType ( std::stri
     \param[in] eulB The optimal rotation Euler angle beta.
     \param[in] eulG The optimal rotation Euler angle gamma.
     \param[in] trsX2 The optimal translation along the x-axis + reverse of the trsX1.
-    \param[in] trsY2 The optimal translation along the y-axis + reverse of the trsY1..
-    \param[in] trsZ2 The optimal translation along the z-axis + reverse of the trsZ1..
+    \param[in] trsY2 The optimal translation along the y-axis + reverse of the trsY1.
+    \param[in] trsZ2 The optimal translation along the z-axis + reverse of the trsZ1.
+    \param[in] xMapCen The translation required to move density in map to be placed correctly relating to the map centre of rotation along the x-axis.
+    \param[in] yMapCen The translation required to move density in map to be placed correctly relating to the map centre of rotation along the y-axis.
+    \param[in] zMapCen The translation required to move density in map to be placed correctly relating to the map centre of rotation along the z-axis.
     \param[in] fileName The file name of the file for which the information should be written into.
  */
-void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, std::string fileName )
+void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, proshade_double xMapCen, proshade_double yMapCen, proshade_double zMapCen, std::string fileName )
 {
     //================================================ Open file for writing
     std::ofstream jsonFile;
@@ -347,13 +352,15 @@ void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1,
     
     //================================================ Write the info
     jsonFile << "{\n";
-    jsonFile << "   \"translation1\" : [ " << trsX1 << ", " << trsY1 << ", " << trsZ1 << " ], \n";
+    jsonFile << "   \"translationToOrigin\" : [ " << trsX1 << ", " << trsY1 << ", " << trsZ1 << " ], \n";
+    
+    jsonFile << "   \"translationToMapCentre\" : [ " << xMapCen << ", " << yMapCen << ", " << zMapCen << " ], \n";
     
     jsonFile << "   \"rotationMatrix:\" : [ " << rotMat[0] << ", " << rotMat[1] << ", " << rotMat[2] << ", \n";
     jsonFile << "                         " << rotMat[3] << ", " << rotMat[4] << ", " << rotMat[5] << ", \n";
     jsonFile << "                         " << rotMat[6] << ", " << rotMat[7] << ", " << rotMat[8] << "], \n";
 
-    jsonFile << "   \"translation2\" : [ " << trsX2 << ", " << trsY2 << ", " << trsZ2 << " ] \n";
+    jsonFile << "   \"translationFromOriginToOverlay\" : [ " << trsX2 << ", " << trsY2 << ", " << trsZ2 << " ] \n";
     jsonFile << "}\n";
     
     //================================================ Close file

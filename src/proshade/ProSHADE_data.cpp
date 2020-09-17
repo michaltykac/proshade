@@ -3353,17 +3353,20 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
 
 /*! \brief This function writes out the rotated map, co-ordinates and transformation JSON file.
 
-    ...
+    This function takes basically all the results of the overlay mode and appropriately applies them to write out the
+    moved density map, if possible the moved co-ordinates and also the overlay operations listing JSON file.
  
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
-    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
-    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
-    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
-    \param[in] transX The translation to be done along the X-axis in Angstroms.
-    \param[in] transY The translation to be done along the Y-axis in Angstroms.
-    \param[in] transZ The translation to be done along the Z-axis in Angstroms.
+    \param[in] trsX The optimal x-axis translation value.
+    \param[in] trsY The optimal y-axis translation value.
+    \param[in] trsZ The optimal z-axis translation value.
+    \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
+    \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
+    \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
+    \param[in] rotCentre The rotation centre position as determined by the computeOverlayTranslations function.
+    \param[in] ultimateTranslation The final translation as determined by the computeOverlayTranslations function.
 */
-void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ )
+void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre, std::vector< proshade_double >* ultimateTranslation )
 {
     //================================================ Write out rotated map
     std::stringstream fNameHlp;
@@ -3375,16 +3378,46 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        this->writePdb                                ( fNameHlp.str(), euA, euB, euG, transX, transY, transZ, settings->firstModelOnly );
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ, settings->firstModelOnly );
     }
     
     //================================================ Write out the json file with the results
+    ProSHADE_internal_io::writeRotationTranslationJSON ( -rotCentre->at(0), -rotCentre->at(1), -rotCentre->at(2),
+                                                         eulA, eulB, eulG,
+                                                         ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2),
+                                                         this->comMovX, this->comMovY, this->comMovZ, settings->rotTrsJSONFile );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function sets the correct translation values for the overlay mode.
+
+    This function takes the translation as computed by the translation function (in the last three input variables) and proceeds  to
+    compute and save the initial centre of rotation as well as the ultimate translation to be done after rotation to obtain the optimal
+    overlay of the moving structure over the static structure.
+    
+    \param[in] rcX Pointer to where to save the rotation centre position along the X-axis in Angstroms.
+    \param[in] rcY Pointer to where to save the rotation centre position along the Y-axis in Angstroms.
+    \param[in] rcZ Pointer to where to save the rotation centre position along the Z-axis in Angstroms.
+    \param[in] transX Pointer to where to save the translation to be done along the X-axis in Angstroms. This variable should already have the computed translation from the translation map.
+    \param[in] transY Pointer to where to save the translation to be done along the Y-axis in Angstroms. This variable should already have the computed translation from the translation map.
+    \param[in] transZ Pointer to where to save the translation to be done along the Z-axis in Angstroms. This variable should already have the computed translation from the translation map.
+*/
+void ProSHADE_internal_data::ProSHADE_data::computeOverlayTranslations ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ, proshade_double* transX, proshade_double* transY, proshade_double* transZ )
+{
+    //================================================ Write out the json file with the results
     if ( ProSHADE_internal_io::isFilePDB ( this->fileName ) )
     {
-        //============================================ Write out JSON
-        ProSHADE_internal_io::writeRotationTranslationJSON ( -this->originalPdbRotCenX, -this->originalPdbRotCenY, -this->originalPdbRotCenZ,
-                                                             euA, euB, euG,
-                                                             this->originalPdbTransX, this->originalPdbTransY, this->originalPdbTransZ, settings->rotTrsJSONFile );
+        //============================================ If PDB, we already have these
+       *rcX                                           = this->originalPdbRotCenX;
+       *rcY                                           = this->originalPdbRotCenY;
+       *rcZ                                           = this->originalPdbRotCenZ;
+         
+       *transX                                        = *transX + this->originalPdbRotCenX;
+       *transY                                        = *transY + this->originalPdbRotCenY;
+       *transZ                                        = *transZ + this->originalPdbRotCenZ;
     }
     else
     {
@@ -3399,11 +3432,58 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
                                                           ( static_cast<proshade_double> ( this->zDimIndicesOriginal - 1 ) / this->zDimSizeOriginal ) ) -
                                                           (this->comMovZ);
         
-        //============================================ Write out JSON
-        ProSHADE_internal_io::writeRotationTranslationJSON ( -xRotPos, -yRotPos, -zRotPos,
-                                                             euA, euB, euG,
-                                                             transX + xRotPos, transY + yRotPos, transZ + zRotPos, settings->rotTrsJSONFile );
+        //============================================ And save
+        *rcX                                           = xRotPos;
+        *rcY                                           = yRotPos;
+        *rcZ                                           = zRotPos;
+          
+        *transX                                        = *transX + xRotPos;
+        *transY                                        = *transY + yRotPos;
+        *transZ                                        = *transZ + zRotPos;
     }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function reports the results of the overlay mode.
+
+    \param[in] settings ProSHADE_settings object specifying the details of how the computations should be done.
+    \param[in] rotationCentre Pointer to vector for saving the position of the centre of rotation about which the rotation is to be done.
+    \param[in] mapBoxMovement Pointer to vector for saving the sum of all translations done internally by ProSHADE to this input map.
+    \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
+    \param[in] finalTranslation Pointer to a vector where the translation required to move structure from origin to optimal overlay with static structure will be saved into.
+*/
+void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
+{
+    //================================================ Empty line
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "" );
+    
+    //================================================ Write out rotation centre translation results
+    std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is: " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str() );
+    
+    //================================================ Write out internal map translation results
+    std::stringstream mapBox; mapBox << std::setprecision (3) << std::showpos << "The within box internal map translation vector is  : " << mapBoxMovement->at(0) << "     " << mapBoxMovement->at(1) << "     " << mapBoxMovement->at(2);
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, mapBox.str() );
+    
+    //================================================ Write out rotation matrix about origin
+    proshade_double* rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulerAngles->at(0), eulerAngles->at(1), eulerAngles->at(2), rotMat );
+    
+    std::stringstream rotMatSS;
+    rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotMatSS.str() );
+    
+    delete[] rotMat;
+    
+    //================================================ Write out origin to overlay translation results
+    std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The origin to overlay translation vector is        : " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, finTrs.str() );
     
     //================================================ Done
     return ;

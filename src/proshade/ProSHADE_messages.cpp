@@ -32,7 +32,7 @@ void ProSHADE_internal_messages::printWellcomeMessage ( proshade_signed verbose 
 {
     if ( verbose >= 0 )
     {
-        std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
+        std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "============================" << std::endl << std::endl << std::flush;
     }
     
     //================================================ Done
