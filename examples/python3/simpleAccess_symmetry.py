@@ -173,8 +173,8 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 
 ##############################################
 ### Expected output
-#   Requested detection of symmetry C-3 and ProSHADE detected:
-#   Detected symmetry C-3 with axes:
+#   Requested detection of symmetry C-3 and ProSHADE detected: 
+#   Detected symmetry C-3 with axes: 
 #   Fold      x         y         z       Angle     Height
 #     3    -0.013    +0.016    +1.000    +2.094    +0.9514
 

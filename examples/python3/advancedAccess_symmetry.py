@@ -76,7 +76,7 @@ for iter in range ( 0, len( symmetryAxes ) ):
      print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( symmetryAxes[iter][0], symmetryAxes[iter][1], symmetryAxes[iter][2], symmetryAxes[iter][3], symmetryAxes[iter][4], symmetryAxes[iter][5] ) )
 
 ### Expected output
-#   Detected C-12 symetry.
+#   Detected C-12 symetry. 
 #   Fold      x         y         z       Angle     Height
 #     12    -0.012    +0.004    +1.000    +0.524    +0.9621
 

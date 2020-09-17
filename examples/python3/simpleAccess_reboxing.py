@@ -121,7 +121,7 @@ for iter in range ( 0, len ( originalBounds ) ):
 ##############################################
 ### Expected output
 #   Structure 0 had bounds -128.0 - 127.0 ; -128.0 - 127.0 ; -128.0 - 127.0 and is now re-boxed to -94.0 - 93.0 ; -94.0 - 93.0 ; -136.0 - 135.0
-#     This structure's re-boxed map has been read into Python as <class 'numpy.ndarray'> with 9613568 points having mean of 0.0031730930564091075
+#   This structure's re-boxed map has been read into Python as <class 'numpy.ndarray'> with 9613568 points having mean of 0.0031730930564091075
 
 ##############################################
 ### Done

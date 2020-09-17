@@ -128,6 +128,8 @@ void getReBoxedBoundsVectorNumpy                      ( ProSHADE_run* run, prosh
 void getReBoxedMap                                    ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
                   
 void getOptimalEulerAngles                            ( ProSHADE_run* run, double *eulerAngs, int len );
-//void getOptimalTranslation                            ( ProSHADE_run* run, double *translate, int len );
+void getToOriginTranslation                           ( ProSHADE_run* run, double *toOriginTranslation, int len );
+void getToMapCentreTranslation                        ( ProSHADE_run* run, double *toMapCentreTranslation, int len );
+void getOriginToOverlayTranslation                    ( ProSHADE_run* run, double *originToOverlayTranslation, int len );
 
 #endif

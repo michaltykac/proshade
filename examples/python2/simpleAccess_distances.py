@@ -112,7 +112,7 @@ rotFunDistances                               = proshade.getRotationFunctionDesc
 ### Expected output
 #   Energy levels distances      : 0.8984338794121268    0.6012626312302949
 #   Trace sigma distances        : 0.9586515647570873    0.7669313554309691
-#   Rotation function distances  : 0.7942379183355734    0.5949845163438436
+#   Rotation function distances  : 0.6263392558812969    0.5360650709850836
 
 ##############################################
 ### Delete the C++ pointers

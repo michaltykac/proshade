@@ -605,7 +605,7 @@ Band4OrderOneMin2OrderTwo3EMatrixValue        = eMat[4][2][7] # Band = 4, Order1
 ### so3CoeffsArrayIndex() function as shown.
 ###
 so3Coeffs                                     = proshade.getSO3Coeffs( pStruct )
-so3CoeffsOrderOneMin1OrderTwo3Band5           = so3Coeffs[pStruct.so3CoeffsArrayIndex ( -1, 3, 5 )] # Accessing SO(3) coefficient value order1 = -1; order2 = 3, band = 5
+so3CoeffsOrderOneMin1OrderTwo3Band5           = so3Coeffs[5][3][-1] # Accessing SO(3) coefficient value order1 = -1; order2 = 3, band = 5
 
 ##############################################
 ### Accessing self-rotation function

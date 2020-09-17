@@ -2693,26 +2693,71 @@ void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
     
 }
 
-/*! \brief This function returns the optimal translatoin (for Numpy).
+/*! \brief This function returns the translation to origin (for Numpy).
  
     \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] eulerAngs Array to which the values are to be loaded into.
+    \param[in] toOriginTranslation Array to which the values are to be loaded into.
     \param[in] len The length of the array.
  */
 
-//void getOptimalTranslation ( ProSHADE_run* run, double *translate, int len )
-//{
-//    //================================================ Get values
-//    std::vector< proshade_double > vals               = run->getTranslation ( );
-//
-//    //================================================ Save the data into the output array
-//    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-//    {
-//        translate[iter]                               = static_cast<double> ( vals.at( iter ) );
-//    }
-//
-//    //================================================ Done
-//    return ;
-//
-//}
+void getToOriginTranslation ( ProSHADE_run* run, double *toOriginTranslation, int len )
+{
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getTranslationToOrigin ( );
+    
+    //======================================== Save the data into the output array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
+    {
+        toOriginTranslation[iter]                     = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
 
+/*! \brief This function returns the internal translations sum (for Numpy).
+ 
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] toMapCentreTranslation Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getToMapCentreTranslation ( ProSHADE_run* run, double *toMapCentreTranslation, int len )
+{
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getTranslationToMapCentre ( );
+    
+    //======================================== Save the data into the output array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
+    {
+        toMapCentreTranslation[iter]                  = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns the translation from origin to the optimal overlay location (for Numpy).
+ 
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] originToOverlayTranslation Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getOriginToOverlayTranslation ( ProSHADE_run* run, double *originToOverlayTranslation, int len )
+{
+    //================================================ Get values
+    std::vector< proshade_double > vals               = run->getOriginToOverlayTranslation ( );
+    
+    //======================================== Save the data into the output array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
+    {
+        originToOverlayTranslation[iter]              = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}

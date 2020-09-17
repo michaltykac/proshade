@@ -124,7 +124,7 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 ### Expected output
 #   Detected symmetry C-12 with axes:
 #   Fold      x         y         z       Angle     Height
-#     12    -0.015    +0.020    +0.999    +0.524    +0.1788
+#     12    -0.015    +0.020    +0.999    +0.524    +0.1800
 
 ##############################################
 ### Create the ProSHADE_settings object to test requesting symmetry

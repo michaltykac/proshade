@@ -40,6 +40,7 @@
 #include "Python.h"
 #include "ProSHADE_typedefs.hpp"
 #include "ProSHADE_settings.hpp"
+#include "ProSHADE_io.hpp"
 #include "ProSHADE_data.hpp"
 #include "ProSHADE_distances.hpp"
 #include "ProSHADE.hpp"
@@ -70,7 +71,9 @@ import_array();
 
 //============================================ Apply the numpy typemaps for overlay
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eulerAngs, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *translate, int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toOriginTranslation, int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toMapCentreTranslation, int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *originToOverlayTranslation, int len ) }
 
 //============================================ Apply the numpy typemaps for ProSHADE_data functions
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *mapArrayPython,     int len ) }
@@ -93,6 +96,7 @@ import_array();
 //============================================ Include the pythonised ProSHADE code to SWIG
 %include "ProSHADE_typedefs.hpp"
 %include "ProSHADE_settings.hpp"
+%include "ProSHADE_io.hpp"
 %include "ProSHADE_data.hpp"
 %include "ProSHADE_distances.hpp"
 %include "ProSHADE.hpp"
@@ -164,9 +168,6 @@ def getReboxMap ( pRun ):
 def getEulerAngles ( pRun ):
     return                                    ( getOptimalEulerAngles ( pRun, 3 ) )
     
-def getTranslation ( pRun ):
-    return                                    ( getOptimalTranslation ( pRun, 3 ) )
-    
 def getRotationMat ( pRun ):
     import numpy
     eAngs                                     = getEulerAngles ( pRun )
@@ -186,6 +187,64 @@ def getRotationMat ( pRun ):
     ret[2][2]                                 =  numpy.cos ( eAngs[1] );
     
     return                                    ( ret )
+    
+def getNumpyTranslationToOrigin ( pRun ):
+    import numpy
+    return                                    ( numpy.array ( getToOriginTranslation ( pRun, 3 ) ) )
+    
+def getNumpyTranslationToMapCentre ( pRun ):
+    import numpy
+    return                                    ( numpy.array ( getToMapCentreTranslation ( pRun, 3 ) ) )
+    
+def getNumpyOriginToOverlayTranslation ( pRun ):
+    import numpy
+    return                                    ( numpy.array ( getOriginToOverlayTranslation ( pRun, 3 ) ) )
+    
+def computeOverlayTranslationsNumpy           ( pStruct, maxPeakVector ):
+    import numpy
+    if isFilePDB ( pStruct.fileName ):
+        rotCen                                = numpy.empty ( 3 )
+        rotCen[0]                             = pStruct.originalPdbRotCenX
+        rotCen[1]                             = pStruct.originalPdbRotCenY
+        rotCen[2]                             = pStruct.originalPdbRotCenZ
+        
+        toOverlay                             = numpy.empty ( 3 )
+        toOverlay[0]                          = maxPeakVector[0] + pStruct.originalPdbRotCenX
+        toOverlay[1]                          = maxPeakVector[0] + pStruct.originalPdbRotCenX
+        toOverlay[2]                          = maxPeakVector[0] + pStruct.originalPdbRotCenX
+        
+        toMapCen                              = numpy.empty ( 3 )
+        toMapCen[0]                           = pStruct.comMovX
+        toMapCen[1]                           = pStruct.comMovY
+        toMapCen[2]                           = pStruct.comMovZ
+        
+        return                                ( rotCen, toMapCen, toOverlay )
+    else:
+        xRotPos                               = ( ( ( pStruct.xDimIndicesOriginal / 2 ) - pStruct.xAxisOriginOriginal ) *
+                                                  ( ( pStruct.xDimIndicesOriginal - 1 ) / pStruct.xDimSizeOriginal ) ) - ( pStruct.comMovX )
+        yRotPos                               = ( ( ( pStruct.yDimIndicesOriginal / 2 ) - pStruct.yAxisOriginOriginal ) *
+                                                  ( ( pStruct.yDimIndicesOriginal - 1 ) / pStruct.yDimSizeOriginal ) ) - ( pStruct.comMovY )
+        zRotPos                               = ( ( ( pStruct.zDimIndicesOriginal / 2 ) - pStruct.zAxisOriginOriginal ) *
+                                                  ( ( pStruct.zDimIndicesOriginal - 1 ) / pStruct.zDimSizeOriginal ) ) - ( pStruct.comMovZ )
+        
+        rotCen                                = numpy.empty ( 3 )
+        rotCen[0]                             = xRotPos
+        rotCen[1]                             = yRotPos
+        rotCen[2]                             = zRotPos
+        
+        toOverlay                             = numpy.empty ( 3 )
+        toOverlay[0]                          = maxPeakVector[0] + xRotPos
+        toOverlay[1]                          = maxPeakVector[0] + yRotPos
+        toOverlay[2]                          = maxPeakVector[0] + zRotPos
+        
+        toMapCen                              = numpy.empty ( 3 )
+        toMapCen[0]                           = pStruct.comMovX
+        toMapCen[1]                           = pStruct.comMovY
+        toMapCen[2]                           = pStruct.comMovZ
+        
+        return                                ( rotCen, toMapCen, toOverlay )
+        
+    
 %}
 
 //============================================ Spherical harmonics access
@@ -239,10 +298,17 @@ def getEMatrix ( pStruct ):
 %pythoncode %{
 def getSO3Coeffs ( pStruct ):
     import numpy
+    ret                                       = numpy.empty ( [ pStruct.getMaxBand(),
+                                                                len ( range( -pStruct.getMaxBand(), ( pStruct.getMaxBand() + 1 ) ) ),
+                                                                len ( range( -pStruct.getMaxBand(), ( pStruct.getMaxBand() + 1 ) ) ) ], dtype = complex )
 
     realSO3Coeffs                             = pStruct.getRealSO3Coeffs ( int ( ( 4 * numpy.power ( pStruct.getMaxBand(), 3 )  - pStruct.getMaxBand() ) / 3.0 ) )
     imagSO3Coeffs                             = pStruct.getImagSO3Coeffs ( int ( ( 4 * numpy.power ( pStruct.getMaxBand(), 3 )  - pStruct.getMaxBand() ) / 3.0 ) )
-    ret                                       = realSO3Coeffs + 1j * imagSO3Coeffs
+    
+    for bnd in range ( 0, pStruct.getMaxBand() ):
+        for ord1 in range ( -bnd, ( bnd + 1 ) ):
+            for ord2 in range ( -bnd, ( bnd + 1 ) ):
+                ret[bnd][ord1][ord2]          = realSO3Coeffs[pStruct.so3CoeffsArrayIndex ( ord1, ord2, bnd )] + 1j * imagSO3Coeffs[pStruct.so3CoeffsArrayIndex ( ord1, ord2, bnd )]
                 
     return                                    ( ret )
 %}

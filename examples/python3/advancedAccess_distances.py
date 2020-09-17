@@ -74,7 +74,7 @@ print ( "The rotation function distance is      %+1.3f" % ( fullRotationFunction
 ### Expected output
 #   The energy levels distance is          +0.895
 #   The trace sigma distance is            +0.960
-#   The rotation function distance is      +0.756
+#   The rotation function distance is      +0.733
 
 ### Release C++ pointers
 del pStruct1
