@@ -175,15 +175,15 @@ def getRotationMat ( pRun ):
     ret                                       = numpy.empty ( ( 3, 3 ) )
     
     ret[0][0]                                 =  numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.cos ( eAngs[2] ) - numpy.sin ( eAngs[0] ) * numpy.sin ( eAngs[2] );
-    ret[0][1]                                 =  numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.cos ( eAngs[2] ) + numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[2] );
-    ret[0][2]                                 = -numpy.sin ( eAngs[1] ) * numpy.cos ( eAngs[2] );
+    ret[1][0]                                 =  numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.cos ( eAngs[2] ) + numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[2] );
+    ret[2][0]                                 = -numpy.sin ( eAngs[1] ) * numpy.cos ( eAngs[2] );
     
-    ret[1][0]                                 = -numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.sin ( eAngs[2] ) - numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[2] );
+    ret[0][1]                                 = -numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.sin ( eAngs[2] ) - numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[2] );
     ret[1][1]                                 = -numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.sin ( eAngs[2] ) + numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[2] );
-    ret[1][2]                                 =  numpy.sin ( eAngs[1] ) * numpy.sin ( eAngs[2] );
+    ret[2][1]                                 =  numpy.sin ( eAngs[1] ) * numpy.sin ( eAngs[2] );
     
-    ret[2][0]                                 =  numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
-    ret[2][1]                                 =  numpy.sin ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
+    ret[0][2]                                 =  numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
+    ret[1][2]                                 =  numpy.sin ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
     ret[2][2]                                 =  numpy.cos ( eAngs[1] );
     
     return                                    ( ret )
@@ -370,15 +370,15 @@ def getRotationMatrixFromEulerZXZ ( eAngs ):
     ret                                       = numpy.empty ( ( 3, 3 ) )
     
     ret[0][0]                                 =  numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.cos ( eAngs[2] ) - numpy.sin ( eAngs[0] ) * numpy.sin ( eAngs[2] );
-    ret[0][1]                                 =  numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.cos ( eAngs[2] ) + numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[2] );
-    ret[0][2]                                 = -numpy.sin ( eAngs[1] ) * numpy.cos ( eAngs[2] );
+    ret[1][0]                                 =  numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.cos ( eAngs[2] ) + numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[2] );
+    ret[2][0]                                 = -numpy.sin ( eAngs[1] ) * numpy.cos ( eAngs[2] );
     
-    ret[1][0]                                 = -numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.sin ( eAngs[2] ) - numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[2] );
+    ret[0][1]                                 = -numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.sin ( eAngs[2] ) - numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[2] );
     ret[1][1]                                 = -numpy.sin ( eAngs[0] ) * numpy.cos ( eAngs[1]  ) * numpy.sin ( eAngs[2] ) + numpy.cos ( eAngs[0] ) * numpy.cos ( eAngs[2] );
-    ret[1][2]                                 =  numpy.sin ( eAngs[1] ) * numpy.sin ( eAngs[2] );
+    ret[2][1]                                 =  numpy.sin ( eAngs[1] ) * numpy.sin ( eAngs[2] );
     
-    ret[2][0]                                 =  numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
-    ret[2][1]                                 =  numpy.sin ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
+    ret[0][2]                                 =  numpy.cos ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
+    ret[1][2]                                 =  numpy.sin ( eAngs[0] ) * numpy.sin ( eAngs[1]  );
     ret[2][2]                                 =  numpy.cos ( eAngs[1] );
     
     return                                    ( ret )
