@@ -978,17 +978,17 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
 {
     //================================================ First row
     matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[3]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[6]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
+    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
   
     //================================================ Second row
-    matrix[1]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
     matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
-    matrix[7]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
+    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
   
     //================================================ Third row
-    matrix[2]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
-    matrix[5]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
     matrix[8]                                         =  cos ( eulerBeta  );
     
     //================================================ Done
