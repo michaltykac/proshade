@@ -385,14 +385,27 @@
  * static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity
  * (\p --verbose) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
  *
- *  Regarding the output, ProSHADE outputs three different translation vectors with the following meaning:
- * - \b 1) \b Rotation \b centre \b to \b origin \b translation - this translation vector takes the location of the point in "visualisation" space about which the rotation should be done and produces a translation vector which moves it to the origin on space (not cell), \e i.e. 0; 0; 0.
+ * Regarding the output, ProSHADE outputs three different translation vectors with the following meaning (and the rotation matrix):
+ * - \b 1) \b Rotation \b centre \b to \b origin \b translation** - this translation vector takes the location of the point in \e visualisation space about which the rotation should be done and produces a translation vector which moves it to the origin of space (not map box), \e i.e. 0; 0; 0.
  * - \b 2) \b Within \b box \b translation - this translation vector is the sum of all translations done by ProSHADE to the internal representation between reading it and computing the translation function.
  * - \b 3) \b Origin \b to \b overlay \b translation - this translation assumes that the first translation vector has been applied to the structure and describes how the structure needs to be moved to be placed in optimal overlay position relative to the static structure.
  *
- * Generally, which of these translation vectors you need to apply to move the moving structure to overlay with the static structure will depend on what is the input type and how exactly the rotation is done. For examples, if the input is co-ordinate file, then
- * translation 1) needs to be done, then rotation needs to be applied and then translation 3) is required, but translation 2) is of no use. However, if the input is map, which will be rotated in the box (rather than at the space origin) and which will be rotated about
- * the centre of the map box, then translation 2) needs to be applied (to move ProSHADE centre of rotation to the centre of map), the rotation needs to be done and finally translation 3) minus translation 1) will be the required final translation.
+ * The purpose behind these three translation vectors is to accomodate for various scenarios mainly relating to about which point the rotation is to be done. More specifically, let us consider the following three cases:
+ * - \b Rotation \b about \b the \b origin - This case is typical for co-ordinate data, where each XYZ position is multiplied with the rotation matrix to obtain the new position. This method of applying the rotation matrix makes the implicit assumption
+ * that the point about which the rotation is to be done is at the origin of the system and therefore the co-ordinates need to be moved to the origin of the system before the rotation is applied; the translation vector \b 1) serves for this purpose. Subsequently,
+ * after applying the rotation to the co-ordinates, they need to be moved to a position of optimal overlay with the static structure - this can be done using the translation vector \b 3) .
+ * - \b Rotation \b about \b the \b centre \b of \b mass - This is often the case for density data, where it may be assumed that the centre of mass is the origin of the rotated system (ignoring the standard of using the lowest indices along each axis
+ * to determine the \e real \e world or \e visualisation space position in Angstroms). In this case, the rotation should be applied immediately as translation has no effect on rotation (\e i.e. the point about which the rotation is done is translated along with
+ * the density). Next, in order to achieve optimal overlay position of the now rotated density, it needs to be translated from the rotation centre to the optimal overlay position. To get such translation vector, translation vector \b 1) needs to be applied first and
+ * translation vector \b 3) needs to be applied right after (or in one step applying the translation \b 1) + \b 3) ).
+ * - \b Rotation \b about \b the \b centre \b of \b map - This is sometimes the case for density data, where it may be assumed that the centre of map is the origin of the rotated system (again, ignoring the standard of using the lowest
+ * indices along each axis to determine the \e real \e world or \e visualisation space position in Angstroms). In this case, it is firstly required that the point about which the rotation is to be done is moved to the centre of map; to do this, translation
+ * vector \b 2) needs to be applied. Next, similarly to the previous case, the rotation needs to be applied and the translation from the centre of map to the optimal overlay position needs to be determined. To do this, same combination of \b 1) + \b 3) needs
+ * to be used, but this time the effect of the initial translation of \b 2) also needs to be reversed, so the final translation vector to be applied should be \b 1) + \b 3) - \b 2) .
+ 
+ * \b Warning: In order to allow visualisation of the results of ProSHADE overlap task, the translation is computed in the \e real \e world or \e visualisation space; this however has the implication that if the moving structure is a density, then the
+ * densty box may need to be moved in such a way that it contains the static structure's position. Therefore, the \b translation \b computed \b as \b described \b above \b should \b not \b be \b applied \b to \b the \b density \b in
+ * \b box, \b but \b rather \b to \b the \b box \b itself (or possibly if such box translation cannot be done perfectly, then the remainder of the imperfect box translation can be done within the box).
  *
  * \image html ProSHADE_overlay.jpg width=500cm
  *
