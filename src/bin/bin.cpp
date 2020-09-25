@@ -222,6 +222,12 @@
  * map. This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of co-ordinates) will
  * be found to have no symmetries even if these are present, just not over the co-ordinate centre.
  *
+ * It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (\e i.e. either through the dynamic C++ library or through
+ * the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all
+ * detected dihedral, tetrahedral, ... symmetries and the axes forming them) and also the ability to compute all point group elements for any particular cyclic point group excluding the identity element; these
+ * can then be combined to obtain the full list of all point group elements for any ProSHADE detectable symmetry type. For more details on these functinoalities, the users are invited to consult the
+ * \e advancedAccess_symmetry.cpp/py example files in the \b examples folder.
+ *
  * To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the
  * symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \a C12 symmetry. The visualisation of the structure is
  * shown in the following figure, while the output of the ProSHADE tool follows:

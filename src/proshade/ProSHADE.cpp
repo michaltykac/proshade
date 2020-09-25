@@ -2365,6 +2365,16 @@ proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
 
     \param[out] val The length of the recommended symmetry axes vector.
 */
+proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
+{
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
+}
+
+/*! \brief This function returns the number of detected recommended symmetry axes.
+
+    \param[out] val The length of the recommended symmetry axes vector.
+*/
 proshade_unsign ProSHADE_run::getNoRecommendedSymmetryAxes ( )
 {
     //================================================ Return the value

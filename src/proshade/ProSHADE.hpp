@@ -95,6 +95,7 @@ public:
     //================================================ Symmetry accessor functions
     proshade_unsign getNoRecommendedSymmetryAxes      ( void );
     proshade_unsign getAllSymsOneArrayLength          ( void );
+    proshade_unsign getNoSymmetryAxes                 ( void );
     
 public:
     //================================================ Distances results accessor functions

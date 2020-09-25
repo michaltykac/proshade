@@ -16,7 +16,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
 */
 
@@ -101,6 +101,13 @@ int main ( int argc, char **argv )
 //   ...   Fold       X           Y          Z           Angle        Height
 //   ...    +12     -0.00407   +0.01259   +0.99983     +0.52360      +0.95517
 
+    //================================================ Get list of all detected cyclic symmetries
+    std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
+    std::cout << "Found a total of " << allCs.size() << " cyclic symmetries." << std::endl;
+    
+    //================================================ Expected output
+//  Found a total of 9 cyclic symmetries.
+    
     //================================================ Release the settings and runProshade objects
     delete runProshade;
     delete settings;
