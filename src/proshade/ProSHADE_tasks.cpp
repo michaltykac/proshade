@@ -315,9 +315,6 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         //============================================ Report results
         symmetryStructure->reportSymmetryResults      ( settings );
         
-//        std::cout << "Found total of: " << allCs->size() << " axes." << std::endl;
-//        exit (0);
-        
         //============================================ Release memory
         delete symmetryStructure;
     }

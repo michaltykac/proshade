@@ -2819,11 +2819,11 @@ void getAllCSymmetriesOneArrayAdvanced ( ProSHADE_settings* settings, double *al
 {
     //================================================ Save the data into the output array
     proshade_unsign counter                           = 0;
-    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( settings->allDetectedAxes.size() ); axIt++)
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); axIt++)
     {
-        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( settings->allDetectedAxes.at(axIt).size() ); valIt++)
+        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.at(axIt).size() ); valIt++)
         {
-            allCSymsArray[counter]                    = static_cast<double> ( settings->allDetectedAxes.at(axIt).at(valIt) );
+            allCSymsArray[counter]                    = static_cast<double> ( settings->allDetectedCAxes.at(axIt).at(valIt) );
             counter                                  += 1;
         }
     }

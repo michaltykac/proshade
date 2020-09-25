@@ -93,6 +93,7 @@ import_array();
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunReal,         int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunImag,         int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *allCSymsArray,      int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* groupElements,      int len ) }
 
 //============================================ Include the pythonised ProSHADE code to SWIG
 %include "ProSHADE_typedefs.hpp"
@@ -163,6 +164,25 @@ def getAllDetectedSymmetryAxes ( pStruct, pSet ):
         retArr[iter][4]                       = valArr[iter*6+4]
         retArr[iter][5]                       = valArr[iter*6+5]
     return                                    ( retArr )
+    
+def getGroupElementsRotMat ( pStruct, pSet, grPos ):
+    import numpy
+    valArr                                    = pStruct.getGroupElementsPython ( pSet, pStruct.getGroupElementsLength( pSet, grPos ), grPos )
+    ret                                       = []
+    
+    for iter in range ( 0, int ( pStruct.getGroupElementsLength( pSet, grPos ) / 9 ) ):
+        rotM                                  = numpy.zeros ( [ 3, 3 ], dtype="float32" )
+        rotM[0][0]                            = valArr[iter*9+0]
+        rotM[0][1]                            = valArr[iter*9+1]
+        rotM[0][2]                            = valArr[iter*9+2]
+        rotM[1][0]                            = valArr[iter*9+3]
+        rotM[1][1]                            = valArr[iter*9+4]
+        rotM[1][2]                            = valArr[iter*9+5]
+        rotM[2][0]                            = valArr[iter*9+6]
+        rotM[2][1]                            = valArr[iter*9+7]
+        rotM[2][2]                            = valArr[iter*9+8]
+        ret.append                            ( rotM )
+    return                                    ( ret )
 %}
     
 //============================================ Reboxing

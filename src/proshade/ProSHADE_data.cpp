@@ -1799,7 +1799,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( ProSHADE_settings* settings )
 {
     //================================================ Run the algorithm
-    this->detectSymmetryInStructure                   ( settings, &settings->detectedSymmetry, &settings->allDetectedAxes );
+    this->detectSymmetryInStructure                   ( settings, &settings->detectedSymmetry, &settings->allDetectedCAxes );
     
     //================================================ Done
     return ;
@@ -2186,6 +2186,119 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
     {
         settings->setRecommendedSymmetry              ( "" );
         settings->setRecommendedFold                  ( 0 );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes the group elements as rotation matrices (except for the identity element) for any detected point group.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] allCSyms A vector of vectors of doubles, each array being a single Cyclic symmetry entry in a vector of all detected Cyclic symmetries.
+    \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
+    \param[out] val A vector containing a vector of 9 (rotation matrix) for each group element for the requested group, except for the identity element.
+ */
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::computeGroupElementsForGroup ( ProSHADE_settings* settings, std::vector<std::vector< proshade_double > >* allCSyms, proshade_unsign grPosition )
+{
+    //================================================ Sanity check
+    if ( grPosition >= static_cast<proshade_unsign> ( allCSyms->size() ) )
+    {
+        std::stringstream hlpSS;
+        hlpSS << "The request for group elements of group " << grPosition << " cannot be\n                    : processed, as the list of all groups does not have\n                    : group with this index.";
+        throw ProSHADE_exception ( "Requested group elements for group which does not exist.", "ES00057", __FILE__, __LINE__, __func__, hlpSS.str() );
+    }
+    
+    //================================================ Initialise variables
+    std::vector<std::vector< proshade_double > > ret;
+    proshade_double groupAngle                        = ( 2 * M_PI ) / static_cast<proshade_double> ( allCSyms->at(grPosition).at(0) );
+    proshade_double* rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Generate Cn elements
+    
+    for ( proshade_unsign elIt = 1; elIt < static_cast<proshade_unsign> ( allCSyms->at(grPosition).at(0) ); elIt++ )
+    {
+        //============================================ Find the element angle
+        proshade_double thisElementAngle              = static_cast<proshade_double> ( elIt ) * groupAngle;
+        
+        //============================================ Combine it with the group axis and get rotation matrix
+        ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat,
+                                                                  allCSyms->at(grPosition).at(1),
+                                                                  allCSyms->at(grPosition).at(2),
+                                                                  allCSyms->at(grPosition).at(3),
+                                                                  thisElementAngle );
+        
+        //============================================ Save the element rotation matrix to the return vector
+        std::vector<proshade_double> retEl;
+        for ( unsigned int matIt = 0; matIt < 9; matIt++ )
+        {
+            ProSHADE_internal_misc::addToDoubleVector ( &retEl, rotMat[matIt] );
+        }
+        ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, retEl );
+    }
+    
+    //================================================ Release memory
+    delete[] rotMat;
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function returns the length of 1D array that could hold all the group elements rotation matrices.
+ 
+    Note: This is required for passing the values to python, otherwise the function has no usage.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
+    \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
+ */
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getGroupElementsLength ( ProSHADE_settings* settings, proshade_unsign grPosition )
+{
+    //================================================ Sanity check
+    if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
+    {
+        std::stringstream hlpSS;
+        hlpSS << "The request for group elements of group " << grPosition << " cannot be\n                    : processed, as the list of all groups does not have\n                    : group with this index.";
+        throw ProSHADE_exception ( "Requested group elements for group which does not exist.", "ES00057", __FILE__, __LINE__, __func__, hlpSS.str() );
+    }
+    
+    //================================================ Done
+    return                                            ( static_cast<proshade_unsign> ( settings->allDetectedCAxes.at(grPosition).at(0) - 1 ) * 9 );
+    
+}
+
+/*! \brief This function computes the group elements rotation matrices (except for the identity element) for requested group and fills the supplied 1D array with them.
+ 
+    \warning The identity element is ignored by this function.
+    \warning This function has specific signature for SWIG processing into proshade Python module, please use the computeGroupElementsForGroup() funtion
+    for C++ access.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
+ */
+void ProSHADE_internal_data::ProSHADE_data::getGroupElementsPython ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition )
+{
+    //================================================ Sanity check
+    if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
+    {
+        std::stringstream hlpSS;
+        hlpSS << "The request for group elements of group " << grPosition << " cannot be\n                    : processed, as the list of all groups does not have\n                    : group with this index.";
+        throw ProSHADE_exception ( "Requested group elements for group which does not exist.", "ES00057", __FILE__, __LINE__, __func__, hlpSS.str() );
+    }
+        
+    //================================================ Get the matrices
+    std::vector<std::vector< proshade_double > > grElements = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, grPosition );
+    
+    //================================================ Copy to Python array
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( grElements.size() ); elIt++ )
+    {
+        for ( proshade_unsign matIt = 0; matIt < 9; matIt++ )
+        {
+            groupElements[(elIt*9)+matIt]             = grElements.at(elIt).at(matIt);
+        }
     }
     
     //================================================ Done
@@ -3314,7 +3427,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryA
 proshade_unsign ProSHADE_internal_data::ProSHADE_data::getAllSymsOneArrayLength ( ProSHADE_settings* settings )
 {
     //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( settings->allDetectedAxes.size() * 6 ) );
+    return                                            ( static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() * 6 ) );
 }
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.

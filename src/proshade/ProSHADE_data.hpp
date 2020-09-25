@@ -228,6 +228,11 @@ namespace ProSHADE_internal_data
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes );
+        std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( ProSHADE_settings* settings,
+                                                                                    std::vector<std::vector< proshade_double > >* allCSyms,
+                                                                                    proshade_unsign grPosition );
+        proshade_unsign getGroupElementsLength        ( ProSHADE_settings* settings, proshade_unsign grPosition );
+        void getGroupElementsPython                   ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
         //============================================ Map overlay functions
