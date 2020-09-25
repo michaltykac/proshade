@@ -70,30 +70,31 @@ import_array();
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *reboxMap, int len ) }
 
 //============================================ Apply the numpy typemaps for overlay
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eulerAngs, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toOriginTranslation, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toMapCentreTranslation, int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eulerAngs,                  int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toOriginTranslation,        int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toMapCentreTranslation,     int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *originToOverlayTranslation, int len ) }
 
 //============================================ Apply the numpy typemaps for ProSHADE_data functions
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *mapArrayPython,     int len ) }
-%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapChangedInPython, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsReal, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsImag, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMReal,        int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMImag,        int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsReal,       int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsImag,       int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunReal,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunImag,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotMat,             int len ) }
-%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapVals,            int len ) }
-%apply ( int*    ARGOUT_ARRAY1, int DIM1 ) { ( int* reBoxBounds,           int len ) }
-%apply ( int*    IN_ARRAY1,     int DIM1 ) { ( int* newBounds,             int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunReal,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunImag,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *allCSymsArray,      int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* groupElements,      int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *mapArrayPython,               int len ) }
+%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapChangedInPython,           int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsReal,           int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsImag,           int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMReal,                  int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMImag,                  int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsReal,                 int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsImag,                 int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunReal,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunImag,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotMat,                       int len ) }
+%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapVals,                      int len ) }
+%apply ( int*    ARGOUT_ARRAY1, int DIM1 ) { ( int* reBoxBounds,                     int len ) }
+%apply ( int*    IN_ARRAY1,     int DIM1 ) { ( int* newBounds,                       int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunReal,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunImag,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *allCSymsArray,                int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* groupElements,                int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* allOtherDetectedSymsIndices,  int len ) }
 
 //============================================ Include the pythonised ProSHADE code to SWIG
 %include "ProSHADE_typedefs.hpp"
@@ -182,6 +183,40 @@ def getGroupElementsRotMat ( pStruct, pSet, grPos ):
         rotM[2][1]                            = valArr[iter*9+7]
         rotM[2][2]                            = valArr[iter*9+8]
         ret.append                            ( rotM )
+    return                                    ( ret )
+    
+def getNonCSymmetryAxesIndices ( pSet ):
+    vals                                      = pSet.getListOfNonCSymmetryAxesIndices ( pSet.getListOfNonCSymmetryAxesIndicesLength ( ) )
+    ret                                       = {}
+    
+    hlpList                                   = []
+    listSplits                                = []
+    for val in vals:
+        if val == -1:
+            listSplits.append                 ( hlpList )
+            hlpList                           = []
+            continue
+        else:
+            hlpList.append                    ( int ( val ) )
+    
+    Ts                                        = listSplits[1]
+    Os                                        = listSplits[2]
+    Is                                        = listSplits[3]
+    
+    Ds                                        = []
+    for val in listSplits[0]:
+        if val == -2:
+            Ds.append                         ( hlpList )
+            hlpList                           = []
+            continue
+        else:
+            hlpList.append                    ( int ( val ) )
+    
+    ret["D"]                                  = Ds
+    ret["T"]                                  = Ts
+    ret["O"]                                  = Os
+    ret["I"]                                  = Is
+    
     return                                    ( ret )
 %}
     

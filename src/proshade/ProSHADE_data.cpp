@@ -1700,7 +1700,8 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
  
     This function is the symmetry detection starting point. It decides whether a specific symmetry is being sought after, or whether
     a general symmetry search is required. Consequently, it calls the appropriate functions and ends up with saving the resulting
-    predictions into the settings object supplied.
+    predictions into the settings object supplied. It also saves all the detected symmetry groups to the settings object for further
+    processing and programmatical access.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
@@ -1710,6 +1711,9 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
 {
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = this->getCyclicSymmetriesList ( settings );
+    
+    //================================================ Save C symmetries to argument and if different from settings, to the settings as well
+    bool isArgSameAsSettings                          = true;
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
     {
         std::vector< proshade_double > nextSym;
@@ -1720,6 +1724,10 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
         ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
         ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
         ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
+        
+        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
+        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
+        
         nextSym.clear                                 ( );
     }
     
@@ -2086,7 +2094,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
     }
     
-    //======================================== Done
+    //================================================ Done
     return ;
     
 }

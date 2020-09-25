@@ -2163,6 +2163,91 @@ void ProSHADE_settings::printSettings ( )
     
 }
 
+/*! \brief This function computes the length of 1D array required to hold all the indices of all detected D, T, O and I symmetries.
+ 
+    \warning This function is required for proper passing of values to Python, but makes no sense for C++ access.
+ 
+    \param[out] val The length of 1D arrat capable of containing all the detected axes indices as well as their separators.
+ */
+proshade_unsign ProSHADE_settings::getListOfNonCSymmetryAxesIndicesLength ( )
+{
+    //================================================ Compute
+    proshade_unsign result                            = 0;
+    
+    //================================================ Add dihedrals with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.size() ); dIt++ )
+    {
+        result                                       += static_cast<proshade_unsign> ( this->allDetectedDAxes.at(dIt).size() + 1 ); // +1 for separator between different Ds
+    }
+    result++;                                         // Separator between D and T
+    result                                           += static_cast<proshade_unsign> ( this->allDetectedTAxes.size() ); // Adding T's
+    result++;                                         // Separator between T and O
+    result                                           += static_cast<proshade_unsign> ( this->allDetectedOAxes.size() ); // Adding O's
+    result++;                                         // Separator between O and I
+    result                                           += static_cast<proshade_unsign> ( this->allDetectedIAxes.size() ); // Adding I's
+    result++;                                         // Final separator
+    
+    //================================================ Done
+    return                                            ( result );
+    
+}
+
+/*! \brief This function places all the indices of all detected D, T, O and I symmetries into a 1D array with separators for passing it to Python.
+ 
+    \warning This function is required for proper passing of values to Python, but makes no sense for C++ access.
+ 
+    \param[in] allOtherDetectedSymsIndices The 1D array to which the indices will be saved into.
+    \param[in] len The length of the input indices - this needs to be passed from Python as Python is allocating (and releasing) it, but otherwise it makes no sense.
+ */
+void ProSHADE_settings::getListOfNonCSymmetryAxesIndices ( double* allOtherDetectedSymsIndices, int len )
+{
+    //================================================ Add dihedrals with separators
+    proshade_unsign dihCounter                        = 0;
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.size() ); dIt++ )
+    {
+        for ( proshade_unsign memIt = 0; memIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.at(dIt).size() ); memIt++ )
+        {
+            allOtherDetectedSymsIndices[dihCounter]   = static_cast<double> ( this->allDetectedDAxes.at(dIt).at(memIt) );
+            dihCounter++;
+        }
+        allOtherDetectedSymsIndices[dihCounter]       = -2.0;
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Add tetrahedral with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedTAxes.size() ); dIt++ )
+    {
+        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedTAxes.at(dIt) );
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Add octahedral with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedOAxes.size() ); dIt++ )
+    {
+        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedOAxes.at(dIt) );
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Add icosahedral with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedIAxes.size() ); dIt++ )
+    {
+        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedIAxes.at(dIt) );
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function returns the energy level distances vector from the first to all other structures.
  
     \param[out] enLevs Vector of doubles of the distances.
