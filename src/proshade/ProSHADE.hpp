@@ -18,7 +18,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -49,6 +49,7 @@ private:
     
     //================================================ Variables regarding symmetry detection
     std::vector< proshade_double* > RecomSymAxes;     //!< Vector holding the recommended symmetry axes information.
+    std::vector < std::vector< proshade_double > > allCSymAxes; //!< Vector holding all detected cyclic symmetry axes information.
     
     //================================================ Variables regarding re-boxing task
     std::vector < proshade_signed* > originalBounds;  //!< Original boundaries of the map.
@@ -92,7 +93,8 @@ public:
     proshade_unsign getRotationFunctionLength         ( void );
     
     //================================================ Symmetry accessor functions
-    proshade_unsign getNoSymmetryAxes                 ( void );
+    proshade_unsign getNoRecommendedSymmetryAxes      ( void );
+    proshade_unsign getAllSymsOneArrayLength          ( void );
     
 public:
     //================================================ Distances results accessor functions
@@ -104,6 +106,7 @@ public:
     std::string getSymmetryType                       ( void );
     proshade_unsign getSymmetryFold                   ( void );
     std::vector< std::string > getSymmetryAxis        ( proshade_unsign axisNo );
+    std::vector < std::vector< proshade_double > > getAllCSyms ( void );
     
     //================================================ Re-boxing results accessor functions
     std::vector< proshade_signed > getOriginalBounds  ( proshade_unsign strNo );
@@ -131,5 +134,8 @@ void getOptimalEulerAngles                            ( ProSHADE_run* run, doubl
 void getToOriginTranslation                           ( ProSHADE_run* run, double *toOriginTranslation, int len );
 void getToMapCentreTranslation                        ( ProSHADE_run* run, double *toMapCentreTranslation, int len );
 void getOriginToOverlayTranslation                    ( ProSHADE_run* run, double *originToOverlayTranslation, int len );
+
+void getAllCSymmetriesOneArray                        ( ProSHADE_run* run, double *allCSymsArray, int len );
+void getAllCSymmetriesOneArrayAdvanced                ( ProSHADE_settings* settings, double *allCSymsArray, int len );
 
 #endif

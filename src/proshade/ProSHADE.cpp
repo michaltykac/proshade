@@ -18,7 +18,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -1296,7 +1296,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case Symmetry:
-                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes );
+                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes );
                 this->setSymmetryResults              ( settings );
                 break;
                 
@@ -2280,10 +2280,20 @@ proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
 
     \param[out] val The length of the recommended symmetry axes vector.
 */
-proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
+proshade_unsign ProSHADE_run::getNoRecommendedSymmetryAxes ( )
 {
     //================================================ Return the value
     return                                            ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
+}
+
+/*! \brief This function returns the length of an array which will be able to hold all C symmetries and their info.
+
+    \param[out] val The length of an array able to hold all C symmetries and their info.
+*/
+proshade_unsign ProSHADE_run::getAllSymsOneArrayLength ( )
+{
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->allCSymAxes.size() * 6 ) );
 }
 
 /*! \brief This function returns the energy level distances array (for Numpy) from the first to all other structures.
@@ -2415,6 +2425,17 @@ std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisN
     
     //================================================ Done
     return                                            ( ret );
+    
+}
+
+/*! \brief This function returns a all symmetry axes as a vector of vectors of doubles.
+
+    \param[out] val A vector of vectors of doubles containing all the symmetries axis fold, x, y, z axis element, angle and peak height in this order.
+*/
+std::vector < std::vector< proshade_double > > ProSHADE_run::getAllCSyms ( )
+{
+    //================================================ Done
+    return                                            ( this->allCSymAxes );
     
 }
 
@@ -2751,10 +2772,60 @@ void getOriginToOverlayTranslation ( ProSHADE_run* run, double *originToOverlayT
     //================================================ Get values
     std::vector< proshade_double > vals               = run->getOriginToOverlayTranslation ( );
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
         originToOverlayTranslation[iter]              = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns all of the detected symmetries information.
+ 
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] allCSymsArray Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getAllCSymmetriesOneArray ( ProSHADE_run* run, double *allCSymsArray, int len )
+{
+    //================================================ Save the data into the output array
+    proshade_unsign counter                           = 0;
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( run->getAllCSyms().size() ); axIt++)
+    {
+        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( run->getAllCSyms().at(axIt).size() ); valIt++)
+        {
+            allCSymsArray[counter]                    = static_cast<double> ( run->getAllCSyms().at(axIt).at(valIt) );
+            counter                                  += 1;
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns all of the detected symmetries information.
+ 
+    \param[in] run The ProSHADE_settings object from which the values will be drawn.
+    \param[in] allCSymsArray Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getAllCSymmetriesOneArrayAdvanced ( ProSHADE_settings* settings, double *allCSymsArray, int len )
+{
+    //================================================ Save the data into the output array
+    proshade_unsign counter                           = 0;
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( settings->allDetectedAxes.size() ); axIt++)
+    {
+        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( settings->allDetectedAxes.at(axIt).size() ); valIt++)
+        {
+            allCSymsArray[counter]                    = static_cast<double> ( settings->allDetectedAxes.at(axIt).at(valIt) );
+            counter                                  += 1;
+        }
     }
     
     //================================================ Done

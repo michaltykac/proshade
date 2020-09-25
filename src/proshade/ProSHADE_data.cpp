@@ -17,7 +17,7 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -1704,17 +1704,29 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] allCs A vector to which all the detected cyclic symmetries will be saved into.
  */
-void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes )
+void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
     //================================================ Initialise variables
-    std::vector< proshade_double* > CSyms;
+    std::vector< proshade_double* > CSyms             = this->getCyclicSymmetriesList ( settings );
+    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
+    {
+        std::vector< proshade_double > nextSym;
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[0] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[1] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[2] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[3] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
+        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
+        nextSym.clear                                 ( );
+    }
     
     //================================================ Was any particular symmetry requested?
     if ( settings->requestedSymmetryType == "" )
     {
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
-        CSyms                                         = this->getCyclicSymmetriesList ( settings );
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
@@ -1727,14 +1739,12 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     if ( settings->requestedSymmetryType == "C" )
     {
         //============================================ Run only the C symmetry detection and search for requested fold
-        CSyms                                         = this->getCyclicSymmetriesList ( settings );
         this->saveRequestedSymmetryC                  ( settings, &CSyms, axes );
     }
     
     if ( settings->requestedSymmetryType == "D" )
     {
         //============================================ Run only the D symmetry detection and search for requested fold
-        CSyms                                         = this->getCyclicSymmetriesList ( settings );
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         this->saveRequestedSymmetryD                  ( settings, &DSyms, axes );
     }
@@ -1742,7 +1752,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     if ( settings->requestedSymmetryType == "T" )
     {
         //============================================ Run only the T symmetry detection and search for requested fold
-        CSyms                                         = this->getCyclicSymmetriesList ( settings );
         std::vector< proshade_double* > TSyms         = this->getTetrahedralSymmetriesList ( settings, &CSyms );
         settings->setRecommendedFold                  ( 0 );
         if ( TSyms.size() == 7 )              { settings->setRecommendedSymmetry ( "T" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSyms.size() ); it++ ) { settings->setDetectedSymmetry ( TSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSyms.at(it) ); } }
@@ -1752,7 +1761,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     if ( settings->requestedSymmetryType == "O" )
     {
         //============================================ Run only the O symmetry detection and search for requested fold
-        CSyms                                         = this->getCyclicSymmetriesList ( settings );
         std::vector< proshade_double* > OSyms         = this->getOctahedralSymmetriesList ( settings, &CSyms );
         settings->setRecommendedFold                  ( 0 );
         if ( OSyms.size() == 13 )             { settings->setRecommendedSymmetry ( "O" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSyms.size() ); it++ ) { settings->setDetectedSymmetry ( OSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSyms.at(it) ); } }
@@ -1762,7 +1770,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     if ( settings->requestedSymmetryType == "I" )
     {
         //============================================ Run only the T symmetry detection and search for requested fold
-        CSyms                                         = this->getCyclicSymmetriesList ( settings );
         std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
         settings->setRecommendedFold                  ( 0 );
         if ( ISyms.size() == 31 )             { settings->setRecommendedSymmetry ( "I" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISyms.size() ); it++ ) { settings->setDetectedSymmetry ( ISyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISyms.at(it) ); } }
@@ -1791,11 +1798,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( ProSHADE_settings* settings )
 {
-    //================================================ Initialise variables
-    std::vector< proshade_double* > axes;
-    
     //================================================ Run the algorithm
-    this->detectSymmetryInStructure                   ( settings, &axes );
+    this->detectSymmetryInStructure                   ( settings, &settings->detectedSymmetry, &settings->allDetectedAxes );
     
     //================================================ Done
     return ;
@@ -3296,10 +3300,21 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFol
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
     \param[out] val The length of the recommended symmetry axes vector.
 */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoSymmetryAxes ( ProSHADE_settings* settings )
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryAxes ( ProSHADE_settings* settings )
 {
     //================================================ Return the value
     return                                            ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) );
+}
+
+/*! \brief This function returns the length of 1D array which would contain all detected axes info.
+
+    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+    \param[out] val The required length of 1D array to hold all detected axes info.
+*/
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getAllSymsOneArrayLength ( ProSHADE_settings* settings )
+{
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( settings->allDetectedAxes.size() * 6 ) );
 }
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.

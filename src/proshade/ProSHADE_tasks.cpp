@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -280,9 +280,10 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     the settings object passed as the first argument.
  
     \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
-    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
  */
-void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes )
+void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
     //================================================ Check the settings are complete and meaningful
     checkSymmetrySettings                             ( settings );
@@ -309,10 +310,13 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         symmetryStructure->getRotationFunction        ( settings );
         
         //============================================ Detect symmetry and save results in settings object
-        symmetryStructure->detectSymmetryInStructure  ( settings, axes );
+        symmetryStructure->detectSymmetryInStructure  ( settings, axes, allCs );
         
         //============================================ Report results
         symmetryStructure->reportSymmetryResults      ( settings );
+        
+//        std::cout << "Found total of: " << allCs->size() << " axes." << std::endl;
+//        exit (0);
         
         //============================================ Release memory
         delete symmetryStructure;

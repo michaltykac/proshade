@@ -68,7 +68,7 @@ pStruct.getRotationFunction                   ( pSet )
 pStruct.detectSymmetryInStructurePython       ( pSet )
 symmetryType                                  = pStruct.getRecommendedSymmetryType ( pSet )
 symmetryFold                                  = pStruct.getRecommendedSymmetryFold ( pSet )
-symmetryAxes                                  = proshade.getSymmetryAxesPython ( pStruct, pSet )
+symmetryAxes                                  = proshade.getRecommendedSymmetryAxesPython ( pStruct, pSet )
 
 print ( "Detected " + str( symmetryType ) + "-" + str( symmetryFold ) + " symetry." )
 print ( "Fold      x         y         z       Angle     Height" )

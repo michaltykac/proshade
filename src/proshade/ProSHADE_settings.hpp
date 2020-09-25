@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -173,7 +173,6 @@ public:
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
-    std::vector< proshade_double* > detectedSymmetry; //!< The vector of detected symmetry axes.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -182,6 +181,11 @@ public:
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
         
+public:
+    //================================================ Symmetry results holding values. This is required for Python being able to access the results without having the ProSHADE_run object.
+    std::vector< proshade_double* > detectedSymmetry; //!< The vector of detected symmetry axes.
+    std::vector < std::vector< proshade_double > > allDetectedAxes; //!< The vector of all detected cyclic symmetry axes.
+    
 public: // maybe make this protected?
     //================================================ Variable modifying functions
     void determineBandwidthFromAngle                  ( proshade_double uncertainty );

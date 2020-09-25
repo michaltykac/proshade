@@ -17,7 +17,7 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
 */
 
@@ -211,11 +211,12 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes );
+        void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         void detectSymmetryInStructurePython          ( ProSHADE_settings* settings );
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
-        proshade_unsign getNoSymmetryAxes             ( ProSHADE_settings* settings );
+        proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
+        proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
         proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
         proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );

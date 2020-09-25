@@ -92,6 +92,7 @@ import_array();
 %apply ( int*    IN_ARRAY1,     int DIM1 ) { ( int* newBounds,             int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunReal,         int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunImag,         int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *allCSymsArray,      int len ) }
 
 //============================================ Include the pythonised ProSHADE code to SWIG
 %include "ProSHADE_typedefs.hpp"
@@ -130,10 +131,37 @@ def getDetectedSymmetryFold ( pRun ):
     
 def getDetectedSymmetryAxes ( pRun ):
     retArr                                    = []
-    for iter in range( 0, pRun.getNoSymmetryAxes ( ) ):
+    for iter in range( 0, pRun.getNoRecommendedSymmetryAxes ( ) ):
         hlpArr                                = pRun.getSymmetryAxis ( iter )
         hlpTlp                                = ( hlpArr[0], float ( hlpArr[1] ), float ( hlpArr[2] ), float ( hlpArr[3] ), float ( hlpArr[4] ), float ( hlpArr[5] ) )
         retArr.append                         ( hlpTlp )
+    return                                    ( retArr )
+    
+def getAllDetectedSymmetryAxes ( pRun ):
+    import numpy
+    valArr                                    = getAllCSymmetriesOneArray( pRun, pRun.getAllSymsOneArrayLength ( ) )
+    retArr                                    = numpy.zeros ( [ int ( pRun.getAllSymsOneArrayLength ( ) / 6 ), 6 ] )
+    for iter in range( 0, int ( pRun.getAllSymsOneArrayLength ( ) / 6 ) ):
+        retArr[iter][0]                       = valArr[iter*6+0]
+        retArr[iter][1]                       = valArr[iter*6+1]
+        retArr[iter][2]                       = valArr[iter*6+2]
+        retArr[iter][3]                       = valArr[iter*6+3]
+        retArr[iter][4]                       = valArr[iter*6+4]
+        retArr[iter][5]                       = valArr[iter*6+5]
+    return                                    ( retArr )
+    
+    
+def getAllDetectedSymmetryAxes ( pStruct, pSet ):
+    import numpy
+    valArr                                    = getAllCSymmetriesOneArrayAdvanced ( pSet, pStruct.getAllSymsOneArrayLength( pSet ) )
+    retArr                                    = numpy.zeros ( [ int ( pStruct.getAllSymsOneArrayLength( pSet ) / 6 ), 6 ] )
+    for iter in range( 0, int ( pStruct.getAllSymsOneArrayLength( pSet ) / 6 ) ):
+        retArr[iter][0]                       = valArr[iter*6+0]
+        retArr[iter][1]                       = valArr[iter*6+1]
+        retArr[iter][2]                       = valArr[iter*6+2]
+        retArr[iter][3]                       = valArr[iter*6+3]
+        retArr[iter][4]                       = valArr[iter*6+4]
+        retArr[iter][5]                       = valArr[iter*6+5]
     return                                    ( retArr )
 %}
     
@@ -353,9 +381,9 @@ def getRotationMatrixFromRotFunIndices ( pStruct, first, second, third ):
 
 //============================================ Symmetry axes access
 %pythoncode %{
-def getSymmetryAxesPython ( pStruct, pSet ):
+def getRecommendedSymmetryAxesPython ( pStruct, pSet ):
     retArr                                    = []
-    for iter in range( 0, pStruct.getNoSymmetryAxes ( pSet ) ):
+    for iter in range( 0, pStruct.getNoRecommendedSymmetryAxes ( pSet ) ):
         hlpArr                                = pStruct.getSymmetryAxis ( pSet, iter )
         hlpTlp                                = ( hlpArr[0], float ( hlpArr[1] ), float ( hlpArr[2] ), float ( hlpArr[3] ), float ( hlpArr[4] ), float ( hlpArr[5] ) )
         retArr.append                         ( hlpTlp )
