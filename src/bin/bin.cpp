@@ -19,7 +19,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -222,6 +222,12 @@
  * map. This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of co-ordinates) will
  * be found to have no symmetries even if these are present, just not over the co-ordinate centre.
  *
+ * It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (\e i.e. either through the dynamic C++ library or through
+ * the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all
+ * detected dihedral, tetrahedral, ... symmetries and the axes forming them) and also the ability to compute all point group elements for any particular cyclic point group excluding the identity element; these
+ * can then be combined to obtain the full list of all point group elements for any ProSHADE detectable symmetry type. For more details on these functinoalities, the users are invited to consult the
+ * \e advancedAccess_symmetry.cpp/py example files in the \b examples folder.
+ *
  * To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the
  * symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \a C12 symmetry. The visualisation of the structure is
  * shown in the following figure, while the output of the ProSHADE tool follows:
@@ -230,7 +236,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
- ProSHADE 0.7.4.2 (SEP 2020):
+ ProSHADE 0.7.4.3 (SEP 2020):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -252,7 +258,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 17 seconds.
+ Time taken: 18 seconds.
  ======================
 *\endcode
  *
@@ -274,7 +280,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.4.2 (SEP 2020):
+  ProSHADE 0.7.4.3 (SEP 2020):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -303,7 +309,7 @@
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
   Energy levels distance    : 0.895313
   Trace sigma distance      : 0.960445
-  Rotation function distance: 0.732638
+  Rotation function distance: 0.756283
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
@@ -348,7 +354,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.4.2 (SEP 2020):
+ ProSHADE 0.7.4.3 (SEP 2020):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -364,7 +370,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 9 seconds.
+ Time taken: 10 seconds.
  ======================
  \endcode
  *
@@ -385,20 +391,33 @@
  * static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity
  * (\p --verbose) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
  *
- *  Regarding the output, ProSHADE outputs three different translation vectors with the following meaning:
- * - \b 1) \b Rotation \b centre \b to \b origin \b translation - this translation vector takes the location of the point in "visualisation" space about which the rotation should be done and produces a translation vector which moves it to the origin on space (not cell), \e i.e. 0; 0; 0.
+ * Regarding the output, ProSHADE outputs three different translation vectors with the following meaning (and the rotation matrix):
+ * - \b 1) \b Rotation \b centre \b to \b origin \b translation** - this translation vector takes the location of the point in \e visualisation space about which the rotation should be done and produces a translation vector which moves it to the origin of space (not map box), \e i.e. 0; 0; 0.
  * - \b 2) \b Within \b box \b translation - this translation vector is the sum of all translations done by ProSHADE to the internal representation between reading it and computing the translation function.
  * - \b 3) \b Origin \b to \b overlay \b translation - this translation assumes that the first translation vector has been applied to the structure and describes how the structure needs to be moved to be placed in optimal overlay position relative to the static structure.
  *
- * Generally, which of these translation vectors you need to apply to move the moving structure to overlay with the static structure will depend on what is the input type and how exactly the rotation is done. For examples, if the input is co-ordinate file, then
- * translation 1) needs to be done, then rotation needs to be applied and then translation 3) is required, but translation 2) is of no use. However, if the input is map, which will be rotated in the box (rather than at the space origin) and which will be rotated about
- * the centre of the map box, then translation 2) needs to be applied (to move ProSHADE centre of rotation to the centre of map), the rotation needs to be done and finally translation 3) minus translation 1) will be the required final translation.
+ * The purpose behind these three translation vectors is to accomodate for various scenarios mainly relating to about which point the rotation is to be done. More specifically, let us consider the following three cases:
+ * - \b Rotation \b about \b the \b origin - This case is typical for co-ordinate data, where each XYZ position is multiplied with the rotation matrix to obtain the new position. This method of applying the rotation matrix makes the implicit assumption
+ * that the point about which the rotation is to be done is at the origin of the system and therefore the co-ordinates need to be moved to the origin of the system before the rotation is applied; the translation vector \b 1) serves for this purpose. Subsequently,
+ * after applying the rotation to the co-ordinates, they need to be moved to a position of optimal overlay with the static structure - this can be done using the translation vector \b 3) .
+ * - \b Rotation \b about \b the \b centre \b of \b mass - This is often the case for density data, where it may be assumed that the centre of mass is the origin of the rotated system (ignoring the standard of using the lowest indices along each axis
+ * to determine the \e real \e world or \e visualisation space position in Angstroms). In this case, the rotation should be applied immediately as translation has no effect on rotation (\e i.e. the point about which the rotation is done is translated along with
+ * the density). Next, in order to achieve optimal overlay position of the now rotated density, it needs to be translated from the rotation centre to the optimal overlay position. To get such translation vector, translation vector \b 1) needs to be applied first and
+ * translation vector \b 3) needs to be applied right after (or in one step applying the translation \b 1) + \b 3) ).
+ * - \b Rotation \b about \b the \b centre \b of \b map - This is sometimes the case for density data, where it may be assumed that the centre of map is the origin of the rotated system (again, ignoring the standard of using the lowest
+ * indices along each axis to determine the \e real \e world or \e visualisation space position in Angstroms). In this case, it is firstly required that the point about which the rotation is to be done is moved to the centre of map; to do this, translation
+ * vector \b 2) needs to be applied. Next, similarly to the previous case, the rotation needs to be applied and the translation from the centre of map to the optimal overlay position needs to be determined. To do this, same combination of \b 1) + \b 3) needs
+ * to be used, but this time the effect of the initial translation of \b 2) also needs to be reversed, so the final translation vector to be applied should be \b 1) + \b 3) - \b 2) .
+ 
+ * \b Warning: In order to allow visualisation of the results of ProSHADE overlap task, the translation is computed in the \e real \e world or \e visualisation space; this however has the implication that if the moving structure is a density, then the
+ * densty box may need to be moved in such a way that it contains the static structure's position. Therefore, the \b translation \b computed \b as \b described \b above \b should \b not \b be \b applied \b to \b the \b density \b in
+ * \b box, \b but \b rather \b to \b the \b box \b itself (or possibly if such box translation cannot be done perfectly, then the remainder of the imperfect box translation can be done within the box).
  *
  * \image html ProSHADE_overlay.jpg width=500cm
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.4.2 (SEP 2020):
+ ProSHADE 0.7.4.3 (SEP 2020):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -543,57 +562,69 @@
  * are advised to review all the \e advancedAccess_... source files as well as the following simple example code.
  *
  *\code{.cpp}
- #include "ProSHADE.hpp"
+#include "ProSHADE.hpp"
 
- int main ( int argc, char **argv )
- {
-     //================================================ Create the settings object
-     ProSHADE_Task task                                = Symmetry;
-     ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
+int main ( int argc, char **argv )
+{
+    //================================================ Create the settings object
+    ProSHADE_Task task                                = Symmetry;
+    ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
 
-     //================================================ Create the structure objects
-     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings );
- 
-     //================================================ Read in the structures
-     simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );
- 
-     //================================================ Process internal map
-     simpleSym->processInternalMap                     ( settings );
+    //================================================ Create the structure objects
+    ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings );
 
-     //================================================ Map to spheres
-     simpleSym->mapToSpheres                           ( settings );
- 
-     //================================================ Compute spherical harmonics decompostion
-     simpleSym->computeSphericalHarmonics              ( settings );
- 
-     //================================================ Compute self-rotation function
-     simpleSym->getRotationFunction                    ( settings );
- 
-     //================================================ Detect the recommended symmetry
-     std::vector< proshade_double* > symAxes;
-     simpleSym->detectSymmetryInStructure              ( settings, &symAxes );
-     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings );
-     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings );
- 
-     //================================================ Write out the symmetry detection results
-     std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
-     for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( symAxes.size() ); axIt++ )
-     {
-        std::cout << "Symmetry axis number " << axIt << std::endl;
-        std::cout << " ... Fold             " << symAxes.at(axIt)[0] << std::endl;
-        std::cout << " ... XYZ:             " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << std::endl;
-        std::cout << " ... Angle (radians): " << symAxes.at(axIt)[4] << std::endl;
-        std::cout << " ... Axis peak:       " << symAxes.at(axIt)[5] << std::endl;
-     }
- 
-     //================================================ Release the memory
-     delete simpleSym;
-     delete settings;
- 
-     //================================================ Done
-     return EXIT_SUCCESS;
- }
- \endcode
+    //================================================ Read in the structures
+    simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );
+
+    //================================================ Process internal map
+    simpleSym->processInternalMap                     ( settings );
+
+    //================================================ Map to spheres
+    simpleSym->mapToSpheres                           ( settings );
+
+    //================================================ Compute spherical harmonics decompostion
+    simpleSym->computeSphericalHarmonics              ( settings );
+
+    //================================================ Compute self-rotation function
+    simpleSym->getRotationFunction                    ( settings );
+
+    //================================================ Detect the recommended symmetry
+    std::vector< proshade_double* > symAxes;
+    std::vector< std::vector< proshade_double > > allCsFromSettings;
+    simpleSym->detectSymmetryInStructure              ( settings, &symAxes, &allCsFromSettings );
+    std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings );
+    proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings );
+
+    //================================================ Write out the symmetry detection results
+    std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( symAxes.size() ); axIt++ )
+    {
+       std::cout << "Symmetry axis number " << axIt << std::endl;
+       std::cout << " ... Fold             " << symAxes.at(axIt)[0] << std::endl;
+       std::cout << " ... XYZ:             " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << std::endl;
+       std::cout << " ... Angle (radians): " << symAxes.at(axIt)[4] << std::endl;
+       std::cout << " ... Axis peak:       " << symAxes.at(axIt)[5] << std::endl;
+    }
+   
+    //================================================ Find all C axes
+    std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
+    std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
+   
+    //================================================ Get group elements for the first axis (or any other axis)
+    std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->computeGroupElementsForGroup ( settings, &allCs, 0 );
+    std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (excluding the identity one), the first being the rotation matrix:" << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(0) << " x " << groupElementsGrp0.at(0).at(1) << " x " << groupElementsGrp0.at(0).at(2) << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(3) << " x " << groupElementsGrp0.at(0).at(4) << " x " << groupElementsGrp0.at(0).at(5) << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(6) << " x " << groupElementsGrp0.at(0).at(7) << " x " << groupElementsGrp0.at(0).at(8) << std::endl;
+
+    //================================================ Release the memory
+    delete simpleSym;
+    delete settings;
+
+    //================================================ Done
+    return EXIT_SUCCESS;
+}
+\endcode
  *
  *\section pyusage Using the Python modules
  *
@@ -1153,11 +1184,15 @@
  translationMap3D                              = proshade.getTranslationFunction3D ( pStruct_moving )
  \endcode
  *
- * Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
+ * Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms.
+ * This is then demonstrated in the following example code; however, this is not the translation vector that ProSHADE outputs. The reason is that this vector does not take into account the
+ * translations done before the translation function is computed and it also ignores any translations that may be forced by moving the rotation centre. To get the standard ProSHADE output
+ * vectors, please use the second line of the showcased code (note, the optimal translation vector is still required for furhter processing, so you will need both results):
  *
  * \code{.py}
  """ Find the optimal translation vector """
  optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
+ ( toOrigin, toMapCen, toOverlay )             = proshade.computeOverlayTranslationsNumpy ( pStruct_moving, optimalTranslationVector )
  \endcode
  *
  *

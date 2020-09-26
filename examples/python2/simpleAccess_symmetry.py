@@ -20,7 +20,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.2
+#   \version   0.7.4.3
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -44,10 +44,10 @@ pSet                                          = proshade.ProSHADE_settings ()
 ### Required values
 pSet.task                                     = proshade.Symmetry                      # The task ProSHADE is expected to perform
 pSet.verbose                                  = -1                                     # How verbose should the run be? Use -1 for absolute silence.
-pSet.setResolution                            ( 12.0 )                                 # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
+pSet.setResolution                            ( 8.0 )                                 # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
 pSet.addStructure                             ( "./emd_6324.map" )                     # The path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
-pSet.requestedSymmetryType                    = "C"
-pSet.requestedSymmetryFold                    = 12
+#pSet.requestedSymmetryType                    = "C"
+#pSet.requestedSymmetryFold                    = 12
 
 
 ### Useful settings
@@ -109,6 +109,15 @@ detectedSymFold                               = proshade.getDetectedSymmetryFold
 detectedSymAxes                               = proshade.getDetectedSymmetryAxes ( pRun )
 
 ##############################################
+### Get all cyclic symmetry axes
+allCSyms                                      = proshade.getAllDetectedSymmetryAxesSimple ( pRun )
+print ( len ( allCSyms ) )
+
+##############################################
+### Expected output
+#   5
+
+##############################################
 ### Delete the C++ pointers
 del pRun
 del pSet
@@ -122,9 +131,9 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 
 ##############################################
 ### Expected output
-#   Detected symmetry C-12 with axes:
+#   Detected symmetry C-4 with axes:
 #   Fold      x         y         z       Angle     Height
-#     12    -0.015    +0.020    +0.999    +0.524    +0.1800
+#     4    -0.005    +0.007    +1.000    +1.571    +0.9817
 
 ##############################################
 ### Create the ProSHADE_settings object to test requesting symmetry
@@ -158,13 +167,22 @@ detectedSymFold                               = proshade.getDetectedSymmetryFold
 detectedSymAxes                               = proshade.getDetectedSymmetryAxes ( pRunReq )
 
 ##############################################
+### Get all cyclic symmetry axes
+allCSyms                                      = proshade.getAllDetectedSymmetryAxesSimple ( pRunReq )
+print ( "" )
+print ( len ( allCSyms ) )
+
+##############################################
+### Expected output
+#   48
+
+##############################################
 ### Delete the C++ pointers
 del pRunReq
 del pSetReq
 
 ##############################################
 ### Print detected symmetry (no structure names, as these are hard coded)
-print ( "" )
 print ( "Requested detection of symmetry " + str( "C" ) + "-" + str( 3 ) + " and ProSHADE detected: " )
 print ( "Detected symmetry " + str( detectedSymType ) + "-" + str( detectedSymFold ) + " with axes: " )
 print ( "Fold      x         y         z       Angle     Height" )

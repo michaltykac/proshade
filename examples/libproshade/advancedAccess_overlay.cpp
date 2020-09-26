@@ -18,7 +18,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
 */
 
@@ -118,7 +118,7 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      5.54682 ; 0.773114 ; 3.92702
+//  Optimal rotation Euler angles are:      5.49775 ; 0.773114 ; 3.87796
 //  Optimal rotation matrix is       :      -0.849875 ; -0.0998845 ; 0.517431
 //                                   :      -0.184035 ; -0.863799 ; -0.469023
 //                                   :      0.493804 ; -0.493836 ; 0.715739

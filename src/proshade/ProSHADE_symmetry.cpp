@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -1125,7 +1125,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
             if ( std::abs( dotProduct ) < settings->axisErrTolerance )
             {
                 //==================================== Save
-                if ( CSymList->at(ax1)[0] >= CSymList->at(ax2)[0] ) { ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax1, ax2 ); }
+                if ( CSymList->at(ax1)[0] >= CSymList->at(ax2)[0] )
+                {
+                    ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax1, ax2 );
+                    
+                    std::vector< proshade_unsign > DSymInd;
+                    ProSHADE_internal_misc::addToUnsignVector ( &DSymInd, ax1 );
+                    ProSHADE_internal_misc::addToUnsignVector ( &DSymInd, ax2 );
+                    ProSHADE_internal_misc::addToUnsignVectorVector ( &settings->allDetectedDAxes, DSymInd );
+                    
+                }
                 else { ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax2, ax1 ); }
             }
         }
@@ -1208,6 +1217,24 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
         
         ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
+        else
+        {
+            for ( proshade_unsign csIt = 0; csIt < static_cast<proshade_unsign> ( CSymList->size() ); csIt++ )
+            {
+                for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
+                {
+                    if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
+                         ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
+                         ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
+                         ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
+                         ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
+                         ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+                    {
+                        ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedTAxes, csIt );
+                    }
+                }
+            }
+        }
     }
     
     //================================================ Report progress
@@ -1940,6 +1967,24 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
         
         ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 13 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
+        else
+        {
+            for ( proshade_unsign csIt = 0; csIt < static_cast<proshade_unsign> ( CSymList->size() ); csIt++ )
+            {
+                for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
+                {
+                    if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
+                         ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
+                         ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
+                         ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
+                         ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
+                         ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+                    {
+                        ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedOAxes, csIt );
+                    }
+                }
+            }
+        }
     }
     
     //================================================ Report progress
@@ -2454,6 +2499,24 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
 
         ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
         if ( ret.size() != 31 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
+        else
+        {
+            for ( proshade_unsign csIt = 0; csIt < static_cast<proshade_unsign> ( CSymList->size() ); csIt++ )
+            {
+                for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
+                {
+                    if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
+                         ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
+                         ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
+                         ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
+                         ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
+                         ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+                    {
+                        ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, csIt );
+                    }
+                }
+            }
+        }
     }
 
     //================================================ Report progress

@@ -19,7 +19,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -70,28 +70,31 @@ import_array();
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *reboxMap, int len ) }
 
 //============================================ Apply the numpy typemaps for overlay
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eulerAngs, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toOriginTranslation, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toMapCentreTranslation, int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eulerAngs,                  int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toOriginTranslation,        int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *toMapCentreTranslation,     int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *originToOverlayTranslation, int len ) }
 
 //============================================ Apply the numpy typemaps for ProSHADE_data functions
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *mapArrayPython,     int len ) }
-%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapChangedInPython, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsReal, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsImag, int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMReal,        int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMImag,        int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsReal,       int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsImag,       int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunReal,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunImag,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotMat,             int len ) }
-%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapVals,            int len ) }
-%apply ( int*    ARGOUT_ARRAY1, int DIM1 ) { ( int* reBoxBounds,           int len ) }
-%apply ( int*    IN_ARRAY1,     int DIM1 ) { ( int* newBounds,             int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunReal,         int len ) }
-%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunImag,         int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *mapArrayPython,               int len ) }
+%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapChangedInPython,           int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsReal,           int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *sphericalHarmsImag,           int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMReal,                  int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *eMatsLMImag,                  int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsReal,                 int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *so3CoefsImag,                 int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunReal,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotFunImag,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *rotMat,                       int len ) }
+%apply ( double* IN_ARRAY1,     int DIM1 ) { ( double *mapVals,                      int len ) }
+%apply ( int*    ARGOUT_ARRAY1, int DIM1 ) { ( int* reBoxBounds,                     int len ) }
+%apply ( int*    IN_ARRAY1,     int DIM1 ) { ( int* newBounds,                       int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunReal,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *trsFunImag,                   int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *allCSymsArray,                int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* groupElements,                int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* allOtherDetectedSymsIndices,  int len ) }
 
 //============================================ Include the pythonised ProSHADE code to SWIG
 %include "ProSHADE_typedefs.hpp"
@@ -130,11 +133,91 @@ def getDetectedSymmetryFold ( pRun ):
     
 def getDetectedSymmetryAxes ( pRun ):
     retArr                                    = []
-    for iter in range( 0, pRun.getNoSymmetryAxes ( ) ):
+    for iter in range( 0, pRun.getNoRecommendedSymmetryAxes ( ) ):
         hlpArr                                = pRun.getSymmetryAxis ( iter )
         hlpTlp                                = ( hlpArr[0], float ( hlpArr[1] ), float ( hlpArr[2] ), float ( hlpArr[3] ), float ( hlpArr[4] ), float ( hlpArr[5] ) )
         retArr.append                         ( hlpTlp )
     return                                    ( retArr )
+    
+def getAllDetectedSymmetryAxesSimple ( pRun ):
+    import numpy
+    valArr                                    = getAllCSymmetriesOneArray( pRun, pRun.getAllSymsOneArrayLength ( ) )
+    retArr                                    = numpy.zeros ( [ int ( pRun.getAllSymsOneArrayLength ( ) / 6 ), 6 ] )
+    for iter in range( 0, int ( pRun.getAllSymsOneArrayLength ( ) / 6 ) ):
+        retArr[iter][0]                       = valArr[iter*6+0]
+        retArr[iter][1]                       = valArr[iter*6+1]
+        retArr[iter][2]                       = valArr[iter*6+2]
+        retArr[iter][3]                       = valArr[iter*6+3]
+        retArr[iter][4]                       = valArr[iter*6+4]
+        retArr[iter][5]                       = valArr[iter*6+5]
+    return                                    ( retArr )
+    
+    
+def getAllDetectedSymmetryAxes ( pStruct, pSet ):
+    import numpy
+    valArr                                    = getAllCSymmetriesOneArrayAdvanced ( pSet, pStruct.getAllSymsOneArrayLength( pSet ) )
+    retArr                                    = numpy.zeros ( [ int ( pStruct.getAllSymsOneArrayLength( pSet ) / 6 ), 6 ] )
+    for iter in range( 0, int ( pStruct.getAllSymsOneArrayLength( pSet ) / 6 ) ):
+        retArr[iter][0]                       = valArr[iter*6+0]
+        retArr[iter][1]                       = valArr[iter*6+1]
+        retArr[iter][2]                       = valArr[iter*6+2]
+        retArr[iter][3]                       = valArr[iter*6+3]
+        retArr[iter][4]                       = valArr[iter*6+4]
+        retArr[iter][5]                       = valArr[iter*6+5]
+    return                                    ( retArr )
+    
+def getGroupElementsRotMat ( pStruct, pSet, grPos ):
+    import numpy
+    valArr                                    = pStruct.getGroupElementsPython ( pSet, pStruct.getGroupElementsLength( pSet, grPos ), grPos )
+    ret                                       = []
+    
+    for iter in range ( 0, int ( pStruct.getGroupElementsLength( pSet, grPos ) / 9 ) ):
+        rotM                                  = numpy.zeros ( [ 3, 3 ], dtype="float32" )
+        rotM[0][0]                            = valArr[iter*9+0]
+        rotM[0][1]                            = valArr[iter*9+1]
+        rotM[0][2]                            = valArr[iter*9+2]
+        rotM[1][0]                            = valArr[iter*9+3]
+        rotM[1][1]                            = valArr[iter*9+4]
+        rotM[1][2]                            = valArr[iter*9+5]
+        rotM[2][0]                            = valArr[iter*9+6]
+        rotM[2][1]                            = valArr[iter*9+7]
+        rotM[2][2]                            = valArr[iter*9+8]
+        ret.append                            ( rotM )
+    return                                    ( ret )
+    
+def getNonCSymmetryAxesIndices ( pSet ):
+    vals                                      = pSet.getListOfNonCSymmetryAxesIndices ( pSet.getListOfNonCSymmetryAxesIndicesLength ( ) )
+    ret                                       = {}
+    
+    hlpList                                   = []
+    listSplits                                = []
+    for val in vals:
+        if val == -1:
+            listSplits.append                 ( hlpList )
+            hlpList                           = []
+            continue
+        else:
+            hlpList.append                    ( int ( val ) )
+    
+    Ts                                        = listSplits[1]
+    Os                                        = listSplits[2]
+    Is                                        = listSplits[3]
+    
+    Ds                                        = []
+    for val in listSplits[0]:
+        if val == -2:
+            Ds.append                         ( hlpList )
+            hlpList                           = []
+            continue
+        else:
+            hlpList.append                    ( int ( val ) )
+    
+    ret["D"]                                  = Ds
+    ret["T"]                                  = Ts
+    ret["O"]                                  = Os
+    ret["I"]                                  = Is
+    
+    return                                    ( ret )
 %}
     
 //============================================ Reboxing
@@ -353,9 +436,9 @@ def getRotationMatrixFromRotFunIndices ( pStruct, first, second, third ):
 
 //============================================ Symmetry axes access
 %pythoncode %{
-def getSymmetryAxesPython ( pStruct, pSet ):
+def getRecommendedSymmetryAxesPython ( pStruct, pSet ):
     retArr                                    = []
-    for iter in range( 0, pStruct.getNoSymmetryAxes ( pSet ) ):
+    for iter in range( 0, pStruct.getNoRecommendedSymmetryAxes ( pSet ) ):
         hlpArr                                = pStruct.getSymmetryAxis ( pSet, iter )
         hlpTlp                                = ( hlpArr[0], float ( hlpArr[1] ), float ( hlpArr[2] ), float ( hlpArr[3] ), float ( hlpArr[4] ), float ( hlpArr[5] ) )
         retArr.append                         ( hlpTlp )

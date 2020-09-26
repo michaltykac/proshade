@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -40,7 +40,7 @@ namespace ProSHADE_internal_tasks
                                                         std::vector < proshade_signed* >* reboxedBounds, std::vector < proshade_double* >* manipulatedMaps );
     void DistancesComputationTask                     ( ProSHADE_settings* settings, std::vector< proshade_double >* enLevs, std::vector< proshade_double >* trSigm,
                                                         std::vector< proshade_double >* rotFun );
-    void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes );
+    void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
     void MapOverlayTask                               ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement,
                                                         std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation );
             

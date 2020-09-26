@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -44,6 +44,7 @@ namespace ProSHADE_internal_misc
     void addToDblPtrVector                            ( std::vector < proshade_double* >* vecToAddTo, proshade_double* elementToAdd );
     void addToSigPtrVector                            ( std::vector < proshade_signed* >* vecToAddTo, proshade_signed* elementToAdd );
     void addToUnsignVectorVector                      ( std::vector < std::vector < proshade_unsign  > >* vecToAddTo, std::vector < proshade_unsign  > elementToAdd );
+    void addToDoubleVectorVector                      ( std::vector < std::vector < proshade_double  > >* vecToAddTo, std::vector < proshade_double  > elementToAdd );
             
     bool sortSymHlp                                   ( const proshade_double* a, const proshade_double* b );
     bool sortSymHlpInv                                ( const proshade_double* a, const proshade_double* b );

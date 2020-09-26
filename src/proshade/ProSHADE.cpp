@@ -18,7 +18,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -1296,7 +1296,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case Symmetry:
-                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes );
+                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes );
                 this->setSymmetryResults              ( settings );
                 break;
                 
@@ -2163,6 +2163,91 @@ void ProSHADE_settings::printSettings ( )
     
 }
 
+/*! \brief This function computes the length of 1D array required to hold all the indices of all detected D, T, O and I symmetries.
+ 
+    \warning This function is required for proper passing of values to Python, but makes no sense for C++ access.
+ 
+    \param[out] val The length of 1D arrat capable of containing all the detected axes indices as well as their separators.
+ */
+proshade_unsign ProSHADE_settings::getListOfNonCSymmetryAxesIndicesLength ( )
+{
+    //================================================ Compute
+    proshade_unsign result                            = 0;
+    
+    //================================================ Add dihedrals with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.size() ); dIt++ )
+    {
+        result                                       += static_cast<proshade_unsign> ( this->allDetectedDAxes.at(dIt).size() + 1 ); // +1 for separator between different Ds
+    }
+    result++;                                         // Separator between D and T
+    result                                           += static_cast<proshade_unsign> ( this->allDetectedTAxes.size() ); // Adding T's
+    result++;                                         // Separator between T and O
+    result                                           += static_cast<proshade_unsign> ( this->allDetectedOAxes.size() ); // Adding O's
+    result++;                                         // Separator between O and I
+    result                                           += static_cast<proshade_unsign> ( this->allDetectedIAxes.size() ); // Adding I's
+    result++;                                         // Final separator
+    
+    //================================================ Done
+    return                                            ( result );
+    
+}
+
+/*! \brief This function places all the indices of all detected D, T, O and I symmetries into a 1D array with separators for passing it to Python.
+ 
+    \warning This function is required for proper passing of values to Python, but makes no sense for C++ access.
+ 
+    \param[in] allOtherDetectedSymsIndices The 1D array to which the indices will be saved into.
+    \param[in] len The length of the input indices - this needs to be passed from Python as Python is allocating (and releasing) it, but otherwise it makes no sense.
+ */
+void ProSHADE_settings::getListOfNonCSymmetryAxesIndices ( double* allOtherDetectedSymsIndices, int len )
+{
+    //================================================ Add dihedrals with separators
+    proshade_unsign dihCounter                        = 0;
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.size() ); dIt++ )
+    {
+        for ( proshade_unsign memIt = 0; memIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.at(dIt).size() ); memIt++ )
+        {
+            allOtherDetectedSymsIndices[dihCounter]   = static_cast<double> ( this->allDetectedDAxes.at(dIt).at(memIt) );
+            dihCounter++;
+        }
+        allOtherDetectedSymsIndices[dihCounter]       = -2.0;
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Add tetrahedral with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedTAxes.size() ); dIt++ )
+    {
+        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedTAxes.at(dIt) );
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Add octahedral with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedOAxes.size() ); dIt++ )
+    {
+        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedOAxes.at(dIt) );
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Add icosahedral with separators
+    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedIAxes.size() ); dIt++ )
+    {
+        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedIAxes.at(dIt) );
+        dihCounter++;
+    }
+    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
+    dihCounter++;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function returns the energy level distances vector from the first to all other structures.
  
     \param[out] enLevs Vector of doubles of the distances.
@@ -2284,6 +2369,26 @@ proshade_unsign ProSHADE_run::getNoSymmetryAxes ( )
 {
     //================================================ Return the value
     return                                            ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
+}
+
+/*! \brief This function returns the number of detected recommended symmetry axes.
+
+    \param[out] val The length of the recommended symmetry axes vector.
+*/
+proshade_unsign ProSHADE_run::getNoRecommendedSymmetryAxes ( )
+{
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
+}
+
+/*! \brief This function returns the length of an array which will be able to hold all C symmetries and their info.
+
+    \param[out] val The length of an array able to hold all C symmetries and their info.
+*/
+proshade_unsign ProSHADE_run::getAllSymsOneArrayLength ( )
+{
+    //================================================ Return the value
+    return                                            ( static_cast<proshade_unsign> ( this->allCSymAxes.size() * 6 ) );
 }
 
 /*! \brief This function returns the energy level distances array (for Numpy) from the first to all other structures.
@@ -2415,6 +2520,17 @@ std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisN
     
     //================================================ Done
     return                                            ( ret );
+    
+}
+
+/*! \brief This function returns a all symmetry axes as a vector of vectors of doubles.
+
+    \param[out] val A vector of vectors of doubles containing all the symmetries axis fold, x, y, z axis element, angle and peak height in this order.
+*/
+std::vector < std::vector< proshade_double > > ProSHADE_run::getAllCSyms ( )
+{
+    //================================================ Done
+    return                                            ( this->allCSymAxes );
     
 }
 
@@ -2751,10 +2867,60 @@ void getOriginToOverlayTranslation ( ProSHADE_run* run, double *originToOverlayT
     //================================================ Get values
     std::vector< proshade_double > vals               = run->getOriginToOverlayTranslation ( );
     
-    //======================================== Save the data into the output array
+    //================================================ Save the data into the output array
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
         originToOverlayTranslation[iter]              = static_cast<double> ( vals.at( iter ) );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns all of the detected symmetries information.
+ 
+    \param[in] run The ProSHADE_run object from which the values will be drawn.
+    \param[in] allCSymsArray Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getAllCSymmetriesOneArray ( ProSHADE_run* run, double *allCSymsArray, int len )
+{
+    //================================================ Save the data into the output array
+    proshade_unsign counter                           = 0;
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( run->getAllCSyms().size() ); axIt++)
+    {
+        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( run->getAllCSyms().at(axIt).size() ); valIt++)
+        {
+            allCSymsArray[counter]                    = static_cast<double> ( run->getAllCSyms().at(axIt).at(valIt) );
+            counter                                  += 1;
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns all of the detected symmetries information.
+ 
+    \param[in] run The ProSHADE_settings object from which the values will be drawn.
+    \param[in] allCSymsArray Array to which the values are to be loaded into.
+    \param[in] len The length of the array.
+ */
+
+void getAllCSymmetriesOneArrayAdvanced ( ProSHADE_settings* settings, double *allCSymsArray, int len )
+{
+    //================================================ Save the data into the output array
+    proshade_unsign counter                           = 0;
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); axIt++)
+    {
+        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.at(axIt).size() ); valIt++)
+        {
+            allCSymsArray[counter]                    = static_cast<double> ( settings->allDetectedCAxes.at(axIt).at(valIt) );
+            counter                                  += 1;
+        }
     }
     
     //================================================ Done
