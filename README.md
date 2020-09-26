@@ -169,7 +169,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
- ProSHADE 0.7.4.2 (SEP 2020):
+ ProSHADE 0.7.4.3 (SEP 2020):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -191,7 +191,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
  ======================
  ProSHADE run complete.
- Time taken: 17 seconds.
+ Time taken: 18 seconds.
  ======================
 ```
 
@@ -209,7 +209,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.4.2 (SEP 2020):
+  ProSHADE 0.7.4.3 (SEP 2020):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -238,7 +238,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
   Energy levels distance    : 0.895313
   Trace sigma distance      : 0.960445
-  Rotation function distance: 0.732638
+  Rotation function distance: 0.756283
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
@@ -277,24 +277,24 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz 
- ProSHADE 0.7.4.2 (SEP 2020):
- ============================
+ProSHADE 0.7.4.3 (SEP 2020):
+============================
 
-  ... Starting to read the structure: ./emd_5762.map.gz
-  ... Map inversion (mirror image) not requested.
-  ... Map normalisation not requested.
-  ... Computing mask.
-  ... Map centering not requested.
-  ... Adding extra 10 angstroms.
-  ... Phase information retained in the data.
-  ... Finding new boundaries.
-  ... Creating new structure according to the new  bounds.
-  ... Saving the re-boxed map into reBoxed_0.map
+ ... Starting to read the structure: ./emd_5762.map.gz
+ ... Map inversion (mirror image) not requested.
+ ... Map normalisation not requested.
+ ... Computing mask.
+ ... Map centering not requested.
+ ... Adding extra 10 angstroms.
+ ... Phase information retained in the data.
+ ... Finding new boundaries.
+ ... Creating new structure according to the new  bounds.
+ ... Saving the re-boxed map into reBoxed_0.map
 
- ======================
- ProSHADE run complete.
- Time taken: 9 seconds.
- ======================
+======================
+ProSHADE run complete.
+Time taken: 10 seconds.
+======================
 ```
 
 ## Optimal rotation and translation
@@ -321,7 +321,7 @@ $ ./proshade -RMf ./emd_5762.map.gz
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.4.2 (SEP 2020):
+ ProSHADE 0.7.4.3 (SEP 2020):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -484,7 +484,8 @@ int main ( int argc, char **argv )
 
     //================================================ Detect the recommended symmetry
     std::vector< proshade_double* > symAxes;
-    simpleSym->detectSymmetryInStructure              ( settings, &symAxes );
+    std::vector< std::vector< proshade_double > > allCsFromSettings;
+    simpleSym->detectSymmetryInStructure              ( settings, &symAxes, &allCsFromSettings );
     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings );
     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings );
 
@@ -498,6 +499,17 @@ int main ( int argc, char **argv )
        std::cout << " ... Angle (radians): " << symAxes.at(axIt)[4] << std::endl;
        std::cout << " ... Axis peak:       " << symAxes.at(axIt)[5] << std::endl;
     }
+    
+    //================================================ Find all C axes
+    std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
+    std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
+    
+    //================================================ Get group elements for the first axis (or any other axis)
+    std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->computeGroupElementsForGroup ( settings, &allCs, 0 );
+    std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (excluding the identity one), the first being the rotation matrix:" << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(0) << " x " << groupElementsGrp0.at(0).at(1) << " x " << groupElementsGrp0.at(0).at(2) << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(3) << " x " << groupElementsGrp0.at(0).at(4) << " x " << groupElementsGrp0.at(0).at(5) << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(6) << " x " << groupElementsGrp0.at(0).at(7) << " x " << groupElementsGrp0.at(0).at(8) << std::endl;
 
     //================================================ Release the memory
     delete simpleSym;
@@ -1010,11 +1022,12 @@ translationMap1D                              = proshade.getTranslationFunction1
 translationMap3D                              = proshade.getTranslationFunction3D ( pStruct_moving )
 ```
 
-Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code:
+Also, similarly to the rotation function, ProSHADE provides a useful function for detecting the highest peak in the translation map and computing the corresponding translation in Angstroms. This is then demonstrated in the following example code; however, this is not the translation vector that ProSHADE outputs. The reason is that this vector does not take into account the translations done before the translation function is computed and it also ignores any translations that may be forced by moving the rotation centre. To get the standard ProSHADE output vectors, please use the second line of the showcased code (note, the optimal translation vector is still required for furhter processing, so you will need both results):
 
 ```
 """ Find the optimal translation vector """
 optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
+( toOrigin, toMapCen, toOverlay )             = proshade.computeOverlayTranslationsNumpy ( pStruct_moving, optimalTranslationVector )
 ```
 
 
@@ -1043,3 +1056,7 @@ pStruct_moving.writePdb                       ( "overlayed.pdb",
                                                 optimalTranslationVector[1],
                                                 optimalTranslationVector[2] )
 ```
+
+# The End
+
+![](https://github.com/michaltykac/proshade/blob/experimental/Logo_small.png)
