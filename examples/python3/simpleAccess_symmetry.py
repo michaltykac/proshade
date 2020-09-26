@@ -20,7 +20,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.2
+#   \version   0.7.4.3
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -110,6 +110,15 @@ detectedSymFold                               = proshade.getDetectedSymmetryFold
 detectedSymAxes                               = proshade.getDetectedSymmetryAxes ( pRun )
 
 ##############################################
+### Get all cyclic symmetry axes
+allCSyms                                      = proshade.getAllDetectedSymmetryAxesSimple ( pRun )
+print ( len ( allCSyms ) )
+
+##############################################
+### Expected output
+#   48
+
+##############################################
 ### Delete the C++ pointers
 del pRun
 del pSet
@@ -158,13 +167,22 @@ detectedSymFold                               = proshade.getDetectedSymmetryFold
 detectedSymAxes                               = proshade.getDetectedSymmetryAxes ( pRunReq )
 
 ##############################################
+### Get all cyclic symmetry axes
+allCSyms                                      = proshade.getAllDetectedSymmetryAxesSimple ( pRunReq )
+print ( "" )
+print ( len ( allCSyms ) )
+
+##############################################
+### Expected output
+#   48
+
+##############################################
 ### Delete the C++ pointers
 del pRunReq
 del pSetReq
 
 ##############################################
 ### Print detected symmetry (no structure names, as these are hard coded)
-print ( "" )
 print ( "Requested detection of symmetry " + str( "C" ) + "-" + str( 3 ) + " and ProSHADE detected: " )
 print ( "Detected symmetry " + str( detectedSymType ) + "-" + str( detectedSymFold ) + " with axes: " )
 print ( "Fold      x         y         z       Angle     Height" )

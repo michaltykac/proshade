@@ -21,7 +21,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.2
+#   \version   0.7.4.3
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -121,10 +121,10 @@ print ( "                             :  %+1.3f    %+1.3f    %+1.3f" % ( optimal
 print ( "                             :  %+1.3f    %+1.3f    %+1.3f\n" % ( optimalRotationMatrix[2][0], optimalRotationMatrix[2][1], optimalRotationMatrix[2][2] ) )
 print ( "To origin translation        :  %+1.3f    %+1.3f    %+1.3f" % ( toOrigin[0], toOrigin[1], toOrigin[2] ) )
 print ( "To map centre translation    :  %+1.3f    %+1.3f    %+1.3f" % ( toMapCen[0], toMapCen[1], toMapCen[2] ) )
-print ( "To overlat translation       :  %+1.3f    %+1.3f    %+1.3f" % ( toOverlay[0], toOverlay[1], toOverlay[2] ) )
+print ( "To overlay translation       :  %+1.3f    %+1.3f    %+1.3f" % ( toOverlay[0], toOverlay[1], toOverlay[2] ) )
 
 ### Expected output
-#   Optimal Euler angles         :  +5.498    +0.769    +3.992
+#   Optimal Euler angles         :  +5.433    +0.769    +3.927
 #
 #   Optimal Euler rotation matrix:  -0.867    -0.196    +0.459
 #                                :  -0.084    -0.848    -0.523
@@ -132,7 +132,7 @@ print ( "To overlat translation       :  %+1.3f    %+1.3f    %+1.3f" % ( toOverl
 #
 #   To origin translation        :  +0.000    +0.000    +0.000
 #   To map centre translation    :  +0.000    +0.000    +0.000
-#   To overlat translation       :  +8.000    +8.000    +8.000
+#   To overlay translation       :  +8.000    +8.000    +8.000
 
 ### Write out the map - it has some artefacts, this is caused by the double interpolation - I recommend applying the rotation and translation in EMDA instead of using this map.
 pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] );

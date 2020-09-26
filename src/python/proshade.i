@@ -19,7 +19,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -139,7 +139,7 @@ def getDetectedSymmetryAxes ( pRun ):
         retArr.append                         ( hlpTlp )
     return                                    ( retArr )
     
-def getAllDetectedSymmetryAxes ( pRun ):
+def getAllDetectedSymmetryAxesSimple ( pRun ):
     import numpy
     valArr                                    = getAllCSymmetriesOneArray( pRun, pRun.getAllSymsOneArrayLength ( ) )
     retArr                                    = numpy.zeros ( [ int ( pRun.getAllSymsOneArrayLength ( ) / 6 ), 6 ] )

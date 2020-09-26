@@ -2045,8 +2045,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     {
         settings->setRecommendedSymmetry              ( "C" );
         settings->setRecommendedFold                  ( CSym->at(bestCIndex)[0] );
-        settings->setDetectedSymmetry                 ( CSym->at(bestCIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestCIndex) );
+        if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at(bestCIndex) ); }
         
         //============================================ Warn if resolution does not really support this fold
         if ( ( ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] + 1 ) ) ) <
@@ -2061,10 +2061,13 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     {
         settings->setRecommendedSymmetry              ( "D" );
         settings->setRecommendedFold                  ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) );
-        settings->setDetectedSymmetry                 ( DSym->at(bestDIndex) );
-        settings->setDetectedSymmetry                 ( &DSym->at(bestDIndex)[6] );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, DSym->at(bestDIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestDIndex)[6] );
+        if ( settings->detectedSymmetry.size() == 0 )
+        {
+            settings->setDetectedSymmetry             ( DSym->at(bestDIndex) );
+            settings->setDetectedSymmetry             ( &DSym->at(bestDIndex)[6] );
+        }
         
         //============================================ Warn if resolution does not really support this fold
         if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) ) ) - ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) + 1 ) ) ) <
@@ -2079,19 +2082,22 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     {
         settings->setRecommendedSymmetry              ( "T" );
         settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
+        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
+        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); } }
     }
     if ( bestWeightedScore == oScore * 4.0 )
     {
         settings->setRecommendedSymmetry              ( "O" );
         settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
+        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
+        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); } }
     }
     if ( bestWeightedScore == iScore * 5.0 )
     {
         settings->setRecommendedSymmetry              ( "I" );
         settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
+        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
+        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); } }
     }
     
     //================================================ Done
@@ -2103,7 +2109,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
  
     This is a simple search function, which searches the symmetry results for the requested symmetry fold, and if more such
     symmetries are found, takes the one with the highest average peak height. If the requested fold was found, it will save
-    it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (albeit there
+    it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (although there
     may be other symmetries present).
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
@@ -2135,8 +2141,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
     {
         settings->setRecommendedSymmetry              ( "C" );
         settings->setRecommendedFold                  ( CSym->at(bestIndex)[0] );
-        settings->setDetectedSymmetry                 ( CSym->at(bestIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestIndex) );
+        
+        if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at(bestIndex) ); }
     }
     else
     {
@@ -2185,10 +2192,14 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
     {
         settings->setRecommendedSymmetry              ( "D" );
         settings->setRecommendedFold                  ( std::max ( DSym->at(bestIndex)[0], DSym->at(bestIndex)[6] ) );
-        settings->setDetectedSymmetry                 ( DSym->at(bestIndex) );
-        settings->setDetectedSymmetry                 ( &DSym->at(bestIndex)[6] );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes,  DSym->at(bestIndex) );
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestIndex)[6] );
+        
+        if ( settings->detectedSymmetry.size() == 0 )
+        {
+            settings->setDetectedSymmetry             ( DSym->at(bestIndex) );
+            settings->setDetectedSymmetry             ( &DSym->at(bestIndex)[6] );
+        }
     }
     else
     {
