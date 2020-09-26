@@ -21,7 +21,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.2
+#   \version   0.7.4.3
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -124,12 +124,12 @@ print ( "To map centre translation    :  %+1.3f    %+1.3f    %+1.3f" % ( toMapCe
 print ( "To overlat translation       :  %+1.3f    %+1.3f    %+1.3f" % ( toOverlay[0], toOverlay[1], toOverlay[2] ) )
 
 ### Expected output
-#   Optimal Euler angles         :  +5.498    +0.769    +3.992
-#   
+#   Optimal Euler angles         :  +5.433    +0.769    +3.927
+#
 #   Optimal Euler rotation matrix:  -0.867    -0.196    +0.459
 #                                :  -0.084    -0.848    -0.523
 #                                :  +0.492    -0.492    +0.719
-#   
+#
 #   To origin translation        :  +0.000    +0.000    +0.000
 #   To map centre translation    :  +0.000    +0.000    +0.000
 #   To overlat translation       :  +8.000    +8.000    +8.000

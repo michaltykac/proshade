@@ -19,7 +19,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.2
+#   \version   0.7.4.3
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -39,12 +39,11 @@ pSet                                          = proshade.ProSHADE_settings ()
 ### Set settings values
 pSet.task                                     = proshade.Symmetry
 pSet.verbose                                  = 1
-pSet.setResolution                            ( 12.0 )
+pSet.setResolution                            ( 8.0 )
 pSet.moveToCOM                                = False
 pSet.changeMapResolution                      = True
-pSet.changeMapResolutionTriLinear             = False
-pSet.requestedSymmetryType                    = "C"
-pSet.requestedSymmetryFold                    = 12
+#pSet.requestedSymmetryType                    = "C"
+#pSet.requestedSymmetryFold                    = 12
 
 ### Create the structure object
 pStruct                                       = proshade.ProSHADE_data ( pSet )
@@ -64,22 +63,55 @@ pStruct.computeSphericalHarmonics             ( pSet )
 ### Compute self-rotation function
 pStruct.getRotationFunction                   ( pSet )
 
-### Detect symmetry
+### Detect recommended symmetry
 pStruct.detectSymmetryInStructurePython       ( pSet )
-symmetryType                                  = pStruct.getRecommendedSymmetryType ( pSet )
-symmetryFold                                  = pStruct.getRecommendedSymmetryFold ( pSet )
-symmetryAxes                                  = proshade.getSymmetryAxesPython ( pStruct, pSet )
+recSymmetryType                               = pStruct.getRecommendedSymmetryType ( pSet )
+recSymmetryFold                               = pStruct.getRecommendedSymmetryFold ( pSet )
+recSymmetryAxes                               = proshade.getRecommendedSymmetryAxesPython ( pStruct, pSet )
 
 ### Print results
-print ( "Detected " + str( symmetryType ) + "-" + str( symmetryFold ) + " symetry." )
+print ( "Detected " + str( recSymmetryType ) + "-" + str( recSymmetryFold ) + " symetry." )
 print ( "Fold      x         y         z       Angle     Height" )
-for iter in range ( 0, len( symmetryAxes ) ):
-     print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( symmetryAxes[iter][0], symmetryAxes[iter][1], symmetryAxes[iter][2], symmetryAxes[iter][3], symmetryAxes[iter][4], symmetryAxes[iter][5] ) )
+for iter in range ( 0, len( recSymmetryAxes ) ):
+     print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( recSymmetryAxes[iter][0], recSymmetryAxes[iter][1], recSymmetryAxes[iter][2], recSymmetryAxes[iter][3], recSymmetryAxes[iter][4], recSymmetryAxes[iter][5] ) )
 
 ### Expected output
-#   Detected C-12 symetry.
+#   Detected D-12 symetry.
 #   Fold      x         y         z       Angle     Height
-#     12    -0.012    +0.004    +1.000    +0.524    +0.9621
+#     12    -0.004    +0.013    +1.000    +0.524    +0.9552
+#      2    -0.190    +0.982    -0.009    +3.142    +0.3469
+
+### Get list of all cyclic axes detected
+allCAxes                                      = proshade.getAllDetectedSymmetryAxes ( pStruct, pSet )
+print ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
+
+### Expected output
+#   Found a total of 9 cyclic point groups.
+
+### Get indices of which C axes form any detected non-C symmetry
+allNonCAxesIndices                            = proshade.getNonCSymmetryAxesIndices ( pSet )
+print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
+
+### Expected output
+#   Found a total of 22 dihedral point groups.
+
+### Get the group elements for the firs dihedral group - this does not have to be the recommended one, just the first in the list
+firstAxisElements                             = proshade.getGroupElementsRotMat ( pStruct, pSet, allNonCAxesIndices["D"][0][0] )
+secondAxisElements                            = proshade.getGroupElementsRotMat ( pStruct, pSet, allNonCAxesIndices["D"][0][1] )
+allGroupElements                              = firstAxisElements + secondAxisElements
+allGroupElements.insert                       ( 0, numpy.identity ( 3, dtype="float32" ) ) ### This is to add the identity element not returned by ProSHADE
+
+### Print the first non-identity element
+print ( "The first non-identity element is:" )
+print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][0][0], allGroupElements[1][0][1], allGroupElements[1][0][2] ) )
+print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][1][0], allGroupElements[1][1][1], allGroupElements[1][1][2] ) )
+print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][2][0], allGroupElements[1][2][1], allGroupElements[1][2][2] ) )
+
+### Expected output
+#   The first non-identity element is:
+#     +0.866    -0.500    +0.006
+#     +0.500    +0.866    +0.004
+#     -0.007    -0.000    +1.000
 
 ### Release C++ pointers
 del pStruct

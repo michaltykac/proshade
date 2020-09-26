@@ -19,7 +19,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.2
+#   \version   0.7.4.3
 #   \date      SEP 2020
 ##############################################
 ##############################################
@@ -36,7 +36,7 @@ import proshade
 ### Create the settings object
 pSet                                          = proshade.ProSHADE_settings ()
 
-### Set settings values
+### Set settings values (for full list, please see the simpleAccess_distances.py file)
 pSet.task                                     = proshade.Distances
 pSet.verbose                                  = 1
 pSet.setResolution                            ( 6.0 )
@@ -74,7 +74,7 @@ print ( "The rotation function distance is      %+1.3f" % ( fullRotationFunction
 ### Expected output
 #   The energy levels distance is          +0.895
 #   The trace sigma distance is            +0.960
-#   The rotation function distance is      +0.733
+#   The rotation function distance is      +0.756
 
 ### Release C++ pointers
 del pStruct1

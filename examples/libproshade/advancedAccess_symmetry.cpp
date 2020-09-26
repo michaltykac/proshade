@@ -16,7 +16,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
 */
 
@@ -45,11 +45,11 @@ int main ( int argc, char **argv )
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
     settings->setAxisComparisonThreshold              ( 0.1 );                               // The dot product difference within which two axes are considered the same.
     settings->setMinimumPeakForAxis                   ( 0.3 );                               // The minimum peak height for axis to be used.
-    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
-    settings->setRequestedFold                        ( 6 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
+//    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
+//    settings->setRequestedFold                        ( 6 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
-    settings->setResolution                           ( 12.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setResolution                           ( 8.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     
     //================================================ All other (possibly other tasks related) settings
@@ -100,21 +100,43 @@ int main ( int argc, char **argv )
     simpleSym->getRotationFunction                    ( settings ); // This function computes the self-rotation function for the structure calling it.
     
     //================================================ Detect the recommended symmetry
-    std::vector< proshade_double* > symAxes;
-    simpleSym->detectSymmetryInStructure              ( settings, &symAxes ); // This function does the symmetry detection in the peaks of the self-rotation function. Once complete, the results can be accessed as shown below
+    std::vector< proshade_double* > recomSymAxes;
+    std::vector< std::vector< proshade_double > > allCSymAxes;
+    simpleSym->detectSymmetryInStructure              ( settings, &recomSymAxes, &allCSymAxes ); // This function does the symmetry detection in the peaks of the self-rotation function. Once complete, the results can be accessed as shown below
     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings ); // This is how the recommended symmetry type can be obtained.
     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings ); // This is how the recommended symmetry fold can be obtained.
     
     //================================================ Write out the symmetry detection results
     std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
-    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( symAxes.size() ); axIt++ )
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( recomSymAxes.size() ); axIt++ )
     {
-        std::cout << "Symmetry axis number " << axIt << ": Fold " << symAxes.at(axIt)[0] << " XYZ: " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << " Angle (radians): " << symAxes.at(axIt)[4] << " and axis peak: " << symAxes.at(axIt)[5] << std::endl;
+        std::cout << "Symmetry axis number " << axIt << ": Fold " << recomSymAxes.at(axIt)[0] << " XYZ: " << recomSymAxes.at(axIt)[1] << " ; " << recomSymAxes.at(axIt)[2] << " ; " << recomSymAxes.at(axIt)[3] << " Angle (radians): " << recomSymAxes.at(axIt)[4] << " and axis peak: " << recomSymAxes.at(axIt)[5] << std::endl;
     }
     
     //================================================ Expected output
-//  Detected symmetry: C-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: -0.0134855 ; 0.00782574 ; 0.999629 Angle (radians): 1.0472 and axis peak: 0.974124
+//  Detected symmetry: D-12 with axes:
+//  Symmetry axis number 0: Fold 12 XYZ: -0.0110542 ; 0.00441254 ; 0.999797 Angle (radians): 0.523599 and axis peak: 0.966385
+//  Symmetry axis number 1: Fold 4 XYZ: 0.00284839 ; 0.997382 ; -0.0293572 Angle (radians): 1.5708 and axis peak: 0.460169
+    
+    //================================================ Find all C axes
+    std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
+    std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
+    
+    //================================================ Expected output
+//  Found total of 40 cyclic symmetry axes.
+    
+    //================================================ Get group elements for the first axis (or any other axis)
+    std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->computeGroupElementsForGroup ( settings, &allCs, 0 );
+    std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (excluding the identity one), the first being the rotation matrix:" << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(0) << " x " << groupElementsGrp0.at(0).at(1) << " x " << groupElementsGrp0.at(0).at(2) << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(3) << " x " << groupElementsGrp0.at(0).at(4) << " x " << groupElementsGrp0.at(0).at(5) << std::endl;
+    std::cout << groupElementsGrp0.at(0).at(6) << " x " << groupElementsGrp0.at(0).at(7) << " x " << groupElementsGrp0.at(0).at(8) << std::endl;
+    
+    //================================================ Expected output
+//  Group 0 has fold of 12 and ProShade computed 11 group element (excluding the identity one), the first being the rotation matrix:
+//  0.866042 x -0.499905 x 0.000725583
+//  0.499892 x 0.866028 x 0.00611817
+//  -0.00368696 x -0.00493607 x 0.999946
     
     //================================================ Release the object
     delete simpleSym;
@@ -131,7 +153,8 @@ int main ( int argc, char **argv )
     
     //================================================ Detect the recommended symmetry
     std::vector< proshade_double* > reqSymAxes;
-    requestSym->detectSymmetryInStructure             ( settings, &reqSymAxes );
+    allCSymAxes.clear();
+    requestSym->detectSymmetryInStructure             ( settings, &reqSymAxes, &allCSymAxes );
     symmetryType                                      = requestSym->getRecommendedSymmetryType ( settings );
     symmetryFold                                      = requestSym->getRecommendedSymmetryFold ( settings );
     

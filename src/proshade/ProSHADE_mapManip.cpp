@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
  */
 
@@ -50,6 +50,9 @@ proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
     \param[in] zFrom Address to a variable to save the z axis minimal atom position.
     \param[in] zTo Address to a variable to save the z axis maximum atom position.
     \param[in] firstModel Should only the first, or all models be used?
+ 
+    \warning This function ignores hydrogen atoms, as they will not be used in map computation by Gemmi and their inclusion causes
+    mismatches between the map and the co-ordinates as they now contain different contents.
  */
 void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom, proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, bool firstModel )
 {
@@ -85,6 +88,9 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, 
                     {
                         //============================ Get atom
                         gemmi::Atom atom              = residue.atoms.at(aIt);
+                        
+                        //============================ Ignore hydrogens, map computations ignore them anyway and inclusion here causes map - co-ordinate mismatches.
+                        if ( atom.is_hydrogen() ) { continue; }
                         
                         //============================ Find the coordinate ranges
                         if ( firstAtom )
@@ -619,6 +625,7 @@ void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, 
 void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, proshade_double*& map, proshade_single requestedResolution, proshade_single xCell, proshade_single yCell, proshade_single zCell, proshade_signed* xTo, proshade_signed* yTo, proshade_signed* zTo, bool forceP1, bool firstModel )
 {
     //================================================ Set cell dimensions from the increased ranges (we need to add some space) and re-calculate cell properties
+    if ( forceP1 ) { pdbFile.cell = gemmi::UnitCell(); }
     pdbFile.cell.a                                    = xCell;
     pdbFile.cell.b                                    = yCell;
     pdbFile.cell.c                                    = zCell;

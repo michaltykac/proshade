@@ -17,7 +17,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.2
+    \version   0.7.4.3
     \date      SEP 2020
 */
 
@@ -120,7 +120,7 @@ int main ( int argc, char **argv )
     //================================================ Expected output
 //  Energy levels distance       : 0.89531
 //  Trace sigma distance         : 0.96045
-//  Rotation function distance   : 0.73264
+//  Rotation function distance   : 0.75628
 
     //================================================ Release the settings and runProshade objects
     delete structure1;
