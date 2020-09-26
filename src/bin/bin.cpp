@@ -1192,6 +1192,7 @@ int main ( int argc, char **argv )
  * \code{.py}
  """ Find the optimal translation vector """
  optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
+ ( toOrigin, toMapCen, toOverlay )             = proshade.computeOverlayTranslationsNumpy ( pStruct_moving, optimalTranslationVector )
  \endcode
  *
  *
