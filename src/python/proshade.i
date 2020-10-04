@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.3
-    \date      SEP 2020
+    \version   0.7.4.4
+    \date      OCT 2020
  */
 
 //============================================ Module name
@@ -95,6 +95,8 @@ import_array();
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double *allCSymsArray,                int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* groupElements,                int len ) }
 %apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* allOtherDetectedSymsIndices,  int len ) }
+%apply ( int*    IN_ARRAY1,     int DIM1 ) { ( int* grIndices,                       int len ) }
+%apply ( double* ARGOUT_ARRAY1, int DIM1 ) { ( double* allGroupElement,              int ln2 ) }
 
 //============================================ Include the pythonised ProSHADE code to SWIG
 %include "ProSHADE_typedefs.hpp"
@@ -166,12 +168,12 @@ def getAllDetectedSymmetryAxes ( pStruct, pSet ):
         retArr[iter][5]                       = valArr[iter*6+5]
     return                                    ( retArr )
     
-def getGroupElementsRotMat ( pStruct, pSet, grPos ):
+def getCGroupElementsRotMat ( pStruct, pSet, grPos ):
     import numpy
-    valArr                                    = pStruct.getGroupElementsPython ( pSet, pStruct.getGroupElementsLength( pSet, grPos ), grPos )
+    valArr                                    = pStruct.getCGroupElementsPython ( pSet, pStruct.getCGroupElementsLength( pSet, grPos ), grPos )
     ret                                       = []
     
-    for iter in range ( 0, int ( pStruct.getGroupElementsLength( pSet, grPos ) / 9 ) ):
+    for iter in range ( 0, int ( pStruct.getCGroupElementsLength( pSet, grPos ) / 9 ) ):
         rotM                                  = numpy.zeros ( [ 3, 3 ], dtype="float32" )
         rotM[0][0]                            = valArr[iter*9+0]
         rotM[0][1]                            = valArr[iter*9+1]
@@ -218,6 +220,28 @@ def getNonCSymmetryAxesIndices ( pSet ):
     ret["I"]                                  = Is
     
     return                                    ( ret )
+    
+def getAllGroupElements ( pSet, pStruct, cIndices, grType ):
+    import numpy
+    arrLen                                    = pStruct.getAllGroupElementsLength ( pSet, cIndices, grType )
+    allEls                                    = pStruct.getAllGroupElementsPython ( pSet, cIndices, grType, arrLen )
+    
+    ret                                       = []
+    
+    for iter in range ( 0, int ( arrLen / 9 ) ):
+        rotM                                  = numpy.zeros ( [ 3, 3 ], dtype="float32" )
+        rotM[0][0]                            = allEls[iter*9+0]
+        rotM[0][1]                            = allEls[iter*9+1]
+        rotM[0][2]                            = allEls[iter*9+2]
+        rotM[1][0]                            = allEls[iter*9+3]
+        rotM[1][1]                            = allEls[iter*9+4]
+        rotM[1][2]                            = allEls[iter*9+5]
+        rotM[2][0]                            = allEls[iter*9+6]
+        rotM[2][1]                            = allEls[iter*9+7]
+        rotM[2][2]                            = allEls[iter*9+8]
+        ret.append                            ( rotM )
+    return                                    ( ret )
+
 %}
     
 //============================================ Reboxing

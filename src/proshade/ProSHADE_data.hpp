@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.3
-    \date      SEP 2020
+    \version   0.7.4.4
+    \date      OCT 2020
 */
 
 //==================================================== ProSHADE
@@ -218,7 +218,7 @@ namespace ProSHADE_internal_data
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
-        proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
+        proshade_double findBestCScore                ( std::vector< proshade_double* > CSym, proshade_unsign* symInd );
         proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );
         proshade_double findTScore                    ( std::vector< proshade_double* >* TSym );
         proshade_double findOScore                    ( std::vector< proshade_double* >* OSym );
@@ -231,8 +231,11 @@ namespace ProSHADE_internal_data
         std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( ProSHADE_settings* settings,
                                                                                     std::vector<std::vector< proshade_double > >* allCSyms,
                                                                                     proshade_unsign grPosition );
-        proshade_unsign getGroupElementsLength        ( ProSHADE_settings* settings, proshade_unsign grPosition );
-        void getGroupElementsPython                   ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition );
+        std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "" );
+        proshade_unsign getAllGroupElementsLength     ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType );
+        void getAllGroupElementsPython                ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 );
+        proshade_unsign getCGroupElementsLength       ( ProSHADE_settings* settings, proshade_unsign grPosition );
+        void getCGroupElementsPython                  ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
         //============================================ Map overlay functions
