@@ -34,16 +34,26 @@ sys.path.append                               ( "/Users/mysak/BioCEV/proshade/ex
 import proshade
 
 ### Create the settings object
-pSet                                          = proshade.ProSHADE_settings ()
+pSet                                          = proshade.ProSHADE_settings ( proshade.Symmetry )
 
-### Set settings values
-pSet.task                                     = proshade.Symmetry
+### Further useful settings
 pSet.verbose                                  = 1
-pSet.setResolution                            ( 8.0 )
-pSet.moveToCOM                                = False
-pSet.changeMapResolution                      = True
-#pSet.requestedSymmetryType                    = "C"
-#pSet.requestedSymmetryFold                    = 12
+pSet.forceP1                                  = True;                                ## Should PDB files be forced to have P1 spacegroup?
+pSet.removeWaters                             = True;                                ## Should PDB files have their water molecules removed?
+pSet.firstModelOnly                           = True;                                ## Should PDB files have only their first model used, or should ProSHADE use all models?
+pSet.setProgressiveSphereMapping              ( True );                              ## Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
+pSet.setMapResolutionChange                   ( True );                              ## Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+pSet.setMapResolutionChangeTriLinear          ( False );                             ## Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
+pSet.setPeakNeighboursNumber                  ( 1 );                                 ## Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
+pSet.setPeakNaiveNoIQR                        ( 5.0 );                               ## Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
+pSet.setMissingPeakThreshold                  ( 0.3 );                               ## Fraction of peaks that can be missing for missing axis search to be initiated.
+pSet.setAxisComparisonThreshold               ( 0.1 );                               ## The dot product difference within which two axes are considered the same.
+pSet.setMinimumPeakForAxis                    ( 0.3 );                               ## The minimum peak height for axis to be used.
+#pSet.setRequestedSymmetry                     ( "C" );                               ## Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
+#pSet.setRequestedFold                         ( 6 );                                 ## For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
+pSet.setMapCentering                          ( true );                              ## Move structure COM to the centre of map box?
+pSet.setExtraSpace                            ( 10.0 );                              ## Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
+pSet.setResolution                            ( 6.0 );                               ## The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
 
 ### Create the structure object
 pStruct                                       = proshade.ProSHADE_data ( pSet )
@@ -95,13 +105,52 @@ print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedra
 ### Expected output
 #   Found a total of 22 dihedral point groups.
 
-### Get the group elements for the firs dihedral group - this does not have to be the recommended one, just the first in the list
-firstAxisElements                             = proshade.getGroupElementsRotMat ( pStruct, pSet, allNonCAxesIndices["D"][0][0] )
-secondAxisElements                            = proshade.getGroupElementsRotMat ( pStruct, pSet, allNonCAxesIndices["D"][0][1] )
-allGroupElements                              = firstAxisElements + secondAxisElements
-allGroupElements.insert                       ( 0, numpy.identity ( 3, dtype="float32" ) ) ### This is to add the identity element not returned by ProSHADE
+#  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
+#        requested point group. This is relatively simple for T, O and I symmetries, as such list is already produced by
+#        ProSHADE - see the following examples:
+#
+#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedTAxes, "T" );
+#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedOAxes, "O" );
+#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedIAxes, "I" );
+#
+#        For cyclic point groups, this is also simple, as one can select the required >index< from the allCs variable and use
+#
+#        std::vector< proshade_unsign > bestCAxesList;
+#        bestCAxesList.emplace_back ( index );
+#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, bestCAxesList, "C" );
+#
+#        The only problem comes when D is to be used, as ProSHADE gives a vector of all combinations (also as vector) of cyclic point groups which form
+#        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
+
+### Define isclose() for comparing floats
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+### Find the indices of the best dihedral combination
+bestDCombination                                      = []
+for dIt in range ( 0, len ( allNonCAxesIndices['D'] ) ):
+    firstMatch = False
+    secondMatch = False
+    for recIt in range ( 0, len( recSymmetryAxes ) ):
+        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][1], recSymmetryAxes[0][1], 1e-06 ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][2], recSymmetryAxes[0][2], 1e-06 ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][3], recSymmetryAxes[0][3], 1e-06 ) ):
+            firstMatch = True
+            
+        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][1], recSymmetryAxes[1][1], 1e-06 ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][2], recSymmetryAxes[1][2], 1e-06 ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][3], recSymmetryAxes[1][3], 1e-06 ) ):
+            secondMatch = True
+            
+    if firstMatch and secondMatch:
+        bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][0] )
+        bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][1] )
+        
+### Get the group elements for the best dihedral group
+allGroupElements                                      = proshade.getAllGroupElements ( pSet, pStruct, bestDCombination, "D" )
 
 ### Print the first non-identity element
+print ( "Found a total of " + str( len ( allGroupElements ) ) + " group " + str( bestDCombination ) + " elements." )
 print ( "The first non-identity element is:" )
 print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][0][0], allGroupElements[1][0][1], allGroupElements[1][0][2] ) )
 print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][1][0], allGroupElements[1][1][1], allGroupElements[1][1][2] ) )

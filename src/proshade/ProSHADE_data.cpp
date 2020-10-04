@@ -2694,7 +2694,75 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     
 }
 
-/*! \brief This function returns the length of 1D array that could hold all the group elements rotation matrices.
+/*! \brief This function returns the length of 1D array that could hold all group elements rotation matrices for any group.
+ 
+    Note: This is required for passing the values to python, otherwise the function has no usage.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] grIndices An array of indices to the all detected cyclic groups list, specifying which cyclic groups will form the point group for which the elements will be obtained.
+    \param[in] len The length of the grIndices array.
+    \param[in] groupType A string specifying which group type the elements will be computed for - allowed values are C, D, T, O, I and X.
+    \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
+ */
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getAllGroupElementsLength ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType )
+{
+    //================================================ Convert array to vector
+    std::vector< proshade_unsign > axes;
+    for ( int iter = 0; iter < len; iter++ )
+    {
+        ProSHADE_internal_misc::addToUnsignVector     ( &axes, grIndices[iter] );
+    }
+    
+    //================================================ Get the elements
+    std::vector<std::vector< proshade_double > > groupElements = this->getAllGroupElements ( settings, axes, groupType );
+    
+    //================================================ Return their size
+    return                                            ( static_cast<proshade_unsign> ( groupElements.size() * 9 ) );
+    
+}
+
+/*! \brief This function computes all point group elements for a group formed by any number of cyclic point groups.
+ 
+    This function is a Python wrapper function for the getAllGroupElements() function. It takes the indices of the cyclic point groups which form the point group for which
+    the group elements are required as a Python list and fills a Python compatible array with the results.
+ 
+    \warning This function has specific signature for SWIG processing into proshade Python module, please use the getAllGroupElements() funtion
+    for C++ access.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] grIndices A list of indices of cyclic point groups which should be combined to create the point group whose group elements are required.
+    \param[in] len The length of the grIndices array.
+    \param[in] groupType The type of the group. Allowed values are C, D, T, O, I and X.
+    \param[in] allGroupElement This is the array to which the results will be saved into.
+    \param[in] ln2 The lenght of the allGroupElement array.
+ */
+void ProSHADE_internal_data::ProSHADE_data::getAllGroupElementsPython ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 )
+{
+    //================================================ Convert array to vector
+    std::vector< proshade_unsign > axes;
+    for ( int iter = 0; iter < len; iter++ )
+    {
+        ProSHADE_internal_misc::addToUnsignVector     ( &axes, grIndices[iter] );
+    }
+    
+    //================================================ Get the elements in C++ format
+    std::vector<std::vector< proshade_double > > groupElements = this->getAllGroupElements ( settings, axes, groupType );
+    
+    //================================================ Re-save them in Python format
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( groupElements.size() ); grIt++ )
+    {
+        for ( proshade_unsign matIt = 0; matIt < 9; matIt++ )
+        {
+            allGroupElement[(grIt*9)+matIt]           = groupElements.at(grIt).at(matIt);
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns the length of 1D array that could hold all the cyclic group elements rotation matrices.
  
     Note: This is required for passing the values to python, otherwise the function has no usage.
  
@@ -2702,7 +2770,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
     \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
  */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getGroupElementsLength ( ProSHADE_settings* settings, proshade_unsign grPosition )
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getCGroupElementsLength ( ProSHADE_settings* settings, proshade_unsign grPosition )
 {
     //================================================ Sanity check
     if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
@@ -2726,7 +2794,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getGroupElementsLength ( 
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
  */
-void ProSHADE_internal_data::ProSHADE_data::getGroupElementsPython ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition )
+void ProSHADE_internal_data::ProSHADE_data::getCGroupElementsPython ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition )
 {
     //================================================ Sanity check
     if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
