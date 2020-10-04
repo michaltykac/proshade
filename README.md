@@ -160,8 +160,7 @@ One particular option regarding the symmetry detection mode should be noted; the
 
 Another noteworthy option is the **--center** or **-c** option, which  tells ProSHADE to center the internal map representation over the centre of co-ordinates before running any processing of the map. This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of co-ordinates) will be found to have no symmetries even if these are present, just not over the co-ordinate centre.
 
-It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (**i.e.** either through the dynamic C++ library or through the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all detected dihedral, tetrahedral, ... symmetries and the axes forming them) and also the ability to compute all point group elements for any particular cyclic point group excluding the identity element; these can then be combined to obtain the full list of all point group elements for any ProSHADE detectable symmetry type. For more details on these functinoalities, the users are invited to consult the
-*advancedAccess_symmetry.cpp/py* example files in the **examples** folder.
+It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (**i.e.** either through the dynamic C++ library or through the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all detected dihedral, tetrahedral, ... symmetries and the cyclic axes forming them) and also the ability to compute all point group elements for any point group formed by a combination of ProSHADE detected cyclic point groups. For more details on these functinoalities, the users are invited to consult the *advancedAccess_symmetry.cpp/py* example files in the **examples** folder.
 
 To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \a C12 symmetry. The visualisation of the structure is shown in the following figure, while the output of the ProSHADE tool follows:
 
@@ -169,7 +168,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
- ProSHADE 0.7.4.3 (SEP 2020):
+ ProSHADE 0.7.4.4 (OCT 2020):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -209,7 +208,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.4.3 (SEP 2020):
+  ProSHADE 0.7.4.4 (OCT 2020):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -276,8 +275,8 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 ![Re-boxing result for TubZ-Bt four-stranded filament](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_rebox.png)
  
 ```
-$ ./proshade -RMf ./emd_5762.map.gz 
-ProSHADE 0.7.4.3 (SEP 2020):
+$ ./proshade -RMf ./emd_5762.map.gz
+ProSHADE 0.7.4.4 (OCT 2020):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
@@ -293,7 +292,7 @@ ProSHADE 0.7.4.3 (SEP 2020):
 
 ======================
 ProSHADE run complete.
-Time taken: 10 seconds.
+Time taken: 9 seconds.
 ======================
 ```
 
@@ -321,7 +320,7 @@ Time taken: 10 seconds.
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.4.3 (SEP 2020):
+ ProSHADE 0.7.4.4 (OCT 2020):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb

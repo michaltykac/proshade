@@ -224,9 +224,8 @@
  *
  * It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (\e i.e. either through the dynamic C++ library or through
  * the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all
- * detected dihedral, tetrahedral, ... symmetries and the axes forming them) and also the ability to compute all point group elements for any particular cyclic point group excluding the identity element; these
- * can then be combined to obtain the full list of all point group elements for any ProSHADE detectable symmetry type. For more details on these functinoalities, the users are invited to consult the
- * \e advancedAccess_symmetry.cpp/py example files in the \b examples folder.
+ * detected dihedral, tetrahedral, ... symmetries and the axes forming them) and also the ability to compute all point group elements for any point group formed by a combination of ProSHADE detected
+ * cyclic point groups. For more details on these functinoalities, the users are invited to consult the \e advancedAccess_symmetry.cpp/py example files in the \b examples folder.
  *
  * To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the
  * symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \a C12 symmetry. The visualisation of the structure is
@@ -236,7 +235,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
- ProSHADE 0.7.4.3 (SEP 2020):
+ ProSHADE 0.7.4.4 (OCT 2020):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -280,58 +279,58 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.4.3 (SEP 2020):
-  ============================
+ ProSHADE 0.7.4.4 (OCT 2020):
+ ============================
 
-   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
-   ... Map inversion (mirror image) not requested.
-   ... Map normalisation not requested.
-   ... Masking not requested.
-   ... Map centering not requested.
-   ... Adding extra 10 angstroms.
-   ... Phase information retained in the data.
-   ... Starting sphere mapping procedure.
-   ... Preparing spherical harmonics environment.
-   ... Starting spherical harmonics decomposition.
-   ... Starting to read the structure: ./1H8N_A_dom_1.pdb
-   ... Map inversion (mirror image) not requested.
-   ... Map normalisation not requested.
-   ... Masking not requested.
-   ... Map centering not requested.
-   ... Adding extra 10 angstroms.
-   ... Phase information retained in the data.
-   ... Starting sphere mapping procedure.
-   ... Preparing spherical harmonics environment.
-   ... Starting spherical harmonics decomposition.
-   ... Starting energy levels distance computation.
-   ... Starting trace sigma distance computation.
-   ... Starting rotation function distance computation.
-  Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
-  Energy levels distance    : 0.895313
-  Trace sigma distance      : 0.960445
-  Rotation function distance: 0.756283
-   ... Starting to read the structure: ./3IGU_A_dom_1.pdb
-   ... Map inversion (mirror image) not requested.
-   ... Map normalisation not requested.
-   ... Masking not requested.
-   ... Map centering not requested.
-   ... Adding extra 10 angstroms.
-   ... Phase information retained in the data.
-   ... Starting sphere mapping procedure.
-   ... Preparing spherical harmonics environment.
-   ... Starting spherical harmonics decomposition.
-   ... Starting energy levels distance computation.
-   ... Starting trace sigma distance computation.
-   ... Starting rotation function distance computation.
-  Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
-  Energy levels distance    : 0.55904
-  Trace sigma distance      : 0.736554
-  Rotation function distance: 0.452416
+  ... Starting to read the structure: ./1BFO_A_dom_1.pdb
+  ... Map inversion (mirror image) not requested.
+  ... Map normalisation not requested.
+  ... Masking not requested.
+  ... Map centering not requested.
+  ... Adding extra 10 angstroms.
+  ... Phase information retained in the data.
+  ... Starting sphere mapping procedure.
+  ... Preparing spherical harmonics environment.
+  ... Starting spherical harmonics decomposition.
+  ... Starting to read the structure: ./1H8N_A_dom_1.pdb
+  ... Map inversion (mirror image) not requested.
+  ... Map normalisation not requested.
+  ... Masking not requested.
+  ... Map centering not requested.
+  ... Adding extra 10 angstroms.
+  ... Phase information retained in the data.
+  ... Starting sphere mapping procedure.
+  ... Preparing spherical harmonics environment.
+  ... Starting spherical harmonics decomposition.
+  ... Starting energy levels distance computation.
+  ... Starting trace sigma distance computation.
+  ... Starting rotation function distance computation.
+ Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
+ Energy levels distance    : 0.895313
+ Trace sigma distance      : 0.960445
+ Rotation function distance: 0.756283
+  ... Starting to read the structure: ./3IGU_A_dom_1.pdb
+  ... Map inversion (mirror image) not requested.
+  ... Map normalisation not requested.
+  ... Masking not requested.
+  ... Map centering not requested.
+  ... Adding extra 10 angstroms.
+  ... Phase information retained in the data.
+  ... Starting sphere mapping procedure.
+  ... Preparing spherical harmonics environment.
+  ... Starting spherical harmonics decomposition.
+  ... Starting energy levels distance computation.
+  ... Starting trace sigma distance computation.
+  ... Starting rotation function distance computation.
+ Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
+ Energy levels distance    : 0.55904
+ Trace sigma distance      : 0.736554
+ Rotation function distance: 0.452416
 
-  ======================
-  ProSHADE run complete.
-  Time taken: 5 seconds.
-  ======================
+ ======================
+ ProSHADE run complete.
+ Time taken: 5 seconds.
+ ======================
  *\endcode
  *
  * \subsection reboxingUsage Re-boxing structures
@@ -354,7 +353,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.4.3 (SEP 2020):
+ ProSHADE 0.7.4.4 (OCT 2020):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -370,7 +369,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 10 seconds.
+ Time taken: 9 seconds.
  ======================
  \endcode
  *
@@ -417,7 +416,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.4.3 (SEP 2020):
+ ProSHADE 0.7.4.4 (OCT 2020):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
