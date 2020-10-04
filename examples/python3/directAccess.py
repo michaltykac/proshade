@@ -34,8 +34,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.3
-#   \date      SEP 2020
+#   \version   0.7.4.4
+#   \date      OCT 2020
 ##############################################
 ##############################################
 
@@ -707,9 +707,10 @@ for iter in range ( 0, len( symmetryAxes ) ):
 ### detected cyclic point groups, a list of indices
 ### of these cyclic point groups which form any
 ### particular non-cyclic point group as well as
-### list of all group elements for each of the
-### cyclic point groups (note: such list will not
-### include identity element)
+### list of all group elements for any point group
+### comprised from detected cyclic point groups. For
+### more details, please see the advancedAccess_symmetry.py
+### file.
 ###
 
 allCAxes                                      = proshade.getAllDetectedSymmetryAxes ( pStruct, pSet )
@@ -722,10 +723,12 @@ allNonCAxesIndices                            = proshade.getNonCSymmetryAxesIndi
 print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
 # Expected output: Found a total of 0 dihedral point groups.
 
-groupElements                                 = proshade.getGroupElementsRotMat ( pStruct, pSet, 0 )
-groupElements.insert                          ( 0, numpy.identity ( 3, dtype="float32" ) )
+allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, [0], "C" )
 
-print ( groupElements[1] )
+print ( "Found a total of " + str( len ( allGroupElements ) ) + " elements for the cyclic group C-" + str( int ( allCAxes[0][0] ) ) )
+# Expected output: Found a total of 4 elements for the cyclic group C-4
+
+print ( allGroupElements[1] )
 # Expected output: [[ 0.06601924  0.06165377  0.9955552 ]
 # Expected output:  [ 0.4258991   0.90014595 -0.08415134]
 # Expected output:  [-0.90196526  0.42973283  0.03316866]]

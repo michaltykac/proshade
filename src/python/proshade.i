@@ -228,7 +228,7 @@ def getAllGroupElements ( pSet, pStruct, cIndices, grType ):
     
     ret                                       = []
     
-    for iter in range ( 0, arrLen / 9 ):
+    for iter in range ( 0, int ( arrLen / 9 ) ):
         rotM                                  = numpy.zeros ( [ 3, 3 ], dtype="float32" )
         rotM[0][0]                            = allEls[iter*9+0]
         rotM[0][1]                            = allEls[iter*9+1]

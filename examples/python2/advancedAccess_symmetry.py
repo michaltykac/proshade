@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.3
-#   \date      SEP 2020
+#   \version   0.7.4.4
+#   \date      OCT 2020
 ##############################################
 ##############################################
 
@@ -51,7 +51,7 @@ pSet.setAxisComparisonThreshold               ( 0.1 );                          
 pSet.setMinimumPeakForAxis                    ( 0.3 );                               ## The minimum peak height for axis to be used.
 #pSet.setRequestedSymmetry                     ( "C" );                               ## Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 #pSet.setRequestedFold                         ( 6 );                                 ## For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
-pSet.setMapCentering                          ( true );                              ## Move structure COM to the centre of map box?
+pSet.setMapCentering                          ( True );                              ## Move structure COM to the centre of map box?
 pSet.setExtraSpace                            ( 10.0 );                              ## Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
 pSet.setResolution                            ( 6.0 );                               ## The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
 
@@ -88,66 +88,65 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ### Expected output
 #   Detected D-12 symetry.
 #   Fold      x         y         z       Angle     Height
-#     12    -0.004    +0.013    +1.000    +0.524    +0.9552
-#      2    -0.190    +0.982    -0.009    +3.142    +0.3469
+#     12    -0.007    +0.004    +1.000    +0.524    +0.7031
+#      2    +0.788    +0.616    +0.007    +3.142    +0.4261
 
 ### Get list of all cyclic axes detected
 allCAxes                                      = proshade.getAllDetectedSymmetryAxes ( pStruct, pSet )
 print ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
 
 ### Expected output
-#   Found a total of 9 cyclic point groups.
+#   Found a total of 10 cyclic point groups.
 
 ### Get indices of which C axes form any detected non-C symmetry
 allNonCAxesIndices                            = proshade.getNonCSymmetryAxesIndices ( pSet )
 print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
 
 ### Expected output
-#   Found a total of 22 dihedral point groups.
+#   Found a total of 26 dihedral point groups.
 
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
-#        requested point group. This is relatively simple for T, O and I symmetries, as such list is already produced by
+#        requested point group. This is relatively simple for T, O and I symmetries, as such a list is already produced by
 #        ProSHADE - see the following examples:
 #
-#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedTAxes, "T" );
-#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedOAxes, "O" );
-#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedIAxes, "I" );
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxesIndices['T'], "T" )
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxesIndices['O'], "O" )
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxesIndices['I'], "I" )
 #
 #        For cyclic point groups, this is also simple, as one can select the required >index< from the allCs variable and use
+#        NOTE: The [] around index is required, as the function expects an array (list) and not an int!
 #
-#        std::vector< proshade_unsign > bestCAxesList;
-#        bestCAxesList.emplace_back ( index );
-#        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, bestCAxesList, "C" );
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, [index], "C" )
 #
-#        The only problem comes when D is to be used, as ProSHADE gives a vector of all combinations (also as vector) of cyclic point groups which form
+#        The only problem comes when D is to be used, as ProSHADE gives a vector (list) of all combinations (also as vector/list) of cyclic point groups which form the
 #        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
 
 ### Define isclose() for comparing floats
-def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 ### Find the indices of the best dihedral combination
-bestDCombination                                      = []
+bestDCombination                              = []
 for dIt in range ( 0, len ( allNonCAxesIndices['D'] ) ):
     firstMatch = False
     secondMatch = False
     for recIt in range ( 0, len( recSymmetryAxes ) ):
-        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][1], recSymmetryAxes[0][1], 1e-06 ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][2], recSymmetryAxes[0][2], 1e-06 ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][3], recSymmetryAxes[0][3], 1e-06 ) ):
+        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][1], recSymmetryAxes[0][1] ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][2], recSymmetryAxes[0][2] ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][3], recSymmetryAxes[0][3] ) ):
             firstMatch = True
             
-        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][1], recSymmetryAxes[1][1], 1e-06 ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][2], recSymmetryAxes[1][2], 1e-06 ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][3], recSymmetryAxes[1][3], 1e-06 ) ):
+        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][1], recSymmetryAxes[1][1] ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][2], recSymmetryAxes[1][2] ) ) and \
+           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][3], recSymmetryAxes[1][3] ) ):
             secondMatch = True
             
     if firstMatch and secondMatch:
-        bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][0] )
-        bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][1] )
+        bestDCombination.append               ( allNonCAxesIndices['D'][dIt][0] )
+        bestDCombination.append               ( allNonCAxesIndices['D'][dIt][1] )
         
 ### Get the group elements for the best dihedral group
-allGroupElements                                      = proshade.getAllGroupElements ( pSet, pStruct, bestDCombination, "D" )
+allGroupElements                              = proshade.getAllGroupElements ( pSet, pStruct, bestDCombination, "D" )
 
 ### Print the first non-identity element
 print ( "Found a total of " + str( len ( allGroupElements ) ) + " group " + str( bestDCombination ) + " elements." )
@@ -157,10 +156,11 @@ print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][1][0], allGroupE
 print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][2][0], allGroupElements[1][2][1], allGroupElements[1][2][2] ) )
 
 ### Expected output
+#   Found a total of 24 group [0, 9] elements.
 #   The first non-identity element is:
-#     +0.866    -0.500    +0.006
-#     +0.500    +0.866    +0.004
-#     -0.007    -0.000    +1.000
+#     +0.866    -0.500    +0.001 
+#     +0.500    +0.866    +0.004 
+#     -0.003    -0.003    +1.000 
 
 ### Release C++ pointers
 del pStruct
