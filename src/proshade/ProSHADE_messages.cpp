@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.3
-    \date      SEP 2020
+    \version   0.7.4.4
+    \date      OCT 2020
 */
 
 //==================================================== ProSHADE
@@ -162,8 +162,8 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Given two structures, find the optimal overlay using the            " << std::endl;
     std::cout << "            rotation and translation functions. The first structure is          " << std::endl;
     std::cout << "            always unchanged, while a rotated and translated version of the     " << std::endl;
-    std::cout << "            second structure will be written to the \'--clearMap\' option         " << std::endl;
-    std::cout << "            path or \'./rotStr\' file.                                            " << std::endl;
+    std::cout << "            second structure will be written to the \'--overlayFile\' option      " << std::endl;
+    std::cout << "            path or its default value \'./movedStructure\' file.                  " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "ARGUMENTS:                                                                      " << std::endl;
     std::cout << "    The following options can be used to to supply information and values       " << std::endl;

@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.3
-    \date      SEP 2020
+    \version   0.7.4.4
+    \date      OCT 2020
  */
 
 //==================================================== ProSHADE
@@ -242,6 +242,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
         case NA:
             std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
             std::cerr << "Error Code          : " << "E000014" << std::endl << std::flush;
+            std::cerr << "ProSHADE version    : " << __PROSHADE_VERSION__ << std::endl << std::flush;
             std::cerr << "File                : " << "ProSHADE.cpp" << std::endl << std::flush;
             std::cerr << "Line                : " << 97 << std::endl << std::flush;
             std::cerr << "Function            : " << "ProSHADE_settings (Task) constructor" << std::endl << std::flush;
@@ -1319,6 +1320,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
     {
         std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
         std::cerr << "Error Code          : " << err.get_errc() << std::endl << std::flush;
+        std::cerr << "ProSHADE version    : " << __PROSHADE_VERSION__ << std::endl << std::flush;
         std::cerr << "File                : " << err.get_file() << std::endl << std::flush;
         std::cerr << "Line                : " << err.get_line() << std::endl << std::flush;
         std::cerr << "Function            : " << err.get_func() << std::endl << std::flush;
@@ -1347,7 +1349,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
             }
             catch ( const std::exception& e )
             {
-                std::cerr << "Caught exception with following information: " << e.what() << std::endl << std::flush;
+                std::cerr << "Caught unknown exception with following information: " << e.what() << std::endl << std::flush;
             }
 #else
             std::cerr << "Unknown error with no further explanation available. Please contact the author for help." << std::endl << std::flush;
