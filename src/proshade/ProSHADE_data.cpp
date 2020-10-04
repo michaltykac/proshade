@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.3
-    \date      SEP 2020
+    \version   0.7.4.4
+    \date      OCT 2020
  */
 
 //==================================================== ProSHADE
@@ -1712,25 +1712,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = this->getCyclicSymmetriesList ( settings );
     
-    //================================================ Save C symmetries to argument and if different from settings, to the settings as well
-    bool isArgSameAsSettings                          = true;
-    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
-    {
-        std::vector< proshade_double > nextSym;
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[0] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[1] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[2] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[3] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
-        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
-        
-        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
-        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
-        
-        nextSym.clear                                 ( );
-    }
-    
     //================================================ Was any particular symmetry requested?
     if ( settings->requestedSymmetryType == "" )
     {
@@ -1788,6 +1769,25 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     {
         throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00032", __FILE__, __LINE__, __func__, "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
     }
+    
+    //================================================ Save C symmetries to argument and if different from settings, to the settings as well
+    bool isArgSameAsSettings                          = true;
+    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
+    {
+        std::vector< proshade_double > nextSym;
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[0] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[1] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[2] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[3] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
+        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
+
+        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
+        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
+
+        nextSym.clear                                 ( );
+    }
 
     //================================================ Release memory
     for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( CSyms.size() ); it++ ) { delete[] CSyms.at(it); }
@@ -1823,34 +1823,34 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
     \param[in] symInd A pointer to variable where the best symmetry axis index will be stored.
     \param[out] ret The score of the best scoring C axis.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd )
+proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vector< proshade_double* > CSym, proshade_unsign* symInd )
 {
     //================================================ Sanity check
-    if ( CSym->size() == 0 ) { *symInd = 0; return ( 0.0 ); }
+    if ( CSym.size() == 0 ) { *symInd = 0; return ( 0.0 ); }
     
     //================================================ Sort the vector
-    std::sort                                         ( CSym->begin(), CSym->end(), ProSHADE_internal_misc::sortSymHlpInv );
+    std::sort                                         ( CSym.begin(), CSym.end(), ProSHADE_internal_misc::sortSymHlpInv );
     
     //================================================ Initalise variables
-    proshade_double ret                               = CSym->at(0)[5];
+    proshade_double ret                               = CSym.at(0)[5];
    *symInd                                            = 0;
     proshade_double frac                              = 0.0;
     
     //================================================ Check all other axes
-    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym->size() ); ind++ )
+    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym.size() ); ind++ )
     {
         //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
-        if ( CSym->at(ind)[0] > CSym->at(*symInd)[0] )
+        if ( CSym.at(ind)[0] > CSym.at(*symInd)[0] )
         {
             //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-            frac                                      = std::max ( std::min ( ( CSym->at(*symInd)[0] / CSym->at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
+            frac                                      = std::max ( std::min ( ( CSym.at(*symInd)[0] / CSym.at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
             
             //======================================== Check if the new is "better" according to this criteria.
-            if ( ( CSym->at(*symInd)[5] * frac ) < CSym->at(ind)[5] )
+            if ( ( CSym.at(*symInd)[5] * frac ) < CSym.at(ind)[5] )
             {
                 //==================================== And it is! Save and try next one.
                *symInd                                = ind;
-                ret                                   = CSym->at(ind)[5];
+                ret                                   = CSym.at(ind)[5];
             }
         }
     }
@@ -2028,7 +2028,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_unsign bestCIndex, bestDIndex;
     
     //================================================ Find a score for each input symmetry type.
-    cScore                                            = this->findBestCScore ( CSym, &bestCIndex );
+    cScore                                            = this->findBestCScore ( *CSym, &bestCIndex );
     dScore                                            = this->findBestDScore ( DSym, &bestDIndex );
     tScore                                            = this->findTScore     ( TSym );
     oScore                                            = this->findOScore     ( OSym );
@@ -2036,7 +2036,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
 
     //================================================ Find the best available score
     proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 2.0, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
-    
     
     //================================================ No score? Well, no symmetry.
     if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
@@ -2212,12 +2211,12 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
     
 }
 
-/*! \brief This function computes the group elements as rotation matrices (except for the identity element) for any detected point group.
+/*! \brief This function computes the group elements as rotation matrices (except for the identity element) for any detected cyclic point group.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] allCSyms A vector of vectors of doubles, each array being a single Cyclic symmetry entry in a vector of all detected Cyclic symmetries.
     \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
-    \param[out] val A vector containing a vector of 9 (rotation matrix) for each group element for the requested group, except for the identity element.
+    \param[out] val A vector containing vectors of 9 (rotation matrix) for each group element for the requested group, except for the identity element.
  */
 std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::computeGroupElementsForGroup ( ProSHADE_settings* settings, std::vector<std::vector< proshade_double > >* allCSyms, proshade_unsign grPosition )
 {
@@ -2266,7 +2265,504 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     
 }
 
-/*! \brief This function returns the length of 1D array that could hold all the group elements rotation matrices.
+/*! \brief This function checks that the required and obtained numbers of axes are correct, printing error if they are not.
+ 
+    \param[in] requiredAxes Number of axes that are required by the symmetry type.
+    \param[in] obtainedAxes Number of axes given.
+    \param[in] groupType A string specifying for which symmetry type the group elements are to be computed.
+ */
+void axesToGroupTypeSanityCheck ( proshade_unsign requiredAxes, proshade_unsign obtainedAxes, std::string groupType )
+{
+    //================================================ Sanity check
+    if ( obtainedAxes != requiredAxes )
+    {
+        std::stringstream hlpSS;
+        hlpSS << "The supplied number of axes for group element\n                    : detection ( >" << obtainedAxes << "< ) does not match the group type ( >" << groupType << "< ).";
+        throw ProSHADE_exception ( "Mismatch between supplied number of axes and\n                    : symmetry type.", "ES00059", __FILE__, __LINE__, __func__, hlpSS.str() );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function adds identity matrix as the first element of the vector of vectors of doubles.
+ 
+    \param[in] vecToPrepend Vector to which the identity element should be prepended to.
+ */
+void prependIdentity ( std::vector<std::vector< proshade_double > >* vecToPrepend )
+{
+    //================================================ Create the identity element
+    std::vector< proshade_double > identity;
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 1.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 1.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 0.0 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &identity, 1.0 );
+    
+    //================================================ Prepend identity as first element
+    vecToPrepend->insert                              ( vecToPrepend->begin() , identity );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function checks if the element list already contains a given matrix.
+ 
+    \param[in] elements Vector containing all group elements.
+    \param[in] elem A single element which should already be in the list.
+    \param[out] elementFound A boolean value stating if the element was found int the elements list or not.
+ */
+bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* elements, std::vector< proshade_double >* elem )
+{
+    //================================================ Initialise variables
+    bool elementFound                                 = false;
+    proshade_double allowedError                      = 0.05;
+    
+    //================================================ For each existing element
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( elements->size() ); elIt++ )
+    {
+        if ( ( std::abs( elements->at(elIt).at(0) - elem->at(0) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(1) - elem->at(1) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(2) - elem->at(2) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(3) - elem->at(3) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(4) - elem->at(4) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(5) - elem->at(5) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(6) - elem->at(6) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(7) - elem->at(7) ) < allowedError ) &&
+             ( std::abs( elements->at(elIt).at(8) - elem->at(8) ) < allowedError ) )
+        {
+            elementFound                              = true;
+            break;
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( elementFound );
+    
+}
+
+/*! \brief This function checks if all group element products produce another group element.
+ 
+    \param[in] elements Vector containing all group elements.
+    \param[out] isGroup A boolean value stating if all group element products for another group element.
+ */
+bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elements )
+{
+    //================================================ Initialise variables
+    bool isGroup                                      = true;
+    
+    //================================================ Multiply all group element pairs
+    for ( proshade_unsign gr1 = 0; gr1 < static_cast<proshade_unsign> ( elements->size() ); gr1++ )
+    {
+        for ( proshade_unsign gr2 = 1; gr2 < static_cast<proshade_unsign> ( elements->size() ); gr2++ )
+        {
+            //======================================== Use unique pairs only
+            if ( gr1 >= gr2 ) { continue; }
+            
+            //======================================== Multiply the two rotation matrices
+            std::vector< proshade_double > product    = ProSHADE_internal_maths::multiplyGroupElementMatrices ( &elements->at(gr1), &elements->at(gr2) );
+        
+            //======================================== Check the group already contains the produces as an element
+            if ( !checkElementAlreadyExists ( elements, &product ) )
+            {
+                isGroup                               = false;
+                break;
+            }
+        }
+        
+        //============================================ Stop if problem was found
+        if ( !isGroup ) { break; }
+    }
+    
+    //================================================ Done
+    return                                            ( isGroup );
+    
+}
+
+/*! \brief This function joins two group element lists using only unique elements.
+ 
+    \param[in] first Vector of group elements.
+    \param[in] second Vector of group elements.
+    \param[in] combine Should the element combinations be added as well?
+    \param[out] ret A vector of group elements containing all unique elements from both input element groups.
+ */
+std::vector<std::vector< proshade_double > > joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first, std::vector<std::vector< proshade_double > >* second, bool combine )
+{
+    //================================================ Initialise variables
+    std::vector< std::vector< proshade_double > > ret;
+    
+    //================================================ Add the first list to ret, checking for uniqueness
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( first->size() ); elIt++ )
+    {
+        if ( !checkElementAlreadyExists( &ret, &first->at(elIt) ) )
+        {
+            ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, first->at(elIt) );
+        }
+    }
+    
+    //================================================ Add the second list to ret, checking for uniqueness
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( second->size() ); elIt++ )
+    {
+        if ( !checkElementAlreadyExists( &ret, &second->at(elIt) ) )
+        {
+            ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, second->at(elIt) );
+        }
+    }
+    
+    //================================================ Multiply all combinations of first and second and check for uniqueness
+    if ( combine )
+    {
+        for ( proshade_unsign gr1 = 0; gr1 < static_cast<proshade_unsign> ( first->size() ); gr1++ )
+        {
+            for ( proshade_unsign gr2 = 0; gr2 < static_cast<proshade_unsign> ( second->size() ); gr2++ )
+            {
+                //==================================== Multiply the two rotation matrices
+                std::vector< proshade_double > product = ProSHADE_internal_maths::multiplyGroupElementMatrices ( &first->at(gr1), &second->at(gr2) );
+
+                //==================================== Add
+                if ( !checkElementAlreadyExists( &ret, &product ) )
+                {
+                    ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, product );
+                }
+
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function returns the group elements as rotation matrices or any defined point group.
+ 
+    This function generates a list of all point group elements for any group defined by a set of cyclic point groups. The set is supplied using the second
+    parameter, where these need to be detected by ProSHADE first and then their index in the ProSHADE cyclic group detected list can be given here.
+    
+    This function can generate appropriate elementes for all ProSHADE supported point group types (i.e. C, D, T, O and I) as well as for any supplied set
+    of cyclic point groups (use the groupType value of "X").
+ 
+    Please note that the final set of point group elements will be checked for being a point group, i.e. for the fact that a product of any two members will
+    be another already present member. If this condition is not met, error will be thrown. This poses some isses when the point group axes are slightly off,
+    as this can lead to the point group check failing...
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] axesList A vector of ints specifying which C axes from the full list are members of the group.
+    \param[in] groupType An optional string specifying for which symmetry type the group elements are to be computed. Leave empty if you want to use the supplied axes without any questions being asked.
+    \param[out] val A vector containing a vector of 9 doubles (rotation matrix) for each group element for the requested group.
+ */
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType )
+{
+    //================================================ Initialise variables
+    std::vector<std::vector< proshade_double > > ret;
+    
+    //================================================ Select which symmetry type are we computing for
+    if ( groupType == "C" )
+    {
+        //============================================ Sanity check
+        axesToGroupTypeSanityCheck                    ( 1, static_cast<proshade_unsign> ( axesList.size() ), groupType );
+        
+        //============================================ Generate elements
+        ret                                           = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(0) );
+        
+        //============================================ Prepend identity element
+        prependIdentity                               ( &ret );
+
+        //============================================ Check the element to form a group
+        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        else
+        {
+            throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
+        }
+    }
+    else if ( groupType == "D" )
+    {
+        //============================================ Sanity check
+        axesToGroupTypeSanityCheck                    ( 2, static_cast<proshade_unsign> ( axesList.size() ), groupType );
+        
+        //============================================ Generate elements for both axes
+        std::vector<std::vector< proshade_double > > first  = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(0) );
+        std::vector<std::vector< proshade_double > > second = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(1) );
+        
+        //============================================ Join the element lists
+        ret                                           = joinElementsFromDifferentGroups ( &first, &second, true );
+        
+        //============================================ Prepend identity element
+        prependIdentity                               ( &ret );
+        
+        //============================================ Check the element to form a group
+        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        else
+        {
+            throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
+        }
+    }
+    else if ( groupType == "T" )
+    {
+        //============================================ Sanity check
+        axesToGroupTypeSanityCheck                    ( 7, static_cast<proshade_unsign> ( axesList.size() ), groupType );
+        
+        //============================================ Generate elements for all four C3 axes first
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 3 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+                
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+        
+        //============================================ Generate elements for all three C2 axes second
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 2 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+                
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+        
+        //============================================ Prepend identity element
+        prependIdentity                               ( &ret );
+        
+        //============================================ Check the element to form a group
+        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        else
+        {
+            throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
+        }
+    }
+    else if ( groupType == "O" )
+    {
+        //============================================ Sanity check
+        axesToGroupTypeSanityCheck                    ( 13, static_cast<proshade_unsign> ( axesList.size() ), groupType );
+        
+        //============================================ Generate elements for all three C4 axes first
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 4 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+
+        //============================================ Generate elements for all four C3 axes first
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 3 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+        
+        //============================================ Generate elements for all six C2 axes next
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 2 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+
+        //============================================ Prepend identity element
+        prependIdentity                               ( &ret );
+
+        //============================================ Check the element to form a group
+        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        else
+        {
+            throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
+        }
+    }
+    else if ( groupType == "I" )
+    {
+        //============================================ Sanity check
+        axesToGroupTypeSanityCheck                    ( 31, static_cast<proshade_unsign> ( axesList.size() ), groupType );
+        
+        //============================================ Generate elements for all six C5 axes first
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 5 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+        
+        //============================================ Generate elements for all ten C3 axes next
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 3 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+        
+        //============================================ Generate elements for all fifteen C2 axes lastly
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== If this is a C3 axis
+            if ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) == 2 )
+            {
+                //==================================== Generate the elements
+                std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+
+                //==================================== Join the elements to any already found
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+            }
+        }
+        
+        //============================================ Prepend identity element
+        prependIdentity                               ( &ret );
+
+        //============================================ Check the element to form a group
+        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        else
+        {
+            throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
+        }
+    }
+    else if ( groupType == "X" )
+    {
+        //============================================ User forced no checking for unspecified symmetry
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
+        {
+            //======================================== Compute group elements
+            std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( settings, &settings->allDetectedCAxes, axesList.at(grIt) );
+            
+            //======================================== Join the elements to any already found
+            ret                                       = joinElementsFromDifferentGroups ( &els, &ret, true );
+        }
+        
+        //============================================ Prepend identity element
+        prependIdentity                               ( &ret );
+        
+        //============================================ Check the element to form a group
+        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        else
+        {
+            throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
+        }
+    }
+    else
+    {
+        std::stringstream hlpSS;
+        hlpSS << "Unknown symmetry type: >" << groupType << "<";
+        throw ProSHADE_exception ( hlpSS.str().c_str(), "ES00058", __FILE__, __LINE__, __func__, "Function getAllGroupElements was called with symmetry type\n                    : value outside of the allowed values C, D, T, O, I\n                    : or empty for using all supplied axes." );
+    }
+        
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function returns the length of 1D array that could hold all group elements rotation matrices for any group.
+ 
+    Note: This is required for passing the values to python, otherwise the function has no usage.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] grIndices An array of indices to the all detected cyclic groups list, specifying which cyclic groups will form the point group for which the elements will be obtained.
+    \param[in] len The length of the grIndices array.
+    \param[in] groupType A string specifying which group type the elements will be computed for - allowed values are C, D, T, O, I and X.
+    \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
+ */
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getAllGroupElementsLength ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType )
+{
+    //================================================ Convert array to vector
+    std::vector< proshade_unsign > axes;
+    for ( int iter = 0; iter < len; iter++ )
+    {
+        ProSHADE_internal_misc::addToUnsignVector     ( &axes, grIndices[iter] );
+    }
+    
+    //================================================ Get the elements
+    std::vector<std::vector< proshade_double > > groupElements = this->getAllGroupElements ( settings, axes, groupType );
+    
+    //================================================ Return their size
+    return                                            ( static_cast<proshade_unsign> ( groupElements.size() * 9 ) );
+    
+}
+
+/*! \brief This function computes all point group elements for a group formed by any number of cyclic point groups.
+ 
+    This function is a Python wrapper function for the getAllGroupElements() function. It takes the indices of the cyclic point groups which form the point group for which
+    the group elements are required as a Python list and fills a Python compatible array with the results.
+ 
+    \warning This function has specific signature for SWIG processing into proshade Python module, please use the getAllGroupElements() funtion
+    for C++ access.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] grIndices A list of indices of cyclic point groups which should be combined to create the point group whose group elements are required.
+    \param[in] len The length of the grIndices array.
+    \param[in] groupType The type of the group. Allowed values are C, D, T, O, I and X.
+    \param[in] allGroupElement This is the array to which the results will be saved into.
+    \param[in] ln2 The lenght of the allGroupElement array.
+ */
+void ProSHADE_internal_data::ProSHADE_data::getAllGroupElementsPython ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 )
+{
+    //================================================ Convert array to vector
+    std::vector< proshade_unsign > axes;
+    for ( int iter = 0; iter < len; iter++ )
+    {
+        ProSHADE_internal_misc::addToUnsignVector     ( &axes, grIndices[iter] );
+    }
+    
+    //================================================ Get the elements in C++ format
+    std::vector<std::vector< proshade_double > > groupElements = this->getAllGroupElements ( settings, axes, groupType );
+    
+    //================================================ Re-save them in Python format
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( groupElements.size() ); grIt++ )
+    {
+        for ( proshade_unsign matIt = 0; matIt < 9; matIt++ )
+        {
+            allGroupElement[(grIt*9)+matIt]           = groupElements.at(grIt).at(matIt);
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function returns the length of 1D array that could hold all the cyclic group elements rotation matrices.
  
     Note: This is required for passing the values to python, otherwise the function has no usage.
  
@@ -2274,7 +2770,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
     \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
  */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getGroupElementsLength ( ProSHADE_settings* settings, proshade_unsign grPosition )
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getCGroupElementsLength ( ProSHADE_settings* settings, proshade_unsign grPosition )
 {
     //================================================ Sanity check
     if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
@@ -2298,7 +2794,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getGroupElementsLength ( 
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
  */
-void ProSHADE_internal_data::ProSHADE_data::getGroupElementsPython ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition )
+void ProSHADE_internal_data::ProSHADE_data::getCGroupElementsPython ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition )
 {
     //================================================ Sanity check
     if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )

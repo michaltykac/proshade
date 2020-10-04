@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00058 ==
+== NEXT FREE MESSAGE NUMBER: 00061 ==
 
 ========
 GENERAL:
@@ -79,6 +79,9 @@ ES00028		There are not enough structures for symmetry detection.
 ES00032		Requested symmetry supplied, but not recognised																			The allowed values for requested symmetry are "", "C", "D", "T", "O" or "I". Any other value will result in this error.
 ES00053     Symmetry axis detection tolerance set to negative value.          														The symmetry axis detection tolerance was manually set to negative value. This makes no sense, please supply value >= 0.0.
 ES00057		Requested group elements for group which does not exist.																The requested point group index is outside of the bounds of the detected point groups vector. This is likely caused by wrong iteration over the point groups by the user.
+ES00058		Unknown symmetry type: <X>																								Function getAllGroupElements was called with symmetry type value outside of the allowed values C, D, T, O, I or empty for using all supplied axes.
+ES00059		Mismatch between supplied number of axes and symmetry type.																The supplied number of axes for group element detection ( >n< ) does not match the group type ( >X< ).
+ES00060		Computed point group elements do not form a group.																		The supplied cyclic groups list does not form a group and therefore such group's elements cannot be obtained. Please check the cyclic groups list supplied to the getAllGroupElements() function.
 
 ============
 MAP OVERLAY:

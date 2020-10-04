@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.3
-    \date      SEP 2020
+    \version   0.7.4.4
+    \date      OCT 2020
  */
 
 //==================================================== ProSHADE
@@ -1515,6 +1515,54 @@ std::vector < proshade_double > ProSHADE_internal_maths::findVectorFromThreeVAnd
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, solX  );
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, solY  );
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, solZ  );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function computes matrix multiplication using the ProSHADE group element matrix format as input and output.
+ 
+    \param[in] el1 Group element as rotation matrix in the group element matrix format.
+    \param[in] el2 Group element as rotation matrix in the group element matrix format.
+    \param[out] ret Matrix in the group element format resulting from the input matrices multiplication.
+ */
+std::vector< proshade_double > ProSHADE_internal_maths::multiplyGroupElementMatrices ( std::vector< proshade_double >* el1, std::vector< proshade_double >* el2 )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_double > ret;
+    
+    //================================================ Compute
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(0) * el2->at(0) ) +
+                                                              ( el1->at(1) * el2->at(3) ) +
+                                                              ( el1->at(2) * el2->at(6) ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(0) * el2->at(1) ) +
+                                                              ( el1->at(1) * el2->at(4) ) +
+                                                              ( el1->at(2) * el2->at(7) ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(0) * el2->at(2) ) +
+                                                              ( el1->at(1) * el2->at(5) ) +
+                                                              ( el1->at(2) * el2->at(8) ) );
+    
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(3) * el2->at(0) ) +
+                                                              ( el1->at(4) * el2->at(3) ) +
+                                                              ( el1->at(5) * el2->at(6) ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(3) * el2->at(1) ) +
+                                                              ( el1->at(4) * el2->at(4) ) +
+                                                              ( el1->at(5) * el2->at(7) ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(3) * el2->at(2) ) +
+                                                              ( el1->at(4) * el2->at(5) ) +
+                                                              ( el1->at(5) * el2->at(8) ) );
+    
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(6) * el2->at(0) ) +
+                                                              ( el1->at(7) * el2->at(3) ) +
+                                                              ( el1->at(8) * el2->at(6) ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(6) * el2->at(1) ) +
+                                                              ( el1->at(7) * el2->at(4) ) +
+                                                              ( el1->at(8) * el2->at(7) ) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(6) * el2->at(2) ) +
+                                                              ( el1->at(7) * el2->at(5) ) +
+                                                              ( el1->at(8) * el2->at(8) ) );
+    
     
     //================================================ Done
     return                                            ( ret );

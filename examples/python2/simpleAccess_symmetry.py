@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.3
-#   \date      SEP 2020
+#   \version   0.7.4.4
+#   \date      OCT 2020
 ##############################################
 ##############################################
 
@@ -131,9 +131,9 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 
 ##############################################
 ### Expected output
-#   Detected symmetry C-4 with axes:
+#   Detected symmetry C-2 with axes:
 #   Fold      x         y         z       Angle     Height
-#     4    -0.005    +0.007    +1.000    +1.571    +0.9817
+#     2    -0.003    +0.009    +1.000    +3.142    +0.9817
 
 ##############################################
 ### Create the ProSHADE_settings object to test requesting symmetry
@@ -191,8 +191,8 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 
 ##############################################
 ### Expected output
-#  Requested detection of symmetry C-3 and ProSHADE detected:
-#  Detected symmetry C-3 with axes:
+#  Requested detection of symmetry C-3 and ProSHADE detected: 
+#  Detected symmetry C-3 with axes: 
 #  Fold      x         y         z       Angle     Height
 #    3    -0.013    +0.016    +1.000    +2.094    +0.9514
 
