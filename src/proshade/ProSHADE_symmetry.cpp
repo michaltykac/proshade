@@ -863,7 +863,6 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
     bool skipFold                                     = false;
     std::vector< proshade_unsign > matchedPeaks, missingPeaks;
     std::vector< proshade_double > expectedAngles;
-    proshade_double axErrToleranceOrig                = axErrTolerance;
     
     //================================================ Testing folds for being supported by peaks
     for ( proshade_unsign fIt = 0; fIt < static_cast<proshade_unsign> ( angsToTry->size() ); fIt++ )
