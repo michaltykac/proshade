@@ -88,6 +88,7 @@ namespace ProSHADE_internal_maths
                                                                     proshade_double z2, proshade_double x3, proshade_double y3, proshade_double z3, proshade_double dot1,
                                                                     proshade_double dot2, proshade_double dot3 );
     std::vector< proshade_double > multiplyGroupElementMatrices ( std::vector< proshade_double >* el1, std::vector< proshade_double >* el2 );
+    bool rotationMatrixSimilarity                     ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance = 0.1 );
 }
 
 #endif

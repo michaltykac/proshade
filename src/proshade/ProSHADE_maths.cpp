@@ -1568,3 +1568,36 @@ std::vector< proshade_double > ProSHADE_internal_maths::multiplyGroupElementMatr
     return                                            ( ret );
     
 }
+
+/*! \brief This function compares the distance between two rotation matrices and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Therefore, from this trace
+    3.0 is subtracted and the absolute value of the result is compared to the tolerance. If the difference is less than the tolerance, true is returned, while
+    false is returned otherwise.
+ 
+    \param[in] mat1 Vector of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Vector of 9 numbers representing second rotation matrix.
+    \param[in] tolerance Double number representing the maximum allowed error on the distance.
+    \param[out] res Boolean decision if the two matrices are similar or not.
+ */
+bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
+    
+    //================================================ Compute trace of mat1 * mat2^T
+    proshade_double trace                             = ( mat1->at(0) * mat2->at(0) ) + ( mat1->at(1) * mat2->at(1) ) + ( mat1->at(2) * mat2->at(2) );
+    trace                                            += ( mat1->at(3) * mat2->at(3) ) + ( mat1->at(4) * mat2->at(4) ) + ( mat1->at(5) * mat2->at(5) );
+    trace                                            += ( mat1->at(6) * mat2->at(6) ) + ( mat1->at(7) * mat2->at(7) ) + ( mat1->at(8) * mat2->at(8) );
+    
+    //================================================ Subtract 3 (so that we would have 0 in case of idenity matrix)
+    trace                                            -= 3.0;
+    
+    //================================================ Compare to tolerance
+    if ( tolerance >= std::abs ( trace ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}

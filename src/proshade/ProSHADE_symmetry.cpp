@@ -1476,9 +1476,13 @@ bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< pro
             {
                 if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, &possibilities->at(gIt), hlpVec.at(axIt), axErr, angle, false ) )
                 {
-                    //================================ Add
-                    ProSHADE_internal_misc::addToDblPtrVector ( CSymList, hlpVec.at(axIt) );
-                    ProSHADE_internal_misc::addToUnsignVector ( &possibilities->at(gIt), static_cast<proshade_unsign> ( CSymList->size()-1 ) );
+                    //================================ Check for uniqueness
+                    if ( ProSHADE_internal_symmetry::isAxisUnique ( CSymList, hlpVec.at(axIt), axErr ) )
+                    {
+                        //============================ Add
+                        ProSHADE_internal_misc::addToDblPtrVector ( CSymList, hlpVec.at(axIt) );
+                        ProSHADE_internal_misc::addToUnsignVector ( &possibilities->at(gIt), static_cast<proshade_unsign> ( CSymList->size()-1 ) );
+                    }
                 }
             }
         }
@@ -2341,8 +2345,12 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
         //============================================ Copy the detected axes
         for ( proshade_unsign iter = static_cast<proshade_unsign> ( possibilities->size() ); iter < static_cast<proshade_unsign> ( prosp.size() ); iter++ )
         {
-            ProSHADE_internal_misc::addToUnsignVector ( possibilities, CSymList->size() );
-            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(iter) );
+            if ( ProSHADE_internal_symmetry::isAxisUnique ( CSymList, prosp.at(iter), axErr ) )
+            {
+                //==================================== Add
+                ProSHADE_internal_misc::addToUnsignVector ( possibilities, CSymList->size() );
+                ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(iter) );
+            }
         }
         
         //============================================ Done
@@ -2877,9 +2885,12 @@ bool ProSHADE_internal_symmetry::findMissingAxesTriple ( std::vector< proshade_u
         //============================================ For each found missing axis
         for ( proshade_unsign axIt = static_cast<proshade_unsign> ( possibilities->size() ); axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ )
         {
-            //======================================== Add
-            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(axIt) );
-            ProSHADE_internal_misc::addToUnsignVector ( possibilities, static_cast<proshade_unsign> ( CSymList->size()-1 ) );
+            if ( ProSHADE_internal_symmetry::isAxisUnique ( CSymList, prosp.at(axIt), axErr ) )
+            {
+                //======================================== Add
+                ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(axIt) );
+                ProSHADE_internal_misc::addToUnsignVector ( possibilities, static_cast<proshade_unsign> ( CSymList->size()-1 ) );
+            }
         }
         
         atLeastOne                                    = true;
@@ -2958,5 +2969,41 @@ void ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( std::vector< pr
     
     //================================================ Done
     return ;
+    
+}
+
+/*! \brief This function checks if new axis is unique, or already detected.
+ 
+    This function compares the supplied axis against all members of the axes vector. If the axis has the same fold and very similar
+    axis vector (i.e. all three elements are within tolerance), then the function returns false. If no such match is found, true is returned.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axis The axis to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
+ */
+bool ProSHADE_internal_symmetry::isAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = true;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        //============================================ Is fold the same?
+        if ( CSymList->at(grIt)[0] == axis[0] )
+        {
+            if ( ( std::abs ( CSymList->at(grIt)[1] - axis[1] ) < tolerance ) &&
+                 ( std::abs ( CSymList->at(grIt)[2] - axis[2] ) < tolerance ) &&
+                 ( std::abs ( CSymList->at(grIt)[3] - axis[3] ) < tolerance ) )
+            {
+                ret                                   = false;
+                break;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
     
 }

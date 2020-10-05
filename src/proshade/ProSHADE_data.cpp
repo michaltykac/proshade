@@ -519,10 +519,6 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     //================================================ Set iterators from and to
     this->figureIndexStartStop                        ( );
     
-    
-    this->writeMap ( "newMap.map" );
-    exit(0);
-    
     //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
@@ -2323,20 +2319,12 @@ bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* e
 {
     //================================================ Initialise variables
     bool elementFound                                 = false;
-    proshade_double allowedError                      = 0.05;
+    proshade_double allowedError                      = 0.1;
     
     //================================================ For each existing element
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( elements->size() ); elIt++ )
     {
-        if ( ( std::abs( elements->at(elIt).at(0) - elem->at(0) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(1) - elem->at(1) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(2) - elem->at(2) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(3) - elem->at(3) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(4) - elem->at(4) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(5) - elem->at(5) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(6) - elem->at(6) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(7) - elem->at(7) ) < allowedError ) &&
-             ( std::abs( elements->at(elIt).at(8) - elem->at(8) ) < allowedError ) )
+        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &elements->at(elIt), elem, allowedError ) )
         {
             elementFound                              = true;
             break;
