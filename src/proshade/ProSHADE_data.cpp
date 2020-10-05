@@ -492,9 +492,6 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     gemmi::Ccp4<float> map;
     map.read_ccp4                                     ( gemmi::MaybeGzipped ( this->fileName.c_str() ) );
     
-    //================================================ Read in the axes starting points before it is modified by the gemmi set-up
-    ProSHADE_internal_io::readInMapHeaderFroms        ( &map, &this->xFrom, &this->yFrom, &this->zFrom );
-    
     //================================================ Convert to XYZ and create complete map, if need be
     map.setup                                         ( gemmi::GridSetup::ReorderOnly, NAN );
     
@@ -521,6 +518,10 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     
     //================================================ Set iterators from and to
     this->figureIndexStartStop                        ( );
+    
+    
+    this->writeMap ( "newMap.map" );
+    exit(0);
     
     //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )

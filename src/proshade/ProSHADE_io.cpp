@@ -106,6 +106,10 @@ void ProSHADE_internal_io::readInMapHeader ( gemmi::Ccp4<float> *map, proshade_u
    *xDimInds                                          = static_cast<proshade_unsign> ( map->header_i32   ( 1  ) );
    *yDimInds                                          = static_cast<proshade_unsign> ( map->header_i32   ( 2  ) );
    *zDimInds                                          = static_cast<proshade_unsign> ( map->header_i32   ( 3  ) );
+    
+   *xFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 5  ) );
+   *yFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 6  ) );
+   *zFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 7  ) );
    
    *xDim                                              = static_cast<proshade_single> ( map->header_float ( 11 ) );
    *yDim                                              = static_cast<proshade_single> ( map->header_float ( 12 ) );
@@ -123,31 +127,9 @@ void ProSHADE_internal_io::readInMapHeader ( gemmi::Ccp4<float> *map, proshade_u
    *yAxOrder                                          = static_cast<proshade_unsign> ( map->header_i32   ( 18 ) );
    *zAxOrder                                          = static_cast<proshade_unsign> ( map->header_i32   ( 19 ) );
    
-   *xGridInds                                         = static_cast<proshade_unsign> ( *xDimInds );
-   *yGridInds                                         = static_cast<proshade_unsign> ( *yDimInds );
-   *zGridInds                                         = static_cast<proshade_unsign> ( *zDimInds );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function parses the CCP4 MAP file header as read in by gemmi from values.
- 
-    This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required
-    information about the axes starting points.
- 
-    \param[in] map A gemmi Ccp4 objecct containing all the data read in from a MAP file.
-    \param[in] xFrom Address to a variable to save the starting index along the x-axis.
-    \param[in] yFrom Address to a variable to save the starting index along the y-axis.
-    \param[in] zFrom Address to a variable to save the starting index along the z-axis.
- */
-void ProSHADE_internal_io::readInMapHeaderFroms ( gemmi::Ccp4<float> *map, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom )
-{
-    //================================================ Read in the map file header froms
-   *xFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 5  ) );
-   *yFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 6  ) );
-   *zFrom                                             = static_cast<proshade_signed> ( map->header_i32   ( 7  ) );
+   *xGridInds                                         = static_cast<proshade_unsign> ( map->header_i32   ( 8  ) );
+   *yGridInds                                         = static_cast<proshade_unsign> ( map->header_i32   ( 9  ) );
+   *zGridInds                                         = static_cast<proshade_unsign> ( map->header_i32   ( 10 ) );
     
     //================================================ Done
     return ;
