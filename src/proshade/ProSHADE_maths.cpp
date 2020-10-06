@@ -1601,3 +1601,37 @@ bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_d
     return                                            ( ret );
     
 }
+
+/*! \brief This function compares two vectors using cosine distance and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two vectors, specifically by computing the cosine distance ( ( dot( A, B ) ) / ( mag(A) x mag(B) ) ). This measure will be
+    1.0 if the two vectors are identically oriented, 0.0 if they are perpendicular and -1.0 if they have opposite direction. Given that opposite direction must be regarded as
+    same direction with opposite angles for symmetry axes detection purposes, this function uses the absolute value of this measure and checks if the two supplied vectors
+    (supplied element by element) have cosine distance within 1.0 - tolerance, returning true if they do and false otherwise.
+ 
+    \param[in] a1 The first element of the first vector.
+    \param[in] a2 The second element of the first vector.
+    \param[in] a3 The third element of the first vector.
+    \param[in] b1 The first element of the second vector.
+    \param[in] b2 The second element of the second vector.
+    \param[in] b3 The third element of the second vector.
+    \param[in] tolerance The allowed difference of the distance measure from the 1.0 for the vectors to still be considered similar.
+    \param[out] res Boolean decision if the two vectors are similar or not.
+ */
+bool ProSHADE_internal_maths::vectorOrientationSimilarity ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2, proshade_double b3, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
+    
+    //================================================ Cosine distance
+    proshade_double cosDist                           = ( ( a1 * b1 ) + ( a2 * b2 ) + ( a3 * b3 ) ) /
+                                                        ( sqrt( pow( a1, 2.0 ) + pow( a2, 2.0 ) + pow( a3, 2.0 ) ) *
+                                                          sqrt( pow( b1, 2.0 ) + pow( b2, 2.0 ) + pow( b3, 2.0 ) ) );
+    
+    //================================================ Compare the absolute value of distance to 1.0 - tolerance
+    if ( std::abs( cosDist ) > ( 1.0 - tolerance ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}

@@ -131,6 +131,25 @@ void ProSHADE_internal_io::readInMapHeader ( gemmi::Ccp4<float> *map, proshade_u
    *yGridInds                                         = static_cast<proshade_unsign> ( map->header_i32   ( 9  ) );
    *zGridInds                                         = static_cast<proshade_unsign> ( map->header_i32   ( 10 ) );
     
+    //================================================ Deal with sampling being different from cell size
+    if ( *xGridInds != *xDimInds )
+    {
+        *xDim                                         = *xDim * ( static_cast<proshade_single> ( *xDimInds ) / static_cast<proshade_single> ( *xGridInds ) );
+        *xGridInds                                    = *xDimInds;
+    }
+    
+    if ( *yGridInds != *yDimInds )
+    {
+        *yDim                                         = *yDim * ( static_cast<proshade_single> ( *yDimInds ) / static_cast<proshade_single> ( *yGridInds ) );
+        *yGridInds                                    = *yDimInds;
+    }
+    
+    if ( *zGridInds != *zDimInds )
+    {
+        *zDim                                         = *zDim * ( static_cast<proshade_single> ( *zDimInds ) / static_cast<proshade_single> ( *zGridInds ) );
+        *zGridInds                                    = *zDimInds;
+    }
+    
     //================================================ Done
     return ;
     

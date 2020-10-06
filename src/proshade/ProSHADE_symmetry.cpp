@@ -2993,9 +2993,7 @@ bool ProSHADE_internal_symmetry::isAxisUnique ( std::vector< proshade_double* >*
         //============================================ Is fold the same?
         if ( CSymList->at(grIt)[0] == axis[0] )
         {
-            if ( ( std::abs ( CSymList->at(grIt)[1] - axis[1] ) < tolerance ) &&
-                 ( std::abs ( CSymList->at(grIt)[2] - axis[2] ) < tolerance ) &&
-                 ( std::abs ( CSymList->at(grIt)[3] - axis[3] ) < tolerance ) )
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
             {
                 ret                                   = false;
                 break;
