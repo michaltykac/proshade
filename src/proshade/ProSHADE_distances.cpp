@@ -531,7 +531,6 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
     //================================================ Initialise abscissas and weights for integration
     ProSHADE_internal_maths::getLegendreAbscAndWeights ( settings->integOrder, GLAbscissas, GLWeights, settings->taylorSeriesCap );
     
-    
     //================================================ For each band (l), compute the E matrix integrals
     for ( proshade_unsign bandIter = 0; bandIter < std::min ( obj1->getMaxBand(), obj2->getMaxBand() ); bandIter++ )
     {

@@ -97,9 +97,12 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         }
         
         //============================================ Search for symmetry in these peaks
-        detectedCSymmetries                           = ProSHADE_internal_symmetry::findPeaksCSymmetry ( &symPeaks, settings->verbose, this->getMaxBand(),
-                                                                                                         settings->symMissPeakThres,
-                                                                                                         settings->axisErrTolerance, settings->axisErrToleranceDefault, this );
+        detectedCSymmetries                           = ProSHADE_internal_symmetry::findPeaksCSymmetry ( &symPeaks, settings->verbose,
+                                                                                                          this->getMaxBand(),
+                                                                                                          settings->symMissPeakThres,
+                                                                                                          settings->axisErrTolerance,
+                                                                                                          settings->axisErrToleranceDefault,
+                                                                                                          this );
         
         //============================================ Print detected symmetries
         for ( proshade_unsign detIt = 0; detIt < static_cast<proshade_unsign> ( detectedCSymmetries.size() ); detIt++ ) { ProSHADE_internal_symmetry::printSymmetryGroup ( detectedCSymmetries.at(detIt), symPeaks, settings->verbose ); }
@@ -296,7 +299,8 @@ std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::groupS
     //================================================ Initialise variables
     std::vector< std::vector< proshade_unsign > > ret;
     bool sameAxisFound                                = false;
-    
+    proshade_double angTolerance                      = std::acos ( 1.0 - errTolerance );
+
     //================================================ Set all largest axis value to positive (this will make the 0,0,1 and 0,0,-1 axes the same)
     ProSHADE_internal_symmetry::giveOppositeAxesSameDirection ( peaks );
     
@@ -307,10 +311,13 @@ std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::groupS
         sameAxisFound                                 = false;
         
         //============================================ Ignore zero angle peaks
-        if ( ( peaks.at(peakIter)[3]-errTolerance <= 0.0 ) && ( peaks.at(peakIter)[3]+errTolerance > 0.0 ) ) { continue; }
+        if ( ( peaks.at(peakIter)[3] - angTolerance <= 0.0 ) && ( peaks.at(peakIter)[3] + angTolerance > 0.0 ) ) { continue; }
         
-        //============================================ Ignore zero axis peaks
-        if ( ( ( peaks.at(peakIter)[0]-errTolerance <= 0.0 ) && ( peaks.at(peakIter)[0]+errTolerance > 0.0 ) ) && ( ( peaks.at(peakIter)[1]-errTolerance <= 0.0 ) && ( peaks.at(peakIter)[1]+errTolerance > 0.0 ) ) && ( ( peaks.at(peakIter)[2]-errTolerance <= 0.0 ) && ( peaks.at(peakIter)[2]+errTolerance > 0.0 ) ) ) { continue; }
+        //============================================ Ignore very small axis peaks - the axis may be wrong here.
+        // !! The value of 0.1 is hardcoded, but arbitrary
+        if ( ( ( peaks.at(peakIter)[0] - 0.1 <= 0.0 ) && ( peaks.at(peakIter)[0] + 0.1 > 0.0 ) ) &&
+             ( ( peaks.at(peakIter)[1] - 0.1 <= 0.0 ) && ( peaks.at(peakIter)[1] + 0.1 > 0.0 ) ) &&
+             ( ( peaks.at(peakIter)[2] - 0.1 <= 0.0 ) && ( peaks.at(peakIter)[2] + 0.1 > 0.0 ) ) ) { continue; }
         
         //============================================ Compare to all already detected axes groups
         for ( proshade_unsign sameAxisGrp = 0; sameAxisGrp < static_cast<proshade_unsign> ( ret.size() ); sameAxisGrp++ )
@@ -319,12 +326,13 @@ std::vector< std::vector< proshade_unsign > > ProSHADE_internal_symmetry::groupS
             for ( proshade_unsign sameAxis = 0; sameAxis < static_cast<proshade_unsign> ( ret.at(sameAxisGrp).size() ); sameAxis++ )
             {
                 //==================================== Is this identical axis to the tested one?
-                if ( ( ( (peaks.at(ret.at(sameAxisGrp).at(sameAxis))[0]-errTolerance) <= peaks.at(peakIter)[0] ) &&
-                       ( (peaks.at(ret.at(sameAxisGrp).at(sameAxis))[0]+errTolerance) >  peaks.at(peakIter)[0] ) ) &&
-                     ( ( (peaks.at(ret.at(sameAxisGrp).at(sameAxis))[1]-errTolerance) <= peaks.at(peakIter)[1] ) &&
-                       ( (peaks.at(ret.at(sameAxisGrp).at(sameAxis))[1]+errTolerance) >  peaks.at(peakIter)[1] ) ) &&
-                     ( ( (peaks.at(ret.at(sameAxisGrp).at(sameAxis))[2]-errTolerance) <= peaks.at(peakIter)[2] ) &&
-                       ( (peaks.at(ret.at(sameAxisGrp).at(sameAxis))[2]+errTolerance) >  peaks.at(peakIter)[2] ) ) )
+                if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( peaks.at(ret.at(sameAxisGrp).at(sameAxis))[0],
+                                                                            peaks.at(ret.at(sameAxisGrp).at(sameAxis))[1],
+                                                                            peaks.at(ret.at(sameAxisGrp).at(sameAxis))[2],
+                                                                            peaks.at(peakIter)[0],
+                                                                            peaks.at(peakIter)[1],
+                                                                            peaks.at(peakIter)[2],
+                                                                            errTolerance ) )
                 {
                     sameAxisFound                     = true;
                     ProSHADE_internal_misc::addToUnsignVector ( &ret.at(sameAxisGrp), peakIter );
@@ -598,10 +606,10 @@ void ProSHADE_internal_symmetry::findExpectedPeakRotations ( proshade_unsign fol
     \param[in] expAngs A vector where the expected peak rotation values are saved.
     \param[in] matchedAngs A vector where the indices of matched peaks will be saved.
     \param[in] missingAngs A vector where the indices of missing peaks will be saved.
-    \param[in] axisTol The tolerance for matching the expected and found peak rotation angles.
+    \param[in] angTol The tolerance for matching the expected and found peak rotation angles.
     \param[out] X An integer with the longest consecutive streak of matched values.
  */
-proshade_unsign ProSHADE_internal_symmetry::checkExpectedAgainstFound ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks, std::vector< proshade_double >* expAngs, std::vector< proshade_unsign >* matchedAngs, std::vector< proshade_unsign >* missingAngs, proshade_double axisTol )
+proshade_unsign ProSHADE_internal_symmetry::checkExpectedAgainstFound ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks, std::vector< proshade_double >* expAngs, std::vector< proshade_unsign >* matchedAngs, std::vector< proshade_unsign >* missingAngs, proshade_double angTol )
 {
     //================================================ Initialise variables
     proshade_unsign ret                               = 0;
@@ -618,8 +626,8 @@ proshade_unsign ProSHADE_internal_symmetry::checkExpectedAgainstFound ( std::vec
         matchedThisPeak                               = false;
         for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( grp.size() ); peakIt++ )
         {
-            if ( ( expAngs->at(expAngIt) < ( peaks.at(grp.at(peakIt))[3] + axisTol ) ) &&
-                 ( expAngs->at(expAngIt) > ( peaks.at(grp.at(peakIt))[3] - axisTol ) ) )
+            if ( ( expAngs->at(expAngIt) < ( peaks.at(grp.at(peakIt))[3] + angTol ) ) &&
+                 ( expAngs->at(expAngIt) > ( peaks.at(grp.at(peakIt))[3] - angTol ) ) )
             {
                 noDoubleMatches                       = false;
                 for ( proshade_unsign ndm = 0; ndm < static_cast<proshade_unsign> ( matchedAlready.size() ); ndm++ )
@@ -649,8 +657,8 @@ proshade_unsign ProSHADE_internal_symmetry::checkExpectedAgainstFound ( std::vec
     {
         for ( proshade_unsign iter = 1; iter < static_cast<unsigned int> ( matchedAngs->size () ); iter++ )
         {
-            if ( ( ( peaks.at(matchedAngs->at(iter-1))[3] + groupAngle ) < ( peaks.at(matchedAngs->at(iter))[3] + axisTol ) ) &&
-                 ( ( peaks.at(matchedAngs->at(iter-1))[3] + groupAngle ) > ( peaks.at(matchedAngs->at(iter))[3] - axisTol ) ) )
+            if ( ( ( peaks.at(matchedAngs->at(iter-1))[3] + groupAngle ) < ( peaks.at(matchedAngs->at(iter))[3] + angTol ) ) &&
+                 ( ( peaks.at(matchedAngs->at(iter-1))[3] + groupAngle ) > ( peaks.at(matchedAngs->at(iter))[3] - angTol ) ) )
             {
                 retHlp                       += 1;
             }
@@ -691,6 +699,7 @@ proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_inter
     proshade_double* rotMat                           = new proshade_double [9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     proshade_double pointHeight, euA, euB, euG, xPk, yPk, zPk, anglPk;
+    proshade_double angTol                            = std::acos ( 1.0 - axTol );
     
     //================================================ Search the self-rotation map
     for ( proshade_unsign xIt = 0; xIt < ( dataObj->getMaxBand() * 2 ); xIt++ )
@@ -712,7 +721,7 @@ proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_inter
                 ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( rotMat, &xPk, &yPk, &zPk, &anglPk );
                 
                 //==================================== Check for matching angle
-                if ( ( ( std::abs( anglPk ) - axTol ) < std::abs ( angle ) ) && ( ( std::abs( anglPk ) + axTol ) > std::abs ( angle ) ) )
+                if ( ( ( std::abs( anglPk ) - angTol ) < std::abs ( angle ) ) && ( ( std::abs( anglPk ) + angTol ) > std::abs ( angle ) ) )
                 {
                     //================================ Make sure vector direction is the same
                     if ( ( ( std::max( std::abs( xPk ), std::max( std::abs( yPk ), std::abs( zPk ) ) ) == std::abs( xPk ) ) && ( xPk < 0.0 ) ) ||
@@ -726,9 +735,7 @@ proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_inter
                     }
                     
                     //================================ Compare axis elements
-                    if ( ( ( ( xPk - axTol ) < x ) && ( ( xPk + axTol ) > x ) ) &&
-                         ( ( ( yPk - axTol ) < y ) && ( ( yPk + axTol ) > y ) ) &&
-                         ( ( ( zPk - axTol ) < z ) && ( ( zPk + axTol ) > z ) ) )
+                    if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( xPk, yPk, zPk, x, y, z, axTol ) )
                     {
                         if ( ret < pointHeight ) { ret = pointHeight; }
                     }
@@ -863,6 +870,7 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
     bool skipFold                                     = false;
     std::vector< proshade_unsign > matchedPeaks, missingPeaks;
     std::vector< proshade_double > expectedAngles;
+    proshade_double angTolerance                      = std::acos ( 1.0 - axErrTolerance );
     
     //================================================ Testing folds for being supported by peaks
     for ( proshade_unsign fIt = 0; fIt < static_cast<proshade_unsign> ( angsToTry->size() ); fIt++ )
@@ -876,9 +884,9 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
         //============================================ Set axis tolerance based on fold (if required)
         if ( axErrToleranceDefault )
         {
-            axErrTolerance                            = std::max ( std::min ( ( ( 360.0 / static_cast<double> ( angsToTry->at(fIt) ) ) -
-                                                                                ( 360.0 / static_cast<double> ( angsToTry->at(fIt) + 1 ) ) ) /
-                                                                             acos ( axErrTolerance ) * axErrTolerance, axErrTolerance ), 0.02 );
+            angTolerance                              = std::max ( std::min ( angTolerance, ( ( (M_PI * 2.0) / static_cast<double> ( angsToTry->at(fIt) ) ) -
+                                                                                              ( (M_PI * 2.0) / static_cast<double> ( angsToTry->at(fIt) + 1 ) ) ) * 2.0 ), 0.02 );
+            axErrTolerance                            = std::max ( 1.0 - std::cos ( angTolerance ), 0.0008 );
         }
         
         //============================================ Find expected peak rotation angles
@@ -889,7 +897,7 @@ void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data:
         matchedPeaks.clear                            ( );
         missingPeaks.clear                            ( );
         proshade_unsign consecMatches                 = ProSHADE_internal_symmetry::checkExpectedAgainstFound ( *grp, *peaks, &expectedAngles,
-                                                                                                                &matchedPeaks, &missingPeaks, axErrTolerance );
+                                                                                                                &matchedPeaks, &missingPeaks, angTolerance );
     
         //============================================ If enough consecutive matches, symmetry was found. Save it
         if ( consecMatches >= angsToTry->at(fIt) )
@@ -1041,7 +1049,7 @@ void ProSHADE_internal_symmetry::saveAllCSymmetries ( std::vector< std::vector< 
  
     \param[in] ret This is the variable where the tested array will be saved if passed. It is a vector of double[6] arrays with the following meaning: [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] sym This is a double array of 6 which is to be compared to all the vector entries.
-    \param[in] simThres The threshold for axis-wise comparison similarity.
+    \param[in] simThres The threshold for dot product comparison similarity.
     \param[out] X Boolean value stating whether a similar entry has been found (true = it was, false = it was not).
  */
 bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres )
@@ -1528,7 +1536,7 @@ proshade_double ProSHADE_internal_symmetry::missingAxisHeight ( proshade_double 
     proshade_double ret                               = 0.0;
     proshade_double curSum                            = 0.0;
     proshade_double maxVal                            = 0.0;
-    proshade_double angStep                           = axErr;
+    proshade_double angStep                           = std::acos ( 1.0 - axErr ) / 2;
     std::vector< proshade_double* > angVec;
     
     //================================================ Find map points conforming to the axis
@@ -1622,9 +1630,7 @@ std::vector < proshade_double* > ProSHADE_internal_symmetry::findMissingAxisPoin
                 }
                 
                 //==================================== Does the peak match the required axis?
-                if ( ( ( ( xPk - axErr ) < xVal ) && ( ( xPk + axErr ) > xVal ) ) &&
-                     ( ( ( yPk - axErr ) < yVal ) && ( ( yPk + axErr ) > yVal ) ) &&
-                     ( ( ( zPk - axErr ) < zVal ) && ( ( zPk + axErr ) > zVal ) ) )
+                if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( xPk, yPk, zPk, xVal, yVal, zVal, axErr ) )
                 {
                     //================================ Matching map point - save it
                     proshade_double* hlpArr           = new proshade_double [2];
@@ -1680,9 +1686,13 @@ void ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( std::vector< proshade_
         //============================================ Minor speed-up => only test for same folds
         if ( axVec->at(symIt)[0] == hlpSym[0] )
         {
-            if ( ( ( ( axVec->at(symIt)[1] + axErr ) > hlpSym[1] ) && ( ( axVec->at(symIt)[1] - axErr ) < hlpSym[1] ) ) &&
-                 ( ( ( axVec->at(symIt)[2] + axErr ) > hlpSym[2] ) && ( ( axVec->at(symIt)[2] - axErr ) < hlpSym[2] ) ) &&
-                 ( ( ( axVec->at(symIt)[3] + axErr ) > hlpSym[3] ) && ( ( axVec->at(symIt)[3] - axErr ) < hlpSym[3] ) ) )
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( axVec->at(symIt)[1],
+                                                                        axVec->at(symIt)[2],
+                                                                        axVec->at(symIt)[3],
+                                                                        hlpSym[1],
+                                                                        hlpSym[2],
+                                                                        hlpSym[3],
+                                                                        axErr ) )
             {
                 //==================================== Almost identical entry
                 if ( axVec->at(symIt)[5] < hlpSym[5] )

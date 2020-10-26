@@ -264,7 +264,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The fraction of axes that can be missing for missing axes           " << std::endl;
     std::cout << "            search to be initiated.                                             " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --sameAxComp                                     [DEFAULT:         0.1]     " << std::endl;
+    std::cout << "    --sameAxComp                                     [DEFAULT:        0.01]     " << std::endl;
     std::cout << "            The difference in dot product of two vectors for them to be         " << std::endl;
     std::cout << "            still considered to be the same.                                    " << std::endl;
     std::cout << "                                                                                " << std::endl;

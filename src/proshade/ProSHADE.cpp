@@ -113,7 +113,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
-    this->axisErrTolerance                            = 0.1;
+    this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
@@ -221,7 +221,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding the symmetry detection
     this->symMissPeakThres                            = 0.3;
-    this->axisErrTolerance                            = 0.1;
+    this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
