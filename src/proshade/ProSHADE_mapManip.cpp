@@ -1187,20 +1187,20 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     
     //================================================ For each new map point
     proshade_signed xBottom = 0, xTop, yBottom = 0, yTop, zBottom = 0, zTop, oldMapIndex, newMapIndex;
-    std::vector<proshade_double> c000                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c001                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c010                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c011                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c100                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c101                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c110                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c111                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c00                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c01                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c10                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c11                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c0                   = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c1                   = std::vector<proshade_double> ( 4 );
+    std::vector<proshade_double> c000                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c001                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c010                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c011                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c100                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c101                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c110                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c111                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c00                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c01                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c10                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c11                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c0                   = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c1                   = std::vector<proshade_double> ( 4, 0.0 );
     proshade_double xRelative, yRelative, zRelative;
     
     for ( proshade_signed xIt = 0; xIt < newXDim; xIt++ )

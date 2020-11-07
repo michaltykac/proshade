@@ -119,6 +119,31 @@ namespace ProSHADE_internal_spheres
     proshade_unsign autoDetermineBandwidth            ( proshade_unsign circumference );
     proshade_single autoDetermineSphereDistances      ( proshade_single maxMapRange, proshade_single resolution );
     proshade_unsign autoDetermineIntegrationOrder     ( proshade_single maxMapRange, proshade_single sphereDist );
+
+    class ProSHADE_rotFun_sphere
+    {
+//    private:
+    public:
+        proshade_double radius;
+        proshade_double radiusMax;
+        proshade_double radiusMin;
+        proshade_unsign radialDim;
+        proshade_double representedAngle;
+        
+        proshade_double* axesValues;
+    public:
+        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng );
+       ~ProSHADE_rotFun_sphere                        ( void );
+        
+    public:
+        proshade_double getRadius                     ( void );
+        proshade_double getMaxRadius                  ( void );
+        proshade_double getMinRadius                  ( void );
+        
+    public:
+        void interpolateSphereValues                  ( proshade_complex* rotFun );
+    };
 }
+
 
 #endif

@@ -56,6 +56,56 @@ void ProSHADE_internal_data::ProSHADE_data::getRotationFunction ( ProSHADE_setti
     
 }
 
+/*! \brief This function converts the self-rotation function of this structure to angle-axis representation.
+ 
+    ...
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map self-rotation function computation.
+ */
+void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_settings* settings )
+{
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function conversion to angle-axis representation." );
+    
+    //================================================ Initialise variables
+    proshade_double* rotMat                           = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
+    
+    std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereMappedRotFun;
+    proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->maxShellBand * 2.0 );
+    for ( proshade_unsign spIt = 0; spIt < ( this->maxShellBand * 2 ) - 1; spIt++ )
+    {
+        sphereMappedRotFun.emplace_back               ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere( static_cast<proshade_double> ( spIt + 0.5 ) * shellSpacing,
+                                                                                                               shellSpacing,
+                                                                                                               this->maxShellBand * 2.0,
+                                                                                                               static_cast<proshade_double> ( spIt + 0.5 ) * shellSpacing ) );
+    }
+    
+    delete[] rotMat;
+  
+    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( sphereMappedRotFun.size() ); shIt++ )
+    {
+        std::cout << "Interpolating sphere " << shIt << " out of " << static_cast<proshade_unsign> ( sphereMappedRotFun.size() / 2 ) << " ( band " << this->maxShellBand  << " )." << std::endl;
+        sphereMappedRotFun.at(shIt)->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
+    }
+    std::cerr << std::endl;
+
+    
+    for ( proshade_unsign spIt = 0; spIt < this->maxShellBand; spIt++ )
+    {
+        delete sphereMappedRotFun.at(spIt);
+    }
+    
+    exit(0);
+    
+    //================================================ Report completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function converted to angle-axis representation." );
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function obtains a list of all C symmetries from already computed self-rotation map.
  
     This function starts by finding all peaks in the self-rotation map, which are outliers in terms of height. It then proceeds to

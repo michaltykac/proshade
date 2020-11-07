@@ -196,6 +196,7 @@ namespace ProSHADE_internal_data
         
         //============================================ Symmetry detection functions
         void getRotationFunction                      ( ProSHADE_settings* settings );
+        void convertRotationFunction                  ( ProSHADE_settings* settings );
         void getRealEMatrixValuesForLM                ( proshade_signed band, proshade_signed order1, double *eMatsLMReal, int len );
         void getImagEMatrixValuesForLM                ( proshade_signed band, proshade_signed order1, double *eMatsLMImag, int len );
         void getRealSO3Coeffs                         ( double *so3CoefsReal, int len );

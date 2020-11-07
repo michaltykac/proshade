@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00061 ==
+== NEXT FREE MESSAGE NUMBER: 00062 ==
 
 ========
 GENERAL:
@@ -82,6 +82,7 @@ ES00057		Requested group elements for group which does not exist.															
 ES00058		Unknown symmetry type: <X>																								Function getAllGroupElements was called with symmetry type value outside of the allowed values C, D, T, O, I or empty for using all supplied axes.
 ES00059		Mismatch between supplied number of axes and symmetry type.																The supplied number of axes for group element detection ( >n< ) does not match the group type ( >X< ).
 ES00060		Computed point group elements do not form a group.																		The supplied cyclic groups list does not form a group and therefore such group's elements cannot be obtained. Please check the cyclic groups list supplied to the getAllGroupElements() function.
+ES00061		Failed to find enough neighbours for rotation function conversion.														The rotation function does not have enough points to be mapped onto the symmetry detection sphere format. This should not really happen, but increasing the resolution could help if this happend.
 
 ============
 MAP OVERLAY:

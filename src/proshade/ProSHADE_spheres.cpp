@@ -626,3 +626,175 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_sphere::getRotatedMappedData
     return                                            ( this->mappedDataRot[pos]  );
     
 }
+
+/*! \brief Constructor for getting empty ProSHADE_rotFun_sphere class.
+ 
+    ...
+ 
+    \param[in] 
+    \param[out] X Data object with all values set and ready to accept the rotation function values.
+ */
+ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng )
+{
+    //================================================ Set internal values
+    this->radius                                      = rad;
+    this->radialDim                                   = dim;
+    this->radiusMin                                   = this->radius - ( radRange / 2.0 );
+    this->radiusMax                                   = this->radius + ( radRange / 2.0 );
+    this->representedAngle                            = repAng;
+    
+    //================================================ Allocate the axis field
+    this->axesValues                                  = new proshade_double[dim*dim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->axesValues, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Fill axis field with zeroes
+    for ( proshade_unsign iter = 0; iter < ( dim * dim ); iter++ ) { this->axesValues[iter] = 0.0; }
+    
+}
+
+/*! \brief Destructor for getting empty ProSHADE_rotFun_sphere class.
+ 
+    ...
+ 
+    \param[out] X N/A.
+ */
+ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::~ProSHADE_rotFun_sphere (  )
+{
+    //================================================ Release the allocated memory
+    if ( this->axesValues != nullptr )
+    {
+        delete[] this->axesValues;
+    }
+}
+
+/*! \brief Accessor function for the private variable radius.
+ 
+    \param[out] radius The value of the radius of this specific concentric shell.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getRadius ( void )
+{
+    //================================================ Done
+    return                                            ( this->radius );
+}
+
+/*! \brief Accessor function for the private variable maximum radius.
+ 
+    \param[out] radius The value of the maximum radius of this specific concentric shell.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMaxRadius ( void )
+{
+    //================================================ Done
+    return                                            ( this->radiusMax );
+}
+
+/*! \brief Accessor function for the private variable minimal radius.
+ 
+    \param[out] radius The value of the minimal radius of this specific concentric shell.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMinRadius ( void )
+{
+    //================================================ Done
+    return                                            ( this->radiusMin );
+}
+
+/*! \brief Function for interpolating the sphere grid values from angle-axis converted rotation function.
+ 
+    This function starts by converting each of the sphere sampling points lattitude and longitude to the XYZ position and by adding the represented
+    rotation angle, obtains the angle-axis representation for the given point. It then proceeds to locate such points exact position in the indices space
+    of the supplied rotation map. From there, it interpolates the exact correlation value for the given point, thus effectivelly re-sampling the rotation
+    function space onto the sphere.
+ 
+    \param[in] rotFun proshade_complex pointer to the rotation function values.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues ( proshade_complex* rotFun )
+{
+    //================================================ Initialise variables
+    proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->radialDim );
+    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->radialDim );
+    
+    proshade_double lat, lon, cX, cY, cZ, c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1, xRelative, yRelative, zRelative, eulerAlpha, eulerBeta, eulerGamma, mapX, mapY, mapZ;
+    proshade_signed xBottom, xTop, yBottom, yTop, zBottom, zTop, mapIndex;
+    
+    //================================================ For each sphere grid position
+    for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->radialDim ); lonIt++ )
+    {
+        for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->radialDim ); latIt++ )
+        {
+            //======================================== Convert to XYZ position on unit sphere. The radius here is not important, as it does not change the direction of the vector.
+            lon                                       = static_cast<proshade_double> ( lonIt + 0.5 ) * lonSampling;
+            lat                                       = static_cast<proshade_double> ( latIt + 0.5 ) * latSampling;
+            cX                                        = 1.0 * std::sin ( lon ) * std::cos ( lat );
+            cY                                        = 1.0 * std::sin ( lon ) * std::sin ( lat );
+            cZ                                        = 1.0 * std::cos ( lon );
+            
+            //======================================== Convert to ZXZ Euler angles
+            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
+            
+            //======================================== Convert to SOFT map position (decimal, not indices)
+            ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->radialDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
+            
+            //======================================== Find lower and higher points and deal with boundaries
+            xBottom = std::floor ( mapX ); if ( xBottom < 0.0 ) { xBottom += this->radialDim; } if ( xBottom >= this->radialDim ) { xBottom -= this->radialDim; }
+            yBottom = std::floor ( mapY ); if ( yBottom < 0.0 ) { yBottom += this->radialDim; } if ( yBottom >= this->radialDim ) { yBottom -= this->radialDim; }
+            zBottom = std::floor ( mapZ ); if ( zBottom < 0.0 ) { zBottom += this->radialDim; } if ( zBottom >= this->radialDim ) { zBottom -= this->radialDim; }
+            xTop = std::ceil ( mapX ); if ( xTop < 0.0 ) { xTop += this->radialDim; } if ( xTop >= this->radialDim ) { xTop -= this->radialDim; }
+            yTop = std::ceil ( mapY ); if ( yTop < 0.0 ) { yTop += this->radialDim; } if ( yTop >= this->radialDim ) { yTop -= this->radialDim; }
+            zTop = std::ceil ( mapZ ); if ( zTop < 0.0 ) { zTop += this->radialDim; } if ( zTop >= this->radialDim ) { zTop -= this->radialDim; }
+            
+            //======================================== Start X interpolation - bottom, bottom, bottom
+            mapIndex                                  = zBottom + this->radialDim * ( yBottom + this->radialDim * xBottom );
+            c000                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - bottom, bottom, top
+            mapIndex                                  = zTop    + this->radialDim * ( yBottom + this->radialDim * xBottom );
+            c001                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - bottom, top, bottom
+            mapIndex                                  = zBottom + this->radialDim * ( yTop    + this->radialDim * xBottom );
+            c010                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - bottom, top, top
+            mapIndex                                  = zTop    + this->radialDim * ( yTop    + this->radialDim * xBottom );
+            c011                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - top, bottom, bottom
+            mapIndex                                  = zBottom + this->radialDim * ( yBottom + this->radialDim * xTop    );
+            c100                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - top, bottom, top
+            mapIndex                                  = zTop    + this->radialDim * ( yBottom + this->radialDim * xTop    );
+            c101                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - top, top, bottom
+            mapIndex                                  = zBottom + this->radialDim * ( yTop    + this->radialDim * xTop    );
+            c110                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== X interpolation - top, top, top
+            mapIndex                                  = zTop    + this->radialDim * ( yTop    + this->radialDim * xTop    );
+            c111                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
+            
+            //======================================== Solve for X
+            xRelative                                 = mapX - std::floor( mapX );
+            c00                                       = ( c000 * ( 1.0 - xRelative ) ) + ( c100 * xRelative );
+            c01                                       = ( c001 * ( 1.0 - xRelative ) ) + ( c101 * xRelative );
+            c10                                       = ( c010 * ( 1.0 - xRelative ) ) + ( c110 * xRelative );
+            c11                                       = ( c011 * ( 1.0 - xRelative ) ) + ( c111 * xRelative );
+            
+            //======================================== Solve for Y
+            yRelative                                 = mapY - std::floor( mapY );
+            c0                                        = ( c00 * ( 1.0 - yRelative ) ) + ( c10 * yRelative );
+            c1                                        = ( c01 * ( 1.0 - yRelative ) ) + ( c11 * yRelative );
+            
+            //======================================== Solve for Z
+            zRelative                                 = mapZ - std::floor( mapZ );
+            
+            //======================================== Save result
+            mapIndex                                  = lonIt + ( latIt * static_cast<proshade_unsign> ( this->radialDim ) );
+            this->axesValues[mapIndex]                = ( c0 * ( 1.0 - zRelative ) ) + ( c1 * zRelative );
+        }
+    }
+            
+    //================================================ Done
+    return ;
+    
+}

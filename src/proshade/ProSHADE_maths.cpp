@@ -944,13 +944,12 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
 /*! \brief Function to find Euler angles (ZXZ convention) from index position in the inverse SOFT map.
  
     This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZXZ convention angles, saving
-    these into the inputted pointers. It also changes the Euler angle ranges from (0,2PI> to (-PI,PI> as preferred by
-    the functions using the results.
+    these into the supplied pointers.
  
     \param[in] band The maximum bandwidth of the computation.
     \param[in] x The x-axis position in the inverse SOFT map.
-    \param[in] y The x-axis position in the inverse SOFT map.
-    \param[in] z The x-axis position in the inverse SOFT map.
+    \param[in] y The y-axis position in the inverse SOFT map.
+    \param[in] z The z-axis position in the inverse SOFT map.
     \param[in] eulerAlpha Pointer to where the Euler alpha angle will be saved.
     \param[in] eulerBeta Pointer to where the Euler beta angle will be saved.
     \param[in] eulerGamma Pointer to where the Euler gamma angle will be saved.
@@ -958,9 +957,34 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
 void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
 {
     //================================================ Convert index to Euler angles
-   *eulerGamma                                        = ( M_PI * y / ( static_cast<proshade_double> ( band ) ) );
-   *eulerBeta                                         = ( M_PI * ( 2.0 * x + 1.0 ) / static_cast<proshade_double> ( 4.0 * band ) )  ;
-   *eulerAlpha                                        = ( M_PI * z / ( static_cast<proshade_double> ( band ) ) );
+   *eulerGamma                                        = ( M_PI * y / static_cast<proshade_double> ( 1.0 * band ) );
+   *eulerBeta                                         = ( M_PI * x / static_cast<proshade_double> ( 2.0 * band ) );
+   *eulerAlpha                                        = ( M_PI * z / static_cast<proshade_double> ( 1.0 * band ) );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function to find the index position in the inverse SOFT map from given Euler angles (ZXZ convention).
+ 
+    This function does the conversion from Euler angles ZXZ convention to the SOFT map x, y and z position. It is not limitted to
+    the SOFT map indices and instead if given Euler agnles between two indices will return a decimal point for the indices.
+ 
+    \param[in] band The maximum bandwidth of the computation.
+    \param[in] eulerAlpha The Euler alpha angle value.
+    \param[in] eulerBeta The Euler beta angle value.
+    \param[in] eulerGamma The Euler gamma angle value.
+    \param[in] x Pointer to where the closest x-axis position in the inverse SOFT map will be saved to (position may be decimal!).
+    \param[in] y Pointer to where the closest y-axis position in the inverse SOFT map will be saved to (position may be decimal!).
+    \param[in] z Pointer to where the closest z-axis position in the inverse SOFT map will be saved to (position may be decimal!).
+ */
+void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
+{
+    //================================================ Convert Euler angles to indices
+    *x                                                = static_cast<proshade_double> ( ( eulerBeta  * static_cast<proshade_double> ( 2.0 * band ) ) / M_PI );
+    *y                                                = static_cast<proshade_double> ( ( eulerGamma * static_cast<proshade_double> ( band       ) ) / M_PI );
+    *z                                                = static_cast<proshade_double> ( ( eulerAlpha * static_cast<proshade_double> ( band       ) ) / M_PI );
     
     //================================================ Done
     return ;
@@ -1116,15 +1140,11 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *x                                                 = rotMat[7] - rotMat[5];
    *y                                                 = rotMat[2] - rotMat[6];
    *z                                                 = rotMat[3] - rotMat[1];
-    proshade_double normFactor                        = pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 );
-            
-    if ( normFactor > singAtPiCheck )
-    {
-        normFactor                                    = sqrt ( normFactor );
-       *x                                            /= normFactor;
-       *y                                            /= normFactor;
-       *z                                            /= normFactor;
-    }
+    
+    proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+    *x                                               /= normFactor;
+    *y                                               /= normFactor;
+    *z                                               /= normFactor;
     
     //================================================ Done
     return ;
@@ -1219,6 +1239,74 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     //================================================ Done
     return ;
     
+}
+
+/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation.
+ 
+    \param[in] axX Angle-axis representation axis x element.
+    \param[in] axY Angle-axis representation axis y element.
+    \param[in] axZ Angle-axis representation axis z element.
+    \param[in] axAng Angle-axis representation angle.
+    \param[in] eA Pointer to which the Euler angle alpha value will be saved.
+    \param[in] eB Pointer to which the Euler angle beta value will be saved.
+    \param[in] eG Pointer to which the Euler angle gamma value will be saved.
+ */
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
+{
+    //================================================ Initialise variables
+    proshade_double cAng                              = std::cos ( axAng );
+    proshade_double sAng                              = std::sin ( axAng );
+    proshade_double tAng                              = 1.0 - cAng;
+    
+    proshade_double tmp1                              = axX * axZ * tAng;
+    proshade_double tmp2                              = axY * sAng;
+    proshade_double uZVecElement                      = tmp1 - tmp2;
+    proshade_double wXVecElement                      = tmp1 + tmp2;
+            
+    tmp1                                              = axY * axZ * tAng;
+    tmp2                                              = axX * sAng;
+    proshade_double vZVecElement                      = tmp1 + tmp2;
+    proshade_double wYVecElement                      = tmp1 - tmp2;
+    
+    //================================================ If angle is 0 or infinity (anything divided by 0), return no rotation
+    if ( ( axAng == 0.0 ) || ( std::isinf ( axAng ) ) )
+    {
+        //============================================ Return 0 ; 0 ; 0 for no angle
+       *eA                                            = 0.0;
+       *eB                                            = 0.0;
+       *eG                                            = 0.0;
+        
+        //============================================ Done
+        return ;
+    }
+    
+    //================================================
+   *eA                                                = std::atan2 ( vZVecElement,  uZVecElement );
+   *eB                                                = std::acos  ( cAng + axZ * axZ * tAng );
+   *eG                                                = std::atan2 ( wYVecElement, -wXVecElement );
+    
+    //================================================ Solve undefined 0,0 inputs (i.e. identity matrix)
+    proshade_double errLimit                          = 0.001;
+    if ( ( ( vZVecElement < errLimit ) && ( vZVecElement > -errLimit ) ) && ( ( uZVecElement < errLimit ) && ( uZVecElement > -errLimit ) ) )
+    {
+        //============================================ atan2 (0,0) is undefined, we want 0.0 here
+       *eA                                            = 0.0;
+    }
+    
+    if ( ( ( wYVecElement < errLimit ) && ( wYVecElement > -errLimit ) ) && ( ( wXVecElement < errLimit ) && ( wXVecElement > -errLimit ) ) )
+    {
+        //============================================ atan2 (0,0) is undefined, we want 0.0 here
+       *eG                                            = 0.0;
+    }
+    
+    //================================================ Get the angles to proper range
+    if ( *eA < 0.0 ) { *eA                            = 2.0 * M_PI + *eA; }
+    if ( *eB < 0.0 ) { *eB                            =       M_PI + *eB; }
+    if ( *eG < 0.0 ) { *eG                            = 2.0 * M_PI + *eG; }
+    
+    //================================================ Done
+    return ;
+   
 }
 
 /*! \brief Function to compute matrix multiplication.

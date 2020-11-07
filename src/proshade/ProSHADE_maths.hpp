@@ -73,10 +73,14 @@ namespace ProSHADE_internal_maths
     void complexMatrixSVDUandVOnly                    ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail = true );
     void getEulerZXZFromSOFTPosition                  ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha,
                                                         proshade_double* eulerBeta, proshade_double* eulerGamma );
+    void getSOFTPositionFromEulerZXZ                  ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma,
+                                                        proshade_double* x, proshade_double* y, proshade_double* z );
     void getRotationMatrixFromEulerZXZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
     void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
     void getRotationMatrixFromAngleAxis               ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getEulerZXZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
+    void getEulerZXZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
+                                                        proshade_double* eB, proshade_double* eG );
     void multiplyTwoSquareMatrices                    ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim );
     std::vector < proshade_signed > primeFactorsDecomp ( proshade_signed number );
     proshade_double normalDistributionValue           ( proshade_double mean, proshade_double standardDev, proshade_double value );
