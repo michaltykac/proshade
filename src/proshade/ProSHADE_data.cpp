@@ -1840,7 +1840,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     if ( settings->requestedSymmetryType == "" )
     {
         //============================================ Detect all C symmetry axes
-        std::cerr << "Sadly, this functionality is not yet implemented. Please use the " << std::endl;
+        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
     }
     
     //================================================  Which symmetry was requested?
@@ -1861,6 +1861,26 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         settings->setRecommendedFold                  ( bestSym[0] );
         
         if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( bestSym ); }
+    }
+    
+    if ( settings->requestedSymmetryType == "D" )
+    {
+        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+    }
+    
+    if ( settings->requestedSymmetryType == "T" )
+    {
+        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+    }
+    
+    if ( settings->requestedSymmetryType == "O" )
+    {
+        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+    }
+    
+    if ( settings->requestedSymmetryType == "I" )
+    {
+        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
     }
 }
 
