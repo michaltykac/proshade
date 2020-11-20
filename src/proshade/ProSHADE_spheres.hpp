@@ -120,14 +120,20 @@ namespace ProSHADE_internal_spheres
     proshade_single autoDetermineSphereDistances      ( proshade_single maxMapRange, proshade_single resolution );
     proshade_unsign autoDetermineIntegrationOrder     ( proshade_single maxMapRange, proshade_single sphereDist );
 
+/*! \class ProSHADE_rotFun_sphere
+    \brief This class contains all inputed data for the rotation function angle-axis converted spheres.
+ 
+    This class codes the object that contains all the information about a single concentric sphere in the angle-axis space
+    obtained by conversion of the rotation function. It also contains all the functionality required
+    to process such data.
+ */
     class ProSHADE_rotFun_sphere
     {
-//    private:
-    public:
+    private:
         proshade_double radius;
         proshade_double radiusMax;
         proshade_double radiusMin;
-        proshade_unsign radialDim;
+        proshade_unsign angularDim;
         proshade_double representedAngle;
         
         proshade_double* axesValues;
@@ -139,6 +145,10 @@ namespace ProSHADE_internal_spheres
         proshade_double getRadius                     ( void );
         proshade_double getMaxRadius                  ( void );
         proshade_double getMinRadius                  ( void );
+        proshade_unsign getAngularDim                 ( void );
+        proshade_double getRepresentedAngle           ( void );
+        proshade_double getSphereLatLonPosition       ( proshade_unsign lattitude, proshade_unsign longitude );
+        proshade_double getSphereLatLonLinearInterpolationPos ( proshade_double lattitude, proshade_double longitude );
         
     public:
         void interpolateSphereValues                  ( proshade_complex* rotFun );

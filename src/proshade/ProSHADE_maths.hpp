@@ -95,6 +95,202 @@ namespace ProSHADE_internal_maths
     bool rotationMatrixSimilarity                     ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance = 0.1 );
     bool vectorOrientationSimilarity                  ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2,
                                                         proshade_double b3, proshade_double tolerance = 0.1 );
+
+/*! \class ProSHADE_internal_maths_bicubicInterpolator
+    \brief This class takes 4 by 4 array of input point values and allows bicubic interpolation of any value between them.
+ 
+    This class provides a constructor, which takes a 4 by 4 matrix of values. These values signify a function f(x,y) values at equidistantly
+    placed indices on a unit square. Once the constructor is finished, the function getValue() an be used to obtain the interpolated value
+    of any position on this unit square.
+ */
+    class BicubicInterpolator
+    {
+    private:
+        proshade_double a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33;
+        proshade_double xStartIndex, xRange, yStartIndex, yRange;
+
+    public:
+/*!     \brief This is the constructor for the BicubicInterpolator class.
+
+        This constructor takes the 4 by 4 array of values and pre-computes all the interpolators required for fast computation of any
+        positions value.
+
+        \param[in] areaToInterpolate Pointer to pointer of 4 by 4 equidistantly spaced grid of values.
+ */
+        BicubicInterpolator ( proshade_double** areaToInterpolate, proshade_double xStart, proshade_double yStart )
+        {
+            //======================================== Save the original non-unit square positions
+            this->xStartIndex                         = xStart;
+            this->yStartIndex                         = yStart;
+            
+            //======================================== Prepare variables for converting from original indices to unit square
+            this->xRange                              = 3.0;
+            this->yRange                              = 3.0;
+            
+            //======================================== Precompute interpolators
+            this->a00                                 = areaToInterpolate[1][1];
+            this->a01                                 = - ( 0.5 * areaToInterpolate[1][0] ) +
+                                                          ( 0.5 * areaToInterpolate[1][2] );
+            this->a02                                 =   areaToInterpolate[1][0] -
+                                                          ( 2.5 * areaToInterpolate[1][1] ) +
+                                                          ( 2.0 * areaToInterpolate[1][2] ) -
+                                                          ( 0.5 * areaToInterpolate[1][3] );
+            this->a03                                 = - ( 0.5 * areaToInterpolate[1][0] ) +
+                                                          ( 1.5 * areaToInterpolate[1][1] ) -
+                                                          ( 1.5 * areaToInterpolate[1][2] ) +
+                                                          ( 0.5 * areaToInterpolate[1][3] );
+            this->a10                                 = - ( 0.5 * areaToInterpolate[0][1] ) +
+                                                          ( 0.5 * areaToInterpolate[2][1] );
+            this->a11                                 =   ( 0.25 * areaToInterpolate[0][0] ) -
+                                                          ( 0.25 * areaToInterpolate[0][2] ) -
+                                                          ( 0.25 * areaToInterpolate[2][0] ) +
+                                                          ( 0.25 * areaToInterpolate[2][2] );
+            this->a12                                 = - ( 0.5 * areaToInterpolate[0][0] ) +
+                                                          ( 1.25 * areaToInterpolate[0][1] ) -
+                                                          areaToInterpolate[0][2] +
+                                                          ( 0.25 * areaToInterpolate[0][3] ) +
+                                                          ( 0.5 * areaToInterpolate[2][0] ) -
+                                                          ( 1.25 * areaToInterpolate[2][1] ) +
+                                                          areaToInterpolate[2][2] -
+                                                          ( 0.25 * areaToInterpolate[2][3] );
+            this->a13                                 =   ( 0.25 * areaToInterpolate[0][0] ) -
+                                                          ( 0.75 * areaToInterpolate[0][1] ) +
+                                                          ( 0.75 * areaToInterpolate[0][2] ) -
+                                                          ( 0.25 * areaToInterpolate[0][3] ) -
+                                                          ( 0.25 * areaToInterpolate[2][0] ) +
+                                                          ( 0.75 * areaToInterpolate[2][1] ) -
+                                                          ( 0.75 * areaToInterpolate[2][2] ) +
+                                                          ( 0.25 * areaToInterpolate[2][3] );
+            this->a20                                 =   areaToInterpolate[0][1] -
+                                                          ( 2.5 * areaToInterpolate[1][1] ) +
+                                                          ( 2.0 * areaToInterpolate[2][1] ) -
+                                                          ( 0.5 * areaToInterpolate[3][1] );
+            this->a21                                 = - ( 0.5 * areaToInterpolate[0][0] ) +
+                                                          ( 0.5 * areaToInterpolate[0][2] ) +
+                                                          ( 1.25 * areaToInterpolate[1][0] ) -
+                                                          ( 1.25 * areaToInterpolate[1][2] ) -
+                                                          areaToInterpolate[2][0] + areaToInterpolate[2][2] +
+                                                          ( 0.25 * areaToInterpolate[3][0] ) -
+                                                          ( 0.25 * areaToInterpolate[3][2] );
+            this->a22                                 =   areaToInterpolate[0][0] -
+                                                          ( 2.5 * areaToInterpolate[0][1] ) +
+                                                          ( 2.0 * areaToInterpolate[0][2] ) -
+                                                          ( 0.5 * areaToInterpolate[0][3] ) -
+                                                          ( 2.5 * areaToInterpolate[1][0] ) +
+                                                          ( 6.25 * areaToInterpolate[1][1] ) -
+                                                          ( 5.0 * areaToInterpolate[1][2] ) +
+                                                          ( 1.25 * areaToInterpolate[1][3] ) +
+                                                          ( 2.0 * areaToInterpolate[2][0] ) -
+                                                          ( 5.0 * areaToInterpolate[2][1] ) +
+                                                          ( 4.0 * areaToInterpolate[2][2] ) -
+                                                          areaToInterpolate[2][3] -
+                                                          ( 0.5 * areaToInterpolate[3][0] ) +
+                                                          ( 1.25 * areaToInterpolate[3][1] ) -
+                                                          areaToInterpolate[3][2] +
+                                                          ( 0.25 * areaToInterpolate[3][3] );
+            this->a23                                 = - ( 0.5 * areaToInterpolate[0][0] ) +
+                                                          ( 1.5 * areaToInterpolate[0][1] ) -
+                                                          ( 1.5 * areaToInterpolate[0][2] ) +
+                                                          ( 0.5 * areaToInterpolate[0][3] ) +
+                                                          ( 1.25 * areaToInterpolate[1][0] ) -
+                                                          ( 3.75 * areaToInterpolate[1][1] ) +
+                                                          ( 3.75 * areaToInterpolate[1][2] ) -
+                                                          ( 1.25 * areaToInterpolate[1][3] ) -
+                                                          areaToInterpolate[2][0] +
+                                                          ( 3.0 * areaToInterpolate[2][1] ) -
+                                                          ( 3.0 * areaToInterpolate[2][2] ) +
+                                                          areaToInterpolate[2][3] +
+                                                          ( 0.25 * areaToInterpolate[3][0] ) -
+                                                          ( 0.75 * areaToInterpolate[3][1] ) +
+                                                          ( 0.75 * areaToInterpolate[3][2] ) -
+                                                          ( 0.25 * areaToInterpolate[3][3] );
+            this->a30                                 = - ( 0.5 * areaToInterpolate[0][1] ) +
+                                                          ( 1.5 * areaToInterpolate[1][1] ) -
+                                                          ( 1.5 * areaToInterpolate[2][1] ) +
+                                                          ( 0.5*areaToInterpolate[3][1] );
+            this->a31                                 =   ( 0.25 * areaToInterpolate[0][0] ) -
+                                                          ( 0.25 * areaToInterpolate[0][2] ) -
+                                                          ( 0.75 * areaToInterpolate[1][0] ) +
+                                                          ( 0.75 * areaToInterpolate[1][2] ) +
+                                                          ( 0.75 * areaToInterpolate[2][0] ) -
+                                                          ( 0.75 * areaToInterpolate[2][2] ) -
+                                                          ( 0.25 * areaToInterpolate[3][0] ) +
+                                                          ( 0.25 * areaToInterpolate[3][2] );
+            this->a32                                 = - ( 0.5 * areaToInterpolate[0][0] ) +
+                                                          ( 1.25 * areaToInterpolate[0][1] ) -
+                                                          areaToInterpolate[0][2] +
+                                                          ( 0.25 * areaToInterpolate[0][3] ) +
+                                                          ( 1.5 * areaToInterpolate[1][0] ) -
+                                                          ( 3.75 * areaToInterpolate[1][1] ) +
+                                                          ( 3.0 * areaToInterpolate[1][2] ) -
+                                                          ( 0.75 * areaToInterpolate[1][3] ) -
+                                                          ( 1.5 * areaToInterpolate[2][0] ) +
+                                                          ( 3.75 * areaToInterpolate[2][1] ) -
+                                                          ( 3.0 * areaToInterpolate[2][2] ) +
+                                                          ( 0.75 * areaToInterpolate[2][3] ) +
+                                                          ( 0.5 * areaToInterpolate[3][0] ) -
+                                                          ( 1.25 * areaToInterpolate[3][1] ) +
+                                                          areaToInterpolate[3][2] -
+                                                          ( 0.25 * areaToInterpolate[3][3] );
+            this->a33                                 =   ( 0.25 * areaToInterpolate[0][0] ) -
+                                                          ( 0.75 * areaToInterpolate[0][1] ) +
+                                                          ( 0.75 * areaToInterpolate[0][2] ) -
+                                                          ( 0.25 * areaToInterpolate[0][3] ) -
+                                                          ( 0.75 * areaToInterpolate[1][0] ) +
+                                                          ( 2.25 * areaToInterpolate[1][1] ) -
+                                                          ( 2.25 * areaToInterpolate[1][2] ) +
+                                                          ( 0.75 * areaToInterpolate[1][3] ) +
+                                                          ( 0.75 * areaToInterpolate[2][0] ) -
+                                                          ( 2.25 * areaToInterpolate[2][1] ) +
+                                                          ( 2.25 * areaToInterpolate[2][2] ) -
+                                                          ( 0.75 * areaToInterpolate[2][3] ) -
+                                                          ( 0.25 * areaToInterpolate[3][0] ) +
+                                                          ( 0.75 * areaToInterpolate[3][1] ) -
+                                                          ( 0.75 * areaToInterpolate[3][2] ) +
+                                                          ( 0.25 * areaToInterpolate[3][3] );
+        }
+        
+/*!     \brief This is the destructor for the BicubicInterpolator class.
+
+        This destructor does nothing.
+ */
+       ~BicubicInterpolator ( void ) { ; }
+
+/*!     \brief This function allows accessing the interpolated value for a given position x and y.
+
+        This constructor takes the 4 by 4 array of values and pre-computes all the interpolators required for fast computation of any
+        positions value.
+
+        \param[in] x The x-axis position on the unit square for which the interpolated value should be computed.
+        \param[in] y The y-axis position on the unit square for which the interpolated value should be computed.
+        \param[out] res The interpolated value for the position x and y.
+ */
+        proshade_double getValue ( proshade_double x, proshade_double y )
+        {
+            //======================================== Sanity check
+            if ( ( ( x < this->xStartIndex ) || ( x > ( this->xStartIndex + this->xRange ) ) ) ||
+                 ( ( y < this->yStartIndex ) || ( y > ( this->yStartIndex + this->yRange ) ) ) )
+            {
+                throw ProSHADE_exception ( "Requested bicubic interpolation outside of pre-computed\n                    : square.", "ES00064", __FILE__, __LINE__, __func__, "The supplied x or y value(s) is outside of the range of\n                    : the bi-cubic interpolator's pre-computed square. Please\n                    : make sure the start values were correctly supplied when\n                    : the constructor was called or create a new interpolator\n                    : for these values." );
+            }
+            
+            //======================================== Convert x and y to unit square
+            proshade_double unitSquareX               = ( x - this->xStartIndex ) / this->xRange;
+            proshade_double unitSquareY               = ( y - this->yStartIndex ) / this->yRange;
+            
+            //======================================== Precompute powers
+            proshade_double x2                        = std::pow ( unitSquareX, 2.0 );
+            proshade_double x3                        = std::pow ( unitSquareX, 3.0 );
+            proshade_double y2                        = std::pow ( unitSquareY, 2.0 );
+            proshade_double y3                        = std::pow ( unitSquareY, 3.0 );
+
+            //======================================== Done
+            return                                    ( this->a00 + this->a01 * unitSquareY + this->a02 * y2 + this->a03 * y3 ) +
+                                                      ( this->a10 + this->a11 * unitSquareY + this->a12 * y2 + this->a13 * y3 ) * unitSquareX +
+                                                      ( this->a20 + this->a21 * unitSquareY + this->a22 * y2 + this->a23 * y3 ) * x2 +
+                                                      ( this->a30 + this->a31 * unitSquareY + this->a32 * y2 + this->a33 * y3 ) * x3;
+        }
+    };
 }
 
 #endif

@@ -638,7 +638,7 @@ ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( pros
 {
     //================================================ Set internal values
     this->radius                                      = rad;
-    this->radialDim                                   = dim;
+    this->angularDim                                  = dim;
     this->radiusMin                                   = this->radius - ( radRange / 2.0 );
     this->radiusMax                                   = this->radius + ( radRange / 2.0 );
     this->representedAngle                            = repAng;
@@ -687,6 +687,16 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMaxRadius 
     return                                            ( this->radiusMax );
 }
 
+/*! \brief Accessor function for the private variable angular dim.
+ 
+    \param[out] radius The dimension size of the angular sampling grid.
+ */
+proshade_unsign ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getAngularDim ( void )
+{
+    //================================================ Done
+    return                                            ( this->angularDim );
+}
+
 /*! \brief Accessor function for the private variable minimal radius.
  
     \param[out] radius The value of the minimal radius of this specific concentric shell.
@@ -695,6 +705,16 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMinRadius 
 {
     //================================================ Done
     return                                            ( this->radiusMin );
+}
+
+/*! \brief Accessor function for the private variable represented angle.
+ 
+    \param[out] radius The value of the angle represented by this sphere.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getRepresentedAngle ( void )
+{
+    //================================================ Done
+    return                                            ( this->representedAngle );
 }
 
 /*! \brief Function for interpolating the sphere grid values from angle-axis converted rotation function.
@@ -709,20 +729,20 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMinRadius 
 void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues ( proshade_complex* rotFun )
 {
     //================================================ Initialise variables
-    proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->radialDim );
-    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->radialDim );
+    proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->angularDim );
+    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->angularDim );
     
     proshade_double lat, lon, cX, cY, cZ, c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1, xRelative, yRelative, zRelative, eulerAlpha, eulerBeta, eulerGamma, mapX, mapY, mapZ;
     proshade_signed xBottom, xTop, yBottom, yTop, zBottom, zTop, mapIndex;
     
     //================================================ For each sphere grid position
-    for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->radialDim ); lonIt++ )
+    for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->angularDim ); lonIt++ )
     {
-        for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->radialDim ); latIt++ )
+        for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->angularDim ); latIt++ )
         {
             //======================================== Convert to XYZ position on unit sphere. The radius here is not important, as it does not change the direction of the vector.
-            lon                                       = static_cast<proshade_double> ( lonIt + 0.5 ) * lonSampling;
-            lat                                       = static_cast<proshade_double> ( latIt + 0.5 ) * latSampling;
+            lon                                       = static_cast<proshade_double> ( lonIt ) * lonSampling;
+            lat                                       = static_cast<proshade_double> ( latIt ) * latSampling;
             cX                                        = 1.0 * std::sin ( lon ) * std::cos ( lat );
             cY                                        = 1.0 * std::sin ( lon ) * std::sin ( lat );
             cZ                                        = 1.0 * std::cos ( lon );
@@ -731,46 +751,46 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
-            ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->radialDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
+            ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
             
             //======================================== Find lower and higher points and deal with boundaries
-            xBottom = std::floor ( mapX ); if ( xBottom < 0.0 ) { xBottom += this->radialDim; } if ( xBottom >= this->radialDim ) { xBottom -= this->radialDim; }
-            yBottom = std::floor ( mapY ); if ( yBottom < 0.0 ) { yBottom += this->radialDim; } if ( yBottom >= this->radialDim ) { yBottom -= this->radialDim; }
-            zBottom = std::floor ( mapZ ); if ( zBottom < 0.0 ) { zBottom += this->radialDim; } if ( zBottom >= this->radialDim ) { zBottom -= this->radialDim; }
-            xTop = std::ceil ( mapX ); if ( xTop < 0.0 ) { xTop += this->radialDim; } if ( xTop >= this->radialDim ) { xTop -= this->radialDim; }
-            yTop = std::ceil ( mapY ); if ( yTop < 0.0 ) { yTop += this->radialDim; } if ( yTop >= this->radialDim ) { yTop -= this->radialDim; }
-            zTop = std::ceil ( mapZ ); if ( zTop < 0.0 ) { zTop += this->radialDim; } if ( zTop >= this->radialDim ) { zTop -= this->radialDim; }
+            xBottom = std::floor ( mapX ); if ( xBottom < 0.0 ) { xBottom += this->angularDim; } if ( xBottom >= this->angularDim ) { xBottom -= this->angularDim; }
+            yBottom = std::floor ( mapY ); if ( yBottom < 0.0 ) { yBottom += this->angularDim; } if ( yBottom >= this->angularDim ) { yBottom -= this->angularDim; }
+            zBottom = std::floor ( mapZ ); if ( zBottom < 0.0 ) { zBottom += this->angularDim; } if ( zBottom >= this->angularDim ) { zBottom -= this->angularDim; }
+            xTop = std::ceil ( mapX ); if ( xTop < 0.0 ) { xTop += this->angularDim; } if ( xTop >= this->angularDim ) { xTop -= this->angularDim; }
+            yTop = std::ceil ( mapY ); if ( yTop < 0.0 ) { yTop += this->angularDim; } if ( yTop >= this->angularDim ) { yTop -= this->angularDim; }
+            zTop = std::ceil ( mapZ ); if ( zTop < 0.0 ) { zTop += this->angularDim; } if ( zTop >= this->angularDim ) { zTop -= this->angularDim; }
             
             //======================================== Start X interpolation - bottom, bottom, bottom
-            mapIndex                                  = zBottom + this->radialDim * ( yBottom + this->radialDim * xBottom );
+            mapIndex                                  = zBottom + this->angularDim * ( yBottom + this->angularDim * xBottom );
             c000                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, bottom, top
-            mapIndex                                  = zTop    + this->radialDim * ( yBottom + this->radialDim * xBottom );
+            mapIndex                                  = zTop    + this->angularDim * ( yBottom + this->angularDim * xBottom );
             c001                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, top, bottom
-            mapIndex                                  = zBottom + this->radialDim * ( yTop    + this->radialDim * xBottom );
+            mapIndex                                  = zBottom + this->angularDim * ( yTop    + this->angularDim * xBottom );
             c010                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, top, top
-            mapIndex                                  = zTop    + this->radialDim * ( yTop    + this->radialDim * xBottom );
+            mapIndex                                  = zTop    + this->angularDim * ( yTop    + this->angularDim * xBottom );
             c011                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, bottom, bottom
-            mapIndex                                  = zBottom + this->radialDim * ( yBottom + this->radialDim * xTop    );
+            mapIndex                                  = zBottom + this->angularDim * ( yBottom + this->angularDim * xTop    );
             c100                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, bottom, top
-            mapIndex                                  = zTop    + this->radialDim * ( yBottom + this->radialDim * xTop    );
+            mapIndex                                  = zTop    + this->angularDim * ( yBottom + this->angularDim * xTop    );
             c101                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, top, bottom
-            mapIndex                                  = zBottom + this->radialDim * ( yTop    + this->radialDim * xTop    );
+            mapIndex                                  = zBottom + this->angularDim * ( yTop    + this->angularDim * xTop    );
             c110                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, top, top
-            mapIndex                                  = zTop    + this->radialDim * ( yTop    + this->radialDim * xTop    );
+            mapIndex                                  = zTop    + this->angularDim * ( yTop    + this->angularDim * xTop    );
             c111                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== Solve for X
@@ -789,12 +809,70 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             zRelative                                 = mapZ - std::floor( mapZ );
             
             //======================================== Save result
-            mapIndex                                  = lonIt + ( latIt * static_cast<proshade_unsign> ( this->radialDim ) );
+            mapIndex                                  = lonIt + ( latIt * static_cast<proshade_unsign> ( this->angularDim ) );
             this->axesValues[mapIndex]                = ( c0 * ( 1.0 - zRelative ) ) + ( c1 * zRelative );
         }
     }
-            
+        
     //================================================ Done
     return ;
     
+}
+
+/*! \brief Accessor function for specific lattitude and longitude point of the sphere sampling grid.
+ 
+    \param[in] lattitude The lattitude index of the requested sampling grid point.
+    \param[in] longitude The longitude index of the requested sampling grid point.
+    \param[out] radius The value of the sampling grid point at given lattitude and longitude position.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatLonPosition ( proshade_unsign lattitude, proshade_unsign longitude )
+{
+    //================================================ Done
+    return                                            ( this->axesValues[longitude + ( lattitude * static_cast<proshade_unsign> ( this->angularDim ) )] );
+}
+
+/*! \brief Function for obtaining sphere values outside of the grid points.
+ 
+    ...
+ 
+    \param[in] lattitude The lattitude index decimal place of the requested sampling grid position.
+    \param[in] longitude The longitude index of the requested sampling grid position.
+    \param[out] radius The value of the sampling grid position at given lattitude and longitude.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatLonLinearInterpolationPos ( proshade_double lattitude, proshade_double longitude )
+{
+    //================================================ Initialise variables
+    proshade_double c00, c01, c10, c11, c0, c1, latRelative, lonRelative;
+    proshade_signed latTop, latBottom, lonTop, lonBottom, gridIndex;
+    
+    //================================================ Find lower and higher indices and deal with boundaries
+    latBottom = std::floor ( lattitude ); if ( latBottom < 0.0 ) { latBottom += this->angularDim; } if ( latBottom >= this->angularDim ) { latBottom -= this->angularDim; }
+    lonBottom = std::floor ( longitude ); if ( lonBottom < 0.0 ) { lonBottom += this->angularDim; } if ( lonBottom >= this->angularDim ) { lonBottom -= this->angularDim; }
+    latTop    = std::ceil  ( lattitude ); if ( latTop    < 0.0 ) { latTop    += this->angularDim; } if ( latTop    >= this->angularDim ) { latTop    -= this->angularDim; }
+    lonTop    = std::ceil  ( longitude ); if ( lonTop    < 0.0 ) { lonTop    += this->angularDim; } if ( lonTop    >= this->angularDim ) { lonTop    -= this->angularDim; }
+    
+    //================================================ Interpolate
+    gridIndex                                         = lonBottom + ( latBottom * static_cast<proshade_unsign> ( this->angularDim ) );
+    c00                                               = this->axesValues[gridIndex];
+    
+    gridIndex                                         = lonBottom + ( latTop    * static_cast<proshade_unsign> ( this->angularDim ) );
+    c01                                               = this->axesValues[gridIndex];
+    
+    gridIndex                                         = lonTop    + ( latBottom * static_cast<proshade_unsign> ( this->angularDim ) );
+    c10                                               = this->axesValues[gridIndex];
+    
+    gridIndex                                         = lonTop    + ( latTop    * static_cast<proshade_unsign> ( this->angularDim ) );
+    c11                                               = this->axesValues[gridIndex];
+    
+    //================================================ Solve for longitude
+    lonRelative                                       = longitude - std::floor( longitude );
+    c0                                                = ( c00 * ( 1.0 - lonRelative ) ) + ( c10 * lonRelative );
+    c1                                                = ( c01 * ( 1.0 - lonRelative ) ) + ( c11 * lonRelative );
+    
+    //================================================ Solve for lattitude
+    latRelative                                       = lattitude - std::floor ( lattitude );
+    proshade_double res                               = ( c0 * ( 1.0 - latRelative ) ) + ( c1 * latRelative );
+    
+    //================================================ Done
+    return                                            ( res );
 }

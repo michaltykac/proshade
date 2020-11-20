@@ -173,6 +173,7 @@ public:
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
+    bool usePeakSearchInRotationFunctionSpace;        //!< This veriable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -254,6 +255,7 @@ public:
     void setDetectedSymmetry                          ( proshade_double* sym );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
+    void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     
     //================================================ Command line options parsing
     void getCommandLineParams                         ( int argc, char** argv );

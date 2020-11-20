@@ -34,6 +34,7 @@ int main ( int argc, char **argv )
     
     
     //================================================ Further useful settings
+    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?

@@ -112,6 +112,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->usePeakSearchInRotationFunctionSpace        = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -220,6 +221,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->usePeakSearchInRotationFunctionSpace        = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -1098,6 +1100,20 @@ void ProSHADE_settings::setOverlayJsonFile ( std::string filename )
     
 }
 
+/*! \brief Sets the symmetry detection algorithm type.
+ 
+    \param[in] rotFunPeaks Should the original peak detection in rotation function space be used (FALSE), or should the new angle-axis space search be used (DEFAULT - TRUE)?
+ */
+void ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
+{
+    //================================================ Set the value
+    this->usePeakSearchInRotationFunctionSpace        = rotFunPeaks;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1532,11 +1548,12 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "overlayFile",     required_argument,  NULL, '}' },
         { "overlayJSONFile", required_argument,  NULL, 'y' },
         { "angUncertain",    required_argument,  NULL, ';' },
+        { "usePeaksInRotFun",no_argument,        NULL, 'z' },
         { NULL,              0,                  NULL,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1949,6 +1966,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case ';':
              {
                  this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as angular uncertainty for bandwidth determination
+             case 'z':
+             {
+                 this->setSymmetryRotFunPeaks         ( false );
                  continue;
              }
                  

@@ -49,6 +49,7 @@ pSet.addStructure                             ( "./emd_6324.map" )              
 
 
 ### Useful settings
+pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
 pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
 pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
@@ -67,7 +68,6 @@ pSet.setAxisComparisonThreshold               ( 0.1 )                           
 pSet.setMinimumPeakForAxis                    ( 0.3 )                                  # The minimum peak height for axis to be used.
 pSet.setRequestedSymmetry                     ( "C" )                                  # Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 pSet.setRequestedFold                         ( 12 )                                   # For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
-
 
 
 ### All other (possible other tasks related) settings

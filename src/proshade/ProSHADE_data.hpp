@@ -132,6 +132,9 @@ namespace ProSHADE_internal_data
         proshade_unsign maxCompBand;                  //!< The largest comparison band - this variable tells how large arrays will be allocated for the comparison.
         proshade_complex* translationMap;             //!< This is where the translation map will be held, if at all used.
         
+        //============================================ Variables regarding symmetry detection
+        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereMappedRotFun;
+        
         //============================================ Control variables
         bool isEmpty;                                 //!< This variable stated whether the class contains any information.
         proshade_unsign inputOrder;                   //!< This value is the input order - it is useful to know for writing out files, so that they would not overwrite the same name multiple times.
@@ -214,6 +217,11 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         void detectSymmetryInStructurePython          ( ProSHADE_settings* settings );
+        void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
+        proshade_double* findRequestedCSymmetry       ( proshade_unsign fold );
+        void optimiseAxisBiCubicInterpolation         ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList );
+        void prepareBiCubicInterpolators              ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
+                                                        std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols );
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
