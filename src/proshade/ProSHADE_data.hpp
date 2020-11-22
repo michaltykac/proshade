@@ -218,7 +218,7 @@ namespace ProSHADE_internal_data
         void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         void detectSymmetryInStructurePython          ( ProSHADE_settings* settings );
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
-        proshade_double* findRequestedCSymmetry       ( proshade_unsign fold );
+        proshade_double* findRequestedCSymmetry       ( ProSHADE_settings* settings, proshade_unsign fold );
         void optimiseAxisBiCubicInterpolation         ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList );
         void prepareBiCubicInterpolators              ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
                                                         std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols );

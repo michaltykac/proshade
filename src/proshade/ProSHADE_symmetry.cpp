@@ -76,20 +76,26 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->maxShellBand * 2.0 );
     
     //================================================ Initialise the spheres
-    for ( proshade_unsign spIt = 0; spIt < ( this->maxShellBand * 2 ) - 1; spIt++ )
+    for ( proshade_unsign spIt = 1; spIt < ( this->maxShellBand * 2 ); spIt++ )
     {
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere( static_cast<proshade_double> ( spIt ) * shellSpacing,
                                                                                                                shellSpacing,
                                                                                                                this->maxShellBand * 2.0,
                                                                                                                static_cast<proshade_double> ( spIt ) * shellSpacing ) );
     }
-  
+
     //================================================ Interpolate the rotation function onto the spheres
     for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( sphereMappedRotFun.size() ); shIt++ )
     {
+        //============================================ Report progress
+        std::stringstream hlpSS;
+        hlpSS << "Interpolating sphere " << shIt << " ( radius: " << this->sphereMappedRotFun.at(shIt)->getRadius() << " ).";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
+        
+        //============================================ Interpolate onto spheres
         this->sphereMappedRotFun.at(shIt)->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
     }
-    
+
     //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function converted to spherical angle-axis space." );
     

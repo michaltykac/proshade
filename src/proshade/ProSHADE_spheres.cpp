@@ -652,9 +652,7 @@ ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( pros
     
 }
 
-/*! \brief Destructor for getting empty ProSHADE_rotFun_sphere class.
- 
-    ...
+/*! \brief Destructor for releasing memory from the ProSHADE_rotFun_sphere class.
  
     \param[out] X N/A.
  */
@@ -739,7 +737,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
     for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->angularDim ); lonIt++ )
     {
         for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->angularDim ); latIt++ )
-        {
+        {   
             //======================================== Convert to XYZ position on unit sphere. The radius here is not important, as it does not change the direction of the vector.
             lon                                       = static_cast<proshade_double> ( lonIt ) * lonSampling;
             lat                                       = static_cast<proshade_double> ( latIt ) * latSampling;
@@ -748,7 +746,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             cZ                                        = 1.0 * std::cos ( lon );
             
             //======================================== Convert to ZXZ Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
+            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma, this->angularDim );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
             ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
@@ -813,7 +811,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             this->axesValues[mapIndex]                = ( c0 * ( 1.0 - zRelative ) ) + ( c1 * zRelative );
         }
     }
-        
+    
     //================================================ Done
     return ;
     

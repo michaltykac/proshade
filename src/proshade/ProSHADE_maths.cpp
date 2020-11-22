@@ -616,7 +616,7 @@ proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade
 {
     //================================================ Initialise local variables
     proshade_double ret                               = 0.0;
-    proshade_complex* intData                         = new proshade_complex [order];
+    proshade_complex* intData                         = new proshade_complex[order];
     ProSHADE_internal_misc::checkMemoryAllocation ( intData, __FILE__, __LINE__, __func__ );
     proshade_complex posVals;
     proshade_unsign lesserPos                         = 0;
@@ -1142,9 +1142,9 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *z                                                 = rotMat[3] - rotMat[1];
     
     proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
-    *x                                               /= normFactor;
-    *y                                               /= normFactor;
-    *z                                               /= normFactor;
+   *x                                                /= normFactor;
+   *y                                                /= normFactor;
+   *z                                                /= normFactor;
     
     //================================================ Done
     return ;
@@ -1243,6 +1243,8 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
 
 /*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation.
  
+    This function does the angle-axis to Euler ZXZ conversion and if a problem around the Z axis arises, it deal with it.
+ 
     \param[in] axX Angle-axis representation axis x element.
     \param[in] axY Angle-axis representation axis y element.
     \param[in] axZ Angle-axis representation axis z element.
@@ -1251,23 +1253,8 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
 {
-    //================================================ Initialise variables
-    proshade_double cAng                              = std::cos ( axAng );
-    proshade_double sAng                              = std::sin ( axAng );
-    proshade_double tAng                              = 1.0 - cAng;
-    
-    proshade_double tmp1                              = axX * axZ * tAng;
-    proshade_double tmp2                              = axY * sAng;
-    proshade_double uZVecElement                      = tmp1 - tmp2;
-    proshade_double wXVecElement                      = tmp1 + tmp2;
-            
-    tmp1                                              = axY * axZ * tAng;
-    tmp2                                              = axX * sAng;
-    proshade_double vZVecElement                      = tmp1 + tmp2;
-    proshade_double wYVecElement                      = tmp1 - tmp2;
-    
     //================================================ If angle is 0 or infinity (anything divided by 0), return no rotation
     if ( ( axAng == 0.0 ) || ( std::isinf ( axAng ) ) )
     {
@@ -1280,23 +1267,51 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
         return ;
     }
     
-    //================================================
-   *eA                                                = std::atan2 ( vZVecElement,  uZVecElement );
+    //================================================ Initialise variables
+    proshade_double cAng                              = std::cos ( axAng );
+    proshade_double sAng                              = std::sin ( axAng );
+    proshade_double tAng                              = 1.0 - cAng;
+    
+    proshade_double tmp1                              = axX * axZ * tAng;
+    proshade_double tmp2                              = axY * sAng;
+    proshade_double rmElem20                          = tmp1 - tmp2;
+    proshade_double rmElem02                          = tmp1 + tmp2;
+    
+    tmp1                                              = axY * axZ * tAng;
+    tmp2                                              = axX * sAng;
+    proshade_double rmElem21                          = tmp1 + tmp2;
+    proshade_double rmElem12                          = tmp1 - tmp2;
+    
+    //================================================ Convert to Eulers
+   *eA                                                = std::atan2 ( rmElem21,  rmElem20 );
    *eB                                                = std::acos  ( cAng + axZ * axZ * tAng );
-   *eG                                                = std::atan2 ( wYVecElement, -wXVecElement );
+   *eG                                                = std::atan2 ( rmElem12, -rmElem02 );
     
     //================================================ Solve undefined 0,0 inputs (i.e. identity matrix)
-    proshade_double errLimit                          = 0.001;
-    if ( ( ( vZVecElement < errLimit ) && ( vZVecElement > -errLimit ) ) && ( ( uZVecElement < errLimit ) && ( uZVecElement > -errLimit ) ) )
+    proshade_double errLimit                          = 0.01;
+    if ( ( ( rmElem21 < errLimit ) && ( rmElem21 > -errLimit ) ) && ( ( rmElem20 < errLimit ) && ( rmElem20 > -errLimit ) ) )
     {
         //============================================ atan2 (0,0) is undefined, we want 0.0 here
        *eA                                            = 0.0;
     }
     
-    if ( ( ( wYVecElement < errLimit ) && ( wYVecElement > -errLimit ) ) && ( ( wXVecElement < errLimit ) && ( wXVecElement > -errLimit ) ) )
+    if ( ( ( rmElem12 < errLimit ) && ( rmElem12 > -errLimit ) ) && ( ( rmElem02 < errLimit ) && ( rmElem02 > -errLimit ) ) )
     {
         //============================================ atan2 (0,0) is undefined, we want 0.0 here
        *eG                                            = 0.0;
+    }
+    
+    //================================================ Solve the Z-axis glimbal lock (I think it is glimbal lock problem...)
+    //    The rotation matrix about Z axis has 0.0 at elements 02, 12, 20 and 21 - the exact elements that we
+    // require here for conversion to Euler ZXZ angles. Therefore, at this point all three Euler angles could
+    // be 0.0. If this is the case, we will have to use full rotation function indices search to find the best
+    // (or at least decent) Euler angle ZXZ position corresponding to the angle-axis input.
+    //
+    //    However, as the complete search would take ages, if step searching when a reasonable match is found.
+    // This is fast, as the first indices (small x and z value) are the first to be tried.
+    if ( ( *eA == 0.0 ) && ( *eB == 0.0 ) && ( *eG == 0.0 ) )
+    { 
+        getEulerZXZFromAngleAxisFullSearch            ( axX, axY, axZ, axAng, eA, eB, eG, angDim );
     }
     
     //================================================ Get the angles to proper range
@@ -1307,6 +1322,99 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     //================================================ Done
     return ;
    
+}
+
+/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation using full search.
+ 
+    This function is meant for solving the issue of angle-axis conversion to Euler ZXZ convention for axis 0,0,1, where all the rotation matrix
+    elements used for Euler alpha and gamma angles are 0.0. The function overcomes this by simply searching all the rotation function indices
+    for having angle-axis value similar to the required one - a rather slow approach. Therefore, the getEulerZXZFromAngleAxis() function should
+    be used instead and only if it fails (has all angles 0.0), then this function should be used instead.
+ 
+    \param[in] axX Angle-axis representation axis x element.
+    \param[in] axY Angle-axis representation axis y element.
+    \param[in] axZ Angle-axis representation axis z element.
+    \param[in] axAng Angle-axis representation angle.
+    \param[in] eA Pointer to which the Euler angle alpha value will be saved.
+    \param[in] eB Pointer to which the Euler angle beta value will be saved.
+    \param[in] eG Pointer to which the Euler angle gamma value will be saved.
+ */
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
+{
+    //================================================ Initialise variables
+    proshade_double bestDist                          = 999.9;
+    proshade_double eAHlp, eBHlp, eGHlp, axXHlp, axYHlp, axZHlp, axAngHlp, axDist;
+    
+    //================================================ Allocate memory
+    proshade_double* rMat                             = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
+
+    //================================================ For each rotation function index (i.e. existing Euler angles ZXZ combination)
+    for ( proshade_signed xIt = 0; xIt < angDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < angDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < angDim; zIt++ )
+            {
+                //==================================== Speed up
+                if ( bestDist < 0.001 ) { break; }
+                
+                //==================================== Get Euler ZXZ from the indices
+                getEulerZXZFromSOFTPosition           ( angDim/2, xIt, yIt, zIt, &eAHlp, &eBHlp, &eGHlp );
+                getRotationMatrixFromEulerZXZAngles   ( eAHlp, eBHlp, eGHlp, rMat );
+                getAxisAngleFromRotationMatrix        ( rMat, &axXHlp, &axYHlp, &axZHlp, &axAngHlp );
+                
+                //==================================== If angle is larger than 180 degrees
+                if ( axAng > M_PI )
+                {
+                    axAng                             = ( 2.0 * M_PI ) - axAng;
+                    axAng                            *= -1.0;
+                }
+                
+                //==================================== Make sure vector direction is the same
+                if ( ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axXHlp ) ) && ( axXHlp < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axYHlp ) ) && ( axYHlp < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axZHlp ) ) && ( axZHlp < 0.0 ) ) )
+                {
+                    axXHlp                           *= -1.0;
+                    axYHlp                           *= -1.0;
+                    axZHlp                           *= -1.0;
+                    axAngHlp                         *= -1.0;
+                }
+                
+                if ( ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axX ) ) && ( axX < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axY ) ) && ( axY < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axZ ) ) && ( axZ < 0.0 ) ) )
+                {
+                    axX                              *= -1.0;
+                    axY                              *= -1.0;
+                    axZ                              *= -1.0;
+                    axAng                            *= -1.0;
+                }
+                
+                //==================================== Compute distance to the requested angle-axis values
+                axDist                                = std::abs( axAng - axAngHlp ) + ( 1.0 - std::abs ( ( ( axX * axXHlp ) + ( axY * axYHlp ) + ( axZ * axZHlp ) ) /
+                                                        ( sqrt( pow( axX, 2.0 ) + pow( axY, 2.0 ) + pow( axZ, 2.0 ) ) * sqrt( pow( axXHlp, 2.0 ) + pow( axYHlp, 2.0 ) + pow( axZHlp, 2.0 ) ) ) ) );
+                
+                //==================================== Is this point an improvement
+                if ( std::abs ( axDist ) < bestDist )
+                {
+                    //================================ If so, note it
+                    bestDist                          = std::abs ( axDist );
+                   *eA                                = eAHlp;
+                   *eB                                = eBHlp;
+                   *eG                                = eGHlp;
+                }
+            }
+        }
+    }
+    
+    //================================================ Release memory
+    delete[] rMat;
+    
+    //================================================ Done
+    return ;
+    
 }
 
 /*! \brief Function to compute matrix multiplication.
