@@ -97,7 +97,9 @@ namespace ProSHADE_internal_maths
     bool rotationMatrixSimilarity                     ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance = 0.1 );
     bool vectorOrientationSimilarity                  ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2,
                                                         proshade_double b3, proshade_double tolerance = 0.1 );
-
+    bool vectorOrientationSimilaritySameDirection     ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2,
+                                                        proshade_double b3, proshade_double tolerance = 0.1 );
+ 
 /*! \class ProSHADE_internal_maths_bicubicInterpolator
     \brief This class takes 4 by 4 array of input point values and allows bicubic interpolation of any value between them.
  

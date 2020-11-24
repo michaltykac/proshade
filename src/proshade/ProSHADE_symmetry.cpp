@@ -81,7 +81,8 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere( static_cast<proshade_double> ( spIt ) * shellSpacing,
                                                                                                                shellSpacing,
                                                                                                                this->maxShellBand * 2.0,
-                                                                                                               static_cast<proshade_double> ( spIt ) * shellSpacing ) );
+                                                                                                               static_cast<proshade_double> ( spIt ) * shellSpacing,
+                                                                                                               spIt - 1 ) );
     }
 
     //================================================ Interpolate the rotation function onto the spheres
@@ -94,6 +95,12 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
         
         //============================================ Interpolate onto spheres
         this->sphereMappedRotFun.at(shIt)->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
+    }
+    
+    //================================================ Find peaks in the sphere grids
+    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
+    {
+        this->sphereMappedRotFun.at(shIt)->findPeaks  ( settings->peakNeighbours, settings->noIQRsFromMedianNaivePeak );
     }
 
     //================================================ Report completion

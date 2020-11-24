@@ -135,10 +135,12 @@ namespace ProSHADE_internal_spheres
         proshade_double radiusMin;
         proshade_unsign angularDim;
         proshade_double representedAngle;
+        proshade_unsign sphereNumber;
         
         proshade_double* axesValues;
+        std::vector<std::pair<proshade_unsign,proshade_unsign>> peaks;
     public:
-        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng );
+        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng, proshade_unsign sphNo );
        ~ProSHADE_rotFun_sphere                        ( void );
         
     public:
@@ -147,11 +149,61 @@ namespace ProSHADE_internal_spheres
         proshade_double getMinRadius                  ( void );
         proshade_unsign getAngularDim                 ( void );
         proshade_double getRepresentedAngle           ( void );
+        proshade_unsign getSphereNumber               ( void );
+        std::vector<std::pair<proshade_unsign,proshade_unsign>> getPeaks ( void );
         proshade_double getSphereLatLonPosition       ( proshade_unsign lattitude, proshade_unsign longitude );
         proshade_double getSphereLatLonLinearInterpolationPos ( proshade_double lattitude, proshade_double longitude );
         
+        
     public:
         void interpolateSphereValues                  ( proshade_complex* rotFun );
+        void findPeaks                                ( proshade_signed noSmNeighbours, proshade_double noSDsFromMean );
+    };
+
+/*! \class ProSHADE_rotFun_spherePeakGroup
+    \brief This class contains peak groups detected in the rotation function mapped spheres.
+ 
+    This class codes the object that contains all the information about a single group of peaks found in the set of
+    ProSHADE_rotFun_sphere objects with mapped rotation function values.
+ */
+    class ProSHADE_rotFun_spherePeakGroup
+    {
+    private:
+        proshade_double latSampling;
+        proshade_double lonSampling;
+        proshade_unsign dimension;
+        proshade_double latFrom;
+        proshade_double latTo;
+        proshade_double lonFrom;
+        proshade_double lonTo;
+        proshade_double latFromInds;
+        proshade_double latToInds;
+        proshade_double lonFromInds;
+        proshade_double lonToInds;
+        
+        std::vector<proshade_unsign> spherePositions;
+        
+        proshade_double* latMinLonMinXYZ;
+        proshade_double* latMaxLonMinXYZ;
+        proshade_double* latMinLonMaxXYZ;
+        proshade_double* latMaxLonMaxXYZ;
+        
+    protected:
+        void computeCornerPositions                   ( void );
+        
+    public:
+        ProSHADE_rotFun_spherePeakGroup               ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_unsign angDim );
+       ~ProSHADE_rotFun_spherePeakGroup               ( void );
+        
+    public:
+        bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol );
+        std::vector< std::vector < proshade_double > > findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
+        
+    public:
+        proshade_double getLatFromIndices             ( void );
+        proshade_double getLatToIndices               ( void );
+        proshade_double getLonFromIndices             ( void );
+        proshade_double getLonToIndices               ( void );
     };
 }
 

@@ -629,12 +629,16 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_sphere::getRotatedMappedData
 
 /*! \brief Constructor for getting empty ProSHADE_rotFun_sphere class.
  
-    ...
+    This function simply creates an object of the ProSHADE_rotFun_sphere class and allocates the memory as required.
  
-    \param[in] 
+    \param[in] rad The radius of this sphere.
+    \param[in] radRange The range in the radial dimension covered by this sphere.
+    \param[in] dim The required size of the sampling grid.
+    \param[in] repAng The angle represented by this sphere.
+    \param[in] sphNo The number of this sphere in the spheres vector.
     \param[out] X Data object with all values set and ready to accept the rotation function values.
  */
-ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng )
+ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng, proshade_unsign sphNo )
 {
     //================================================ Set internal values
     this->radius                                      = rad;
@@ -642,6 +646,7 @@ ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( pros
     this->radiusMin                                   = this->radius - ( radRange / 2.0 );
     this->radiusMax                                   = this->radius + ( radRange / 2.0 );
     this->representedAngle                            = repAng;
+    this->sphereNumber                                = sphNo;
     
     //================================================ Allocate the axis field
     this->axesValues                                  = new proshade_double[dim*dim];
@@ -683,6 +688,7 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMaxRadius 
 {
     //================================================ Done
     return                                            ( this->radiusMax );
+    
 }
 
 /*! \brief Accessor function for the private variable angular dim.
@@ -693,6 +699,7 @@ proshade_unsign ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getAngularDim
 {
     //================================================ Done
     return                                            ( this->angularDim );
+    
 }
 
 /*! \brief Accessor function for the private variable minimal radius.
@@ -703,6 +710,7 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMinRadius 
 {
     //================================================ Done
     return                                            ( this->radiusMin );
+    
 }
 
 /*! \brief Accessor function for the private variable represented angle.
@@ -713,6 +721,29 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getRepresente
 {
     //================================================ Done
     return                                            ( this->representedAngle );
+    
+}
+
+/*! \brief Accessor function for the private variable sphere number.
+ 
+    \param[out] sphereNumber The sphere number.
+ */
+proshade_unsign ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereNumber ( void )
+{
+    //================================================ Done
+    return                                            ( this->sphereNumber );
+    
+}
+
+/*! \brief Accessor function for the private variable containing all detected peaks.
+ 
+    \param[out] peaks The vector containing all detected peaks.
+ */
+std::vector<std::pair<proshade_unsign,proshade_unsign>> ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getPeaks ( void )
+{
+    //================================================ Done
+    return                                            ( this->peaks );
+    
 }
 
 /*! \brief Function for interpolating the sphere grid values from angle-axis converted rotation function.
@@ -831,7 +862,7 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
 
 /*! \brief Function for obtaining sphere values outside of the grid points.
  
-    ...
+    This function computes linear interpolation value for any grid position of the sampling grid of this sphere.
  
     \param[in] lattitude The lattitude index decimal place of the requested sampling grid position.
     \param[in] longitude The longitude index of the requested sampling grid position.
@@ -873,4 +904,368 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     
     //================================================ Done
     return                                            ( res );
+    
+}
+
+/*! \brief Function for finding peaks in the sampling grid.
+ 
+    This function takes the values on the sampling grid and does a naive peak search, saving the peak position into an internal variable.
+ 
+    \param[in] noSmNeighbours The number of surrounding peaks in any direction that need to be smaller for a value to be a peak.
+    \param[in] noSDsFromMean Number of standard deviations from mean that the peak needs to be in order to be considered a significant peak.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findPeaks ( proshade_signed noSmNeighbours, proshade_double noSDsFromMean )
+{
+    //================================================ Initialise local variables
+    proshade_double currentHeight;
+    proshade_signed nbLat, nbLon;
+    std::vector<std::pair<proshade_unsign,proshade_unsign>> allPeaks;
+    std::vector<proshade_double> allHeights;
+    bool isPeak;
+    
+    //================================================ Find all peaks
+    for ( proshade_signed latIt = 0; latIt < this->angularDim; latIt++ )
+    {
+        for ( proshade_signed lonIt = 0; lonIt < this->angularDim; lonIt++ )
+        {
+            //======================================== Initialise peak search
+            currentHeight                             = this->getSphereLatLonPosition ( latIt, lonIt );
+            isPeak                                    = true;
+            
+            //======================================== Find all neighbours in the same sphere
+            for ( proshade_signed latRound = -noSmNeighbours; latRound <= noSmNeighbours; latRound++ )
+            {
+                for ( proshade_signed lonRound = -noSmNeighbours; lonRound <= noSmNeighbours; lonRound++ )
+                {
+                    //================================ Ignore same point
+                    if ( latRound == 0 && lonRound == 0 ) { continue; }
+                    
+                    //================================ Get neighbour height
+                    nbLat                             = latIt + latRound;
+                    nbLon                             = lonIt + lonRound;
+                    if ( nbLat < 0 ) { nbLat += this->angularDim; } if ( nbLat >= this->angularDim ) { nbLat -= this->angularDim; }
+                    if ( nbLon < 0 ) { nbLon += this->angularDim; } if ( nbLon >= this->angularDim ) { nbLon -= this->angularDim; }
+                    
+                    //================================ If this value is larger than the tested one, no peak
+                    if ( this->getSphereLatLonPosition ( nbLat, nbLon ) > currentHeight ) { isPeak = false; break; }
+                }
+                
+                if ( !isPeak ) { break; }
+            }
+            
+            if ( isPeak )
+            {
+                //==================================== Save!
+                allPeaks.emplace_back                 ( std::pair<proshade_unsign,proshade_unsign> ( latIt, lonIt ) );
+                ProSHADE_internal_misc::addToDoubleVector ( &allHeights, currentHeight );
+            }
+            
+            
+        }
+    }
+    
+    //================================================ Get median and interquartile range
+    proshade_double* meanSD                           = new proshade_double[2];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( meanSD, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::vectorMeanAndSD          ( &allHeights, meanSD );
+    proshade_double peakThres                         = std::min ( 0.8, meanSD[0] + ( noSDsFromMean * meanSD[1] ) );
+    delete[] meanSD;
+    
+    //================================================ Keep only peaks with height above or equal mean + settings->noIQRsFromMedianNaivePeak or 0.8
+    for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( allPeaks.size() ); peakIt++ )
+    {
+        //============================================ Check peak height
+        if ( this->getSphereLatLonPosition ( allPeaks.at(peakIt).first, allPeaks.at(peakIt).second ) >= peakThres )
+        {
+            this->peaks.emplace_back                  ( allPeaks.at(peakIt) );
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Constructor for getting empty ProSHADE_rotFun_spherePeakGroup class.
+ 
+    This function simply creates an object of the ProSHADE_rotFun_spherePeakGroup class and fills in the initial data.
+ 
+    \param[in] lat The lattitude value of the first peak of the group.
+    \param[in] lon The longitude value of the first peak of the group.
+    \param[in] sphPos The sphere number of the peak.
+    \param[in] angDim The dimensionality of the sphere grid that we are processing.
+    \param[out] X Data object with all values set and ready to add new data or search for point groups in the supplied peaks.
+ */
+ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::ProSHADE_rotFun_spherePeakGroup ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_unsign angDim )
+{
+    //================================================ Compute the run-specific values
+    this->dimension                                   = angDim;
+    this->lonSampling                                 = ( M_PI       ) / static_cast<proshade_double> ( this->dimension );
+    this->latSampling                                 = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->dimension );
+    
+    //================================================ The constructor is called when firstt peak of the group is found. Save the values of this initial peak.
+    this->latFrom                                     = static_cast<proshade_double> ( lat ) * this->latSampling;
+    this->latTo                                       = static_cast<proshade_double> ( lat ) * this->latSampling;
+    this->lonFrom                                     = static_cast<proshade_double> ( lon ) * this->lonSampling;
+    this->lonTo                                       = static_cast<proshade_double> ( lon ) * this->lonSampling;
+    this->latFromInds                                 = lat;
+    this->latToInds                                   = lat;
+    this->lonFromInds                                 = lon;
+    this->lonToInds                                   = lon;
+    ProSHADE_internal_misc::addToUnsignVector         ( &this->spherePositions, sphPos );
+    
+    //================================================ Allocate memory for similarity positions
+    this->latMinLonMinXYZ                             = new proshade_double[3];
+    this->latMaxLonMinXYZ                             = new proshade_double[3];
+    this->latMinLonMaxXYZ                             = new proshade_double[3];
+    this->latMaxLonMaxXYZ                             = new proshade_double[3];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->latMinLonMinXYZ, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->latMaxLonMinXYZ, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->latMinLonMaxXYZ, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( this->latMaxLonMaxXYZ, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Compute corner vectors
+    this->computeCornerPositions                      ( );
+    
+    //================================================ Done
+    
+}
+
+/*! \brief Destructor for the ProSHADE_rotFun_spherePeakGroup class.
+ 
+    This function releases all memory allocated by the ProSHADE_rotFun_spherePeakGroup object.
+ */
+ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::~ProSHADE_rotFun_spherePeakGroup ( )
+{
+    //================================================ Release the XYZ arrays
+    delete[] this->latMinLonMinXYZ;
+    delete[] this->latMaxLonMinXYZ;
+    delete[] this->latMinLonMaxXYZ;
+    delete[] this->latMaxLonMaxXYZ;
+}
+
+/*! \brief This function computes the group corner vectors, saving results into internal variables.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::computeCornerPositions ( )
+{
+    //================================================ Compute corner vectors
+    this->latMinLonMinXYZ[0]                          = 1.0 * std::sin ( this->lonFrom ) * std::cos ( this->latFrom );
+    this->latMinLonMinXYZ[1]                          = 1.0 * std::sin ( this->lonFrom ) * std::sin ( this->latFrom );
+    this->latMinLonMinXYZ[2]                          = 1.0 * std::cos ( this->lonFrom );
+    
+    this->latMaxLonMinXYZ[0]                          = 1.0 * std::sin ( this->lonFrom ) * std::cos ( this->latTo   );
+    this->latMaxLonMinXYZ[1]                          = 1.0 * std::sin ( this->lonFrom ) * std::sin ( this->latTo   );
+    this->latMaxLonMinXYZ[2]                          = 1.0 * std::cos ( this->lonFrom );
+    
+    this->latMinLonMaxXYZ[0]                          = 1.0 * std::sin ( this->lonTo )   * std::cos ( this->latFrom );
+    this->latMinLonMaxXYZ[1]                          = 1.0 * std::sin ( this->lonTo )   * std::sin ( this->latFrom );
+    this->latMinLonMaxXYZ[2]                          = 1.0 * std::cos ( this->lonTo );
+    
+    this->latMaxLonMaxXYZ[0]                          = 1.0 * std::sin ( this->lonTo )   * std::cos ( this->latTo );
+    this->latMaxLonMaxXYZ[1]                          = 1.0 * std::sin ( this->lonTo )   * std::sin ( this->latTo );
+    this->latMaxLonMaxXYZ[2]                          = 1.0 * std::cos ( this->lonTo );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function takes a new prospective peak and tests if it belongs to this peak group or not.
+ 
+    This function takes a new peak position in terms of lattitude and longitude and proceeds to convert these to XYZ position. It then checks this
+    XYZ position against this group's "corners" (i.e. the group's lattitude and longitude minimum and maximum borders). If the tested
+    position belongs to the group (i.e. it has small cosine distance to one of the corners), then it is added and the group corners are updated. Otherwise,
+    false is returned and nothing changes in the group.
+ 
+    \param[in] lat The lattitude value of the first peak of the group.
+    \param[in] lon The longitude value of the first peak of the group.
+    \param[in] sphPos The sphere number of the peak.
+    \param[in] cosTol The tolerance for cosine distance similarity to consider the two vectors similar.
+    \param[out] res Boolean value signifying if the peak was added.
+ */
+bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol )
+{
+    //================================================ Initialise local variables
+    bool peakAdded                                    = false;
+    
+    //================================================ Compute peaks XYZ and its cosine distance to group corners
+    proshade_double xPos                              = 1.0 * std::sin ( lon * this->lonSampling ) * std::cos ( lat * this->latSampling );
+    proshade_double yPos                              = 1.0 * std::sin ( lon * this->lonSampling ) * std::sin ( lat * this->latSampling );
+    proshade_double zPos                              = 1.0 * std::cos ( lon * this->lonSampling );
+    
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMinXYZ[0], this->latMinLonMinXYZ[1], this->latMinLonMinXYZ[2], cosTol ) ) { peakAdded = true; }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMinXYZ[0], this->latMaxLonMinXYZ[1], this->latMaxLonMinXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMaxXYZ[0], this->latMinLonMaxXYZ[1], this->latMinLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMaxXYZ[0], this->latMaxLonMaxXYZ[1], this->latMaxLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; }
+    
+    //================================================ If peak within corners, add it
+    if ( peakAdded )
+    {
+        //============================================ Initialise local variables
+        proshade_double testLat                       = lat;
+        proshade_double testLon                       = lon;
+        bool latCornersDone                           = false;
+        bool lonCornersDone                           = false;
+        
+        //============================================ Modify group corners - modify input for boundaries for lat min
+        if ( ( this->latFromInds < ( this->dimension / 2 ) ) && ( std::abs( lat - this->latFromInds ) > ( this->dimension / 2 ) ) ) { testLat -= this->dimension; }
+        if ( ( testLat < this->latFromInds ) &&
+             ( std::abs( testLat - this->latFromInds ) < ( this->dimension / 2 ) ) &&
+             ( std::abs( testLat - this->latFromInds ) < std::abs( lat - this->latToInds ) ) )
+        {
+            this->latFromInds                         = lat;
+            latCornersDone                            = true;
+        }
+        
+        //============================================ Modify group corners - modify input for boundaries for lat max
+        testLat = lat; testLon = lon;
+        if ( ( this->latToInds > ( this->dimension / 2 ) ) && ( std::abs( lat - this->latToInds ) > ( this->dimension / 2 ) ) ) { testLat += this->dimension; }
+        if ( ( testLat > this->latToInds ) &&
+             ( std::abs( testLat - this->latToInds ) < ( this->dimension / 2 ) ) &&
+             ( std::abs( lat - this->latFromInds ) >= std::abs( testLat - this->latToInds ) ) )
+        {
+            this->latToInds                           = lat;
+            latCornersDone                            = true;
+        }
+        
+        //============================================ Modify group corners - modify input for boundaries for lon min
+        testLat = lat; testLon = lon;
+        if ( ( this->lonFromInds < ( this->dimension / 2 ) ) && ( std::abs( lon - this->lonFromInds ) > ( this->dimension / 2 ) ) ) { testLon -= this->dimension; }
+        if ( ( testLon < this->lonFromInds ) &&
+             ( std::abs( testLon - this->lonFromInds ) < ( this->dimension / 2 ) ) &&
+             ( std::abs( testLon - this->lonFromInds ) < std::abs( lon - this->lonToInds ) ) )
+        {
+            this->lonFromInds                         = lon;
+            lonCornersDone                            = true;
+        }
+        
+        //============================================ Modify group corners - modify input for boundaries for max max
+        testLat = lat; testLon = lon;
+        if ( ( this->lonToInds > ( this->dimension / 2 ) ) && ( std::abs( lon - this->lonToInds ) > ( this->dimension / 2 ) ) ) { testLon += this->dimension; }
+        if ( ( testLon > this->lonToInds ) &&
+             ( std::abs( testLon - this->lonToInds ) < ( this->dimension / 2 ) ) &&
+             ( std::abs( lon - this->lonFromInds ) >= std::abs( testLon - this->lonToInds ) ) )
+        {
+            this->lonToInds                           = lon;
+            lonCornersDone                            = true;
+        }
+        
+        //============================================ Modify corner positions
+        if ( latCornersDone )
+        {
+            this->latFrom                             = static_cast<proshade_double> ( this->latFromInds ) * this->latSampling;
+            this->latTo                               = static_cast<proshade_double> ( this->latToInds   ) * this->latSampling;
+        }
+        
+        if ( lonCornersDone )
+        {
+            this->lonFrom                             = static_cast<proshade_double> ( this->lonFromInds ) * this->lonSampling;
+            this->lonTo                               = static_cast<proshade_double> ( this->lonToInds   ) * this->lonSampling;
+        }
+        
+        //============================================ Compute corner vectors
+        this->computeCornerPositions                  ( );
+        
+        //============================================ If new sphere, add it to the list
+        bool isSphereNew                              = true;
+        for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->spherePositions.size() ); iter++ ) { if ( this->spherePositions.at(iter) == sphPos ) { isSphereNew = false; } }
+        if ( isSphereNew ) { ProSHADE_internal_misc::addToUnsignVector ( &this->spherePositions, sphPos ); }
+    }
+    
+    //================================================ Done
+    return                                            ( peakAdded );
+    
+}
+
+/*! \brief Accessor function for the private variable latFromInds.
+ 
+    \param[out] latFromInds The lattitude index start for the group.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getLatFromIndices ( void )
+{
+    //================================================ Done
+    return                                            ( this->latFromInds );
+    
+}
+
+/*! \brief Accessor function for the private variable latToInds.
+ 
+    \param[out] latToInds The lattitude index end for the group.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getLatToIndices ( void )
+{
+    //================================================ Done
+    return                                            ( this->latToInds );
+    
+}
+
+/*! \brief Accessor function for the private variable lonFromInds.
+ 
+    \param[out] lonFromInds The longitude index start for the group.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getLonFromIndices ( void )
+{
+    //================================================ Done
+    return                                            ( this->lonFromInds );
+    
+}
+
+/*! \brief Accessor function for the private variable lonToInds.
+ 
+    \param[out] lonToInds The longitude index end for the group.
+ */
+proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getLonToIndices ( void )
+{
+    //================================================ Done
+    return                                            ( this->lonToInds );
+    
+}
+
+/*! \brief Function detecting cyclic point groups in a peak group.
+ 
+    ...
+ 
+    \param[in] sphereVals A vector of spheres with mapped rotation function values.
+    \param[out] ret Vector containing a vector for each found cyclic point group. The cyclic point group values are [0] = fold,
+ */
+std::vector< std::vector < proshade_double > > ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+{
+    //================================================ Initialise local variables
+    std::vector< std::vector < proshade_double > > ret;
+    std::vector< proshade_double > angs;
+    std::vector< proshade_double > angDiffs;
+    proshade_double approxFold                        = 0.0;
+    
+    //================================================ Find all present angles
+    for ( proshade_unsign shPos = 0; shPos < static_cast<proshade_unsign> ( this->spherePositions.size() ); shPos++ ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, sphereVals.at(this->spherePositions.at(shPos))->getRadius() ); }
+    
+    //================================================ Find all angle differences
+    for ( proshade_unsign ang1It = 0; ang1It < static_cast<proshade_unsign> ( angs.size() ); ang1It++ )
+    {
+        for ( proshade_unsign ang2It = 1; ang2It < static_cast<proshade_unsign> ( angs.size() ); ang2It++ )
+        {
+            //======================================== Use unique combinations only
+            if ( ang1It >= ang2It ) { continue; }
+            
+            //======================================== Add angle difference rounded to 5 decimal places
+            ProSHADE_internal_misc::addToDoubleVector ( &angDiffs, std::floor ( std::abs ( angs.at(ang1It) - angs.at(ang2It) ) * 100000.0 ) / 100000.0 );
+        }
+    }
+    
+    //================================================ Sort and remove duplicates
+    std::sort                                         ( angDiffs.begin(), angDiffs.end() );
+    angDiffs.erase                                    ( std::unique ( angDiffs.begin(), angDiffs.end() ), angDiffs.end() );
+    
+    //================================================ For each angle difference, look if there is a point group with appropriate fold
+    for ( proshade_unsign diffIt = 0; diffIt < static_cast<proshade_unsign> ( angDiffs.size() ); diffIt++ )
+    {
+        //============================================ Guess fold from angle difference
+        approxFold                                    = ( 2.0 * M_PI ) / angDiffs.at(diffIt);
+        
+        std::cout << "Angle: " << angDiffs.at(diffIt) << " fold " << approxFold << std::endl;
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
 }

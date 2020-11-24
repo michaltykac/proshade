@@ -1839,32 +1839,42 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     //================================================ Are we doing general search?
     if ( settings->requestedSymmetryType == "" )
     {
-        //============================================ Detect all C symmetry axes
+        //============================================ Initialise variables
+        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup*> peakGroups;
+        bool newPeak                                  = true;
         
-        //== For each sphere grid position
-        for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->sphereMappedRotFun.at(0)->getAngularDim() ); lonIt++ )
+        //============================================ For each sphere
+        for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); sphIt++ )
         {
-            for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->sphereMappedRotFun.at(0)->getAngularDim() ); latIt++ )
+            //======================================== For each peak
+            for ( proshade_unsign pkIt = 0; pkIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.at(sphIt)->getPeaks().size() ); pkIt++ )
             {
-                //== Get list of all shell values
-//                std::vector<proshade_double> allShellVals;
-//                ProSHADE_internal_misc::addToDoubleVector ( &allShellVals, 1.0 );
-//
-//                for ( proshade_unsign shIt = 1; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
-//                {
-//                    ProSHADE_internal_misc::addToDoubleVector ( &allShellVals, this->sphereMappedRotFun.at(shIt)->getSphereLatLonPosition ( latIt, lonIt ) );
-//                }
-//
-//                for ( proshade_unsign shIt = 1; shIt < static_cast<proshade_unsign> ( allShellVals.size() ); shIt++ )
-//                {
-//                    std::cout << allShellVals.at(shIt) << "\t";
-//                }
-//                std::cout << std::endl;
-//                exit(0);
+                //==================================== Check if peak belongs to an already detected peak group
+                newPeak                               = true;
+                for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
+                {
+                    if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance ) ) { newPeak = false; break; }
+                }
                 
-                std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+                //==================================== If already added, go to next one
+                if ( !newPeak ) { continue; }
+                
+                //==================================== If not, create a new group with this peak
+                peakGroups.emplace_back               ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first,
+                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second,
+                                                                                                                         sphIt,
+                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getAngularDim() ) );
             }
         }
+        
+        //==== For each peakgroup, find all supported point groups
+        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
+        {
+            //== Find point groups in the group
+            peakGroups.at(grIt)->findCyclicPointGroups ( this->sphereMappedRotFun );
+        }
+        
+        exit(0);
     }
     
     //================================================  Which symmetry was requested?
@@ -2111,7 +2121,6 @@ void ProSHADE_internal_data::ProSHADE_data::prepareBiCubicInterpolators ( prosha
     //================================================ Prepare the interpolator objects for interpolation around the position
     for ( proshade_unsign sphereIt = 1; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
     {
-        std::cout << " ... ... Preparing interpolator for sphere " << sphereList->at(sphereIt) << std::endl;
         //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
         proshade_double** interpGrid                  = new proshade_double*[4];
         ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
@@ -2131,7 +2140,6 @@ void ProSHADE_internal_data::ProSHADE_data::prepareBiCubicInterpolators ( prosha
                 latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
                 lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = this->sphereMappedRotFun.at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
-                std::cout << " ... ... ... Filling in value for index " << latHlp << " x " << lonHlp << std::endl;
             }
         }
 
