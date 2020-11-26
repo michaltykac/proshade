@@ -8,7 +8,7 @@ Development
 * Timing - are band and integration order correctly determined?
 * Timing - can it be faster?
 * Support non-orthogonal maps
-* Use NFFT?
+* Change to NFFT and then change the sphere sampling for spherical harmonics, rotation function and angle-axis spheres to Fibonacci sampling.
 * Switch to pybind11
 * Create Homebrew build procedure for MacOS
 * Create apt build procedure for Linux

@@ -1271,51 +1271,54 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
         return ;
     }
     
-    //================================================ Initialise variables
+    //================================================ Compute required rotation matrix elements
     proshade_double cAng                              = std::cos ( axAng );
     proshade_double sAng                              = std::sin ( axAng );
     proshade_double tAng                              = 1.0 - cAng;
     
+    proshade_double element22                         = cAng + axZ * axZ * tAng;
+            
     proshade_double tmp1                              = axX * axZ * tAng;
     proshade_double tmp2                              = axY * sAng;
-    proshade_double rmElem20                          = tmp1 - tmp2;
-    proshade_double rmElem02                          = tmp1 + tmp2;
-    
+    proshade_double element20                         = tmp1 - tmp2;
+    proshade_double element02                         = tmp1 + tmp2;
+            
     tmp1                                              = axY * axZ * tAng;
     tmp2                                              = axX * sAng;
-    proshade_double rmElem21                          = tmp1 + tmp2;
-    proshade_double rmElem12                          = tmp1 - tmp2;
+    proshade_double element21                         = tmp1 + tmp2;
+    proshade_double element12                         = tmp1 - tmp2;
     
     //================================================ Convert to Eulers
-   *eA                                                = std::atan2 ( rmElem21,  rmElem20 );
-   *eB                                                = std::acos  ( cAng + axZ * axZ * tAng );
-   *eG                                                = std::atan2 ( rmElem12, -rmElem02 );
-    
-    //================================================ Solve undefined 0,0 inputs (i.e. identity matrix)
-    proshade_double errLimit                          = 0.01;
-    if ( ( ( rmElem21 < errLimit ) && ( rmElem21 > -errLimit ) ) && ( ( rmElem20 < errLimit ) && ( rmElem20 > -errLimit ) ) )
+    if ( std::abs( element22 ) <= 0.9999 )
     {
-        //============================================ atan2 (0,0) is undefined, we want 0.0 here
-       *eA                                            = 0.0;
+        //============================================ This case occurs when there is no singularity in the rotation matrix (i.e. it does not have 0 or 180 degrees angle)
+       *eA                                            = std::atan2 ( element21,  element20 );
+       *eB                                            = std::acos  ( element22 );
+       *eG                                            = std::atan2 ( element12, -element02 );
     }
-    
-    if ( ( ( rmElem12 < errLimit ) && ( rmElem12 > -errLimit ) ) && ( ( rmElem02 < errLimit ) && ( rmElem02 > -errLimit ) ) )
+    else
     {
-        //============================================ atan2 (0,0) is undefined, we want 0.0 here
-       *eG                                            = 0.0;
-    }
-    
-    //================================================ Solve the Z-axis glimbal lock (I think it is glimbal lock problem...)
-    //    The rotation matrix about Z axis has 0.0 at elements 02, 12, 20 and 21 - the exact elements that we
-    // require here for conversion to Euler ZXZ angles. Therefore, at this point all three Euler angles could
-    // be 0.0. If this is the case, we will have to use full rotation function indices search to find the best
-    // (or at least decent) Euler angle ZXZ position corresponding to the angle-axis input.
-    //
-    //    However, as the complete search would take ages, if step searching when a reasonable match is found.
-    // This is fast, as the first indices (small x and z value) are the first to be tried.
-    if ( ( *eA == 0.0 ) && ( *eB == 0.0 ) && ( *eG == 0.0 ) )
-    { 
-        getEulerZXZFromAngleAxisFullSearch            ( axX, axY, axZ, axAng, eA, eB, eG, angDim );
+        //============================================ Compute some extra rotation matrix elements
+        proshade_double tmp1                          = axX * axY * tAng;
+        proshade_double tmp2                          = axZ * sAng;
+        proshade_double element10                     = tmp1 + tmp2;
+        proshade_double element00                     = cAng + axX * axX * tAng;
+        
+        //============================================ This case occurs when there is either 0 or 180 degrees rotation angle in the rotation matrix and therefore when beta is zero.
+        if ( element22 >= 0.9999 )
+        {
+            //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their sum. So we arbitrarily set gamma to 0 and solve alpha.
+           *eA                                        = std::atan2 ( element10, element00 );
+           *eB                                        = 0.0;
+           *eG                                        = 0.0;
+        }
+        if ( element22 <= -0.9999 )
+        {
+            //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
+           *eA                                        = std::atan2 ( element10, element00 );
+           *eB                                        = 0.0;
+           *eG                                        = 0.0;
+        }
     }
     
     //================================================ Get the angles to proper range
