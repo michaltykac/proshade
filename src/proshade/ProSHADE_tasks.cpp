@@ -310,17 +310,14 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         symmetryStructure->getRotationFunction        ( settings );
         
         if ( settings->usePeakSearchInRotationFunctionSpace )
-        {
-            //======================================== Convert rotation function to angle-axis
-            symmetryStructure->convertRotationFunction ( settings );
-            
-            //======================================== Search the angle-axis space
+        {            
+            //======================================== Detect point groups in the angle-axis space
             symmetryStructure->detectSymmetryFromAngleAxisSpace ( settings, axes, allCs );
         }
         else
         {
             //======================================== Detect symmetry using the peak detection in rotation function space
-            symmetryStructure->detectSymmetryInStructure  ( settings, axes, allCs );
+            symmetryStructure->detectSymmetryInStructure ( settings, axes, allCs );
         }
         
         //============================================ Report results

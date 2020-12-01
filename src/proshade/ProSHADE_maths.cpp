@@ -1872,3 +1872,315 @@ bool ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( proshad
     return                                            ( ret );
     
 }
+
+/*! \brief This function provides axis optimisation given starting lattitude and longitude indices.
+ 
+    This function takes the initial lattitude and longitude indices as well as the current best sum over all appropriate spheres and the list of the spheres and proceeds to
+    use bi-cubic interpolation and a sort of gradient ascend algorithm to search the space around the given indices for interpolated values, which would have higher
+    sum of the rotation function values than the initial position. If any improvement is found, it will over-write the input variables.
+ 
+    \param[in] bestLattitude Proshade double pointer to variable containing the best lattitude index value and to which the optimised result will be saved into.
+    \param[in] bestLongitude Proshade double pointer to variable containing the best longitude index value and to which the optimised result will be saved into.
+    \param[in] bestSum Proshade double pointer to variable containing the best position rotation function values sum and to which the optimised result will be saved into.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+ */
+void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise variables
+    proshade_double lonM, lonP, latM, latP, movSum;
+    proshade_double step                              = 0.05;
+    std::vector<proshade_double> latVals              ( 3 );
+    std::vector<proshade_double> lonVals              ( 3 );
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    proshade_double learningRate                      = 0.1;
+    proshade_double prevVal                           = *bestSum;
+    proshade_double valChange                         = 999.9;
+    proshade_double origBestLat                       = *bestLattitude;
+    proshade_double origBestLon                       = *bestLongitude;
+    
+    //================================================ Initialise interpolators in all directions around the point of interest
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsMinusMinus;
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsMinusPlus;
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsPlusMinus;
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsPlusPlus;
+    prepareBiCubicInterpolatorsMinusMinus             ( *bestLattitude, *bestLongitude, sphereList, &interpolsMinusMinus, sphereMappedRotFun );
+    prepareBiCubicInterpolatorsMinusPlus              ( *bestLattitude, *bestLongitude, sphereList, &interpolsMinusPlus,  sphereMappedRotFun );
+    prepareBiCubicInterpolatorsPlusMinus              ( *bestLattitude, *bestLongitude, sphereList, &interpolsPlusMinus,  sphereMappedRotFun );
+    prepareBiCubicInterpolatorsPlusPlus               ( *bestLattitude, *bestLongitude, sphereList, &interpolsPlusPlus,   sphereMappedRotFun );
+    
+    //================================================ Start the pseudo gradient ascent (while there is some change)
+    while ( valChange > 0.00001 )
+    {
+        //============================================ Find the surrounding points to the currently best position
+        lonM                                          = *bestLongitude - step;
+        lonP                                          = *bestLongitude + step;
+        latM                                          = *bestLattitude - step;
+        latP                                          = *bestLattitude + step;
+
+        //============================================ Prepare vectors of tested positions
+        latVals.at(0) = latM; latVals.at(1) = *bestLattitude; latVals.at(2) = latP;
+        lonVals.at(0) = lonM; lonVals.at(1) = *bestLongitude; lonVals.at(2) = lonP;
+        
+        //============================================ Find the best change
+        for ( proshade_unsign laIt = 0; laIt < static_cast<proshade_unsign> ( latVals.size() ); laIt++ )
+        {
+            for ( proshade_unsign loIt = 0; loIt < static_cast<proshade_unsign> ( lonVals.size() ); loIt++ )
+            {
+                //==================================== For this combination of lat and lon, find sum over spheres
+                movSum                                = 1.0;
+                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sphereList->size() ); iter++ )
+                {
+                    //================================ Interpolate using correct interpolators
+                    if ( ( latVals.at(laIt) <= origBestLat ) && ( lonVals.at(loIt) <= origBestLon ) ) { movSum += interpolsMinusMinus.at(iter)->getValue ( latVals.at(laIt), lonVals.at(loIt) ); }
+                    if ( ( latVals.at(laIt) <= origBestLat ) && ( lonVals.at(loIt) >  origBestLon ) ) { movSum += interpolsMinusPlus.at(iter)->getValue  ( latVals.at(laIt), lonVals.at(loIt) ); }
+                    if ( ( latVals.at(laIt) >  origBestLat ) && ( lonVals.at(loIt) <= origBestLon ) ) { movSum += interpolsPlusMinus.at(iter)->getValue  ( latVals.at(laIt), lonVals.at(loIt) ); }
+                    if ( ( latVals.at(laIt) >  origBestLat ) && ( lonVals.at(loIt) >  origBestLon ) ) { movSum += interpolsPlusPlus.at(iter)->getValue   ( latVals.at(laIt), lonVals.at(loIt) ); }
+                }
+                
+                //==================================== If position has improved, save it
+                if ( *bestSum < movSum )
+                {
+                   *bestSum                           = movSum;
+                   *bestLongitude                     = lonVals.at(loIt);
+                   *bestLattitude                     = latVals.at(laIt);
+                }
+            }
+        }
+        
+        //============================================ Prepare for next iteration
+        valChange                                     = std::floor ( 100000.0 * ( *bestSum - prevVal ) ) / 100000.0;
+        prevVal                                       = std::floor ( 100000.0 * (*bestSum) ) / 100000.0;
+        step                                          = std::max ( ( valChange / step ) * learningRate, 0.01 );
+        if ( learningRate >= 0.02 ) { learningRate -= 0.01; }
+        
+    }
+    
+    //================================================ Release interpolators memory
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsMinusMinus.size() ); intIt++ ) { delete interpolsMinusMinus.at(intIt); }
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsMinusPlus.size()  ); intIt++ ) { delete interpolsMinusPlus.at(intIt);  }
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsPlusMinus.size()  ); intIt++ ) { delete interpolsPlusMinus.at(intIt);  }
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsPlusPlus.size()   ); intIt++ ) { delete interpolsPlusPlus.at(intIt);   }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the -- direction (i.e. when both interpolated values will be lower than the best
+    lattitude and longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusMinus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 2 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 2 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude - 1.0, bestLongitude - 1.0 );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the -+ direction (i.e. when interpolated lattitude is lower than best lattitude, but
+    interpolated longitude is higher than best longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusPlus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 2 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude - 1.0, bestLongitude );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the +- direction (i.e. when interpolated lattitude is higher than best lattitude, but
+    interpolated longitude is lower than best longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusMinus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 2 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude, bestLongitude - 1.0 );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the ++ direction (i.e. when both interpolated values will be larger than the best
+    lattitude and longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude, bestLongitude );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}

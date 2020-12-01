@@ -106,13 +106,14 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding peak searching
     this->peakNeighbours                              = 1;
-    this->noIQRsFromMedianNaivePeak                   = 5.0;
+    this->noIQRsFromMedianNaivePeak                   = 0.5;
     
     //================================================ Settings regarding 1D grouping
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
     this->usePeakSearchInRotationFunctionSpace        = true;
+    this->useBiCubicInterpolationOnPeaks              = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -215,13 +216,14 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding peak searching
     this->peakNeighbours                              = 1;
-    this->noIQRsFromMedianNaivePeak                   = 5.0;
+    this->noIQRsFromMedianNaivePeak                   = 0.5;
     
     //================================================ Settings regarding 1D grouping
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
     this->usePeakSearchInRotationFunctionSpace        = true;
+    this->useBiCubicInterpolationOnPeaks              = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -1114,6 +1116,20 @@ void ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
     
 }
 
+/*! \brief Sets the bicubic interpolation on peaks.
+ 
+    \param[in] bicubPeaks Should bicubic interpolation be done to search for improved axis in between peak index values (DEFAULT - TRUE)?
+ */
+void ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
+{
+    //================================================ Set the value
+    this->useBiCubicInterpolationOnPeaks              = bicubPeaks;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1543,6 +1559,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "missAxThres",     required_argument,  NULL, '[' },
         { "sameAxComp",      required_argument,  NULL, ']' },
         { "axisComBeh",      no_argument,        NULL, 'q' },
+        { "bicubSearch",     no_argument,        NULL, 'A' },
         { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
@@ -1553,7 +1570,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "Aab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1885,6 +1902,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case 'q':
              {
                  setAxisComparisonThresholdBehaviour  ( !this->axisErrToleranceDefault );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the bicubic interpolation search requirement value
+             case 'A':
+             {
+                 setBicubicInterpolationSearch        ( !this->useBiCubicInterpolationOnPeaks );
                  continue;
              }
                  

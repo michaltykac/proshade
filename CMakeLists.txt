@@ -119,6 +119,7 @@ endif ( GFORTRAN_VERSION )
 add_custom_command (
    OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
+   COMMAND cd ./gemmi ; git reset --hard 56c2143d8acdda817054aadbbb6b7c782bc3a2ff; cd ..
    COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
 )

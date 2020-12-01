@@ -70,6 +70,7 @@ pSet.setMaskFilename                          ( str ( "maskFile" ) )            
 
 ### All other (possible other tasks related) settings
 pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                                # Should bi-cubic interpolation between peak grid indices be done?
 pSet.setExtraSpace                            ( 10.0 )                                 # Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
 pSet.setPeakNeighboursNumber                  ( 1 )                                    # Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
 pSet.setPeakNaiveNoIQR                        ( 5.0 )                                  # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.

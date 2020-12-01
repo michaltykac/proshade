@@ -97,14 +97,42 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
         this->sphereMappedRotFun.at(shIt)->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
     }
     
-    //================================================ Find peaks in the sphere grids
-    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
-    {
-        this->sphereMappedRotFun.at(shIt)->findPeaks  ( settings->peakNeighbours, settings->noIQRsFromMedianNaivePeak );
-    }
-
     //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function converted to spherical angle-axis space." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Started peak detection on the angle-axis spheres." );
+    
+    //================================================ Find all peaks in the sphere grids
+    std::vector< proshade_double > allPeakHeights;
+    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
+    {
+        this->sphereMappedRotFun.at(shIt)->findAllPeaks  ( settings->peakNeighbours, &allPeakHeights );
+    }
+    
+    //================================================ Report progress
+    std::stringstream hlpSS;
+    hlpSS << "Detected " << allPeakHeights.size() << " peaks with any height.";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+    
+    //================================================ Compute threshold for small peaks
+    proshade_double* meadianAndIQR                    = new proshade_double[2];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( meadianAndIQR, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::vectorMedianAndIQR       ( &allPeakHeights, meadianAndIQR );
+    proshade_double peakThres                         = std::min ( 0.5, meadianAndIQR[0] + ( meadianAndIQR[1] * settings->noIQRsFromMedianNaivePeak ) );
+    delete[] meadianAndIQR;
+    
+    //================================================ Report progress
+    std::stringstream hlpSS2;
+    hlpSS2 << "From these peaks, decided the threshold will be " << peakThres << " peak height.";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS2.str() );
+
+    //================================================ Remove too small peaks
+    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
+    {
+        this->sphereMappedRotFun.at(shIt)->removeSmallPeaks  ( peakThres );
+    }
+
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "Peaks detected for all spheres." );
     
     //================================================ Done
     return ;
@@ -594,7 +622,7 @@ bool ProSHADE_internal_symmetry::determineFoldToTry ( proshade_double dist, pros
     bool ret                                          = false;
     
     //================================================ Find the basis and remainder of the 2pi/dist equation
-   *divRem                                            = std::modf ( static_cast<double> ( ( 2.0 * M_PI ) / std::abs ( dist ) ), divBasis );
+   *divRem                                            = std::modf ( static_cast<proshade_double> ( ( 2.0 * M_PI ) / std::abs ( dist ) ), divBasis );
     
     //================================================ If the remainder would be smaller for larger basis, so this basis
     if ( *divRem > 0.5 )
@@ -3065,6 +3093,75 @@ bool ProSHADE_internal_symmetry::isAxisUnique ( std::vector< proshade_double* >*
             }
         }
     }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function obtains a list of all C symmetries from the angle-axis space mapped rotation function values.
+ 
+    This function starts with converting the rotation function, which it presumes has been computed by now. It then proceeds to
+    group the peaks using their axes, forming groups containing peaks with similar axes. For each of detected peak groups, it
+    will finally search for all possible cyclic point group (i.e. symmetry axes which have hight peak height for all angles - spheres -
+    in the given peak group), saving any detected cyclic point groups in the output variable, returning it when complete.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+ */
+std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data:: getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings )
+{
+    //================================================ Convert rotation function to angle-axis
+    this->convertRotationFunction                     ( settings );
+    
+    //================================================ Initialise variables
+    std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup*> peakGroups;
+    std::vector< proshade_double* > ret;
+    bool newPeak                                      = true;
+    
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Started grouping peaks." );
+    
+    //================================================ Group peaks
+    for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); sphIt++ )
+    {
+        //============================================ For each peak
+        for ( proshade_unsign pkIt = 0; pkIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.at(sphIt)->getPeaks().size() ); pkIt++ )
+        {
+            //======================================== Check if peak belongs to an already detected peak group
+            newPeak                                   = true;
+            for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
+            {
+                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance ) ) { newPeak = false; break; }
+            }
+            
+            //======================================== If already added, go to next one
+            if ( !newPeak ) { continue; }
+            
+            //======================================== If not, create a new group with this peak
+            peakGroups.emplace_back                   ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first,
+                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second,
+                                                                                                                         sphIt,
+                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getAngularDim() ) );
+        }
+    }
+    
+    //================================================ Report progress
+    std::stringstream hlpSS;
+    hlpSS << "Found " << peakGroups.size() << " peak groups.";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Started point group detection in peak groups." );
+    
+    //================================================ For each peak group, find all supported point groups
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
+    {
+        //============================================ Find point groups in the peak group
+        peakGroups.at(grIt)->findCyclicPointGroups    ( this->sphereMappedRotFun, settings->axisErrTolerance, &ret, settings->useBiCubicInterpolationOnPeaks );
+    }
+    
+    //================================================ Report progress
+    std::stringstream hlpSS2;
+    hlpSS2 << "Found " << ret.size() << " cyclic symmetries.";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS2.str() );
     
     //================================================ Done
     return                                            ( ret );

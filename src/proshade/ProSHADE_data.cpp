@@ -1830,56 +1830,40 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
-    //================================================ Sanity check
+    //================================================ Initialise variables
+    std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
+    
+    //================================================ Sanity check - was the rotation function mapped properly?
     if ( this->sphereMappedRotFun.size() < 1 )
     {
         throw ProSHADE_exception ( "Rotation function was not converted into angle-axis space.", "ES00062", __FILE__, __LINE__, __func__, "It seems that the convertRotationFunction() function was\n                    : not yet called. Therefore, there are no data to detect the\n                    : symmetry from; please call the convertRotationFunction()\n                    : function before the detectSymmetryFromAngleAxisSpace()\n                    : function." );
     }
     
+    //================================================ Sanity check - was any symmetry requested?
+    if ( ( settings->requestedSymmetryType != "" ) && ( settings->requestedSymmetryType != "C" ) && ( settings->requestedSymmetryType != "D" ) && ( settings->requestedSymmetryType != "T" ) && ( settings->requestedSymmetryType != "O" ) && ( settings->requestedSymmetryType != "I" ) )
+    {
+        throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00032", __FILE__, __LINE__, __func__, "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
+    }
+    
     //================================================ Are we doing general search?
     if ( settings->requestedSymmetryType == "" )
     {
-        //============================================ Initialise variables
-        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup*> peakGroups;
-        bool newPeak                                  = true;
+        //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
+        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
+        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
         
-        //============================================ For each sphere
-        for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); sphIt++ )
-        {
-            //======================================== For each peak
-            for ( proshade_unsign pkIt = 0; pkIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.at(sphIt)->getPeaks().size() ); pkIt++ )
-            {
-                //==================================== Check if peak belongs to an already detected peak group
-                newPeak                               = true;
-                for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
-                {
-                    if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance ) ) { newPeak = false; break; }
-                }
-                
-                //==================================== If already added, go to next one
-                if ( !newPeak ) { continue; }
-                
-                //==================================== If not, create a new group with this peak
-                peakGroups.emplace_back               ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first,
-                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second,
-                                                                                                                         sphIt,
-                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getAngularDim() ) );
-            }
-        }
-        
-        //==== For each peakgroup, find all supported point groups
-        for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
-        {
-            //== Find point groups in the group
-            peakGroups.at(grIt)->findCyclicPointGroups ( this->sphereMappedRotFun );
-        }
-        
-        exit(0);
+        //============================================ Decide on recommended symmetry
+        this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
     }
     
     //================================================  Which symmetry was requested?
     if ( settings->requestedSymmetryType == "C" )
     {
+        // THIS NEEDS TO BE IMPROVED, WHILE IT IS WORKING, IT NEEDS TO COMPUTE ONLY THE REQUIRED SHELLS AND SEARCH ONLY FOR THE REQUIRED ANGLES - THAT WILL BE MUCH FASTER.
+        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+        exit(0);
         //============================================ Find the best symmetry axis given the fold
         proshade_double* bestSym                      = this->findRequestedCSymmetry ( settings, settings->requestedSymmetryFold );
         
@@ -1916,6 +1900,32 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     {
         std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
     }
+    
+    //================================================ Save C symmetries to argument and if different from settings, to the settings as well
+    bool isArgSameAsSettings                          = true;
+    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
+    {
+        std::vector< proshade_double > nextSym;
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[0] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[1] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[2] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[3] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
+        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
+
+        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
+        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
+
+        nextSym.clear                                 ( );
+    }
+
+    //================================================ Release memory
+    for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( CSyms.size() ); it++ ) { delete[] CSyms.at(it); }
+    
+    //================================================ Done
+    return ;
+    
 }
 
 /*! \brief This function searches the angle-axis representation of the rotation function for a cyclic point group with given fold.
@@ -1960,7 +1970,7 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::findRequestedCSymmetry (
             for ( proshade_unsign nextSphere = 1; nextSphere < fold; nextSphere++ )
             {
                 //==================================== Initialise variables
-                nextAngle                             = this->sphereMappedRotFun.at(0)->getRepresentedAngle() + ( symmetryAngle * nextSphere );
+                nextAngle                             = symmetryAngle * nextSphere;
                 bestMatch                             = 0;
                 
                 //==================================== Find the next set member
@@ -1996,8 +2006,11 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::findRequestedCSymmetry (
         }
     }
     
-    //============================================ Optimise axis
-    this->optimiseAxisBiCubicInterpolation            ( &bestLat, &bestLon, &bestSum, &bestSphList );
+    //============================================ Optimise axis, if required
+    if ( settings->useBiCubicInterpolationOnPeaks )
+    {
+        ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( &bestLat, &bestLon, &bestSum, &bestSphList, &this->sphereMappedRotFun );
+    }
             
     //================================================ Convert lat/lon back to angle-axis
     proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->sphereMappedRotFun.at(0)->getAngularDim ( ) );
@@ -2022,138 +2035,6 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::findRequestedCSymmetry (
     
     //================================================ Done
     return                                            ( sym );
-}
-
-/*! \brief This function provides axis optimisation given starting lattitude and longitude indices.
- 
-    This function takes the initial lattitude and longitude indices as well as the current best sum over all appropriate spheres and the list of the spheres and proceeds to
-    use bi-cubic interpolation and a sort of gradient ascend algorithm to search the space around the given indices for interpolated values, which would have higher
-    sum of the rotation function values than the initial position. If any improvement is found, it will over-write the input variables.
- 
-    \param[in] bestLattitude Proshade double pointer to variable containing the best lattitude index value and to which the optimised result will be saved into.
-    \param[in] bestLongitude Proshade double pointer to variable containing the best longitude index value and to which the optimised result will be saved into.
-    \param[in] bestSum Proshade double pointer to variable containing the best position rotation function values sum and to which the optimised result will be saved into.
-    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
- */
-void ProSHADE_internal_data::ProSHADE_data::optimiseAxisBiCubicInterpolation ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList )
-{
-    //================================================ Initialise variables
-    proshade_double lonM, lonP, latM, latP, movSum;
-    proshade_double step = 0.01;
-    std::vector<proshade_double> latVals              ( 3 );
-    std::vector<proshade_double> lonVals              ( 3 );
-    proshade_signed angDim                            = this->sphereMappedRotFun.at(0)->getAngularDim();
-    proshade_double learningRate                      = 0.1;
-    proshade_double prevVal                           = *bestSum;
-    proshade_double valChange                         = 999.9;
-    
-    //================================================ Initialise interpolators
-    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpols;
-    this->prepareBiCubicInterpolators                 ( *bestLattitude, *bestLongitude, sphereList, &interpols );
-
-    //================================================ Start the pseudo gradient ascent (while there is some change)
-    while ( valChange > 0.0 )
-    {
-        //============================================ Find the surrounding points to the currently best position
-        lonM                                          = *bestLongitude - step;
-        lonP                                          = *bestLongitude + step;
-        latM                                          = *bestLattitude - step;
-        latP                                          = *bestLattitude + step;
-
-        //============================================ Prepare vectors of tested positions
-        latVals.at(0) = latM; latVals.at(1) = *bestLattitude; latVals.at(2) = latP;
-        lonVals.at(0) = lonM; lonVals.at(1) = *bestLongitude; lonVals.at(2) = lonP;
-        
-        //============================================ Find the best change
-        for ( proshade_unsign laIt = 0; laIt < static_cast<proshade_unsign> ( latVals.size() ); laIt++ )
-        {
-            for ( proshade_unsign loIt = 0; loIt < static_cast<proshade_unsign> ( lonVals.size() ); loIt++ )
-            {
-                //==================================== For this combination of lat and lon, find sum over spheres
-                movSum                                = 1.0;
-                for ( proshade_unsign iter = 1; iter < static_cast<proshade_unsign> ( sphereList->size() ); iter++ )
-                {
-                    //================================ Interpolate
-                    movSum                           += interpols.at(iter-1)->getValue ( latVals.at(laIt), lonVals.at(loIt) );
-                }
-                
-                //==================================== If position has improved, save it
-                if ( *bestSum < movSum )
-                {
-                   *bestSum                           = movSum;
-                   *bestLongitude                     = lonVals.at(loIt);
-                   *bestLattitude                     = latVals.at(laIt);
-                }
-            }
-        }
-        
-        //============================================ Prepare for next iteration
-        valChange                                     = std::floor ( 100000.0 * ( *bestSum - prevVal ) ) / 100000.0;
-        prevVal                                       = std::floor ( 100000.0 * (*bestSum) ) / 100000.0;
-        step                                          = std::max ( ( valChange / step ) * learningRate, 0.01 );
-        if ( learningRate >= 0.02 ) { learningRate -= 0.01; }
-        
-    }
-    
-    //================================================ Release interpolators memory
-    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpols.size() ); intIt++ ) { delete interpols.at(intIt); }
-    
-    //================================================ Done
-    return ;
-}
-
-/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
- 
-    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
-    objects for the correct spheres in the correct ranges.
- 
-    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
-    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
-    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
-    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
- */
-void ProSHADE_internal_data::ProSHADE_data::prepareBiCubicInterpolators ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols )
-{
-    //================================================ Initialise local variables
-    proshade_signed latHlp, lonHlp;
-    proshade_signed angDim                            = this->sphereMappedRotFun.at(0)->getAngularDim();
-    
-    //================================================ Prepare the interpolator objects for interpolation around the position
-    for ( proshade_unsign sphereIt = 1; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
-    {
-        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
-        proshade_double** interpGrid                  = new proshade_double*[4];
-        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
-
-        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
-        for ( proshade_unsign iter = 0; iter < 4; iter++ )
-        {
-            interpGrid[iter]                          = new proshade_double[4];
-            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
-        }
-
-        //============================================ Fill in the value grid on which the interpolation is to be done
-        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
-        {
-            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
-            {
-                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
-                interpGrid[latIt][lonIt]              = this->sphereMappedRotFun.at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
-            }
-        }
-
-        //============================================ Create the interpolators
-        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude - 1.0, bestLongitude - 1.0 );
-        interpols->emplace_back                       ( biCubInterp );
-        
-        //============================================ Release memory
-        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
-        delete[] interpGrid;
-    }
-    
-    //================================================ Done
-    return ;
 }
 
 /*! \brief This function locates the best scoring C symmetry axis, returning the score and best symmetry index.

@@ -907,20 +907,18 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     
 }
 
-/*! \brief Function for finding peaks in the sampling grid.
+/*! \brief Function for finding all peaks in the sampling grid.
  
     This function takes the values on the sampling grid and does a naive peak search, saving the peak position into an internal variable.
  
     \param[in] noSmNeighbours The number of surrounding peaks in any direction that need to be smaller for a value to be a peak.
-    \param[in] noSDsFromMean Number of standard deviations from mean that the peak needs to be in order to be considered a significant peak.
+    \param[in] allHeights A vector to which all detected peaks heights will be saved into. This will later be used to determine the threshold for "small" peaks.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findPeaks ( proshade_signed noSmNeighbours, proshade_double noSDsFromMean )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_signed noSmNeighbours, std::vector< proshade_double >* allHeights )
 {
     //================================================ Initialise local variables
     proshade_double currentHeight;
     proshade_signed nbLat, nbLon;
-    std::vector<std::pair<proshade_unsign,proshade_unsign>> allPeaks;
-    std::vector<proshade_double> allHeights;
     bool isPeak;
     
     //================================================ Find all peaks
@@ -955,30 +953,67 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findPeaks ( proshade_sig
             
             if ( isPeak )
             {
+                
+                for ( proshade_signed latRound = -noSmNeighbours; latRound <= noSmNeighbours; latRound++ )
+                {
+                    for ( proshade_signed lonRound = -noSmNeighbours; lonRound <= noSmNeighbours; lonRound++ )
+                    {
+                        //================================ Ignore same point
+                        if ( latRound == 0 && lonRound == 0 ) { continue; }
+                        
+                        //================================ Get neighbour height
+                        nbLat                             = latIt + latRound;
+                        nbLon                             = lonIt + lonRound;
+                        if ( nbLat < 0 ) { nbLat += this->angularDim; } if ( nbLat >= this->angularDim ) { nbLat -= this->angularDim; }
+                        if ( nbLon < 0 ) { nbLon += this->angularDim; } if ( nbLon >= this->angularDim ) { nbLon -= this->angularDim; }
+                    }
+                }
+                
                 //==================================== Save!
-                allPeaks.emplace_back                 ( std::pair<proshade_unsign,proshade_unsign> ( latIt, lonIt ) );
-                ProSHADE_internal_misc::addToDoubleVector ( &allHeights, currentHeight );
+                this->peaks.emplace_back              ( std::pair<proshade_unsign,proshade_unsign> ( latIt, lonIt ) );
+                ProSHADE_internal_misc::addToDoubleVector ( allHeights, currentHeight );
             }
-            
-            
         }
     }
     
-    //================================================ Get median and interquartile range
-    proshade_double* meanSD                           = new proshade_double[2];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( meanSD, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::vectorMeanAndSD          ( &allHeights, meanSD );
-    proshade_double peakThres                         = std::min ( 0.8, meanSD[0] + ( noSDsFromMean * meanSD[1] ) );
-    delete[] meanSD;
+    //================================================ Done
+    return ;
     
-    //================================================ Keep only peaks with height above or equal mean + settings->noIQRsFromMedianNaivePeak or 0.8
-    for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( allPeaks.size() ); peakIt++ )
+}
+
+/*! \brief Function for removing peaks with too small height.
+ 
+    This function takes the threshold for peaks being too small (computed from all peaks as returned by findAllPeaks() function, but could be any other value) and removed
+    all peaks with height below this threshold.
+ 
+    \param[in] peakThres The height above which a peak needs to be in order not to be deleted.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::removeSmallPeaks( proshade_double peakThres )
+{
+    //================================================ Initialise variables
+    proshade_double curHeight;
+    std::vector< proshade_unsign > dels;
+    
+    //================================================ For each peak in this sphere
+    for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( this->peaks.size() ); peakIt++ )
     {
-        //============================================ Check peak height
-        if ( this->getSphereLatLonPosition ( allPeaks.at(peakIt).first, allPeaks.at(peakIt).second ) >= peakThres )
+        //============================================ Find the peak height
+        curHeight                                     = this->getSphereLatLonPosition( this->peaks.at(peakIt).first, this->peaks.at(peakIt).second );
+        
+        //============================================ Should this peak be deleted
+        if ( curHeight < peakThres )
         {
-            this->peaks.emplace_back                  ( allPeaks.at(peakIt) );
+            ProSHADE_internal_misc::addToUnsignVector ( &dels, peakIt );
         }
+    }
+    
+    //================================================ Descending sort to avoid changing the order
+    std::sort                                         ( dels.begin(), dels.end(), std::greater <proshade_unsign>() );
+    
+    //================================================ Delete the low peaks
+    for ( proshade_unsign delIt = 0; delIt < static_cast< proshade_unsign > ( dels.size() ); delIt++ )
+    {
+        this->peaks.erase                             ( this->peaks.begin() + dels.at(delIt) );
     }
     
     //================================================ Done
@@ -1070,6 +1105,26 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::computeCornerPo
     
 }
 
+/*! \brief This function takes two lattitude or longitude positions and finds the smallest distance between them considering the border periodicity.
+ 
+    \param[in] newAngul The first lattitude or longitude value.
+    \param[in] currentAngul The second lattitude or longitude value.
+    \param[out] ret The smallest distance between the first and the second lattitude or longitude values.
+ */
+proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angularDistanceWithBorders ( proshade_signed newAngul, proshade_signed currentAngul )
+{
+    //================================================ Initialise variables
+    proshade_signed smallerAngul                      = newAngul - this->dimension;
+    proshade_signed largerAngul                       = newAngul + this->dimension;
+    
+    //================================================ Find the smallest distance
+    proshade_signed ret                               = std::min ( std::abs ( currentAngul - newAngul ), std::min ( std::abs ( currentAngul - smallerAngul ), std::abs ( currentAngul - largerAngul ) ) );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief This function takes a new prospective peak and tests if it belongs to this peak group or not.
  
     This function takes a new peak position in terms of lattitude and longitude and proceeds to convert these to XYZ position. It then checks this
@@ -1102,52 +1157,103 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
     if ( peakAdded )
     {
         //============================================ Initialise local variables
-        proshade_double testLat                       = lat;
-        proshade_double testLon                       = lon;
+        proshade_unsign largerCorner, smallerCorner;
         bool latCornersDone                           = false;
         bool lonCornersDone                           = false;
         
-        //============================================ Modify group corners - modify input for boundaries for lat min
-        if ( ( this->latFromInds < ( this->dimension / 2 ) ) && ( std::abs( lat - this->latFromInds ) > ( this->dimension / 2 ) ) ) { testLat -= this->dimension; }
-        if ( ( testLat < this->latFromInds ) &&
-             ( std::abs( testLat - this->latFromInds ) < ( this->dimension / 2 ) ) &&
-             ( std::abs( testLat - this->latFromInds ) < std::abs( lat - this->latToInds ) ) )
+        //============================================ Check if lattitude boundaries need to be modified
+        if ( ( this->latFromInds <= this->latToInds ) && !( ( lat >= this->latFromInds ) && ( lat <= this->latToInds ) ) )
         {
-            this->latFromInds                         = lat;
-            latCornersDone                            = true;
+            //======================================== Lattitude is outside of group boundaries
+            smallerCorner                             = angularDistanceWithBorders ( lat, this->latFromInds );
+            largerCorner                              = angularDistanceWithBorders ( lat, this->latToInds );
+            
+            if ( smallerCorner < largerCorner )
+            {
+                this->latFromInds                     = lat;
+                latCornersDone                        = true;
+            }
+            if ( smallerCorner > largerCorner )
+            {
+                this->latToInds                       = lat;
+                latCornersDone                        = true;
+            }
+            if ( smallerCorner == largerCorner )
+            {
+                if      ( lat < this->latFromInds )   { this->latFromInds = lat; latCornersDone = true; }
+                else if ( lat > this->latToInds   )   { this->latToInds   = lat; latCornersDone = true; }
+            }
         }
         
-        //============================================ Modify group corners - modify input for boundaries for lat max
-        testLat = lat; testLon = lon;
-        if ( ( this->latToInds > ( this->dimension / 2 ) ) && ( std::abs( lat - this->latToInds ) > ( this->dimension / 2 ) ) ) { testLat += this->dimension; }
-        if ( ( testLat > this->latToInds ) &&
-             ( std::abs( testLat - this->latToInds ) < ( this->dimension / 2 ) ) &&
-             ( std::abs( lat - this->latFromInds ) >= std::abs( testLat - this->latToInds ) ) )
+        if ( ( this->latFromInds >  this->latToInds ) && !( ( lat >= this->latFromInds ) || ( lat <= this->latToInds ) ) )
         {
-            this->latToInds                           = lat;
-            latCornersDone                            = true;
+            //======================================== Lattitude is outside of group boundaries
+            smallerCorner                             = angularDistanceWithBorders ( lat, this->latFromInds );
+            largerCorner                              = angularDistanceWithBorders ( lat, this->latToInds );
+            
+            if ( smallerCorner < largerCorner )
+            {
+                this->latFromInds                     = lat;
+                latCornersDone                        = true;
+            }
+            if ( smallerCorner > largerCorner )
+            {
+                this->latToInds                       = lat;
+                latCornersDone                        = true;
+            }
+            if ( smallerCorner == largerCorner )
+            {
+                if      ( lat < this->latFromInds )   { this->latFromInds = lat; latCornersDone = true; }
+                else if ( lat > this->latToInds   )   { this->latToInds   = lat; latCornersDone = true; }
+            }
         }
         
-        //============================================ Modify group corners - modify input for boundaries for lon min
-        testLat = lat; testLon = lon;
-        if ( ( this->lonFromInds < ( this->dimension / 2 ) ) && ( std::abs( lon - this->lonFromInds ) > ( this->dimension / 2 ) ) ) { testLon -= this->dimension; }
-        if ( ( testLon < this->lonFromInds ) &&
-             ( std::abs( testLon - this->lonFromInds ) < ( this->dimension / 2 ) ) &&
-             ( std::abs( testLon - this->lonFromInds ) < std::abs( lon - this->lonToInds ) ) )
+        
+        //============================================ Check if longitude boundaries need to be modified
+        if ( ( this->lonFromInds <= this->lonToInds ) && !( ( lon >= this->lonFromInds ) && ( lon <= this->lonToInds ) ) )
         {
-            this->lonFromInds                         = lon;
-            lonCornersDone                            = true;
+            //======================================== Lattitude is outside of group boundaries
+            smallerCorner                             = angularDistanceWithBorders ( lon, this->lonFromInds );
+            largerCorner                              = angularDistanceWithBorders ( lon, this->lonToInds );
+            
+            if ( smallerCorner < largerCorner )
+            {
+                this->lonFromInds                     = lon;
+                lonCornersDone                        = true;
+            }
+            if ( smallerCorner > largerCorner )
+            {
+                this->lonToInds                       = lon;
+                lonCornersDone                        = true;
+            }
+            if ( smallerCorner == largerCorner )
+            {
+                if      ( lon < this->lonFromInds )   { this->lonFromInds = lon; lonCornersDone = true; }
+                else if ( lon > this->lonToInds   )   { this->lonToInds   = lon; lonCornersDone = true; }
+            }
         }
         
-        //============================================ Modify group corners - modify input for boundaries for max max
-        testLat = lat; testLon = lon;
-        if ( ( this->lonToInds > ( this->dimension / 2 ) ) && ( std::abs( lon - this->lonToInds ) > ( this->dimension / 2 ) ) ) { testLon += this->dimension; }
-        if ( ( testLon > this->lonToInds ) &&
-             ( std::abs( testLon - this->lonToInds ) < ( this->dimension / 2 ) ) &&
-             ( std::abs( lon - this->lonFromInds ) >= std::abs( testLon - this->lonToInds ) ) )
+        if ( ( this->lonFromInds >  this->lonToInds ) && !( ( lon >= this->lonFromInds ) || ( lon <= this->lonToInds ) ) )
         {
-            this->lonToInds                           = lon;
-            lonCornersDone                            = true;
+            //======================================== Lattitude is outside of group boundaries
+            smallerCorner                             = angularDistanceWithBorders ( lon, this->lonFromInds );
+            largerCorner                              = angularDistanceWithBorders ( lon, this->lonToInds );
+            
+            if ( smallerCorner < largerCorner )
+            {
+                this->lonFromInds                     = lon;
+                lonCornersDone                        = true;
+            }
+            if ( smallerCorner > largerCorner )
+            {
+                this->lonToInds                       = lon;
+                lonCornersDone                        = true;
+            }
+            if ( smallerCorner == largerCorner )
+            {
+                if      ( lon < this->lonFromInds )   { this->lonFromInds = lon; lonCornersDone = true; }
+                else if ( lon > this->lonToInds   )   { this->lonToInds   = lon; lonCornersDone = true; }
+            }
         }
         
         //============================================ Modify corner positions
@@ -1223,21 +1329,89 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getL
 
 /*! \brief Function detecting cyclic point groups in a peak group.
  
-    ...
+    This function starts by taking all the angles present in this peak group and finding a set of all unique differences between them. Then,
+    it uses these differences to obtain all feasible folds that result from these angle differences. Now, for each feasible fold, it first determines
+    all the spheres that have the fold suggested angles and then it uses this knowledge to search through all the indices in this peak group to
+    find the lattitude and longitude index combination with the highest sum of peak height.
+ 
+    At this point, this function can also optionally do bi-cubic interpolation around this index with highest peak sum to try to improve the symmetry
+    axis by searching between the lattitude and longitude indices. Finally, this function will create the ProSHADE formatted array of symmetry group
+    information and save it into the supplied vector, terminating thereafter.
+    
  
     \param[in] sphereVals A vector of spheres with mapped rotation function values.
-    \param[out] ret Vector containing a vector for each found cyclic point group. The cyclic point group values are [0] = fold,
+    \param[in] axisTolerance The tolerance for cosine distance to consider two angles identical.
+    \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold; [1] = X-axis; [2] = Y-axis; [3] = Z-axis; [4] = average peak height; [5] = angle
+    \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
  */
-std::vector< std::vector < proshade_double > > ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp )
 {
     //================================================ Initialise local variables
-    std::vector< std::vector < proshade_double > > ret;
-    std::vector< proshade_double > angs;
     std::vector< proshade_double > angDiffs;
-    proshade_double approxFold                        = 0.0;
+    std::vector< proshade_unsign > foldsToTry;
+    proshade_double bestPosVal,  bestLatInd, bestLonInd, curPosVal;
+    
+    //================================================ Find all present angle differences
+    this->getAllAngleDifferences                      ( &angDiffs, sphereVals );
+    
+    //================================================ For each angle difference, look if there is a point group with appropriate fold
+    this->getAllPossibleFolds                         ( &angDiffs, &foldsToTry, sphereVals );
+    
+    //================================================ Now find if the particular fold has all required angles
+    for ( proshade_unsign foldIt = 0; foldIt < static_cast<proshade_unsign> ( foldsToTry.size() ); foldIt++ )
+    {
+        //============================================ Initialise local variables
+        std::vector< proshade_unsign > spheresFormingFold;
+        
+        //============================================ Find the closes spheres required to form the fold
+        this->getSpheresFormingFold                   ( foldsToTry.at(foldIt), &spheresFormingFold, sphereVals, axisTolerance );
+        
+        //============================================ Did we find all spheres? If not, skip
+        if ( spheresFormingFold.size() != foldsToTry.at(foldIt) - 1 ) { continue; }
+     
+        //============================================ Find the index with the highest peak height sum
+        this->getBestIndexForFold                     ( &bestPosVal, &bestLatInd, &bestLonInd, &spheresFormingFold, sphereVals );
+        
+        //============================================ Optimise by bicubic interpolation if required
+        if ( bicubicInterp )
+        {
+            ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( &bestLatInd, &bestLonInd, &bestPosVal, &spheresFormingFold, &sphereVals );
+        }
+        
+        //============================================ Create ProSHADE symmetry axis array and save it
+        proshade_double* detectedSymmetry             = new proshade_double[6];
+        ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
+        
+        detectedSymmetry[0]                           = static_cast<proshade_double> ( foldsToTry.at(foldIt) );
+        detectedSymmetry[1]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::cos ( bestLatInd * this->latSampling );
+        detectedSymmetry[2]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
+        detectedSymmetry[3]                           = 1.0 * std::cos ( bestLonInd * this->lonSampling );
+        detectedSymmetry[4]                           = bestPosVal / detectedSymmetry[0];
+        detectedSymmetry[5]                           = ( 2.0 * M_PI ) / detectedSymmetry[0];
+        
+        ProSHADE_internal_misc::addToDblPtrVector     ( detectedCs, detectedSymmetry );
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function takes all angles present in this peak group and finds the set of unique angle differeces.
+ 
+    \param[in] angDiffs A pointer to a vector to which all angle differences will be saved into.
+    \param[in] sphereVals A vector of spheres with mapped rotation function values.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllAngleDifferences ( std::vector< proshade_double >* angDiffs, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+{
+    //================================================ Initialise local variables
+    std::vector< proshade_double > angs;
     
     //================================================ Find all present angles
-    for ( proshade_unsign shPos = 0; shPos < static_cast<proshade_unsign> ( this->spherePositions.size() ); shPos++ ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, sphereVals.at(this->spherePositions.at(shPos))->getRadius() ); }
+    for ( proshade_unsign shPos = 0; shPos < static_cast<proshade_unsign> ( this->spherePositions.size() ); shPos++ )
+    {
+        ProSHADE_internal_misc::addToDoubleVector     ( &angs, sphereVals.at(this->spherePositions.at(shPos))->getRadius() );
+    }
     
     //================================================ Find all angle differences
     for ( proshade_unsign ang1It = 0; ang1It < static_cast<proshade_unsign> ( angs.size() ); ang1It++ )
@@ -1248,24 +1422,177 @@ std::vector< std::vector < proshade_double > > ProSHADE_internal_spheres::ProSHA
             if ( ang1It >= ang2It ) { continue; }
             
             //======================================== Add angle difference rounded to 5 decimal places
-            ProSHADE_internal_misc::addToDoubleVector ( &angDiffs, std::floor ( std::abs ( angs.at(ang1It) - angs.at(ang2It) ) * 100000.0 ) / 100000.0 );
+            ProSHADE_internal_misc::addToDoubleVector ( angDiffs, std::floor ( std::abs ( angs.at(ang1It) - angs.at(ang2It) ) * 100000.0 ) / 100000.0 );
         }
     }
     
     //================================================ Sort and remove duplicates
-    std::sort                                         ( angDiffs.begin(), angDiffs.end() );
-    angDiffs.erase                                    ( std::unique ( angDiffs.begin(), angDiffs.end() ), angDiffs.end() );
+    std::sort                                         ( (*angDiffs).begin(), (*angDiffs).end() );
+  (*angDiffs).erase                                   ( std::unique ( (*angDiffs).begin(), (*angDiffs).end() ), (*angDiffs).end() );
     
-    //================================================ For each angle difference, look if there is a point group with appropriate fold
-    for ( proshade_unsign diffIt = 0; diffIt < static_cast<proshade_unsign> ( angDiffs.size() ); diffIt++ )
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function angle differences and creates a list of folds that may be present in the group.
+ 
+    The function starts by taking each detected angle difference and checking how well it divides a circle (2 Pi). The remainder of
+    this division is then check against a tolerance threshold, which takes into account how many peaks in the rotation function space
+    is the distance off from the theoretical exact value.
+ 
+    \param[in] angDiffs A pointer to a vector containing all the unique angle differences for this peak group.
+    \param[in] foldsToTry A pointer to a vector to which the predicted fold to try to find are to be saved into.
+    \param[in] sphereVals A vector of spheres with mapped rotation function values.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleFolds ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+{
+    //================================================ Initialise local variables
+    proshade_double divRem, divBasis, divRemNext, divBasisNext, symmErr, angTolerance, angToleranceNext;
+    proshade_double peakErr                           = ( M_PI * 2.0 ) / ( static_cast<proshade_double> ( this->dimension ) );
+    
+    //================================================ For each angle difference in the group
+    for ( proshade_unsign diffIt = 0; diffIt < static_cast<proshade_unsign> ( angDiffs->size() ); diffIt++ )
     {
-        //============================================ Guess fold from angle difference
-        approxFold                                    = ( 2.0 * M_PI ) / angDiffs.at(diffIt);
+        //============================================ Find the basis and remainder of the 2pi/dist equation
+        divRem                                        = std::modf ( static_cast<proshade_double> ( ( 2.0 * M_PI ) / std::abs ( angDiffs->at(diffIt) ) ), &divBasis );
         
-        std::cout << "Angle: " << angDiffs.at(diffIt) << " fold " << approxFold << std::endl;
+        //============================================ If the remainder would be smaller for larger basis, so change the basis
+        if ( divRem > 0.5 )
+        {
+            divRem                                   -= 1.0;
+            divBasis                                 += 1.0;
+        }
+        
+        //============================================ Remove fold 1, that is not really what we are after here ...
+        if ( divBasis == 1 ) { continue; }
+        
+        //============================================ Is there enough angles in the group for such a fold?
+        if ( static_cast<proshade_unsign> ( this->spherePositions.size() ) < ( divBasis - 1 ) ) { continue; }
+        
+        //============================================ Determine errors on peaks and on folds
+        symmErr                                       = divRem * ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis ) );
+        angTolerance                                  = std::abs( symmErr / peakErr );
+        angToleranceNext                              = ( ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis ) ) - ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis + 1 ) ) ) / peakErr;
+     
+        //============================================ Is remainder small enough?
+        if ( angTolerance < std::max ( 1.5, ( 0.1 / peakErr ) ) )
+        {
+            //======================================== Is the next symmetry close enough? If so, test previous and next folds as well.
+            if ( angToleranceNext < std::max ( 1.5, ( 0.1 / peakErr ) ) )
+            {
+                //==================================== The next fold would pass as well. Use one previous and one following fold as well to cover for errors
+                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis - 1 );
+                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis + 1 );
+            }
+            
+            //======================================== This fold seems reasonable, save it
+            ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis );
+        }
+    }
+    
+    //================================================ Sort and remove duplicates
+    std::sort                                         ( (*foldsToTry).begin(), (*foldsToTry).end(), std::greater <proshade_unsign>() );
+    foldsToTry->erase                                 ( std::unique ( (*foldsToTry).begin(), (*foldsToTry).end() ), (*foldsToTry).end() );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function simply finds the indices of the spheres which form the requested form.
+ 
+    \param[in] foldToTry The value of the fold for which all the required spheres are to be sought.
+    \param[in] spheresFormingFold A pointer to vector to which the sphere indices of spheres forming this fold will be saved into.
+    \param[in] sphereVals A vector of spheres with mapped rotation function values.
+    \param[in] sphereAngleTolerance The tolerance for how different the sphere angle can be for the sphere to be still considered.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getSpheresFormingFold ( proshade_unsign foldToTry, std::vector< proshade_unsign >* spheresFormingFold, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double sphereAngleTolerance )
+{
+    //================================================ Initialise local variables
+    proshade_double soughtAngle, minSphereVal;
+    proshade_unsign minSpherePos;
+    
+    //================================================ Generate expected angles and check if close-by sphere exists
+    for ( proshade_double fIt = 1.0; fIt < static_cast<proshade_double> ( foldToTry ); fIt += 1.0 )
+    {
+        //============================================ Set variables for the iteration
+        minSphereVal                                  = 999.9;
+        soughtAngle                                   = fIt * ( 2.0 * M_PI / static_cast<proshade_double> ( foldToTry ) );
+        
+        //============================================ Find the closest sphere passing conditions
+        for ( proshade_unsign angsIt = 0; angsIt < static_cast<proshade_unsign> ( this->spherePositions.size() ); angsIt++ )
+        {
+            if ( 1.0 - std::cos ( std::abs ( sphereVals.at(this->spherePositions.at(angsIt))->getRepresentedAngle() - soughtAngle ) ) < sphereAngleTolerance )
+            {
+                if ( minSphereVal > 1.0 - std::cos ( std::abs ( sphereVals.at(this->spherePositions.at(angsIt))->getRepresentedAngle() - soughtAngle ) ) )
+                {
+                    minSphereVal                      = 1.0 - std::cos ( std::abs ( sphereVals.at(this->spherePositions.at(angsIt))->getRepresentedAngle() - soughtAngle ) );
+                    minSpherePos                      = angsIt;
+                }
+            }
+        }
+       
+        //============================================ If no passing sphere, test next fold
+        if ( minSphereVal == 999.9 ) { break; }
+        
+        //============================================ Save best position
+        ProSHADE_internal_misc::addToUnsignVector     ( spheresFormingFold, this->spherePositions.at(minSpherePos) );
     }
     
     //================================================ Done
-    return                                            ( ret );
+    return ;
+    
+}
+
+
+/*! \brief Function which does simple search through all peak groups indices and saves the index with the highest peak height sum over all spheres.
+ 
+    \param[in] bestPosVal Pointer to double where the highest sum of heights will be stored.
+    \param[in] bestLatInd Pointer to double where the highest values lattitude index will be held.
+    \param[in] bestLonInd Pointer to double where the highest values longitude index will be held.
+    \param[in] spheresFormingFold A vector pointer to a vector containing the indices of the spheres forming this fold.
+    \param[in] sphereVals A vector of spheres with mapped rotation function values.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getBestIndexForFold ( proshade_double* bestPosVal, proshade_double* bestLatInd, proshade_double* bestLonInd, std::vector< proshade_unsign >* spheresFormingFold, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+{
+    //================================================ Initialise variables
+    proshade_double curPosVal;
+   *bestPosVal                                        = -1.0;
+    if ( this->latFromInds > this->latToInds ) { this->latToInds += this->dimension; }
+    if ( this->lonFromInds > this->lonToInds ) { this->lonToInds += this->dimension; }
+    
+    //================================================ Compute the best average peak height axis for peak indices
+    for ( proshade_unsign latIt = this->latFromInds; latIt <= this->latToInds; latIt++ )
+    {
+        //============================================ Deal with boundaries
+        if ( latIt >= this->dimension ) { latIt -= this->dimension; this->latToInds -= this->dimension; }
+        
+        for ( proshade_unsign lonIt = this->lonFromInds; lonIt <= this->lonToInds; lonIt++ )
+        {
+            //======================================== Deal with boundaries
+            if ( lonIt >= this->dimension ) { lonIt -= this->dimension; this->lonToInds -= this->dimension; }
+            
+            //======================================== Initialise variables
+            curPosVal                                 = 1.0;
+            
+            //======================================== Find this indices value
+            for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( spheresFormingFold->size() ); sphIt++ )
+            {
+                curPosVal                            += sphereVals.at(spheresFormingFold->at(sphIt))->getSphereLatLonPosition ( latIt, lonIt );
+            }
+            
+            //======================================== If best, save it
+            if ( curPosVal > *bestPosVal )
+            {
+               *bestPosVal                            = curPosVal;
+               *bestLatInd                            = latIt;
+               *bestLonInd                            = lonIt;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return ;
     
 }

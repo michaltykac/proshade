@@ -66,6 +66,7 @@ int main ( int argc, char **argv )
 
     //================================================ All other (possibly other tasks related) settings
     settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
+    settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaskBlurFactor                       ( 350.0 );                             // If masking, what blur factor should be used? 350 seems to work for most maps.
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?

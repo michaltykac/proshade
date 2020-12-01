@@ -256,7 +256,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Number of points in each dimension that need to be lower for        " << std::endl;
     std::cout << "            peak to be detected.                                                " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --peakThres                                     [DEFAULT:          5.0]     " << std::endl;
+    std::cout << "    --peakThres                                     [DEFAULT:          0.5]     " << std::endl;
     std::cout << "            Number of IQRs from median for small peaks threshold for remo-      " << std::endl;
     std::cout << "            ving small peaks.                                                   " << std::endl;
     std::cout << "                                                                                " << std::endl;
@@ -272,6 +272,10 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Should the maximum difference in dot product of two vectors for     " << std::endl;
     std::cout << "            them to be still considered to be the same decrease with fold of    " << std::endl;
     std::cout << "            tested symmetry?                                                    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --bicubSearch or -A                              [DEFAULT:        TRUE]     " << std::endl;
+    std::cout << "            Should the bi-cubic interpolation for sphere peaks be used to       " << std::endl;
+    std::cout << "            improve the axis by searching between grid indices?                 " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;

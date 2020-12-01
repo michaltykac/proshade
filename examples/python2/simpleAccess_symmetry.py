@@ -52,6 +52,7 @@ pSet.addStructure                             ( "./emd_6324.map" )              
 
 ### Useful settings
 pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                                # Should bi-cubic interpolation between peak grid indices be done?
 pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
 pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?

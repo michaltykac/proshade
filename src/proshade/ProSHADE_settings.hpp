@@ -159,7 +159,7 @@ public:
     
     //================================================ Settings regarding peak searching
     proshade_unsign peakNeighbours;                   //!< Number of points in any direction that have to be lower than the considered index in order to consider this index a peak.
-    proshade_double noIQRsFromMedianNaivePeak;        //!< When doing 'naive' peak searching, how many IQRs from the median the threshold for peak height should be (in terms of median of non-peak values).
+    proshade_double noIQRsFromMedianNaivePeak;        //!< When doing peak searching, how many IQRs from the median the threshold for peak height should be (in terms of median of non-peak values).
     
     //================================================ Settings regarding 1D grouping
     proshade_double smoothingFactor;                  //!< This factor decides how small the group sizes should be - larger factor means more smaller groups.
@@ -173,7 +173,8 @@ public:
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
-    bool usePeakSearchInRotationFunctionSpace;        //!< This veriable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
+    bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
+    bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -256,6 +257,7 @@ public:
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
     void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
+    void setBicubicInterpolationSearch                ( bool bicubPeaks );
     
     //================================================ Command line options parsing
     void getCommandLineParams                         ( int argc, char** argv );

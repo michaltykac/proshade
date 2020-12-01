@@ -38,6 +38,7 @@ pSet                                          = proshade.ProSHADE_settings ( pro
 
 ### Further useful settings
 pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                                # Should bi-cubic interpolation between peak grid indices be done?
 pSet.verbose                                  = 1
 pSet.forceP1                                  = True;                                ## Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                ## Should PDB files have their water molecules removed?
