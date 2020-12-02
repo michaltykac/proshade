@@ -1341,7 +1341,7 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getL
  
     \param[in] sphereVals A vector of spheres with mapped rotation function values.
     \param[in] axisTolerance The tolerance for cosine distance to consider two angles identical.
-    \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold; [1] = X-axis; [2] = Y-axis; [3] = Z-axis; [4] = average peak height; [5] = angle
+    \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
  */
 void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp )
@@ -1386,11 +1386,72 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
         detectedSymmetry[1]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::cos ( bestLatInd * this->latSampling );
         detectedSymmetry[2]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
         detectedSymmetry[3]                           = 1.0 * std::cos ( bestLonInd * this->lonSampling );
-        detectedSymmetry[4]                           = bestPosVal / detectedSymmetry[0];
-        detectedSymmetry[5]                           = ( 2.0 * M_PI ) / detectedSymmetry[0];
+        detectedSymmetry[4]                           = ( 2.0 * M_PI ) / detectedSymmetry[0];
+        detectedSymmetry[5]                           = bestPosVal / detectedSymmetry[0];
         
         ProSHADE_internal_misc::addToDblPtrVector     ( detectedCs, detectedSymmetry );
     }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function detecting cyclic point groups with a particular fold in a peak group.
+ 
+    This function is a simplification of the findCyclicPointGroups function for the cases where the required fold is known. It simply assumes that all the
+    supplied mapped spheres are to be used to find the fold, i.e. that fold-1 is equal to the length of sphereVals. With this assumption, the function can
+    go directly for finding the peak index with highest peak height sum.
+ 
+    At this point, this function can also optionally do bi-cubic interpolation around this index with highest peak sum to try to improve the symmetry
+    axis by searching between the lattitude and longitude indices. Finally, this function will create the ProSHADE formatted array of symmetry group
+    information and save it into the supplied vector, terminating thereafter.
+ 
+    \warning This function  assumes that the supplied sphereVals argument contains only the spheres relating to the
+    required fold and no other spheres - this assumption does not hold if the convertRotationFunction() function was called - consider yourself warned.
+ 
+    \param[in] sphereVals A vector of spheres with mapped rotation function values.
+    \param[in] axisTolerance The tolerance for cosine distance to consider two angles identical.
+    \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
+    \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
+    \param[in] fold The fold for which we are searching for cyclic point groups.
+ */
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold )
+{
+    //================================================ Check that this peak group has all the angles
+    if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
+    
+    //================================================ Initialise variables
+    proshade_double bestPosVal, bestLatInd, bestLonInd;
+    std::vector< proshade_unsign > spheresFormingFold;
+    
+    //================================================ Set all supplied spheres to be required to form the fold
+    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( sphereVals.size() ); shIt++ )
+    {
+        ProSHADE_internal_misc::addToUnsignVector     ( &spheresFormingFold, shIt );
+    }
+    
+    //================================================ Find the index with the highest peak height sum
+    this->getBestIndexForFold                         ( &bestPosVal, &bestLatInd, &bestLonInd, &spheresFormingFold, sphereVals );
+    
+    //================================================ Optimise by bicubic interpolation if required
+    if ( bicubicInterp )
+    {
+        ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( &bestLatInd, &bestLonInd, &bestPosVal, &spheresFormingFold, &sphereVals );
+    }
+    
+    //================================================ Create ProSHADE symmetry axis array and save it
+    proshade_double* detectedSymmetry                 = new proshade_double[6];
+    ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
+    
+    detectedSymmetry[0]                               = static_cast<proshade_double> ( fold );
+    detectedSymmetry[1]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::cos ( bestLatInd * this->latSampling );
+    detectedSymmetry[2]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
+    detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
+    detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
+    detectedSymmetry[5]                               = bestPosVal / detectedSymmetry[0];
+        
+    ProSHADE_internal_misc::addToDblPtrVector         ( detectedCs, detectedSymmetry );
     
     //================================================ Done
     return ;

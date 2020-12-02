@@ -1822,7 +1822,12 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
 
 /*! \brief This function runs the symmetry detection algorithms on this structure using the angle-axis space and saving the results in the settings object.
  
-    ...
+    This function firstly decides whether specific C symmetry was requested or not. This decision is important as knowing the required fold allows for a rather
+    simplified algorithm to be applied. Thus, if specific fold is known, simplified algorithm will be used. Otherwise, this function will do a general search by firstly
+    finding all cyclic point groups and then applying the dihedral, tetrahedral, octahedral and icosahedral searches.
+ 
+    Once complete, the function will save both, the vector of ProSHADE formatted array pointers as well as vector of vectors of doubles with the same information
+    containing all detected cyclic point groups into the supplied vector pointers.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
@@ -1830,6 +1835,24 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
+    //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
+    if ( settings->requestedSymmetryType == "C" )
+    {
+        //============================================ Do simplified search only in the applicable data
+        std::vector< proshade_double* > CSyms         = this->findRequestedCSymmetryFromAngleAxis ( settings );
+        
+        //============================================ Save the best axis as the recommended one
+        if ( settings->detectedSymmetry.size() == 0 ) { if ( CSyms.size() > 0 ) { settings->setDetectedSymmetry ( CSyms.at(0) ); } }
+        settings->setRecommendedSymmetry              ( "C" );
+        settings->setRecommendedFold                  ( settings->requestedSymmetryFold );
+        
+        //============================================ Save the detected result
+        this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
+        
+        //============================================ Done
+        return ;
+    }
+
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
     
@@ -1858,29 +1881,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
     }
     
-    //================================================  Which symmetry was requested?
-    if ( settings->requestedSymmetryType == "C" )
-    {
-        // THIS NEEDS TO BE IMPROVED, WHILE IT IS WORKING, IT NEEDS TO COMPUTE ONLY THE REQUIRED SHELLS AND SEARCH ONLY FOR THE REQUIRED ANGLES - THAT WILL BE MUCH FASTER.
-        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
-        exit(0);
-        //============================================ Find the best symmetry axis given the fold
-        proshade_double* bestSym                      = this->findRequestedCSymmetry ( settings, settings->requestedSymmetryFold );
-        
-        //============================================ If best average peak height is too low - this needs to be changed once I get the maximum likelihood working
-        if ( bestSym[5] < 0.2 )
-        {
-            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "Failed to detect requested symmetry.", "WS00063" );
-        }
-        
-        //============================================ Save the detected result
-        ProSHADE_internal_misc::addToDblPtrVector     ( axes, bestSym );
-        settings->setRecommendedSymmetry              ( "C" );
-        settings->setRecommendedFold                  ( bestSym[0] );
-        
-        if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( bestSym ); }
-    }
-    
     if ( settings->requestedSymmetryType == "D" )
     {
         std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
@@ -1902,140 +1902,58 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     }
     
     //================================================ Save C symmetries to argument and if different from settings, to the settings as well
-    bool isArgSameAsSettings                          = true;
-    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
-    {
-        std::vector< proshade_double > nextSym;
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[0] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[1] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[2] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[3] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
-        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
-
-        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
-        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
-
-        nextSym.clear                                 ( );
-    }
-
-    //================================================ Release memory
-    for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( CSyms.size() ); it++ ) { delete[] CSyms.at(it); }
+    this->saveDetectedSymmetries                      ( settings, &CSyms, allCs );
     
     //================================================ Done
     return ;
     
 }
 
-/*! \brief This function searches the angle-axis representation of the rotation function for a cyclic point group with given fold.
+/*! \brief This function takes the results of point group searches and saves then into the output variables.
  
-    This function takes the requested symmetry fold and proceeds to search all lattitude and longitude combinations for an axis, which has
-    the highest sum of rotation function values over a set of spheres with the correct radii (angles) representing the requested point group
-    fold.
+    This function takes the CSyms as they are returned by the findRequestedCSymmetryFromAngleAxis() or the
+    getCyclicSymmetriesListFromAngleAxis() functions and re-saves then to the output variables of the detectSymmetryFromAngleAxisSpace()
+    function. It also releases the memory of the CSyms argument.
  
-    Once the best axis in terms of the sum of rotation function values for each lattitude and longitude pair of indices is found, the function uses
-    the bi-cubic interpolation to attempt to improve the axis by searching the space between the lattitude x longitude grid.
+    \warning This function releases the memory of the CSyms argument.
  
-    Finally, it returns the symmetry axis and angle for the highest found sum, not checking if it is a good match or not.
- 
-    \param[in] settings ProSHADE_settings object containing all the settings for this run.
-    \param[in] fold The requested fold for the sought after cyclic symmetry.
-    \param[out] sym  The standard ProSHADE array of doubles representing a single symmetry axis - the best found symmetry axis having the requested fold.
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] CSyms A pointer to vector
+    \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
  */
-proshade_double* ProSHADE_internal_data::ProSHADE_data::findRequestedCSymmetry ( ProSHADE_settings* settings, proshade_unsign fold )
+void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSyms, std::vector < std::vector< proshade_double > >* allCs )
 {
-    //================================================ Report progress
-    std::stringstream hlpSS;
-    hlpSS << "Starting search for the requested C" << fold << " point group.";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, hlpSS.str() );
-    
     //================================================ Initialise variables
-    proshade_double symmetryAngle                     = ( 2.0 * M_PI ) / static_cast<proshade_double> ( fold );
-    proshade_double nextAngle = 0.0, bestSum = 0.0, curSum = 0.0;
-    proshade_double bestMatch, bestLon, bestLat;
-    std::vector<proshade_unsign> bestSphList          ( fold, 0 );
-    std::vector<proshade_unsign> curSphList;
+    bool isArgSameAsSettings                          = true;
     
-    //================================================ For each sphere grid position
-    for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->sphereMappedRotFun.at(0)->getAngularDim() ); lonIt++ )
+    //================================================ For each detected point group
+    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms->size() ); cIt++ )
     {
-        for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->sphereMappedRotFun.at(0)->getAngularDim() ); latIt++ )
-        {
-            //======================================== Initialise variables
-            curSum                                    = 1.0;
-            curSphList                                = std::vector<proshade_unsign> ( fold, 0 );
-            
-            //======================================== Search for all other angles for forming a set
-            for ( proshade_unsign nextSphere = 1; nextSphere < fold; nextSphere++ )
-            {
-                //==================================== Initialise variables
-                nextAngle                             = symmetryAngle * nextSphere;
-                bestMatch                             = 0;
-                
-                //==================================== Find the next set member
-                for ( proshade_unsign matchSphereIt = 0; matchSphereIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() - 1 ); matchSphereIt++ )
-                {
-                    if ( ( this->sphereMappedRotFun.at(matchSphereIt)->getRepresentedAngle() <= nextAngle ) && ( this->sphereMappedRotFun.at(matchSphereIt+1)->getRepresentedAngle() > nextAngle ) )
-                    {
-                        if ( ( nextAngle - this->sphereMappedRotFun.at(matchSphereIt)->getRepresentedAngle() ) > ( this->sphereMappedRotFun.at(matchSphereIt+1)->getRepresentedAngle() - nextAngle ) ) { bestMatch = matchSphereIt + 1; }
-                        else { bestMatch = matchSphereIt; }
-                        break;
-                    }
-                }
-                
-                //==================================== Add to current run sum
-                curSum                               += this->sphereMappedRotFun.at(bestMatch)->getSphereLatLonPosition ( latIt, lonIt );
-                
-                //==================================== Note the used sphere number
-                curSphList.at( nextSphere )           = bestMatch;
-            }
-            
-            //======================================== Is this the best so far?
-            if ( curSum > bestSum )
-            {
-                bestSum                               = curSum;
-                bestLat                               = latIt;
-                bestLon                               = lonIt;
-                
-                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( fold ); iter++ )
-                {
-                    bestSphList.at( iter )            = curSphList.at( iter );
-                }
-            }
-        }
+        //============================================ Create vector to replace the pointer
+        std::vector< proshade_double > nextSym;
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[0] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[1] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[2] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[3] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[4] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[5] );
+        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
+
+        //============================================ Copy the vector to output variable and if different, then also to settings object
+        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
+        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
+
+        //============================================ Release memory
+        nextSym.clear                                 ( );
+        delete[] CSyms->at(cIt);
     }
-    
-    //============================================ Optimise axis, if required
-    if ( settings->useBiCubicInterpolationOnPeaks )
-    {
-        ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( &bestLat, &bestLon, &bestSum, &bestSphList, &this->sphereMappedRotFun );
-    }
-            
-    //================================================ Convert lat/lon back to angle-axis
-    proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->sphereMappedRotFun.at(0)->getAngularDim ( ) );
-    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->sphereMappedRotFun.at(0)->getAngularDim ( ) );
-        
-    proshade_double lon                               = static_cast<proshade_double> ( bestLon ) * lonSampling;
-    proshade_double lat                               = static_cast<proshade_double> ( bestLat ) * latSampling;
-    proshade_double cX                                = 1.0 * std::sin ( lon ) * std::cos ( lat );
-    proshade_double cY                                = 1.0 * std::sin ( lon ) * std::sin ( lat );
-    proshade_double cZ                                = 1.0 * std::cos ( lon );
-    
-    //================================================ Create symmetry array
-    proshade_double* sym                              = new proshade_double[6];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( sym, __FILE__, __LINE__, __func__ );
-    
-    sym[0]                                            = static_cast<proshade_double> ( fold );
-    sym[1]                                            = cX;
-    sym[2]                                            = cY;
-    sym[3]                                            = cZ;
-    sym[4]                                            = symmetryAngle;
-    sym[5]                                            = bestSum / static_cast<proshade_double> ( fold );
     
     //================================================ Done
-    return                                            ( sym );
+    return ;
+    
 }
+
 
 /*! \brief This function locates the best scoring C symmetry axis, returning the score and best symmetry index.
  

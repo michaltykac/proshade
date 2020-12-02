@@ -631,9 +631,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     pdbFile.cell.c                                    = zCell;
     pdbFile.cell.calculate_properties                 ( );
 
-    //================================================ Establish the Structure Factor Calculater object, which will compute the f's required later.
-    gemmi::StructureFactorCalculator < gemmi::IT92 < double > > calc ( pdbFile.cell );
-    
+    //================================================ Get elements in Gemmi format
     std::string totElString;
     for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); mIt++ )
     {
@@ -670,13 +668,12 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     //================================================ Compute the f's
     double wavelength                                 = 0.1;
     double energy                                     = gemmi::hc() / wavelength;
-    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { calc.set_fprime_if_not_set ( static_cast<gemmi::El> ( elIt ), gemmi::cromer_libermann ( elIt, energy, nullptr ) ); } }
     
     //================================================ Create the density calculator object and fill it in
     gemmi::DensityCalculator<gemmi::IT92<double>, float> dencalc;
     
     dencalc.d_min                                     = static_cast<double> ( requestedResolution );
-    for ( std::map<gemmi::El, double>::const_iterator mapIt = calc.fprimes().begin(); mapIt != calc.fprimes().end(); mapIt++ ) { dencalc.fprimes[static_cast<int> ( mapIt->first )] = static_cast<float> ( mapIt->second ); }
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { dencalc.addends.set ( static_cast<gemmi::El> ( elIt ), gemmi::cromer_libermann ( elIt, energy, nullptr ) ); } }
     dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
     
     //================================================ Force P1 spacegroup

@@ -33,8 +33,8 @@
     #include <gemmi/mmread.hpp>
     #include <gemmi/ccp4.hpp>
     #include <gemmi/it92.hpp>
-    #include <gemmi/rhogrid.hpp>
-    #include <gemmi/sfcalc.hpp>
+    #include <gemmi/dencalc.hpp>
+    #include <gemmi/fprime.hpp>
     #include <gemmi/gz.hpp>
 #endif
 
