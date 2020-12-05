@@ -1883,12 +1883,18 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     
     if ( settings->requestedSymmetryType == "D" )
     {
-        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+        //============================================ Run only the D symmetry detection and search for requested fold
+        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
+        this->saveRequestedSymmetryD                  ( settings, &DSyms, axes );
     }
     
     if ( settings->requestedSymmetryType == "T" )
     {
-        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+        //============================================ Run only the T symmetry detection and search for requested fold
+        std::vector< proshade_double* > TSyms         = this->getTetrahedralSymmetriesList ( settings, &CSyms );
+        settings->setRecommendedFold                  ( 0 );
+        if ( TSyms.size() == 7 ) { settings->setRecommendedSymmetry ( "T" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSyms.size() ); it++ ) { settings->setDetectedSymmetry ( TSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSyms.at(it) ); } }
+        else                     { settings->setRecommendedSymmetry ( "" ); }
     }
     
     if ( settings->requestedSymmetryType == "O" )
@@ -1964,37 +1970,38 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
     \param[in] symInd A pointer to variable where the best symmetry axis index will be stored.
     \param[out] ret The score of the best scoring C axis.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vector< proshade_double* > CSym, proshade_unsign* symInd )
+proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd )
 {
     //================================================ Sanity check
-    if ( CSym.size() == 0 ) { *symInd = 0; return ( 0.0 ); }
+    if ( CSym->size() == 0 ) { *symInd = 0; return ( 0.0 ); }
     
     //================================================ Sort the vector
-    std::sort                                         ( CSym.begin(), CSym.end(), ProSHADE_internal_misc::sortSymHlpInv );
+    std::sort                                         ( (*CSym).begin(), (*CSym).end(), ProSHADE_internal_misc::sortSymHlpInv );
     
     //================================================ Initalise variables
-    proshade_double ret                               = CSym.at(0)[5];
+    proshade_double ret                               = CSym->at(0)[5];
    *symInd                                            = 0;
     proshade_double frac                              = 0.0;
     
     //================================================ Check all other axes
-    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym.size() ); ind++ )
-    {
-        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
-        if ( CSym.at(ind)[0] > CSym.at(*symInd)[0] )
-        {
-            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-            frac                                      = std::max ( std::min ( ( CSym.at(*symInd)[0] / CSym.at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
-            
-            //======================================== Check if the new is "better" according to this criteria.
-            if ( ( CSym.at(*symInd)[5] * frac ) < CSym.at(ind)[5] )
-            {
-                //==================================== And it is! Save and try next one.
-               *symInd                                = ind;
-                ret                                   = CSym.at(ind)[5];
-            }
-        }
-    }
+// THIS NEEDS TO BE IMPROVED USING THE MAXIMUM LIKELIHOOD FOR THIS FOLD
+//    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym->size() ); ind++ )
+//    {
+//        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
+//        if ( CSym->at(ind)[0] > CSym->at(*symInd)[0] )
+//        {
+//            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
+//            frac                                      = std::max ( std::min ( ( CSym->at(*symInd)[0] / CSym->at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
+//
+//            //======================================== Check if the new is "better" according to this criteria.
+//            if ( ( CSym->at(*symInd)[5] * frac ) < CSym->at(ind)[5] )
+//            {
+//                //==================================== And it is! Save and try next one.
+//               *symInd                                = ind;
+//                ret                                   = CSym->at(ind)[5];
+//            }
+//        }
+//    }
     
     //================================================ Done
     return                                            ( ret );
@@ -2169,7 +2176,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_unsign bestCIndex, bestDIndex;
     
     //================================================ Find a score for each input symmetry type.
-    cScore                                            = this->findBestCScore ( *CSym, &bestCIndex );
+    cScore                                            = this->findBestCScore ( CSym, &bestCIndex );
     dScore                                            = this->findBestDScore ( DSym, &bestDIndex );
     tScore                                            = this->findTScore     ( TSym );
     oScore                                            = this->findOScore     ( OSym );

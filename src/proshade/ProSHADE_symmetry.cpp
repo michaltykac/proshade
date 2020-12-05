@@ -3124,6 +3124,11 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     //================================================ Group peaks
     for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); sphIt++ )
     {
+        //============================================ Report progress
+        std::stringstream hlpSS;
+        hlpSS << "Searching for peaks in sphere " << this->sphereMappedRotFun.at(sphIt)->getRepresentedAngle();
+        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+        
         //============================================ For each peak
         for ( proshade_unsign pkIt = 0; pkIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.at(sphIt)->getPeaks().size() ); pkIt++ )
         {
@@ -3131,11 +3136,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
             newPeak                                   = true;
             for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
             {
-                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance ) ) { newPeak = false; break; }
+                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance, settings->verbose ) ) { newPeak = false; break; }
             }
             
             //======================================== If already added, go to next one
-            if ( !newPeak ) { continue; }
+            if ( !newPeak )
+            {
+                continue;
+            }
             
             //======================================== If not, create a new group with this peak
             peakGroups.emplace_back                   ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first,
@@ -3149,13 +3157,23 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     std::stringstream hlpSS;
     hlpSS << "Found " << peakGroups.size() << " peak groups.";
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
+    {
+        std::stringstream hlpSS2;
+        hlpSS2 << "Group " << grIt << " spans indices LAT " << peakGroups.at(grIt)->getLatFromIndices() << " - " << peakGroups.at(grIt)->getLatToIndices() << " and LON " << peakGroups.at(grIt)->getLonFromIndices() << " - " << peakGroups.at(grIt)->getLonToIndices() << " and spheres ";
+        for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( peakGroups.at(grIt)->getSpherePositions().size() ); shIt++ )
+        {
+            hlpSS2 << this->sphereMappedRotFun.at(peakGroups.at(grIt)->getSpherePositions().at(shIt))->getRepresentedAngle() << " , ";
+        }
+        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 4, hlpSS2.str() );
+    }
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting C symmetry detection." );
     
     //================================================ For each peak group, find all supported point groups
     for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
     {
         //============================================ Find point groups in the peak group
-        peakGroups.at(grIt)->findCyclicPointGroups    ( this->sphereMappedRotFun, settings->axisErrTolerance, &ret, settings->useBiCubicInterpolationOnPeaks );
+        peakGroups.at(grIt)->findCyclicPointGroups    ( this->sphereMappedRotFun, &ret, settings->useBiCubicInterpolationOnPeaks, this->maxShellBand * 2 );
         
         //============================================ Release the memory
         delete peakGroups.at(grIt);
@@ -3255,7 +3273,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
             newPeak                                   = true;
             for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
             {
-                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance ) ) { newPeak = false; break; }
+                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance, settings->verbose ) ) { newPeak = false; break; }
             }
             
             //======================================== If already added, go to next one

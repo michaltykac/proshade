@@ -164,9 +164,9 @@ namespace ProSHADE_internal_spheres
        ~ProSHADE_rotFun_spherePeakGroup               ( void );
         
     public:
-        bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol );
-        void findCyclicPointGroups                    ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance,
-                                                        std::vector < proshade_double* >* detectedCs, bool bicubicInterp );
+        bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose );
+        void findCyclicPointGroups                    ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs,
+                                                        bool bicubicInterp, proshade_unsign dim );
         void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance,
                                                         std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold );
         
@@ -175,6 +175,7 @@ namespace ProSHADE_internal_spheres
         proshade_double getLatToIndices               ( void );
         proshade_double getLonFromIndices             ( void );
         proshade_double getLonToIndices               ( void );
+        std::vector<proshade_unsign> getSpherePositions ( void );
     };
 }
 

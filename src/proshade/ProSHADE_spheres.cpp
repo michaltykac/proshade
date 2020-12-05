@@ -1136,26 +1136,34 @@ proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angu
     \param[in] lon The longitude value of the first peak of the group.
     \param[in] sphPos The sphere number of the peak.
     \param[in] cosTol The tolerance for cosine distance similarity to consider the two vectors similar.
+    \param[in] verbose How verbose should the run be? Use -1 if you do not want any standard output output.
     \param[out] res Boolean value signifying if the peak was added.
  */
-bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol )
+bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose )
 {
     //================================================ Initialise local variables
     bool peakAdded                                    = false;
+    std::stringstream hlpSS;
+    std::stringstream hlpSS2;
     
     //================================================ Compute peaks XYZ and its cosine distance to group corners
     proshade_double xPos                              = 1.0 * std::sin ( lon * this->lonSampling ) * std::cos ( lat * this->latSampling );
     proshade_double yPos                              = 1.0 * std::sin ( lon * this->lonSampling ) * std::sin ( lat * this->latSampling );
     proshade_double zPos                              = 1.0 * std::cos ( lon * this->lonSampling );
+    hlpSS2 << "Peak " << xPos << " ; " << yPos << " ; " << zPos << " is close enough to group with corner ";
     
-    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMinXYZ[0], this->latMinLonMinXYZ[1], this->latMinLonMinXYZ[2], cosTol ) ) { peakAdded = true; }
-    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMinXYZ[0], this->latMaxLonMinXYZ[1], this->latMaxLonMinXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; }
-    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMaxXYZ[0], this->latMinLonMaxXYZ[1], this->latMinLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; }
-    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMaxXYZ[0], this->latMaxLonMaxXYZ[1], this->latMaxLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMinXYZ[0], this->latMinLonMinXYZ[1], this->latMinLonMinXYZ[2], cosTol ) ) { peakAdded = true; hlpSS2 << this->latMinLonMinXYZ[0] << " ; " << this->latMinLonMinXYZ[1] << " ; " << this->latMinLonMinXYZ[2]; }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMinXYZ[0], this->latMaxLonMinXYZ[1], this->latMaxLonMinXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMaxLonMinXYZ[0] << " ; " << this->latMaxLonMinXYZ[1] << " ; " << this->latMaxLonMinXYZ[2]; }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMaxXYZ[0], this->latMinLonMaxXYZ[1], this->latMinLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMinLonMaxXYZ[0] << " ; " << this->latMinLonMaxXYZ[1] << " ; " << this->latMinLonMaxXYZ[2];  }
+    if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMaxXYZ[0], this->latMaxLonMaxXYZ[1], this->latMaxLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMaxLonMaxXYZ[0] << " ; " << this->latMaxLonMaxXYZ[1] << " ; " << this->latMaxLonMaxXYZ[2];  }
     
     //================================================ If peak within corners, add it
     if ( peakAdded )
     {
+        //============================================ Report progress
+        hlpSS << "Peak group dimensions changed from LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " to ";
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 5, hlpSS2.str() );
+        
         //============================================ Initialise local variables
         proshade_unsign largerCorner, smallerCorner;
         bool latCornersDone                           = false;
@@ -1271,6 +1279,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         
         //============================================ Compute corner vectors
         this->computeCornerPositions                  ( );
+        hlpSS << "LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " ( peak position LAT " << lat << " LON " << lon << " )";
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS.str() );
         
         //============================================ If new sphere, add it to the list
         bool isSphereNew                              = true;
@@ -1327,6 +1337,17 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getL
     
 }
 
+/*! \brief Accessor function for the private variable spherePositions.
+ 
+    \param[out] spherePositions A vector of all angles (spheres) indices present in this group.
+ */
+std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getSpherePositions ( void )
+{
+    //================================================ Done
+    return                                            ( this->spherePositions );
+    
+}
+
 /*! \brief Function detecting cyclic point groups in a peak group.
  
     This function starts by taking all the angles present in this peak group and finding a set of all unique differences between them. Then,
@@ -1340,16 +1361,17 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getL
     
  
     \param[in] sphereVals A vector of spheres with mapped rotation function values.
-    \param[in] axisTolerance The tolerance for cosine distance to consider two angles identical.
     \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
+    \param[in] dim The dimensionality of the sphere grid along either dimension (they must be same).
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign dim )
 {
     //================================================ Initialise local variables
     std::vector< proshade_double > angDiffs;
     std::vector< proshade_unsign > foldsToTry;
     proshade_double bestPosVal,  bestLatInd, bestLonInd, curPosVal;
+    proshade_double sphereTolerance                   = ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( dim ) ) * 1.5;
     
     //================================================ Find all present angle differences
     this->getAllAngleDifferences                      ( &angDiffs, sphereVals );
@@ -1364,7 +1386,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
         std::vector< proshade_unsign > spheresFormingFold;
         
         //============================================ Find the closes spheres required to form the fold
-        this->getSpheresFormingFold                   ( foldsToTry.at(foldIt), &spheresFormingFold, sphereVals, axisTolerance );
+        this->getSpheresFormingFold                   ( foldsToTry.at(foldIt), &spheresFormingFold, sphereVals, sphereTolerance );
         
         //============================================ Did we find all spheres? If not, skip
         if ( spheresFormingFold.size() != foldsToTry.at(foldIt) - 1 ) { continue; }
@@ -1387,7 +1409,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
         detectedSymmetry[2]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
         detectedSymmetry[3]                           = 1.0 * std::cos ( bestLonInd * this->lonSampling );
         detectedSymmetry[4]                           = ( 2.0 * M_PI ) / detectedSymmetry[0];
-        detectedSymmetry[5]                           = bestPosVal / detectedSymmetry[0];
+        detectedSymmetry[5]                           = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
         
         ProSHADE_internal_misc::addToDblPtrVector     ( detectedCs, detectedSymmetry );
     }
@@ -1449,7 +1471,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[2]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
-    detectedSymmetry[5]                               = bestPosVal / detectedSymmetry[0];
+    detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
         
     ProSHADE_internal_misc::addToDblPtrVector         ( detectedCs, detectedSymmetry );
     
@@ -1535,9 +1557,9 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleF
         symmErr                                       = divRem * ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis ) );
         angTolerance                                  = std::abs( symmErr / peakErr );
         angToleranceNext                              = ( ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis ) ) - ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis + 1 ) ) ) / peakErr;
-     
+
         //============================================ Is remainder small enough?
-        if ( angTolerance < std::max ( 1.5, ( 0.1 / peakErr ) ) )
+        if ( angTolerance < std::max ( 3.0, ( 0.1 / peakErr ) ) )
         {
             //======================================== Is the next symmetry close enough? If so, test previous and next folds as well.
             if ( angToleranceNext < std::max ( 1.5, ( 0.1 / peakErr ) ) )
@@ -1584,7 +1606,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getSpheresFormi
         //============================================ Find the closest sphere passing conditions
         for ( proshade_unsign angsIt = 0; angsIt < static_cast<proshade_unsign> ( this->spherePositions.size() ); angsIt++ )
         {
-            if ( 1.0 - std::cos ( std::abs ( sphereVals.at(this->spherePositions.at(angsIt))->getRepresentedAngle() - soughtAngle ) ) < sphereAngleTolerance )
+            if ( std::abs ( sphereVals.at(this->spherePositions.at(angsIt))->getRepresentedAngle() - soughtAngle ) < sphereAngleTolerance )
             {
                 if ( minSphereVal > 1.0 - std::cos ( std::abs ( sphereVals.at(this->spherePositions.at(angsIt))->getRepresentedAngle() - soughtAngle ) ) )
                 {

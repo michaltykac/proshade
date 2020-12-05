@@ -226,7 +226,7 @@ namespace ProSHADE_internal_data
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
-        proshade_double findBestCScore                ( std::vector< proshade_double* > CSym, proshade_unsign* symInd );
+        proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
         proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );
         proshade_double findTScore                    ( std::vector< proshade_double* >* TSym );
         proshade_double findOScore                    ( std::vector< proshade_double* >* OSym );

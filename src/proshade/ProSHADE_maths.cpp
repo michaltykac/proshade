@@ -1316,7 +1316,7 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
         {
             //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
            *eA                                        = std::atan2 ( element10, element00 );
-           *eB                                        = 0.0;
+           *eB                                        = M_PI / 2.0;
            *eG                                        = 0.0;
         }
     }
@@ -1883,39 +1883,46 @@ bool ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( proshad
     \param[in] bestLongitude Proshade double pointer to variable containing the best longitude index value and to which the optimised result will be saved into.
     \param[in] bestSum Proshade double pointer to variable containing the best position rotation function values sum and to which the optimised result will be saved into.
     \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] step The size of the step.
  */
-void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun, proshade_double step )
 {
     //================================================ Initialise variables
     proshade_double lonM, lonP, latM, latP, movSum;
-    proshade_double step                              = 0.05;
     std::vector<proshade_double> latVals              ( 3 );
     std::vector<proshade_double> lonVals              ( 3 );
     proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
     proshade_double learningRate                      = 0.1;
     proshade_double prevVal                           = *bestSum;
     proshade_double valChange                         = 999.9;
-    proshade_double origBestLat                       = *bestLattitude;
-    proshade_double origBestLon                       = *bestLongitude;
+    proshade_double origBestLat                       = std::round ( *bestLattitude );
+    proshade_double origBestLon                       = std::round ( *bestLongitude );
+    proshade_double tmpVal;
     
     //================================================ Initialise interpolators in all directions around the point of interest
     std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsMinusMinus;
     std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsMinusPlus;
     std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsPlusMinus;
     std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsPlusPlus;
-    prepareBiCubicInterpolatorsMinusMinus             ( *bestLattitude, *bestLongitude, sphereList, &interpolsMinusMinus, sphereMappedRotFun );
-    prepareBiCubicInterpolatorsMinusPlus              ( *bestLattitude, *bestLongitude, sphereList, &interpolsMinusPlus,  sphereMappedRotFun );
-    prepareBiCubicInterpolatorsPlusMinus              ( *bestLattitude, *bestLongitude, sphereList, &interpolsPlusMinus,  sphereMappedRotFun );
-    prepareBiCubicInterpolatorsPlusPlus               ( *bestLattitude, *bestLongitude, sphereList, &interpolsPlusPlus,   sphereMappedRotFun );
+    prepareBiCubicInterpolatorsMinusMinus             ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsMinusMinus, sphereMappedRotFun );
+    prepareBiCubicInterpolatorsMinusPlus              ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsMinusPlus,  sphereMappedRotFun );
+    prepareBiCubicInterpolatorsPlusMinus              ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsPlusMinus,  sphereMappedRotFun );
+    prepareBiCubicInterpolatorsPlusPlus               ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsPlusPlus,   sphereMappedRotFun );
     
     //================================================ Start the pseudo gradient ascent (while there is some change)
-    while ( valChange > 0.00001 )
+    while ( valChange > 0.0001 )
     {
         //============================================ Find the surrounding points to the currently best position
         lonM                                          = *bestLongitude - step;
         lonP                                          = *bestLongitude + step;
         latM                                          = *bestLattitude - step;
         latP                                          = *bestLattitude + step;
+        
+        //============================================ Deal with optimising outside of prepared range - recursion
+        if ( latM < ( origBestLat - 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLattitude == origBestLat - 1.0 ) { *bestLattitude = tmpVal; } break; }
+        if ( latP > ( origBestLat + 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLattitude == origBestLat + 1.0 ) { *bestLattitude = tmpVal; } break; }
+        if ( lonM < ( origBestLon - 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLongitude == origBestLon - 1.0 ) { *bestLongitude = tmpVal; } break; }
+        if ( lonP > ( origBestLon + 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLongitude == origBestLon + 1.0 ) { *bestLongitude = tmpVal; } break; }
 
         //============================================ Prepare vectors of tested positions
         latVals.at(0) = latM; latVals.at(1) = *bestLattitude; latVals.at(2) = latP;
@@ -1949,7 +1956,7 @@ void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double
         
         //============================================ Prepare for next iteration
         valChange                                     = std::floor ( 100000.0 * ( *bestSum - prevVal ) ) / 100000.0;
-        prevVal                                       = std::floor ( 100000.0 * (*bestSum) ) / 100000.0;
+        prevVal                                       = std::floor ( 100000.0 * ( *bestSum           ) ) / 100000.0;
         step                                          = std::max ( ( valChange / step ) * learningRate, 0.01 );
         if ( learningRate >= 0.02 ) { learningRate -= 0.01; }
         

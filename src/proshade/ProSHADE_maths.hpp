@@ -266,6 +266,9 @@ namespace ProSHADE_internal_maths
             if ( ( ( x < this->xStartIndex ) || ( x > ( this->xStartIndex + this->xRange ) ) ) ||
                  ( ( y < this->yStartIndex ) || ( y > ( this->yStartIndex + this->yRange ) ) ) )
             {
+                if ( ( x < this->xStartIndex ) || ( x > ( this->xStartIndex + this->xRange ) ) ) { std::cout << "PROBLEM WITH LAT" << std::endl; }
+                if ( ( y < this->yStartIndex ) || ( y > ( this->yStartIndex + this->yRange ) ) ) { std::cout << "PROBLEM WITH LON" << std::endl; }
+                
                 throw ProSHADE_exception ( "Requested bicubic interpolation outside of pre-computed\n                    : square.", "ES00064", __FILE__, __LINE__, __func__, "The supplied x or y value(s) is outside of the range of\n                    : the bi-cubic interpolator's pre-computed square. Please\n                    : make sure the start values were correctly supplied when\n                    : the constructor was called or create a new interpolator\n                    : for these values." );
             }
             
@@ -344,7 +347,7 @@ namespace ProSHADE_internal_maths
     bool vectorOrientationSimilaritySameDirection     ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2,
                                                         proshade_double b3, proshade_double tolerance = 0.1 );
     void optimiseAxisBiCubicInterpolation             ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList,
-                                                        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
+                                                        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun, proshade_double step = 0.05 );
     void prepareBiCubicInterpolatorsMinusMinus        ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
                                                         std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     void prepareBiCubicInterpolatorsMinusPlus         ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
