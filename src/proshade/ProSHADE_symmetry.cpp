@@ -1185,6 +1185,13 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
     //================================================ Initialise variables
     std::vector< proshade_double* > ret;
     proshade_double dotProduct;
+    proshade_double axTolerance                       = settings->axisErrTolerance;
+    
+    //================================================ Modify axis tolerance by sampling, if required by user
+    if ( settings->axisErrToleranceDefault )
+    {
+        axTolerance                                   = std::max ( 0.01, ( 2.0 * M_PI ) / this->maxShellBand );
+    }
     
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting D symmetry detection." );
@@ -1212,7 +1219,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
                                                                                                      &CSymList->at(ax2)[2], &CSymList->at(ax2)[3] );
             
             //======================================== If close to zero, these two axes are perpendicular
-            if ( ( 1.0 - std::cos ( std::abs( dotProduct ) ) ) < settings->axisErrTolerance )
+            if ( ( 1.0 - std::cos ( std::abs( dotProduct ) ) ) < axTolerance )
             {
                 //==================================== Save
                 if ( CSymList->at(ax1)[0] >= CSymList->at(ax2)[0] )

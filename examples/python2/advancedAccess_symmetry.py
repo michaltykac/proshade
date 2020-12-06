@@ -47,7 +47,7 @@ pSet.setProgressiveSphereMapping              ( True );                         
 pSet.setMapResolutionChange                   ( True );                              ## Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
 pSet.setMapResolutionChangeTriLinear          ( False );                             ## Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setPeakNeighboursNumber                  ( 1 );                                 ## Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
-pSet.setPeakNaiveNoIQR                        ( 5.0 );                               ## Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
+pSet.setPeakNaiveNoIQR                        ( -999.9 );                            ## Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 pSet.setMissingPeakThreshold                  ( 0.3 );                               ## Fraction of peaks that can be missing for missing axis search to be initiated.
 pSet.setAxisComparisonThreshold               ( 0.1 );                               ## The dot product difference within which two axes are considered the same.
 pSet.setMinimumPeakForAxis                    ( 0.3 );                               ## The minimum peak height for axis to be used.

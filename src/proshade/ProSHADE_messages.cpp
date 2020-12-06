@@ -256,7 +256,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Number of points in each dimension that need to be lower for        " << std::endl;
     std::cout << "            peak to be detected.                                                " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --peakThres                                     [DEFAULT:          0.5]     " << std::endl;
+    std::cout << "    --peakThres                                     [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            Number of IQRs from median for small peaks threshold for remo-      " << std::endl;
     std::cout << "            ving small peaks.                                                   " << std::endl;
     std::cout << "                                                                                " << std::endl;

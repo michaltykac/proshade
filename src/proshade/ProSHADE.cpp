@@ -106,7 +106,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding peak searching
     this->peakNeighbours                              = 1;
-    this->noIQRsFromMedianNaivePeak                   = 0.5;
+    this->noIQRsFromMedianNaivePeak                   = -999.9;
     
     //================================================ Settings regarding 1D grouping
     this->smoothingFactor                             =  15.0;
@@ -216,7 +216,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding peak searching
     this->peakNeighbours                              = 1;
-    this->noIQRsFromMedianNaivePeak                   = 0.5;
+    this->noIQRsFromMedianNaivePeak                   = -999.9;
     
     //================================================ Settings regarding 1D grouping
     this->smoothingFactor                             =  15.0;
@@ -297,7 +297,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
  
     This destructor is responsible for releasing all memory used by the settings object
  */
-ProSHADE_settings::~ProSHADE_settings ( )
+ProSHADE_settings::~ProSHADE_settings ( void )
 {
     //================================================ Release boundaries variable
     delete[] this->forceBounds;
@@ -306,6 +306,26 @@ ProSHADE_settings::~ProSHADE_settings ( )
     if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != NULL ) { delete[] this->detectedSymmetry.at(it); } } }
     
     //================================================ Done
+    
+}
+
+/*! \brief Function to determine general values that the user left on auto-determination.
+ */
+void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
+{
+    //================================================ Determine the peak IQR from median threshold, unless given by user
+    if ( this->noIQRsFromMedianNaivePeak == -999.9 )
+    {
+        //============================================ If using the old symmetry detection algorithm or distances computation, this will be used on many small peaks with few outliers. Use value of 5.0
+        if (   this->task == Distances )                                                      { this->noIQRsFromMedianNaivePeak = 5.0; }
+        if ( ( this->task == Symmetry  ) && ( !this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = 5.0; }
+        
+        //============================================ If using the new symmetry detection algorithm, this needs to be decreasing with resolution. How much, that is a bit arbitrary...
+        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = std::max ( 0.0, 1.0 - ( this->requestedResolution * 0.05 ) ); }
+    }
+    
+    //================================================ Done
+    return ;
     
 }
 

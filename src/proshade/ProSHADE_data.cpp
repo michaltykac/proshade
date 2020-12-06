@@ -1525,7 +1525,13 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
     into a single function. This allows for simpler code and does not take any control away, as all the decisions
     are ultimately driven by the settings.
  
+    This function also does some internal value saving and auto-determination of any parameters that the user did not
+    supply. This, however, means, that this function MUST be called for every structure that is to be processed by
+    ProSHADE. This is of importance to people whe want to use only a perticular functions.
+ 
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
+ 
+    \warning This function MUST be called on any structure that is to be processed by ProSHADE.
  */
 void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settings* settings )
 {
@@ -1556,6 +1562,9 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     
     //================================================ Compute and save the original map values
     this->setOriginalMapValues                        ( );
+    
+    //================================================ Set settings values which were left on AUTO by user and will not be set later
+    settings->setVariablesLeftOnAuto                  ( );
     
     //================================================ Done
     return ;

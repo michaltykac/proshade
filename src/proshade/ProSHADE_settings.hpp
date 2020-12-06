@@ -201,6 +201,7 @@ public: // maybe make this protected?
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
     void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
+    void setVariablesLeftOnAuto                       ( void );
     
 public:
     //================================================ Constructors / Destructors
