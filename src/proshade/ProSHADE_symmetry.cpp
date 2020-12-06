@@ -1212,7 +1212,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
                                                                                                      &CSymList->at(ax2)[2], &CSymList->at(ax2)[3] );
             
             //======================================== If close to zero, these two axes are perpendicular
-            if ( std::abs( dotProduct ) < settings->axisErrTolerance )
+            if ( ( 1.0 - std::cos ( std::abs( dotProduct ) ) ) < settings->axisErrTolerance )
             {
                 //==================================== Save
                 if ( CSymList->at(ax1)[0] >= CSymList->at(ax2)[0] )
@@ -1568,7 +1568,7 @@ bool ProSHADE_internal_symmetry::findMissingAxes ( std::vector< std::vector< pro
                 if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, &possibilities->at(gIt), hlpVec.at(axIt), axErr, angle, false ) )
                 {
                     //================================ Check for uniqueness
-                    if ( ProSHADE_internal_symmetry::isAxisUnique ( CSymList, hlpVec.at(axIt), axErr ) )
+                    if ( ProSHADE_internal_maths::isAxisUnique ( CSymList, hlpVec.at(axIt), axErr ) )
                     {
                         //============================ Add
                         ProSHADE_internal_misc::addToDblPtrVector ( CSymList, hlpVec.at(axIt) );
@@ -2438,7 +2438,7 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
         //============================================ Copy the detected axes
         for ( proshade_unsign iter = static_cast<proshade_unsign> ( possibilities->size() ); iter < static_cast<proshade_unsign> ( prosp.size() ); iter++ )
         {
-            if ( ProSHADE_internal_symmetry::isAxisUnique ( CSymList, prosp.at(iter), axErr ) )
+            if ( ProSHADE_internal_maths::isAxisUnique ( CSymList, prosp.at(iter), axErr ) )
             {
                 //==================================== Add
                 ProSHADE_internal_misc::addToUnsignVector ( possibilities, CSymList->size() );
@@ -2978,7 +2978,7 @@ bool ProSHADE_internal_symmetry::findMissingAxesTriple ( std::vector< proshade_u
         //============================================ For each found missing axis
         for ( proshade_unsign axIt = static_cast<proshade_unsign> ( possibilities->size() ); axIt < static_cast<proshade_unsign> ( prosp.size() ); axIt++ )
         {
-            if ( ProSHADE_internal_symmetry::isAxisUnique ( CSymList, prosp.at(axIt), axErr ) )
+            if ( ProSHADE_internal_maths::isAxisUnique ( CSymList, prosp.at(axIt), axErr ) )
             {
                 //======================================== Add
                 ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(axIt) );
@@ -3065,40 +3065,6 @@ void ProSHADE_internal_symmetry::checkFittingAxisTripleAndSave ( std::vector< pr
     
 }
 
-/*! \brief This function checks if new axis is unique, or already detected.
- 
-    This function compares the supplied axis against all members of the axes vector. If the axis has the same fold and very similar
-    axis vector (i.e. all three elements are within tolerance), then the function returns false. If no such match is found, true is returned.
- 
-    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
-    \param[in] axis The axis to be checked against CSymList to see if it not already present.
-    \param[in] tolerance The allowed error on each dimension of the axis.
-    \param[in] dataObj The full data holding object pointer - this is to get access to self-rotation function values.
- */
-bool ProSHADE_internal_symmetry::isAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance )
-{
-    //================================================ Initialise variables
-    bool ret                                          = true;
-    
-    //================================================ For each already detected member
-    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
-    {
-        //============================================ Is fold the same?
-        if ( CSymList->at(grIt)[0] == axis[0] )
-        {
-            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
-            {
-                ret                                   = false;
-                break;
-            }
-        }
-    }
-    
-    //================================================ Done
-    return                                            ( ret );
-    
-}
-
 /*! \brief This function obtains a list of all C symmetries from the angle-axis space mapped rotation function values.
  
     This function starts with converting the rotation function, which it presumes has been computed by now. It then proceeds to
@@ -3173,7 +3139,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
     {
         //============================================ Find point groups in the peak group
-        peakGroups.at(grIt)->findCyclicPointGroups    ( this->sphereMappedRotFun, &ret, settings->useBiCubicInterpolationOnPeaks, this->maxShellBand * 2 );
+        peakGroups.at(grIt)->findCyclicPointGroups    ( this->sphereMappedRotFun, &ret, settings->useBiCubicInterpolationOnPeaks, this->maxShellBand * 2, settings->axisErrTolerance );
         
         //============================================ Release the memory
         delete peakGroups.at(grIt);

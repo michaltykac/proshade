@@ -1364,14 +1364,16 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
     \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
     \param[in] dim The dimensionality of the sphere grid along either dimension (they must be same).
+    \param[in] axisTolerance The allowed tolerance in terms of cosine distance for axis to be considered similar.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign dim )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign dim, proshade_double axisTolerance )
 {
     //================================================ Initialise local variables
     std::vector< proshade_double > angDiffs;
     std::vector< proshade_unsign > foldsToTry;
     proshade_double bestPosVal,  bestLatInd, bestLonInd, curPosVal;
     proshade_double sphereTolerance                   = ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( dim ) ) * 1.5;
+    bool isAxisUnique;
     
     //================================================ Find all present angle differences
     this->getAllAngleDifferences                      ( &angDiffs, sphereVals );
@@ -1411,7 +1413,11 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
         detectedSymmetry[4]                           = ( 2.0 * M_PI ) / detectedSymmetry[0];
         detectedSymmetry[5]                           = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
         
-        ProSHADE_internal_misc::addToDblPtrVector     ( detectedCs, detectedSymmetry );
+        //============================================ Check if this axis and angle are unique. If not, then take the highest, otherwise just add.
+        if ( ProSHADE_internal_maths::isAxisUnique ( detectedCs, detectedSymmetry, 0.01, true ) )
+        {
+            ProSHADE_internal_misc::addToDblPtrVector ( detectedCs, detectedSymmetry );
+        }
     }
     
     //================================================ Done

@@ -2033,23 +2033,24 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestDScore ( std::vec
     else { return ( ret ); }
 
     //================================================ Check all other axes
-    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( DSym->size() ); ind++ )
-    {
-        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
-        if ( ( DSym->at(ind)[0] + DSym->at(ind)[6] ) > ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) )
-        {
-            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-            frac                                      = std::max ( std::min ( ( ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) ) * 1.5, 0.9 ), 0.6 );
-            
-            //======================================== Check if the new is "better" according to this criteria.
-            if ( ( ( ( DSym->at(*symInd)[0] * DSym->at(*symInd)[5] ) + ( DSym->at(*symInd)[6] * DSym->at(*symInd)[11] ) ) / ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) * frac ) < ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) )
-            {
-                //==================================== And it is! Save and try next one.
-               *symInd                                = ind;
-                ret                                   = ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] );
-            }
-        }
-    }
+// THIS NEEDS TO BE IMPROVED USING THE MAXIMUM LIKELIHOOD FOR THIS FOLD
+//    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( DSym->size() ); ind++ )
+//    {
+//        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
+//        if ( ( DSym->at(ind)[0] + DSym->at(ind)[6] ) > ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) )
+//        {
+//            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
+//            frac                                      = std::max ( std::min ( ( ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) ) * 1.5, 0.9 ), 0.6 );
+//
+//            //======================================== Check if the new is "better" according to this criteria.
+//            if ( ( ( ( DSym->at(*symInd)[0] * DSym->at(*symInd)[5] ) + ( DSym->at(*symInd)[6] * DSym->at(*symInd)[11] ) ) / ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) * frac ) < ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) )
+//            {
+//                //==================================== And it is! Save and try next one.
+//               *symInd                                = ind;
+//                ret                                   = ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] );
+//            }
+//        }
+//    }
 
     //================================================ Done
     return                                            ( ret );
@@ -2183,7 +2184,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     iScore                                            = this->findIScore     ( ISym );
 
     //================================================ Find the best available score
-    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 2.0, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
+    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
     
     //================================================ No score? Well, no symmetry.
     if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
@@ -2204,7 +2205,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
         }
     }
-    if ( bestWeightedScore == dScore * 2.0 )
+    if ( bestWeightedScore == dScore * 1.1 )
     {
         settings->setRecommendedSymmetry              ( "D" );
         settings->setRecommendedFold                  ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) );
@@ -3017,14 +3018,60 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << "  Fold       X           Y          Z           Angle        Height";
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, ssHlp.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
         }
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); symIt++ )
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->detectedSymmetry.at(symIt)[0] << std::setprecision(5) << "     " << settings->detectedSymmetry.at(symIt)[1] << "   " << settings->detectedSymmetry.at(symIt)[2] << "   " << settings->detectedSymmetry.at(symIt)[3] << "     " << settings->detectedSymmetry.at(symIt)[4] << "      " << settings->detectedSymmetry.at(symIt)[5];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, ssHlp.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
         }
+        
+        std::stringstream hlpSS3;
+        ssHlp.clear(); ssHlp.str ( "" );
+        hlpSS3 << std::endl << "However, since the selection of the recommended symmetry needs improvement, here is a list of all detected C symmetries:";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str() );
+        
+        if ( settings->allDetectedCAxes.size() > 0 )
+        {
+            ssHlp.clear(); ssHlp.str ( "" );
+            ssHlp << "  Fold       X           Y          Z           Angle        Height";
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+        }
+        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
+        {
+            ssHlp.clear(); ssHlp.str ( "" );
+            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5];
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+        }
+        
+        hlpSS3.clear(); hlpSS3.str ( "" );
+        hlpSS3 << std::endl << "Also, for the same reason, here is a list of all detected D symmetries:";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str() );
+        
+        if ( settings->allDetectedDAxes.size() > 0 )
+        {
+            ssHlp.clear(); ssHlp.str ( "" );
+            ssHlp << "  Fold       X           Y          Z           Angle        Height";
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+        }
+        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedDAxes.size() ); symIt++ )
+        {
+            ssHlp.clear(); ssHlp.str ( "" );
+            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[1] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[2] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[3] << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[4] << "      " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[5];
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+            
+            for ( proshade_unsign axIt = 1; axIt < static_cast<proshade_unsign> ( settings->allDetectedDAxes.at(symIt).size() ); axIt++ )
+            {
+                ssHlp.clear(); ssHlp.str ( "" );
+                ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[1] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[2] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[3] << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[4] << "      " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[5];
+                ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+            }
+            
+            ssHlp.clear(); ssHlp.str ( "" );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+        }
+        
     }
     
     //================================================ Done

@@ -2191,3 +2191,50 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_dou
     //================================================ Done
     return ;
 }
+
+/*! \brief This function checks if new axis is unique, or already detected.
+ 
+    This function compares the supplied axis against all members of the axes vector. If the axis has the same fold and very similar
+    axis vector (i.e. all three elements are within tolerance), then the function returns false. If no such match is found, true is returned.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axis The axis to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[in] improve If a similar axis is found and if this already existing axis has lower peak height, should the CSymList be updated with the higher peak height axis?
+    \param[out] ret Boolean specifying whether a similar axis was found or not.
+ */
+bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance, bool improve )
+{
+    //================================================ Initialise variables
+    bool ret                                          = true;
+    proshade_unsign whichImprove;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        //============================================ Is fold the same?
+        if ( CSymList->at(grIt)[0] == axis[0] )
+        {
+            if ( vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
+            {
+                ret                                   = false;
+                whichImprove                          = grIt;
+                break;
+            }
+        }
+    }
+    
+    //================================================ Improve, if required
+    if ( improve && !ret )
+    {
+        CSymList->at(whichImprove)[1]                 = axis[1];
+        CSymList->at(whichImprove)[2]                 = axis[2];
+        CSymList->at(whichImprove)[3]                 = axis[3];
+        CSymList->at(whichImprove)[4]                 = axis[4];
+        CSymList->at(whichImprove)[5]                 = axis[5];
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}

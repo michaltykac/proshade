@@ -356,6 +356,7 @@ namespace ProSHADE_internal_maths
                                                     std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     void prepareBiCubicInterpolatorsPlusPlus          ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
                                                     std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
+    bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance = 0.1, bool improve = false );
 }
 
 #endif
