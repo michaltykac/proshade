@@ -1869,8 +1869,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             settings->setRecommendedSymmetry          ( "C" );
             settings->setRecommendedFold              ( settings->requestedSymmetryFold );
             
-            this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSyms.at(0) );
+            this->saveDetectedSymmetries              ( settings, &CSyms, allCs );
         }
         else
         {

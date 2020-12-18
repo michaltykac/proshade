@@ -70,6 +70,7 @@ private:
     //================================================ Mutator functions
     void setRecommendedSymmetry                       ( std::string val );
     void setRecommendedFold                           ( proshade_unsign val );
+    void setRecommendedAxis                           ( proshade_double* sym );
     
     //================================================ Task completion functions
     void setSymmetryResults                           ( ProSHADE_settings* settings );
