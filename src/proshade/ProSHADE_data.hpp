@@ -219,7 +219,7 @@ namespace ProSHADE_internal_data
         void detectSymmetryInStructurePython          ( ProSHADE_settings* settings );
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         std::vector< proshade_double* > getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings );
-        std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings );
+        std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );
         void saveDetectedSymmetries                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSyms, std::vector < std::vector< proshade_double > >* allCs );
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );

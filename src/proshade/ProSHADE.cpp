@@ -114,6 +114,7 @@ ProSHADE_settings::ProSHADE_settings ( )
     //================================================ Settings regarding the symmetry detection
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
+    this->maxSymmetryFold                             = 30;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -224,6 +225,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     //================================================ Settings regarding the symmetry detection
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
+    this->maxSymmetryFold                             = 30;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -1150,6 +1152,20 @@ void ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
     
 }
 
+/*! \brief Sets the maximum symmetry fold (well, the maximum prime symmetry fold).
+ 
+    \param[in] maxFold Maximum prime number fold that will be searched for. Still its multiples may also be found.
+ */
+void ProSHADE_settings::setMaxSymmetryFold ( proshade_unsign maxFold )
+{
+    //================================================ Set the value
+    this->maxSymmetryFold                             = maxFold;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1193,7 +1209,14 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
 void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertainty )
 {
     //================================================ Determine bandwidth
-    this->maxBandwidth                                = std::ceil ( ( 360.0 / uncertainty ) / 2.0 );
+    if ( static_cast<proshade_unsign> ( std::ceil ( ( 360.0 / uncertainty ) / 2 ) ) % 2 == 0 )
+    {
+        this->maxBandwidth                            = static_cast<proshade_unsign> ( std::ceil ( ( 360.0 / uncertainty ) / 2.0 ) );
+    }
+    else
+    {
+        this->maxBandwidth                            = static_cast<proshade_unsign> ( std::ceil ( ( 360.0 / uncertainty ) / 2.0 ) ) + 1;
+    }
     
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -1580,6 +1603,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "sameAxComp",      required_argument,  NULL, ']' },
         { "axisComBeh",      no_argument,        NULL, 'q' },
         { "bicubSearch",     no_argument,        NULL, 'A' },
+        { "maxSymPrime",     required_argument,  NULL, 'B' },
         { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
@@ -1590,7 +1614,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "Aab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1929,6 +1953,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case 'A':
              {
                  setBicubicInterpolationSearch        ( !this->useBiCubicInterpolationOnPeaks );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the bicubic interpolation search requirement value
+             case 'B':
+             {
+                 setMaxSymmetryFold                   ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
                  continue;
              }
                  

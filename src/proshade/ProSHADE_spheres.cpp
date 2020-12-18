@@ -518,7 +518,14 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::interpolateAlongSecond ( std::v
 proshade_unsign ProSHADE_internal_spheres::autoDetermineBandwidth ( proshade_unsign circumference )
 {
     //================================================ Determine and return
-    return                                            ( std::ceil ( circumference / 2 ) );
+    if ( static_cast<proshade_unsign> ( std::ceil ( circumference / 2 ) ) % 2 == 0 )
+    {
+        return                                        ( static_cast<proshade_unsign> ( std::ceil ( circumference / 2 ) ) );
+    }
+    else
+    {
+        return                                        ( static_cast<proshade_unsign> ( std::ceil ( circumference / 2 ) ) + 1 );
+    }
 }
 
 /*! \brief This function determines the sphere distances for sphere mapping.
@@ -912,7 +919,7 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     This function takes the values on the sampling grid and does a naive peak search, saving the peak position into an internal variable.
  
     \param[in] noSmNeighbours The number of surrounding peaks in any direction that need to be smaller for a value to be a peak.
-    \param[in] allHeights A vector to which all detected peaks heights will be saved into. This will later be used to determine the threshold for "small" peaks.
+    \param[in] allHeights A vector to which all detected non-peaks heights will be saved into. This will later be used to determine the threshold for "small" peaks.
  */
 void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_signed noSmNeighbours, std::vector< proshade_double >* allHeights )
 {
@@ -953,24 +960,11 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_
             
             if ( isPeak )
             {
-                
-                for ( proshade_signed latRound = -noSmNeighbours; latRound <= noSmNeighbours; latRound++ )
-                {
-                    for ( proshade_signed lonRound = -noSmNeighbours; lonRound <= noSmNeighbours; lonRound++ )
-                    {
-                        //================================ Ignore same point
-                        if ( latRound == 0 && lonRound == 0 ) { continue; }
-                        
-                        //================================ Get neighbour height
-                        nbLat                             = latIt + latRound;
-                        nbLon                             = lonIt + lonRound;
-                        if ( nbLat < 0 ) { nbLat += this->angularDim; } if ( nbLat >= this->angularDim ) { nbLat -= this->angularDim; }
-                        if ( nbLon < 0 ) { nbLon += this->angularDim; } if ( nbLon >= this->angularDim ) { nbLon -= this->angularDim; }
-                    }
-                }
-                
                 //==================================== Save!
                 this->peaks.emplace_back              ( std::pair<proshade_unsign,proshade_unsign> ( latIt, lonIt ) );
+            }
+            else
+            {
                 ProSHADE_internal_misc::addToDoubleVector ( allHeights, currentHeight );
             }
         }
@@ -983,24 +977,25 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_
 
 /*! \brief Function for removing peaks with too small height.
  
-    This function takes the threshold for peaks being too small (computed from all peaks as returned by findAllPeaks() function, but could be any other value) and removed
+    This function takes the threshold for peaks being too small (computed from all peaks as returned by findAllPeaks() function, but could be any other value) and removes
     all peaks with height below this threshold.
  
     \param[in] peakThres The height above which a peak needs to be in order not to be deleted.
+    \param[in] minThres The minimum threshold that needs to be passed for a peak to be believed in.
  */
 void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::removeSmallPeaks( proshade_double peakThres )
 {
     //================================================ Initialise variables
     proshade_double curHeight;
-    std::vector< proshade_unsign > dels;
+    std::vector< proshade_unsign > dels ( 0, this->peaks.size() );
     
     //================================================ For each peak in this sphere
     for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( this->peaks.size() ); peakIt++ )
     {
         //============================================ Find the peak height
-        curHeight                                     = this->getSphereLatLonPosition( this->peaks.at(peakIt).first, this->peaks.at(peakIt).second );
+        curHeight                                     = this->getSphereLatLonPosition ( this->peaks.at(peakIt).first, this->peaks.at(peakIt).second );
         
-        //============================================ Should this peak be deleted
+        //============================================ Should this peak be deleted?
         if ( curHeight < peakThres )
         {
             ProSHADE_internal_misc::addToUnsignVector ( &dels, peakIt );
@@ -1162,7 +1157,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
     {
         //============================================ Report progress
         hlpSS << "Peak group dimensions changed from LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " to ";
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 5, hlpSS2.str() );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS2.str() );
         
         //============================================ Initialise local variables
         proshade_unsign largerCorner, smallerCorner;
@@ -1280,7 +1275,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         //============================================ Compute corner vectors
         this->computeCornerPositions                  ( );
         hlpSS << "LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " ( peak position LAT " << lat << " LON " << lon << " )";
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 7, hlpSS.str() );
         
         //============================================ If new sphere, add it to the list
         bool isSphereNew                              = true;
@@ -1348,83 +1343,6 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
     
 }
 
-/*! \brief Function detecting cyclic point groups in a peak group.
- 
-    This function starts by taking all the angles present in this peak group and finding a set of all unique differences between them. Then,
-    it uses these differences to obtain all feasible folds that result from these angle differences. Now, for each feasible fold, it first determines
-    all the spheres that have the fold suggested angles and then it uses this knowledge to search through all the indices in this peak group to
-    find the lattitude and longitude index combination with the highest sum of peak height.
- 
-    At this point, this function can also optionally do bi-cubic interpolation around this index with highest peak sum to try to improve the symmetry
-    axis by searching between the lattitude and longitude indices. Finally, this function will create the ProSHADE formatted array of symmetry group
-    information and save it into the supplied vector, terminating thereafter.
-    
- 
-    \param[in] sphereVals A vector of spheres with mapped rotation function values.
-    \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
-    \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
-    \param[in] dim The dimensionality of the sphere grid along either dimension (they must be same).
-    \param[in] axisTolerance The allowed tolerance in terms of cosine distance for axis to be considered similar.
- */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroups ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign dim, proshade_double axisTolerance )
-{
-    //================================================ Initialise local variables
-    std::vector< proshade_double > angDiffs;
-    std::vector< proshade_unsign > foldsToTry;
-    proshade_double bestPosVal,  bestLatInd, bestLonInd, curPosVal;
-    proshade_double sphereTolerance                   = ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( dim ) ) * 1.5;
-    bool isAxisUnique;
-    
-    //================================================ Find all present angle differences
-    this->getAllAngleDifferences                      ( &angDiffs, sphereVals );
-    
-    //================================================ For each angle difference, look if there is a point group with appropriate fold
-    this->getAllPossibleFolds                         ( &angDiffs, &foldsToTry, sphereVals );
-    
-    //================================================ Now find if the particular fold has all required angles
-    for ( proshade_unsign foldIt = 0; foldIt < static_cast<proshade_unsign> ( foldsToTry.size() ); foldIt++ )
-    {
-        //============================================ Initialise local variables
-        std::vector< proshade_unsign > spheresFormingFold;
-        
-        //============================================ Find the closes spheres required to form the fold
-        this->getSpheresFormingFold                   ( foldsToTry.at(foldIt), &spheresFormingFold, sphereVals, sphereTolerance );
-        
-        //============================================ Did we find all spheres? If not, skip
-        if ( spheresFormingFold.size() != foldsToTry.at(foldIt) - 1 ) { continue; }
-     
-        //============================================ Find the index with the highest peak height sum
-        this->getBestIndexForFold                     ( &bestPosVal, &bestLatInd, &bestLonInd, &spheresFormingFold, sphereVals );
-        
-        //============================================ Optimise by bicubic interpolation if required
-        if ( bicubicInterp )
-        {
-            ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( &bestLatInd, &bestLonInd, &bestPosVal, &spheresFormingFold, &sphereVals );
-        }
-        
-        //============================================ Create ProSHADE symmetry axis array and save it
-        proshade_double* detectedSymmetry             = new proshade_double[6];
-        ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
-        
-        detectedSymmetry[0]                           = static_cast<proshade_double> ( foldsToTry.at(foldIt) );
-        detectedSymmetry[1]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::cos ( bestLatInd * this->latSampling );
-        detectedSymmetry[2]                           = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
-        detectedSymmetry[3]                           = 1.0 * std::cos ( bestLonInd * this->lonSampling );
-        detectedSymmetry[4]                           = ( 2.0 * M_PI ) / detectedSymmetry[0];
-        detectedSymmetry[5]                           = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
-        
-        //============================================ Check if this axis and angle are unique. If not, then take the highest, otherwise just add.
-        if ( ProSHADE_internal_maths::isAxisUnique ( detectedCs, detectedSymmetry, 0.01, true ) )
-        {
-            ProSHADE_internal_misc::addToDblPtrVector ( detectedCs, detectedSymmetry );
-        }
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief Function detecting cyclic point groups with a particular fold in a peak group.
  
     This function is a simplification of the findCyclicPointGroups function for the cases where the required fold is known. It simply assumes that all the
@@ -1443,8 +1361,9 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
     \param[in] fold The fold for which we are searching for cyclic point groups.
+    \param[in] verbose The verbosity of the run.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose )
 {
     //================================================ Check that this peak group has all the angles
     if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
@@ -1480,6 +1399,11 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
         
     ProSHADE_internal_misc::addToDblPtrVector         ( detectedCs, detectedSymmetry );
+    
+    //================================================ Report progress
+    std::stringstream hlpSS;
+    hlpSS << "Detected group with fold " << detectedSymmetry[0] << " along axis " << detectedSymmetry[1] << " ; " << detectedSymmetry[2] << " ; " << detectedSymmetry[3] << " and with peak height " << detectedSymmetry[5];
+    ProSHADE_internal_messages::printProgressMessage ( verbose, 4, hlpSS.str() );
     
     //================================================ Done
     return ;

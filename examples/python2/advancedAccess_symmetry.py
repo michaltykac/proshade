@@ -37,8 +37,9 @@ import proshade
 pSet                                          = proshade.ProSHADE_settings ( proshade.Symmetry )
 
 ### Further useful settings
-pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
-pSet.setBicubicInterpolationSearch            ( True );                                # Should bi-cubic interpolation between peak grid indices be done?
+pSet.setSymmetryRotFunPeaks                   ( True );                              ## Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                              ## Should bi-cubic interpolation between peak grid indices be done?
+pSet.setMaxSymmetryFold                       ( 30 );                                ## The maximum prime number fold that will be searched for.
 pSet.verbose                                  = 1
 pSet.forceP1                                  = True;                                ## Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                ## Should PDB files have their water molecules removed?

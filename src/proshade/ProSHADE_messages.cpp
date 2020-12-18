@@ -277,6 +277,11 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Should the bi-cubic interpolation for sphere peaks be used to       " << std::endl;
     std::cout << "            improve the axis by searching between grid indices?                 " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    --maxSymPrime or -B                              [DEFAULT:          30]     " << std::endl;
+    std::cout << "            The automated symmetry search starts by looking for prime number    " << std::endl;
+    std::cout << "            folds and then for multiples of any folds found. This sets the      " << std::endl;
+    std::cout << "            maximum prime number to use in the search.                          " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;

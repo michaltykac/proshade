@@ -1369,6 +1369,10 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     proshade_unsign newYDim                           = static_cast<proshade_unsign> ( std::ceil ( yAngs / ( resolution / 2.0 ) ) );
     proshade_unsign newZDim                           = static_cast<proshade_unsign> ( std::ceil ( zAngs / ( resolution / 2.0 ) ) );
     
+    if ( newXDim % 2 != 0 ) { newXDim += 1; }
+    if ( newYDim % 2 != 0 ) { newYDim += 1; }
+    if ( newZDim % 2 != 0 ) { newZDim += 1; }
+ 
     proshade_signed preXChange, preYChange, preZChange;
     if ( ( xDimS % 2 ) == 0 ) { preXChange = std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }
     else                      { preXChange = std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }

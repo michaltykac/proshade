@@ -1844,23 +1844,46 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
+    //================================================ Modify axis tolerance by sampling, if required by user
+    if ( settings->axisErrToleranceDefault )
+    {
+        settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / this->maxShellBand );
+    }
+    
     //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
     if ( settings->requestedSymmetryType == "C" )
     {
+        //============================================ Report progress
+        std::stringstream hlpSS;
+        hlpSS << "Starting detection of cyclic point group C" << settings->requestedSymmetryFold;
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, hlpSS.str() );
+        
         //============================================ Do simplified search only in the applicable data
-        std::vector< proshade_double* > CSyms         = this->findRequestedCSymmetryFromAngleAxis ( settings );
+        proshade_double symThres                      = 0.0;
+        std::vector< proshade_double* > CSyms         = this->findRequestedCSymmetryFromAngleAxis ( settings, settings->requestedSymmetryFold, &symThres );
         
         //============================================ Save the best axis as the recommended one
         if ( settings->detectedSymmetry.size() == 0 ) { if ( CSyms.size() > 0 ) { settings->setDetectedSymmetry ( CSyms.at(0) ); } }
-        settings->setRecommendedSymmetry              ( "C" );
-        settings->setRecommendedFold                  ( settings->requestedSymmetryFold );
-        
-        //============================================ Save the detected result
-        this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
+        if ( CSyms.size() > 0 )
+        {
+            settings->setRecommendedSymmetry          ( "C" );
+            settings->setRecommendedFold              ( settings->requestedSymmetryFold );
+            
+            this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSyms.at(0) );
+        }
+        else
+        {
+            settings->setRecommendedSymmetry          ( "" );
+            settings->setRecommendedFold              ( 0 );
+        }
         
         //============================================ Done
         return ;
     }
+    
+    //============================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting C symmetry detection." );
 
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
@@ -1994,23 +2017,23 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vec
     
     //================================================ Check all other axes
 // THIS NEEDS TO BE IMPROVED USING THE MAXIMUM LIKELIHOOD FOR THIS FOLD
-//    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym->size() ); ind++ )
-//    {
-//        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
-//        if ( CSym->at(ind)[0] > CSym->at(*symInd)[0] )
-//        {
-//            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-//            frac                                      = std::max ( std::min ( ( CSym->at(*symInd)[0] / CSym->at(ind)[0] ) * 1.5, 0.9 ), 0.6 );
-//
-//            //======================================== Check if the new is "better" according to this criteria.
-//            if ( ( CSym->at(*symInd)[5] * frac ) < CSym->at(ind)[5] )
-//            {
-//                //==================================== And it is! Save and try next one.
-//               *symInd                                = ind;
-//                ret                                   = CSym->at(ind)[5];
-//            }
-//        }
-//    }
+    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( CSym->size() ); ind++ )
+    {
+        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
+        if ( CSym->at(ind)[0] > CSym->at(*symInd)[0] )
+        {
+            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
+            frac                                      = ( std::abs( CSym->at(ind)[5]- 0.5 ) / std::abs( CSym->at(*symInd)[5] - 0.5 ) ) / ( CSym->at(*symInd)[0] / CSym->at(ind)[0] );
+ 
+            //======================================== Check if the new is "better" according to this criteria.
+            if ( frac >= 1.0 && ( ( CSym->at(*symInd)[5] * 0.85 ) < CSym->at(ind)[5] ) )
+            {
+                //==================================== And it is! Save and try next one.
+               *symInd                                = ind;
+                ret                                   = CSym->at(ind)[5];
+            }
+        }
+    }
     
     //================================================ Done
     return                                            ( ret );
@@ -2043,23 +2066,23 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestDScore ( std::vec
 
     //================================================ Check all other axes
 // THIS NEEDS TO BE IMPROVED USING THE MAXIMUM LIKELIHOOD FOR THIS FOLD
-//    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( DSym->size() ); ind++ )
-//    {
-//        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
-//        if ( ( DSym->at(ind)[0] + DSym->at(ind)[6] ) > ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) )
-//        {
-//            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
-//            frac                                      = std::max ( std::min ( ( ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) ) * 1.5, 0.9 ), 0.6 );
-//
-//            //======================================== Check if the new is "better" according to this criteria.
-//            if ( ( ( ( DSym->at(*symInd)[0] * DSym->at(*symInd)[5] ) + ( DSym->at(*symInd)[6] * DSym->at(*symInd)[11] ) ) / ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) * frac ) < ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) )
-//            {
-//                //==================================== And it is! Save and try next one.
-//               *symInd                                = ind;
-//                ret                                   = ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] );
-//            }
-//        }
-//    }
+    for ( proshade_unsign ind = 1; ind < static_cast<proshade_unsign>( DSym->size() ); ind++ )
+    {
+        //============================================ If higher fold than already leading one (do not care for lower fold and lower average height axes)
+        if ( ( DSym->at(ind)[0] + DSym->at(ind)[6] ) > ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) )
+        {
+            //======================================== How much higher fold is it? Also, adding some protection against large syms supported only by a subset and a minimum requirement.
+            frac                                      = std::max ( std::min ( ( ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) ) * 1.5, 0.9 ), 0.6 );
+
+            //======================================== Check if the new is "better" according to this criteria.
+            if ( ( ( ( DSym->at(*symInd)[0] * DSym->at(*symInd)[5] ) + ( DSym->at(*symInd)[6] * DSym->at(*symInd)[11] ) ) / ( DSym->at(*symInd)[0] + DSym->at(*symInd)[6] ) * frac ) < ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] ) )
+            {
+                //==================================== And it is! Save and try next one.
+               *symInd                                = ind;
+                ret                                   = ( ( DSym->at(ind)[0] * DSym->at(ind)[5] ) + ( DSym->at(ind)[6] * DSym->at(ind)[11] ) ) / ( DSym->at(ind)[0] + DSym->at(ind)[6] );
+            }
+        }
+    }
 
     //================================================ Done
     return                                            ( ret );

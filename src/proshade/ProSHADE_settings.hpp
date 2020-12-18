@@ -175,6 +175,7 @@ public:
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
     bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
+    proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -259,6 +260,7 @@ public:
     void setOverlayJsonFile                           ( std::string filename );
     void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );
+    void setMaxSymmetryFold                           ( proshade_unsign maxFold );
     
     //================================================ Command line options parsing
     void getCommandLineParams                         ( int argc, char** argv );

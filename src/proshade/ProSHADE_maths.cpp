@@ -1289,7 +1289,7 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     proshade_double element12                         = tmp1 - tmp2;
     
     //================================================ Convert to Eulers
-    if ( std::abs( element22 ) <= 0.9999 )
+    if ( std::abs( element22 ) <= 0.99999 )
     {
         //============================================ This case occurs when there is no singularity in the rotation matrix (i.e. it does not have 0 or 180 degrees angle)
        *eA                                            = std::atan2 ( element21,  element20 );
@@ -1305,14 +1305,14 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
         proshade_double element00                     = cAng + axX * axX * tAng;
         
         //============================================ This case occurs when there is either 0 or 180 degrees rotation angle in the rotation matrix and therefore when beta is zero.
-        if ( element22 >= 0.9999 )
+        if ( element22 >= 0.99999 )
         {
             //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their sum. So we arbitrarily set gamma to 0 and solve alpha.
            *eA                                        = std::atan2 ( element10, element00 );
            *eB                                        = 0.0;
            *eG                                        = 0.0;
         }
-        if ( element22 <= -0.9999 )
+        if ( element22 <= -0.99999 )
         {
             //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
            *eA                                        = std::atan2 ( element10, element00 );
@@ -2232,6 +2232,51 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
         CSymList->at(whichImprove)[3]                 = axis[3];
         CSymList->at(whichImprove)[4]                 = axis[4];
         CSymList->at(whichImprove)[5]                 = axis[5];
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function finds all prime numbers up to the supplied limit.
+ 
+    This function uses the sieve of Eratosthenes algorithm to find all prime numbers from 2 to the supplied limit. This is not
+    the fastest algorithm and it may become slow when the limit is high, but it is fine for small numbers and given that we
+    will use it for symmetry folds, which should not got much over 20, this should be more than fast enough.
+ 
+    \param[in] upTo The limit to which prime numbers should be sought.
+ */
+std::vector< proshade_unsign > ProSHADE_internal_maths::findAllPrimes ( proshade_unsign upTo )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_unsign > ret;
+    std::vector< std::pair< proshade_unsign, bool > > sieveOfEratosthenesArray;
+    
+    //================================================ Sanity check
+    if ( upTo < 2 ) { return ( ret ); }
+    
+    //================================================ Initialise the sieve array up to the required number
+    for ( proshade_unsign iter = 2; iter <= upTo; iter++ ) { sieveOfEratosthenesArray.emplace_back ( std::pair< proshade_unsign, bool > ( iter, true ) ); }
+    
+    //================================================ For each entry in the array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); iter++ )
+    {
+        //============================================ If this entry is still true
+        if ( sieveOfEratosthenesArray.at(iter).second )
+        {
+            //======================================== Set all entries with the position x * [this entry value] to false
+            for ( proshade_unsign it = iter + sieveOfEratosthenesArray.at(iter).first; it < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); it += sieveOfEratosthenesArray.at(iter).first )
+            {
+                sieveOfEratosthenesArray.at(it).second = false;
+            }
+        }
+    }
+    
+    //================================================ Copy passing results to return vector
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); iter++ )
+    {
+        if ( sieveOfEratosthenesArray.at(iter).second ) { ProSHADE_internal_misc::addToUnsignVector ( &ret, sieveOfEratosthenesArray.at(iter).first ); }
     }
     
     //================================================ Done
