@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00061 ==
+== NEXT FREE MESSAGE NUMBER: 00065 ==
 
 ========
 GENERAL:
@@ -82,6 +82,9 @@ ES00057		Requested group elements for group which does not exist.															
 ES00058		Unknown symmetry type: <X>																								Function getAllGroupElements was called with symmetry type value outside of the allowed values C, D, T, O, I or empty for using all supplied axes.
 ES00059		Mismatch between supplied number of axes and symmetry type.																The supplied number of axes for group element detection ( >n< ) does not match the group type ( >X< ).
 ES00060		Computed point group elements do not form a group.																		The supplied cyclic groups list does not form a group and therefore such group's elements cannot be obtained. Please check the cyclic groups list supplied to the getAllGroupElements() function.
+ES00061		Failed to find enough neighbours for rotation function conversion.														The rotation function does not have enough points to be mapped onto the symmetry detection sphere format. This should not really happen, but increasing the resolution could help if this happend.
+ES00062		Rotation function was not converted into angle-axis space.																It seems that the convertRotationFunction() function was not yet called. Therefore, there are no data to detect the symmetry from; please call the convertRotationFunction() function before the detectSymmetryFromAngleAxisSpace() function.
+ES00064		Requested bicubic interpolation outside of pre-computed square.															The supplied x or y value is outside of the range of the bi-cubic interpolator's pre-computed square. Please make sure the start values were correctly supplied when the constructor was called or create a new interpolator for this case.
 
 ============
 MAP OVERLAY:
@@ -168,7 +171,8 @@ WS00031		Failed to detect some of the polyhedral symmetries, while detecting the
 WS00039		Requested symmetry index does not exist. Returning empty vector.														When requesting detected symmetry axes one by one, the code has requested symmetry axis index outside of the range. Please check the code if you wrote  it, it let me know if this is something I have done.
 WS00054		Detected symmetry CX, however, the grid sampling does not provide reasonable accuracy for symmetry with such 			This warning occurs when the symmetry rotation between the detected and the one fold higher symmetry is smaller than the angle error of misplacing a rotation function peak position by 1 grid point. This
 			high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the 		means that misplacing a peak by less than 1 point could reasonably lead to symmetry fold+1. In such cases, ProSHADE cannot be reasonably sure that the reported symmetry is correct and will need higher 
-			grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).						sampling to remedy this.																											
+			grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).						sampling to remedy this.
+WS00063		Failed to detect requested symmetry.																					ProSHADE did not find any point group with reasonable average peak height and therefore is issuing this warning. The reported symmetry is unlikely in ProSHADE's view.											
 																																	
 ========
 OVERLAY:

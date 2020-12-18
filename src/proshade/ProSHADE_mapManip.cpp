@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -631,9 +631,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     pdbFile.cell.c                                    = zCell;
     pdbFile.cell.calculate_properties                 ( );
 
-    //================================================ Establish the Structure Factor Calculater object, which will compute the f's required later.
-    gemmi::StructureFactorCalculator < gemmi::IT92 < double > > calc ( pdbFile.cell );
-    
+    //================================================ Get elements in Gemmi format
     std::string totElString;
     for ( proshade_unsign mIt = 0; mIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); mIt++ )
     {
@@ -670,13 +668,12 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     //================================================ Compute the f's
     double wavelength                                 = 0.1;
     double energy                                     = gemmi::hc() / wavelength;
-    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { calc.set_fprime_if_not_set ( static_cast<gemmi::El> ( elIt ), gemmi::cromer_libermann ( elIt, energy, nullptr ) ); } }
     
     //================================================ Create the density calculator object and fill it in
     gemmi::DensityCalculator<gemmi::IT92<double>, float> dencalc;
     
     dencalc.d_min                                     = static_cast<double> ( requestedResolution );
-    for ( std::map<gemmi::El, double>::const_iterator mapIt = calc.fprimes().begin(); mapIt != calc.fprimes().end(); mapIt++ ) { dencalc.fprimes[static_cast<int> ( mapIt->first )] = static_cast<float> ( mapIt->second ); }
+    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { dencalc.addends.set ( static_cast<gemmi::El> ( elIt ), gemmi::cromer_libermann ( elIt, energy, nullptr ) ); } }
     dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
     
     //================================================ Force P1 spacegroup
@@ -1187,20 +1184,20 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     
     //================================================ For each new map point
     proshade_signed xBottom = 0, xTop, yBottom = 0, yTop, zBottom = 0, zTop, oldMapIndex, newMapIndex;
-    std::vector<proshade_double> c000                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c001                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c010                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c011                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c100                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c101                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c110                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c111                 = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c00                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c01                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c10                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c11                  = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c0                   = std::vector<proshade_double> ( 4 );
-    std::vector<proshade_double> c1                   = std::vector<proshade_double> ( 4 );
+    std::vector<proshade_double> c000                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c001                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c010                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c011                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c100                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c101                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c110                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c111                 = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c00                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c01                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c10                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c11                  = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c0                   = std::vector<proshade_double> ( 4, 0.0 );
+    std::vector<proshade_double> c1                   = std::vector<proshade_double> ( 4, 0.0 );
     proshade_double xRelative, yRelative, zRelative;
     
     for ( proshade_signed xIt = 0; xIt < newXDim; xIt++ )
@@ -1372,6 +1369,10 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     proshade_unsign newYDim                           = static_cast<proshade_unsign> ( std::ceil ( yAngs / ( resolution / 2.0 ) ) );
     proshade_unsign newZDim                           = static_cast<proshade_unsign> ( std::ceil ( zAngs / ( resolution / 2.0 ) ) );
     
+    if ( newXDim % 2 != 0 ) { newXDim += 1; }
+    if ( newYDim % 2 != 0 ) { newYDim += 1; }
+    if ( newZDim % 2 != 0 ) { newZDim += 1; }
+ 
     proshade_signed preXChange, preYChange, preZChange;
     if ( ( xDimS % 2 ) == 0 ) { preXChange = std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }
     else                      { preXChange = std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ); }

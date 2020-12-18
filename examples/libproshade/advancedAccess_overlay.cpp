@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
 */
 
 //==================================================== ProSHADE
@@ -53,8 +53,11 @@ int main ( int argc, char **argv )
     settings->setExtraSpace                           ( 25.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
+    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
+    settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
+    settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
-    settings->setPeakNaiveNoIQR                       ( 5.0 );                               // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
+    settings->setPeakNaiveNoIQR                       ( -999.9 );                            // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
     settings->setAxisComparisonThreshold              ( 0.1 );                               // The dot product difference within which two axes are considered the same.
     settings->setMinimumPeakForAxis                   ( 0.3 );                               // The minimum peak height for axis to be used.

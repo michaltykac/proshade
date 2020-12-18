@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -126,6 +126,10 @@ void ProSHADE_internal_maths::vectorMeanAndSD ( std::vector<proshade_double>* ve
     //================================================ Get standard deviation
     proshade_double squaredSum                        = std::inner_product ( vec->begin(), vec->end(), vec->begin(), 0.0 );
     ret[1]                                            = std::sqrt ( ( squaredSum / static_cast<proshade_double> ( vec->size() ) ) - std::pow ( ret[0], 2.0 ) );
+    
+    //================================================ Check for NaN's
+    if ( ret[0] != ret[0] ) { ret[0] = 0.0; }
+    if ( ret[1] != ret[1] ) { ret[1] = 0.0; }
     
     //================================================ Return
     return ;
@@ -616,7 +620,7 @@ proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade
 {
     //================================================ Initialise local variables
     proshade_double ret                               = 0.0;
-    proshade_complex* intData                         = new proshade_complex [order];
+    proshade_complex* intData                         = new proshade_complex[order];
     ProSHADE_internal_misc::checkMemoryAllocation ( intData, __FILE__, __LINE__, __func__ );
     proshade_complex posVals;
     proshade_unsign lesserPos                         = 0;
@@ -944,13 +948,12 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
 /*! \brief Function to find Euler angles (ZXZ convention) from index position in the inverse SOFT map.
  
     This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZXZ convention angles, saving
-    these into the inputted pointers. It also changes the Euler angle ranges from (0,2PI> to (-PI,PI> as preferred by
-    the functions using the results.
+    these into the supplied pointers.
  
     \param[in] band The maximum bandwidth of the computation.
     \param[in] x The x-axis position in the inverse SOFT map.
-    \param[in] y The x-axis position in the inverse SOFT map.
-    \param[in] z The x-axis position in the inverse SOFT map.
+    \param[in] y The y-axis position in the inverse SOFT map.
+    \param[in] z The z-axis position in the inverse SOFT map.
     \param[in] eulerAlpha Pointer to where the Euler alpha angle will be saved.
     \param[in] eulerBeta Pointer to where the Euler beta angle will be saved.
     \param[in] eulerGamma Pointer to where the Euler gamma angle will be saved.
@@ -958,9 +961,34 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
 void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
 {
     //================================================ Convert index to Euler angles
-   *eulerGamma                                        = ( M_PI * y / ( static_cast<proshade_double> ( band ) ) );
-   *eulerBeta                                         = ( M_PI * ( 2.0 * x + 1.0 ) / static_cast<proshade_double> ( 4.0 * band ) )  ;
-   *eulerAlpha                                        = ( M_PI * z / ( static_cast<proshade_double> ( band ) ) );
+   *eulerGamma                                        = ( M_PI * y / static_cast<proshade_double> ( 1.0 * band ) );
+   *eulerBeta                                         = ( M_PI * x / static_cast<proshade_double> ( 2.0 * band ) );
+   *eulerAlpha                                        = ( M_PI * z / static_cast<proshade_double> ( 1.0 * band ) );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function to find the index position in the inverse SOFT map from given Euler angles (ZXZ convention).
+ 
+    This function does the conversion from Euler angles ZXZ convention to the SOFT map x, y and z position. It is not limitted to
+    the SOFT map indices and instead if given Euler agnles between two indices will return a decimal point for the indices.
+ 
+    \param[in] band The maximum bandwidth of the computation.
+    \param[in] eulerAlpha The Euler alpha angle value.
+    \param[in] eulerBeta The Euler beta angle value.
+    \param[in] eulerGamma The Euler gamma angle value.
+    \param[in] x Pointer to where the closest x-axis position in the inverse SOFT map will be saved to (position may be decimal!).
+    \param[in] y Pointer to where the closest y-axis position in the inverse SOFT map will be saved to (position may be decimal!).
+    \param[in] z Pointer to where the closest z-axis position in the inverse SOFT map will be saved to (position may be decimal!).
+ */
+void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
+{
+    //================================================ Convert Euler angles to indices
+    *x                                                = static_cast<proshade_double> ( ( eulerBeta  * static_cast<proshade_double> ( 2.0 * band ) ) / M_PI );
+    *y                                                = static_cast<proshade_double> ( ( eulerGamma * static_cast<proshade_double> ( band       ) ) / M_PI );
+    *z                                                = static_cast<proshade_double> ( ( eulerAlpha * static_cast<proshade_double> ( band       ) ) / M_PI );
     
     //================================================ Done
     return ;
@@ -1116,15 +1144,11 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *x                                                 = rotMat[7] - rotMat[5];
    *y                                                 = rotMat[2] - rotMat[6];
    *z                                                 = rotMat[3] - rotMat[1];
-    proshade_double normFactor                        = pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 );
-            
-    if ( normFactor > singAtPiCheck )
-    {
-        normFactor                                    = sqrt ( normFactor );
-       *x                                            /= normFactor;
-       *y                                            /= normFactor;
-       *z                                            /= normFactor;
-    }
+    
+    proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+   *x                                                /= normFactor;
+   *y                                                /= normFactor;
+   *z                                                /= normFactor;
     
     //================================================ Done
     return ;
@@ -1215,6 +1239,185 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     if ( *eA < 0.0 ) { *eA                            = 2.0 * M_PI + *eA; }
     if ( *eB < 0.0 ) { *eB                            =       M_PI + *eB; }
     if ( *eG < 0.0 ) { *eG                            = 2.0 * M_PI + *eG; }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation.
+ 
+    This function does the angle-axis to Euler ZXZ conversion and if a problem around the Z axis arises, it deal with it.
+ 
+    \param[in] axX Angle-axis representation axis x element.
+    \param[in] axY Angle-axis representation axis y element.
+    \param[in] axZ Angle-axis representation axis z element.
+    \param[in] axAng Angle-axis representation angle.
+    \param[in] eA Pointer to which the Euler angle alpha value will be saved.
+    \param[in] eB Pointer to which the Euler angle beta value will be saved.
+    \param[in] eG Pointer to which the Euler angle gamma value will be saved.
+ */
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
+{
+    //================================================ If angle is 0 or infinity (anything divided by 0), return no rotation
+    if ( ( axAng == 0.0 ) || ( std::isinf ( axAng ) ) )
+    {
+        //============================================ Return 0 ; 0 ; 0 for no angle
+       *eA                                            = 0.0;
+       *eB                                            = 0.0;
+       *eG                                            = 0.0;
+        
+        //============================================ Done
+        return ;
+    }
+    
+    //================================================ Compute required rotation matrix elements
+    proshade_double cAng                              = std::cos ( axAng );
+    proshade_double sAng                              = std::sin ( axAng );
+    proshade_double tAng                              = 1.0 - cAng;
+    
+    proshade_double element22                         = cAng + axZ * axZ * tAng;
+            
+    proshade_double tmp1                              = axX * axZ * tAng;
+    proshade_double tmp2                              = axY * sAng;
+    proshade_double element20                         = tmp1 - tmp2;
+    proshade_double element02                         = tmp1 + tmp2;
+            
+    tmp1                                              = axY * axZ * tAng;
+    tmp2                                              = axX * sAng;
+    proshade_double element21                         = tmp1 + tmp2;
+    proshade_double element12                         = tmp1 - tmp2;
+    
+    //================================================ Convert to Eulers
+    if ( std::abs( element22 ) <= 0.99999 )
+    {
+        //============================================ This case occurs when there is no singularity in the rotation matrix (i.e. it does not have 0 or 180 degrees angle)
+       *eA                                            = std::atan2 ( element21,  element20 );
+       *eB                                            = std::acos  ( element22 );
+       *eG                                            = std::atan2 ( element12, -element02 );
+    }
+    else
+    {
+        //============================================ Compute some extra rotation matrix elements
+        proshade_double tmp1                          = axX * axY * tAng;
+        proshade_double tmp2                          = axZ * sAng;
+        proshade_double element10                     = tmp1 + tmp2;
+        proshade_double element00                     = cAng + axX * axX * tAng;
+        
+        //============================================ This case occurs when there is either 0 or 180 degrees rotation angle in the rotation matrix and therefore when beta is zero.
+        if ( element22 >= 0.99999 )
+        {
+            //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their sum. So we arbitrarily set gamma to 0 and solve alpha.
+           *eA                                        = std::atan2 ( element10, element00 );
+           *eB                                        = 0.0;
+           *eG                                        = 0.0;
+        }
+        if ( element22 <= -0.99999 )
+        {
+            //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
+           *eA                                        = std::atan2 ( element10, element00 );
+           *eB                                        = M_PI / 2.0;
+           *eG                                        = 0.0;
+        }
+    }
+    
+    //================================================ Get the angles to proper range
+    if ( *eA < 0.0 ) { *eA                            = 2.0 * M_PI + *eA; }
+    if ( *eB < 0.0 ) { *eB                            =       M_PI + *eB; }
+    if ( *eG < 0.0 ) { *eG                            = 2.0 * M_PI + *eG; }
+    
+    //================================================ Done
+    return ;
+   
+}
+
+/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation using full search.
+ 
+    This function is meant for solving the issue of angle-axis conversion to Euler ZXZ convention for axis 0,0,1, where all the rotation matrix
+    elements used for Euler alpha and gamma angles are 0.0. The function overcomes this by simply searching all the rotation function indices
+    for having angle-axis value similar to the required one - a rather slow approach. Therefore, the getEulerZXZFromAngleAxis() function should
+    be used instead and only if it fails (has all angles 0.0), then this function should be used instead.
+ 
+    \param[in] axX Angle-axis representation axis x element.
+    \param[in] axY Angle-axis representation axis y element.
+    \param[in] axZ Angle-axis representation axis z element.
+    \param[in] axAng Angle-axis representation angle.
+    \param[in] eA Pointer to which the Euler angle alpha value will be saved.
+    \param[in] eB Pointer to which the Euler angle beta value will be saved.
+    \param[in] eG Pointer to which the Euler angle gamma value will be saved.
+ */
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
+{
+    //================================================ Initialise variables
+    proshade_double bestDist                          = 999.9;
+    proshade_double eAHlp, eBHlp, eGHlp, axXHlp, axYHlp, axZHlp, axAngHlp, axDist;
+    
+    //================================================ Allocate memory
+    proshade_double* rMat                             = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
+
+    //================================================ For each rotation function index (i.e. existing Euler angles ZXZ combination)
+    for ( proshade_signed xIt = 0; xIt < angDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < angDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < angDim; zIt++ )
+            {
+                //==================================== Speed up
+                if ( bestDist < 0.001 ) { break; }
+                
+                //==================================== Get Euler ZXZ from the indices
+                getEulerZXZFromSOFTPosition           ( angDim/2, xIt, yIt, zIt, &eAHlp, &eBHlp, &eGHlp );
+                getRotationMatrixFromEulerZXZAngles   ( eAHlp, eBHlp, eGHlp, rMat );
+                getAxisAngleFromRotationMatrix        ( rMat, &axXHlp, &axYHlp, &axZHlp, &axAngHlp );
+                
+                //==================================== If angle is larger than 180 degrees
+                if ( axAng > M_PI )
+                {
+                    axAng                             = ( 2.0 * M_PI ) - axAng;
+                    axAng                            *= -1.0;
+                }
+                
+                //==================================== Make sure vector direction is the same
+                if ( ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axXHlp ) ) && ( axXHlp < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axYHlp ) ) && ( axYHlp < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axZHlp ) ) && ( axZHlp < 0.0 ) ) )
+                {
+                    axXHlp                           *= -1.0;
+                    axYHlp                           *= -1.0;
+                    axZHlp                           *= -1.0;
+                    axAngHlp                         *= -1.0;
+                }
+                
+                if ( ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axX ) ) && ( axX < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axY ) ) && ( axY < 0.0 ) ) ||
+                     ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axZ ) ) && ( axZ < 0.0 ) ) )
+                {
+                    axX                              *= -1.0;
+                    axY                              *= -1.0;
+                    axZ                              *= -1.0;
+                    axAng                            *= -1.0;
+                }
+                
+                //==================================== Compute distance to the requested angle-axis values
+                axDist                                = std::abs( axAng - axAngHlp ) + ( 1.0 - std::abs ( ( ( axX * axXHlp ) + ( axY * axYHlp ) + ( axZ * axZHlp ) ) /
+                                                        ( sqrt( pow( axX, 2.0 ) + pow( axY, 2.0 ) + pow( axZ, 2.0 ) ) * sqrt( pow( axXHlp, 2.0 ) + pow( axYHlp, 2.0 ) + pow( axZHlp, 2.0 ) ) ) ) );
+                
+                //==================================== Is this point an improvement
+                if ( std::abs ( axDist ) < bestDist )
+                {
+                    //================================ If so, note it
+                    bestDist                          = std::abs ( axDist );
+                   *eA                                = eAHlp;
+                   *eB                                = eBHlp;
+                   *eG                                = eGHlp;
+                }
+            }
+        }
+    }
+    
+    //================================================ Release memory
+    delete[] rMat;
     
     //================================================ Done
     return ;
@@ -1563,6 +1766,518 @@ std::vector< proshade_double > ProSHADE_internal_maths::multiplyGroupElementMatr
                                                               ( el1->at(7) * el2->at(5) ) +
                                                               ( el1->at(8) * el2->at(8) ) );
     
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function compares the distance between two rotation matrices and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Therefore, from this trace
+    3.0 is subtracted and the absolute value of the result is compared to the tolerance. If the difference is less than the tolerance, true is returned, while
+    false is returned otherwise.
+ 
+    \param[in] mat1 Vector of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Vector of 9 numbers representing second rotation matrix.
+    \param[in] tolerance Double number representing the maximum allowed error on the distance.
+    \param[out] res Boolean decision if the two matrices are similar or not.
+ */
+bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
+    
+    //================================================ Compute trace of mat1 * mat2^T
+    proshade_double trace                             = ( mat1->at(0) * mat2->at(0) ) + ( mat1->at(1) * mat2->at(1) ) + ( mat1->at(2) * mat2->at(2) );
+    trace                                            += ( mat1->at(3) * mat2->at(3) ) + ( mat1->at(4) * mat2->at(4) ) + ( mat1->at(5) * mat2->at(5) );
+    trace                                            += ( mat1->at(6) * mat2->at(6) ) + ( mat1->at(7) * mat2->at(7) ) + ( mat1->at(8) * mat2->at(8) );
+    
+    //================================================ Subtract 3 (so that we would have 0 in case of idenity matrix)
+    trace                                            -= 3.0;
+    
+    //================================================ Compare to tolerance
+    if ( tolerance >= std::abs ( trace ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function compares two vectors using cosine distance and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two vectors, specifically by computing the cosine distance ( ( dot( A, B ) ) / ( mag(A) x mag(B) ) ). This measure will be
+    1.0 if the two vectors are identically oriented, 0.0 if they are perpendicular and -1.0 if they have opposite direction. Given that opposite direction must be regarded as
+    same direction with opposite angles for symmetry axes detection purposes, this function uses the absolute value of this measure and checks if the two supplied vectors
+    (supplied element by element) have cosine distance within 1.0 - tolerance, returning true if they do and false otherwise.
+ 
+    \param[in] a1 The first element of the first vector.
+    \param[in] a2 The second element of the first vector.
+    \param[in] a3 The third element of the first vector.
+    \param[in] b1 The first element of the second vector.
+    \param[in] b2 The second element of the second vector.
+    \param[in] b3 The third element of the second vector.
+    \param[in] tolerance The allowed difference of the distance measure from the 1.0 for the vectors to still be considered similar.
+    \param[out] res Boolean decision if the two vectors are similar or not.
+ */
+bool ProSHADE_internal_maths::vectorOrientationSimilarity ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2, proshade_double b3, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
+    
+    //================================================ Cosine distance
+    proshade_double cosDist                           = ( ( a1 * b1 ) + ( a2 * b2 ) + ( a3 * b3 ) ) /
+                                                        ( sqrt( pow( a1, 2.0 ) + pow( a2, 2.0 ) + pow( a3, 2.0 ) ) *
+                                                          sqrt( pow( b1, 2.0 ) + pow( b2, 2.0 ) + pow( b3, 2.0 ) ) );
+    
+    //================================================ Compare the absolute value of distance to 1.0 - tolerance
+    if ( std::abs( cosDist ) > ( 1.0 - tolerance ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function compares two vectors using cosine distance and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two vectors, specifically by computing the cosine distance ( ( dot( A, B ) ) / ( mag(A) x mag(B) ) ). This measure will be
+    1.0 if the two vectors are identically oriented, 0.0 if they are perpendicular and -1.0 if they have opposite direction. Given that opposite direction must be regarded as
+    different vector for peak detection purposes (spheres with different angles are covered separately), this function does not use the absolute value of this measure and
+    checks if the two supplied vectors (supplied element by element) have cosine distance within 1.0 - tolerance, returning true if they do and false otherwise.
+ 
+    \param[in] a1 The first element of the first vector.
+    \param[in] a2 The second element of the first vector.
+    \param[in] a3 The third element of the first vector.
+    \param[in] b1 The first element of the second vector.
+    \param[in] b2 The second element of the second vector.
+    \param[in] b3 The third element of the second vector.
+    \param[in] tolerance The allowed difference of the distance measure from the 1.0 for the vectors to still be considered similar.
+    \param[out] res Boolean decision if the two vectors are similar or not.
+ */
+bool ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2, proshade_double b3, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
+    
+    //================================================ Cosine distance
+    proshade_double cosDist                           = ( ( a1 * b1 ) + ( a2 * b2 ) + ( a3 * b3 ) ) /
+                                                        ( sqrt( pow( a1, 2.0 ) + pow( a2, 2.0 ) + pow( a3, 2.0 ) ) *
+                                                          sqrt( pow( b1, 2.0 ) + pow( b2, 2.0 ) + pow( b3, 2.0 ) ) );
+    
+    //================================================ Compare the absolute value of distance to 1.0 - tolerance
+    if ( cosDist > ( 1.0 - tolerance ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function provides axis optimisation given starting lattitude and longitude indices.
+ 
+    This function takes the initial lattitude and longitude indices as well as the current best sum over all appropriate spheres and the list of the spheres and proceeds to
+    use bi-cubic interpolation and a sort of gradient ascend algorithm to search the space around the given indices for interpolated values, which would have higher
+    sum of the rotation function values than the initial position. If any improvement is found, it will over-write the input variables.
+ 
+    \param[in] bestLattitude Proshade double pointer to variable containing the best lattitude index value and to which the optimised result will be saved into.
+    \param[in] bestLongitude Proshade double pointer to variable containing the best longitude index value and to which the optimised result will be saved into.
+    \param[in] bestSum Proshade double pointer to variable containing the best position rotation function values sum and to which the optimised result will be saved into.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] step The size of the step.
+ */
+void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double* bestLattitude, proshade_double* bestLongitude, proshade_double* bestSum, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun, proshade_double step )
+{
+    //================================================ Initialise variables
+    proshade_double lonM, lonP, latM, latP, movSum;
+    std::vector<proshade_double> latVals              ( 3 );
+    std::vector<proshade_double> lonVals              ( 3 );
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    proshade_double learningRate                      = 0.1;
+    proshade_double prevVal                           = *bestSum;
+    proshade_double valChange                         = 999.9;
+    proshade_double origBestLat                       = std::round ( *bestLattitude );
+    proshade_double origBestLon                       = std::round ( *bestLongitude );
+    proshade_double tmpVal;
+    
+    //================================================ Initialise interpolators in all directions around the point of interest
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsMinusMinus;
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsMinusPlus;
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsPlusMinus;
+    std::vector<ProSHADE_internal_maths::BicubicInterpolator*> interpolsPlusPlus;
+    prepareBiCubicInterpolatorsMinusMinus             ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsMinusMinus, sphereMappedRotFun );
+    prepareBiCubicInterpolatorsMinusPlus              ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsMinusPlus,  sphereMappedRotFun );
+    prepareBiCubicInterpolatorsPlusMinus              ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsPlusMinus,  sphereMappedRotFun );
+    prepareBiCubicInterpolatorsPlusPlus               ( std::round ( *bestLattitude ), std::round ( *bestLongitude ), sphereList, &interpolsPlusPlus,   sphereMappedRotFun );
+    
+    //================================================ Start the pseudo gradient ascent (while there is some change)
+    while ( valChange > 0.0001 )
+    {
+        //============================================ Find the surrounding points to the currently best position
+        lonM                                          = *bestLongitude - step;
+        lonP                                          = *bestLongitude + step;
+        latM                                          = *bestLattitude - step;
+        latP                                          = *bestLattitude + step;
+        
+        //============================================ Deal with optimising outside of prepared range - recursion
+        if ( latM < ( origBestLat - 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLattitude == origBestLat - 1.0 ) { *bestLattitude = tmpVal; } break; }
+        if ( latP > ( origBestLat + 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLattitude == origBestLat + 1.0 ) { *bestLattitude = tmpVal; } break; }
+        if ( lonM < ( origBestLon - 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLongitude == origBestLon - 1.0 ) { *bestLongitude = tmpVal; } break; }
+        if ( lonP > ( origBestLon + 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLongitude == origBestLon + 1.0 ) { *bestLongitude = tmpVal; } break; }
+
+        //============================================ Prepare vectors of tested positions
+        latVals.at(0) = latM; latVals.at(1) = *bestLattitude; latVals.at(2) = latP;
+        lonVals.at(0) = lonM; lonVals.at(1) = *bestLongitude; lonVals.at(2) = lonP;
+        
+        //============================================ Find the best change
+        for ( proshade_unsign laIt = 0; laIt < static_cast<proshade_unsign> ( latVals.size() ); laIt++ )
+        {
+            for ( proshade_unsign loIt = 0; loIt < static_cast<proshade_unsign> ( lonVals.size() ); loIt++ )
+            {
+                //==================================== For this combination of lat and lon, find sum over spheres
+                movSum                                = 1.0;
+                for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sphereList->size() ); iter++ )
+                {
+                    //================================ Interpolate using correct interpolators
+                    if ( ( latVals.at(laIt) <= origBestLat ) && ( lonVals.at(loIt) <= origBestLon ) ) { movSum += interpolsMinusMinus.at(iter)->getValue ( latVals.at(laIt), lonVals.at(loIt) ); }
+                    if ( ( latVals.at(laIt) <= origBestLat ) && ( lonVals.at(loIt) >  origBestLon ) ) { movSum += interpolsMinusPlus.at(iter)->getValue  ( latVals.at(laIt), lonVals.at(loIt) ); }
+                    if ( ( latVals.at(laIt) >  origBestLat ) && ( lonVals.at(loIt) <= origBestLon ) ) { movSum += interpolsPlusMinus.at(iter)->getValue  ( latVals.at(laIt), lonVals.at(loIt) ); }
+                    if ( ( latVals.at(laIt) >  origBestLat ) && ( lonVals.at(loIt) >  origBestLon ) ) { movSum += interpolsPlusPlus.at(iter)->getValue   ( latVals.at(laIt), lonVals.at(loIt) ); }
+                }
+                
+                //==================================== If position has improved, save it
+                if ( *bestSum < movSum )
+                {
+                   *bestSum                           = movSum;
+                   *bestLongitude                     = lonVals.at(loIt);
+                   *bestLattitude                     = latVals.at(laIt);
+                }
+            }
+        }
+        
+        //============================================ Prepare for next iteration
+        valChange                                     = std::floor ( 100000.0 * ( *bestSum - prevVal ) ) / 100000.0;
+        prevVal                                       = std::floor ( 100000.0 * ( *bestSum           ) ) / 100000.0;
+        step                                          = std::max ( ( valChange / step ) * learningRate, 0.01 );
+        if ( learningRate >= 0.02 ) { learningRate -= 0.01; }
+        
+    }
+    
+    //================================================ Release interpolators memory
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsMinusMinus.size() ); intIt++ ) { delete interpolsMinusMinus.at(intIt); }
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsMinusPlus.size()  ); intIt++ ) { delete interpolsMinusPlus.at(intIt);  }
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsPlusMinus.size()  ); intIt++ ) { delete interpolsPlusMinus.at(intIt);  }
+    for ( proshade_unsign intIt = 0; intIt < static_cast<proshade_unsign> ( interpolsPlusPlus.size()   ); intIt++ ) { delete interpolsPlusPlus.at(intIt);   }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the -- direction (i.e. when both interpolated values will be lower than the best
+    lattitude and longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusMinus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 2 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 2 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude - 1.0, bestLongitude - 1.0 );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the -+ direction (i.e. when interpolated lattitude is lower than best lattitude, but
+    interpolated longitude is higher than best longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusPlus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 2 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude - 1.0, bestLongitude );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the +- direction (i.e. when interpolated lattitude is higher than best lattitude, but
+    interpolated longitude is lower than best longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusMinus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 2 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude, bestLongitude - 1.0 );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function prepares the interpolation objects for the bi-cubic interpolation.
+ 
+    This function takes the position around which the interpolation is to be done and proceeds to create the interpolator
+    objects for bi-cubic interpolation in the ++ direction (i.e. when both interpolated values will be larger than the best
+    lattitude and longitude) using the correct spheres in the correct ranges.
+ 
+    \param[in] bestLattitude The lattitude index value around which interpolation is to be prepared.
+    \param[in] bestLongitude The longitude index value around which interpolation is to be prepared.
+    \param[in] sphereList A vector containing the list of spheres which form the set for this symmetry.
+    \param[in] interpols A pointer to a vector of ProSHADE interpolator objects to which the interpolators will be saved into.
+ */
+void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList, std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun )
+{
+    //================================================ Initialise local variables
+    proshade_signed latHlp, lonHlp;
+    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    
+    //================================================ Prepare the interpolator objects for interpolation around the position
+    for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
+    {
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along first dimension)
+        proshade_double** interpGrid                  = new proshade_double*[4];
+        ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid, __FILE__, __LINE__, __func__ );
+
+        //============================================ Allocate memory for the value grid on which the interpolation is to be done (along second dimension)
+        for ( proshade_unsign iter = 0; iter < 4; iter++ )
+        {
+            interpGrid[iter]                          = new proshade_double[4];
+            ProSHADE_internal_misc::checkMemoryAllocation ( interpGrid[iter], __FILE__, __LINE__, __func__ );
+        }
+
+        //============================================ Fill in the value grid on which the interpolation is to be done
+        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        {
+            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            {
+                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+            }
+        }
+
+        //============================================ Create the interpolators
+        ProSHADE_internal_maths::BicubicInterpolator* biCubInterp = new ProSHADE_internal_maths::BicubicInterpolator ( interpGrid, bestLattitude, bestLongitude );
+        interpols->emplace_back                       ( biCubInterp );
+        
+        //============================================ Release memory
+        for ( proshade_unsign iter = 0; iter < 4; iter++ ) { delete[] interpGrid[iter]; }
+        delete[] interpGrid;
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function checks if new axis is unique, or already detected.
+ 
+    This function compares the supplied axis against all members of the axes vector. If the axis has the same fold and very similar
+    axis vector (i.e. all three elements are within tolerance), then the function returns false. If no such match is found, true is returned.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axis The axis to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[in] improve If a similar axis is found and if this already existing axis has lower peak height, should the CSymList be updated with the higher peak height axis?
+    \param[out] ret Boolean specifying whether a similar axis was found or not.
+ */
+bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance, bool improve )
+{
+    //================================================ Initialise variables
+    bool ret                                          = true;
+    proshade_unsign whichImprove;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        //============================================ Is fold the same?
+        if ( CSymList->at(grIt)[0] == axis[0] )
+        {
+            if ( vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
+            {
+                ret                                   = false;
+                whichImprove                          = grIt;
+                break;
+            }
+        }
+    }
+    
+    //================================================ Improve, if required
+    if ( improve && !ret )
+    {
+        CSymList->at(whichImprove)[1]                 = axis[1];
+        CSymList->at(whichImprove)[2]                 = axis[2];
+        CSymList->at(whichImprove)[3]                 = axis[3];
+        CSymList->at(whichImprove)[4]                 = axis[4];
+        CSymList->at(whichImprove)[5]                 = axis[5];
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function finds all prime numbers up to the supplied limit.
+ 
+    This function uses the sieve of Eratosthenes algorithm to find all prime numbers from 2 to the supplied limit. This is not
+    the fastest algorithm and it may become slow when the limit is high, but it is fine for small numbers and given that we
+    will use it for symmetry folds, which should not got much over 20, this should be more than fast enough.
+ 
+    \param[in] upTo The limit to which prime numbers should be sought.
+ */
+std::vector< proshade_unsign > ProSHADE_internal_maths::findAllPrimes ( proshade_unsign upTo )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_unsign > ret;
+    std::vector< std::pair< proshade_unsign, bool > > sieveOfEratosthenesArray;
+    
+    //================================================ Sanity check
+    if ( upTo < 2 ) { return ( ret ); }
+    
+    //================================================ Initialise the sieve array up to the required number
+    for ( proshade_unsign iter = 2; iter <= upTo; iter++ ) { sieveOfEratosthenesArray.emplace_back ( std::pair< proshade_unsign, bool > ( iter, true ) ); }
+    
+    //================================================ For each entry in the array
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); iter++ )
+    {
+        //============================================ If this entry is still true
+        if ( sieveOfEratosthenesArray.at(iter).second )
+        {
+            //======================================== Set all entries with the position x * [this entry value] to false
+            for ( proshade_unsign it = iter + sieveOfEratosthenesArray.at(iter).first; it < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); it += sieveOfEratosthenesArray.at(iter).first )
+            {
+                sieveOfEratosthenesArray.at(it).second = false;
+            }
+        }
+    }
+    
+    //================================================ Copy passing results to return vector
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); iter++ )
+    {
+        if ( sieveOfEratosthenesArray.at(iter).second ) { ProSHADE_internal_misc::addToUnsignVector ( &ret, sieveOfEratosthenesArray.at(iter).first ); }
+    }
     
     //================================================ Done
     return                                            ( ret );

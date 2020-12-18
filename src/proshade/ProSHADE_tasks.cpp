@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -309,8 +309,16 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         //============================================ Compute auto-rotation map
         symmetryStructure->getRotationFunction        ( settings );
         
-        //============================================ Detect symmetry and save results in settings object
-        symmetryStructure->detectSymmetryInStructure  ( settings, axes, allCs );
+        if ( settings->usePeakSearchInRotationFunctionSpace )
+        {            
+            //======================================== Detect point groups in the angle-axis space
+            symmetryStructure->detectSymmetryFromAngleAxisSpace ( settings, axes, allCs );
+        }
+        else
+        {
+            //======================================== Detect symmetry using the peak detection in rotation function space
+            symmetryStructure->detectSymmetryInStructure ( settings, axes, allCs );
+        }
         
         //============================================ Report results
         symmetryStructure->reportSymmetryResults      ( settings );
@@ -367,7 +375,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     checkOverlaySettings                              ( settings );
     
     //================================================ Initialise variables
-    proshade_double rotCenX, rotCenY, rotCenZ, eulA, eulB, eulG, trsX, trsY, trsZ;
+    proshade_double eulA, eulB, eulG, trsX, trsY, trsZ;
     
     //================================================ Create the data objects initially (this time without phase)
     ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
