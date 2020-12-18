@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.4
-#   \date      OCT 2020
+#   \version   0.7.5.0
+#   \date      DEC 2020
 ##############################################
 ##############################################
 
@@ -37,6 +37,9 @@ import proshade
 pSet                                          = proshade.ProSHADE_settings ( proshade.Symmetry )
 
 ### Further useful settings
+pSet.setSymmetryRotFunPeaks                   ( True );                              ## Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                              ## Should bi-cubic interpolation between peak grid indices be done?
+pSet.setMaxSymmetryFold                       ( 30 );                                ## The maximum prime number fold that will be searched for.
 pSet.verbose                                  = 1
 pSet.forceP1                                  = True;                                ## Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                ## Should PDB files have their water molecules removed?
@@ -45,7 +48,7 @@ pSet.setProgressiveSphereMapping              ( True );                         
 pSet.setMapResolutionChange                   ( True );                              ## Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
 pSet.setMapResolutionChangeTriLinear          ( False );                             ## Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setPeakNeighboursNumber                  ( 1 );                                 ## Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
-pSet.setPeakNaiveNoIQR                        ( 5.0 );                               ## Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
+pSet.setPeakNaiveNoIQR                        ( -999.9 );                            ## Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 pSet.setMissingPeakThreshold                  ( 0.3 );                               ## Fraction of peaks that can be missing for missing axis search to be initiated.
 pSet.setAxisComparisonThreshold               ( 0.1 );                               ## The dot product difference within which two axes are considered the same.
 pSet.setMinimumPeakForAxis                    ( 0.3 );                               ## The minimum peak height for axis to be used.

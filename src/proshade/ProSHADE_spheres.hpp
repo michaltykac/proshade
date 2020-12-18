@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -119,6 +119,63 @@ namespace ProSHADE_internal_spheres
     proshade_unsign autoDetermineBandwidth            ( proshade_unsign circumference );
     proshade_single autoDetermineSphereDistances      ( proshade_single maxMapRange, proshade_single resolution );
     proshade_unsign autoDetermineIntegrationOrder     ( proshade_single maxMapRange, proshade_single sphereDist );
+
+/*! \class ProSHADE_rotFun_spherePeakGroup
+    \brief This class contains peak groups detected in the rotation function mapped spheres.
+ 
+    This class codes the object that contains all the information about a single group of peaks found in the set of
+    ProSHADE_rotFun_sphere objects with mapped rotation function values.
+ */
+    class ProSHADE_rotFun_spherePeakGroup
+    {
+    public:
+        proshade_double latSampling;
+        proshade_double lonSampling;
+        proshade_unsign dimension;
+        proshade_double latFrom;
+        proshade_double latTo;
+        proshade_double lonFrom;
+        proshade_double lonTo;
+        proshade_double latFromInds;
+        proshade_double latToInds;
+        proshade_double lonFromInds;
+        proshade_double lonToInds;
+        
+        std::vector<proshade_unsign> spherePositions;
+        
+        proshade_double* latMinLonMinXYZ;
+        proshade_double* latMaxLonMinXYZ;
+        proshade_double* latMinLonMaxXYZ;
+        proshade_double* latMaxLonMaxXYZ;
+        
+    protected:
+        void computeCornerPositions                   ( void );
+        proshade_signed angularDistanceWithBorders    ( proshade_signed origLat, proshade_signed testedLat );
+        void getAllAngleDifferences                   ( std::vector< proshade_double >* angDiffs, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
+        void getAllPossibleFolds                      ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry,
+                                                        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
+        void getSpheresFormingFold                    ( proshade_unsign foldToTry, std::vector< proshade_unsign >* spheresFormingFold,
+                                                        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double sphereAngleTolerance );
+        void getBestIndexForFold                      ( proshade_double* bestPosVal, proshade_double* bestLatInd, proshade_double* bestLonInd, std::vector< proshade_unsign >* spheresFormingFold,
+                                                        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
+        
+    public:
+        ProSHADE_rotFun_spherePeakGroup               ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_unsign angDim );
+       ~ProSHADE_rotFun_spherePeakGroup               ( void );
+        
+    public:
+        bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose );
+        void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance,
+                                                        std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose );
+        
+    public:
+        proshade_double getLatFromIndices             ( void );
+        proshade_double getLatToIndices               ( void );
+        proshade_double getLonFromIndices             ( void );
+        proshade_double getLonToIndices               ( void );
+        std::vector<proshade_unsign> getSpherePositions ( void );
+    };
 }
+
 
 #endif

@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -106,14 +106,17 @@ ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding peak searching
     this->peakNeighbours                              = 1;
-    this->noIQRsFromMedianNaivePeak                   = 5.0;
+    this->noIQRsFromMedianNaivePeak                   = -999.9;
     
     //================================================ Settings regarding 1D grouping
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->usePeakSearchInRotationFunctionSpace        = true;
+    this->useBiCubicInterpolationOnPeaks              = true;
+    this->maxSymmetryFold                             = 30;
     this->symMissPeakThres                            = 0.3;
-    this->axisErrTolerance                            = 0.1;
+    this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
@@ -214,14 +217,17 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
     
     //================================================ Settings regarding peak searching
     this->peakNeighbours                              = 1;
-    this->noIQRsFromMedianNaivePeak                   = 5.0;
+    this->noIQRsFromMedianNaivePeak                   = -999.9;
     
     //================================================ Settings regarding 1D grouping
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->usePeakSearchInRotationFunctionSpace        = true;
+    this->useBiCubicInterpolationOnPeaks              = true;
+    this->maxSymmetryFold                             = 30;
     this->symMissPeakThres                            = 0.3;
-    this->axisErrTolerance                            = 0.1;
+    this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.3;
     this->recommendedSymmetryType                     = "";
@@ -293,7 +299,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
  
     This destructor is responsible for releasing all memory used by the settings object
  */
-ProSHADE_settings::~ProSHADE_settings ( )
+ProSHADE_settings::~ProSHADE_settings ( void )
 {
     //================================================ Release boundaries variable
     delete[] this->forceBounds;
@@ -302,6 +308,26 @@ ProSHADE_settings::~ProSHADE_settings ( )
     if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != NULL ) { delete[] this->detectedSymmetry.at(it); } } }
     
     //================================================ Done
+    
+}
+
+/*! \brief Function to determine general values that the user left on auto-determination.
+ */
+void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
+{
+    //================================================ Determine the peak IQR from median threshold, unless given by user
+    if ( this->noIQRsFromMedianNaivePeak == -999.9 )
+    {
+        //============================================ If using the old symmetry detection algorithm or distances computation, this will be used on many small peaks with few outliers. Use value of 5.0
+        if (   this->task == Distances )                                                      { this->noIQRsFromMedianNaivePeak = 5.0; }
+        if ( ( this->task == Symmetry  ) && ( !this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = 5.0; }
+        
+        //============================================ If using the new symmetry detection algorithm, this needs to be decreasing with resolution. How much, that is a bit arbitrary...
+        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = std::max ( 0.0, 1.0 - ( this->requestedResolution * 0.05 ) ); }
+    }
+    
+    //================================================ Done
+    return ;
     
 }
 
@@ -1098,6 +1124,48 @@ void ProSHADE_settings::setOverlayJsonFile ( std::string filename )
     
 }
 
+/*! \brief Sets the symmetry detection algorithm type.
+ 
+    \param[in] rotFunPeaks Should the original peak detection in rotation function space be used (FALSE), or should the new angle-axis space search be used (DEFAULT - TRUE)?
+ */
+void ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
+{
+    //================================================ Set the value
+    this->usePeakSearchInRotationFunctionSpace        = rotFunPeaks;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the bicubic interpolation on peaks.
+ 
+    \param[in] bicubPeaks Should bicubic interpolation be done to search for improved axis in between peak index values (DEFAULT - TRUE)?
+ */
+void ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
+{
+    //================================================ Set the value
+    this->useBiCubicInterpolationOnPeaks              = bicubPeaks;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the maximum symmetry fold (well, the maximum prime symmetry fold).
+ 
+    \param[in] maxFold Maximum prime number fold that will be searched for. Still its multiples may also be found.
+ */
+void ProSHADE_settings::setMaxSymmetryFold ( proshade_unsign maxFold )
+{
+    //================================================ Set the value
+    this->maxSymmetryFold                             = maxFold;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1141,7 +1209,14 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
 void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertainty )
 {
     //================================================ Determine bandwidth
-    this->maxBandwidth                                = std::ceil ( ( 360.0 / uncertainty ) / 2.0 );
+    if ( static_cast<proshade_unsign> ( std::ceil ( ( 360.0 / uncertainty ) / 2 ) ) % 2 == 0 )
+    {
+        this->maxBandwidth                            = static_cast<proshade_unsign> ( std::ceil ( ( 360.0 / uncertainty ) / 2.0 ) );
+    }
+    else
+    {
+        this->maxBandwidth                            = static_cast<proshade_unsign> ( std::ceil ( ( 360.0 / uncertainty ) / 2.0 ) ) + 1;
+    }
     
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -1527,16 +1602,19 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "missAxThres",     required_argument,  NULL, '[' },
         { "sameAxComp",      required_argument,  NULL, ']' },
         { "axisComBeh",      no_argument,        NULL, 'q' },
+        { "bicubSearch",     no_argument,        NULL, 'A' },
+        { "maxSymPrime",     required_argument,  NULL, 'B' },
         { "minPeakHeight",   required_argument,  NULL, 'o' },
         { "sym",             required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
         { "overlayJSONFile", required_argument,  NULL, 'y' },
         { "angUncertain",    required_argument,  NULL, ';' },
+        { "usePeaksInRotFun",no_argument,        NULL, 'z' },
         { NULL,              0,                  NULL,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "ab:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -1871,6 +1949,20 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
                  continue;
              }
                  
+             //======================================= Save the argument as the bicubic interpolation search requirement value
+             case 'A':
+             {
+                 setBicubicInterpolationSearch        ( !this->useBiCubicInterpolationOnPeaks );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the bicubic interpolation search requirement value
+             case 'B':
+             {
+                 setMaxSymmetryFold                   ( static_cast<proshade_unsign> ( atoi ( optarg ) ) );
+                 continue;
+             }
+                 
              //======================================= Minimum peak height for axis
              case 'o':
              {
@@ -1949,6 +2041,13 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              case ';':
              {
                  this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as angular uncertainty for bandwidth determination
+             case 'z':
+             {
+                 this->setSymmetryRotFunPeaks         ( false );
                  continue;
              }
                  

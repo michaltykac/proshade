@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -48,7 +48,6 @@ namespace ProSHADE_internal_io
                                                         proshade_signed *yFrom, proshade_signed *zFrom, proshade_signed *xAxOrigin, proshade_signed *yAxOrigin, proshade_signed *zAxOrigin,
                                                         proshade_unsign *xAxOrder, proshade_unsign *yAxOrder, proshade_unsign *zAxOrder, proshade_unsign *xGridInds, proshade_unsign *yGridInds,
                                                         proshade_unsign *zGridInds );
-    void readInMapHeaderFroms                         ( gemmi::Ccp4<float> *map, proshade_signed *xFrom, proshade_signed *yFrom, proshade_signed *zFrom );
     void readInMapData                                ( gemmi::Ccp4<float> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
                                                         proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
     void writeOutMapHeader                            ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim,

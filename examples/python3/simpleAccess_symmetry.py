@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.4.4
-#   \date      OCT 2020
+#   \version   0.7.5.0
+#   \date      DEC 2020
 ##############################################
 ##############################################
 
@@ -49,6 +49,9 @@ pSet.addStructure                             ( "./emd_6324.map" )              
 
 
 ### Useful settings
+pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                                # Should bi-cubic interpolation between peak grid indices be done?
+pSet.setMaxSymmetryFold                       ( 30 );                                  # The maximum prime number fold that will be searched for.
 pSet.forceP1                                  = True;                                  # Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
 pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
@@ -61,13 +64,12 @@ pSet.setMasking                               ( False )                         
 pSet.setMapCentering                          ( False )                                # Move structure COM to the centre of map box?
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setPeakNeighboursNumber                  ( 1 )                                    # Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
-pSet.setPeakNaiveNoIQR                        ( 5.0 )                                  # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
+pSet.setPeakNaiveNoIQR                        ( -999.9 )                               # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 pSet.setMissingPeakThreshold                  ( 0.3 )                                  # Fraction of peaks that can be missing for missing axis search to be initiated.
 pSet.setAxisComparisonThreshold               ( 0.1 )                                  # The dot product difference within which two axes are considered the same.
 pSet.setMinimumPeakForAxis                    ( 0.3 )                                  # The minimum peak height for axis to be used.
 pSet.setRequestedSymmetry                     ( "C" )                                  # Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 pSet.setRequestedFold                         ( 12 )                                   # For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
-
 
 
 ### All other (possible other tasks related) settings

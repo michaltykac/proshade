@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== DOxygen main page specifications
@@ -218,9 +218,9 @@
  * values for this command line argument are "Cx", "Dx", "T", "O" and "I", where the \e x should be an integer number specifying the fold of the requested symmetry. When this option is used, it removes the
  * default behaviour of returning the highest detected symmetry and instead the symmetry requested by the user is returned, if it can be found in the structure.
  *
- * Another noteworthy option is the \c --center or \c -c option, which  tells ProSHADE to center the internal map representation over the centre of co-ordinates before running any processing of the
- * map. This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of co-ordinates) will
- * be found to have no symmetries even if these are present, just not over the co-ordinate centre.
+ * Another noteworthy option is the \b --center or \b -c option, which  tells ProSHADE NOT to center the internal map representation over the centre of density before running any processing of the map (default
+ * is centering and adding this option will turn centering off). This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not
+ * have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate centre.
  *
  * It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (\e i.e. either through the dynamic C++ library or through
  * the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all

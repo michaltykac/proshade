@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
 */
 
 //==================================================== ProSHADE
@@ -256,7 +256,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Number of points in each dimension that need to be lower for        " << std::endl;
     std::cout << "            peak to be detected.                                                " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --peakThres                                     [DEFAULT:          5.0]     " << std::endl;
+    std::cout << "    --peakThres                                     [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            Number of IQRs from median for small peaks threshold for remo-      " << std::endl;
     std::cout << "            ving small peaks.                                                   " << std::endl;
     std::cout << "                                                                                " << std::endl;
@@ -264,7 +264,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The fraction of axes that can be missing for missing axes           " << std::endl;
     std::cout << "            search to be initiated.                                             " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --sameAxComp                                     [DEFAULT:         0.1]     " << std::endl;
+    std::cout << "    --sameAxComp                                     [DEFAULT:        0.01]     " << std::endl;
     std::cout << "            The difference in dot product of two vectors for them to be         " << std::endl;
     std::cout << "            still considered to be the same.                                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
@@ -272,6 +272,15 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            Should the maximum difference in dot product of two vectors for     " << std::endl;
     std::cout << "            them to be still considered to be the same decrease with fold of    " << std::endl;
     std::cout << "            tested symmetry?                                                    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --bicubSearch or -A                              [DEFAULT:        TRUE]     " << std::endl;
+    std::cout << "            Should the bi-cubic interpolation for sphere peaks be used to       " << std::endl;
+    std::cout << "            improve the axis by searching between grid indices?                 " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --maxSymPrime or -B                              [DEFAULT:          30]     " << std::endl;
+    std::cout << "            The automated symmetry search starts by looking for prime number    " << std::endl;
+    std::cout << "            folds and then for multiples of any folds found. This sets the      " << std::endl;
+    std::cout << "            maximum prime number to use in the search.                          " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
@@ -345,6 +354,12 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            In this case, only the optimal number of bands will be used for     " << std::endl;
     std::cout << "            each sphere, depending on its size. This is in cotrast to the       " << std::endl;
     std::cout << "            default all spheres same number of bands setting.                   " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --usePeaksInRotFun or -z                        [DEFAULT:        FALSE]     " << std::endl;
+    std::cout << "            Symmetry detection can now be done either using peak detection in   " << std::endl;
+    std::cout << "            rotation function space, or by default by converting rotation func. " << std::endl;
+    std::cout << "            to angle-axis space and finding symmetries there. Using this option " << std::endl;
+    std::cout << "            switches to using peak detection in rotation function space.         " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --noEnL or -l                                   [DEFAULT:         TRUE]     " << std::endl;
     std::cout << "            Is the computation of the energy levels descriptor required?        " << std::endl;

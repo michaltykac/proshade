@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -33,8 +33,8 @@
     #include <gemmi/mmread.hpp>
     #include <gemmi/ccp4.hpp>
     #include <gemmi/it92.hpp>
-    #include <gemmi/rhogrid.hpp>
-    #include <gemmi/sfcalc.hpp>
+    #include <gemmi/dencalc.hpp>
+    #include <gemmi/fprime.hpp>
     #include <gemmi/gz.hpp>
 #endif
 
@@ -159,20 +159,23 @@ public:
     
     //================================================ Settings regarding peak searching
     proshade_unsign peakNeighbours;                   //!< Number of points in any direction that have to be lower than the considered index in order to consider this index a peak.
-    proshade_double noIQRsFromMedianNaivePeak;        //!< When doing 'naive' peak searching, how many IQRs from the median the threshold for peak height should be (in terms of median of non-peak values).
+    proshade_double noIQRsFromMedianNaivePeak;        //!< When doing peak searching, how many IQRs from the median the threshold for peak height should be (in terms of median of non-peak values).
     
     //================================================ Settings regarding 1D grouping
     proshade_double smoothingFactor;                  //!< This factor decides how small the group sizes should be - larger factor means more smaller groups.
     
     //================================================ Settings regarding the symmetry detection
     proshade_double symMissPeakThres;                 //!< Percentage of peaks that could be missing that would warrant starting the missing peaks search procedure.
-    proshade_double axisErrTolerance;                 //!< Allowed error on vector elements for vectors to still be considered the same.
+    proshade_double axisErrTolerance;                 //!< Allowed error on vector axis in in dot product ( acos ( 1 - axErr ) is the allowed difference in radians ).
     bool axisErrToleranceDefault;
     proshade_double minSymPeak;                       //!< Minimum average peak for symmetry axis to be considered as "real".
     std::string recommendedSymmetryType;              //!< The symmetry type that ProSHADE finds the best fitting for the structure. Possible values are "" for none, "C" for cyclic, "D" for Dihedral, "T" for Tetrahedral, "O" for Octahedral and "I" for Icosahedral. C and D types also have fold value associated.
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
+    bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
+    bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
+    proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -199,6 +202,7 @@ public: // maybe make this protected?
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
     void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
+    void setVariablesLeftOnAuto                       ( void );
     
 public:
     //================================================ Constructors / Destructors
@@ -254,6 +258,9 @@ public:
     void setDetectedSymmetry                          ( proshade_double* sym );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
+    void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
+    void setBicubicInterpolationSearch                ( bool bicubPeaks );
+    void setMaxSymmetryFold                           ( proshade_unsign maxFold );
     
     //================================================ Command line options parsing
     void getCommandLineParams                         ( int argc, char** argv );

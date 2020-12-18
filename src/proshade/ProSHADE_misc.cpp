@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.4.4
-    \date      OCT 2020
+    \version   0.7.5.0
+    \date      DEC 2020
  */
 
 //==================================================== ProSHADE
@@ -274,8 +274,7 @@ bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const pr
 void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_double* >* dblPtrVec, proshade_double* axis )
 {
     //================================================ Allocate new memory
-    proshade_double* symAx                            = NULL;
-    symAx                                             = new proshade_double[6];
+    proshade_double* symAx                            = new proshade_double[6];
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( symAx, __FILE__, __LINE__, __func__ );
