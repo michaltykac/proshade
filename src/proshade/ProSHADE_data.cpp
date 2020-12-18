@@ -699,7 +699,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     //================================================ Create and prepare new Ccp4 gemmi object
     gemmi::Ccp4<float> map;
     map.grid                                          = mapData;
-    map.prepare_ccp4_header                           ( mode );
+    map.update_ccp4_header                           ( mode );
     
     //================================================ Fill in the header
     ProSHADE_internal_io::writeOutMapHeader           ( &map,
