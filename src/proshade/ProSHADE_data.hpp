@@ -215,6 +215,7 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        std::vector< proshade_double* > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         void detectSymmetryInStructurePython          ( ProSHADE_settings* settings );
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
@@ -236,9 +237,8 @@ namespace ProSHADE_internal_data
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes );
-        std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( ProSHADE_settings* settings,
-                                                                                    std::vector<std::vector< proshade_double > >* allCSyms,
-                                                                                    proshade_unsign grPosition );
+        std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector<std::vector< proshade_double > >* allCSyms, proshade_unsign grPosition );
+        std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector< proshade_double* >* allCSyms, proshade_unsign grPosition );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "" );
         proshade_unsign getAllGroupElementsLength     ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType );
         void getAllGroupElementsPython                ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 );
@@ -313,6 +313,11 @@ namespace ProSHADE_internal_data
         void setSO3CoeffValue                         ( proshade_unsign position, proshade_complex val );
         void setWignerMatrixValue                     ( proshade_complex val, proshade_unsign band, proshade_unsign order1, proshade_unsign order2 );
     };
+
+    //================================================ Support functions
+    std::vector<std::vector< proshade_double > > joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first,
+                                                                                   std::vector<std::vector< proshade_double > >* second,
+                                                                                   bool combine );
 }
 
 #endif
