@@ -124,12 +124,11 @@ print ( "To map centre translation    :  %+1.3f    %+1.3f    %+1.3f" % ( toMapCe
 print ( "To overlay translation       :  %+1.3f    %+1.3f    %+1.3f" % ( toOverlay[0], toOverlay[1], toOverlay[2] ) )
 
 ### Expected output
-#   Optimal Euler angles         :  +5.433    +0.769    +3.927
+#   Optimal Euler angles         :  +5.433    +0.753    +3.927
 #
-#   Optimal Euler rotation matrix:  -0.867    -0.196    +0.459
-#                                :  -0.084    -0.848    -0.523
-#                                :  +0.492    -0.492    +0.719
-#
+#   Optimal Euler rotation matrix:  -0.872    -0.191    +0.451
+#                                :  -0.078    -0.854    -0.514
+#                                :  +0.483    -0.483    +0.730
 #   To origin translation        :  +0.000    +0.000    +0.000
 #   To map centre translation    :  +0.000    +0.000    +0.000
 #   To overlay translation       :  +8.000    +8.000    +8.000

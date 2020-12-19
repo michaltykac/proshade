@@ -124,9 +124,9 @@ print ( "Rotation function distances  : " + str( rotFunDistances[0] ) + "\t" + s
 
 ##############################################
 ### Expected output
-#   Energy levels distances      : 0.8984338794121268    0.6012626312302949
-#   Trace sigma distances        : 0.9586515647570873    0.7669313554309691
-#   Rotation function distances  : 0.7942379183355734    0.5949845163438436
+#   Energy levels distances      : 0.8984426335753629    0.6012609292634079
+#   Trace sigma distances        : 0.9586636481884844    0.7669518326842101
+#   Rotation function distances  : 0.7941277372398085    0.5948631939203736
 
 ##############################################
 ### Done

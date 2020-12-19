@@ -167,8 +167,8 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 ![T4 Portal Protein](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_3JA7.jpg)
 
 ```
- $: ./proshade -S -f ./emd_6324.map --sym C12 -r 8
- ProSHADE 0.7.4.4 (OCT 2020):
+ $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
+ ProSHADE 0.7.5.0 (DEC 2020):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -182,15 +182,21 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
   ... Preparing spherical harmonics environment.
   ... Starting spherical harmonics decomposition.
   ... Starting self-rotation function computation.
-  ... Starting C symmetry detection.
+  ... Starting detection of cyclic point group C12
 
  Detected C symmetry with fold 12 .
-  ...   Fold       X           Y          Z           Angle        Height
-  ...    +12     -0.01170   +0.00616   +0.99980     +0.52360      +0.95423
+   Fold       X           Y          Z           Angle        Height
+    +12     +0.00000   -0.00000   +1.00000     +0.52360      +0.94620
+
+ However, since the selection of the recommended symmetry needs improvement, here is a list of all detected C symmetries:
+   Fold       X           Y          Z           Angle        Height
+    +12     +0.00000   -0.00000   +1.00000     +0.52360      +0.94620
+
+ Also, for the same reason, here is a list of all detected D symmetries:
 
  ======================
  ProSHADE run complete.
- Time taken: 18 seconds.
+ Time taken: 15 seconds.
  ======================
 ```
 
@@ -208,7 +214,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.4.4 (OCT 2020):
+  ProSHADE 0.7.5.0 (DEC 2020):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -235,9 +241,9 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
-  Energy levels distance    : 0.895313
-  Trace sigma distance      : 0.960445
-  Rotation function distance: 0.756283
+  Energy levels distance    : 0.895306
+  Trace sigma distance      : 0.960468
+  Rotation function distance: 0.756167
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
@@ -252,14 +258,9 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
-  Energy levels distance    : 0.55904
-  Trace sigma distance      : 0.736554
-  Rotation function distance: 0.452416
-
-  ======================
-  ProSHADE run complete.
-  Time taken: 5 seconds.
-  ======================
+  Energy levels distance    : 0.559041
+  Trace sigma distance      : 0.736592
+  Rotation function distance: 0.452545
 ```
  
  ## Re-boxing structures
@@ -276,7 +277,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz
-ProSHADE 0.7.4.4 (OCT 2020):
+ProSHADE 0.7.5.0 (DEC 2020):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
@@ -320,7 +321,7 @@ Time taken: 9 seconds.
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.4.4 (OCT 2020):
+ ProSHADE 0.7.5.0 (DEC 2020):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -366,10 +367,10 @@ Time taken: 9 seconds.
   ... Starting translation function computation.
 
  The rotation centre to origin translation vector is: -0     -0     -0
- The within box internal map translation vector is  : -2.95     -2.04     -0.0353
- The rotation matrix about origin is                : -0.867     -0.0845     +0.492
-                                                    : -0.196     -0.848     -0.492
-                                                    : +0.459     -0.523     +0.719
+ The within box internal map translation vector is  : -2.95     -2.04     -0.0354
+ The rotation matrix about origin is                : -0.872     -0.0785     +0.483
+                                                    : -0.191     -0.854     -0.483
+                                                    : +0.451     -0.514     +0.73
  The origin to overlay translation vector is        : +5.29     +4.93     -4.81
 
  ======================
