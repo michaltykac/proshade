@@ -655,18 +655,18 @@ rotFnAlpha10Beta11Gamma7_1D                   = selfRotationFunction1D[ 7 + int 
 rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
 
 print ( rotMat )
-# Expected output: [[-0.04845396  0.96607217 -0.25368637]
-# Expected output:  [-0.93080057  0.04845396  0.36230168]
-# Expected output:  [ 0.36230168  0.25368637  0.89687274]]
+# Expected output: [[-0.04402094  0.96917621 -0.24240388]
+# Expected output:  [-0.93713158  0.04402094  0.34618861]
+# Expected output:  [ 0.34618861  0.24240388  0.90630779]]
 
 selfRotationFunction3D                        = proshade.getRotationFunction3D ( pStruct )
 rotFnAlpha10Beta11Gamma7_3D                   = selfRotationFunction3D[10][11][7] # Accessing rotation function value for indices alpha = 10, beta = 11 and gamma = 7
 rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
 
 print ( rotMat )
-# Expected output: [[-0.04845396  0.96607217 -0.25368637]
-# Expected output:  [-0.93080057  0.04845396  0.36230168]
-# Expected output:  [ 0.36230168  0.25368637  0.89687274]]
+# Expected output: [[-0.04402094  0.96917621 -0.24240388]
+# Expected output:  [-0.93713158  0.04402094  0.34618861]
+# Expected output:  [ 0.34618861  0.24240388  0.90630779]]
 
 
 ##############################################
@@ -695,7 +695,7 @@ for iter in range ( 0, len( symmetryAxes ) ):
      print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( symmetryAxes[iter][0], symmetryAxes[iter][1], symmetryAxes[iter][2], symmetryAxes[iter][3], symmetryAxes[iter][4], symmetryAxes[iter][5] ) )
      
 # Expected output: Fold      x         y         z       Angle     Height
-# Expected output:   4    +0.257    +0.949    +0.182    +1.571    +0.0852
+# Expected output:   4    +0.257    +0.948    +0.186    +1.571    +0.0853
 
 ##############################################
 ### Get more symmetry results
@@ -729,9 +729,9 @@ print ( "Found a total of " + str( len ( allGroupElements ) ) + " elements for t
 # Expected output: Found a total of 4 elements for the cyclic group C-4
 
 print ( allGroupElements[1] )
-# Expected output: [[ 0.06601924  0.06165377  0.9955552 ]
-# Expected output:  [ 0.4258991   0.90014595 -0.08415134]
-# Expected output:  [-0.90196526  0.42973283  0.03316866]]
+# Expected output: [[ 0.06592191  0.05739252  0.99581337]
+# Expected output:  [ 0.429437    0.89880204 -0.08039392]
+# Expected output:  [-0.90029     0.43311134  0.03460428]]
 
 ##############################################
 ### Delete the C++ pointers
@@ -863,18 +863,18 @@ rotFnAlpha10Beta11Gamma7_1D                   = rotationFunction1D[ 7 + int ( pS
 rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
 
 print ( rotMat )
-# Expected output: [[-0.8900249   0.45283925  0.05284216]
-# Expected output:  [-0.28784662 -0.64802516  0.70512957]
-# Expected output:  [ 0.35355339  0.61237244  0.70710678]]
+# Expected output: [[-8.41253533e-01  5.40640817e-01 -1.85506948e-16]
+# Expected output:  [-4.08589068e-01 -6.35776999e-01  6.54860734e-01]
+# Expected output:  [ 3.54044443e-01  5.50903906e-01  7.55749574e-01]]
 
 rotationFunction3D                            = proshade.getRotationFunction3D ( pStruct_moving )
 rotFnAlpha10Beta11Gamma7_3D                   = rotationFunction3D[10][11][7] # Accessing rotation function value for indices alpha = 10, beta = 11 and gamma = 7
 rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
 
 print ( rotMat )
-# Expected output: [[-0.8900249   0.45283925  0.05284216]
-# Expected output:  [-0.28784662 -0.64802516  0.70512957]
-# Expected output:  [ 0.35355339  0.61237244  0.70710678]]
+# Expected output: [[-8.41253533e-01  5.40640817e-01 -1.85506948e-16]
+# Expected output:  [-4.08589068e-01 -6.35776999e-01  6.54860734e-01]
+# Expected output:  [ 3.54044443e-01  5.50903906e-01  7.55749574e-01]]
 
 ##############################################
 ### Finding optimal rotation
@@ -902,9 +902,9 @@ optimalRotationAngles                         = pStruct_moving.getBestRotationMa
 optimalRotationMatrix                         = proshade.getRotationMatrixFromEulerZXZ ( optimalRotationAngles )
 
 print ( optimalRotationMatrix )
-# Expected output: [[ 0.85951115 -0.41869239 -0.29315059]
-# Expected output:  [-0.47854538 -0.45774664 -0.7493079 ]
-# Expected output:  [ 0.17954082  0.78432435 -0.59380165]]
+# Expected output: [[ 0.87256445 -0.4329139  -0.22631136]
+# Expected output:  [-0.4332374  -0.47176062 -0.76795005]
+# Expected output:  [ 0.22569146  0.76813246 -0.59919604]]
 
 ##############################################
 ### Delete the phase-less data
@@ -1040,7 +1040,7 @@ translationMap1D = proshade.getTranslationFunction1D ( pStruct_moving )
 translationMap3D = proshade.getTranslationFunction3D ( pStruct_moving )
 
 print ( translationMap3D[1][2][3] )
-# Expected output: (69.78362875484453-2.8350935927882776e-15j)
+# Expected output: (101.35688753123377-6.084559434255484e-15j)
 
 ##############################################
 ### Obtaining the optimal translation
@@ -1064,7 +1064,7 @@ print ( translationMap3D[1][2][3] )
 optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
 
 print ( optimalTranslationVector[0] )
-# Expected output: 8.0
+# Expected output: 4.0
 
 ##############################################
 ### Translating the map
