@@ -44,7 +44,7 @@ pSet                                          = proshade.ProSHADE_settings ()
 ### Required values
 pSet.task                                     = proshade.Symmetry                      # The task ProSHADE is expected to perform
 pSet.verbose                                  = -1                                     # How verbose should the run be? Use -1 for absolute silence.
-pSet.setResolution                            ( 8.0 )                                 # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
+pSet.setResolution                            ( 6.0 )                                  # The resolution to which computations are to be done. May be lower or higher than the experimentally measured resolution.
 pSet.addStructure                             ( "./emd_6324.map" )                     # The path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
 #pSet.requestedSymmetryType                    = "C"
 #pSet.requestedSymmetryFold                    = 12
@@ -58,13 +58,13 @@ pSet.forceP1                                  = True;                           
 pSet.removeWaters                             = True;                                  # Should PDB files have their water molecules removed?
 pSet.firstModelOnly                           = True;                                  # Should PDB files have only their first model used, or should ProSHADE use all models?
 pSet.setProgressiveSphereMapping              ( False )                                # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
-pSet.setMapResolutionChange                   ( False )                                # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
-pSet.setMapResolutionChangeTriLinear          ( True )                                 # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
+pSet.setMapResolutionChange                   ( True )                                 # Should maps be re-sample to the computation resolution using reciprocal space re-sampling?
+pSet.setMapResolutionChangeTriLinear          ( False )                                # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 pSet.setNormalisation                         ( False )                                # Should internal map representation be normalised to mean 0 and standard deviation 1?
 pSet.setMapInversion                          ( False )                                # Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand ...
                                                                                        # ... as a result of first runs of map computation.
 pSet.setMasking                               ( False )                                # Should maps be masked by blurring?
-pSet.setMapCentering                          ( False )                                # Move structure COM to the centre of map box?
+pSet.setMapCentering                          ( True )                                 # Move structure COM to the centre of map box?
 pSet.setPeakNeighboursNumber                  ( 1 )                                    # Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
 pSet.setPeakNaiveNoIQR                        ( -999.9 )                               # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 pSet.setMissingPeakThreshold                  ( 0.3 )                                  # Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -118,7 +118,7 @@ print ( len ( allCSyms ) )
 
 ##############################################
 ### Expected output
-#   5
+#   6
 
 ##############################################
 ### Delete the C++ pointers
@@ -134,9 +134,10 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 
 ##############################################
 ### Expected output
-#   Detected symmetry C-2 with axes:
+#   Detected symmetry D-12 with axes:
 #   Fold      x         y         z       Angle     Height
-#     2    -0.003    +0.009    +1.000    +3.142    +0.9817
+#     12    +0.000    +0.000    +1.000    +0.524    +0.8932
+#     2    -0.626    +0.779    +0.020    +3.142    +0.3409
 
 ##############################################
 ### Create the ProSHADE_settings object to test requesting symmetry
@@ -155,9 +156,7 @@ pSetReq.addStructure                          ( "./emd_6324.map" )              
 pSetReq.setRequestedSymmetry                  ( "C" )                                  # Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
 pSetReq.setRequestedFold                      ( 3 )                                    # For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
 
-### Set helpful settings
-pSetReq.setMapCentering                       ( False )                                # Move structure COM to the centre of map box?
-pSetReq.setMapResolutionChange                ( True )                                 # Should maps be re-sample to the computation resolution?
+pSetReq.setMapResolutionChange                ( True )
 
 ##############################################
 ### Run the Distances task
@@ -177,7 +176,7 @@ print ( len ( allCSyms ) )
 
 ##############################################
 ### Expected output
-#   48
+#   1
 
 ##############################################
 ### Delete the C++ pointers
@@ -197,7 +196,7 @@ for iter in range ( 0, len( detectedSymAxes ) ):
 #  Requested detection of symmetry C-3 and ProSHADE detected: 
 #  Detected symmetry C-3 with axes: 
 #  Fold      x         y         z       Angle     Height
-#    3    -0.013    +0.016    +1.000    +2.094    +0.9514
+#    3    +0.000    -0.000    +1.000    +2.094    +0.9410
 
 ##############################################
 ### Done

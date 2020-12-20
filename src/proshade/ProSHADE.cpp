@@ -1089,7 +1089,10 @@ void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
     hlpAxis[5]                                        = sym[5];
     
     //================================================ Save
-    ProSHADE_internal_misc::addToDblPtrVector         ( &this->detectedSymmetry, hlpAxis );
+    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, hlpAxis );
+    
+    //================================================ Release memory
+    delete[] hlpAxis;
     
     //================================================ Done
     return ;
@@ -1520,6 +1523,23 @@ void ProSHADE_run::setRecommendedFold ( proshade_unsign val )
 {
     //================================================ Set the value
     this->symRecommFold                               = val;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the ProSHADE detected symmetry axis.
+ 
+    When symmetry detection is done, the resulting recommended symmetry axis will be saved in the
+    ProSHADE object by this function.
+ 
+    \param[in] sym The recommended symmetry axis for the structure.
+ */
+void ProSHADE_run::setRecommendedAxis ( proshade_double* sym )
+{
+    //================================================ Set the value
+    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->RecomSymAxes, sym );
     
     //================================================ Done
     return ;

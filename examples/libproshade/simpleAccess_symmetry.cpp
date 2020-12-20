@@ -52,8 +52,8 @@ int main ( int argc, char **argv )
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
     settings->setAxisComparisonThreshold              ( 0.1 );                              // The dot product difference within which two axes are considered the same.
     settings->setMinimumPeakForAxis                   ( 0.3 );                               // The minimum peak height for axis to be used.
-    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
-    settings->setRequestedFold                        ( 12 );                                // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
+//    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
+//    settings->setRequestedFold                        ( 12 );                                // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     
     //================================================ All other (possibly other tasks related) settings
     settings->setMaskBlurFactor                       ( 350.0 );                             // If masking, what blur factor should be used? 350 seems to work for most maps.
@@ -100,16 +100,16 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected C symmetry with fold 12 .
-//   ...   Fold       X           Y          Z           Angle        Height
-//   ...    +12     -0.00407   +0.01259   +0.99983     +0.52360      +0.95517
+//  Detected symmetry D of fold 12. The symmetry axes are:
+//   ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.947155
+//   ... FOLD: 2 | XYZ: 0.557699 ; 0.82969 ; -0.0241964 | Angle: 3.14159 | Peak: 0.346369
 
     //================================================ Get list of all detected cyclic symmetries
     std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
     std::cout << "Found a total of " << allCs.size() << " cyclic symmetries." << std::endl;
     
     //================================================ Expected output
-//  Found a total of 9 cyclic symmetries.
+//  Found a total of 22 cyclic symmetries.
     
     //================================================ Release the settings and runProshade objects
     delete runProshade;

@@ -121,10 +121,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      5.49775 ; 0.773114 ; 3.87796
-//  Optimal rotation matrix is       :      -0.849875 ; -0.0998845 ; 0.517431
-//                                   :      -0.184035 ; -0.863799 ; -0.469023
-//                                   :      0.493804 ; -0.493836 ; 0.715739
+//  Optimal rotation Euler angles are:      5.49775 ; 0.760842 ; 3.87796
+//  Optimal rotation matrix is       :      -0.854337 ; -0.0954227 ; 0.510884
+//                                   :      -0.179991 ; -0.867843 ; -0.463089
+//                                   :      0.487557 ; -0.487588 ; 0.724255
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
