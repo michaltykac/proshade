@@ -118,15 +118,15 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: D-12 with axes:
-//  Symmetry axis number 0: Fold 12 XYZ: -0.0110542 ; 0.00441254 ; 0.999797 Angle (radians): 0.523599 and axis peak: 0.966385
-//  Symmetry axis number 1: Fold 4 XYZ: 0.00284839 ; 0.997382 ; -0.0293572 Angle (radians): 1.5708 and axis peak: 0.460169
+//  Symmetry axis number 0: Fold 12 XYZ: 0.000565414 ; 1.87314e-05 ; 0.999986 Angle (radians): 0.523599 and axis peak: 0.956675
+//  Symmetry axis number 1: Fold 2 XYZ: 0.971188 ; 0.205281 ; -0.00380724 Angle (radians): 3.14159 and axis peak: 0.471463
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Expected output
-//  Found total of 8 cyclic symmetry axes.
+//  Found total of 13 cyclic symmetry axes.
     
     
 //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
@@ -193,8 +193,8 @@ int main ( int argc, char **argv )
     //================================================ Expected output
 //  Point group D12-2 has been found to have 24 group elements, with the first element (excluding the identity one) having rotation matrix:
 //  +0.87 | -0.50 | +0.00
-//  +0.50 | +0.87 | +0.00
-//  -0.00 | -0.00 | +1.00
+//  +0.50 | +0.87 | -0.00
+//  +0.00 | +0.00 | +1.00
     
     //================================================ Release the object
     delete simpleSym;
@@ -232,7 +232,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: C-4 as requested. The axes are:
-//  Symmetry axis number 0: Fold +4.00 XYZ: -0.00 ; -0.00 ; +1.00 Angle (radians): +1.57 and axis peak: +0.96
+//  Symmetry axis number 0: Fold +4.00 XYZ: +0.00 ; -0.00 ; +1.00 Angle (radians): +1.57 and axis peak: +0.98
  
     //================================================ Release the settings and runProshade objects
     delete requestSym;

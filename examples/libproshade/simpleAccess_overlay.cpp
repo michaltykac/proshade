@@ -109,10 +109,10 @@ int main ( int argc, char **argv )
     std::cout << "Origin to optimal overlay translation:  " << originToOverlay.at(0) << " ; " << originToOverlay.at(1) << " ; " << originToOverlay.at(2) << std::endl;
     
     //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
-//  Optimal rotation Euler angles are:      5.43251 ; 0.769003 ; 3.92701
-//  Optimal rotation matrix is       :      -0.866653 ; -0.0843547 ; 0.491728
-//                                   :      -0.196441 ; -0.848292 ; -0.491743
-//                                   :      0.45861 ; -0.522767 ; 0.718604
+//  Optimal rotation Euler angles are:      5.43251 ; 0.752641 ; 3.92701
+//  Optimal rotation matrix is       :      -0.871914 ; -0.0783578 ; 0.483348
+//                                   :      -0.19118 ; -0.854289 ; -0.483364
+//                                   :      0.450795 ; -0.513858 ; 0.729886
 //  Rot. Centre to origin translation:      -0 ; -0 ; -0
 //  Sum of internal translations     :      0 ; 0 ; 0
 //  Origin to optimal overlay translation:  8 ; 8 ; -6

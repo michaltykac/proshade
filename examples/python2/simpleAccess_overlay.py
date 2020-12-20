@@ -129,10 +129,10 @@ print ( "Translation to map centre (Angstroms)          : %+2.4f   %+2.4f   %+2.
 print ( "Translation from origin to overlat (Angstroms) : %+2.4f   %+2.4f   %+2.4f" % ( origToOverTranslation[0] , origToOverTranslation[1] , origToOverTranslation[2] ) )
 
 ### Expected output
-#   Optimal overlay rotation (Euler angles)        : +5.5084   +0.7639   +3.8732
-#   Optimal overlay rotation (rot. matrix)         : -0.8513   -0.1758   +0.4943
-#                                                  : -0.1015   -0.8692   -0.4839
-#                                                  : +0.5147   -0.4621   +0.7222
+#   Optimal overlay rotation (Euler angles)        : +5.4765   +0.7642   +3.9056
+#   Optimal overlay rotation (rot. matrix)         : -0.8602   -0.1757   +0.4787
+#                                                  : -0.1023   -0.8602   -0.4996
+#                                                  : +0.4996   -0.4787   +0.7220
 #   Translation to origin (Angstroms)              : -0.0000   -0.0000   -0.0000
 #   Translation to map centre (Angstroms)          : +0.0000   +0.0000   +0.0000
 #   Translation from origin to overlat (Angstroms) : +8.0000   +8.0000   -6.0000

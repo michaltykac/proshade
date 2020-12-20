@@ -37,16 +37,17 @@ import proshade
 pSet                                          = proshade.ProSHADE_settings ( proshade.Symmetry )
 
 ### Further useful settings
-pSet.setSymmetryRotFunPeaks                   ( True );                                # Should the new angle-axis space symmetry detection be used?
-pSet.setBicubicInterpolationSearch            ( True );                                # Should bi-cubic interpolation between peak grid indices be done?
-pSet.setMaxSymmetryFold                       ( 30 );                                  # The maximum prime number fold that will be searched for.
+pSet.setSymmetryRotFunPeaks                   ( True );                              ## Should the new angle-axis space symmetry detection be used?
+pSet.setBicubicInterpolationSearch            ( True );                              ## Should bi-cubic interpolation between peak grid indices be done?
+pSet.setMaxSymmetryFold                       ( 30 );                                ## The maximum prime number fold that will be searched for.
 pSet.verbose                                  = 1
 pSet.forceP1                                  = True;                                ## Should PDB files be forced to have P1 spacegroup?
 pSet.removeWaters                             = True;                                ## Should PDB files have their water molecules removed?
 pSet.firstModelOnly                           = True;                                ## Should PDB files have only their first model used, or should ProSHADE use all models?
-pSet.setProgressiveSphereMapping              ( True );                              ## Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
+pSet.setProgressiveSphereMapping              ( False );                             ## Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
 pSet.setMapResolutionChange                   ( True );                              ## Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
 pSet.setMapResolutionChangeTriLinear          ( False );                             ## Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
+pSet.setNormalisation                         ( False )                              ## Should internal map representation be normalised to mean 0 and standard deviation 1?
 pSet.setPeakNeighboursNumber                  ( 1 );                                 ## Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
 pSet.setPeakNaiveNoIQR                        ( -999.9 );                            ## Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 pSet.setMissingPeakThreshold                  ( 0.3 );                               ## Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -56,7 +57,7 @@ pSet.setMinimumPeakForAxis                    ( 0.3 );                          
 #pSet.setRequestedFold                         ( 6 );                                 ## For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
 pSet.setMapCentering                          ( True );                              ## Move structure COM to the centre of map box?
 pSet.setExtraSpace                            ( 10.0 );                              ## Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
-pSet.setResolution                            ( 6.0 );                               ## The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+pSet.setResolution                            ( 8.0 );                               ## The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
 
 ### Create the structure object
 pStruct                                       = proshade.ProSHADE_data ( pSet )
@@ -91,22 +92,22 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ### Expected output
 #   Detected D-12 symetry.
 #   Fold      x         y         z       Angle     Height
-#     12    -0.007    +0.004    +1.000    +0.524    +0.7031
-#      2    +0.788    +0.616    +0.007    +3.142    +0.4261
+#     12    -0.005    +0.002    +1.000    +0.524    +0.9542
+#     2    +0.438    +0.890    +0.001    +3.142    +0.5002
 
 ### Get list of all cyclic axes detected
 allCAxes                                      = proshade.getAllDetectedSymmetryAxes ( pStruct, pSet )
 print ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
 
 ### Expected output
-#   Found a total of 10 cyclic point groups.
+#   Found a total of 7 cyclic point groups.
 
 ### Get indices of which C axes form any detected non-C symmetry
 allNonCAxesIndices                            = proshade.getNonCSymmetryAxesIndices ( pSet )
 print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
 
 ### Expected output
-#   Found a total of 26 dihedral point groups.
+#   Found a total of 10 dihedral point groups.
 
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
 #        requested point group. This is relatively simple for T, O and I symmetries, as such a list is already produced by
@@ -125,7 +126,7 @@ print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedra
 #        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
 
 ### Define isclose() for comparing floats
-def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
+def isclose(a, b, rel_tol=1e-04, abs_tol=0.0):
     return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 ### Find the indices of the best dihedral combination
@@ -159,11 +160,11 @@ print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][1][0], allGroupE
 print ( "  %+1.3f    %+1.3f    %+1.3f " % ( allGroupElements[1][2][0], allGroupElements[1][2][1], allGroupElements[1][2][2] ) )
 
 ### Expected output
-#   Found a total of 24 group [0, 9] elements.
+#   Found a total of 24 group [2, 5] elements.
 #   The first non-identity element is:
 #     +0.866    -0.500    +0.001 
-#     +0.500    +0.866    +0.004 
-#     -0.003    -0.003    +1.000 
+#     +0.500    +0.866    +0.003 
+#     -0.002    -0.002    +1.000 
 
 ### Release C++ pointers
 del pStruct
