@@ -1906,7 +1906,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-//        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
         if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
         
@@ -2214,8 +2213,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     oScore                                            = this->findOScore     ( OSym );
     iScore                                            = this->findIScore     ( ISym );
 
-    //================================================ Find the best available score
-    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
+    //================================================ Find the best available score - !!! Modified weights for the predicted symmetries as they have heights  0.0 (predicted) ...
+    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3000.0, std::max ( oScore * 4000.0, iScore * 5000.0 ) ) ) );
     
     //================================================ No score? Well, no symmetry.
     if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
@@ -2257,21 +2256,21 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
         }
     }
-    if ( bestWeightedScore == tScore * 3.0 )
+    if ( bestWeightedScore == tScore * 3000.0 )
     {
         settings->setRecommendedSymmetry              ( "T" );
         settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
         if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); } }
     }
-    if ( bestWeightedScore == oScore * 4.0 )
+    if ( bestWeightedScore == oScore * 4000.0 )
     {
         settings->setRecommendedSymmetry              ( "O" );
         settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
         if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); } }
     }
-    if ( bestWeightedScore == iScore * 5.0 )
+    if ( bestWeightedScore == iScore * 5000.0 )
     {
         settings->setRecommendedSymmetry              ( "I" );
         settings->setRecommendedFold                  ( 0 );

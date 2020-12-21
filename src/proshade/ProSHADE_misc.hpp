@@ -49,6 +49,7 @@ namespace ProSHADE_internal_misc
     bool sortSymHlp                                   ( const proshade_double* a, const proshade_double* b );
     bool sortSymHlpInv                                ( const proshade_double* a, const proshade_double* b );
     bool sortDSymHlpInv                               ( const proshade_double* a, const proshade_double* b );
+    bool sortSymInvFoldHlp                            ( const proshade_double* a, const proshade_double* b );
         
     void deepCopyAxisToDblPtrVector                   ( std::vector < proshade_double* >* dblPtrVec, proshade_double* axis );
     void deepCopyBoundsSigPtrVector                   ( std::vector < proshade_signed* >* sigPtrVec, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom,

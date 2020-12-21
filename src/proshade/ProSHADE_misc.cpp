@@ -264,6 +264,19 @@ bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const pr
     
 }
 
+/*! \brief This function compares two arrays of two based on the first number, sorting highest first.
+ 
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortSymInvFoldHlp ( const proshade_double* a, const proshade_double* b )
+{
+    //================================================ Compare
+    return                                            ( a[0] > b[0] );
+    
+}
+
 /*! \brief Does a deep copy of a double array to a vector of double arrays.
  
     This function deep copies a single symmetry axis ( proshade_double[6] ) into a vector of such arrays.

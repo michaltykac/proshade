@@ -2370,6 +2370,41 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
     
 }
 
+/*! \brief This function checks if new axis is unique, or already detected.
+ 
+    This function compares the supplied axis against all members of the axes vector. If the axis has the same fold and very similar
+    axis vector (i.e. all three elements are within tolerance), then the function returns false. If no such match is found, true is returned.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] X The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Y The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Z The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[out] ret Boolean specifying whether a similar axis was found or not.
+ */
+bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = true;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        if ( fold == CSymList->at(grIt)[0] )
+        {
+            if ( vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
+            {
+                ret                                       = false;
+                break;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief This function finds all prime numbers up to the supplied limit.
  
     This function uses the sieve of Eratosthenes algorithm to find all prime numbers from 2 to the supplied limit. This is not

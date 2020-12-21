@@ -135,7 +135,7 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_unsign verbose, proshade_double minPeakHeight );
     void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose, proshade_double minPeakHeight );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight, proshade_double axisTolerance );
     void findIcos10C3s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         proshade_unsign verbose, proshade_double minPeakHeight );
