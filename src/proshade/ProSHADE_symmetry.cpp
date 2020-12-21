@@ -1264,7 +1264,15 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
                     ProSHADE_internal_misc::addToUnsignVectorVector ( &settings->allDetectedDAxes, DSymInd );
                     
                 }
-                else { ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax2, ax1 ); }
+                else
+                {
+                    ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax2, ax1 );
+                    
+                    std::vector< proshade_unsign > DSymInd;
+                    ProSHADE_internal_misc::addToUnsignVector ( &DSymInd, ax2 );
+                    ProSHADE_internal_misc::addToUnsignVector ( &DSymInd, ax1 );
+                    ProSHADE_internal_misc::addToUnsignVectorVector ( &settings->allDetectedDAxes, DSymInd );
+                }
             }
         }
     }
@@ -2673,6 +2681,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
  
     \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[out] ret A vector of all the detected axes in the standard ProSHADE format with height either the detected value (for the detected ones) or 0 for the predicted ones.
  */
 std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
 {
@@ -2686,7 +2695,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Generate the rest of the axes
-        ProSHADE_internal_symmetry::predictIcos6C5s   ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::predictIcosAxes   ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
     }
     
     //================================================ Report progress
@@ -2827,18 +2836,15 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::predictIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
-    std::vector< proshade_unsign > C5List, CList;
-    proshade_double dotProduct;
-    bool found                                        = false;
+    std::vector< proshade_unsign > C5List;
+    proshade_double dotProduct, axX, axY, axZ, axAng, bestDihedralAngle = 999.9;
+    proshade_unsign bestC5, bestC3;
     
     //================================================ Find all C5 symmetries
-    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
-    {
-        if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); }
-    }
+    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); } }
     
     //================================================ For each unique pair of C5 and C3
     for ( proshade_unsign c5 = 0; c5 < static_cast<proshade_unsign> ( C5List.size() ); c5++ )
@@ -2859,25 +2865,37 @@ void ProSHADE_internal_symmetry::predictIcos6C5s ( std::vector< proshade_double*
             //======================================== Is the angle approximately the dihedral angle?
             if ( ( ( sqrt ( 5.0 ) / 3.0 ) > ( std::abs( dotProduct ) - axErr ) ) && ( ( sqrt ( 5.0 ) / 3.0 ) < ( std::abs( dotProduct ) + axErr ) ) )
             {
-                ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C5List.at(c5)) );
-                ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(cSym) );
-                ProSHADE_internal_misc::addToUnsignVector ( &CList, C5List.at(c5) );
-                ProSHADE_internal_misc::addToUnsignVector ( &CList, cSym );
-                found                                 = true;
-                break;
+                if ( bestDihedralAngle > std::abs( ( sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) )
+                {
+                    bestDihedralAngle                 = std::abs( ( sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) );
+                    bestC5                            = C5List.at(c5);
+                    bestC3                            = cSym;
+                }
             }
         }
-        if ( found ) { break; }
     }
     
-    //================================================ Generate the elements
-    std::vector<std::vector< proshade_double > > elsC5 = dataObj->computeGroupElementsForGroup ( CSymList, CList.at(0) );
-    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, CList.at(1) );
+    //================================================ Save detected axes to ret
+    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(bestC5) );
+    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(bestC3) );
+
+    //================================================ Generate group elements
+    std::vector<std::vector< proshade_double > > elsC5 = dataObj->computeGroupElementsForGroup ( CSymList, bestC5 );
+    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, bestC3 );
     std::vector<std::vector< proshade_double > > combo = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC5, &elsC3, true );
-    combo                                              = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &combo, &elsC3, true );
-    combo                                              = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC5, &combo, true );
-    
+
     std::cout << "!!! " << combo.size() << std::endl;
+    
+    for ( proshade_unsign cIt = 0; cIt < static_cast< proshade_unsign > ( combo.size() ); cIt++ )
+    {
+        //============================================ Find the axis of the element
+        ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &combo.at(cIt), &axX, &axY, &axZ, &axAng );
+        
+        std::cout << " !!! !!! Element " << cIt << " has axis " << axX << " ; " << axY << " ; " << axZ << " with angle " << axAng << std::endl;
+        
+        //============================================ Determine fold
+//        if ()
+    }
     
     exit(0);
     
@@ -3318,6 +3336,9 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
             tmpHolder.clear                           ( );
         }
     }
+    
+    //================================================ Sort the vector
+    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymHlpInv );
     
     //================================================ Done
     return                                            ( ret );

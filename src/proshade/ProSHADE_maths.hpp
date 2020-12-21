@@ -324,6 +324,7 @@ namespace ProSHADE_internal_maths
                                                         proshade_double* x, proshade_double* y, proshade_double* z );
     void getRotationMatrixFromEulerZXZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
     void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
+    void getAxisAngleFromRotationMatrix               ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
     void getRotationMatrixFromAngleAxis               ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getEulerZXZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
     void getEulerZXZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,

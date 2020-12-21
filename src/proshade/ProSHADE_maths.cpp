@@ -1155,6 +1155,137 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
     
 }
 
+/*! \brief This function converts rotation matrix to the axis-angle representation.
+ 
+    This function takes a rotation matrix as a pointer to a vector of doubles and converts it to the Angle-Axis
+    representation, which is the main rotation representation used in ProSHADE. This function deals with both
+    the North and South pole singularity of the rotation matrices.
+ 
+    \param[in] rotMat Rotation matrix as a  pointer to a vector of doubles.
+    \param[in] x Pointer to which the x-axis value of the axis vector will be saved.
+    \param[in] y Pointer to which the y-axis value of the axis vector will be saved.
+    \param[in] z Pointer to which the z-axis value of the axis vector will be saved.
+    \param[in] ang Pointer to which the angle value will be saved.
+ */
+ void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang )
+{
+    //================================================ Initialise
+    proshade_double singAtPiCheck                     = 0.01;
+    proshade_double singAtIdentity                    = 0.05;
+    
+    //================================================ Check input for singularities
+    if ( ( std::abs ( rotMat->at(1) - rotMat->at(3) ) < singAtPiCheck ) &&
+         ( std::abs ( rotMat->at(2) - rotMat->at(6) ) < singAtPiCheck ) &&
+         ( std::abs ( rotMat->at(5) - rotMat->at(7) ) < singAtPiCheck ) )
+    {
+        //============================================ Singularity in input! Check for identity matrix
+        if ( ( std::abs ( rotMat->at(1) + rotMat->at(3) ) < singAtIdentity ) &&
+             ( std::abs ( rotMat->at(2) + rotMat->at(6) ) < singAtIdentity ) &&
+             ( std::abs ( rotMat->at(5) + rotMat->at(7) ) < singAtIdentity ) &&
+             ( std::abs ( rotMat->at(0) + rotMat->at(4) + rotMat->at(8) - 3.0 ) < singAtIdentity ) )
+        {
+            //======================================== Identity matrix. Return 0 angle.
+           *x                                         = 1.0;
+           *y                                         = 0.0;
+           *z                                         = 0.0;
+           *ang                                       = 0.0;
+            
+            //======================================== Done
+            return ;
+        }
+        
+        //============================================ If we got here, this is the 180deg (pi rad) singularity. Find which axis should the rotation be done along
+       *ang                                           = M_PI;
+                
+        proshade_double xx                            = ( rotMat->at(0) + 1.0 ) / 2.0;
+        proshade_double yy                            = ( rotMat->at(4) + 1.0 ) / 2.0;
+        proshade_double zz                            = ( rotMat->at(8) + 1.0 ) / 2.0;
+        proshade_double xy                            = ( rotMat->at(1) + rotMat->at(3) ) / 4.0;
+        proshade_double xz                            = ( rotMat->at(2) + rotMat->at(6) ) / 4.0;
+        proshade_double yz                            = ( rotMat->at(5) + rotMat->at(7) ) / 4.0;
+        
+        if ( ( xx > yy ) && ( xx > zz ) ) // XX is the largest diagonal
+        {
+            if ( xx < singAtPiCheck ) // and is still 0
+            {
+               *x                                     = 0.0;
+               *y                                     = 1.0 / sqrt(2);
+               *z                                     = 1.0 / sqrt(2);
+            }
+            else
+            {
+               *x                                     =  sqrt ( xx );
+               *y                                     =  xy / sqrt ( xx );
+               *z                                     =  xz / sqrt ( xx );
+            }
+        }
+        
+        else if ( yy > zz ) // YY is the largest diagonal
+        {
+            if ( yy < singAtPiCheck ) // and is still 0
+            {
+               *x                                     =  1.0 / sqrt(2);
+               *y                                     =  0.0;
+               *z                                     =  1.0 / sqrt(2);
+            }
+            else
+            {
+               *y                                     =  sqrt ( yy );
+               *x                                     =  xy / sqrt ( yy );
+               *z                                     =  yz / sqrt ( yy );
+            }
+        }
+        
+        else // ZZ is the largest diagonal
+        {
+            if ( zz < singAtPiCheck ) // and is still 0
+            {
+               *x                                     = 1.0 / sqrt(2);
+               *y                                     = 1.0 / sqrt(2);
+               *z                                     = 0.0;
+            }
+            else
+            {
+               *z                                     = sqrt ( zz );
+               *x                                     = xz / sqrt ( zz );
+               *y                                     = yz / sqrt ( zz );
+            }
+        }
+        
+        //============================================ Done
+        return ;
+    }
+    
+    //================================================ No singularities! Now get angle
+   *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat->at(0) + rotMat->at(4) + rotMat->at(8) ) ) - 1.0 ) / 2.0 );
+    
+    //================================================ Init return values
+   *x                                                 = 1.0;
+   *y                                                 = 0.0;
+   *z                                                 = 0.0;
+    
+    //================================================ Is angle 0? This should not happen, but will
+    if ( std::abs ( *ang ) < singAtPiCheck )
+    {
+       *ang                                           = 0.0;
+        return ;
+    }
+    
+    //================================================ Axis
+   *x                                                 = rotMat->at(7) - rotMat->at(5);
+   *y                                                 = rotMat->at(2) - rotMat->at(6);
+   *z                                                 = rotMat->at(3) - rotMat->at(1);
+    
+    proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+   *x                                                /= normFactor;
+   *y                                                /= normFactor;
+   *z                                                /= normFactor;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function converts the axis-angle representation to the rotation matrix representation.
  
     \param[in] rotMat Rotation matrix as an array of 9 values will be saved to this pointer, must already be allocated.

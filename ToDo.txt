@@ -1,5 +1,8 @@
 To Do:
 
+* Look into gcc warnings (not shown in clang)
+* Solve the predicting of all polyhedral axis from having the two with correct dihedral angle.
+
 Testing:
 * Look into symmetry - especially taking into account the average peak heights when deciding which symmetry to report.
 * Look into the limits of structure overlay
