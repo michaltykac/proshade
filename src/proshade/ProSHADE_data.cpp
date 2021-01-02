@@ -1844,11 +1844,12 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
-    //================================================ Modify axis tolerance by sampling, if required by user
+    //================================================ Modify axis tolerance and matrix tolerance by sampling, if required by user
     if ( settings->axisErrToleranceDefault )
     {
         settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / this->maxShellBand );
     }
+    proshade_double matrixTolerance                   = ( M_PI / ( this->maxShellBand ) );
     
     //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
     if ( settings->requestedSymmetryType == "C" )
@@ -1905,9 +1906,10 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     {
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms ); //, matrixTolerance );
         std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
-        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
+        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); //, matrixTolerance );
+        if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
         
         //============================================ Decide on recommended symmetry
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
@@ -2409,6 +2411,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
     proshade_double groupAngle                        = ( 2 * M_PI ) / static_cast<proshade_double> ( allCSyms->at(grPosition).at(0) );
+    proshade_double thisElementAngle;
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     
@@ -2417,7 +2420,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     for ( proshade_unsign elIt = 1; elIt < static_cast<proshade_unsign> ( allCSyms->at(grPosition).at(0) ); elIt++ )
     {
         //============================================ Find the element angle
-        proshade_double thisElementAngle              = static_cast<proshade_double> ( elIt ) * groupAngle;
+        thisElementAngle                              = static_cast<proshade_double> ( elIt ) * groupAngle;
         
         //============================================ Combine it with the group axis and get rotation matrix
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat,
@@ -2462,6 +2465,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
     proshade_double groupAngle                        = ( 2 * M_PI ) / static_cast<proshade_double> ( allCSyms->at(grPosition)[0] );
+    proshade_double thisElementAngle;
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     
@@ -2470,7 +2474,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     for ( proshade_unsign elIt = 1; elIt < static_cast<proshade_unsign> ( allCSyms->at(grPosition)[0] ); elIt++ )
     {
         //============================================ Find the element angle
-        proshade_double thisElementAngle              = static_cast<proshade_double> ( elIt ) * groupAngle;
+        thisElementAngle                              = static_cast<proshade_double> ( elIt ) * groupAngle;
         
         //============================================ Combine it with the group axis and get rotation matrix
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat,
@@ -2547,18 +2551,18 @@ void prependIdentity ( std::vector<std::vector< proshade_double > >* vecToPrepen
  
     \param[in] elements Vector containing all group elements.
     \param[in] elem A single element which should already be in the list.
+    \param[in] matrixTolerance The maximum allowed trace error on rotation matrices to be still considered the same.
     \param[out] elementFound A boolean value stating if the element was found int the elements list or not.
  */
-bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* elements, std::vector< proshade_double >* elem )
+bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* elements, std::vector< proshade_double >* elem, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     bool elementFound                                 = false;
-    proshade_double allowedError                      = 0.1;
     
     //================================================ For each existing element
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( elements->size() ); elIt++ )
     {
-        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &elements->at(elIt), elem, allowedError ) )
+        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &elements->at(elIt), elem, matrixTolerance ) )
         {
             elementFound                              = true;
             break;
@@ -2573,9 +2577,10 @@ bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* e
 /*! \brief This function checks if all group element products produce another group element.
  
     \param[in] elements Vector containing all group elements.
+    \param[in] matrixTolerance The maximum trace error for the matrices to be still considered the same.
     \param[out] isGroup A boolean value stating if all group element products for another group element.
  */
-bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elements )
+bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elements, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     bool isGroup                                      = true;
@@ -2592,7 +2597,7 @@ bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elem
             std::vector< proshade_double > product    = ProSHADE_internal_maths::multiplyGroupElementMatrices ( &elements->at(gr1), &elements->at(gr2) );
         
             //======================================== Check the group already contains the produces as an element
-            if ( !checkElementAlreadyExists ( elements, &product ) )
+            if ( !checkElementAlreadyExists ( elements, &product, matrixTolerance ) )
             {
                 isGroup                               = false;
                 break;
@@ -2612,10 +2617,11 @@ bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elem
  
     \param[in] first Vector of group elements.
     \param[in] second Vector of group elements.
+    \param[in] matrixTolerance The maximum trace error for rotation matrices to be still considered the same.
     \param[in] combine Should the element combinations be added as well?
     \param[out] ret A vector of group elements containing all unique elements from both input element groups.
  */
-std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first, std::vector<std::vector< proshade_double > >* second, bool combine )
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first, std::vector<std::vector< proshade_double > >* second, proshade_double matrixTolerance, bool combine )
 {
     //================================================ Initialise variables
     std::vector< std::vector< proshade_double > > ret;
@@ -2623,7 +2629,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     //================================================ Add the first list to ret, checking for uniqueness
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( first->size() ); elIt++ )
     {
-        if ( !checkElementAlreadyExists( &ret, &first->at(elIt) ) )
+        if ( !checkElementAlreadyExists( &ret, &first->at(elIt), matrixTolerance ) )
         {
             ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, first->at(elIt) );
         }
@@ -2632,7 +2638,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     //================================================ Add the second list to ret, checking for uniqueness
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( second->size() ); elIt++ )
     {
-        if ( !checkElementAlreadyExists( &ret, &second->at(elIt) ) )
+        if ( !checkElementAlreadyExists( &ret, &second->at(elIt), matrixTolerance ) )
         {
             ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, second->at(elIt) );
         }
@@ -2649,7 +2655,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
                 std::vector< proshade_double > product = ProSHADE_internal_maths::multiplyGroupElementMatrices ( &first->at(gr1), &second->at(gr2) );
 
                 //==================================== Add
-                if ( !checkElementAlreadyExists( &ret, &product ) )
+                if ( !checkElementAlreadyExists( &ret, &product, matrixTolerance ) )
                 {
                     ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, product );
                 }
@@ -2678,9 +2684,10 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axesList A vector of ints specifying which C axes from the full list are members of the group.
     \param[in] groupType An optional string specifying for which symmetry type the group elements are to be computed. Leave empty if you want to use the supplied axes without any questions being asked.
+    \param[in] matrixTolerance The maximum allowed trace difference for two matrices to still be considered the same.
     \param[out] val A vector containing a vector of 9 doubles (rotation matrix) for each group element for the requested group.
  */
-std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType )
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
@@ -2698,7 +2705,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
 
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2714,13 +2721,13 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         std::vector<std::vector< proshade_double > > second = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(1) );
         
         //============================================ Join the element lists
-        ret                                           = joinElementsFromDifferentGroups ( &first, &second, true );
+        ret                                           = joinElementsFromDifferentGroups ( &first, &second, matrixTolerance, true );
         
         //============================================ Prepend identity element
         prependIdentity                               ( &ret );
         
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2741,7 +2748,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
                 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2755,7 +2762,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
                 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2763,7 +2770,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
         
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2784,7 +2791,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
 
@@ -2798,7 +2805,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2812,7 +2819,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
 
@@ -2820,7 +2827,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
 
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2841,7 +2848,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2855,7 +2862,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2869,7 +2876,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2877,7 +2884,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
 
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2892,14 +2899,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
             std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
             
             //======================================== Join the elements to any already found
-            ret                                       = joinElementsFromDifferentGroups ( &els, &ret, true );
+            ret                                       = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, true );
         }
         
         //============================================ Prepend identity element
         prependIdentity                               ( &ret );
         
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );

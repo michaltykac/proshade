@@ -1121,6 +1121,18 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
             }
         }
         
+        //============================================ Make sure largest axis is positive and so is the angle
+        if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+        {
+            *x                                       *= -1.0;
+            *y                                       *= -1.0;
+            *z                                       *= -1.0;
+            *ang                                     *= -1.0;
+        }
+        if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
+        
         //============================================ Done
         return ;
     }
@@ -1149,6 +1161,18 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *x                                                /= normFactor;
    *y                                                /= normFactor;
    *z                                                /= normFactor;
+    
+    //================================================ Make sure largest axis is positive and so is the angle
+    if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+    {
+        *x                                           *= -1.0;
+        *y                                           *= -1.0;
+        *z                                           *= -1.0;
+        *ang                                         *= -1.0;
+    }
+    if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
     
     //================================================ Done
     return ;
@@ -1252,6 +1276,17 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
             }
         }
         
+        //============================================ Make sure largest axis is positive and so is the angle
+        if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+        {
+            *x                                       *= -1.0;
+            *y                                       *= -1.0;
+            *z                                       *= -1.0;
+            *ang                                     *= -1.0;
+        }
+        
         //============================================ Done
         return ;
     }
@@ -1280,6 +1315,17 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *x                                                /= normFactor;
    *y                                                /= normFactor;
    *z                                                /= normFactor;
+    
+    //================================================ Make sure largest axis is positive and so is the angle
+    if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+    {
+        *x                                           *= -1.0;
+        *y                                           *= -1.0;
+        *z                                           *= -1.0;
+        *ang                                         *= -1.0;
+    }
     
     //================================================ Done
     return ;
@@ -1658,6 +1704,21 @@ proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1
     return                                            ( (*x1 * *x2) + (*y1 * *y2) + (*z1 * *z2) );
 }
 
+/*! \brief Simple 3D vector dot product computation.
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+ */
+proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2 )
+{
+    //================================================ Compute and return
+    return                                            ( (x1 * x2) + (y1 * y2) + (z1 * z2) );
+}
+
 /*! \brief Function for finding a vector which would have a given two dot products to two other vectors.
 
     This function takes two vectors and two dot product values. It then basically solves the following set of equations for x, y and z:
@@ -1929,7 +1990,7 @@ bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_d
     trace                                            -= 3.0;
     
     //================================================ Compare to tolerance
-    if ( tolerance >= std::abs ( trace ) ) { ret = true; }
+    if ( tolerance > std::abs ( trace ) ) { ret = true; }
     
     //================================================ Done
     return                                            ( ret );
@@ -2346,8 +2407,9 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
         //============================================ Is fold the same?
         if ( CSymList->at(grIt)[0] == axis[0] )
         {
-            if ( vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
             {
+                std::cout << " !!! !!! MATHS: axis " << CSymList->at(grIt)[1] << " ; " << CSymList->at(grIt)[2] << " ; " << CSymList->at(grIt)[3] << " is close enough to " << axis[1] << " ; " << axis[2] << " ; " << axis[3] << std::endl;
                 ret                                   = false;
                 whichImprove                          = grIt;
                 break;
@@ -2392,7 +2454,7 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
     {
         if ( fold == CSymList->at(grIt)[0] )
         {
-            if ( vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
             {
                 ret                                       = false;
                 break;

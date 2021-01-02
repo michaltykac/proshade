@@ -1397,7 +1397,19 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
-        
+    
+    //================================================ Make sure max is positive
+    if ( ( ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) == std::abs ( detectedSymmetry[1] ) ) && ( detectedSymmetry[1] < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) == std::abs ( detectedSymmetry[2] ) ) && ( detectedSymmetry[2] < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) == std::abs ( detectedSymmetry[3] ) ) && ( detectedSymmetry[3] < 0.0 ) ) )
+    {
+        detectedSymmetry[1]                          *= -1.0;
+        detectedSymmetry[2]                          *= -1.0;
+        detectedSymmetry[3]                          *= -1.0;
+        detectedSymmetry[4]                          *= -1.0;
+    }
+    
+    //================================================ Save detected point group
     ProSHADE_internal_misc::addToDblPtrVector         ( detectedCs, detectedSymmetry );
     
     //================================================ Report progress
