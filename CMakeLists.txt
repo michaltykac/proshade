@@ -298,6 +298,25 @@ endif  ( ${USE_MODERN_PATHS} MATCHES 1 )
 add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/lib                                     )
 
 ##########################################################################################
+################################### Build python module using PyBind11
+if     ( TESTPY11 )
+	add_subdirectory      ( ${CMAKE_SOURCE_DIR}/extern/pybind11                           )
+	pybind11_add_module   ( py${PROJECT_NAME} src/python/pyProSHADE_bindings.cpp
+										      src/python/pyProSHADE.cpp                   )
+	target_link_libraries ( py${PROJECT_NAME} PRIVATE z                                   )
+	target_link_libraries ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
+	target_link_libraries ( py${PROJECT_NAME} PRIVATE fftw3                               )
+	target_link_libraries ( py${PROJECT_NAME} PRIVATE lapack blas                         )
+	include_directories   ( ${CMAKE_SOURCE_DIR}/extern/pybind11/include                   )
+	include_directories   ( ${CMAKE_SOURCE_DIR}/src/proshade                              )
+	include_directories   ( ${CMAKE_SOURCE_DIR}/extern/gemmi                              )
+	add_dependencies      ( py${PROJECT_NAME} gemmi_lib                                   )
+	add_dependencies      ( py${PROJECT_NAME} soft2_lib                                   )
+	add_dependencies      ( py${PROJECT_NAME} ${PROJECT_NAME}_LIB                         )
+endif  ( TESTPY11 )
+
+
+##########################################################################################
 ################################### Link python module
 if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 	if     ( NO_PYTHON )
