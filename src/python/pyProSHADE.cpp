@@ -40,16 +40,20 @@
 
 //==================================================== Include PyBind11 header
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
 
+//==================================================== Add the ProSHADE_settings and ProSHADE_run classes to the PyBind11 module
 void add_settingsClass ( pybind11::module& pyProSHADE )
 {
     //================================================ Export the ProSHADE_settings class
     pybind11::class_ < ProSHADE_settings >            ( pyProSHADE, "ProSHADE_settings" )
         
-        // Constructors / Destructors
-        .def                                          ( pybind11::init<>() )
+        //============================================ Constructors (destructors do not need wrappers???)
+        .def                                          ( pybind11::init < > ( ) )
+        .def                                          ( pybind11::init < ProSHADE_Task > ( ) )
     
-        // Member variables
+        //============================================ Member variables
         .def_readwrite                                ( "task",                                 &ProSHADE_settings::task                                )
                                 
         .def_readwrite                                ( "inputFiles",                           &ProSHADE_settings::inputFiles                          )
@@ -127,9 +131,104 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
     
         .def_readwrite                                ( "verbose",                              &ProSHADE_settings::verbose                             )
     
-        // Description
+        //============================================ Mutators
+        .def                                          ( "addStructure",                         &ProSHADE_settings::addStructure,                           "Adds a structure file name to the appropriate variable.",                                                                  pybind11::arg ( "structure"     ) )
+        .def                                          ( "setResolution",                        &ProSHADE_settings::setResolution,                          "This function sets the resolution in the appropriate variable.",                                                           pybind11::arg ( "resolution"    ) )
+        .def                                          ( "setPDBBFactor",                        &ProSHADE_settings::setPDBBFactor,                          "Sets the requested B-factor value for PDB files in the appropriate variable.",                                             pybind11::arg ( "newBF"         ) )
+        .def                                          ( "setNormalisation",                     &ProSHADE_settings::setNormalisation,                       "Sets the requested map normalisation value in the appropriate variable.",                                                  pybind11::arg ( "normalise"     ) )
+        .def                                          ( "setMapInversion",                      &ProSHADE_settings::setMapInversion,                        "Sets the requested map inversion value in the appropriate variable.",                                                      pybind11::arg ( "mInv"          ) )
+        .def                                          ( "setVerbosity",                         &ProSHADE_settings::setVerbosity,                           "Sets the requested verbosity in the appropriate variable.",                                                                pybind11::arg ( "verbosity"     ) )
+        .def                                          ( "setMaskBlurFactor",                    &ProSHADE_settings::setMaskBlurFactor,                      "Sets the requested map blurring factor in the appropriate variable.",                                                      pybind11::arg ( "blurFac"       ) )
+        .def                                          ( "setMaskIQR",                           &ProSHADE_settings::setMaskIQR,                             "Sets the requested number of IQRs for masking threshold in the appropriate variable.",                                     pybind11::arg ( "noIQRs"        ) )
+        .def                                          ( "setMasking",                           &ProSHADE_settings::setMasking,                             "Sets the requested map masking decision value in the appropriate variable.",                                               pybind11::arg ( "mask"          ) )
+        .def                                          ( "setCorrelationMasking",                &ProSHADE_settings::setCorrelationMasking,                  "Sets the requested map masking type in the appropriate variable.",                                                         pybind11::arg ( "corMask"       ) )
+        .def                                          ( "setTypicalNoiseSize",                  &ProSHADE_settings::setTypicalNoiseSize,                    "Sets the requested \"fake\" half-map kernel in the appropriate variable.",                                                 pybind11::arg ( "typNoi"        ) )
+        .def                                          ( "setMinimumMaskSize",                   &ProSHADE_settings::setMinimumMaskSize,                     "Sets the requested minimum mask size.",                                                                                    pybind11::arg ( "minMS"         ) )
+        .def                                          ( "setMaskSaving",                        &ProSHADE_settings::setMaskSaving,                          "Sets whether the mask should be saved.",                                                                                   pybind11::arg ( "savMsk"        ) )
+        .def                                          ( "setMaskFilename",                      &ProSHADE_settings::setMaskFilename,                        "Sets where the mask should be saved.",                                                                                     pybind11::arg ( "mskFln"        ) )
+        .def                                          ( "setMapReboxing",                       &ProSHADE_settings::setMapReboxing,                         "Sets whether re-boxing needs to be done in the appropriate variable.",                                                     pybind11::arg ( "reBx"          ) )
+        .def                                          ( "setBoundsSpace",                       &ProSHADE_settings::setBoundsSpace,                         "Sets the requested number of angstroms for extra space in re-boxing in the appropriate variable.",                         pybind11::arg ( "boundsExSp"    ) )
+        .def                                          ( "setBoundsThreshold",                   &ProSHADE_settings::setBoundsThreshold,                     "Sets the threshold for number of indices difference acceptable to make index sizes same in the appropriate variable.",     pybind11::arg ( "boundsThres"   ) )
+        .def                                          ( "setSameBoundaries",                    &ProSHADE_settings::setSameBoundaries,                      "Sets whether same boundaries should be used in the appropriate variable.",                                                 pybind11::arg ( "sameB"         ) )
+        .def                                          ( "setOutputFilename",                    &ProSHADE_settings::setOutputFilename,                      "Sets the requested output file name in the appropriate variable.",                                                         pybind11::arg ( "oFileName"     ) )
+        .def                                          ( "setMapResolutionChange",               &ProSHADE_settings::setMapResolutionChange,                 "Sets the requested map resolution change decision in the appropriate variable.",                                           pybind11::arg ( "mrChange"      ) )
+        .def                                          ( "setMapResolutionChangeTriLinear",      &ProSHADE_settings::setMapResolutionChangeTriLinear,        "Sets the requested map resolution change decision using tri-linear interpolation in the appropriate variable.",            pybind11::arg ( "mrChange"      ) )
+        .def                                          ( "setMapCentering",                      &ProSHADE_settings::setMapCentering,                        "Sets the requested map centering decision value in the appropriate variable.",                                             pybind11::arg ( "com"           ) )
+        .def                                          ( "setExtraSpace",                        &ProSHADE_settings::setExtraSpace,                          "Sets the requested map extra space value in the appropriate variable.",                                                    pybind11::arg ( "exSpace"       ) )
+        .def                                          ( "setBandwidth",                         &ProSHADE_settings::setBandwidth,                           "Sets the requested spherical harmonics bandwidth in the appropriate variable.",                                            pybind11::arg ( "band"          ) )
+        .def                                          ( "setProgressiveSphereMapping",          &ProSHADE_settings::setProgressiveSphereMapping,            "Sets the requested sphere mapping value settings approach in the appropriate variable.",                                   pybind11::arg ( "progSphMap"    ) )
+        .def                                          ( "setSphereDistances",                   &ProSHADE_settings::setSphereDistances,                     "Sets the requested distance between spheres in the appropriate variable.",                                                 pybind11::arg ( "sphDist"       ) )
+        .def                                          ( "setIntegrationOrder",                  &ProSHADE_settings::setIntegrationOrder,                    "Sets the requested order for the Gauss-Legendre integration in the appropriate variable.",                                 pybind11::arg ( "intOrd"        ) )
+        .def                                          ( "setTaylorSeriesCap",                   &ProSHADE_settings::setTaylorSeriesCap,                     "Sets the requested Taylor series cap for the Gauss-Legendre integration in the appropriate variable.",                     pybind11::arg ( "tayCap"        ) )
+        .def                                          ( "setEnergyLevelsComputation",           &ProSHADE_settings::setEnergyLevelsComputation,             "Sets whether the energy level distance descriptor should be computed.",                                                    pybind11::arg ( "enLevDesc"     ) )
+        .def                                          ( "setTraceSigmaComputation",             &ProSHADE_settings::setTraceSigmaComputation,               "Sets whether the trace sigma distance descriptor should be computed.",                                                     pybind11::arg ( "trSigVal"      ) )
+        .def                                          ( "setRotationFunctionComputation",       &ProSHADE_settings::setRotationFunctionComputation,         "Sets whether the rotation function distance descriptor should be computed.",                                               pybind11::arg ( "rotfVal"       ) )
+        .def                                          ( "setPeakNeighboursNumber",              &ProSHADE_settings::setPeakNeighboursNumber,                "Sets the number of neighbour values that have to be smaller for an index to be considered a peak.",                        pybind11::arg ( "pkS"           ) )
+        .def                                          ( "setPeakNaiveNoIQR",                    &ProSHADE_settings::setPeakNaiveNoIQR,                      "Sets the number of IQRs from the median for threshold height a peak needs to be considered a peak.",                       pybind11::arg ( "noIQRs"        ) )
+        .def                                          ( "setPhaseUsage",                        &ProSHADE_settings::setPhaseUsage,                          "Sets whether the phase information will be used.",                                                                         pybind11::arg ( "phaseUsage"    ) )
+        .def                                          ( "setEnLevShellWeight",                  &ProSHADE_settings::setEnLevShellWeight,                    "Sets the weight of shell position for the energy levels computation.",                                                     pybind11::arg ( "mPower"        ) )
+        .def                                          ( "setGroupingSmoothingFactor",           &ProSHADE_settings::setGroupingSmoothingFactor,             "Sets the grouping smoothing factor into the proper variable.",                                                             pybind11::arg ( "smFact"        ) )
+        .def                                          ( "setMissingPeakThreshold",              &ProSHADE_settings::setMissingPeakThreshold,                "Sets the threshold for starting the missing peaks procedure.",                                                             pybind11::arg ( "mpThres"       ) )
+        .def                                          ( "setAxisComparisonThreshold",           &ProSHADE_settings::setAxisComparisonThreshold,             "Sets the threshold for matching symmetry axes.",                                                                           pybind11::arg ( "axThres"       ) )
+        .def                                          ( "setAxisComparisonThresholdBehaviour",  &ProSHADE_settings::setAxisComparisonThresholdBehaviour,    "Sets the automatic symmetry axis tolerance decreasing.",                                                                   pybind11::arg ( "behav"         ) )
+        .def                                          ( "setMinimumPeakForAxis",                &ProSHADE_settings::setMinimumPeakForAxis,                  "Sets the minimum peak height for symmetry axis to be considered.",                                                         pybind11::arg ( "minSP"         ) )
+        .def                                          ( "setRecommendedSymmetry",               &ProSHADE_settings::setRecommendedSymmetry,                 "Sets the ProSHADE detected symmetry type.",                                                                                pybind11::arg ( "val"           ) )
+        .def                                          ( "setRecommendedFold",                   &ProSHADE_settings::setRecommendedFold,                     "Sets the ProSHADE detected symmetry fold.",                                                                                pybind11::arg ( "val"           ) )
+        .def                                          ( "setRequestedSymmetry",                 &ProSHADE_settings::setRequestedSymmetry,                   "Sets the user requested symmetry type.",                                                                                   pybind11::arg ( "val"           ) )
+        .def                                          ( "setRequestedFold",                     &ProSHADE_settings::setRequestedFold,                       "Sets the user requested symmetry fold.",                                                                                   pybind11::arg ( "val"           ) )
+        .def                                          ( "setDetectedSymmetry",                  &ProSHADE_settings::setDetectedSymmetry,                    "Sets the final detected symmetry axes information.",                                                                       pybind11::arg ( "sym"           ) )
+        .def                                          ( "setOverlaySaveFile",                   &ProSHADE_settings::setOverlaySaveFile,                     "Sets the filename to which the overlay structure is to be save into.",                                                     pybind11::arg ( "filename"      ) )
+        .def                                          ( "setOverlayJsonFile",                   &ProSHADE_settings::setOverlayJsonFile,                     "Sets the filename to which the overlay operations are to be save into.",                                                   pybind11::arg ( "filename"      ) )
+        .def                                          ( "setSymmetryRotFunPeaks",               &ProSHADE_settings::setSymmetryRotFunPeaks,                 "Sets the symmetry detection algorithm type.",                                                                              pybind11::arg ( "rotFunPeaks"   ) )
+        .def                                          ( "setBicubicInterpolationSearch",        &ProSHADE_settings::setBicubicInterpolationSearch,          "Sets the bicubic interpolation on peaks.",                                                                                 pybind11::arg ( "bicubPeaks"    ) )
+        .def                                          ( "setMaxSymmetryFold",                   &ProSHADE_settings::setMaxSymmetryFold,                     "Sets the maximum symmetry fold (well, the maximum prime symmetry fold).",                                                  pybind11::arg ( "maxFold"        ) )
+    
+        //============================================ Command line parsing
+        .def                                          ( "getCommandLineParams", [] ( ProSHADE_settings &self, std::vector < std::string > args ) { std::vector < char * > cstrs; cstrs.reserve ( args.size() ); for ( auto &s : args ) cstrs.push_back ( const_cast < char * > ( s.c_str ( ) ) ); return self.getCommandLineParams ( cstrs.size ( ), cstrs.data ( ) ); } )
+        
+        //============================================ Debugging
+        .def                                          ( "printSettings", &ProSHADE_settings::printSettings, "This function prints the current values in the settings object." )
+    
+        //============================================ Description
         .def                                          ( "__repr__", [] ( const ProSHADE_settings &a ) { return "<ProSHADE_settings class object> (Settings class is used to set all settings values in a single place)"; } );
+    
+    //================================================ Export the ProSHADE_settings class
+    pybind11::class_ < ProSHADE_run >                 ( pyProSHADE, "ProSHADE_run" )
+    
+        //============================================ Constructors (destructors do not need wrappers???)
+        .def                                          ( pybind11::init < ProSHADE_settings* > ( ) )
+    
+        //============================================ General accessors
+        .def                                          ( "getNoStructures", &ProSHADE_run::getNoStructures, "This function returns the number of structures used. This is useful for the SWIG python Numpy outputs." )
+        .def                                          ( "getVerbose", &ProSHADE_run::getVerbose, "This function returns the verbose value. This is useful for the SWIG python Numpy outputs." )
+    
+        //============================================ Distances accessor functions wrapped as lambda functions for numpy return types
+        .def                                          ( "getEnergyLevelsVector",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getEnergyLevelsVector ();
+            
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<unsigned int> (vals.size())];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+            
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+            
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleEnLevs ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+            
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<unsigned int> (vals.size()) },  // Shape
+                                                                                                 { sizeof(float) },                                                       // C-stype strides
+                                                                                                 npVals,                                                                  // Data
+                                                                                                 pyCapsuleEnLevs );                                                       // Capsule (C++ destructor, basically)
+            
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the energy level distances value for a particular structure pair." )
+    
+        //============================================ Description
+        .def                                          ( "__repr__", [] ( const ProSHADE_run &a ) { return "<ProSHADE_run class object> (Run class constructor takes a ProSHADE_settings object and completes a single run according to the settings object information)"; } );
 }
-
-
-

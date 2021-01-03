@@ -1565,7 +1565,6 @@ void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
 }
 
 /*! \brief This function parses the command line arguments into the settings object.
- 
 
     \param[in] argc The count of the command line arguments (as passed to main function by the system).
     \param[in] argv The string containing the command line arguments (as passed to main function by the system).

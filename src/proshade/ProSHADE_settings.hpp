@@ -186,7 +186,7 @@ public:
         
 public:
     //================================================ Symmetry results holding values. This is required for Python being able to access the results without having the ProSHADE_run object.
-    std::vector< proshade_double* > detectedSymmetry; //!< The vector of detected symmetry axes.
+    std::vector < proshade_double* > detectedSymmetry; //!< The vector of detected symmetry axes.
     std::vector < std::vector< proshade_double > > allDetectedCAxes; //!< The vector of all detected cyclic symmetry axes.
     std::vector < std::vector< proshade_unsign > > allDetectedDAxes; //!< The vector of all detected dihedral symmetry axes indices in allDetectedCAxes.
     std::vector < proshade_unsign > allDetectedTAxes; //!< The vector of all detected tetrahedral symmetry axes indices in allDetectedCAxes.

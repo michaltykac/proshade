@@ -80,7 +80,7 @@ public:
     ProSHADE_run                                      ( ProSHADE_settings* settings );
    ~ProSHADE_run                                      ( void );
     
-public:
+public: // THESE FUNCTIONS ARE BASICALLY ONLY USED BY SWIG
     //================================================ General accessor functions
     proshade_unsign getNoStructures                   ( void );
     proshade_signed getVerbose                        ( void );
