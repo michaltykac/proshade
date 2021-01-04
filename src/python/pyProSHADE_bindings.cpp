@@ -34,6 +34,9 @@ void    add_settingsClass                             ( pybind11::module& pyProS
 //==================================================== Remove the bindings that are not modifyable in python
 PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::string > );
 
+//==================================================== Include the other codes
+#include "pyProSHADE.cpp"
+
 //==================================================== Declare the exported functions
 PYBIND11_MODULE ( pyproshade, pyProSHADE )
 {

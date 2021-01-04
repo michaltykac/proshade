@@ -192,7 +192,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         //============================================ Description
         .def                                          ( "__repr__", [] ( const ProSHADE_settings &a ) { return "<ProSHADE_settings class object> (Settings class is used to set all settings values in a single place)"; } );
     
-    //================================================ Export the ProSHADE_settings class
+    //================================================ Export the ProSHADE_run class
     pybind11::class_ < ProSHADE_run >                 ( pyProSHADE, "ProSHADE_run" )
     
         //============================================ Constructors (destructors do not need wrappers???)
@@ -202,7 +202,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "getNoStructures", &ProSHADE_run::getNoStructures, "This function returns the number of structures used. This is useful for the SWIG python Numpy outputs." )
         .def                                          ( "getVerbose", &ProSHADE_run::getVerbose, "This function returns the verbose value. This is useful for the SWIG python Numpy outputs." )
     
-        //============================================ Distances accessor functions wrapped as lambda functions for numpy return types
+        //============================================ Distances results accessor functions wrapped as lambda functions for numpy return types
         .def                                          ( "getEnergyLevelsVector",
                                                         [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
                                                         {
@@ -221,13 +221,312 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
             
                                                             //== Copy the value
                                                             pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<unsigned int> (vals.size()) },  // Shape
-                                                                                                 { sizeof(float) },                                                       // C-stype strides
-                                                                                                 npVals,                                                                  // Data
-                                                                                                 pyCapsuleEnLevs );                                                       // Capsule (C++ destructor, basically)
+                                                                                                                            { sizeof(float) },                            // C-stype strides
+                                                                                                                            npVals,                                       // Data
+                                                                                                                            pyCapsuleEnLevs );                            // Capsule (C++ destructor, basically)
             
                                                             //== Done
                                                             return ( retArr );
-                                                        }, "This function returns the energy level distances value for a particular structure pair." )
+                                                        }, "This function returns the energy level distances vector from the first to all other structures." )
+    
+        .def                                          ( "getTraceSigmaVector",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getTraceSigmaVector ();
+        
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<unsigned int> (vals.size())];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+        
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleTrSigs ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+        
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<unsigned int> (vals.size()) },  // Shape
+                                                                                                                            { sizeof(float) },                            // C-stype strides
+                                                                                                                            npVals,                                       // Data
+                                                                                                                            pyCapsuleTrSigs );                            // Capsule (C++ destructor, basically)
+        
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the trace sigma distances vector from the first to all other structures." )
+    
+        .def                                          ( "getRotationFunctionVector",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getRotationFunctionVector ();
+        
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<unsigned int> (vals.size())];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+        
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRotFun ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+        
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<unsigned int> (vals.size()) },  // Shape
+                                                                                                                            { sizeof(float) },                            // C-stype strides
+                                                                                                                            npVals,                                       // Data
+                                                                                                                            pyCapsuleRotFun );                            // Capsule (C++ destructor, basically)
+        
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the full rotation function distances vector from the first to all other structures." )
+    
+        //============================================ Symmetry results accessor functions
+        .def                                          ( "getSymmetryType", &ProSHADE_run::getSymmetryType, "This is the main accessor function for the user to get to know what symmetry type ProSHADE has detected and recommends." )
+        .def                                          ( "getSymmetryFold", &ProSHADE_run::getSymmetryFold, "This is the main accessor function for the user to get to know what symmetry fold ProSHADE has detected and recommends." )
+        .def                                          ( "getSymmetryAxis", &ProSHADE_run::getSymmetryAxis, "This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.", pybind11::arg ( "axisNo" ) )
+        .def                                          ( "getAllCSyms",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< std::vector< proshade_double > > vals = self.getAllCSyms ();
+    
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<unsigned int> ( vals.size() * 6 )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+            
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = vals.at(iter).at(it); } }
+            
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleSymList ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+    
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( vals.size() ), static_cast<int> ( 6 ) },  // Shape
+                                                                                                                            { 6 * sizeof(float), sizeof(float) },                          // C-stype strides
+                                                                                                                            npVals,                                                        // Data
+                                                                                                                            pyCapsuleSymList );                                            // Capsule
+    
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns a all symmetry axes as a 2D numpy array." )
+    
+        //============================================ Reboxing results accessor functions as lambda functions directly returning numpy arrays
+        .def                                          ( "getOriginalBounds",
+                                                        [] ( ProSHADE_run &self, proshade_unsign strNo ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get values
+                                                            std::vector< proshade_signed > vals = self.getOriginalBounds ( strNo );
+            
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+        
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleOrigBnds ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
+                                                                                                                            { sizeof(float) },                                 // C-stype strides
+                                                                                                                            npVals,                                            // Data
+                                                                                                                            pyCapsuleOrigBnds );                               // Capsule (C++ destructor, basically)
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the original structure boundaries as numpy array." )
+    
+        .def                                          ( "getReBoxedBounds",
+                                                        [] ( ProSHADE_run &self, proshade_unsign strNo ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get values
+                                                            std::vector< proshade_signed > vals = self.getReBoxedBounds ( strNo );
+            
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleReBoBnds ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
+                                                                                                                            { sizeof(float) },                                 // C-stype strides
+                                                                                                                            npVals,                                            // Data
+                                                                                                                            pyCapsuleReBoBnds );                               // Capsule (C++ destructor, basically)
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the re-boxed structure boundaries as numpy array." )
+    
+    
+        .def                                          ( "getReBoxedMap",
+                                                        [] ( ProSHADE_run &self, proshade_unsign strNo ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_signed > vals = self.getReBoxedBounds ( strNo );
+
+                                                            //== Determine dimensions
+                                                            proshade_unsign xDim = vals.at(1) - vals.at(0) + 1;
+                                                            proshade_unsign yDim = vals.at(3) - vals.at(2) + 1;
+                                                            proshade_unsign zDim = vals.at(5) - vals.at(4) + 1;
+            
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[xDim * yDim * zDim];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < (xDim * yDim * zDim); iter++ ) { npVals[iter] = self.getMapValue ( strNo, iter ); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRebMap ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { xDim, yDim, zDim },                                                 // Shape
+                                                                                                                            { yDim * zDim * sizeof(float), zDim * sizeof(float), sizeof(float) }, // C-stype strides
+                                                                                                                            npVals,                                                               // Data
+                                                                                                                            pyCapsuleRebMap );                                                    // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                    }, "This function returns the re-boxed structure map as a numpy 3D array." )
+    
+        //============================================ Overlay results accessor functions as lambda functions directly returning numpy arrays
+        .def                                          ( "getEulerAngles",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getEulerAngles ( );
+        
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleEulAngs ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
+                                                                                                                            { sizeof(float) },                                 // C-stype strides
+                                                                                                                            npVals,                                            // Data
+                                                                                                                            pyCapsuleEulAngs );                                // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the vector of Euler angles with best overlay correlation." )
+    
+        .def                                          ( "getOptimalRotMat",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getOptimalRotMat ( );
+    
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRotMat ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { 3, 3 },                              // Shape
+                                                                                                                            { 3 * sizeof(float), sizeof(float) },  // C-stype strides
+                                                                                                                            npVals,                                // Data
+                                                                                                                            pyCapsuleRotMat );                     // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the vector of Euler angles with best overlay correlation." )
+    
+        .def                                          ( "getTranslationToOrigin",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getTranslationToOrigin ( );
+
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleTTO ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
+                                                                                                                            { sizeof(float) },                                 // C-stype strides
+                                                                                                                            npVals,                                            // Data
+                                                                                                                            pyCapsuleTTO );                                    // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the negative values of the position of the rotation centre (the point about which the rotation should be done)." )
+    
+        .def                                          ( "getTranslationToMapCentre",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getTranslationToMapCentre ( );
+
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleTTMC ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
+                                                                                                                            { sizeof(float) },                                 // C-stype strides
+                                                                                                                            npVals,                                            // Data
+                                                                                                                            pyCapsuleTTMC );                                   // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the vector of all translations done intenally to the input map." )
+    
+        .def                                          ( "getOriginToOverlayTranslation",
+                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                        {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getOriginToOverlayTranslation ( );
+
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleOTOT ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
+                                                                                                                            { sizeof(float) },                                 // C-stype strides
+                                                                                                                            npVals,                                            // Data
+                                                                                                                            pyCapsuleOTOT );                                   // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the translation required to move the structure from origin to optimal overlay." )
+    
     
         //============================================ Description
         .def                                          ( "__repr__", [] ( const ProSHADE_run &a ) { return "<ProSHADE_run class object> (Run class constructor takes a ProSHADE_settings object and completes a single run according to the settings object information)"; } );

@@ -301,8 +301,7 @@ add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/lib                           
 ################################### Build python module using PyBind11
 if     ( TESTPY11 )
 	add_subdirectory      ( ${CMAKE_SOURCE_DIR}/extern/pybind11                           )
-	pybind11_add_module   ( py${PROJECT_NAME} src/python/pyProSHADE_bindings.cpp
-										      src/python/pyProSHADE.cpp                   )
+	pybind11_add_module   ( py${PROJECT_NAME} src/python/pyProSHADE_bindings.cpp          )
 	target_link_libraries ( py${PROJECT_NAME} PRIVATE z                                   )
 	target_link_libraries ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
 	target_link_libraries ( py${PROJECT_NAME} PRIVATE fftw3                               )

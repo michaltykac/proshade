@@ -2418,7 +2418,7 @@ proshade_signed ProSHADE_run::getVerbose ( )
     return                                            ( this->verbose );
 }
 
-/*! \brief This function returns the energy level distances value for a particular structure pair.
+/*! \brief This function returns the energy level distances values for a particular structure pair.
 
     \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
     \param[out] val The value of the energy levels distances for the particular pair position.
