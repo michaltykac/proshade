@@ -31,7 +31,7 @@
  
     \param[in] settings A pointer to settings class containing all the information required for map self-rotation function computation.
  */
-void ProSHADE_internal_data::ProSHADE_data::getRotationFunction ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function computation." );

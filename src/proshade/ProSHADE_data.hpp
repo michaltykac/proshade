@@ -162,19 +162,19 @@ namespace ProSHADE_internal_data
         void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0, proshade_double transX = 0.0,
                                                         proshade_double transY = 0.0, proshade_double transZ = 0.0, bool firstModel = true );
         void writeMask                                ( std::string fName, proshade_double* mask );
-        int getMapArraySizePython                     ( void );
-        void getMapPython                             ( double *mapArrayPython, int len );
-        void setMapPython                             ( double *mapChangedInPython, int len );
-        void setNewMapPython                          ( double *mapChangedInPython, int len );
+        int getMapArraySizePython                     ( void ); // SWIG only
+        void getMapPython                             ( double *mapArrayPython, int len );       // SWIG only
+        void setMapPython                             ( double *mapChangedInPython, int len );   // SWIG only
+        void setNewMapPython                          ( double *mapChangedInPython, int len );   // SWIG only
         
         //============================================ Data processing functions
         void invertMirrorMap                          ( ProSHADE_settings* settings );
         void normaliseMap                             ( ProSHADE_settings* settings );
         void maskMap                                  ( ProSHADE_settings* settings );
         void getReBoxBoundaries                       ( ProSHADE_settings* settings, proshade_signed*& ret );
-        void getReBoxBoundariesPy                     ( ProSHADE_settings* settings, int* reBoxBounds, int len );
+        void getReBoxBoundariesPy                     ( ProSHADE_settings* settings, int* reBoxBounds, int len ); // SWIG only
         void createNewMapFromBounds                   ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds );
-        void createNewMapFromBoundsPy                 ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len );
+        void createNewMapFromBoundsPy                 ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len ); // SWIG only
         void reSampleMap                              ( ProSHADE_settings* settings );
         void centreMapOnCOM                           ( ProSHADE_settings* settings );
         void addExtraSpace                            ( ProSHADE_settings* settings );
@@ -185,10 +185,10 @@ namespace ProSHADE_internal_data
         void getSpherePositions                       ( ProSHADE_settings* settings );
         void mapToSpheres                             ( ProSHADE_settings* settings );
         void computeSphericalHarmonics                ( ProSHADE_settings* settings );
-        void getRealSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len );
-        void getImagSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len );
-        int sphericalHarmonicsIndex                   ( proshade_signed order, proshade_signed band, proshade_signed shell );
-        int getSphericalHarmonicsLenForShell          ( proshade_unsign shellNo, proshade_signed verbose );
+        void getRealSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len ); // SWIG only???
+        void getImagSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len ); // SWIG only???
+        int sphericalHarmonicsIndex                   ( proshade_signed order, proshade_signed band, proshade_signed shell ); // SWIG only???
+        int getSphericalHarmonicsLenForShell          ( proshade_unsign shellNo, proshade_signed verbose ); // SWIG only???
         
         //============================================ Distances pre-computation functions
         bool shellBandExists                          ( proshade_unsign shell, proshade_unsign bandVal );
@@ -198,7 +198,7 @@ namespace ProSHADE_internal_data
         void allocateWignerMatricesSpace              ( ProSHADE_settings* settings );
         
         //============================================ Symmetry detection functions
-        void getRotationFunction                      ( ProSHADE_settings* settings );
+        void computeRotationFunction                  ( ProSHADE_settings* settings );
         void convertRotationFunction                  ( ProSHADE_settings* settings );
         void getRealEMatrixValuesForLM                ( proshade_signed band, proshade_signed order1, double *eMatsLMReal, int len );
         void getImagEMatrixValuesForLM                ( proshade_signed band, proshade_signed order1, double *eMatsLMImag, int len );
@@ -227,7 +227,7 @@ namespace ProSHADE_internal_data
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
-        proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings );
+        proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings ); // SWIG?
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
         proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
         proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );

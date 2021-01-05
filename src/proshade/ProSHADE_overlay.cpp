@@ -255,7 +255,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
     
 }
 
-/*! \brief This function does the computation of the translation map.
+/*! \brief This function does the computation of the translation map and saves results internally.
 
     This function takes the static structure, the optimal translation to which should be found and then it
     proceeds to compute the Fourier transform of both this and the static structures. It then combines the
@@ -463,7 +463,7 @@ void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, pro
     
 }
 
-/*! \brief This function increases the size of a structure to fit the supplied new limits.
+/*! \brief This function changes the size of a structure to fit the supplied new limits.
  
     This function increases the map size by symetrically adding zeroes in each required dimension. The first zero is
     always added AFTER the structure, so for even size increases, there will be misplacement of centre of mass. The

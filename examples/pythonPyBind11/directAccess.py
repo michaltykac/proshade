@@ -241,8 +241,6 @@ for xIt in range( 0, xDimIndices ):
 
 pStruct2                                      = proshade.ProSHADE_data ( pSet, "python_map_test", testMap3D, xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
 
-## TEST IF THIS ACTUALLY WORKS - MAYBE SUBMIT TO DISTANCES OR WRITE OUT THE MAPS...
-
 del pStruct2
 
 ##############################################

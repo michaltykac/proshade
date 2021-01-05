@@ -21,6 +21,23 @@
 //==================================================== Include ProSHADE
 #include "ProSHADE.hpp"
 
+//==================================================== Include full ProSHADE (including cpp files looks horrible, but it is the only way I can find to stop PyBind11 from complaining)
+#include "ProSHADE_misc.cpp"
+#include "ProSHADE_maths.cpp"
+#include "ProSHADE_tasks.cpp"
+#include "ProSHADE_io.cpp"
+#include "ProSHADE_data.cpp"
+#include "ProSHADE_symmetry.cpp"
+#include "ProSHADE_overlay.cpp"
+#include "ProSHADE_wignerMatrices.cpp"
+#include "ProSHADE_spheres.cpp"
+#include "ProSHADE_mapManip.cpp"
+#include "ProSHADE_messages.cpp"
+#include "ProSHADE_distances.cpp"
+#include "ProSHADE_peakSearch.cpp"
+#include "ProSHADE_sphericalHarmonics.cpp"
+#include "ProSHADE.cpp"
+
 //==================================================== Include PyBind11 header
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -30,12 +47,16 @@
 
 //==================================================== Forward declarations of pyProSHADE functions
 void    add_settingsClass                             ( pybind11::module& pyProSHADE );
+void    add_dataClass                                 ( pybind11::module& pyProSHADE );
+void    add_distancesClass                            ( pybind11::module& pyProSHADE );
 
 //==================================================== Remove the bindings that are not modifyable in python
 PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::string > );
 
 //==================================================== Include the other codes
 #include "pyProSHADE.cpp"
+#include "pyProSHADE_data.cpp"
+#include "pyProSHADE_distances.cpp"
 
 //==================================================== Declare the exported functions
 PYBIND11_MODULE ( pyproshade, pyProSHADE )
@@ -60,4 +81,6 @@ PYBIND11_MODULE ( pyproshade, pyProSHADE )
     
     //================================================ Export the ProSHADE_Settings class
     add_settingsClass                                 ( pyProSHADE );
+    add_dataClass                                     ( pyProSHADE );
+    add_distancesClass                                ( pyProSHADE );
 }

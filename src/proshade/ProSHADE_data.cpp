@@ -279,6 +279,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
         }
     }
     
+    //================================================ Release memory (it was allocated by the PyBind11 lambda function and needs to be released)
+    delete[] mapVals;
+    
     //================================================ Done
     
 }
@@ -928,7 +931,7 @@ void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings*
     
 }
 
-/*! \brief Function for normalising the map to mean 0 and sd 1..
+/*! \brief Function for normalising the map values to mean 0 and sd 1..
  
     This function takes the map and changes its value to have mean 0 and standard deviation of 1. This should make
     wo maps with very different density levels more comparable, but it remains to be seen if this causes any trouble.
@@ -1626,11 +1629,14 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
 }
 
 
-/*! \brief This function simply clusters several other functions which should be called together.
+/*! \brief This function converts the internal map onto a set of concentric spheres.
  
-    This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
-    into a single function. This allows for simpler code and does not take any control away, as all the decisions
-    are ultimately driven by the settings.
+    This function starts by determining the spherical harmonics values which were not supplied by the user, these may be
+    bandwidth, taylor series cap, integration order, etc. It then proceeds to determine the optimal sphere distances, unless
+    these were determined by the user.
+ 
+    Finally, the function creates a new instance of the ProSHADE_sphere class for each of the already determined sphere
+    positions. Note: The constructor of ProSHADE_sphere is where the mapping then happens.
  
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
@@ -2669,7 +2675,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     
 }
 
-/*! \brief This function returns the group elements as rotation matrices or any defined point group.
+/*! \brief This function returns the group elements as rotation matrices of any defined point group.
  
     This function generates a list of all point group elements for any group defined by a set of cyclic point groups. The set is supplied using the second
     parameter, where these need to be detected by ProSHADE first and then their index in the ProSHADE cyclic group detected list can be given here.
@@ -3314,7 +3320,7 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
     }
 }
 
-/*! \brief This function removes phase from the map.
+/*! \brief This function removes phase from the map, effectively converting it to Patterson map.
  
     This function is called when the phase information needs to be removed from the internal map representation. It
     does the forward Fourier transform, removes the phase from the Fourier coefficients and then the inverse Fourier

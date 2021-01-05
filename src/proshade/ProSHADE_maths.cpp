@@ -2409,7 +2409,6 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
         {
             if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
             {
-                std::cout << " !!! !!! MATHS: axis " << CSymList->at(grIt)[1] << " ; " << CSymList->at(grIt)[2] << " ; " << CSymList->at(grIt)[3] << " is close enough to " << axis[1] << " ; " << axis[2] << " ; " << axis[3] << std::endl;
                 ret                                   = false;
                 whichImprove                          = grIt;
                 break;

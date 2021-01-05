@@ -307,7 +307,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         symmetryStructure->computeSphericalHarmonics  ( settings );
         
         //============================================ Compute auto-rotation map
-        symmetryStructure->getRotationFunction        ( settings );
+        symmetryStructure->computeRotationFunction    ( settings );
         
         if ( settings->usePeakSearchInRotationFunctionSpace )
         {            

@@ -18,26 +18,6 @@
     \date      DEC 2020
  */
 
-//==================================================== Include header
-#include "ProSHADE_settings.hpp"
-
-//==================================================== Include full ProSHADE (including cpp files looks horrible, but it is the only way I can find to stop PyBind11 from complaining)
-#include "ProSHADE_misc.cpp"
-#include "ProSHADE_maths.cpp"
-#include "ProSHADE_tasks.cpp"
-#include "ProSHADE_io.cpp"
-#include "ProSHADE_data.cpp"
-#include "ProSHADE_symmetry.cpp"
-#include "ProSHADE_overlay.cpp"
-#include "ProSHADE_wignerMatrices.cpp"
-#include "ProSHADE_spheres.cpp"
-#include "ProSHADE_mapManip.cpp"
-#include "ProSHADE_messages.cpp"
-#include "ProSHADE_distances.cpp"
-#include "ProSHADE_peakSearch.cpp"
-#include "ProSHADE_sphericalHarmonics.cpp"
-#include "ProSHADE.cpp"
-
 //==================================================== Include PyBind11 header
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -51,7 +31,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         
         //============================================ Constructors (destructors do not need wrappers???)
         .def                                          ( pybind11::init < > ( ) )
-        .def                                          ( pybind11::init < ProSHADE_Task > ( ) )
+        .def                                          ( pybind11::init < ProSHADE_Task > ( ), pybind11::arg ( "task" ) )
     
         //============================================ Member variables
         .def_readwrite                                ( "task",                                 &ProSHADE_settings::task                                )
@@ -184,7 +164,16 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setMaxSymmetryFold",                   &ProSHADE_settings::setMaxSymmetryFold,                     "Sets the maximum symmetry fold (well, the maximum prime symmetry fold).",                                                  pybind11::arg ( "maxFold"        ) )
     
         //============================================ Command line parsing
-        .def                                          ( "getCommandLineParams", [] ( ProSHADE_settings &self, std::vector < std::string > args ) { std::vector < char * > cstrs; cstrs.reserve ( args.size() ); for ( auto &s : args ) cstrs.push_back ( const_cast < char * > ( s.c_str ( ) ) ); return self.getCommandLineParams ( cstrs.size ( ), cstrs.data ( ) ); } )
+        .def                                          ( "getCommandLineParams",
+                                                        [] ( ProSHADE_settings &self, std::vector < std::string > args )
+                                                        {
+                                                            std::vector < char * > cstrs; cstrs.reserve ( args.size() );
+            
+                                                            for ( auto &s : args )
+                                                                cstrs.push_back ( const_cast < char * > ( s.c_str ( ) ) );
+                                                            
+                                                            return self.getCommandLineParams ( cstrs.size ( ), cstrs.data ( ) );
+                                                        }, "This function takes a VectorOfStrings and parses it as if it were command line arguments, filling in the calling ProSHADE_settings class with the values." )
         
         //============================================ Debugging
         .def                                          ( "printSettings", &ProSHADE_settings::printSettings, "This function prints the current values in the settings object." )
