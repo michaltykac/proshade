@@ -436,18 +436,18 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 toOverlay.append ( vals.at(1) + self.originalPdbRotCenY );
                                                                 toOverlay.append ( vals.at(2) + self.originalPdbRotCenZ );
                                                                 
-                                                                toMapCen.append ( self.comMovX );
-                                                                toMapCen.append ( self.comMovY );
-                                                                toMapCen.append ( self.comMovZ );
+                                                                toMapCen.append ( self.mapCOMProcessChangeX );
+                                                                toMapCen.append ( self.mapCOMProcessChangeY );
+                                                                toMapCen.append ( self.mapCOMProcessChangeZ );
                                                             }
                                                             else
                                                             {
                                                                 proshade_double rcX = ( ( ( self.xDimIndicesOriginal / 2 ) - self.xAxisOriginOriginal ) *
-                                                                                        ( ( self.xDimIndicesOriginal - 1 ) / self.xDimSizeOriginal ) ) - ( self.comMovX );
+                                                                                        ( ( self.xDimIndicesOriginal - 1 ) / self.xDimSizeOriginal ) ) - ( self.mapCOMProcessChangeX );
                                                                 proshade_double rcY = ( ( ( self.yDimIndicesOriginal / 2 ) - self.yAxisOriginOriginal ) *
-                                                                                        ( ( self.yDimIndicesOriginal - 1 ) / self.yDimSizeOriginal ) ) - ( self.comMovY );
+                                                                                        ( ( self.yDimIndicesOriginal - 1 ) / self.yDimSizeOriginal ) ) - ( self.mapCOMProcessChangeY );
                                                                 proshade_double rcZ = ( ( ( self.zDimIndicesOriginal / 2 ) - self.zAxisOriginOriginal ) *
-                                                                                        ( ( self.zDimIndicesOriginal - 1 ) / self.zDimSizeOriginal ) ) - ( self.comMovZ );
+                                                                                        ( ( self.zDimIndicesOriginal - 1 ) / self.zDimSizeOriginal ) ) - ( self.mapCOMProcessChangeZ );
                                                                 
                                                                 rotCen.append ( rcX );
                                                                 rotCen.append ( rcY );
@@ -457,9 +457,9 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 toOverlay.append ( vals.at(1) + rcY );
                                                                 toOverlay.append ( vals.at(2) + rcZ );
                                                                 
-                                                                toMapCen.append ( self.comMovX );
-                                                                toMapCen.append ( self.comMovY );
-                                                                toMapCen.append ( self.comMovZ );
+                                                                toMapCen.append ( self.mapCOMProcessChangeX );
+                                                                toMapCen.append ( self.mapCOMProcessChangeY );
+                                                                toMapCen.append ( self.mapCOMProcessChangeZ );
                                                             }
             
                                                             //== Save results to return dict

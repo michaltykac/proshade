@@ -415,9 +415,9 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     ProSHADE_internal_misc::addToDoubleVector         ( eulerAngles, eulA );
     ProSHADE_internal_misc::addToDoubleVector         ( eulerAngles, eulB );
     ProSHADE_internal_misc::addToDoubleVector         ( eulerAngles, eulG );
-    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->comMovX );
-    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->comMovY );
-    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->comMovZ );
+    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->mapCOMProcessChangeX );
+    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->mapCOMProcessChangeY );
+    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->mapCOMProcessChangeZ );
     
     //================================================ Report results to user
     movingStructure->reportOverlayResults             ( settings, rotationCentre, mapBoxMovement, eulerAngles, finalTranslation );

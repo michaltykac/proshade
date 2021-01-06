@@ -74,9 +74,6 @@ namespace ProSHADE_internal_data
         proshade_signed xAxisOrigin;                  //!< This is the origin position along the x axis.
         proshade_signed yAxisOrigin;                  //!< This is the origin position along the y axis.
         proshade_signed zAxisOrigin;                  //!< This is the origin position along the z axis.
-        proshade_double comMovX;                      //!< How much the map was moved along the X-axis to achieve COM centering.
-        proshade_double comMovY;                      //!< How much the map was moved along the X-axis to achieve COM centering.
-        proshade_double comMovZ;                      //!< How much the map was moved along the X-axis to achieve COM centering.
         proshade_double xCom;                         //!< The COM of the map after processing along the X-axis.
         proshade_double yCom;                         //!< The COM of the map after processing along the Y-axis.
         proshade_double zCom;                         //!< The COM of the map after processing along the Z-axis.
@@ -97,6 +94,9 @@ namespace ProSHADE_internal_data
         proshade_double mapPostRotXCom;               //!< The COM of the rotated map before it is processed in any other way. Along the X axis.
         proshade_double mapPostRotYCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Y axis.
         proshade_double mapPostRotZCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Z axis.
+        proshade_double mapCOMProcessChangeX;         //!< The change in X axis between the creation of the structure (originalMapXCom) and just before rotation.
+        proshade_double mapCOMProcessChangeY;         //!< The change in Y axis between the creation of the structure (originalMapYCom) and just before rotation.
+        proshade_double mapCOMProcessChangeZ;         //!< The change in Z axis between the creation of the structure (originalMapZCom) and just before rotation.
         
         //============================================ Variables regarding rotation and translation of original input files
         proshade_double originalPdbRotCenX;           //!< The centre of rotation as it relates to the original PDB positions (and not the ProSHADE internal map) along the x-axis.
@@ -145,7 +145,6 @@ namespace ProSHADE_internal_data
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );
         void allocateRRPMemory                        ( ProSHADE_settings* settings );
-        void setOriginalMapValues                     ( void );
         
     public:
         //============================================ Constructors / Destructors
