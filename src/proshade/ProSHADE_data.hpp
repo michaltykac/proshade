@@ -91,9 +91,9 @@ namespace ProSHADE_internal_data
         proshade_double originalMapXCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the X axis.
         proshade_double originalMapYCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the Y axis.
         proshade_double originalMapZCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the Z axis.
-        proshade_double mapPostRotXCom;               //!< The COM of the rotated map before it is processed in any other way. Along the X axis.
-        proshade_double mapPostRotYCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Y axis.
-        proshade_double mapPostRotZCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Z axis.
+        proshade_double mapMovFromsChangeX;           //!< When the map is translated, the xFrom and xTo values are changed. This variable holds how much they have changed.
+        proshade_double mapMovFromsChangeY;           //!< When the map is translated, the yFrom and yTo values are changed. This variable holds how much they have changed.
+        proshade_double mapMovFromsChangeZ;           //!< When the map is translated, the zFrom and zTo values are changed. This variable holds how much they have changed.
         proshade_double mapCOMProcessChangeX;         //!< The change in X axis between the creation of the structure (originalMapXCom) and just before rotation.
         proshade_double mapCOMProcessChangeY;         //!< The change in Y axis between the creation of the structure (originalMapYCom) and just before rotation.
         proshade_double mapCOMProcessChangeZ;         //!< The change in Z axis between the creation of the structure (originalMapZCom) and just before rotation.

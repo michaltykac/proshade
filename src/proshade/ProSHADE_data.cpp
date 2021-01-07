@@ -82,9 +82,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->originalMapXCom                             = 0.0;
     this->originalMapYCom                             = 0.0;
     this->originalMapZCom                             = 0.0;
-    this->mapPostRotXCom                              = 0.0;
-    this->mapPostRotYCom                              = 0.0;
-    this->mapPostRotZCom                              = 0.0;
+    this->mapMovFromsChangeX                          = 0.0;
+    this->mapMovFromsChangeY                          = 0.0;
+    this->mapMovFromsChangeZ                          = 0.0;
     this->mapCOMProcessChangeX                        = 0.0;
     this->mapCOMProcessChangeY                        = 0.0;
     this->mapCOMProcessChangeZ                        = 0.0;
@@ -203,9 +203,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->originalMapXCom                             = 0.0;
     this->originalMapYCom                             = 0.0;
     this->originalMapZCom                             = 0.0;
-    this->mapPostRotXCom                              = 0.0;
-    this->mapPostRotYCom                              = 0.0;
-    this->mapPostRotZCom                              = 0.0;
+    this->mapMovFromsChangeX                          = 0.0;
+    this->mapMovFromsChangeY                          = 0.0;
+    this->mapMovFromsChangeZ                          = 0.0;
     this->mapCOMProcessChangeX                        = 0.0;
     this->mapCOMProcessChangeY                        = 0.0;
     this->mapCOMProcessChangeZ                        = 0.0;
@@ -816,18 +816,14 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
     {
-        //============================================ Save original PDB COM position
-        proshade_double xCOMOriginal = 0.0, yCOMOriginal = 0.0, zCOMOriginal = 0.0;
-        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMOriginal, &yCOMOriginal, &zCOMOriginal, firstModel );
-        
         //============================================ Compute the rotation centre for the co-ordinates
-        proshade_double xRotPos                       = ( static_cast<proshade_double> ( this->xFrom ) * ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) ) +
+        proshade_double xRotPos                       = ( static_cast<proshade_double> ( this->xFrom - this->mapMovFromsChangeX ) * ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) ) +
                                                         ( ( ( static_cast<proshade_double> ( this->xTo ) - static_cast<proshade_double> ( this->xFrom ) ) / 2.0 ) *
                                                           (   this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) );
-        proshade_double yRotPos                       = ( static_cast<proshade_double> ( this->yFrom ) * ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) ) +
+        proshade_double yRotPos                       = ( static_cast<proshade_double> ( this->yFrom - this->mapMovFromsChangeY ) * ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) ) +
                                                         ( ( ( static_cast<proshade_double> ( this->yTo ) - static_cast<proshade_double> ( this->yFrom ) ) / 2.0 ) *
                                                           (   this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) );
-        proshade_double zRotPos                       = ( static_cast<proshade_double> ( this->zFrom ) * ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) ) +
+        proshade_double zRotPos                       = ( static_cast<proshade_double> ( this->zFrom - this->mapMovFromsChangeZ ) * ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) ) +
                                                         ( ( ( static_cast<proshade_double> ( this->zTo ) - static_cast<proshade_double> ( this->zFrom ) ) / 2.0 ) *
                                                           (   this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) );
         
@@ -835,7 +831,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         this->originalPdbRotCenX                      = xRotPos - (this->mapCOMProcessChangeX/2.0);
         this->originalPdbRotCenY                      = yRotPos - (this->mapCOMProcessChangeY/2.0);
         this->originalPdbRotCenZ                      = zRotPos - (this->mapCOMProcessChangeZ/2.0);
-
+        
         //============================================ Rotate the co-ordinates
         ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, this->originalPdbRotCenX, this->originalPdbRotCenY, this->originalPdbRotCenZ, firstModel );
     }

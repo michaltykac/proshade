@@ -186,9 +186,12 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     std::stringstream hlpSS;
     hlpSS << "Optimal map translation distances are " << *trsX << " ; " << *trsY << " ; " << *trsZ << " Angstroms with peak height " << mapPeak / ( xDimS * yDimS * zDimS );
 
+    //================================================ Save original from variables for PDB output
+    movingStructure->mapMovFromsChangeX               = movingStructure->xFrom;
+    movingStructure->mapMovFromsChangeY               = movingStructure->yFrom;
+    movingStructure->mapMovFromsChangeZ               = movingStructure->zFrom;
+    
     //================================================ Move the map
-    movingStructure->writeMap ( "PreMoveStructure.map" );
-    movingStructure->writePdb ( "PreMoveStructure.pdb", eulA, eulB, eulG, xMov, yMov, zMov, true );
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, movingStructure->getXDimSize(), movingStructure->getYDimSize(), movingStructure->getZDimSize(),
                                                         movingStructure->getXFromPtr(), movingStructure->getXToPtr(),
                                                         movingStructure->getYFromPtr(), movingStructure->getYToPtr(),
@@ -202,6 +205,11 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Translation function computation complete." );
+    
+    //================================================ Keep only the change in from and to variables
+    movingStructure->mapMovFromsChangeX               = movingStructure->xFrom - movingStructure->mapMovFromsChangeX;
+    movingStructure->mapMovFromsChangeY               = movingStructure->yFrom - movingStructure->mapMovFromsChangeY;
+    movingStructure->mapMovFromsChangeZ               = movingStructure->zFrom - movingStructure->mapMovFromsChangeZ;
     
     //================================================ Done
     return ;
@@ -653,12 +661,6 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     {
         this->internalMap[iter]                       = densityMapRotated[iter];
     }
-    
-    //================================================ Re-calculate the map COM
-    this->findMapCOM                                  ( );
-    this->mapPostRotXCom                              = this->xCom;
-    this->mapPostRotYCom                              = this->yCom;
-    this->mapPostRotZCom                              = this->zCom;
     
     //================================================ Release rotated map (original is now rotated)
     delete[] densityMapRotated;
