@@ -365,11 +365,10 @@ void ProSHADE_internal_tasks::checkSymmetrySettings ( ProSHADE_settings* setting
  
     \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
     \param[in] rotationCentre Pointer to vector for saving the position of the centre of rotation about which the rotation is to be done.
-    \param[in] mapBoxMovement Pointer to vector for saving the sum of all translations done internally by ProSHADE to this input map.
     \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
     \param[in] finalTranslation Pointer to a vector where the translation required to move structure from origin to optimal overlay with static structure will be saved into.
  */
-void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
+void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
 {
     //================================================ Check the settings are complete and meaningful
     checkOverlaySettings                              ( settings );
@@ -399,28 +398,23 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG );
     
     //================================================ Compute the proper translations using the translation function output
-    ProSHADE_internal_misc::addToDoubleVector         ( rotationCentre, 0.0 );
-    ProSHADE_internal_misc::addToDoubleVector         ( rotationCentre, 0.0 );
-    ProSHADE_internal_misc::addToDoubleVector         ( rotationCentre, 0.0 );
-    ProSHADE_internal_misc::addToDoubleVector         ( finalTranslation, trsX );
-    ProSHADE_internal_misc::addToDoubleVector         ( finalTranslation, trsY );
-    ProSHADE_internal_misc::addToDoubleVector         ( finalTranslation, trsZ );
-    movingStructure->computeOverlayTranslations       ( &rotationCentre->at(0),   &rotationCentre->at(1),   &rotationCentre->at(2),
-                                                        &finalTranslation->at(0), &finalTranslation->at(1), &finalTranslation->at(2) );
+    ProSHADE_internal_misc::addToDoubleVector         ( rotationCentre, movingStructure->originalPdbRotCenX );
+    ProSHADE_internal_misc::addToDoubleVector         ( rotationCentre, movingStructure->originalPdbRotCenY );
+    ProSHADE_internal_misc::addToDoubleVector         ( rotationCentre, movingStructure->originalPdbRotCenZ );
+    ProSHADE_internal_misc::addToDoubleVector         ( finalTranslation, movingStructure->originalPdbTransX );
+    ProSHADE_internal_misc::addToDoubleVector         ( finalTranslation, movingStructure->originalPdbTransY );
+    ProSHADE_internal_misc::addToDoubleVector         ( finalTranslation, movingStructure->originalPdbTransZ );
     
     //================================================ Write out everything
-    movingStructure->writeOutOverlayFiles              ( settings, trsX, trsY, trsZ, eulA, eulB, eulG, rotationCentre, finalTranslation );
+    movingStructure->writeOutOverlayFiles              ( settings, eulA, eulB, eulG, rotationCentre, finalTranslation );
     
     //================================================ Save the rotation and rest of translations
     ProSHADE_internal_misc::addToDoubleVector         ( eulerAngles, eulA );
     ProSHADE_internal_misc::addToDoubleVector         ( eulerAngles, eulB );
     ProSHADE_internal_misc::addToDoubleVector         ( eulerAngles, eulG );
-    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->mapCOMProcessChangeX );
-    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->mapCOMProcessChangeY );
-    ProSHADE_internal_misc::addToDoubleVector         ( mapBoxMovement, movingStructure->mapCOMProcessChangeZ );
     
     //================================================ Report results to user
-    movingStructure->reportOverlayResults             ( settings, rotationCentre, mapBoxMovement, eulerAngles, finalTranslation );
+    movingStructure->reportOverlayResults             ( settings, rotationCentre, eulerAngles, finalTranslation );
     
     //================================================ Release memory
     delete staticStructure;

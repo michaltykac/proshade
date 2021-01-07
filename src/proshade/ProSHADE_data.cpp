@@ -797,12 +797,9 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
     \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
     \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
-    \param[in] transX The translation to be done along the X-axis in Angstroms.
-    \param[in] transY The translation to be done along the Y-axis in Angstroms.
-    \param[in] transZ The translation to be done along the Z-axis in Angstroms.
     \param[in] firstModel Should only the first model, or rather all of them be used?
 */
-void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ, bool firstModel )
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, bool firstModel )
 {
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
@@ -815,37 +812,10 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
-    {
-        //============================================ Compute the rotation centre for the co-ordinates
-        proshade_double xRotPos                       = ( static_cast<proshade_double> ( this->xFrom - this->mapMovFromsChangeX ) * ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) ) +
-                                                        ( ( ( static_cast<proshade_double> ( this->xTo ) - static_cast<proshade_double> ( this->xFrom ) ) / 2.0 ) *
-                                                          (   this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) );
-        proshade_double yRotPos                       = ( static_cast<proshade_double> ( this->yFrom - this->mapMovFromsChangeY ) * ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) ) +
-                                                        ( ( ( static_cast<proshade_double> ( this->yTo ) - static_cast<proshade_double> ( this->yFrom ) ) / 2.0 ) *
-                                                          (   this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) );
-        proshade_double zRotPos                       = ( static_cast<proshade_double> ( this->zFrom - this->mapMovFromsChangeZ ) * ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) ) +
-                                                        ( ( ( static_cast<proshade_double> ( this->zTo ) - static_cast<proshade_double> ( this->zFrom ) ) / 2.0 ) *
-                                                          (   this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) );
-        
-        //============================================ Modify by change during ProSHADE map processing
-        this->originalPdbRotCenX                      = xRotPos - (this->mapCOMProcessChangeX/2.0);
-        this->originalPdbRotCenY                      = yRotPos - (this->mapCOMProcessChangeY/2.0);
-        this->originalPdbRotCenZ                      = zRotPos - (this->mapCOMProcessChangeZ/2.0);
-        
+    {        
         //============================================ Rotate the co-ordinates
         ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, this->originalPdbRotCenX, this->originalPdbRotCenY, this->originalPdbRotCenZ, firstModel );
     }
-    else
-    {
-        this->originalPdbTransX                       = this->mapCOMProcessChangeX;
-        this->originalPdbTransY                       = this->mapCOMProcessChangeY;
-        this->originalPdbTransZ                       = this->mapCOMProcessChangeZ;
-    }
-
-    //================================================ Save the values
-    this->originalPdbTransX                          += transX;
-    this->originalPdbTransY                          += transY;
-    this->originalPdbTransZ                          += transZ;
 
     //================================================ Translate by required translation and the map centering (if applied)
     ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->originalPdbTransX, this->originalPdbTransY, this->originalPdbTransZ, firstModel );
@@ -4278,16 +4248,13 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
     moved density map, if possible the moved co-ordinates and also the overlay operations listing JSON file.
  
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
-    \param[in] trsX The optimal x-axis translation value.
-    \param[in] trsY The optimal y-axis translation value.
-    \param[in] trsZ The optimal z-axis translation value.
     \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
     \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
     \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
-    \param[in] rotCentre The rotation centre position as determined by the computeOverlayTranslations function.
-    \param[in] ultimateTranslation The final translation as determined by the computeOverlayTranslations function.
+    \param[in] rotCentre The rotation centre position.
+    \param[in] ultimateTranslation The final translation as determined by the translation function.
 */
-void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre, std::vector< proshade_double >* ultimateTranslation )
+void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre, std::vector< proshade_double >* ultimateTranslation )
 {
     //================================================ Write out rotated map
     std::stringstream fNameHlp;
@@ -4299,7 +4266,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ, settings->firstModelOnly );
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, settings->firstModelOnly );
     }
     
     //================================================ Write out the json file with the results
@@ -4307,61 +4274,6 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
                                                          eulA, eulB, eulG,
                                                          ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2),
                                                          this->mapCOMProcessChangeX, this->mapCOMProcessChangeY, this->mapCOMProcessChangeZ, settings->rotTrsJSONFile );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function sets the correct translation values for the overlay mode.
-
-    This function takes the translation as computed by the translation function (in the last three input variables) and proceeds  to
-    compute and save the initial centre of rotation as well as the ultimate translation to be done after rotation to obtain the optimal
-    overlay of the moving structure over the static structure.
-    
-    \param[in] rcX Pointer to where to save the rotation centre position along the X-axis in Angstroms.
-    \param[in] rcY Pointer to where to save the rotation centre position along the Y-axis in Angstroms.
-    \param[in] rcZ Pointer to where to save the rotation centre position along the Z-axis in Angstroms.
-    \param[in] transX Pointer to where to save the translation to be done along the X-axis in Angstroms. This variable should already have the computed translation from the translation map.
-    \param[in] transY Pointer to where to save the translation to be done along the Y-axis in Angstroms. This variable should already have the computed translation from the translation map.
-    \param[in] transZ Pointer to where to save the translation to be done along the Z-axis in Angstroms. This variable should already have the computed translation from the translation map.
-*/
-void ProSHADE_internal_data::ProSHADE_data::computeOverlayTranslations ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ, proshade_double* transX, proshade_double* transY, proshade_double* transZ )
-{
-    //================================================ Write out the json file with the results
-    if ( ProSHADE_internal_io::isFilePDB ( this->fileName ) )
-    {
-        //============================================ If PDB, we already have these
-       *rcX                                           = this->originalPdbRotCenX;
-       *rcY                                           = this->originalPdbRotCenY;
-       *rcZ                                           = this->originalPdbRotCenZ;
-         
-       *transX                                        = *transX + this->originalPdbRotCenX;
-       *transY                                        = *transY + this->originalPdbRotCenY;
-       *transZ                                        = *transZ + this->originalPdbRotCenZ;
-    }
-    else
-    {
-        //============================================ Compute the rotation centre for the co-ordinates
-        proshade_double xRotPos                       = ( ( static_cast<proshade_double> ( this->xDimIndicesOriginal / 2 ) - this->xAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->xDimIndicesOriginal - 1 ) / this->xDimSizeOriginal ) ) -
-                                                          (this->mapCOMProcessChangeX);
-        proshade_double yRotPos                       = ( ( static_cast<proshade_double> ( this->yDimIndicesOriginal / 2 ) - this->yAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->yDimIndicesOriginal - 1 ) / this->yDimSizeOriginal ) ) -
-                                                          (this->mapCOMProcessChangeY);
-        proshade_double zRotPos                       = ( ( static_cast<proshade_double> ( this->zDimIndicesOriginal / 2 ) - this->zAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->zDimIndicesOriginal - 1 ) / this->zDimSizeOriginal ) ) -
-                                                          (this->mapCOMProcessChangeZ);
-        
-        //============================================ And save
-        *rcX                                           = xRotPos;
-        *rcY                                           = yRotPos;
-        *rcZ                                           = zRotPos;
-          
-        *transX                                        = *transX + xRotPos;
-        *transY                                        = *transY + yRotPos;
-        *transZ                                        = *transZ + zRotPos;
-    }
     
     //================================================ Done
     return ;
@@ -4376,7 +4288,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeOverlayTranslations ( proshad
     \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
     \param[in] finalTranslation Pointer to a vector where the translation required to move structure from origin to optimal overlay with static structure will be saved into.
 */
-void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
+void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
 {
     //================================================ Empty line
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "" );
@@ -4384,10 +4296,6 @@ void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_sett
     //================================================ Write out rotation centre translation results
     std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is: " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str() );
-    
-    //================================================ Write out internal map translation results
-    std::stringstream mapBox; mapBox << std::setprecision (3) << std::showpos << "The within box internal map translation vector is  : " << mapBoxMovement->at(0) << "     " << mapBoxMovement->at(1) << "     " << mapBoxMovement->at(2);
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, mapBox.str() );
     
     //================================================ Write out rotation matrix about origin
     proshade_double* rotMat                           = new proshade_double[9];

@@ -158,8 +158,7 @@ namespace ProSHADE_internal_data
         //============================================ Data I/O functions
         void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "Created by ProSHADE and written by GEMMI", int mode = 2 );
-        void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0, proshade_double transX = 0.0,
-                                                        proshade_double transY = 0.0, proshade_double transZ = 0.0, bool firstModel = true );
+        void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0, bool firstModel = true );
         void writeMask                                ( std::string fName, proshade_double* mask );
         int getMapArraySizePython                     ( void ); // SWIG only
         void getMapPython                             ( double *mapArrayPython, int len );       // SWIG only
@@ -260,13 +259,12 @@ namespace ProSHADE_internal_data
         void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( void );
-        void computeOverlayTranslations               ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ,
-                                                        proshade_double* transX, proshade_double* transY, proshade_double* transZ );
-        void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ,
-                                                        proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
+        void computePdbRotationCentre                 ( void );
+        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
+        void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
                                                         std::vector< proshade_double >* ultimateTranslation );
-        void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement,
-                                                        std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation );
+        void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
+                                                        std::vector < proshade_double >* finalTranslation );
         
         //============================================ Python access functions
         void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );

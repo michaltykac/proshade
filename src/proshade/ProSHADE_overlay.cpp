@@ -57,6 +57,86 @@ void ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction ( ProSHAD
     
 }
 
+/*! \brief This function computes the optimal rotation centre for co-ordinates.
+ 
+    This function computes the "visualisation world" (or co-ordinates space) position of the point about which the map was
+    rotated, taking into account the internal ProSHADE map manipulations and other factors. By rotating the co-ordinates
+    about this point, their position and orientation will be the same as the map position before translation function is computed.
+ 
+    \warning This function will be called automatically by the getOptimalTranslation() function, so unless directAccess is being used, the user should not need to use this function.
+ */
+void ProSHADE_internal_data::ProSHADE_data::computePdbRotationCentre ()
+{
+    //================================================ First. determine the sampling rates (value to multiply indices with to get Angstroms)
+    proshade_double xSamplRate                        = ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) );
+    proshade_double ySamplRate                        = ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) );
+    proshade_double zSamplRate                        = ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) );
+    
+    //================================================ Compute the rotation centre for the co-ordinates
+    proshade_double xRotPos                           = ( static_cast<proshade_double> ( this->xFrom - this->mapMovFromsChangeX ) * xSamplRate ) +                                // Corner X position in Angstroms
+                                                        ( ( ( static_cast<proshade_double> ( this->xTo ) - static_cast<proshade_double> ( this->xFrom ) ) / 2.0 ) * xSamplRate ); // Half of box X size
+    
+    proshade_double yRotPos                           = ( static_cast<proshade_double> ( this->yFrom - this->mapMovFromsChangeY ) * ySamplRate ) +                                // Corner Y position in Angstroms
+                                                        ( ( ( static_cast<proshade_double> ( this->yTo ) - static_cast<proshade_double> ( this->yFrom ) ) / 2.0 ) * ySamplRate ); // Half of box Y size
+    
+    proshade_double zRotPos                           = ( static_cast<proshade_double> ( this->zFrom - this->mapMovFromsChangeZ ) * zSamplRate ) +                                // Corner Z position in Angstroms
+                                                        ( ( ( static_cast<proshade_double> ( this->zTo ) - static_cast<proshade_double> ( this->zFrom ) ) / 2.0 ) * zSamplRate ); // Half of box Z size
+    
+    //============================================ Modify by change during ProSHADE map processing
+    this->originalPdbRotCenX                          = xRotPos - ( this->mapCOMProcessChangeX / 2.0 );
+    this->originalPdbRotCenY                          = yRotPos - ( this->mapCOMProcessChangeY / 2.0 );
+    this->originalPdbRotCenZ                          = zRotPos - ( this->mapCOMProcessChangeZ / 2.0 );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes and saves the optimal translation vector from the already determined translation function results.
+ 
+    This function simply saves the determined optimal translation to the appropriate variable and does a simple modification to take into account
+    any modifications that ProSHADE may have done to the internal map.
+ 
+    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] transX The translation to be done along the X-axis in Angstroms.
+    \param[in] transY The translation to be done along the Y-axis in Angstroms.
+    \param[in] transZ The translation to be done along the Z-axis in Angstroms.
+ 
+    \warning This function will be called automatically by the getOptimalTranslation() function, so unless directAccess is being used, the user should not need to use this function.
+ */
+void ProSHADE_internal_data::ProSHADE_data::computeOptimalTranslation ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
+{
+    //================================================ Reset class variables
+    this->originalPdbTransX                           = 0.0;
+    this->originalPdbTransY                           = 0.0;
+    this->originalPdbTransZ                           = 0.0;
+    
+    //================================================ Correctly apply any map modifications that ProSHADE may have done to the map to make sure map matches co-ordinates.
+    if ( ( eulA != 0.0 ) || ( eulB != 0.0 ) || ( eulG != 0.0 ) )
+    {
+        //============================================ If rotation is to be done, then ProSHADE processing map changes are already dealt with
+        ;
+    }
+    else
+    {
+        //============================================ In not, then they need to be added
+        this->originalPdbTransX                       = this->mapCOMProcessChangeX;
+        this->originalPdbTransY                       = this->mapCOMProcessChangeY;
+        this->originalPdbTransZ                       = this->mapCOMProcessChangeZ;
+    }
+
+    //================================================ Save the values
+    this->originalPdbTransX                          += trsX;
+    this->originalPdbTransY                          += trsY;
+    this->originalPdbTransZ                          += trsZ;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function finds the optimal rotation between two structures as described by the settings object.
  
     This function takes the settings and two structure classes. It then reads in and processes both structures so that the
@@ -210,6 +290,10 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->mapMovFromsChangeX               = movingStructure->xFrom - movingStructure->mapMovFromsChangeX;
     movingStructure->mapMovFromsChangeY               = movingStructure->yFrom - movingStructure->mapMovFromsChangeY;
     movingStructure->mapMovFromsChangeZ               = movingStructure->zFrom - movingStructure->mapMovFromsChangeZ;
+    
+    //================================================ Compute the optimal rotation centre for co-ordinates
+    movingStructure->computePdbRotationCentre         ( );
+    movingStructure->computeOptimalTranslation        ( eulA, eulB, eulG, *trsX, *trsY, *trsZ );
     
     //================================================ Done
     return ;

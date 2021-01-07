@@ -89,7 +89,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         //============================================ Data I/O functions
         .def                                          ( "readInStructure",  &ProSHADE_internal_data::ProSHADE_data::readInStructure,    "This function initialises the basic ProSHADE_data variables and reads in a single structure.", pybind11::arg ( "fname" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ) )
         .def                                          ( "writeMap",         &ProSHADE_internal_data::ProSHADE_data::writeMap,           "Function for writing out the internal structure representation in MRC MAP format.",            pybind11::arg ( "fname" ), pybind11::arg ( "title" ) = "Created by ProSHADE and written by GEMMI", pybind11::arg ( "mode" ) = 2 )
-        .def                                          ( "writePdb",         &ProSHADE_internal_data::ProSHADE_data::writePdb,           "This function writes out the PDB formatted file coresponding to the structure.",               pybind11::arg ( "fname" ), pybind11::arg ( "euA" ) = 0.0, pybind11::arg ( "euB" ) = 0.0, pybind11::arg ( "euG" ) = 0.0, pybind11::arg ( "transX" ) = 0.0, pybind11::arg ( "transY" ) = 0.0, pybind11::arg ( "transZ" ) = 0.0, pybind11::arg ( "firstModel" ) = true )
+        .def                                          ( "writePdb",         &ProSHADE_internal_data::ProSHADE_data::writePdb,           "This function writes out the PDB formatted file coresponding to the structure.",               pybind11::arg ( "fname" ), pybind11::arg ( "euA" ) = 0.0, pybind11::arg ( "euB" ) = 0.0, pybind11::arg ( "euG" ) = 0.0, pybind11::arg ( "firstModel" ) = true )
         .def                                          ( "getMap",
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < proshade_double >
                                                         {
@@ -423,53 +423,24 @@ void add_dataClass ( pybind11::module& pyProSHADE )
             
                                                             //== Initialise variables
                                                             pybind11::dict retDict;
-                                                            pybind11::list rotCen, toOverlay, toMapCen;
+                                                            pybind11::list rotCen, toOverlay;
             
-                                                            //== Are we dealing with co-ordinate or with map input?
-                                                            if ( ProSHADE_internal_io::isFilePDB ( self.fileName ) )
-                                                            {
-                                                                rotCen.append ( self.originalPdbRotCenX );
-                                                                rotCen.append ( self.originalPdbRotCenY );
-                                                                rotCen.append ( self.originalPdbRotCenZ );
-                                                                
-                                                                toOverlay.append ( vals.at(0) + self.originalPdbRotCenX );
-                                                                toOverlay.append ( vals.at(1) + self.originalPdbRotCenY );
-                                                                toOverlay.append ( vals.at(2) + self.originalPdbRotCenZ );
-                                                                
-                                                                toMapCen.append ( self.mapCOMProcessChangeX );
-                                                                toMapCen.append ( self.mapCOMProcessChangeY );
-                                                                toMapCen.append ( self.mapCOMProcessChangeZ );
-                                                            }
-                                                            else
-                                                            {
-                                                                proshade_double rcX = ( ( ( self.xDimIndicesOriginal / 2 ) - self.xAxisOriginOriginal ) *
-                                                                                        ( ( self.xDimIndicesOriginal - 1 ) / self.xDimSizeOriginal ) ) - ( self.mapCOMProcessChangeX );
-                                                                proshade_double rcY = ( ( ( self.yDimIndicesOriginal / 2 ) - self.yAxisOriginOriginal ) *
-                                                                                        ( ( self.yDimIndicesOriginal - 1 ) / self.yDimSizeOriginal ) ) - ( self.mapCOMProcessChangeY );
-                                                                proshade_double rcZ = ( ( ( self.zDimIndicesOriginal / 2 ) - self.zAxisOriginOriginal ) *
-                                                                                        ( ( self.zDimIndicesOriginal - 1 ) / self.zDimSizeOriginal ) ) - ( self.mapCOMProcessChangeZ );
-                                                                
-                                                                rotCen.append ( rcX );
-                                                                rotCen.append ( rcY );
-                                                                rotCen.append ( rcZ );
-                                                                
-                                                                toOverlay.append ( vals.at(0) + rcX );
-                                                                toOverlay.append ( vals.at(1) + rcY );
-                                                                toOverlay.append ( vals.at(2) + rcZ );
-                                                                
-                                                                toMapCen.append ( self.mapCOMProcessChangeX );
-                                                                toMapCen.append ( self.mapCOMProcessChangeY );
-                                                                toMapCen.append ( self.mapCOMProcessChangeZ );
-                                                            }
+                                                            //== Copy values
+                                                            rotCen.append ( self.originalPdbRotCenX );
+                                                            rotCen.append ( self.originalPdbRotCenY );
+                                                            rotCen.append ( self.originalPdbRotCenZ );
+            
+                                                            toOverlay.append ( self.originalPdbTransX );
+                                                            toOverlay.append ( self.originalPdbTransX );
+                                                            toOverlay.append ( self.originalPdbTransX );
             
                                                             //== Save results to return dict
                                                             retDict[ pybind11::handle ( pybind11::str ( "centreOfRotation" ).ptr ( ) ) ] = rotCen;
-                                                            retDict[ pybind11::handle ( pybind11::str ( "withinBoxTranslations" ).ptr ( ) ) ] = toMapCen;
                                                             retDict[ pybind11::handle ( pybind11::str ( "originToOverlay" ).ptr ( ) ) ] = toOverlay;
 
                                                             //== Done
                                                             return ( retDict );
-                                                        }, "This function returns the three translation vectors that allow overlaying map and pdb inputs (see documentation for details on why three vectors are needed and when each of them should be used).", pybind11::arg ( "staticStructure" ) )
+                                                        }, "This function returns the vector from optimal rotation centre to origin and the optimal overlay translation vector. These two vectors allow overlaying the inputs (see documentation for details on how the two vectors should be used).", pybind11::arg ( "staticStructure" ) )
         .def                                          ( "translateMap", &ProSHADE_internal_data::ProSHADE_data::translateMap, "This function translates the map by a given number of Angstroms along the three axes. Please note the translation happens firstly to the whole map box and only the translation remainder that cannot be achieved by moving the box will be corrected for using reciprocal space translation within the box.", pybind11::arg ( "settings" ), pybind11::arg ( "trsX" ), pybind11::arg ( "trsY" ), pybind11::arg ( "trsZ" ) )
 
         //============================================ Description

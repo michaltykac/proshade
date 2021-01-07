@@ -58,9 +58,8 @@ private:
     
     //================================================ Variables regarding overlay optimisation
     std::vector < proshade_double > eulerAngles;      //!< Vector of three Euler angles (ZXZ convention) specifying the rotation required to best overlay two structures.
-    std::vector < proshade_double > rotationCentre;   //!< Vector specifying the rotation centre about which the optimal overlay rotation should be done.
-    std::vector < proshade_double > mapBoxMovement;   //!< Vector specifying the movement done internally to map centre. This is needed for correct map rotation.
-    std::vector < proshade_double > finalTranslation; //!< Final translation to be applied after rotation in the overlay mode.
+    std::vector < proshade_double > coordRotationCentre; //!< Vector specifying the rotation centre about which the optimal overlay rotation should be done.
+    std::vector < proshade_double > overlayTranslation; //!< Final translation to be applied after rotation in the overlay mode.
     
     //================================================ Variables regarding symmetry detection
     std::string symRecommType;                        //!< The resulting recommended symmetry type for the symmetry detection task.
@@ -119,7 +118,6 @@ public:
     std::vector< proshade_double > getEulerAngles     ( void );
     std::vector< proshade_double > getOptimalRotMat   ( void );
     std::vector< proshade_double > getTranslationToOrigin ( void );
-    std::vector< proshade_double > getTranslationToMapCentre ( void );
     std::vector< proshade_double > getOriginToOverlayTranslation ( void );
 };
 

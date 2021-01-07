@@ -1384,7 +1384,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case OverlayMap:
-                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->rotationCentre, &this->mapBoxMovement, &this->eulerAngles, &this->finalTranslation );
+                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->coordRotationCentre, &this->eulerAngles, &this->overlayTranslation );
                 break;
                 
             case MapManip:
@@ -2853,7 +2853,7 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
 std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
 {
     //================================================ Sanity check
-    if ( this->rotationCentre.size() != 3 )
+    if ( this->coordRotationCentre.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
@@ -2861,30 +2861,12 @@ std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
     
     //================================================ Create return variable with negative values of the internal varariable
     std::vector < proshade_double > ret;
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(0) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(1) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(2) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->coordRotationCentre.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->coordRotationCentre.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->coordRotationCentre.at(2) );
     
     //================================================ Return required value
     return                                            ( ret );
-    
-}
-
-/*! \brief This function returns the vector of all translations done intenally to the input map.
-
-    \param[out] ret Vector of all translations done intenally to the input map.
-*/
-std::vector< proshade_double > ProSHADE_run::getTranslationToMapCentre ( )
-{
-    //================================================ Sanity check
-    if ( this->mapBoxMovement.size() != 3 )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
-        return                                        ( std::vector< proshade_double > ( ) );
-    }
-    
-    //================================================ Return required value
-    return                                            ( this->mapBoxMovement );
     
 }
 
@@ -2895,14 +2877,14 @@ std::vector< proshade_double > ProSHADE_run::getTranslationToMapCentre ( )
 std::vector< proshade_double > ProSHADE_run::getOriginToOverlayTranslation ( )
 {
     //================================================ Sanity check
-    if ( this->mapBoxMovement.size() != 3 )
+    if ( this->overlayTranslation.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     
     //================================================ Return required value
-    return                                            ( this->finalTranslation );
+    return                                            ( this->overlayTranslation );
     
 }
            
@@ -2945,29 +2927,6 @@ void getToOriginTranslation ( ProSHADE_run* run, double *toOriginTranslation, in
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
     {
         toOriginTranslation[iter]                     = static_cast<double> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the internal translations sum (for Numpy).
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] toMapCentreTranslation Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getToMapCentreTranslation ( ProSHADE_run* run, double *toMapCentreTranslation, int len )
-{
-    //================================================ Get values
-    std::vector< proshade_double > vals               = run->getTranslationToMapCentre ( );
-    
-    //======================================== Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        toMapCentreTranslation[iter]                  = static_cast<double> ( vals.at( iter ) );
     }
     
     //================================================ Done

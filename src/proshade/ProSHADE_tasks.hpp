@@ -41,8 +41,8 @@ namespace ProSHADE_internal_tasks
     void DistancesComputationTask                     ( ProSHADE_settings* settings, std::vector< proshade_double >* enLevs, std::vector< proshade_double >* trSigm,
                                                         std::vector< proshade_double >* rotFun );
     void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
-    void MapOverlayTask                               ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement,
-                                                        std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation );
+    void MapOverlayTask                               ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
+                                                        std::vector < proshade_double >* finalTranslation );
             
     void ReportDistancesResults                       ( ProSHADE_settings* settings, std::string str1, std::string str2, proshade_double enLevDist,
                                                         proshade_double trSigmDist, proshade_double rotFunDist );

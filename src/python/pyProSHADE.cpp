@@ -463,33 +463,6 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             //== Done
                                                             return ( retArr );
                                                         }, "This function returns the negative values of the position of the rotation centre (the point about which the rotation should be done)." )
-    
-        .def                                          ( "getTranslationToMapCentre",
-                                                        [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
-                                                        {
-                                                            //== Get the values
-                                                            std::vector< proshade_double > vals = self.getTranslationToMapCentre ( );
-
-                                                            //== Allocate memory for the numpy values
-                                                            float* npVals = new float[static_cast<proshade_unsign> ( vals.size() )];
-                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
-
-                                                            //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
-
-                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
-                                                            pybind11::capsule pyCapsuleTTMC ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
-
-                                                            //== Copy the value
-                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<proshade_unsign> ( vals.size() ) },  // Shape
-                                                                                                                            { sizeof(float) },                                 // C-stype strides
-                                                                                                                            npVals,                                            // Data
-                                                                                                                            pyCapsuleTTMC );                                   // Capsule
-
-                                                            //== Done
-                                                            return ( retArr );
-                                                        }, "This function returns the vector of all translations done intenally to the input map." )
-    
         .def                                          ( "getOriginToOverlayTranslation",
                                                         [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
                                                         {
