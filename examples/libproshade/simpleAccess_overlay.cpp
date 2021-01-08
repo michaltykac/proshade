@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -41,7 +41,7 @@ int main ( int argc, char **argv )
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
-    settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
+    settings->setOverlaySaveFile                      ( "overlayResults" );                  // Filename where the overlayed moving structure should be saved.
     settings->setOverlayJsonFile                      ( "movedStructureOperations.json" );   // Filename where the overlay operations should be saved.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
@@ -92,7 +92,6 @@ int main ( int argc, char **argv )
     std::vector< proshade_double > eulerAngles        = runProshade->getEulerAngles   ( );     // This function returns the optimal rotation Euler angles (order: alpha, beta, gamma).
     std::vector< proshade_double > rotMatrix          = runProshade->getOptimalRotMat ( );     // This function returns the optimal rotation matrix. It is a vector of 9 numbers, the order is [0][0], [0][1], [0][2], [1][0], [1][1], [1][2], [2][0], [2][1], [2][2].
     std::vector< proshade_double > rotCenTrans        = runProshade->getTranslationToOrigin ( ); // This is how the rotation centre to origin translation Angstroms is obtained.
-    std::vector< proshade_double > mapCentreToInternal= runProshade->getTranslationToMapCentre ( ); // This is how the sum of intenal translations in Angstroms is obtained.
     std::vector< proshade_double > originToOverlay    = runProshade->getOriginToOverlayTranslation ( ); // This is how the translation from origin to optimal overlay position in Angstroms is obtained.
 
     //================================================ Release the settings and runProshade objects
@@ -100,22 +99,21 @@ int main ( int argc, char **argv )
     delete settings;
     
     //================================================ Print the rotation and translation
-    std::cout << "Optimal rotation Euler angles are:      " << eulerAngles.at(0) << " ; " << eulerAngles.at(1) << " ; " << eulerAngles.at(2) << std::endl;
-    std::cout << "Optimal rotation matrix is       :      " << rotMatrix.at(0) << " ; " << rotMatrix.at(1) << " ; " << rotMatrix.at(2) << std::endl;
-    std::cout << "                                 :      " << rotMatrix.at(3) << " ; " << rotMatrix.at(4) << " ; " << rotMatrix.at(5) << std::endl;
-    std::cout << "                                 :      " << rotMatrix.at(6) << " ; " << rotMatrix.at(7) << " ; " << rotMatrix.at(8) << std::endl;
-    std::cout << "Rot. Centre to origin translation:      " << rotCenTrans.at(0) << " ; " << rotCenTrans.at(1) << " ; " << rotCenTrans.at(2) << std::endl;
-    std::cout << "Sum of internal translations     :      " << mapCentreToInternal.at(0) << " ; " << mapCentreToInternal.at(1) << " ; " << mapCentreToInternal.at(2) << std::endl;
-    std::cout << "Origin to optimal overlay translation:  " << originToOverlay.at(0) << " ; " << originToOverlay.at(1) << " ; " << originToOverlay.at(2) << std::endl;
+    std::cout << "Optimal rotation Euler angles are:           " << eulerAngles.at(0) << " ; " << eulerAngles.at(1) << " ; " << eulerAngles.at(2) << std::endl;
+    std::cout << "Optimal rotation matrix is       :           " << rotMatrix.at(0) << " ; " << rotMatrix.at(1) << " ; " << rotMatrix.at(2) << std::endl;
+    std::cout << "                                 :           " << rotMatrix.at(3) << " ; " << rotMatrix.at(4) << " ; " << rotMatrix.at(5) << std::endl;
+    std::cout << "                                 :           " << rotMatrix.at(6) << " ; " << rotMatrix.at(7) << " ; " << rotMatrix.at(8) << std::endl;
+    std::cout << "Rot. Centre to origin translation:           " << rotCenTrans.at(0) << " ; " << rotCenTrans.at(1) << " ; " << rotCenTrans.at(2) << std::endl;
+    std::cout << "Rot. Centre to optimal overlay translation:  " << originToOverlay.at(0) << " ; " << originToOverlay.at(1) << " ; " << originToOverlay.at(2) << std::endl;
     
     //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
-//  Optimal rotation Euler angles are:      5.43251 ; 0.752641 ; 3.92701
-//  Optimal rotation matrix is       :      -0.871914 ; -0.0783578 ; 0.483348
-//                                   :      -0.19118 ; -0.854289 ; -0.483364
-//                                   :      0.450795 ; -0.513858 ; 0.729886
-//  Rot. Centre to origin translation:      -0 ; -0 ; -0
-//  Sum of internal translations     :      0 ; 0 ; 0
-//  Origin to optimal overlay translation:  8 ; 8 ; -6
+//  Optimal rotation Euler angles are:           5.43251 ; 0.752641 ; 3.92701
+//  Optimal rotation matrix is       :           -0.871914 ; -0.0783577 ; 0.483348
+//                                   :           -0.19118 ; -0.854289 ; -0.483364
+//                                   :           0.450795 ; -0.513858 ; 0.729886
+//  Rot. Centre to origin translation:           -16 ; -20 ; -24
+//  Rot. Centre to optimal overlay translation:  8 ; 8 ; -6
+//  Optimal rotation Euler angles are:           5.43251 ; 0.752641 ; 3.92701
     
     //================================================ DONE
     return EXIT_SUCCESS;

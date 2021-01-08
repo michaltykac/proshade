@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
 */
 
 //==================================================== ProSHADE
@@ -31,7 +31,7 @@ int main ( int argc, char **argv )
     ProSHADE_settings* settings                       = new ProSHADE_settings ( task );      // Creating the ProSHADE_settings object, which caries all of the settings and where everything can be set.
 
     //================================================ Set up the run
-    settings->verbose                                 = 1;                                   // How verbose should the run be? -1 Means no verbal output at all.
+    settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     settings->setResolution                           ( 8.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->addStructure                            ( "./emd_6324.map" );                  // A path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
     

@@ -391,21 +391,21 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def                                          ( "zeroPaddToDims", &ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims, "This function changes the size of a structure to fit the supplied new limits.", pybind11::arg ( "xDimMax" ), pybind11::arg ( "yDimMax" ), pybind11::arg ( "zDimMax" ) )
         .def                                          ( "computeTranslationMap", &ProSHADE_internal_data::ProSHADE_data::computeTranslationMap, "This function does the computation of the translation map and saves results internally.", pybind11::arg ( "staticStructure" ) )
         .def                                          ( "getBestTranslationMapPeaksAngstrom",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_internal_data::ProSHADE_data* staticStructure ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG ) -> pybind11::array_t < float >
                                                         {
                                                             //== Get values
-                                                            std::vector< proshade_double > vals = self.getBestTranslationMapPeaksAngstrom ( staticStructure );
-        
+                                                            std::vector< proshade_double > vals = self.getBestTranslationMapPeaksAngstrom ( staticStructure, eulA, eulB, eulG );
+
                                                             //== Convert Euler ZXZ to matrix
                                                             float* npVals = new float[3];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy the vals to memory
                                                             for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = vals.at(iter); }
-            
+
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleTRPeak ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
-            
+
                                                             //== Create numpy array
                                                             pybind11::array_t < float > retArr = pybind11::array_t < float > ( { 3 },                 // Shape
                                                                                                                                { sizeof(float) },     // C-stype strides
@@ -414,12 +414,12 @@ void add_dataClass ( pybind11::module& pyProSHADE )
 
                                                             //== Done
                                                             return ( retArr );
-                                                        }, "This function gets the optimal translation vector and returns it as a numpy vector.", pybind11::arg ( "staticStructure" ) )
+                                                        }, "This function gets the optimal translation vector and returns it as a numpy vector.", pybind11::arg ( "staticStructure" ), pybind11::arg ( "eulA" ), pybind11::arg ( "eulB" ), pybind11::arg ( "eulG" ) )
         .def                                          ( "getOverlayTranslations",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_internal_data::ProSHADE_data* staticStructure ) -> pybind11::dict
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_internal_data::ProSHADE_data* staticStructure , proshade_double eulA, proshade_double eulB, proshade_double eulG) -> pybind11::dict
                                                         {
                                                             //== Get values
-                                                            std::vector< proshade_double > vals = self.getBestTranslationMapPeaksAngstrom ( staticStructure );
+                                                            std::vector< proshade_double > vals = self.getBestTranslationMapPeaksAngstrom ( staticStructure, eulA, eulB, eulG );
             
                                                             //== Initialise variables
                                                             pybind11::dict retDict;
@@ -440,7 +440,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
 
                                                             //== Done
                                                             return ( retDict );
-                                                        }, "This function returns the vector from optimal rotation centre to origin and the optimal overlay translation vector. These two vectors allow overlaying the inputs (see documentation for details on how the two vectors should be used).", pybind11::arg ( "staticStructure" ) )
+                                                        }, "This function returns the vector from optimal rotation centre to origin and the optimal overlay translation vector. These two vectors allow overlaying the inputs (see documentation for details on how the two vectors should be used).", pybind11::arg ( "staticStructure" ), pybind11::arg ( "eulA" ), pybind11::arg ( "eulB" ), pybind11::arg ( "eulG" ) )
         .def                                          ( "translateMap", &ProSHADE_internal_data::ProSHADE_data::translateMap, "This function translates the map by a given number of Angstroms along the three axes. Please note the translation happens firstly to the whole map box and only the translation remainder that cannot be achieved by moving the box will be corrected for using reciprocal space translation within the box.", pybind11::arg ( "settings" ), pybind11::arg ( "trsX" ), pybind11::arg ( "trsY" ), pybind11::arg ( "trsZ" ) )
 
         //============================================ Description

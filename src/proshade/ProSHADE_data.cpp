@@ -4270,10 +4270,10 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     }
     
     //================================================ Write out the json file with the results
-    ProSHADE_internal_io::writeRotationTranslationJSON ( -rotCentre->at(0), -rotCentre->at(1), -rotCentre->at(2),
+    ProSHADE_internal_io::writeRotationTranslationJSON ( rotCentre->at(0), rotCentre->at(1), rotCentre->at(2),
                                                          eulA, eulB, eulG,
                                                          ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2),
-                                                         this->mapCOMProcessChangeX, this->mapCOMProcessChangeY, this->mapCOMProcessChangeZ, settings->rotTrsJSONFile );
+                                                         settings->rotTrsJSONFile );
     
     //================================================ Done
     return ;
@@ -4294,7 +4294,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_sett
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "" );
     
     //================================================ Write out rotation centre translation results
-    std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is: " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
+    std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is:  " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str() );
     
     //================================================ Write out rotation matrix about origin
@@ -4302,16 +4302,16 @@ void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_sett
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulerAngles->at(0), eulerAngles->at(1), eulerAngles->at(2), rotMat );
     
-    std::stringstream rotMatSS;
-    rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
-    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
-    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
+    std::stringstream rotMatSS;  
+    rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                 : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                    : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                    : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotMatSS.str() );
     
     delete[] rotMat;
     
     //================================================ Write out origin to overlay translation results
-    std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The origin to overlay translation vector is        : " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
+    std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The rotation centre to overlay translation vector is: " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, finTrs.str() );
     
     //================================================ Done

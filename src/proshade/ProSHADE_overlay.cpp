@@ -300,12 +300,12 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     
 }
 
-/*! \brief This function gets the optimal translation vector and returns it as a standard library vector.
+/*! \brief This function gets the optimal translation vector and returns it as a standard library vector. It also applies the translation to the internal map.
 
     \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
     \param[out] X A vector of doubles with the optimal translation vector in Angstroms.
 */
-std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure )
+std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG )
 {
     //================================================ Initialise local variables
     std::vector< proshade_double > ret;
@@ -338,11 +338,39 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
                                                         ( trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
     proshade_single zMov                              = staticStructure->mapCOMProcessChangeZ - zCor -
                                                         ( trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
+    proshade_single modXMov                           = xMov;
+    proshade_single modYMov                           = yMov;
+    proshade_single modZMov                           = zMov;
     
     //================================================ Save results as vector
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -xMov ) );
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -yMov ) );
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -zMov ) );
+
+    //================================================ Save original from variables for PDB output
+    this->mapMovFromsChangeX                          = this->xFrom;
+    this->mapMovFromsChangeY                          = this->yFrom;
+    this->mapMovFromsChangeZ                          = this->zFrom;
+    
+    //================================================ Move the map
+    ProSHADE_internal_mapManip::moveMapByIndices      ( &modXMov, &modYMov, &modZMov, this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),
+                                                         this->getXFromPtr(), this->getXToPtr(),
+                                                         this->getYFromPtr(), this->getYToPtr(),
+                                                         this->getZFromPtr(), this->getZToPtr(),
+                                                         this->getXAxisOrigin(), this->getYAxisOrigin(), this->getZAxisOrigin() );
+    
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->getInternalMap(), modXMov, modYMov, modZMov,
+                                                        this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),
+                                                        this->getXDim(), this->getYDim(), this->getZDim() );
+
+    //================================================ Keep only the change in from and to variables
+    this->mapMovFromsChangeX                          = this->xFrom - this->mapMovFromsChangeX;
+    this->mapMovFromsChangeY                          = this->yFrom - this->mapMovFromsChangeY;
+    this->mapMovFromsChangeZ                          = this->zFrom - this->mapMovFromsChangeZ;
+    
+    //================================================ Compute the optimal rotation centre for co-ordinates
+    this->computePdbRotationCentre                    ( );
+    this->computeOptimalTranslation                   ( eulA, eulB, eulG, -xMov, -yMov, -zMov );
     
     //================================================ Done
     return                                            ( ret );

@@ -7,7 +7,7 @@ Protein Shape Description and Symmetry Detection
 
 # Introduction
 
-ProSHADE is a C++ language library and an associated tool providing functionalities for working with structural biology molecular structures. The library implements functions for computing shape-wise structural distances between pairs of molecules, detecting symmetry over the centre of mass of a single structure, map re-sizing as well as matching density maps and PDB coordinate files into one another. The executable implemented in the bin.cpp file then allows easy access to these functionalities without the need for library linking, while the python modules provide easy access to the functionality from the python language. For help on how the executable should be used, refer to the -h option of it. For more details about the functionalities, see below
+ProSHADE is a C++ language library and an associated tool providing functionalities for working with structural biology molecular structures. The library implements functions for computing shape-wise structural distances between pairs of molecules, detecting symmetry over the centre of mass (or centre of map) of a single structure, map re-sizing as well as matching density maps and PDB coordinate files to one another. The executable implemented in the ```bin.cpp``` file then allows easy access to these functionalities without the need for library linking, while the python modules provides easy access to the functionality from the python language. For help on how the executable should be used, refer to the ```-h``` option of it. For more details about the functionalities, see below.
 
 # Obtaining ProSHADE
 
@@ -384,10 +384,10 @@ Time taken: 9 seconds.
 
 ## Linking against the ProSHADE library
 
-The ProSHADE library can be linked as any other C++ library, that is by using the **-lproshade** option when calling the compiler (tested on *clang* and *g++* ) and including the header file (**ProSHADE.hpp**). However, as the **ProSHADE.hpp** header file includes header files from some of the dependencies, any C++ project linking against the ProSHADE library will need to provide their paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by default in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
+The ProSHADE library can be linked as any other C++ library, that is by using the **-lproshade** option when calling the compiler (tested on *clang* and *g++* ) and including the header file (**ProSHADE.hpp**). However, as the **ProSHADE.hpp** header file includes header files from some of the dependencies, any C++ project linking against the ProSHADE library will need to provide these pedendencies paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by default in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
 
 - **-I/path/to/proshade/extern/soft-2.0/include** This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called *fftw_wrapper.h*).
-- **-I/path/to/proshade/extern/gemmi/include** This path is required for the Gemi dependency header file to be located correctly.
+- **-I/path/to/proshade/extern/gemmi/include** This path is required for the Gemi dependency header file to be located correctly. Note that this folder will not exist unless complete ProSHADE installation make was run at least once.
  - **-L/path/to/proshade/install/lib** This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=TRUE option, then this path may already be available to the compiler and it may not be needed.
  - **-Wl,-rpath,/path/to/proshade/install/lib** or **-rpath /path/to/proshade/install/lib** This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.
  
@@ -453,7 +453,7 @@ int main ( int argc, char **argv )
 
 ### Advanced access
 
-The second set of examples of usage of the ProSHADE library are the source files with names starting with *advancedAccess_...*. These files provide examples of how individual ProSHADE functions can be arranged to provide the results of the main ProSHADE functionalities. Using the ProSHADE tool in the manner shown in these example codes gives the user more control over the execution and it also allows the user to modify the behaviour directly. On the other hand, using ProSHADE in this way required a bit more understanding than the simple "*black box*" approach and this documentation should be helpful for all who wish to use ProSHADE this way. Interested users are advised to review all the *advancedAccess_...* source files as well as the following simple example code.
+The second set of examples of usage of the ProSHADE library are the source files with names starting with *advancedAccess_...*. These files provide examples of how individual ProSHADE functions can be arranged to provide the results of the main ProSHADE functionalities. Using the ProSHADE tool in the manner shown in these example codes gives the user more control over the execution and it also allows the user to modify the behaviour directly. On the other hand, using ProSHADE in this way requires a bit more understanding than the simple "*black box*" approach and the DOxygen documentation supplied with the code should be helpful for all who wish to use ProSHADE this way. Interested users are advised to review all the *advancedAccess_...* source files as well as the following basic example code.
 
 ```
 #include "ProSHADE.hpp"
@@ -480,7 +480,7 @@ int main ( int argc, char **argv )
     simpleSym->computeSphericalHarmonics              ( settings );
 
     //================================================ Compute self-rotation function
-    simpleSym->getRotationFunction                    ( settings );
+    simpleSym->computeRotationFunction                ( settings );
 
     //================================================ Detect the recommended symmetry
     std::vector< proshade_double* > symAxes;
@@ -505,11 +505,13 @@ int main ( int argc, char **argv )
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Get group elements for the first axis (or any other axis)
-    std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->computeGroupElementsForGroup ( settings, &allCs, 0 );
-    std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (excluding the identity one), the first being the rotation matrix:" << std::endl;
-    std::cout << groupElementsGrp0.at(0).at(0) << " x " << groupElementsGrp0.at(0).at(1) << " x " << groupElementsGrp0.at(0).at(2) << std::endl;
-    std::cout << groupElementsGrp0.at(0).at(3) << " x " << groupElementsGrp0.at(0).at(4) << " x " << groupElementsGrp0.at(0).at(5) << std::endl;
-    std::cout << groupElementsGrp0.at(0).at(6) << " x " << groupElementsGrp0.at(0).at(7) << " x " << groupElementsGrp0.at(0).at(8) << std::endl;
+    std::vector< proshade_unsign > axesList;
+    axesList.emplace_back ( 0 );
+    std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->getAllGroupElements ( settings, axesList, "C" );
+    std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (including the identity one), the second being the rotation matrix:" << std::endl;
+    std::cout << groupElementsGrp0.at(1).at(0) << " x " << groupElementsGrp0.at(1).at(1) << " x " << groupElementsGrp0.at(1).at(2) << std::endl;
+    std::cout << groupElementsGrp0.at(1).at(3) << " x " << groupElementsGrp0.at(1).at(4) << " x " << groupElementsGrp0.at(1).at(5) << std::endl;
+    std::cout << groupElementsGrp0.at(1).at(6) << " x " << groupElementsGrp0.at(1).at(7) << " x " << groupElementsGrp0.at(1).at(8) << std::endl;
 
     //================================================ Release the memory
     delete simpleSym;

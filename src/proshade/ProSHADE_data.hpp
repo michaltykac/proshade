@@ -249,7 +249,7 @@ namespace ProSHADE_internal_data
         //============================================ Map overlay functions
         void getOverlayRotationFunction               ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj2 );
         std::vector< proshade_double > getBestRotationMapPeaksEulerAngles ( ProSHADE_settings* settings );
-        std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure );
+        std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
         void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
         void translateMap                             ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ );

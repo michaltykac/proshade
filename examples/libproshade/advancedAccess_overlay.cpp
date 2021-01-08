@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
 */
 
 //==================================================== ProSHADE
@@ -50,7 +50,7 @@ int main ( int argc, char **argv )
     settings->setOverlaySaveFile                      ( "overlayResuls" );                   // Filename where the overlayed moving structure should be saved.
     settings->setOverlayJsonFile                      ( "movedStructureOperations.json" );   // Filename where the overlay operations should be saved.
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
-    settings->setExtraSpace                           ( 25.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
+    settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
     settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
@@ -121,10 +121,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      5.49775 ; 0.760842 ; 3.87796
-//  Optimal rotation matrix is       :      -0.854337 ; -0.0954227 ; 0.510884
-//                                   :      -0.179991 ; -0.867843 ; -0.463089
-//                                   :      0.487557 ; -0.487588 ; 0.724255
+//  Optimal rotation Euler angles are:      5.43251 ; 0.752641 ; 3.92701
+//  Optimal rotation matrix is       :      -0.871914 ; -0.0783577 ; 0.483348
+//                                   :      -0.19118 ; -0.854289 ; -0.483364
+//                                   :      0.450795 ; -0.513858 ; 0.729886
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
@@ -167,38 +167,24 @@ int main ( int argc, char **argv )
     movingStr->computeTranslationMap                  ( staticStr );  // This function computes the translation map for the two structures, assuming they have the same dimensions.
     
     //================================================ Find the optimal translation vector from the translation map
-    std::vector< proshade_double > optimalTranslation = movingStr->getBestTranslationMapPeaksAngstrom ( staticStr ); // This function finds the best translation from the translation map using peak search algorithm.
-    
+    std::vector< proshade_double > optimalTranslation = movingStr->getBestTranslationMapPeaksAngstrom ( staticStr, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2) ); // This function finds the best translation from the translation map using peak search algorithm and applies it to the internal map.
+ 
     //================================================ Find the translation vectors
-    std::vector< proshade_double > rotationCentre, mapBoxMovement, finalTranslation;
-    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, 0.0 );
-    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, 0.0 );
-    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, 0.0 );
-    ProSHADE_internal_misc::addToDoubleVector         ( &finalTranslation, optimalTranslation.at(0) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &finalTranslation, optimalTranslation.at(1) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &finalTranslation, optimalTranslation.at(2) );
-    movingStr->computeOverlayTranslations             ( &rotationCentre.at(0),   &rotationCentre.at(1),   &rotationCentre.at(2),
-                                                        &finalTranslation.at(0), &finalTranslation.at(1), &finalTranslation.at(2) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &mapBoxMovement, movingStr->comMovX );
-    ProSHADE_internal_misc::addToDoubleVector         ( &mapBoxMovement, movingStr->comMovY );
-    ProSHADE_internal_misc::addToDoubleVector         ( &mapBoxMovement, movingStr->comMovZ );
+    std::vector< proshade_double > rotationCentre;
+    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, movingStr->originalPdbRotCenX );
+    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, movingStr->originalPdbRotCenY );
+    ProSHADE_internal_misc::addToDoubleVector         ( &rotationCentre, movingStr->originalPdbRotCenZ );
     
     //================================================ Write out the translations
-    std::cout << "Rot. Centre to origin translation:      " << rotationCentre.at(0) << " ; " << rotationCentre.at(1) << " ; " << rotationCentre.at(2) << std::endl;
-    std::cout << "Sum of internal translations     :      " << mapBoxMovement.at(0) << " ; " << mapBoxMovement.at(1) << " ; " << mapBoxMovement.at(2) << std::endl;
-    std::cout << "Origin to optimal overlay translation:  " << finalTranslation.at(0) << " ; " << finalTranslation.at(1) << " ; " << finalTranslation.at(2) << std::endl;
+    std::cout << "Rot. Centre to origin translation:           " << rotationCentre.at(0) << " ; " << rotationCentre.at(1) << " ; " << rotationCentre.at(2) << std::endl;
+    std::cout << "Rot. Centre to optimal overlay translation:  " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Rot. Centre to origin translation:      0 ; 0 ; 0
-//  Sum of internal translations     :      0 ; 0 ; 0
-//  Origin to optimal overlay translation:  8 ; 8 ; -6
-    
-    //================================================ Translate the internal map
-    movingStr->translateMap                           ( settings, optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2) ); // This function translates the internal map representation by the required number of Angstroms.
+//  Rot. Centre to origin translation:           16 ; 20 ; 24
+//  Rot. Centre to optimal overlay translation:  -8 ; -8 ; 6
     
     //================================================ Write out the output files
-    movingStr->writeOutOverlayFiles                   ( settings, optimalTranslation.at(0), optimalTranslation.at(1), optimalTranslation.at(2),
-                                                        optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &finalTranslation );
+    movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );
     
     //================================================ Release the settings and runProshade objects
     delete[] rotMat;

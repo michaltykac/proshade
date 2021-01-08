@@ -2,7 +2,7 @@
     \brief This file showcases how the ProSHADE shape distances can be computed using the dynamic library's advanced interface.
 
     This code is an example of how any C++ project linking the ProSHADE library can access the advanced ProSHADE interface to first set the ProSHADE settings it needs, then create the ProSHADE_data structures, make these
-    read in the structure files, process these and if needed, also manipulate the map. It then proceeds to show how these internal maps can be mapped onto a set of concentric spheres and have their spherical harmocs decomposition
+    read in the structure files, process these and if needed and/or also manipulate the map. It then proceeds to show how these internal maps can be mapped onto a set of concentric spheres and have their spherical harmocs decomposition
     computed. Finally, once all of this is done, the code also shows how the three different shape distances can be computed. If you want to learn more about the advanced interface and the functions available, please look into the
     DOxygen documentation provided in the Documentation folder provided with the ProSHADE source codes.
 
@@ -17,8 +17,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
 */
 
 //==================================================== ProSHADE
@@ -122,8 +122,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Energy levels distance       : 0.89531
-//  Trace sigma distance         : 0.96045
-//  Rotation function distance   : 0.75605
+//  Trace sigma distance         : 0.96047
+//  Rotation function distance   : 0.75617
 
     //================================================ Release the settings and runProshade objects
     delete structure1;
