@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== DOxygen main page specifications
@@ -180,8 +180,8 @@
  *
  * \section pdbInput Input PDB files
  *
- * There are several caveats to inputting PDB files; most of these have to do with the fact that PDB files encode much more information than ProSHADE is intended to use. Therefore, ProSHADE is be default set to disregard information
- * it does not need; however, if the user so requires, the information an be used, albeit it may pose some unexpected problems.
+ * There are several caveats to inputting PDB files; most of these have to do with the fact that PDB files encode much more information than ProSHADE is intended to use. Therefore, ProSHADE is by default set to disregard information
+ * it does not need; however, if the user so requires, the information may be used, albeit it may pose some unexpected problems.
  *
  * \subsection spaceGroups Spacegroups
  *
@@ -203,25 +203,25 @@
  *
  * \section proshadeBinary Using the ProSHADE binary
  *
- * The ProSHADE tool was developed in a modular fashion and as the usage slightly changes depending on the functionality that is required. Nonetheless, care has been taken to
- * make sure that identical or closely related features are controlled by the same command line arguments in all cases. Moreover, the GNU command line options standard
- * have been adhered to (through the getOpts library) and therefore the users familiar with other command line tools should find the entering of command line arguments
+ * The ProSHADE tool was developed in a modular fashion and the usage slightly changes depending on the functionality that is required. Nonetheless, care has been taken to
+ * make sure that identical or closely related features are controlled by the same command line arguments in all cases. Moreover, the GNU command-line options standard
+ * have been adhered to (through the \p getOpts library) and therefore the users familiar with other command line tools should find the entering of command-line arguments
  * simple. The following subsections relate to examples of using different functionalities; for a full list of command line options, please use the \c --help command line option of the
  * ProSHADE binary.
  *
  * \subsection symDetection Symmetry Detection
  *
- * In order to detect symmetry in either a coordinate input file, or in a map input file, the ProSHADE executable needs to be supplied with the option \p -S or \p --symmetry and it will also
+ * In order to detect symmetry in either a co-ordinate input file or in a map input file, the ProSHADE executable needs to be supplied with the option \p -S or \p --symmetry and it will also
  * require a single input file to be supplied using the \p -f option. These two options are the only mandatory options, although there are many optional values that the user can supply to supersede
  * the default values and therefore modify the operation fo the ProSHADE executable to fit their purpose.
  *
  * One particular option regarding the symmetry detection mode should be noted; the \p --sym (or \p -u) option allows the user to state which symmetry they believe to exist in the structure. The allowed
  * values for this command line argument are "Cx", "Dx", "T", "O" and "I", where the \e x should be an integer number specifying the fold of the requested symmetry. When this option is used, it removes the
- * default behaviour of returning the highest detected symmetry and instead the symmetry requested by the user is returned, if it can be found in the structure.
+ * default behaviour of returning the "best" detected symmetry and instead the symmetry requested by the user is returned, if it can be found in the structure.
  *
- * Another noteworthy option is the \b --center or \b -c option, which  tells ProSHADE NOT to center the internal map representation over the centre of density before running any processing of the map (default
+ * Another noteworthy option is the \b --center or \b -c option, which  tells ProSHADE \b NOT to center the internal map representation over the centre of density before running any processing of the map (default
  * is centering and adding this option will turn centering off). This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not
- * have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate centre.
+ * have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate/box centre.
  *
  * It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (\e i.e. either through the dynamic C++ library or through
  * the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all
@@ -229,14 +229,14 @@
  * cyclic point groups. For more details on these functinoalities, the users are invited to consult the \e advancedAccess_symmetry.cpp/py example files in the \b examples folder.
  *
  * To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the
- * symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \a C12 symmetry. The visualisation of the structure is
+ * symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the \e C12 symmetry. The visualisation of the structure is
  * shown in the following figure, while the output of the ProSHADE tool follows:
  *
  * \image html ProSHADE_3JA7.jpg width=500cm
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.0 (DEC 2020):
+ ProSHADE 0.7.5.1 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -264,7 +264,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 15 seconds.
+ Time taken: 14 seconds.
  ======================
 *\endcode
  *
@@ -286,7 +286,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.5.0 (DEC 2020):
+ ProSHADE 0.7.5.1 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -333,11 +333,16 @@
  Energy levels distance    : 0.559041
  Trace sigma distance      : 0.736592
  Rotation function distance: 0.452545
+
+ ======================
+ ProSHADE run complete.
+ Time taken: 5 seconds.
+ ======================
  *\endcode
  *
  * \subsection reboxingUsage Re-boxing structures
  *
- * Another useful feature of the ProSHADE tool is the re-boxing of macromolecular density maps. This mode is signalled to the ProSHADE tool by the command line option \p -M or \p --mapManip followed by the \p -R option to specify that the
+ * Another useful feature of the ProSHADE tool is re-boxing of macromolecular density maps. This mode is signalled to the ProSHADE tool by the command line option \p -M or \p --mapManip followed by the \p -R option to specify that the
  * required map manipulations include re-boxing. Furthermore, a single map structure file needs to be supplied after the \p -f flag. In this mode, ProSHADE will attempt to find a suitable map mask by blurring the map (increasing the overall B-factors).
  * Consequently, it will use the map boundaries to create a new, hopefully smaller, box to which the appropriate part of the map will be copied.
  *
@@ -355,7 +360,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.5.0 (DEC 2020):
+ ProSHADE 0.7.5.1 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -377,40 +382,38 @@
  *
  * \subsection overlayExample Optimal rotation and translation
  *
- * In order to find the rotation and translation which optimally overlays (or fits) one structure into another, be them PDB files or maps (and any combination thereof), the ProSHADE tool can be used in the Overlay
+ * In order to find the rotation and translation which optimally overlays (or fits) one structure into another, be them co-ordinate files or maps (and any combination thereof), the ProSHADE tool can be used in the Overlay
  * mode. This is signalled to the ProSHADE tool binary by the command line option \p --strOverlay or the \p -O and this mode requires exactly two structure files to be supplied using the \p -f command line options. The order of the
  * two files does matter, as the second file will always be moved to match the first structure, which will remain static.
  *
  * Due to the requirement for the second stucture movement and rotation, it is worth noting that the structure may need to be re-sampled and/or moved to the same viewing position as the first structure. This is
- * done so that only the internal representation is modified, but never the input file. However, when the overlay structure is outputted (a non-default name can be specified by the \p --overlayFile command line option) the header of this
+ * done so that only the internal representation is modified, but never the input file. However, when the overlay structure is outputted (a non-default name can be specified by the \p --overlayFile command-line option) the header of this
  * output file may differ from the second structure header. Furthermore, if there is no extra space around the structure, movement and rotation may move pieces of the structure through the box boundaries to the
  * other side of the box. To avoid this, please use the \p --extraSpace option to add some extra space around the structure.
  *
  * As an example of the Overlay mode, we will be matching a single PDB structure (1BFO_A_dom_1 from the BALBES database, original structure code 1BFO) shown in part a) of the following figure to another PDB structure, this time the
- * 1H8N_A_dom_1 structure from the BALBES database, shown in part b) of the following figure. Please note that ProSHADE can fit any allowed input (map or co-ordinates) to any allowed input, it is just this example which uses two PDB files.
+ * 1H8N_A_dom_1 structure from the BALBES database, shown in part b) of the same figure. Please note that ProSHADE can fit any allowed input (map or co-ordinates) to any allowed input, it is just this example which uses two PDB files.
  * Part c) of the figure then shows the match obtained by the internal map representation of the moving structure (1H8N_A_dom_1) after rotation and translation with the static structure (1BFO_A_dom_1). Finally, part d) then shows the original
  * static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity
  * (\p --verbose) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
  *
- * Regarding the output, ProSHADE outputs three different translation vectors with the following meaning (and the rotation matrix):
- * - \b 1) \b Rotation \b centre \b to \b origin \b translation** - this translation vector takes the location of the point in \e visualisation space about which the rotation should be done and produces a translation vector which moves it to the origin of space (not map box), \e i.e. 0; 0; 0.
- * - \b 2) \b Within \b box \b translation - this translation vector is the sum of all translations done by ProSHADE to the internal representation between reading it and computing the translation function.
- * - \b 3) \b Origin \b to \b overlay \b translation - this translation assumes that the first translation vector has been applied to the structure and describes how the structure needs to be moved to be placed in optimal overlay position relative to the static structure.
+ * Regarding the output, ProSHADE outputs the following information which should be sufficient to apply the correct rotation and translation operations to obtain the optimal overlay:
  *
- * The purpose behind these three translation vectors is to accomodate for various scenarios mainly relating to about which point the rotation is to be done. More specifically, let us consider the following three cases:
- * - \b Rotation \b about \b the \b origin - This case is typical for co-ordinate data, where each XYZ position is multiplied with the rotation matrix to obtain the new position. This method of applying the rotation matrix makes the implicit assumption
- * that the point about which the rotation is to be done is at the origin of the system and therefore the co-ordinates need to be moved to the origin of the system before the rotation is applied; the translation vector \b 1) serves for this purpose. Subsequently,
- * after applying the rotation to the co-ordinates, they need to be moved to a position of optimal overlay with the static structure - this can be done using the translation vector \b 3) .
- * - \b Rotation \b about \b the \b centre \b of \b mass - This is often the case for density data, where it may be assumed that the centre of mass is the origin of the rotated system (ignoring the standard of using the lowest indices along each axis
- * to determine the \e real \e world or \e visualisation space position in Angstroms). In this case, the rotation should be applied immediately as translation has no effect on rotation (\e i.e. the point about which the rotation is done is translated along with
- * the density). Next, in order to achieve optimal overlay position of the now rotated density, it needs to be translated from the rotation centre to the optimal overlay position. To get such translation vector, translation vector \b 1) needs to be applied first and
- * translation vector \b 3) needs to be applied right after (or in one step applying the translation \b 1) + \b 3) ).
- * - \b Rotation \b about \b the \b centre \b of \b map - This is sometimes the case for density data, where it may be assumed that the centre of map is the origin of the rotated system (again, ignoring the standard of using the lowest
- * indices along each axis to determine the \e real \e world or \e visualisation space position in Angstroms). In this case, it is firstly required that the point about which the rotation is to be done is moved to the centre of map; to do this, translation
- * vector \b 2) needs to be applied. Next, similarly to the previous case, the rotation needs to be applied and the translation from the centre of map to the optimal overlay position needs to be determined. To do this, same combination of \b 1) + \b 3) needs
- * to be used, but this time the effect of the initial translation of \b 2) also needs to be reversed, so the final translation vector to be applied should be \b 1) + \b 3) - \b 2) .
+ * - \b 1) \b The \b rotation \b centre \b to \b origin \b translation \b vector - This is the vector that needs to be applied to co-ordinates in order to move the ProSHADE computed centre of rotation to the origin. This result can also
+ * be understood as the negative value of the position of the centre of rotation (\e i.e. -rotCen = the centre of rotation position). Please note that this value is in the "real world" (or "visualisation co-ordinates") space, but may not necessarily be
+ * identical to the centre of the box of any input map (this is because ProSHADE may apply some modifications to the map during its processing).
+ *
+ * - \b 2) \b The \b rotation \b matrix \b about \b origin - This is a rotation matrix that will rotate the moving structure (be it map or co-ordinates) so that it will have the same orientation as the static structure. The rotation matrix should
+ * be applied over the position given by output \b 1), meaning that for co-ordinates, they should be moved by the vector \b 1) to the origin, then have this rotation matrix applied and then be moved back by \b -1). For maps, however, the
+ * rotation should be applied differently; if position \b 1) is the centre of box, they should be rotated about the centre of the box using the rotation matrix and if position \b 1) is not the centre of the box, they should be translated within the box
+ * by the difference of the centre of the box and the position \b 1).
  
- * \b Warning: In order to allow visualisation of the results of ProSHADE overlap task, the translation is computed in the \e real \e world or \e visualisation space; this however has the implication that if the moving structure is a density, then the
+ * - \b 3) \b The \b rotation \b centre \b to \b overlay \b translation \b vector - This vector assumes the structure has been rotated about the position given by \b -1) by a rotation operation described by \b 2) , meaning that if
+ * co-ordinates were moved to origin for rotation, the opposite translation to the one used to move them to origin should be applied after the rotation. If this assumption holds, then this vector (\e i.e. \b 3) ) is the translation that will optimally
+ * overlay the rotated structure with the static structure (\e i.e. the structure inputted first). Again, this vector is in the "real world" (or "visualisation co-ordinates") space. Please note that for maps, this translation may need to move the density
+ * outside of the box. Therefore, the box should be moved first by changing the indexing starts to minimise this translation and then the density should be moved inside the box by the remainder of the translation.
+ 
+ * \b Warning: In order to allow visualisation of the results of ProSHADE overlap task, the translation is computed in the \e real \e world or \e visualisation \e co-ordinates space; this however has the implication that if the moving structure is a density, then the
  * densty box may need to be moved in such a way that it contains the static structure's position. Therefore, the \b translation \b computed \b as \b described \b above \b should \b not \b be \b applied \b to \b the \b density \b in
  * \b box, \b but \b rather \b to \b the \b box \b itself (or possibly if such box translation cannot be done perfectly, then the remainder of the imperfect box translation can be done within the box).
  *
@@ -418,7 +421,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.0 (DEC 2020):
+ ProSHADE 0.7.5.1 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -463,12 +466,11 @@
   ... Starting spherical harmonics decomposition.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is: -0     -0     -0
- The within box internal map translation vector is  : -2.95     -2.04     -0.0354
- The rotation matrix about origin is                : -0.872     -0.0785     +0.483
-                                                    : -0.191     -0.854     -0.483
-                                                    : +0.451     -0.514     +0.73
- The origin to overlay translation vector is        : +5.29     +4.93     -4.81
+ The rotation centre to origin translation vector is:  -17.5     -21     -24
+ The rotation matrix about origin is                 : -0.872     -0.0785     +0.483
+                                                     : -0.191     -0.854     -0.483
+                                                     : +0.451     -0.514     +0.73
+ The rotation centre to overlay translation vector is: +4     +4     -4
 
  ======================
  ProSHADE run complete.
