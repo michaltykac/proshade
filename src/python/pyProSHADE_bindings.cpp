@@ -51,7 +51,7 @@ void    add_dataClass                                 ( pybind11::module& pyProS
 void    add_distancesClass                            ( pybind11::module& pyProSHADE );
 
 //==================================================== Remove the bindings that are not modifyable in python
-PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::string > );
+PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::string > )
 
 //==================================================== Include the other codes
 #include "pyProSHADE.cpp"
