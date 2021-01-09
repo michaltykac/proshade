@@ -22,9 +22,9 @@ The most recent stable version of ProSHADE is available from the *master* branch
     - [Standard System Dependencies](#standard-system-dependencies)
         - [Installing python](#installing-python)
         - [Installing standard system dependencies on MacOS](#installing-standard-system-dependencies-on-macos)
-        - [Installing standard system dependencies using apt (e.g. Ubuntu or Debian)](#installing-standard-system-dependencies-using-apt-(e.g.ubuntu-or-debian))
-        - [Installing standard system dependencies using ZYpp (e.g. SuSe)](#installing-standard-system-dependencies-using-zypp-(e.g.-opensuse))
-        - [Installing standard system dependencies using yum (e.g. CentOS)](#installing-standard-system-dependencies-using-yum-(e.g.-centos))
+        - [Installing standard system dependencies using apt (e.g. Ubuntu or Debian)](#installing-standard-system-dependencies-using-apt-(eg-ubuntu-or-debian))
+        - [Installing standard system dependencies using ZYpp (e.g. SuSe)](#installing-standard-system-dependencies-using-zypp-(eg-opensuse))
+        - [Installing standard system dependencies using yum (e.g. CentOS)](#installing-standard-system-dependencies-using-yum-(eg-centos))
     - [CMake options](#cmake-options)
     - [Other dependencies](#other-dependencies)
     - [Install](#install)
@@ -126,7 +126,7 @@ Finally, some MacOS systems do not have the FFTW3 library pre-installed. If this
   
   Now, ProSHADE should be automaically installable using the CMake system.
  
- ### Installing standard system dependencies using apt (e.g. Ubuntu or Debian)
+ ### Installing standard system dependencies using apt (eg Ubuntu or Debian)
  
  The *APT* package manager can be used to install all the system dependencies of ProSHADE using the following command.
  
@@ -136,7 +136,7 @@ Finally, some MacOS systems do not have the FFTW3 library pre-installed. If this
 
 After this, ProSHADE should by automatically installable using the CMake system.
  
- ### Installing standard system dependencies using ZYpp (e.g. openSuSe)
+ ### Installing standard system dependencies using ZYpp (eg openSuSe)
  
  The *ZYpp* package manager and the associated *zypper* command-line tool can be used install all the system dependencies of ProSHADE as follows:
  
@@ -146,7 +146,7 @@ After this, ProSHADE should by automatically installable using the CMake system.
 
 After this, ProSHADE should by automatically installable using the CMake system.
 
-### Installing standard system dependencies using yum (e.g. CentOS)
+### Installing standard system dependencies using yum (eg CentOS)
 
 Firstly, at least on some systems, the *yum* package manager may not be using the *powertools* repository; however, some of ProSHADE dependencies are kept there. Therefore, the user may need to enable the *powertools* repository by issuing the folloing commands:
 
