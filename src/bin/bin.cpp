@@ -61,6 +61,8 @@
  *
  * 4.5) \ref uninstall
  *
+ * 4.6) \ref pipInstall
+ *
  * 5) \ref pdbInput
  *
  * 5.1) \ref spaceGroups
@@ -94,41 +96,111 @@
  * \section install Installation
  *
  * The installation of the ProSHADE software should be done using the CMake system and the supplied CMakeLists.txt file. The minimual requiered version of CMake is 2.6, however, python modules and single source file
- * compilation will not be available unless CMake version 3.1 or higher is used. The CMakeLists.txt file assumes the standard system dependencies are installed in the system folders; for a full list of standard system dependencies,
+ * compilation will not be available unless CMake version 3.4 or higher is used. The CMakeLists.txt file assumes the standard system dependencies are installed in the system folders; for a full list of standard system dependencies,
  * please see the section \ref stdSys.
  *
- * Once all of the standard system dependencies are installed CMake can be run to create the make files. There are several options that can be used to modify the default behaviour of the installation; these typically drive the
+ * Once all of the standard system dependencies are installed CMake can be run to create the make files. Alternatively, ProSHADE also provides \e setup.py script, which wraps the CMake installation - please refer to the \ref pipInstall
+ * section of this documentation for more details.
+ *
+ * If CMake is used to build ProSHADE directly, then the user may make use of several options that can be used to modify the default behaviour of the installation; these typically drive the
  * installation locations and dependencies paths in the case of non-standard dependency location. Please see the section \ref installBehaviour for details as to how to use these options and what do they do.
  *
- * Please note that while the ProSHADE code is C++98 standard compatible, some of the dependencies do require at least partial support for the C++11 standard.
+ * Please note that while the ProSHADE code is C++ 98 standard compatible, some of the dependencies do require at least partial support for the C++ 11 standard and building python module requires full C++ 11 support.
  *
  * \subsection stdSys Standard System Dependencies
  *
- * Generally, the following list of standard system libraries and utilities are required for successfull installation of ProSHADE on Linux systems. On MacOS systems, most of these should be installed by default except where specifically stated:
- * - \b gcc
- * - \b g++ (on Ubuntu and Debian) or \b gcc-c++ (on CentOS and SuSe)
- * - \b gfortran (on Ubuntu and Debian) or \b gcc-gfortran (on CentOS and SuSe )
+ *  Generally, the following list of standard system libraries and utilities are required for successfull installation of ProSHADE on Unix systems:
+ *
+ * -  \b gcc
+ * - \b g++
  * - \b make
  * - \b cmake
- * - \b m4
- * - \b fftw3-dev (on Ubuntu, Debian and SuSe) or \b fftw3-devel (on CentOS)
- * - \b libblas-dev (on Ubuntu and Debian) or \b blas-devel (on CentOS and SuSe)
- * - \b liblapack-dev (on Ubuntu and Debian) or \b lapack-devel (on CentOS) or \b lapack-dev (on SuSe)
- * - \b python (on Ubuntu, Debian and SuSe) or \b python2 (on CentOS)
- * - \b python-pip (on Ubuntu, Debian and SuSe) or \b python2-pip (on CentOS)
- * - \b python-dev (on Ubuntu, Debian and SuSe) or \b python2-devel (on CentOS)
- * - \b python3
- * - \b python3-pip
- * - \b python3-dev (on Ubuntu, Debian and SuSe) or \b python3-devel
- * - \b swig
+ * - \b fftw3-dev
+ * - \b liblapack-dev
  * - \b git
- * - \b numpy (installed using pip or pip3 separately for python2.x and python3.x)
+ * - \b zlib
+ * - \b python with \b numpy
+ *
+ * CMake should complain and issue a reasonably decipherable error messages if any of these dependencies are missing.
+ *
+ * \b Installing \b python
+ *
+ * While most modern Unix systems come with some version of the python language pre-installed, it seems reasonable to assume that users who are interested in using the ProSHADE python
+ * module do have their preferred version of python already installed and set as the default system python (meaning that the ```python``` command points to the python executable that the user wants the ProSHADE module to be installed for).
+ *
+ * Should the user not have any python version installed or should the user be interested in having multiple versions, the Anaconda environment ( https://www.anaconda.com/products/individual ) can be
+ * recommended for installation of python and management of various environments.
+ *
+ * \b Installing \b standard \b system \b dependencies \b on \b MacOS
+ *
+ * Assuming a clean MacOS, the ProSHADE dependencies can be installed as follows: Firstly, the XCode tools should be installed from Apple - this can be achieved by issuing the command:
+ \code{.sh}
+     xcode-select --install
+ \endcode
+ *
+ * Next, CMake will need to be installed manually; that is, starting with downloading the source codes from https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2.tar.gz . After
+ * moving the downloaded file to where the codes should live and navigating to the same location in Terminal, please use the following commands to install CMake:
+ \code{.sh}
+     tar -zxvf ./cmake-3.19.2.tar.gz
+     cd ./cmake-3.19.2
+     ./bootstrap
+     make
+     sudo make install
+ \endcode
+ *
+ * Finally, some MacOS systems do not have the FFTW3 library pre-installed. If this is your case, then please use the following commands to install FFTW3 manually: Firstly, download the source codes from
+ * here: http://www.fftw.org/fftw-3.3.9.tar.gz . After moving the downloaded file to where the codes should live and navigating to the same location in Terminal, please use the following commands to install FFTW3:
+ \code{.sh}
+     tar -zxvf ./fftw-3.3.9.tar
+     cd ./fftw-3.3.9
+     ./configure --enable-shared
+     make
+     sudo make install
+ \endcode
+ *
+ * Now, ProSHADE should be automaically installable using the CMake system.
+ *
+ * \b Installing \b standard \b system \b dependencies \b ustng \b apt-get \b ( \b e.g. \b Ubuntu \b or \b Debian \b )
+ *
+ * The \e APT package manager can be used to install all the system dependencies of ProSHADE using the following command.
+ *
+ \code{.sh}
+    sudo apt-get install gcc g++ make cmake git fftw3-dev liblapack-dev zlib1g-dev
+ \endcode
+ *
+ * After this, ProSHADE should by automatically installable using the CMake system.
+ *
+ * \b Installing \b standard \b system \b dependencies \b using \b ZYpp \b ( \b e.g. \b openSuSe \b )
+ *
+ * The \e ZYpp package manager and the associated \e zypper command-line tool can be used install all the system dependencies of ProSHADE as follows:
+ *
+ \code{.sh}
+    sudo zypper install gcc gcc-c++ git cmake fftw3-devel lapack-devel zlib-devel
+ \endcode
+ *
+ * After this, ProSHADE should by automatically installable using the CMake system.
+ *
+ * \b Installing \b standard \b system \b dependencies \b using \b yum \b ( \b e.g. \b CentOS \b )
+ *
+ * Firstly, at least on some systems, the \e yum package manager may not be using the \e powertools repository; however, some of ProSHADE dependencies are kept there. Therefore, the user may need to enable the \e powertools repository by issuing the folloing commands:
+ *
+ \code{.sh}
+     sudo yum install dnf-plugins-core
+     sudo yum config-manager --set-enabled powertools
+ \endcode
+ *
+ * Then, the \e yum package manager can be used install all the system dependencies of ProSHADE as follows:
+ *
+ \code{.sh}
+     sudo yum install gcc gcc-c++ make cmake fftw3-devel lapack-devel zlib-devel
+ \endcode
+ *
+ * After this, ProSHADE should by automatically installable using the CMake system.
  *
  * \subsection installBehaviour CMake options
  *
  * \b -DINSTALL_LOCALLY=ON or \b OFF
- * - This option is used to decide whether all the installed ProSHADE components are installed in the local source directory (value \b ON ) or whether they are instead installed in the system folders (value \b OFF ). This option
- * applies to the binary, the C++ library, the python2 and python3 modules (which are installed in the appropriate site-packages folder if the option is \b OFF ) and the headers as well.
+ * - This option is used to decide whether all the installed ProSHADE components are installed in the local source directory (value \b ON ) or whether they are instead installed in the system folders (value \b OFF ) as determined by CMake. This option applies to the binary, the C++ library and the headers as well. Please note that the python module will be installed locally; if it is to be installed globally, please use the pip installation described in the section \ref pipInstall.
  *
  * \b -DINSTALL_BIN_DIR=/path
  * - This option is used to manually specify the folder to which the ProSHADE binary shold be installed into.
@@ -151,32 +223,34 @@
  * - This option is used to supply the path to the liblapack.a/so/dylib in the case where ProSHADE CMake installation fails to detect the LAPACK dependency. This is typically the case when the LAPACK is installed
  * outside of the standard LAPACK installation locations.
  *
- * \b -DNO_PYTHON=TRUE
- * - This option controls whether python modules should be build or not. If you have installed ProSHADE python modules using pip or if you are not interested in using the python modules, leave this option at default TRUE. On
- * the other hand, if you want to install the python modules from source (not really recommended), then you will need to switch this option to FALSE.
+ * \b -DBUILD_PYTHON=TRUE or \b FALSE
+ * - This option controls whether python modules should be build or not. If you have installed ProSHADE python modules using pip or if you are not interested in using the python modules, you may set this option to
+ * FALSE, otherwise the python module will be built for the currently used python.
  *
  * \subsection otherDependencies Other dependencies
  *
- * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. Since the installation of these libraries is non-trivial and does require some user input, these libraries are
- * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation. Please note that these dependencies do have their own licences (the CCP4 licence, the GPL licence, ...) and therefore
- * this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
+ * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. The installation of these libraries is automated in the CMake scripts and therefore does not require any user input (these libraries are
+ * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation). Please note that these dependencies do have their own licences (the Mozilla Public License for \e Gemmi
+ * and the GPL licence for \e SOFT2.0) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
  *
  * \subsection installcode Install
  *
- * In order to install ProSHADE, first please check that all the \ref stdSys are installed, preferably using a package management system such as \e apt or \e yum. Next, please navigate to any folder to which you would like to write the install
- * files; some find it useful to create a \c build folder in the ProSHADE folder in order to keep the install files in the same location as the source codes. Then, issue the following set of commands, setting the \c \path\to\ProSHADE
+ * In order to install ProSHADE, first please check that all the \ref stdSys are installed, preferably using a package management system such as \e apt , \e yum , \e zypper , \e homebrew \e etc. Next, please navigate to any folder to which you would like to write the install
+ * files; some find it useful to create a \c build folder in the ProSHADE folder in order to keep the install files in the same location as the source codes. Then, issue the following set of commands, changing the \c \path\to\ProSHADE
  * to the correct path on your system and adding any required \ref installBehaviour to the first command. Please note that \c sudo may be required for the \c make \c install command if you are installing into the system folders.
  *
- * \c cmake \c \path\to\ProSHADE
- *
- * \c make
- *
- * \c make \c install
+ \code{.sh}
+    cmake \path\to\ProSHADE
+    make
+    make install
+ \endcode
  *
  * \subsection uninstall Uninstall
  *
  * To remove the installed ProSHADE components, the command \c make \c remove needs to be issued to the makefile originally created by the CMake call. Please note that \c sudo may need to be used if the installation was
  * done into the system folders and your current user does not have admin rights.
+ *
+ * \subsection pipInstall Installation using pip
  *
  * \section pdbInput Input PDB files
  *

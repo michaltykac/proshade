@@ -446,12 +446,3 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         //============================================ Description
         .def                                          ( "__repr__", [] ( const ProSHADE_internal_data::ProSHADE_data &a ) { return "<ProSHADE_data class object> (This class contains all information, results and available functionalities for a structure)"; } );
 }
-
-//void                        ( ProSHADE_settings* settings, proshade_signed*& ret );
-//void createNewMapFromBounds                   ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds );
-
-
-//void getRealSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len );
-//void getImagSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len );
-//int sphericalHarmonicsIndex                   ( proshade_signed order, proshade_signed band, proshade_signed shell );
-//int getSphericalHarmonicsLenForShell          ( proshade_unsign shellNo, proshade_signed verbose );

@@ -100,8 +100,6 @@ Debian 10.3.0
 	* cmake ../proshade
 	* make 
 	* make install	
-	
-
 
 ==================
 openSUSE-Leap 15.2 

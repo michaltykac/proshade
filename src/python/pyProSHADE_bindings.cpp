@@ -59,7 +59,7 @@ PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::strin
 #include "pyProSHADE_distances.cpp"
 
 //==================================================== Declare the exported functions
-PYBIND11_MODULE ( pyproshade, pyProSHADE )
+PYBIND11_MODULE ( proshade, pyProSHADE )
 {
     //==================================================== Create new, modifyable bindings
     pybind11::bind_vector < std::vector < std::string > > ( pyProSHADE, "<VectorOfStrings class> (Use append to add entries and [] to access them)", pybind11::module_local ( true ) );
