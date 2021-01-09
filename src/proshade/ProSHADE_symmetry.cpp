@@ -2998,7 +2998,7 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( ProSHADE_settings* settings, 
             if ( ProSHADE_internal_maths::isAxisUnique ( ret, axX, axY, axZ, determinedFold, axErr ) )
             {
                 //==================================== Create the new axis array
-                anglesPassed                          = true;
+//                anglesPassed                          = true;
                 proshade_double* newAx                = new proshade_double[6];
                 ProSHADE_internal_misc::checkMemoryAllocation ( newAx, __FILE__, __LINE__, __func__ );
                 

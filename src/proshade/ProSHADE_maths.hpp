@@ -330,7 +330,7 @@ namespace ProSHADE_internal_maths
     void getEulerZXZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
                                                         proshade_double* eB, proshade_double* eG, proshade_unsign angDim );
     void getEulerZXZFromAngleAxisFullSearch           ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
-                                                        proshade_double* eB, proshade_double* eG, proshade_unsign angDim );
+                                                        proshade_double* eB, proshade_double* eG, proshade_signed angDim );
     void multiplyTwoSquareMatrices                    ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim );
     std::vector < proshade_signed > primeFactorsDecomp ( proshade_signed number );
     proshade_double normalDistributionValue           ( proshade_double mean, proshade_double standardDev, proshade_double value );
