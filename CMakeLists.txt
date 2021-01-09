@@ -101,18 +101,6 @@ elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
 endif  ( )
 
 ##########################################################################################
-################################### Find gfortran version. This is needed as starting from version 10, it is no longer backward compatible and it need the -fallow-argument-mismatch argument, but the old version fail with this argument...
-execute_process  ( COMMAND gfortran --version OUTPUT_VARIABLE GFORTRAN_VERSION_FULLTEXT   )
-string           ( REGEX MATCH "[0-9]+" GFORTRAN_VERSION "${GFORTRAN_VERSION_FULLTEXT}"   )
-
-if    ( GFORTRAN_VERSION )
-	# Nothing to be done, fortran found and version detected
-else  ( GFORTRAN_VERSION )
-	# Problem. Failed to find gfortran version. Report to user and ask for debug info
-	message      ( FATAL_ERROR "Failed to find gfortran version. Please report this instance to the author along with the output of 'gfortran --version' command." )
-endif ( GFORTRAN_VERSION )
-
-##########################################################################################
 ################################### Set targets for dependency installation from supplied sources
 
 ### GEMMI

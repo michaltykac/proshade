@@ -2945,10 +2945,10 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( ProSHADE_settings* settings, 
 {
     //================================================ Initialise variables
     std::vector< proshade_double* > newAxes;
-    proshade_double axX, axY, axZ, axAng, dotProd, foldTolerance = 0.1;
-    proshade_unsign bestC5, bestC3, determinedFold, prevComboSize = 0;
+    proshade_double axX, axY, axZ, axAng, foldTolerance = 0.1; // dotProd
+    proshade_unsign determinedFold, prevComboSize = 0; // bestC5, bestC3
     std::vector< proshade_unsign > c5s, c3s, c2s;
-    bool anglesPassed;
+//    bool anglesPassed;
     
     //================================================ Find the best axis combination with dihedral angle and correct folds
     std::pair< proshade_unsign, proshade_unsign > initAxes = findBestIcosDihedralPair ( CSymList, minPeakHeight, axErr );
@@ -3079,10 +3079,10 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( ProSHADE_settings* settings, 
     //================================================ Sort the axes by fold
     std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
     
-    bool thr = true, two = true;
-    for ( int i = 0; i < ret->size(); i++ ) { if ( ret->at(i)[0] == 3 && thr ) { std::cout << std::endl; thr = false; } if ( ret->at(i)[0] == 2 && two ) { std::cout << std::endl; two = false; } std::cout << i << ": " << ret->at(i)[0] << "  |  " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << std::endl; }
-    
-    std::cout << "Found " << ret->size() << " icos syms and " << combo.size ( ) << " group elements." << std::endl; exit(0);
+//    bool thr = true, two = true;
+//    for ( int i = 0; i < ret->size(); i++ ) { if ( ret->at(i)[0] == 3 && thr ) { std::cout << std::endl; thr = false; } if ( ret->at(i)[0] == 2 && two ) { std::cout << std::endl; two = false; } std::cout << i << ": " << ret->at(i)[0] << "  |  " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << std::endl; }
+//
+//    std::cout << "Found " << ret->size() << " icos syms and " << combo.size ( ) << " group elements." << std::endl; exit(0);
     //================================================ Done
     return ;
     
@@ -3160,81 +3160,81 @@ std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair ( std::ve
  */
 void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance )
 {
-    //================================================ Initialise variables
-    std::vector< proshade_double* > newAxes;
-    proshade_double axX, axY, axZ, axAng, foldTolerance = 0.1;
-    proshade_unsign bestC5, bestC3, determinedFold, prevComboSize = 0;
-    
-    //================================================ Find the best axis combination with dihedral angle and correct folds
-    std::pair< proshade_unsign, proshade_unsign > initAxes = findBestOctaDihedralPair ( CSymList, minPeakHeight, axErr );
-    
-    //================================================ Save detected axes to ret
-    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.first) );
-    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.second) );
-
-    //================================================ Generate initial group elements
-    std::vector<std::vector< proshade_double > > elsC4 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.first );
-    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.second );
-    std::vector<std::vector< proshade_double > > combo = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC4, &elsC3, matrixTolerance, true );
-    
-    //================================================ Iteratively find all remanining axes by multiplying the group elements
-    while ( prevComboSize < combo.size() )
-    {
-        //============================================ Sanity check
-        if ( prevComboSize > 24 ) { break; }
-        
-        //============================================ Initialise iteration
-        prevComboSize                                 = combo.size ( );
-        newAxes.clear                                 ( );
-        
-        //============================================ For each group element (this is a bit repetitive, but not slow enough to deal with right now)
-        for ( proshade_unsign cIt = 0; cIt < static_cast< proshade_unsign > ( combo.size() ); cIt++ )
-        {
-            //======================================== Find the axis of the element
-            ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &combo.at(cIt), &axX, &axY, &axZ, &axAng );
-            
-            //======================================== Determine the fold (in terms of icosahedral symmetry fold options)
-            if      ( ( ( axAng - foldTolerance ) <         0.0          ) && ( ( axAng + foldTolerance ) >         0.0          ) ) { continue;           }    // Zero angle - identity element
-            else if ( ( ( axAng - foldTolerance ) <         M_PI         ) && ( ( axAng + foldTolerance ) >         M_PI         ) ) { determinedFold = 2; }    // Fold 2 ( angle = pi    )
-            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 3.0 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 3.0 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = 2pi/3 )
-            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 1.5 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 1.5 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = 4pi/3 )
-            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 2pi/5 )
-            else if ( ( ( axAng - foldTolerance ) < ( 4.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 4.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 4pi/5 )
-            else if ( ( ( axAng - foldTolerance ) < ( 6.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 6.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 6pi/5 )
-            else if ( ( ( axAng - foldTolerance ) < ( 8.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 8.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 8pi/5 )
-            else                                                                                                                     { continue;           }    // Failed to find matching fold.
-            
-            //======================================== Is this a new axis?
-            if ( ProSHADE_internal_maths::isAxisUnique ( ret, axX, axY, axZ, determinedFold, axErr ) )
-            {
-                proshade_double* newAx                = new proshade_double[6];
-                ProSHADE_internal_misc::checkMemoryAllocation ( newAx, __FILE__, __LINE__, __func__ );
-                
-                newAx[0]                              = determinedFold;
-                newAx[1]                              = axX;
-                newAx[2]                              = axY;
-                newAx[3]                              = axZ;
-                newAx[4]                              = ( 2.0 * M_PI ) / determinedFold;
-                newAx[5]                              = 0.0;
-                
-                ProSHADE_internal_misc::addToDblPtrVector ( &newAxes, newAx );
-                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, newAx );
-            }
-        }
-        
-        //============================================ Generate new group elements from the new axes and folds
-        for ( proshade_unsign aIt = 0; aIt < static_cast< proshade_unsign > ( newAxes.size() ); aIt++ )
-        {
-            std::vector< std::vector< proshade_double > > newEls = dataObj->computeGroupElementsForGroup ( &newAxes, aIt );
-            combo                                     = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &newEls, &combo, matrixTolerance, true );
-            delete[] newAxes.at(aIt);
-        }
-    }
-    
-    //================================================ Sort the axes by fold
-    std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
-    
-    std::cout << "Found " << ret->size() << " octa syms and " << combo.size ( ) << " group elements." << std::endl; exit(0);
+//    //================================================ Initialise variables
+//    std::vector< proshade_double* > newAxes;
+//    proshade_double axX, axY, axZ, axAng, foldTolerance = 0.1;
+//    proshade_unsign bestC5, bestC3, determinedFold, prevComboSize = 0;
+//
+//    //================================================ Find the best axis combination with dihedral angle and correct folds
+//    std::pair< proshade_unsign, proshade_unsign > initAxes = findBestOctaDihedralPair ( CSymList, minPeakHeight, axErr );
+//
+//    //================================================ Save detected axes to ret
+//    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.first) );
+//    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.second) );
+//
+//    //================================================ Generate initial group elements
+//    std::vector<std::vector< proshade_double > > elsC4 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.first );
+//    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.second );
+//    std::vector<std::vector< proshade_double > > combo = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC4, &elsC3, matrixTolerance, true );
+//
+//    //================================================ Iteratively find all remanining axes by multiplying the group elements
+//    while ( prevComboSize < combo.size() )
+//    {
+//        //============================================ Sanity check
+//        if ( prevComboSize > 24 ) { break; }
+//
+//        //============================================ Initialise iteration
+//        prevComboSize                                 = combo.size ( );
+//        newAxes.clear                                 ( );
+//
+//        //============================================ For each group element (this is a bit repetitive, but not slow enough to deal with right now)
+//        for ( proshade_unsign cIt = 0; cIt < static_cast< proshade_unsign > ( combo.size() ); cIt++ )
+//        {
+//            //======================================== Find the axis of the element
+//            ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &combo.at(cIt), &axX, &axY, &axZ, &axAng );
+//
+//            //======================================== Determine the fold (in terms of icosahedral symmetry fold options)
+//            if      ( ( ( axAng - foldTolerance ) <         0.0          ) && ( ( axAng + foldTolerance ) >         0.0          ) ) { continue;           }    // Zero angle - identity element
+//            else if ( ( ( axAng - foldTolerance ) <         M_PI         ) && ( ( axAng + foldTolerance ) >         M_PI         ) ) { determinedFold = 2; }    // Fold 2 ( angle = pi    )
+//            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 3.0 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 3.0 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = 2pi/3 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 1.5 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 1.5 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = 4pi/3 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 2pi/5 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 4.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 4.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 4pi/5 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 6.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 6.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 6pi/5 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 8.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 8.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 8pi/5 )
+//            else                                                                                                                     { continue;           }    // Failed to find matching fold.
+//
+//            //======================================== Is this a new axis?
+//            if ( ProSHADE_internal_maths::isAxisUnique ( ret, axX, axY, axZ, determinedFold, axErr ) )
+//            {
+//                proshade_double* newAx                = new proshade_double[6];
+//                ProSHADE_internal_misc::checkMemoryAllocation ( newAx, __FILE__, __LINE__, __func__ );
+//
+//                newAx[0]                              = determinedFold;
+//                newAx[1]                              = axX;
+//                newAx[2]                              = axY;
+//                newAx[3]                              = axZ;
+//                newAx[4]                              = ( 2.0 * M_PI ) / determinedFold;
+//                newAx[5]                              = 0.0;
+//
+//                ProSHADE_internal_misc::addToDblPtrVector ( &newAxes, newAx );
+//                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, newAx );
+//            }
+//        }
+//
+//        //============================================ Generate new group elements from the new axes and folds
+//        for ( proshade_unsign aIt = 0; aIt < static_cast< proshade_unsign > ( newAxes.size() ); aIt++ )
+//        {
+//            std::vector< std::vector< proshade_double > > newEls = dataObj->computeGroupElementsForGroup ( &newAxes, aIt );
+//            combo                                     = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &newEls, &combo, matrixTolerance, true );
+//            delete[] newAxes.at(aIt);
+//        }
+//    }
+//
+//    //================================================ Sort the axes by fold
+//    std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+//
+//    std::cout << "Found " << ret->size() << " octa syms and " << combo.size ( ) << " group elements." << std::endl; exit(0);
     
     //================================================ Done
     return ;
@@ -3857,7 +3857,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::optimise
     //================================================ Change axis1 to improve the angle
     std::cout << "Original axes      : " << axis1[1] << " ; " << axis1[2] << " ; " << axis1[3] << " AND " << axis2[1] << " ; " << axis2[2] << " ; " << axis2[3] << std::endl;
     proshade_double angErr = 0.05;
-    proshade_double dotProd, dotProdHlp, bestAngErr, axNorm, bestX, bestY, bestZ;
+    proshade_double dotProd, dotProdHlp, bestAngErr, axNorm, bestX = 0.0, bestY = 0.0, bestZ = 0.0;
     bool axisImproved                                 = true;
     while ( axisImproved && angErr > 0.0001 )
     {

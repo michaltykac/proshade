@@ -1849,7 +1849,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     {
         settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / this->maxShellBand );
     }
-    proshade_double matrixTolerance                   = ( M_PI / ( this->maxShellBand ) );
+//    proshade_double matrixTolerance                   = ( M_PI / ( this->maxShellBand ) );
     
     //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
     if ( settings->requestedSymmetryType == "C" )

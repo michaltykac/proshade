@@ -1476,8 +1476,8 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     else
     {
         //============================================ Compute some extra rotation matrix elements
-        proshade_double tmp1                          = axX * axY * tAng;
-        proshade_double tmp2                          = axZ * sAng;
+        tmp1                                          = axX * axY * tAng;
+        tmp2                                          = axZ * sAng;
         proshade_double element10                     = tmp1 + tmp2;
         proshade_double element00                     = cAng + axX * axX * tAng;
         
@@ -1523,7 +1523,7 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_signed angDim )
 {
     //================================================ Initialise variables
     proshade_double bestDist                          = 999.9;
@@ -2083,7 +2083,6 @@ void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double
     proshade_double lonM, lonP, latM, latP, movSum;
     std::vector<proshade_double> latVals              ( 3 );
     std::vector<proshade_double> lonVals              ( 3 );
-    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
     proshade_double learningRate                      = 0.1;
     proshade_double prevVal                           = *bestSum;
     proshade_double valChange                         = 999.9;
