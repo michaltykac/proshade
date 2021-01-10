@@ -709,31 +709,28 @@
  *
  *\section pyusage Using the Python modules
  *
- * ProSHADE also provides python2 and python3 modules which allow the same programmatical access to the ProSHADE tool as the dynamic C++ library. These modules are produced using the SWIG tool and contain all the functionality of the dynamic library. Furthermore,
- * both the modules (the python2 and the python3 versions) support the Numpy arrays and do require it to be installed.
+ * ProSHADE also provides a module, which allows the same programmatical access to the ProSHADE tool as the dynamic C++ library. This module is produced using the PyBind11 tool ( https://github.com/pybind/pybind11 ) and
+ * supports the numpy array data types as both input and output of the C++ function calls.
  *
  * \subsection pyinstall Python modules installation notes
  *
  * There are several caveats that the user should be aware of before using the python modules. This section will discuss these, but if there are any issues installing the modules, please contact the author.
  *
  * \b Automatic \b installation
- * - The python modules will be installed automatically as long as the CMake version on your system is version \b 3.1 or higher. Having this CMake version and missing any of the python specific dependencies (\e SWIG, \e python, \e python3,
- * \e Numpy, ...) will cause build errors. If you do not want python modules installed, you can modify the CMakeLists.txt script, but this is recommended only for experienced CMake users.
+ * - The python modules will be installed automatically as long as the CMake version on your system is version **3.4** or higher. If you do not want python modules installed, the CMake command-line
+ * option -DBUILD_PYTHON=FALSE can be used to accomplish just that.
  *
  * \b Python \b versions
- * - The CMake installation scripts use the \e which \e python or \e which \e python2 commands to detect the specific python2 interpreter version and the \e which \e python3 command to detect the specific python3 version. The
- * python library (libpython) appropriate for python version selected in this manner will then be used and linked against by the ProSHADE modules, which will then work only for this python interpreter. Therefore, if you are using multiple python versions,
- * please make sure that the \e which command in the command line points to the required python version before installing ProSHADE.
+ * - The CMake installation scripts use the PyBind11 CMake module to find the current system python version and will then produce ProSHADE python module specific for this version. Be warned that using
+ * module compiled for different version will cause segfaults and other unexpected behaviour. On the other hand, the PyBind11 CMake module seems to deal with multiple python environments well, so using
+ * Anaconda or similar environment manager is recommended, although you will have to build ProSHADE module for each environment separately.
  *
  * \b Module \b locations
- * - The ProSHADE python modules will be installed into the correct \b site-packages folder for the selected python version if the CMake option -DINSTALL_LOCALLY=FALSE is used. If not, then the modules will be installed locally in the \b install folder in
- * the ProSHADE folder cloned by git. If the latter is the case, then you will need to suppy your python interpreter with the path to the location of the module before you can import the module - this can be done by calling the \e sys.path.append function of the
- * \e sys module. Please note that if the module import fails or ProSHADE gives segmentation error upon simple creation of the first ProSHADE object, then it is likely that the module was built for different python interpreter version.
+ * - This section needs to be finished...
  *
  * \subsection pyexamples Python module examples
  *
- * Similarly to the ProSHADE dynamic library, the python code examples are available in the \b /path/to/proshade/examples/python2 (or \b python3 ) folders. The examples are basically identical between the python2 and python3 folders, so just review the examples for the version of
- * python that you intend to use.
+ * Similarly to the ProSHADE dynamic library, the python code examples are available in the \b /path/to/proshade/examples/python folder. They are, again similarly to the dynamic C++ library examples, divided into different categories.
  *
  * \b Simple \b access
  *
