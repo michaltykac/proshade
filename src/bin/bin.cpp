@@ -53,15 +53,11 @@
  *
  * 4.1) \ref stdSys
  *
- * 4.2) \ref installBehaviour
+ * 4.2) \ref otherDependencies
  *
- * 4.3) \ref otherDependencies
+ * 4.3) \ref installBehaviour
  *
- * 4.4) \ref installcode
- *
- * 4.5) \ref uninstall
- *
- * 4.6) \ref pipInstall
+ * 4.4) \ref pipInstall
  *
  * 5) \ref pdbInput
  *
@@ -89,9 +85,7 @@
  *
  * 8) \ref pyusage
  *
- * 8.1) \ref pyinstall
- *
- * 8.2) \ref pyexamples
+ * 8.1) \ref pyexamples
  *
  * \section install Installation
  *
@@ -99,11 +93,12 @@
  * compilation will not be available unless CMake version 3.4 or higher is used. The CMakeLists.txt file assumes the standard system dependencies are installed in the system folders; for a full list of standard system dependencies,
  * please see the section \ref stdSys.
  *
- * Once all of the standard system dependencies are installed CMake can be run to create the make files. Alternatively, ProSHADE also provides \e setup.py script, which wraps the CMake installation - please refer to the \ref pipInstall
- * section of this documentation for more details.
+ *  Once all of the standard system dependencies are installed CMake can be run to create the make files as described in the section \ref installBehaviour. Alternatively, ProSHADE also provides \e setup.py script, which wraps
+ *  the CMake installation - please refer to the \ref pipInstall section of this documentation for more details. The main difference between these two installation approaches is that using CMake allows building the executable and
+ *  the dynamic C++ library, but will install the python module only locally, while installing using pip will install only the python module, but will install it globally. Combining these two installations is not a problem.
  *
- * If CMake is used to build ProSHADE directly, then the user may make use of several options that can be used to modify the default behaviour of the installation; these typically drive the
- * installation locations and dependencies paths in the case of non-standard dependency location. Please see the section \ref installBehaviour for details as to how to use these options and what do they do.
+ * Moreover, if CMake is used to build ProSHADE directly, then the user may make use of several options that can be used to modify the default behaviour of the installation; these typically drive the installation locations and
+ * dependencies paths in the case of non-standard dependency location. Please see the section \b CMake \b options below for details as to how to use these options and what do they do.
  *
  * Please note that while the ProSHADE code is C++ 98 standard compatible, some of the dependencies do require at least partial support for the C++ 11 standard and building python module requires full C++ 11 support.
  *
@@ -197,7 +192,30 @@
  *
  * After this, ProSHADE should by automatically installable using the CMake system.
  *
- * \subsection installBehaviour CMake options
+ * \subsection otherDependencies Other dependencies
+ *
+ * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. The installation of these libraries is automated in the CMake scripts and therefore does not require any user input (these libraries are
+ * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation). Please note that these dependencies do have their own licences (the Mozilla Public License for \e Gemmi
+ * and the GPL licence for \e SOFT2.0) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
+ *
+ * \subsection installBehaviour Installing using CMake
+ * CMake is the default ProSHADE installation tool and if the binary or the library is needed, then it is the only installation option. The python module can also be build using CMake, but it will be installed only
+ * locally and all python scripts will need to add the installation location to their PATH. Alternatively, if the python module is what the user is after, then it can be installed globally using pip - please see the \ref pipInstall
+ * section for more details.
+ *
+ * In order to install ProSHADE, first please check that all the \ref stdSys are installed, preferably using a package management system such as \e apt , \e yum , \e zypper , \e homebrew \e etc.
+ *
+ * Next, please navigate to any folder to which you would like to write the install files; some find it useful to create a \c build folder in the ProSHADE folder in order to keep the install files in the same location
+ * as the source codes. Then, issue the following set of commands, changing the \c \path\to\ProSHADE to the correct path on your system and adding any required CMake options (described below) to the first command. Please
+ * note that \c sudo may be required for the \c make \c install command if you are installing into the system folders.
+ *
+ \code{.sh}
+    cmake \path\to\ProSHADE
+    make
+    make install
+ \endcode
+ *
+ * \b CMake \b options
  *
  * \b -DINSTALL_LOCALLY=ON or \b OFF
  * - This option is used to decide whether all the installed ProSHADE components are installed in the local source directory (value \b ON ) or whether they are instead installed in the system folders (value \b OFF ) as determined by CMake. This option applies to the binary, the C++ library and the headers as well. Please note that the python module will be installed locally; if it is to be installed globally, please use the pip installation described in the section \ref pipInstall.
@@ -227,30 +245,30 @@
  * - This option controls whether python modules should be build or not. If you have installed ProSHADE python modules using pip or if you are not interested in using the python modules, you may set this option to
  * FALSE, otherwise the python module will be built for the currently used python.
  *
- * \subsection otherDependencies Other dependencies
- *
- * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. The installation of these libraries is automated in the CMake scripts and therefore does not require any user input (these libraries are
- * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation). Please note that these dependencies do have their own licences (the Mozilla Public License for \e Gemmi
- * and the GPL licence for \e SOFT2.0) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
- *
- * \subsection installcode Install
- *
- * In order to install ProSHADE, first please check that all the \ref stdSys are installed, preferably using a package management system such as \e apt , \e yum , \e zypper , \e homebrew \e etc. Next, please navigate to any folder to which you would like to write the install
- * files; some find it useful to create a \c build folder in the ProSHADE folder in order to keep the install files in the same location as the source codes. Then, issue the following set of commands, changing the \c \path\to\ProSHADE
- * to the correct path on your system and adding any required \ref installBehaviour to the first command. Please note that \c sudo may be required for the \c make \c install command if you are installing into the system folders.
- *
- \code{.sh}
-    cmake \path\to\ProSHADE
-    make
-    make install
- \endcode
- *
- * \subsection uninstall Uninstall
+ * \b Uninstall \b using \b CMake
  *
  * To remove the installed ProSHADE components, the command \c make \c remove needs to be issued to the makefile originally created by the CMake call. Please note that \c sudo may need to be used if the installation was
  * done into the system folders and your current user does not have admin rights.
  *
  * \subsection pipInstall Installation using pip
+ *
+ *  If the user is interested solely in the python module to ProSHADE, then such module can be build and installed globally using pip. The appropriate \e setup.py script is located at the root of the ProSHADE directory and therefore
+ *  the installation can simply be done as follows:
+ *
+ \code{.sh}
+    python -m pip install \path\to\ProSHADE
+ \endcode
+ *
+ * Please note that the pip installation only wraps around the CMake installation and that CMake is still being run by pip in the background. Therefore, the same system dependencies are required. Moreover, if any of the system
+ * dependencies is missing or cannot be found, then a bit more cryptic error message will be printed by pip.
+ *
+ * \b Uninstalling \b pip \b installed \b module
+ *
+ * Should the user require to uninstall the python module and all associated data after they were installed globally using pip, the following standard pip command can achieve this task:
+ *
+ \code{.sh}
+   python -m pip uninstall proshade
+ \endcode
  *
  * \section pdbInput Input PDB files
  *
@@ -709,28 +727,12 @@
  *
  *\section pyusage Using the Python modules
  *
- * ProSHADE also provides a module, which allows the same programmatical access to the ProSHADE tool as the dynamic C++ library. This module is produced using the PyBind11 tool ( https://github.com/pybind/pybind11 ) and
- * supports the numpy array data types as both input and output of the C++ function calls.
- *
- * \subsection pyinstall Python modules installation notes
- *
- * There are several caveats that the user should be aware of before using the python modules. This section will discuss these, but if there are any issues installing the modules, please contact the author.
- *
- * \b Automatic \b installation
- * - The python modules will be installed automatically as long as the CMake version on your system is version **3.4** or higher. If you do not want python modules installed, the CMake command-line
- * option -DBUILD_PYTHON=FALSE can be used to accomplish just that.
- *
- * \b Python \b versions
- * - The CMake installation scripts use the PyBind11 CMake module to find the current system python version and will then produce ProSHADE python module specific for this version. Be warned that using
- * module compiled for different version will cause segfaults and other unexpected behaviour. On the other hand, the PyBind11 CMake module seems to deal with multiple python environments well, so using
- * Anaconda or similar environment manager is recommended, although you will have to build ProSHADE module for each environment separately.
- *
- * \b Module \b locations
- * - This section needs to be finished...
+ * ProSHADE also provides a module which allows the same programmatical access to the ProSHADE tool as the dynamic C++ library. This module is produced using the PyBind11
+ * tool ( https://github.com/pybind/pybind11 ) and supports the numpy array data types as both input and output of the C++ function calls.
  *
  * \subsection pyexamples Python module examples
  *
- * Similarly to the ProSHADE dynamic library, the python code examples are available in the \b /path/to/proshade/examples/python folder. They are, again similarly to the dynamic C++ library examples, divided into different categories.
+ * Similarly to the ProSHADE dynamic library, the python code examples are available in the  \b /path/to/proshade/examples/python folder. They are, again similarly to the dynamic C++ library examples, divided into different categories.
  *
  * \b Simple \b access
  *
@@ -738,44 +740,48 @@
  * The user needs to create the \b ProSHADE_settings object and can then supply it with all the settings values which will then drive the ProSHADE computations. The same settings are available in the python modules as in the ProSHADE library; the example code below shows only a
  * small selection of these (for full selection, please see the example files). Next, the user creates the \b ProSHADE_run object, constructor of which takes the settings object as its only argument and then proceeds to do all computations required by the settings in the settings object. The
  * computations are done on this one line and if they take time, the execution of the script will be halted until ProSHADE is done computing. Once completed, the results can be retrieved from the \b ProSHADE_run object using the public accessor functions; the example code below shows
- * how the symmetry functionality can be run and results retrieved.
+ * how the symmetry functionality can be run and results retrieved - for examples of other functionalities and for more details, please see the *simpleAccess_...* example files.
  *
  * \code{.py}
- """ Import the system modules """
- import sys
  import numpy
- 
- """ Import ProSHADE """
- sys.path.append                               ( "/path/to/proshade/install/python3" ) # only needed if ProSHADE was installed locally
+
+ """ Import ProSHADE (assumes installation through pip) """
  import proshade
- 
- """ Create the ProSHADE_settings object """
- pSet                                          = proshade.ProSHADE_settings ()
- 
- """ Set the settings for Symmetry detection """
- # Required values
- pSet.task                                     = proshade.Symmetry                     # The task ProSHADE is expected to perform
- pSet.verbose                                  = -1                                    # How verbose should the run be? Use -1 for absolute silence.
- pSet.setResolution                            ( 8.0 )                                 # The resolution to which computations are to be done.
- pSet.addStructure                             ( "./C2.pdb" )                          # The path to the structure to be processed.
- 
- """ Run the Symmetry task """
- pRun                                          = proshade.ProSHADE_run ( pSet )        # Do the computations. This takes most of the time.
 
- """ Get the recommended symmetry """
- detectedSymType                               = proshade.getDetectedSymmetryType ( pRun ) # Retrieve the results. Takes minimum time as these are already computed
- detectedSymFold                               = proshade.getDetectedSymmetryFold ( pRun ) # Retrieve the results. Takes minimum time as these are already computed
- detectedSymAxes                               = proshade.getDetectedSymmetryAxes ( pRun ) # Retrieve the results. Takes minimum time as these are already computed
+ """ Create the settings object """
+ ps                                    = proshade.ProSHADE_settings ( )
 
- """ Print results """
- print ( "Detected symmetry " + str( detectedSymType ) + "-" + str( detectedSymFold ) + " with axes: " )
- print ( "Fold      x         y         z       Angle     Height" )
- for iter in range ( 0, len( detectedSymAxes ) ):
-      print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( detectedSymAxes[iter][0], detectedSymAxes[iter][1], detectedSymAxes[iter][2], detectedSymAxes[iter][3], detectedSymAxes[iter][4], detectedSymAxes[iter][5] ) )
- 
- """ Delete the C++ pointers """
- del pRun
- del pSet
+ """ Set up the run """
+ ps.task                               = proshade.Symmetry
+ ps.verbose                            = -1;
+ ps.setResolution                      ( 8.0 );
+ ps.addStructure                       ( "/path/to/emd_5762.map" );
+
+ """ Run ProSHADE """
+ rn                                    = proshade.ProSHADE_run ( ps )
+
+ """ Retrieve results """
+ symType                               = rn.getSymmetryType ( )
+ symFold                               = rn.getSymmetryFold ( )
+ symAxis                               = rn.getSymmetryAxis ( 0 )
+ allCs                                 = rn.getAllCSyms     ( )
+
+ """ Print results (part I) """
+ print                                 ( "Found a total of " + str ( len ( allCs ) ) + " cyclic symmetries." )
+
+ """ Print results (part II) """
+ print                                 ( "Detected symmetry " + str( symType ) + "-" + str( symFold ) + " with axes: " )
+ print                                 ( "Fold      x         y         z       Angle     Height" )
+ print                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( float ( symAxis[0] ),
+                                                                                                      float ( symAxis[1] ),
+                                                                                                      float ( symAxis[2] ),
+                                                                                                      float ( symAxis[3] ),
+                                                                                                      float ( symAxis[4] ),
+                                                                                                      float ( symAxis[5] ) ) )
+                                                                                                      
+ """ Release memory """
+ del rn
+ del ps
  \endcode
  *
  * \b Advanced \b access

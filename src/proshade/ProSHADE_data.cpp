@@ -791,15 +791,19 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
 /*! \brief This function writes out the PDB formatted file coresponding to the structure so that its COM is at specific position.
 
     This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
-    it will proceed to
+    it will proceed to read in the original co-ordinates, rotate and translate them according to the arguments and then write the resulting co-ordinates
+    into a new file.
 
     \param[in] fName The filename (including path) to where the output PDB file should be saved.
     \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
     \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
     \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] trsX The translation to be done along X-axis in Angstroms.
+    \param[in] trsY The translation to be done along Y-axis in Angstroms.
+    \param[in] trsZ The translation to be done along Z-axis in Angstroms.
     \param[in] firstModel Should only the first model, or rather all of them be used?
 */
-void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, bool firstModel )
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, bool firstModel )
 {
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
@@ -818,7 +822,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->originalPdbTransX, this->originalPdbTransY, this->originalPdbTransZ, firstModel );
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, trsX, trsY, trsZ, firstModel );
 
     //================================================ Write the PDB file
     std::ofstream outCoOrdFile;
@@ -4266,7 +4270,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, settings->firstModelOnly );
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2), settings->firstModelOnly );
     }
     
     //================================================ Write out the json file with the results

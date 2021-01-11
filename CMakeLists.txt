@@ -76,7 +76,7 @@ set     ( INSTALL_INC_DIR        include CACHE PATH   "Installation directory fo
 set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"                     )
 set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
 set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
-set     ( BUILD_PYTHON           TRUE    CACHE BOOL   "Should python modules be build?"        )
+set     ( BUILD_PYTHON           FALSE   CACHE BOOL   "Should python modules be build?"        )
 
 ##########################################################################################
 ################################### Warn if non-local installation - sudo may be needed

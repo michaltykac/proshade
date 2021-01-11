@@ -89,7 +89,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         //============================================ Data I/O functions
         .def                                          ( "readInStructure",  &ProSHADE_internal_data::ProSHADE_data::readInStructure,    "This function initialises the basic ProSHADE_data variables and reads in a single structure.", pybind11::arg ( "fname" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ) )
         .def                                          ( "writeMap",         &ProSHADE_internal_data::ProSHADE_data::writeMap,           "Function for writing out the internal structure representation in MRC MAP format.",            pybind11::arg ( "fname" ), pybind11::arg ( "title" ) = "Created by ProSHADE and written by GEMMI", pybind11::arg ( "mode" ) = 2 )
-        .def                                          ( "writePdb",         &ProSHADE_internal_data::ProSHADE_data::writePdb,           "This function writes out the PDB formatted file coresponding to the structure.",               pybind11::arg ( "fname" ), pybind11::arg ( "euA" ) = 0.0, pybind11::arg ( "euB" ) = 0.0, pybind11::arg ( "euG" ) = 0.0, pybind11::arg ( "firstModel" ) = true )
+        .def                                          ( "writePdb",         &ProSHADE_internal_data::ProSHADE_data::writePdb,           "This function writes out the PDB formatted file coresponding to the structure.",               pybind11::arg ( "fname" ), pybind11::arg ( "euA" ) = 0.0, pybind11::arg ( "euB" ) = 0.0, pybind11::arg ( "euG" ) = 0.0, pybind11::arg ( "trsX" ) = 0.0, pybind11::arg ( "trsY" ) = 0.0, pybind11::arg ( "trsZ" ) = 0.0, pybind11::arg ( "firstModel" ) = true )
         .def                                          ( "getMap",
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < proshade_double >
                                                         {
@@ -390,37 +390,12 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def                                          ( "rotateMap", &ProSHADE_internal_data::ProSHADE_data::rotateMap, "This function rotates a map based on the given Euler angles.", pybind11::arg ( "settings" ), pybind11::arg ( "eulerAlpha" ), pybind11::arg ( "eulerBeta" ), pybind11::arg ( "eulerGamma" ) )
         .def                                          ( "zeroPaddToDims", &ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims, "This function changes the size of a structure to fit the supplied new limits.", pybind11::arg ( "xDimMax" ), pybind11::arg ( "yDimMax" ), pybind11::arg ( "zDimMax" ) )
         .def                                          ( "computeTranslationMap", &ProSHADE_internal_data::ProSHADE_data::computeTranslationMap, "This function does the computation of the translation map and saves results internally.", pybind11::arg ( "staticStructure" ) )
-        .def                                          ( "getBestTranslationMapPeaksAngstrom",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG ) -> pybind11::array_t < float >
-                                                        {
-                                                            //== Get values
-                                                            std::vector< proshade_double > vals = self.getBestTranslationMapPeaksAngstrom ( staticStructure, eulA, eulB, eulG );
-
-                                                            //== Convert Euler ZXZ to matrix
-                                                            float* npVals = new float[3];
-                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
-
-                                                            //== Copy the vals to memory
-                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = vals.at(iter); }
-
-                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
-                                                            pybind11::capsule pyCapsuleTRPeak ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
-
-                                                            //== Create numpy array
-                                                            pybind11::array_t < float > retArr = pybind11::array_t < float > ( { 3 },                 // Shape
-                                                                                                                               { sizeof(float) },     // C-stype strides
-                                                                                                                               npVals,                // Data
-                                                                                                                               pyCapsuleTRPeak );     // Capsule
-
-                                                            //== Done
-                                                            return ( retArr );
-                                                        }, "This function gets the optimal translation vector and returns it as a numpy vector.", pybind11::arg ( "staticStructure" ), pybind11::arg ( "eulA" ), pybind11::arg ( "eulB" ), pybind11::arg ( "eulG" ) )
         .def                                          ( "getOverlayTranslations",
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_internal_data::ProSHADE_data* staticStructure , proshade_double eulA, proshade_double eulB, proshade_double eulG) -> pybind11::dict
                                                         {
                                                             //== Get values
                                                             std::vector< proshade_double > vals = self.getBestTranslationMapPeaksAngstrom ( staticStructure, eulA, eulB, eulG );
-            
+
                                                             //== Initialise variables
                                                             pybind11::dict retDict;
                                                             pybind11::list rotCen, toOverlay;
@@ -429,14 +404,14 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             rotCen.append ( self.originalPdbRotCenX );
                                                             rotCen.append ( self.originalPdbRotCenY );
                                                             rotCen.append ( self.originalPdbRotCenZ );
-            
+
                                                             toOverlay.append ( self.originalPdbTransX );
-                                                            toOverlay.append ( self.originalPdbTransX );
-                                                            toOverlay.append ( self.originalPdbTransX );
-            
+                                                            toOverlay.append ( self.originalPdbTransY );
+                                                            toOverlay.append ( self.originalPdbTransZ );
+
                                                             //== Save results to return dict
                                                             retDict[ pybind11::handle ( pybind11::str ( "centreOfRotation" ).ptr ( ) ) ] = rotCen;
-                                                            retDict[ pybind11::handle ( pybind11::str ( "originToOverlay" ).ptr ( ) ) ] = toOverlay;
+                                                            retDict[ pybind11::handle ( pybind11::str ( "rotCenToOverlay" ).ptr ( ) ) ] = toOverlay;
 
                                                             //== Done
                                                             return ( retDict );

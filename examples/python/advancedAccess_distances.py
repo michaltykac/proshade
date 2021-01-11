@@ -1,12 +1,12 @@
-##############################################
-##############################################
+######################################################
+######################################################
 #   \file advancedAccess_distances.py
-#   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode.
+#   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode for the shape distances mode.
 #
-#   This file shows a fast demonstration of how the advanced access interfacte can be used to compute the
+#   This file shows a fast demonstration of how the advanced access interface can be used to compute the
 #   distances between two (or more) structures and how the results can be obtained. This file does not
 #   contain all the explanations and possible settings, for complete documentation, please see the
-#   advancedAccess.py file instead.
+#   directAccess.py file instead.
 #
 #   Copyright by Michal Tykac and individual contributors. All rights reserved.
 #
@@ -19,66 +19,76 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.0
-#   \date      DEC 2020
-##############################################
-##############################################
+#   \version   0.7.5.1
+#   \date      JAN 2021
+######################################################
+######################################################
 
-
-### System modules
+######################################################
+### Import system modules
 import sys
 import numpy
 
+######################################################
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                               ( "/Users/mysak/BioCEV/proshade/build" )
-import pyproshade as proshade
+sys.path.append                                       ( "/Users/mysak/BioCEV/proshade/experimental/install/pythonModule" )
+import proshade
 
+######################################################
 ### Create the settings object
-pSet                                          = proshade.ProSHADE_settings ()
+pSet                                                  = proshade.ProSHADE_settings ()
 
-### Set settings values (for full list, please see the simpleAccess_distances.py file)
-pSet.task                                     = proshade.Distances
-pSet.verbose                                  = 1
-pSet.setResolution                            ( 6.0 )
+######################################################
+### Set basic settings values 
+pSet.task                                             = proshade.Distances
+pSet.verbose                                          = -1
+pSet.setResolution                                    ( 6.0 )
 
+######################################################
 ### Create the structure objects
-pStruct1                                      = proshade.ProSHADE_data ( pSet )
-pStruct2                                      = proshade.ProSHADE_data ( pSet )
+pStruct1                                              = proshade.ProSHADE_data ( pSet )
+pStruct2                                              = proshade.ProSHADE_data ( pSet )
 
-### Read in the structure
-pStruct1.readInStructure                      ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # A BALBES domain 1BFO_A_dom_1
-pStruct2.readInStructure                      ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # A BALBES domain 1H8N_A_dom_1
+######################################################
+### Read in the structures
+pStruct1.readInStructure                              ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # A BALBES domain 1BFO_A_dom_1
+pStruct2.readInStructure                              ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # A BALBES domain 1H8N_A_dom_1
 
-### Process map
-pStruct1.processInternalMap                   ( pSet )
-pStruct2.processInternalMap                   ( pSet )
+######################################################
+### Process maps
+pStruct1.processInternalMap                           ( pSet )
+pStruct2.processInternalMap                           ( pSet )
 
+######################################################
 ### Map to spheres
-pStruct1.mapToSpheres                         ( pSet )
-pStruct2.mapToSpheres                         ( pSet )
+pStruct1.mapToSpheres                                 ( pSet )
+pStruct2.mapToSpheres                                 ( pSet )
 
+######################################################
 ### Compute spherical harmonics
-pStruct1.computeSphericalHarmonics            ( pSet )
-pStruct2.computeSphericalHarmonics            ( pSet )
+pStruct1.computeSphericalHarmonics                    ( pSet )
+pStruct2.computeSphericalHarmonics                    ( pSet )
 
+######################################################
 ### Get the distances
-energyLevelsDescriptor                        = proshade.computeEnergyLevelsDescriptor    ( pStruct1, pStruct2, pSet )
-traceSigmaDescriptor                          = proshade.computeTraceSigmaDescriptor      ( pStruct1, pStruct2, pSet )
-fullRotationFunctionDescriptor                = proshade.computeRotationunctionDescriptor ( pStruct1, pStruct2, pSet )
+energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct1, pStruct2, pSet )
+traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct1, pStruct2, pSet )
+fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct1, pStruct2, pSet )
 
+######################################################
 ### Print results
-print ( "The energy levels distance is          %+1.3f" % ( energyLevelsDescriptor ) )
-print ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor ) )
-print ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
+print                                                 ( "The energy levels distance is          %+1.3f" % ( energyLevelsDescriptor ) )
+print                                                 ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor ) )
+print                                                 ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
 
+######################################################
 ### Expected output
 #   The energy levels distance is          +0.895
 #   The trace sigma distance is            +0.960
 #   The rotation function distance is      +0.756
 
+######################################################
 ### Release C++ pointers
 del pStruct1
 del pStruct2
 del pSet
-
-### Done

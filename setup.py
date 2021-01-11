@@ -86,7 +86,8 @@ class CMakeBuild ( build_ext ):
         extdir                                        = os.path.abspath( os.path.dirname ( self.get_ext_fullpath ( ext.name ) ) )
         
         ### CMake arguments to make sure the CMake output goes to the correct folder and that the correct python is used
-        cmake_args                                    = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+        cmake_args                                    = ['-DBUILD_PYTHON=TRUE',
+                                                         '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                                                          '-DPYTHON_EXECUTABLE=' + sys.executable ]
 
         ### Make arguments
