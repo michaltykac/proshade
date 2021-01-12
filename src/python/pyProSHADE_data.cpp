@@ -418,6 +418,256 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         }, "This function returns the vector from optimal rotation centre to origin and the optimal overlay translation vector. These two vectors allow overlaying the inputs (see documentation for details on how the two vectors should be used).", pybind11::arg ( "staticStructure" ), pybind11::arg ( "eulA" ), pybind11::arg ( "eulB" ), pybind11::arg ( "eulG" ) )
         .def                                          ( "translateMap", &ProSHADE_internal_data::ProSHADE_data::translateMap, "This function translates the map by a given number of Angstroms along the three axes. Please note the translation happens firstly to the whole map box and only the translation remainder that cannot be achieved by moving the box will be corrected for using reciprocal space translation within the box.", pybind11::arg ( "settings" ), pybind11::arg ( "trsX" ), pybind11::arg ( "trsY" ), pybind11::arg ( "trsZ" ) )
 
+        //============================================ Internal arrays access functions
+        .def                                          ( "findSHIndex",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, proshade_signed shell, proshade_signed band, proshade_signed order ) -> proshade_signed
+                                                        {
+                                                            //== Get value
+                                                            proshade_signed index = seanindex ( order, band, self.spheres[shell]->getLocalBandwidth() );
+            
+                                                            //== Done
+                                                            return ( index );
+                                                        }, "This function finds the correct index for given shell, band and order in the spherical harmonics array. Please note that the order is expected in range -band <= 0 <- band and NOT from 0 to ( 2 * band ) + 1." )
+        .def                                          ( "getSphericalHarmonics",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex<proshade_double> >
+                                                       {
+                                                            //== Allocate memory for the numpy values
+                                                            std::complex<proshade_double>* npVals = new std::complex<proshade_double>[static_cast<proshade_unsign> ( self.noSpheres * pow( self.maxShellBand, 2.0 ) )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+            
+                                                            //== Fill with zeroes as the matrix will be sparse
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( self.noSpheres * pow( self.maxShellBand, 2.0 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
+                                                            
+                                                            //== Initialise variables
+                                                            proshade_signed pyPosSH;
+                                                            proshade_signed pyPos;
+            
+                                                            //== Copy data to new memory
+                                                            for ( proshade_signed shIt = 0; shIt < static_cast<proshade_signed> ( self.noSpheres ); shIt++ )
+                                                            {
+                                                                for ( proshade_signed bnd = 0; bnd < static_cast<proshade_signed> ( self.spheres[shIt]->getLocalBandwidth() ); bnd++ )
+                                                                {
+                                                                    for ( proshade_signed order = -bnd; order <= bnd; order++ )
+                                                                    {
+                                                                        pyPosSH = ( shIt * pow( self.maxShellBand, 2.0 ) );
+                                                                        pyPos   = seanindex ( order, bnd, self.spheres[shIt]->getLocalBandwidth() );
+                                                                        npVals[pyPosSH+pyPos].real ( self.sphericalHarmonics[shIt][pyPos][0] );
+                                                                        npVals[pyPosSH+pyPos].imag ( self.sphericalHarmonics[shIt][pyPos][1] );
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleSHs ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
+                                                                { static_cast<int> ( self.noSpheres ), static_cast<int> ( pow ( self.maxShellBand, 2.0  ) ) },
+                                                                { sizeof ( std::complex < proshade_double > ) * static_cast<int> ( pow ( self.maxShellBand, 2.0  ) ), sizeof ( std::complex < proshade_double > ) },
+                                                                npVals,
+                                                                pyCapsuleSHs );
+                
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns a 2D numpy array of complex numbers representing the spherical harmonics computed for the structure. The first dimension of the array is the spheres (i.e. each sphere has its own array) and the second dimension is the band and order combination as given by the findSHIndex() function. Please note that while each sphere can have different number of spherical harmonics coefficients (depending on the settings.progressiveSphereMapping value), this array uses maxShellBand**2 values to make sure the length are equal for all spheres. To avoid issues, please use the findSHIndex() to correctly find the index of a particular shell, band, order combination." )
+        .def                                          ( "getEMatrix",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
+                                                        {
+                                                            //== Allocate memory for the numpy values
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Allocate local variables
+                                                            proshade_signed index = 0;
+                                                                                                                                                                    
+                                                            //== Fill with zeroes as the matrix will be sparse
+                                                            for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
+        
+                                                            //== Copy data to new memory
+                                                            for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxShellBand ); bandIter++ )
+                                                            {
+                                                                for ( proshade_unsign order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
+                                                                {
+                                                                    for ( proshade_unsign order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
+                                                                    {
+                                                                        index = order2 + ( ( self.maxShellBand * 2 ) + 1 ) * ( order1 + ( ( self.maxShellBand * 2 ) + 1 ) * bandIter );
+                                                                        npVals[index].real ( self.eMatrices[bandIter][order1][order2][0] );
+                                                                        npVals[index].imag ( self.eMatrices[bandIter][order1][order2][1] );
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleEMs ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
+
+                                                            //== Create the output object
+                                                            pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
+                                                                            { self.maxShellBand, ( ( self.maxShellBand * 2 ) + 1 ), ( ( self.maxShellBand * 2 ) + 1 ) },
+                                                                            { sizeof ( std::complex < proshade_double > ) * static_cast<int> ( ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ),
+                                                                              sizeof ( std::complex < proshade_double > ) * static_cast<int>   ( ( self.maxShellBand * 2 ) + 1 ),
+                                                                              sizeof ( std::complex < proshade_double > ) },
+                                                                            npVals,
+                                                                            pyCapsuleEMs );
+            
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the E matrix values (these are the integral over all spheres of ( c1^(l,m) * c2^(l,m') ) values) obtained when rotation function or self-rotation function are computed. The returned array has three dimensions, first being the band, second being the order1 and third being the order2. Please note that as negative indexing does not simply work, the order indexing starts from 0 - i.e. array[1][0][0] means band 1 ; order1 = -1 and order2 = -1." )
+        .def                                          ( "getSO3Coefficients",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
+                                                        {
+                                                            //== Allocate memory for the numpy values
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+    
+                                                            //== Allocate local variables
+                                                            proshade_signed index = 0;
+                                                                                                                                                                
+                                                            //== Fill with zeroes as the matrix will be sparse
+                                                            for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
+    
+                                                            //== Copy data to new memory
+                                                            for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxShellBand ); bandIter++ )
+                                                            {
+                                                                for ( proshade_unsign order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
+                                                                {
+                                                                    for ( proshade_unsign order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
+                                                                    {
+                                                                        index = order2 + ( ( self.maxShellBand * 2 ) + 1 ) * ( order1 + ( ( self.maxShellBand * 2 ) + 1 ) * bandIter );
+                                                                        npVals[index].real ( self.so3Coeffs[self.so3CoeffsArrayIndex ( order1 - bandIter, order2 - bandIter, bandIter )][0] );
+                                                                        npVals[index].imag ( self.so3Coeffs[self.so3CoeffsArrayIndex ( order1 - bandIter, order2 - bandIter, bandIter )][1] );
+                                                                    }
+                                                                }
+                                                            }
+
+                                                        //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                        pybind11::capsule pyCapsuleSOCoeffs ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
+
+                                                        //== Create the output object
+                                                        pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
+                                                                        { self.maxShellBand, ( ( self.maxShellBand * 2 ) + 1 ), ( ( self.maxShellBand * 2 ) + 1 ) },
+                                                                        { sizeof ( std::complex < proshade_double > ) * static_cast<int> ( ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ),
+                                                                          sizeof ( std::complex < proshade_double > ) * static_cast<int>   ( ( self.maxShellBand * 2 ) + 1 ),
+                                                                          sizeof ( std::complex < proshade_double > ) },
+                                                                        npVals,
+                                                                        pyCapsuleSOCoeffs );
+        
+                                                        //== Done
+                                                        return ( retArr );
+                                                    }, "This function returns the SO(3) coefficient values (these are normalised E matrix values with sign modification) obtained when rotation function or self-rotation function are computed. The returned array has three dimensions, first being the band, second being the order1 and third being the order2. Please note that as negative indexing does not simply work, the order indexing starts from 0 - i.e. array[1][0][0] means band 1 ; order1 = -1 and order2 = -1." )
+        .def                                          ( "getRotationFunctionMap",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
+                                                        {
+                                                            //== Allocate memory for the numpy values
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+            
+                                                            //== Copy the values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) ); iter++ ) { npVals[iter].real ( self.so3CoeffsInverse[iter][0] ); npVals[iter].imag ( self.so3CoeffsInverse[iter][1] ); }
+        
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRotMap ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
+                                                       
+                                                            //== Create python readable object with the correct memory access
+                                                            pybind11::array_t < std::complex < proshade_double > > retArr = pybind11::array_t < std::complex < proshade_double > > (
+                                                                { ( self.maxShellBand * 2 ), ( self.maxShellBand * 2 ), ( self.maxShellBand * 2 ) },  // Shape
+                                                                { ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) * sizeof(std::complex < proshade_double >),
+                                                                  ( self.maxShellBand * 2 ) * sizeof(std::complex < proshade_double >),
+                                                                  sizeof(std::complex < proshade_double >) },                                         // C-stype strides
+                                                                npVals,                                                                               // Data
+                                                                pyCapsuleRotMap );                                                                    // Capsule (destructor)
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the (self) rotation function as a three-dimensional map of complex numbers." )
+        .def                                          ( "getRotationMatrixFromSOFTCoordinates",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, proshade_signed xPos, proshade_signed yPos, proshade_signed zPos ) -> pybind11::array_t < proshade_double >
+                                                        {
+                                                            //== Allocate memory for the numpy values
+                                                            proshade_double* npVals = new proshade_double[9];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Initialise local variables
+                                                            proshade_double eulA, eulB, eulG;
+            
+                                                            //== Compute the Euler angles from SOFT position
+                                                            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( self.maxShellBand, xPos, yPos, zPos, &eulA, &eulB, &eulG );
+            
+                                                            //== Compute the rotation matrix
+                                                            ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, npVals );
+    
+                                                            //== Create capsule to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRMSoft ( npVals, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
+                                                   
+                                                            //== Create python readable object with the correct memory access
+                                                            pybind11::array_t < proshade_double > retArr = pybind11::array_t < proshade_double > ( { 3, 3 },
+                                                                                                                                                   { 3 * sizeof(proshade_double), sizeof(proshade_double) },
+                                                                                                                                                   npVals,
+                                                                                                                                                   pyCapsuleRMSoft );
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function converts a given rotation function map position onto the corresponding rotation matrix.", pybind11::arg ( "xPos" ), pybind11::arg ( "yPos" ), pybind11::arg ( "zPos" ) )
+        .def                                          ( "getTranslationFunctionMap",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
+                                                        {
+                                                            //== Allocate memory for the numpy values
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.getXDim() * self.getYDim() * self.getZDim() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy the values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( self.getXDim() * self.getYDim() * self.getZDim() ); iter++ ) { npVals[iter].real ( self.translationMap[iter][0] ); npVals[iter].imag ( self.translationMap[iter][1] ); }
+    
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleTrsMap ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
+                                                   
+                                                            //== Create python readable object with the correct memory access
+                                                            pybind11::array_t < std::complex < proshade_double > > retArr = pybind11::array_t < std::complex < proshade_double > > (
+                                                                { self.getXDim(), self.getYDim(), self.getZDim() },  // Shape
+                                                                { self.getYDim() * self.getZDim() * sizeof(std::complex < proshade_double >),
+                                                                  self.getZDim() * sizeof(std::complex < proshade_double >),
+                                                                  sizeof(std::complex < proshade_double >) },                                         // C-stype strides
+                                                                npVals,                                                                               // Data
+                                                                pyCapsuleTrsMap );                                                                    // Capsule (destructor)
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the translation function as a three-dimensional map of complex numbers." )
+    
+        //============================================ Member variables
+        .def_readwrite                                ( "fileName",          &ProSHADE_internal_data::ProSHADE_data::fileName      )
+        .def_readwrite                                ( "xDimSize",          &ProSHADE_internal_data::ProSHADE_data::xDimSize      )
+        .def_readwrite                                ( "yDimSize",          &ProSHADE_internal_data::ProSHADE_data::yDimSize      )
+        .def_readwrite                                ( "zDimSize",          &ProSHADE_internal_data::ProSHADE_data::zDimSize      )
+        .def_readwrite                                ( "aAngle",            &ProSHADE_internal_data::ProSHADE_data::aAngle        )
+        .def_readwrite                                ( "bAngle",            &ProSHADE_internal_data::ProSHADE_data::bAngle        )
+        .def_readwrite                                ( "cAngle",            &ProSHADE_internal_data::ProSHADE_data::cAngle        )
+        .def_readwrite                                ( "xDimIndices",       &ProSHADE_internal_data::ProSHADE_data::xDimIndices   )
+        .def_readwrite                                ( "yDimIndices",       &ProSHADE_internal_data::ProSHADE_data::yDimIndices   )
+        .def_readwrite                                ( "zDimIndices",       &ProSHADE_internal_data::ProSHADE_data::zDimIndices   )
+        .def_readwrite                                ( "xGridIndices",      &ProSHADE_internal_data::ProSHADE_data::xGridIndices  )
+        .def_readwrite                                ( "yGridIndices",      &ProSHADE_internal_data::ProSHADE_data::yGridIndices  )
+        .def_readwrite                                ( "zGridIndices",      &ProSHADE_internal_data::ProSHADE_data::zGridIndices  )
+        .def_readwrite                                ( "xAxisOrder",        &ProSHADE_internal_data::ProSHADE_data::xAxisOrder    )
+        .def_readwrite                                ( "yAxisOrder",        &ProSHADE_internal_data::ProSHADE_data::yAxisOrder    )
+        .def_readwrite                                ( "zAxisOrder",        &ProSHADE_internal_data::ProSHADE_data::zAxisOrder    )
+        .def_readwrite                                ( "xAxisOrigin",       &ProSHADE_internal_data::ProSHADE_data::xAxisOrigin   )
+        .def_readwrite                                ( "yAxisOrigin",       &ProSHADE_internal_data::ProSHADE_data::yAxisOrigin   )
+        .def_readwrite                                ( "zAxisOrigin",       &ProSHADE_internal_data::ProSHADE_data::zAxisOrigin   )
+        .def_readwrite                                ( "xCom",              &ProSHADE_internal_data::ProSHADE_data::xCom          )
+        .def_readwrite                                ( "yCom",              &ProSHADE_internal_data::ProSHADE_data::yCom          )
+        .def_readwrite                                ( "zCom",              &ProSHADE_internal_data::ProSHADE_data::zCom          )
+        .def_readwrite                                ( "xFrom",             &ProSHADE_internal_data::ProSHADE_data::xFrom         )
+        .def_readwrite                                ( "yFrom",             &ProSHADE_internal_data::ProSHADE_data::yFrom         )
+        .def_readwrite                                ( "zFrom",             &ProSHADE_internal_data::ProSHADE_data::zFrom         )
+        .def_readwrite                                ( "xTo",               &ProSHADE_internal_data::ProSHADE_data::xTo           )
+        .def_readwrite                                ( "yTo",               &ProSHADE_internal_data::ProSHADE_data::yTo           )
+        .def_readwrite                                ( "zTo",               &ProSHADE_internal_data::ProSHADE_data::zTo           )
+        .def_readwrite                                ( "spherePos",         &ProSHADE_internal_data::ProSHADE_data::spherePos     )
+        .def_readwrite                                ( "noSpheres",         &ProSHADE_internal_data::ProSHADE_data::noSpheres     )
+        .def_readwrite                                ( "maxShellBand",      &ProSHADE_internal_data::ProSHADE_data::maxShellBand  )
+        .def_readwrite                                ( "isEmpty",           &ProSHADE_internal_data::ProSHADE_data::isEmpty       )
+        .def_readwrite                                ( "inputOrder",        &ProSHADE_internal_data::ProSHADE_data::inputOrder    )
+        
         //============================================ Description
         .def                                          ( "__repr__", [] ( const ProSHADE_internal_data::ProSHADE_data &a ) { return "<ProSHADE_data class object> (This class contains all information, results and available functionalities for a structure)"; } );
 }

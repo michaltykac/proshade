@@ -1,5 +1,5 @@
-##############################################
-##############################################
+######################################################
+######################################################
 #   \file directAccess.py
 #   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode.
 #
@@ -34,14 +34,14 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.0
-#   \date      DEC 2020
-##############################################
-##############################################
+#   \version   0.7.5.1
+#   \date      JAN 2021
+######################################################
+######################################################
 
-##############################################
+######################################################
 ### Import modules
-### =====================
+### ==============
 ###
 ### This is where Python modules are loaded.
 ###
@@ -51,10 +51,10 @@ import sys
 import numpy
 
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                               ( "/Users/mysak/BioCEV/proshade/experimental/install/python3" )
+sys.path.append                                       ( "/Users/mysak/BioCEV/proshade/experimental/install/pythonModule" )
 import proshade
 
-##############################################
+######################################################
 ### Create the ProSHADE_settings object
 ### ===================================
 ###
@@ -72,16 +72,16 @@ import proshade
 ###
 
 ### Create the object
-pSet                                          = proshade.ProSHADE_settings ()
-
+pSet                                                  = proshade.ProSHADE_settings ()
+        
 ### Set settings values
-pSet.task                                     = proshade.Distances
-pSet.verbose                                  = 1
-pSet.rotationUncertainty                      = 5.0
-pSet.moveToCOM                                = True
-pSet.setMapResolutionChange                   ( False )
+pSet.task                                             = proshade.Distances
+pSet.verbose                                          = 1
+pSet.rotationUncertainty                              = 5.0
+pSet.moveToCOM                                        = True
+pSet.setMapResolutionChange                           ( False )
 
-##############################################
+######################################################
 ### Create ProSHADE_structure object
 ### ================================
 ###
@@ -94,21 +94,26 @@ pSet.setMapResolutionChange                   ( False )
 ### before Python code termination will cause
 ### memory error message.
 ###
-pStruct                                       = proshade.ProSHADE_data ( pSet )
+pStruct                                               = proshade.ProSHADE_data ( pSet )
 
-##############################################
+######################################################
 ### Read in structure
 ### =================
 ###
 ### This function reads in a molecular structure
-### from a file. It uses CCP4MAP library for
-### reading in maps and MMDB2 for reading in
-### PDB (and MTZ) files. It takes three arguments:
+### from a file. It internally uses the Gemmi library
+### for reading in maps and co-ordinates, supporintg
+### gunzipped files as well. It takes three arguments:
 ###
-### 1) String: The path and filename of the structure to be read.
-### 2) Int: The order of the structure. This is used to distinguish
-###         multiple file outputs. Please used different value for each read in structure.
-### 3) ProSHADE_settings*: The settings object with all values required for the reading in.
+### 1) String: The path and filename of the structure
+###            to be read.
+### 2) Int: The order of the structure. This is used
+###         to distinguish multiple file outputs.
+###         Please used different value for each
+###         structure.
+### 3) ProSHADE_settings*: The settings object with
+###                        all values required for
+###                        the reading in.
 ###
 ### If the function fails, it will exit proshade and
 ### print error message explaining what happened.
@@ -116,31 +121,31 @@ pStruct                                       = proshade.ProSHADE_data ( pSet )
 ### At this point, the following variables are
 ### meaningfully (in Python access meaning) filled in:
 ###
-### string pStruct.fileName                   //!< This is the original file from which the data were obtained.
-### float  pStruct.xDimSize                   //!< This is the size of the map cell x dimension in Angstroms.
-### float  pStruct.yDimSize                   //!< This is the size of the map cell y dimension in Angstroms.
-### float  pStruct.zDimSize                   //!< This is the size of the map cell z dimension in Angstroms.
-### float  pStruct.aAngle                     //!< This is the angle a of the map cell in degrees.
-### float  pStruct.bAngle                     //!< This is the angle b of the map cell in degrees.
-### float  pStruct.cAngle                     //!< This is the angle c of the map cell in degrees.
-### int    pStruct.xDimIndices                //!< This is the size of the map cell x dimension in indices.
-### int    pStruct.yDimIndices                //!< This is the size of the map cell y dimension in indices.
-### int    pStruct.zDimIndices                //!< This is the size of the map cell z dimension in indices.
-### int    pStruct.xGridIndices               //!< As far as I know, this is identical to the xDimIndices.
-### int    pStruct.yGridIndices               //!< As far as I know, this is identical to the yDimIndices.
-### int    pStruct.zGridIndices               //!< As far as I know, this is identical to the zDimIndices.
-### int    pStruct.xAxisOrder                 //!< This is the order of the x axis.
-### int    pStruct.yAxisOrder                 //!< This is the order of the y axis.
-### int    pStruct.zAxisOrder                 //!< This is the order of the z axis.
-### int    pStruct.xAxisOrigin                //!< This is the origin position along the x axis.
-### int    pStruct.yAxisOrigin                //!< This is the origin position along the y axis.
-### int    pStruct.zAxisOrigin                //!< This is the origin position along the z axis.
-### int    pStruct.xFrom                      //!< This is the starting index along the x axis.
-### int    pStruct.yFrom                      //!< This is the starting index along the y axis.
-### int    pStruct.zFrom                      //!< This is the starting index along the z axis.
-### int    pStruct.xTo                        //!< This is the final index along the x axis.
-### int    pStruct.yTo                        //!< This is the final index along the y axis.
-### int    pStruct.zTo                        //!< This is the final index along the z axis.
+### string   pStruct.fileName                         < This is the original file from which the data were obtained.
+### float    pStruct.xDimSize                         < This is the size of the map cell x dimension in Angstroms.
+### float    pStruct.yDimSize                         < This is the size of the map cell y dimension in Angstroms.
+### float    pStruct.zDimSize                         < This is the size of the map cell z dimension in Angstroms.
+### float    pStruct.aAngle                           < This is the angle a of the map cell in degrees.
+### float    pStruct.bAngle                           < This is the angle b of the map cell in degrees.
+### float    pStruct.cAngle                           < This is the angle c of the map cell in degrees.
+### int      pStruct.xDimIndices                      < This is the size of the map cell x dimension in indices.
+### int      pStruct.yDimIndices                      < This is the size of the map cell y dimension in indices.
+### int      pStruct.zDimIndices                      < This is the size of the map cell z dimension in indices.
+### int      pStruct.xGridIndices                     < As far as I know, this is identical to the xDimIndices.
+### int      pStruct.yGridIndices                     < As far as I know, this is identical to the yDimIndices.
+### int      pStruct.zGridIndices                     < As far as I know, this is identical to the zDimIndices.
+### int      pStruct.xAxisOrder                       < This is the order of the x axis.
+### int      pStruct.yAxisOrder                       < This is the order of the y axis.
+### int      pStruct.zAxisOrder                       < This is the order of the z axis.
+### int      pStruct.xAxisOrigin                      < This is the origin position along the x axis.
+### int      pStruct.yAxisOrigin                      < This is the origin position along the y axis.
+### int      pStruct.zAxisOrigin                      < This is the origin position along the z axis.
+### int      pStruct.xFrom                            < This is the starting index along the x axis.
+### int      pStruct.yFrom                            < This is the starting index along the y axis.
+### int      pStruct.zFrom                            < This is the starting index along the z axis.
+### int      pStruct.xTo                              < This is the final index along the x axis.
+### int      pStruct.yTo                              < This is the final index along the y axis.
+### int      pStruct.zTo                              < This is the final index along the z axis.
 ###
 ### Please note that if you change any of these,
 ### then things may stop making any sense. So,
@@ -148,9 +153,9 @@ pStruct                                       = proshade.ProSHADE_data ( pSet )
 ### the underlying code or if you are prepared
 ### to experiment and possibly get crazy results.
 ###
-pStruct.readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/C3.pdb", 0, pSet )
+pStruct.readInStructure                               ( "/Users/mysak/LMB/proshade/exp/demo/C3.pdb", 0, pSet )
 
-##############################################
+######################################################
 ### Create ProSHADE_structure object from map
 ### =========================================
 ###
@@ -165,22 +170,22 @@ pStruct.readInStructure                       ( "/Users/mysak/LMB/proshade/exp/d
 ### be supplied. In this case, the ProSHADE_data
 ### constructure takes the following arguments:
 ###
-### ProSHADE_settings - object                //!< This object contains all the settings for further processing.
-### structureName     - string                //!< A string to be used in naming any outout files from this structure.
-### inputMap          - 1D float array        //!< Array containing the map values.
-### xDimAngs          - float                 //!< The size of x dimension in Angstroms.
-### yDimAngs          - float                 //!< The size of y dimension in Angstroms.
-### zDimAngs          - float                 //!< The size of z dimension in Angstroms.
-### xDimInds          - int                   //!< The size of x dimension in terms of number of indices.
-### yDimInds          - int                   //!< The size of y dimension in terms of number of indices.
-### zDimInds          - int                   //!< The size of z dimension in terms of number of indices.
-### xFrom             - int                   //!< The initial index position along x axis.
-### yFrom             - int                   //!< The initial index position along y axis.
-### zFrom             - int                   //!< The initial index position along z axis.
-### xTo               - int                   //!< The last index position along x axis.
-### yTo               - int                   //!< The last index position along y axis.
-### zTo               - int                   //!< The last index position along z axis.
-### ord               - int                   //!< The order of the struct object in ProSHADE processing - important for multiple objects processing outputs.
+### ProSHADE_settings   - object                      < This object contains all the settings for further processing.
+### structureName       - string                      < A string to be used in naming any outout files from this structure.
+### inputMap            - 1D or 3D float array        < Array containing the map values.
+### xDimAngs            - float                       < The size of x dimension in Angstroms.
+### yDimAngs            - float                       < The size of y dimension in Angstroms.
+### zDimAngs            - float                       < The size of z dimension in Angstroms.
+### xDimInds            - int                         < The size of x dimension in terms of number of indices.
+### yDimInds            - int                         < The size of y dimension in terms of number of indices.
+### zDimInds            - int                         < The size of z dimension in terms of number of indices.
+### xFrom               - int                         < The initial index position along x axis.
+### yFrom               - int                         < The initial index position along y axis.
+### zFrom               - int                         < The initial index position along z axis.
+### xTo                 - int                         < The last index position along x axis.
+### yTo                 - int                         < The last index position along y axis.
+### zTo                 - int                         < The last index position along z axis.
+### ord                 - int                         < The order of the struct object in ProSHADE processing - important for multiple objects processing outputs.
 ###
 ### NOTE: There are two main conditions that need
 ### to be fullfilled for the constructor call to
@@ -197,53 +202,90 @@ pStruct.readInStructure                       ( "/Users/mysak/LMB/proshade/exp/d
 ### this function has returned the object.
 ###
 
-#### Release the previous object
+######################################################
+### Release the previous object
 del pStruct
 
+######################################################
 ### Set example values
-xDimIndices                                   = 100
-yDimIndices                                   = 120
-zDimIndices                                   = 60
-xDimAngstroms                                 = xDimIndices * 1.3
-yDimAngstroms                                 = yDimIndices * 1.3
-zDimAngstroms                                 = zDimIndices * 1.3
-xFrom                                         = int ( -xDimIndices/2 )
-yFrom                                         = int ( -yDimIndices/2 )
-zFrom                                         = int ( -zDimIndices/2 )
-xTo                                           = int ( (xDimIndices/2)-1 )
-yTo                                           = int ( (yDimIndices/2)-1 )
-zTo                                           = int ( (zDimIndices/2)-1 )
-ord                                           = 0
+xDimIndices                                           = 100
+yDimIndices                                           = 120
+zDimIndices                                           = 60
+xDimAngstroms                                         = xDimIndices * 1.3
+yDimAngstroms                                         = yDimIndices * 1.3
+zDimAngstroms                                         = zDimIndices * 1.3
+xFrom                                                 = int ( -xDimIndices/2 )
+yFrom                                                 = int ( -yDimIndices/2 )
+zFrom                                                 = int ( -zDimIndices/2 )
+xTo                                                   = int ( (xDimIndices/2)-1 )
+yTo                                                   = int ( (yDimIndices/2)-1 )
+zTo                                                   = int ( (zDimIndices/2)-1 )
+ord                                                   = 0
 
+######################################################
 ### Create example map (this will be a ball in the middle of the map)
 testMap = numpy.empty ( [ ( xDimIndices * yDimIndices * zDimIndices ) ] )
 for xIt in range( 0, xDimIndices ):
     for yIt in range( 0, yDimIndices ):
         for zIt in range( 0, zDimIndices ):
-            ind = zIt + zDimIndices * ( yIt + yDimIndices * xIt )
-            testMap[ind] = 1.0 / ( numpy.sqrt( numpy.power ( (xDimIndices/2) - xIt, 2.0 ) + numpy.power ( (yDimIndices/2) - yIt, 2.0 ) + numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
+            ind                                       = zIt + zDimIndices * ( yIt + yDimIndices * xIt )
+            testMap[ind]                              = 1.0 / ( numpy.sqrt( numpy.power ( (xDimIndices/2) - xIt, 2.0 ) +
+                                                                            numpy.power ( (yDimIndices/2) - yIt, 2.0 ) +
+                                                                            numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
 
+######################################################
 ### Create the ProSHADE_data object without structure file on drive
-pStruct                                       = proshade.ProSHADE_data ( pSet, "python_map_test", testMap, xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
+pStruct                                               = proshade.ProSHADE_data ( pSet,
+                                                                                 "python_map_test",
+                                                                                 testMap,
+                                                                                 xDimAngstroms,
+                                                                                 yDimAngstroms,
+                                                                                 zDimAngstroms,
+                                                                                 xDimIndices,
+                                                                                 yDimIndices,
+                                                                                 zDimIndices,
+                                                                                 xFrom,
+                                                                                 yFrom,
+                                                                                 zFrom,
+                                                                                 xTo,
+                                                                                 yTo,
+                                                                                 zTo,
+                                                                                 ord )
 
+######################################################
 ### Should we ever need to use 3D map instead of 1D
-### map, there is no way of passing 3D maps using SWIG
-### and numpy (as far as I know). However, 3D map can
-### be converted to 1D map using the ProSHADE supplied
-### function. Be aware, this takes some time as python
-### is not the master of for loops...
-
+### map, the same constructor is capable of dealing
+### with this case as well.
 testMap3D = numpy.empty ( ( xDimIndices, yDimIndices, zDimIndices ) )
 for xIt in range( 0, xDimIndices ):
     for yIt in range( 0, yDimIndices ):
         for zIt in range( 0, zDimIndices ):
-            testMap3D[xIt][yIt][zIt] = 1.0 / ( numpy.sqrt( numpy.power ( (xDimIndices/2) - xIt, 2.0 ) + numpy.power ( (yDimIndices/2) - yIt, 2.0 ) + numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
+            testMap3D[xIt][yIt][zIt]                  = 1.0 / ( numpy.sqrt( numpy.power ( (xDimIndices/2) - xIt, 2.0 ) +
+                                                                            numpy.power ( (yDimIndices/2) - yIt, 2.0 ) +
+                                                                            numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
 
-pStruct2                                      = proshade.ProSHADE_data ( pSet, "python_map_test", testMap3D, xDimAngstroms, yDimAngstroms, zDimAngstroms, xDimIndices, yDimIndices, zDimIndices, xFrom, yFrom, zFrom, xTo, yTo, zTo, ord )
+pStruct2                                              = proshade.ProSHADE_data ( pSet,
+                                                                                 "python_map_test",
+                                                                                 testMap3D,
+                                                                                 xDimAngstroms,
+                                                                                 yDimAngstroms,
+                                                                                 zDimAngstroms,
+                                                                                 xDimIndices,
+                                                                                 yDimIndices,
+                                                                                 zDimIndices,
+                                                                                 xFrom,
+                                                                                 yFrom,
+                                                                                 zFrom,
+                                                                                 xTo,
+                                                                                 yTo,
+                                                                                 zTo,
+                                                                                 ord )
 
+######################################################
+### Release the unnecessary object
 del pStruct2
 
-##############################################
+######################################################
 ### Write the internal map to disk
 ### ==============================
 ###
@@ -254,87 +296,31 @@ del pStruct2
 ### the user is responsible for these not being
 ### changed/or still making sense.
 ###
-pStruct.writeMap                              ( "initialMap.map" )
+pStruct.writeMap                                      ( "initialMap.map" )
 
-##############################################
+######################################################
 ### Get internal map representation
 ### ===============================
 ###
-### These functions returns the current (not only
-### initial) internal map density values as a
-### Numpy array. There is a 1D version returning
-### a simple 1D numpy array, which can be indexed
-### as [ z + pStruct.zDimIndices * ( y + pStruct.yDimIndices * x ) ].
-### Obtaining this array is very fast, as it can
-### be read directly from ProSHADE.
+### ProSHADE allows access to the internal map that
+### it uses for all its computations. This allows the
+### user to check any particular ProSHADE's functionality
+### effect or simply running only the part of ProSHADE
+### the user likes and then retrieving the map for
+### other processing.
 ###
-### Alternatively, there is a 3D version, which is,
-### however, rather slow (approx 0.5 second for average
-### sized map). The reason is that it requires
-### looping through the 1D array and assigning the
-### values to correct 3D array locations, which
-### Python does not excel at.
+### The maps are outputted in the numpy.ndarray format.
 ###
-### These functions can be called at any time on
+### This function can be called at any time on
 ### the ProSHADE_data object to get the current
 ### internal map representation.
 ###
-initialMapArray1D                             = proshade.getMapPython1D ( pStruct )
-initialMapArray3D                             = proshade.getMapPython3D ( pStruct )
+initialMap                                            = pStruct.getMap ( )
 
-##############################################
-### Manipulate map and make ProSHADE accept it
-### ==========================================
-###
-### This is an example snippet code, which changes
-### the ProSHADE map in a simple way (feel free to
-### change as you like) and then gives this new map
-### to ProSHADE to replace the old map. This allows
-### for the user to change/supply maps to ProSHADE
-### in different than the standard ProSHADE reading
-### it in format.
-###
-### NOTE: If you change the map dimensions, YOU are
-### responsible for changing ALL the ProSHADE_data
-### structure variables accordingly. Also, in this
-### case, you must call the setNewMapPython() function
-### instead of the simpler setMapPython() function.
-### If you fail to do this, memory access problem are
-### likely. Consider yourself warned! :-).
-###
+print                                                 ( "Mean map value: " + str( numpy.mean ( initialMap ) ) )
+# Expected output: Mean map value: 0.025628592352769597
 
-### Simple map manipulation
-initialMapArray1D                             = initialMapArray1D / 2.0
-proshade.setMapPython1D                       ( pStruct, initialMapArray1D )
-
-initialMapArray3D                             = initialMapArray3D * 2.0
-proshade.setMapPython3D                       ( pStruct, initialMapArray3D )
-
-### With map dimensions changes
-# Change map by removing last 3 y-axis indices
-newMapArr1D                                   = numpy.empty ( ( pStruct.xDimIndices * ( pStruct.yDimIndices - 3 ) * pStruct.zDimIndices ) )
-newMapArr3D                                   = numpy.empty ( [ pStruct.xDimIndices,  ( pStruct.yDimIndices - 3 ),  pStruct.zDimIndices ] )
-for xIt in range( 0, pStruct.xDimIndices ):
-    for yIt in range( 0, pStruct.yDimIndices ):
-        for zIt in range( 0, pStruct.zDimIndices ):
-            if yIt >= ( pStruct.yDimIndices - 3 ):
-                continue
-            arrPos                            = zIt + pStruct.zDimIndices * ( yIt  + pStruct.yDimIndices * xIt );
-            newMapPos                         = zIt + pStruct.zDimIndices * ( yIt  + (pStruct.yDimIndices-3) * xIt );
-            newMapArr1D[newMapPos]            = initialMapArray1D[arrPos] * 2
-            newMapArr3D[xIt][yIt][zIt]        = initialMapArray1D[arrPos] / 2
-
-# Now change the ProSHADE_data structure appropriately
-pStruct.yDimSize                              = pStruct.yDimSize - ( ( pStruct.yDimSize / pStruct.yDimIndices ) * 3 )
-pStruct.yDimIndices                           = pStruct.yDimIndices - 3
-pStruct.yGridIndices                          = pStruct.yDimIndices
-pStruct.yTo                                   = pStruct.yTo - 3
-
-# And now make ProSHADE change the internal map completely
-proshade.setNewMapPython1D                    ( pStruct, newMapArr1D )
-proshade.setNewMapPython3D                    ( pStruct, newMapArr3D )
-
-##############################################
+######################################################
 ### Process internal map
 ### ====================
 ###
@@ -344,7 +330,7 @@ proshade.setNewMapPython3D                    ( pStruct, newMapArr3D )
 ### modifications of the internal map:
 ###
 ### 1) Map invertion: This switches all XYZ positions
-###    to -X-Y-Z positions.
+###    to -X -Y -Z positions.
 ### 2) Map normalisation: This changes all density to
 ###    have mean zero and standard deviation one.
 ### 3) Map masking: Here, the map is blurred by a factor
@@ -361,19 +347,11 @@ proshade.setNewMapPython3D                    ( pStruct, newMapArr3D )
 ###    replacement type of search instead, this option is
 ###    available.
 ###
-### NOTE: All of these modifications can be done on PDB
-### originating internal maps as well.
-###
-### NOTE2: This basically completes the map manipulation
-### task - using the already described settings options,
-### running the processInternalMap() function and getting
-### the internal map into Python means that anything that
-### can be done using the ProSHADE Map Manipulation task
-### can also be done in Python using this code :-).
-###
-pStruct.processInternalMap                    ( pSet )
+### NOTE: All of these modifications can be done on
+### co-ordinates originating internal maps as well.
+pStruct.processInternalMap                            ( pSet )
 
-##############################################
+######################################################
 ### Map re-boxing
 ### =============
 ###
@@ -386,12 +364,12 @@ pStruct.processInternalMap                    ( pSet )
 ### from the original structure using the already
 ### defined boundaries. The following three
 ### steps will accomplish just that using the
-### ProSHADE map masking approach, but the user
-### is free to change the bounds or determine his
-### own boundaries, if he so pleases.
+### ProSHADE map masking approach, but the users
+### are free to change the bounds or determine their
+### own boundaries, if they so please.
 ###
 
-##############################################
+######################################################
 ### Determine new boundaries from mask (or custom)
 ### ==============================================
 ###
@@ -400,15 +378,11 @@ pStruct.processInternalMap                    ( pSet )
 ### procedure (and using the settings object
 ### values), the following function does just that.
 ###
-### NOTE: Second parameter of the function is always
-### 6. This is required from the Swig/Numpy/C++
-### interface, just do not change the number.
-###
-### NOTE2: If the user wants to supply his own
+### NOTE: If the users want to supply their own
 ### boundaries, this step can be skipped. Just
 ### make sure your custom boundaries are in the
 ### numpy.ndarray format, have length of 6 and
-### dtype = int32. Also, the 6 numbers have
+### dtype = int64. Also, the 6 numbers have
 ### meaning as follows:
 ###
 ###    [0] = min X-axis index
@@ -418,12 +392,12 @@ pStruct.processInternalMap                    ( pSet )
 ###    [4] = min Z-axis index
 ###    [5] = max Z-axis index
 ###
-minimalBounds                                 = pStruct.getReBoxBoundariesPy ( pSet, 6 )
+minimalBounds                                         = pStruct.getReBoxBoundaries ( pSet )
 
-print(minimalBounds)
-# Expected output: [  6 109   4 127   6  69]
+print                                                 ( minimalBounds )
+# Expected output: [  6 109   6 129   6  69]
 
-##############################################
+######################################################
 ### Create new structure to hold the new map
 ### ========================================
 ###
@@ -431,9 +405,9 @@ print(minimalBounds)
 ### re-boxed map and values. This is so that the
 ### re-boxing would not be done in place.
 ###
-reBoxStr                                      = proshade.ProSHADE_data ( pSet )
+reBoxStr                                              = proshade.ProSHADE_data ( pSet )
 
-##############################################
+######################################################
 ### Set the re-boxed structure values and map
 ### =========================================
 ###
@@ -445,9 +419,9 @@ reBoxStr                                      = proshade.ProSHADE_data ( pSet )
 ### source of map, while the second argument
 ### structure is the empty one.
 ###
-pStruct.createNewMapFromBoundsPy              ( pSet, reBoxStr, minimalBounds )
+pStruct.createNewMapFromBounds                        ( minimalBounds, reBoxStr, pSet )
 
-##############################################
+######################################################
 ### Map internal map to spheres
 ### ===========================
 ###
@@ -461,14 +435,13 @@ pStruct.createNewMapFromBoundsPy              ( pSet, reBoxStr, minimalBounds )
 ###
 ### This will fill the following variables properly
 ###
-### int           pStruct.noSpheres           //!< The number of spheres with map projected onto them.
-### _float_list   pStruct.spherePos           //!< Vector of sphere radii from the centre of the map.
-###                                           // To access this from Python, I recommend spPos = numpy.array ( pStruct.spherePos )
-###                                           // To change from Python (should you need to), I recommend pStruct.spherePos[0] = X where is the new value
+### int           pStruct.noSpheres                   < The number of spheres with map projected onto them.
+### list          pStruct.spherePos                   < List of sphere radii from the centre of the map.
 ###
-pStruct.mapToSpheres                          ( pSet )
+###
+pStruct.mapToSpheres                                  ( pSet )
 
-##############################################
+######################################################
 ### Compute spherical harmonics
 ### ===========================
 ###
@@ -478,82 +451,112 @@ pStruct.mapToSpheres                          ( pSet )
 ### time depending on the bandwidth and number of
 ### shells.
 ###
-pStruct.computeSphericalHarmonics             ( pSet )
+pStruct.computeSphericalHarmonics                     ( pSet )
 
-##############################################
+######################################################
 ### Accessing spherical harmonics
 ### =============================
 ###
 ### In order to access the spherical harmonics
 ### values for each sphere, please use the
-### following function. It returns a complex
-### type 2D numpy array with rows being shells
-### and columns being the spherical harmonics
-### values.
+### following functions:
 ###
-### To gain access to a particular band-order
-### spherical harmonics value, please use the
-### pStruct.sphericalHarmonicsIndex() function
-### provided. This function takes three arguments:
+### 1) getSphericalHarmonics()
+###     This function returns a 2D numpy.ndarray of
+###     complex numbers. This 2D array is organised so
+###     that the first dimension is the sphere number
+###     and the second dimension is a 1D array of all
+###     the spherical harmonics values. This 1D array
+###     is complicated by the fact that each sphere
+###     can have different number of bands (depending
+###     on the settings.progressiveSphereMapping value).
+###     This means that some values for some spheres
+###     are empty. Best way of accessing this array is
+###     to use the second function.
 ###
-### 1) order: This is signed int order (i.e. order
-###           is from -band to band) requested.
-### 2) band: The band requested.
-### 3) shell: The shell for which to get the value.
+### 2) findSHIndex()
+###     This function takes the shell, band and order
+###     values and returns the correct index for these
+###     in the 1D array. Please note that the order
+###     value needs to be in range -band <= order <= band
+###     and NOT in the 0 <= order <= (2 * band) + 1.
 ###
-### NOTE: The sphericalHarmonics variable is 2D
-### array with shell index as the row - therefore
-### the shell index needs to be given twice, once
-### as the first index of sphericalHarmonics and
-### secondly to the sphericalHarmonicsIndex()
-### function.
-###
-sphericalHarmonics                            = proshade.getSphericalHarmonics ( pStruct )
-Shell3Band4OrderMin2Value                     = sphericalHarmonics[3][ pStruct.sphericalHarmonicsIndex ( -2, 4, 3 ) ] # Order -2, band 4, shell 3.
+sphericalHarmonics                                    = pStruct.getSphericalHarmonics ( )
 
-print ( Shell3Band4OrderMin2Value )
-# Expected output: (-0.0001720168888943213-0.0003544294668826651j)
+shell =  3
+band  =  4
+order = -2
+Shell3Band4OrderMin2Value                             = pStruct.getSphericalHarmonics()[0][pStruct.findSHIndex(shell, band, order)]
+print                                                 ( Shell3Band4OrderMin2Value )
+# Expected output: (-0.06485799326993862-0.7217821630280601j)
 
-##############################################
+######################################################
 ### Computing distances between two structures
 ### ==========================================
 ###
 ### In order to compute shape distances between
 ### two structures, two structures need to exist
-### :-). Therefore, one more structure is created
-### here and then both these structures are
-### supplied to the three functions, i.e.
-### proshade.computeEnergyLevelsDescriptor(),
-### proshade.computeTraceSigmaDescriptor() and
-### proshade.computeRotationunctionDescriptor().
+### :-). All of the structures for which the distances
+### are to be computed need to have their spherical
+### harmonics computed.
+###
+### Next, the pairwise distances can simply be obtained
+### by calling the appropriate distances computation
+### functions as shown below.
 ###
 
 ### Create a second structure to have someting to compute distances to
-pStruct_distTo                                = proshade.ProSHADE_data ( pSet )
-pStruct_distTo.readInStructure                ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map", 1, pSet )
-pStruct_distTo.processInternalMap             ( pSet )
-pStruct_distTo.mapToSpheres                   ( pSet )
-pStruct_distTo.computeSphericalHarmonics      ( pSet )
+pStruct2                                              = proshade.ProSHADE_data ( pSet )
+pStruct2.readInStructure                              ( "/Users/mysak/BioCEV/proshade/playground/emd_6324.map", 1, pSet )
+pStruct2.processInternalMap                           ( pSet )
+pStruct2.mapToSpheres                                 ( pSet )
+pStruct2.computeSphericalHarmonics                    ( pSet )
 
 ### Get the three descriptors
-energyLevelsDescriptor                        = proshade.computeEnergyLevelsDescriptor    ( pStruct, pStruct_distTo, pSet )
-traceSigmaDescriptor                          = proshade.computeTraceSigmaDescriptor      ( pStruct, pStruct_distTo, pSet )
-fullRotationFunctionDescriptor                = proshade.computeRotationunctionDescriptor ( pStruct, pStruct_distTo, pSet )
+energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct, pStruct2, pSet )
+traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct, pStruct2, pSet )
+fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct, pStruct2, pSet )
 
-print ( energyLevelsDescriptor )
-# Expected output: 0.1020146560089361
-print ( traceSigmaDescriptor )
-# Expected output: 0.2692465414316738
-print ( fullRotationFunctionDescriptor )
-# Expected output: 0.24597629414455538
+print                                                 ( energyLevelsDescriptor )
+# Expected output: 0.08511260172933856
+print                                                 ( traceSigmaDescriptor )
+# Expected output: 0.22094014202099774
+print                                                 ( fullRotationFunctionDescriptor )
+# Expected output: 0.18442020689249555
 
-##############################################
-### Delete the C++ pointer
-### ======================
+######################################################
+### Delete the C++ pointers
+### =======================
 ###
-del pStruct_distTo
+del pStruct
+del pStruct2
+del pSet
 
-##############################################
+######################################################
+### Create new structure for symmetry detection
+### ===========================================
+###
+### As the tasks required different settings, a new
+### structure will be created, this time with
+### settings optimised for symmetry detection.
+###
+### To get settings optimal for symmetry detection,
+### a new ProSHADE_settings object will be created,
+### this time with the symmetry task as its constructor
+### argument. This will automatically set the default
+### values towards the task given.
+###
+pSet                                                  = proshade.ProSHADE_settings ( proshade.Symmetry )
+pSet.requestedResolution                              = 10.0  ## This is to make the example run faster as here we are not really interested in accuracy of results
+pSet.changeMapResolution                              = True  ## but rather in showing how to use ProSHADE.
+
+pStruct                                               = proshade.ProSHADE_data ( pSet )
+pStruct.readInStructure                               ( "/Users/mysak/BioCEV/proshade/playground/emd_6324.map", 1, pSet )
+pStruct.processInternalMap                            ( pSet )
+pStruct.mapToSpheres                                  ( pSet )
+pStruct.computeSphericalHarmonics                     ( pSet )
+
+######################################################
 ### Computing self-rotation function
 ### ================================
 ###
@@ -566,16 +569,16 @@ del pStruct_distTo
 ### called before any symmetry detection can be
 ### attempted.
 ###
-pStruct.getRotationFunction                   ( pSet )
+pStruct.computeRotationFunction                       ( pSet )
 
-##############################################
+######################################################
 ### Accessing E Matrices
 ### ====================
 ###
 ### ProSHADE allows access to the E matrices
-### ( Integral _0 ^rMAX ( c^lm * c*^lm ) of
+### ( Integral _0 ^rMAX ( c1^lm * c2*^lm' ) of
 ### the structure combination. These are
-### returned as a 3D Numpy array with indices
+### returned as a 3D Numpy array with indices being
 ### band of the E matrix, order1 of the E matrix
 ### and order2 of the E matrix. Note that because
 ### indices need to go from zero, the order of indexing
@@ -591,19 +594,17 @@ pStruct.getRotationFunction                   ( pSet )
 ### NOTE: As Numpy arrays have single shape, the
 ### lower bands (which will have less orders)
 ### are padded with zeroes to have the same length
-### as the largest band. This leads to a large
-### redundancy of zeroes and makes the E matrix
-### retrieval slow. If anyone needs to call this
-### function frequently, please let me know and
-### we can have a look as to how to improve this.
+### as the largest band.
 ###
-eMat                                          = proshade.getEMatrix( pStruct )
-Band4OrderOneMin2OrderTwo3EMatrixValue        = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
+eMat                                                  = pStruct.getEMatrix ( )
+
+
+Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (0.0004427206790703917+0.002131158008544593j)
+# Expected output: (2.7208866239708764e-10+2.0797248005641242e-10j)
 
-##############################################
+######################################################
 ### Accessing SO(3) coefficients
 ### ============================
 ###
@@ -620,56 +621,55 @@ print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
 ### access a specific value, please use the
 ### so3CoeffsArrayIndex() function as shown.
 ###
-so3Coeffs                                     = proshade.getSO3Coeffs( pStruct )
-so3CoeffsOrderOneMin1OrderTwo3Band5           = so3Coeffs[5][3][-1] # Accessing SO(3) coefficient value order1 = -1; order2 = 3, band = 5
+### Given that the SO(3) coefficients have the same
+### indexing as the E matrices, ProSHADE provides them
+### to the user in the same format as the E matrices.
+### This does, however, mean that the same caveats do
+### apply to the SO(3) coefficients array as did to the
+### E matrix array.
+###
+so3Coeffs                                             = pStruct.getSO3Coefficients ( )
 
-print ( so3CoeffsOrderOneMin1OrderTwo3Band5 )
-# Expected output: (0.0013320362162576496+0.001950971054873568j)
 
-##############################################
+Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
+
+print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
+# Expected output: (-8.059053838869017e-10-6.159982554994105e-10j)
+
+######################################################
 ### Accessing self-rotation function
 ### ================================
 ###
 ### ProSHADE also gives access to the self -
-### rotation function as shown next. The function
-### can be accessed as a 1D array as well as a 3D
-### array, albeit the 3D array access is slower.
-### The 1D array is ordered with X being the fastest
-### axis, while Z being the slowest axis (same indexing
-### as the ProSHADE internal map, but with different
-### dimensions), that is a xyz position can be accessed as
-### [ z + int ( pStruct.getMaxBand() * 2.0 ) * ( y + int ( pStruct.getMaxBand() * 2.0 ) * x ) ].
-###
-### The returned 3D array has dimensions 2 *
-### bandwidth. Please note that the indices have
-### nothing to do with the angle values, if you
-### want to know the Euler angle values for a
+### rotation function as shown next. The returned 3D complex
+### array has dimensions 2 * bandwidth. Please note that
+### the indices have nothing to do with the angle values,
+### if you want to know the Euler angle values for a
 ### particular index, you need to convert it
 ### yourself. Alternatively (and a recommended
 ### approach is), you can use the
 ### getRotationMatrixFromEulerIndices() function
 ### also demonstrated here.
 ###
-selfRotationFunction1D                        = proshade.getRotationFunction1D ( pStruct )
-rotFnAlpha10Beta11Gamma7_1D                   = selfRotationFunction1D[ 7 + int ( pStruct.getMaxBand() * 2.0 ) * ( 11 + int ( pStruct.getMaxBand() * 2.0 ) * 10 ) ]# Accessing rotation function value for indices alpha = 10, beta = 11 and gamma = 7
-rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
+selfRotationFunction                                  = pStruct.getRotationFunctionMap ( )
 
-print ( rotMat )
-# Expected output: [[-0.04402094  0.96917621 -0.24240388]
-# Expected output:  [-0.93713158  0.04402094  0.34618861]
-# Expected output:  [ 0.34618861  0.24240388  0.90630779]]
+### Find the map maximum
+rotMapMax                                             = numpy.where ( selfRotationFunction == numpy.amax ( selfRotationFunction ) )
 
-selfRotationFunction3D                        = proshade.getRotationFunction3D ( pStruct )
-rotFnAlpha10Beta11Gamma7_3D                   = selfRotationFunction3D[10][11][7] # Accessing rotation function value for indices alpha = 10, beta = 11 and gamma = 7
-rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
+### Find maximum value
+print                                                 ( "Rotation map maximum is: " + str( selfRotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-print ( rotMat )
-# Expected output: [[-0.04402094  0.96917621 -0.24240388]
-# Expected output:  [-0.93713158  0.04402094  0.34618861]
-# Expected output:  [ 0.34618861  0.24240388  0.90630779]]
+### Expected output: Rotation map maximum is: (0.9964126968124571-9.10211787746467e-18j)
 
+### Find rotation matrix for the maximum
+rotMatMaxVal                                          = pStruct.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
+print                                                 ( rotMatMaxVal )
 
-##############################################
+# Expected output: [[ 1.00000000e+00 -4.66973965e-16  0.00000000e+00]
+# Expected output:  [ 4.66973965e-16  1.00000000e+00 -0.00000000e+00]
+# Expected output:  [ 0.00000000e+00  0.00000000e+00  1.00000000e+00]]
+
+######################################################
 ### Run symmetry detection
 ### ======================
 ###
@@ -682,22 +682,28 @@ print ( rotMat )
 ###
 
 ### Detect symmetry
-pStruct.detectSymmetryInStructurePython       ( pSet )
-symmetryType                                  = pStruct.getRecommendedSymmetryType ( pSet )
-symmetryFold                                  = pStruct.getRecommendedSymmetryFold ( pSet )
-symmetryAxes                                  = proshade.getRecommendedSymmetryAxesPython ( pStruct, pSet )
+pStruct.detectSymmetryInStructure                     ( pSet )
+
+### Retrieve results
+recSymmetryType                                       = pStruct.getRecommendedSymmetryType ( pSet )
+recSymmetryFold                                       = pStruct.getRecommendedSymmetryFold ( pSet )
+recSymmetryAxes                                       = pStruct.getRecommendedSymmetryAxes ( pSet )
 
 ### Print results
-print ( "Detected " + str( symmetryType ) + "-" + str( symmetryFold ) + " symetry." )
-# Expected output: Detected C-4 symetry.
-print ( "Fold      x         y         z       Angle     Height" )
-for iter in range ( 0, len( symmetryAxes ) ):
-     print ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( symmetryAxes[iter][0], symmetryAxes[iter][1], symmetryAxes[iter][2], symmetryAxes[iter][3], symmetryAxes[iter][4], symmetryAxes[iter][5] ) )
+print                                                 ( "Detected " + str( recSymmetryType ) + "-" + str( recSymmetryFold ) + " symetry." )
+
+# Expected output: Detected D-12 symetry.
+
+### Print more results
+print                                                 ( "Fold      x         y         z       Angle     Height" )
+for iter in range ( 0, len( recSymmetryAxes ) ):
+     print                                            ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( recSymmetryAxes[iter][0], recSymmetryAxes[iter][1], recSymmetryAxes[iter][2], recSymmetryAxes[iter][3], recSymmetryAxes[iter][4], recSymmetryAxes[iter][5] ) )
      
 # Expected output: Fold      x         y         z       Angle     Height
-# Expected output:   4    +0.257    +0.948    +0.186    +1.571    +0.0853
+# Expected output: 12.0    +0.000    -0.000    +1.000    +0.524    +0.9548
+# Expected output:  2.0    +0.778    +0.628    +0.032    +3.142    +0.5700
 
-##############################################
+######################################################
 ### Get more symmetry results
 ### =========================
 ###
@@ -713,25 +719,31 @@ for iter in range ( 0, len( symmetryAxes ) ):
 ### file.
 ###
 
-allCAxes                                      = proshade.getAllDetectedSymmetryAxes ( pStruct, pSet )
+### Get list of all cyclic point groups
+allCAxes                                              = pStruct.getAllCSyms ( pSet )
 
-print ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
-# Expected output: Found a total of 1 cyclic point groups.
+print                                                 ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
+# Expected output: Found a total of 29 cyclic point groups.
 
-allNonCAxesIndices                            = proshade.getNonCSymmetryAxesIndices ( pSet )
+### Get a list of all non-cyclic point groups detected and indices of the cyclic groups forming them
+allNonCAxesIndices                                    = pStruct.getNonCSymmetryAxesIndices ( pSet )
 
-print ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
-# Expected output: Found a total of 0 dihedral point groups.
+print                                                 ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
+# Expected output: Found a total of 26 dihedral point groups.
 
-allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, [0], "C" )
+### Get group elements for the best dihedral symmetry (indices 2 and 26)
+bestDCombination                                      = []
+bestDCombination.append                               ( allNonCAxesIndices["D"][2][0] )
+bestDCombination.append                               ( allNonCAxesIndices["D"][2][1] )
+allGroupElements                                      = pStruct.getAllGroupElements ( pSet, bestDCombination, "D" )
 
-print ( "Found a total of " + str( len ( allGroupElements ) ) + " elements for the cyclic group C-" + str( int ( allCAxes[0][0] ) ) )
-# Expected output: Found a total of 4 elements for the cyclic group C-4
+print                                                 ( "Found a total of " + str( len ( allGroupElements ) ) + " elements." )
+# Expected output: Found a total of 24 elements.
 
-print ( allGroupElements[1] )
-# Expected output: [[ 0.06592191  0.05739252  0.99581337]
-# Expected output:  [ 0.429437    0.89880204 -0.08039392]
-# Expected output:  [-0.90029     0.43311134  0.03460428]]
+print                                                 ( allGroupElements[1] )
+# Expected output: [[ 0.8660254 -0.5        0.       ]
+# Expected output:  [ 0.5        0.8660254 -0.       ]
+# Expected output:  [ 0.         0.         1.       ]]
 
 ##############################################
 ### Delete the C++ pointers
@@ -761,7 +773,7 @@ del pSet
 ### any internal knowledge (albeit they do not have
 ### as much flexibility as the advancedAccess)
 ###
-### Therefore, the overlay mode is divided into two
+### Now, the overlay mode is divided into two
 ### separate steps. Firstly, the phase is removed
 ### from the two internal maps and the resulting
 ### Patterson maps are subjected to the spherical
@@ -785,54 +797,51 @@ del pSet
 ###
 
 ##############################################
-### Create new settings object
-### ==========================
-###
+######################################################
+### Create the settings object
+pSet                                                  = proshade.ProSHADE_settings ()
 
-### Create the object
-pSet                                          = proshade.ProSHADE_settings ()
+######################################################
+### Set basic settings values
+pSet.task                                             = proshade.OverlayMap
+pSet.verbose                                          = 4
+pSet.requestedResolution                              = 4.0
+pSet.usePhase                                         = False
+pSet.changeMapResolution                              = True
+pSet.maskMap                                          = False
+pSet.moveToCOM                                        = False
+pSet.normaliseMap                                     = False
+pSet.reBoxMap                                         = False
 
-### Set settings values
-pSet.task                                     = proshade.OverlayMap
-pSet.verbose                                  = 4
-pSet.requestedResolution                      = 8.0;
-pSet.usePhase                                 = False;
-pSet.changeMapResolution                      = True;
-pSet.maskMap                                  = False;
-pSet.moveToCOM                                = False;
-pSet.normaliseMap                             = False;
-pSet.reBoxMap                                 = False;
+######################################################
+### Create data objects
+pStruct_static                                        = proshade.ProSHADE_data ( pSet )
+pStruct_moving                                        = proshade.ProSHADE_data ( pSet )
 
-##############################################
-### Create structure objects (phase-less)
-### =====================================
-###
-pSet.usePhase                                 = False;
-pStruct_static                                = proshade.ProSHADE_data ( pSet )
-pStruct_moving                                = proshade.ProSHADE_data ( pSet )
-
+######################################################
 ### Read in the structures
-pStruct_static.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map", 0, pSet )
-pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_rotTrs.map", 1, pSet )
+pStruct_static.readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # This is a BALBES domain 1BFO_A_dom_1.
+pStruct_moving.readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # This is a BALBES domain 1H8N_A_dom_1.
 
+######################################################
 ### Get spherical harmonics for both structures
-pStruct_static.processInternalMap             ( pSet )
-pStruct_moving.processInternalMap             ( pSet )
+pStruct_static.processInternalMap                     ( pSet )
+pStruct_moving.processInternalMap                     ( pSet )
+        
+pStruct_static.mapToSpheres                           ( pSet )
+pStruct_moving.mapToSpheres                           ( pSet )
+        
+pStruct_static.computeSphericalHarmonics              ( pSet )
+pStruct_moving.computeSphericalHarmonics              ( pSet )
 
-pStruct_static.mapToSpheres                   ( pSet )
-pStruct_moving.mapToSpheres                   ( pSet )
-
-pStruct_static.computeSphericalHarmonics      ( pSet )
-pStruct_moving.computeSphericalHarmonics      ( pSet )
-
-##############################################
+######################################################
 ### Create structure objects (phase-less)
 ### =====================================
 ###
 ### This is the first step not already described
 ### above. Albeit this step is similar to the
 ### symmetry detection self-rotation function,
-### here the symmetry function is computed by
+### here the rotation function is computed by
 ### combining the spherical harmonics coefficients
 ### from two different structures rather than from
 ### the same structure. The combination then results
@@ -840,9 +849,24 @@ pStruct_moving.computeSphericalHarmonics      ( pSet )
 ### converted to the rotation function by the
 ### Fourier transform on the SO(3) group.
 ###
-pStruct_moving.getOverlayRotationFunction     ( pSet, pStruct_static )
+pStruct_moving.getOverlayRotationFunction             ( pSet, pStruct_static )
 
-##############################################
+######################################################
+### The E matrix and the SO(3) coefficients are
+### still accessible by the same functions.
+eMat                                                  = pStruct_moving.getEMatrix ( )
+Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
+
+print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
+# Expected output: (0.00011064986480482614-0.0008831928050137083j)
+
+so3Coeffs                                             = pStruct_moving.getSO3Coefficients ( )
+Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
+
+print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
+# Expected output: (-0.0003277362643005946+0.0026159481629997555j)
+
+######################################################
 ### Acceasing rotation function and etc.
 ### ====================================
 ###
@@ -858,25 +882,26 @@ pStruct_moving.getOverlayRotationFunction     ( pSet, pStruct_static )
 ### multiple moving without the need for new
 ### static class).
 ###
-rotationFunction1D                            = proshade.getRotationFunction1D ( pStruct_moving )
-rotFnAlpha10Beta11Gamma7_1D                   = rotationFunction1D[ 7 + int ( pStruct_moving.getMaxBand() * 2.0 ) * ( 11 + int ( pStruct_moving.getMaxBand() * 2.0 ) * 10 ) ]# Accessing rotation function value for indices alpha = 10, beta = 11 and gamma = 7
-rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
+### Get rotation function
+rotationFunction                                      = pStruct_moving.getRotationFunctionMap ( )
 
-print ( rotMat )
-# Expected output: [[-8.41253533e-01  5.40640817e-01 -1.85506948e-16]
-# Expected output:  [-4.08589068e-01 -6.35776999e-01  6.54860734e-01]
-# Expected output:  [ 3.54044443e-01  5.50903906e-01  7.55749574e-01]]
+### Find the map maximum
+rotMapMax                                             = numpy.where ( rotationFunction == numpy.amax ( rotationFunction ) )
 
-rotationFunction3D                            = proshade.getRotationFunction3D ( pStruct_moving )
-rotFnAlpha10Beta11Gamma7_3D                   = rotationFunction3D[10][11][7] # Accessing rotation function value for indices alpha = 10, beta = 11 and gamma = 7
-rotMat                                        = proshade.getRotationMatrixFromRotFunIndices ( pStruct_moving, 10, 11, 7 ) # Accessing rotation matrix for indices alpha = 10, beta = 11 and gamma = 7
+### Find maximum value
+print                                                 ( "Rotation map maximum is: " + str( rotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-print ( rotMat )
-# Expected output: [[-8.41253533e-01  5.40640817e-01 -1.85506948e-16]
-# Expected output:  [-4.08589068e-01 -6.35776999e-01  6.54860734e-01]
-# Expected output:  [ 3.54044443e-01  5.50903906e-01  7.55749574e-01]]
+### Expected output: Rotation map maximum is: (0.972619342226593-4.302335456622247e-18j)
 
-##############################################
+### Find rotation matrix for the maximum
+rotMatMaxVal                                          = pStruct_moving.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
+print                                                 ( rotMatMaxVal )
+
+# Expected output: [[-0.87191402 -0.07820951  0.48337275]
+# Expected output:  [-0.19134803 -0.85424628 -0.48337275]
+# Expected output:  [ 0.45072372 -0.5139519   0.72986407]]
+
+######################################################
 ### Finding optimal rotation
 ### ========================
 ###
@@ -888,25 +913,15 @@ print ( rotMat )
 ### ordinates, but I assume this will be faster in
 ### C++ rather than in Python.
 ###
-### NOTE: The output of the optimalRotationAngles()
-### function is of the type proshade._double_list,
-### which is a wrapper for the std::vector < proshade_double >
-### type. This means that from Python the values can
-### be accessed, but operations such as + or print
-### will not work on it. Numpy functions, however,
-### should work fine, or it can be simply converted
-### to any other array-like type. The rotation matrix,
-### on the other hand, is a numpy array with shape ( 3, 3 ).
-###
-optimalRotationAngles                         = pStruct_moving.getBestRotationMapPeaksEulerAngles ( pSet )
-optimalRotationMatrix                         = proshade.getRotationMatrixFromEulerZXZ ( optimalRotationAngles )
+optimalRotationAngles                                 = pStruct_moving.getBestRotationMapPeaksEulerAngles ( pSet )
+optimalRotationMatrix                                 = pStruct_moving.getBestRotationMapPeaksRotationMatrix ( pSet )
 
 print ( optimalRotationMatrix )
-# Expected output: [[ 0.87256445 -0.4329139  -0.22631136]
-# Expected output:  [-0.4332374  -0.47176062 -0.76795005]
-# Expected output:  [ 0.22569146  0.76813246 -0.59919604]]
+# Expected output: [[-0.87191417 -0.07835774  0.48334848]
+# Expected output:  [-0.19118044 -0.85428895 -0.48336365]
+# Expected output:  [ 0.45079455 -0.51385839  0.72988617]]
 
-##############################################
+######################################################
 ### Delete the phase-less data
 ### ==========================
 ###
@@ -916,7 +931,7 @@ print ( optimalRotationMatrix )
 del pStruct_static
 del pStruct_moving
 
-##############################################
+######################################################
 ### Changing the settings
 ### =====================
 ###
@@ -925,8 +940,8 @@ del pStruct_moving
 ### translation cannot be obtained in the real
 ### space. Also, the map changing is required.
 ###
-pSet.usePhase                                 = True
-pSet.changeMapResolution                      = True
+pSet.usePhase                                         = True
+pSet.changeMapResolution                              = True
 
 ##############################################
 ### Read in the structures with phase
@@ -938,22 +953,23 @@ pSet.changeMapResolution                      = True
 ### is required only for the moving structure.
 ###
 
-### Create objects
-pStruct_static                                = proshade.ProSHADE_data ( pSet )
-pStruct_moving                                = proshade.ProSHADE_data ( pSet )
+pStruct_static                                        = proshade.ProSHADE_data ( pSet )
+pStruct_moving                                        = proshade.ProSHADE_data ( pSet )
 
+######################################################
 ### Read in the structures
-pStruct_static.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1.map", 0, pSet )
-pStruct_moving.readInStructure                ( "/Users/mysak/BioCEV/proshade/00_GeneralTests/04_MapOverlay/test1_higherRotTrs.map", 1, pSet )
+pStruct_static.readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # This is a BALBES domain 1BFO_A_dom_1.
+pStruct_moving.readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # This is a BALBES domain 1H8N_A_dom_1.
 
-### Get spherical harmonics for moving structures
-pStruct_static.processInternalMap             ( pSet )
+######################################################
+### Get spherical harmonics for moving structure only
+pStruct_static.processInternalMap                     ( pSet )
+        
+pStruct_moving.processInternalMap                     ( pSet )
+pStruct_moving.mapToSpheres                           ( pSet )
+pStruct_moving.computeSphericalHarmonics              ( pSet )
 
-pStruct_moving.processInternalMap             ( pSet )
-pStruct_moving.mapToSpheres                   ( pSet )
-pStruct_moving.computeSphericalHarmonics      ( pSet )
-
-##############################################
+######################################################
 ### Rotate map
 ### ==========
 ###
@@ -967,22 +983,22 @@ pStruct_moving.computeSphericalHarmonics      ( pSet )
 ### itself by inverse spherical harmonics decomposition
 ### calculation. This approach, however, uses interpolation
 ### to get the Cartesian map positions, so the resulting
-### map tends to be blurry. It also introduces some artefacts,
-### and as a results, the user us discouraged from using
-### such maps directly. They are good enough to get the
-### translation map in the next steps, but they are not
-### good enough for further processing by ProSHADE or
-### any other software. The recommended approach to computing
-### the rotated map from the optimal angles (or rotation
-### matrix) is to use EMDA.
+### map tends to have artefacts; therefore, the user is
+### discouraged from using such maps directly. They are
+### good enough to get the translation map in the next
+### steps, but they are not good enough for further
+### processing by ProSHADE or any other software. The
+### recommended approach to computing the rotated map
+### from the optimal angles (or rotation matrix) is to
+### use EMDA.
 ###
 ### Nonetheless, if the user so desires, the rotated map
 ### can be obtained and processed as any other map and as
 ### described above.
 ###
-pStruct_moving.rotateMap                      ( pSet, -optimalRotationAngles[0], optimalRotationAngles[1], -optimalRotationAngles[2] )
+pStruct_moving.rotateMap                              ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
 
-##############################################
+######################################################
 ### Zero padd the maps
 ### ==================
 ###
@@ -993,20 +1009,20 @@ pStruct_moving.rotateMap                      ( pSet, -optimalRotationAngles[0],
 ### coefficients used to compute the translation
 ### map to be of the same orders.
 ###
-pStruct_static.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
-                                                int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
-                                                int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
-pStruct_moving.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
-                                                int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
-                                                int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
+pStruct_static.zeroPaddToDims                         ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
+                                                        int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
+                                                        int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
+pStruct_moving.zeroPaddToDims                         ( int ( numpy.max ( [ pStruct_static.getXDim(), pStruct_moving.getXDim() ] ) ),
+                                                        int ( numpy.max ( [ pStruct_static.getYDim(), pStruct_moving.getYDim() ] ) ),
+                                                        int ( numpy.max ( [ pStruct_static.getZDim(), pStruct_moving.getZDim() ] ) ) )
                                                 
-##############################################
+######################################################
 ### Computing translation map
 ### =========================
 ###
-### The following function takes the two structures
-### and computes the translation function, which it
-### then saves into the movings (calling) structure.
+### Now that all the preparations are done, the following
+### function can be used to actually compute the
+### translation function.
 ###
 ### NOTE: This function will fail if the two structures
 ### do not have the same dimensions and sampling, so
@@ -1015,85 +1031,78 @@ pStruct_moving.zeroPaddToDims                 ( int ( numpy.max ( [ pStruct_stat
 ### same resolution and using the zero-padding above
 ### are used.
 ###
-pStruct_moving.computeTranslationMap          ( pStruct_static )
+pStruct_moving.computeTranslationMap                  ( pStruct_static )
 
-##############################################
+######################################################
 ### Accessing the translation function
 ### ==================================
 ###
-### The translation function can also be accessed
-### from ProSHADE. This can again be done using the
-### fast 1D version, which has the same indexing as
-### the 1D internal map and the 1D rotation function,
-### that is: [ z + int ( pStruct.getZDim() ) * ( y + int ( pStruct.getYDim() ) * x ) ].
-###
-### Alternatively, the 3D array can be obtained as
-### shown below, with the same caveat as before,
-### specifically that this is slow.
+### The translation function can be accessed
+### from python in a very similar fashion as the
+### rotationFunction or the internal map - in the
+### three-dimensional numpy.ndarray format.
 ###
 ### The highest value of this translation function
 ### is the optimal global overlay translation
 ### vector for the two structures used to produce
 ### it.
 ###
-translationMap1D = proshade.getTranslationFunction1D ( pStruct_moving )
-translationMap3D = proshade.getTranslationFunction3D ( pStruct_moving )
+translationFunction                                   = pStruct_moving.getTranslationFunctionMap ( )
 
-print ( translationMap3D[1][2][3] )
-# Expected output: (101.35688753123377-6.084559434255484e-15j)
+### Find the map maximum
+rotMapMax                                             = numpy.where ( translationFunction == numpy.amax ( translationFunction ) )
 
-##############################################
+### Find maximum value
+print                                                 ( "Translation map maximum is: " + str( translationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
+
+### Expected output: Translation map maximum is: (247.24306619565834-1.2778260246319907e-14j)
+
+######################################################
 ### Obtaining the optimal translation
 ### =================================
 ###
-### The optimal translation vector is obtained
-### from the translation map co-ordinates with
-### the highest value. As this search should be
-### faster in C++, such function is provided by
-### ProSHADE as below.
+### The optimal translation vector is deeply connected
+### to the centre of rotation, especially when we consider
+### that the same vector needs to work for input maps
+### as well as input co-ordinates. Therefore, ProSHADE
+### reports the optimal translation as a dictionary with
+### two entries:
 ###
-### NOTE: The output of the getBestTranslationMapPeaksAngstrom()
-### function is of the type proshade._double_list,
-### which is a wrapper for the std::vector < proshade_double >
-### type. This means that from Python the values can
-### be accessed, but operations such as + or print
-### will not work on it. Numpy functions, however,
-### should work fine, or it can be simply converted
-### to any other array-like type.
+### translationVecs["centreOfRotation"]
+###     This vector is the translation required to move
+###     the rotation centre to the origin (alternatively,
+###     it can be seen as negative values of the rotation
+###     centre itself).
 ###
-optimalTranslationVector                      = pStruct_moving.getBestTranslationMapPeaksAngstrom ( pStruct_static )
+### translationVecs["rotCenToOverlay"]
+###     This is the translation vector from the centre
+###     of rotation to the optimal overlay position.
+###     This means that if the structure was moved to
+###     origin for rotation, it needs to be moved back
+###     to the original position and THEN this vector
+###     needs to be applied.
+###
+translationVecs                                       = pStruct_moving.getOverlayTranslations ( pStruct_static,
+                                                                                                optimalRotationAngles[0],
+                                                                                                optimalRotationAngles[1],
+                                                                                                optimalRotationAngles[2] )
 
-print ( optimalTranslationVector[0] )
-# Expected output: 4.0
+### Print the results
+print                                                 ( "The centre of rotation is:                                " + str( -translationVecs["centreOfRotation"][0] ) + " ; " + str( -translationVecs["centreOfRotation"][1] ) + " ; " + str( -translationVecs["centreOfRotation"][2] ) )
+print                                                 ( "The centre of rotation to optimal overlay translation is: " + str( translationVecs["rotCenToOverlay"][0] ) + " ; " + str( translationVecs["rotCenToOverlay"][1] ) + " ; " + str( translationVecs["rotCenToOverlay"][2] ) )
 
-##############################################
-### Translating the map
-### ===================
-###
-### Although it is not recommended to use the
-### internal ProSHADE maps directly (see the
-### Rotate map section), or at least not the
-### rotated maps, ProSHADE does have a function
-### for translating the internal map by a given
-### number of Angstroms along the three axes.
-###
-### The function can be used as shown, in this
-### case to move the moving map, what can be
-### useful for the visually confirming the ProSHADE
-### values are correct. The resulting internal
-### moved map can, of course, be accessed as
-### before.
-###
-pStruct_moving.translateMap                   ( pSet, optimalTranslationVector[0], optimalTranslationVector[1], optimalTranslationVector[2] )
+### Expected output
+#   The centre of rotation is:                                -16.0 ; -20.0 ; -24.0
+#   The centre of rotation to optimal overlay translation is: 8.0 ; 8.0 ; -6.0
 
-##############################################
+######################################################
 ### Clean up!
 ### =========
 ###
 del pStruct_static
 del pStruct_moving
 
-##############################################
+######################################################
 ### Done
 ### ====
 ###
