@@ -486,9 +486,9 @@ sphericalHarmonics                                    = pStruct.getSphericalHarm
 shell =  3
 band  =  4
 order = -2
-Shell3Band4OrderMin2Value                             = pStruct.getSphericalHarmonics()[0][pStruct.findSHIndex(shell, band, order)]
+Shell3Band4OrderMin2Value                             = sphericalHarmonics[shell][pStruct.findSHIndex(shell, band, order)]
 print                                                 ( Shell3Band4OrderMin2Value )
-# Expected output: (-0.06485799326993862-0.7217821630280601j)
+# Expected output: (6.208409213807614e-05+0.00045192512358785495j)
 
 ######################################################
 ### Computing distances between two structures
@@ -1094,6 +1094,33 @@ print                                                 ( "The centre of rotation 
 ### Expected output
 #   The centre of rotation is:                                -16.0 ; -20.0 ; -24.0
 #   The centre of rotation to optimal overlay translation is: 8.0 ; 8.0 ; -6.0
+
+######################################################
+### Writing out the final structures
+### ================================
+###
+### The rotated and translated map can be written out
+### using the same function for writing out the internal
+### map as the internal map is being modified by the
+### functions.
+###
+### The case of co-ordinates, however, is different. These
+### are outputted by the second showcased function, which
+### firstly reads the co-ordinates from the original disk
+### file, then applies the rotation around the rotation
+### centre and then applies the translation as computed
+### by the translation function. Finally, these new
+### co-oridnates are written out.
+###
+pStruct_moving.writeMap                               ( "/Users/mysak/Desktop/movedPy.map" )
+pStruct_moving.writePdb                               ( "/Users/mysak/Desktop/movedPy.pdb",
+                                                        optimalRotationAngles[0],
+                                                        optimalRotationAngles[1],
+                                                        optimalRotationAngles[2],
+                                                        translationVecs["rotCenToOverlay"][0],
+                                                        translationVecs["rotCenToOverlay"][1],
+                                                        translationVecs["rotCenToOverlay"][2],
+                                                        pSet.firstModelOnly )
 
 ######################################################
 ### Clean up!
