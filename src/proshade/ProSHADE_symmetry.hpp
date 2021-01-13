@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -133,9 +133,12 @@ namespace ProSHADE_internal_symmetry
     void findIcos6C5s                                 ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         proshade_unsign verbose, proshade_double minPeakHeight );
-    void predictIcos6C5s                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
+    void predictIcosAxes                              ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose, proshade_double minPeakHeight );
+                                                        proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance );
+    void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
+                                                        proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
+                                                        proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance );
     void findIcos10C3s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         proshade_unsign verbose, proshade_double minPeakHeight );

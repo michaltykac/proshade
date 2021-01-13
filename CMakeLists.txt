@@ -15,39 +15,39 @@ endif   ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} LESS 6 )
 
 if      ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 	if    ( ${CMAKE_MINOR_VERSION} GREATER 7 )
-		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
+		message ( "Your CMake version is lower than recommended (3.4). This will result in no Python language bindings. Please consider updating your CMake." )
 		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
 		set ( USE_MODERN_PATHS          "1"                                               )
 	else  ( ${CMAKE_MINOR_VERSION} GREATER 7 )
-		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
+		message ( "Your CMake version is lower than recommended (3.4). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
 		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
 		set ( USE_MODERN_PATHS          "0"                                               )
 	endif ( ${CMAKE_MINOR_VERSION} GREATER 7 )
 endif   ( ${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} GREATER 5 )
 
 if      ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
-	if    ( ${CMAKE_MINOR_VERSION} LESS 1 )
-		message ( "Your CMake version is lower than recommended (3.1). This will result in no Python language bindings and slower compilation. Please consider updating your CMake." )
+	if    ( ${CMAKE_MINOR_VERSION} LESS 4 )
+		message ( "Your CMake version is lower than recommended (3.4). This will result in no Python language bindings. Please consider updating your CMake." )
 		set ( PRODUCE_PYTHON_BINDINGS   "0"                                               )
 		set ( USE_MODERN_PATHS          "1"                                               )
-	else  ( ${CMAKE_MINOR_VERSION} LESS 1 )
+	else  ( ${CMAKE_MINOR_VERSION} LESS 4 )
 		message ( "Your CMake version is at least the recommended version. Allowing fast build and Python language binding to be created." )
 		set ( PRODUCE_PYTHON_BINDINGS   "1"                                               )
 		set ( USE_MODERN_PATHS          "1"                                               )
-	endif ( ${CMAKE_MINOR_VERSION} LESS 1 )
+	endif ( ${CMAKE_MINOR_VERSION} LESS 4 )
 endif   ( ${CMAKE_MAJOR_VERSION} GREATER 2 )
 
 ##########################################################################################
 ################################### Set the correct required version
 if      ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
-	cmake_minimum_required  ( VERSION 3.1                                                 )
+	cmake_minimum_required  ( VERSION 3.4                                                 )
 else    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 	cmake_minimum_required  ( VERSION 2.6                                                 )
 endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.5.0 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.5.1 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -76,7 +76,7 @@ set     ( INSTALL_INC_DIR        include CACHE PATH   "Installation directory fo
 set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"                     )
 set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
 set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
-set     ( NO_PYTHON              TRUE    CACHE BOOL   "Should python modules be build?"        )
+set     ( BUILD_PYTHON           FALSE   CACHE BOOL   "Should python modules be build?"        )
 
 ##########################################################################################
 ################################### Warn if non-local installation - sudo may be needed
@@ -98,19 +98,7 @@ elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
 elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
   ################################# Using Visual Studio C++
   ### TO BE COMPLETED
-endif  ( )
-
-##########################################################################################
-################################### Find gfortran version. This is needed as starting from version 10, it is no longer backward compatible and it need the -fallow-argument-mismatch argument, but the old version fail with this argument...
-execute_process  ( COMMAND gfortran --version OUTPUT_VARIABLE GFORTRAN_VERSION_FULLTEXT   )
-string           ( REGEX MATCH "[0-9]+" GFORTRAN_VERSION "${GFORTRAN_VERSION_FULLTEXT}"   )
-
-if    ( GFORTRAN_VERSION )
-	# Nothing to be done, fortran found and version detected
-else  ( GFORTRAN_VERSION )
-	# Problem. Failed to find gfortran version. Report to user and ask for debug info
-	message      ( FATAL_ERROR "Failed to find gfortran version. Please report this instance to the author along with the output of 'gfortran --version' command." )
-endif ( GFORTRAN_VERSION )
+endif  ( )     
 
 ##########################################################################################
 ################################### Set a target for Gemmi installation
@@ -129,7 +117,7 @@ add_custom_target (
 )
 
 ### Set paths to installed dependencies
-include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )       
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )  
 
 ##########################################################################################
 ################################### Add fftw3 dependency
@@ -177,27 +165,6 @@ else  ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
 endif  ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
 
 ##########################################################################################
-################################### Add SOFT dependency
-
-### Compile Soft-2.0 from supplied folder
-add_custom_command (
-   OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
-   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
-)
-
-add_custom_target (
-   soft2_lib
-   DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   )
-
-### Report SOFT related info
-message                ( STATUS "SOFT library path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0 )
-message                ( STATUS "SOFT include path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include )
-include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include                      )
-
-##########################################################################################
 ################################### Add LAPACK dependency
  
 ### Automatic LAPACK detection
@@ -227,56 +194,35 @@ else  ( CUSTOM_LAPACK_LIB_PATH )
 endif  ( CUSTOM_LAPACK_LIB_PATH )
 
 ##########################################################################################
+################################### Add SOFT dependency
+
+### Compile Soft-2.0 from supplied folder
+add_custom_command (
+   OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
+   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
+)
+
+add_custom_target (
+   soft2_lib
+   DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   )
+
+### Report SOFT related info
+message                ( STATUS "SOFT library path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0 )
+message                ( STATUS "SOFT include path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include )
+include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include                      )
+
+##########################################################################################
 ################################### Set installation folders
 if    ( INSTALL_LOCALLY )
-	set ( MY_INSTALL_LOCATION     ${CMAKE_SOURCE_DIR}/install         CACHE STRING "Installation path"        )
-	set ( MY_PY2_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install/python2 CACHE STRING "Python2 install location" )
-	set ( MY_PY3_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/install/python3 CACHE STRING "Python3 install location" )
+	set ( MY_INSTALL_LOCATION  ${CMAKE_SOURCE_DIR}/install   CACHE STRING "Installation path" )
 else  ( INSTALL_LOCALLY )
-	set ( MY_INSTALL_LOCATION ${CMAKE_INSTALL_PREFIX} CACHE STRING "Installation path"    )
-	
-	execute_process      ( COMMAND python  -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
-	if    ( NOT PY_VERSION )
-	    execute_process  ( COMMAND python2 -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY_VERSION )
-	endif ( NOT PY_VERSION )
-	string ( REGEX REPLACE "\n$" "" PY_VERSION "${PY_VERSION}"                            )
-	execute_process      ( COMMAND python  -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
-	if    ( NOT PY_PREFIX )
-	    execute_process  ( COMMAND python2 -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY_PREFIX )
-	endif ( NOT PY_PREFIX )
-	string ( REGEX REPLACE "\n$" "" PY_PREFIX "${PY_PREFIX}"                              )
-	string ( CONCAT PYTHON_INSTALL ${PY_PREFIX} "/lib/python"                             )
-	string ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"                    )
-	string ( CONCAT PYTHON_INSTALL ${PYTHON_INSTALL} ${PY_VERSION}                        )
-	string ( REGEX REPLACE "\n$" "" PYTHON_INSTALL "${PYTHON_INSTALL}"                    )
-	string ( CONCAT PYTHON_INSTALL2 ${PYTHON_INSTALL} "/site-packages"                    )
-	string ( REGEX REPLACE "\n$" "" PYTHON_INSTALL2 "${PYTHON_INSTALL2}"                  )
-	if    ( EXISTS ${PYTHON_INSTALL2} )
-		set ( MY_PY2_INSTALL_LOCATION ${PYTHON_INSTALL2} CACHE PATH "Python2 install location" )
-	else  ( EXISTS ${PYTHON_INSTALL2} )
-		set ( MY_PY2_INSTALL_LOCATION ${PYTHON_INSTALL} CACHE PATH "Python2 install location" )
-	endif ( EXISTS ${PYTHON_INSTALL2} )
-	
-	execute_process      ( COMMAND python3 -c "import sys; print ( str ( sys.version_info[0] ) + '.' + str ( sys.version_info[1] ) )" OUTPUT_VARIABLE PY3_VERSION )
-	string ( REGEX REPLACE "\n$" "" PY3_VERSION "${PY3_VERSION}"                          )
-	execute_process      ( COMMAND python3 -c "import sys; print ( sys.exec_prefix )" OUTPUT_VARIABLE PY3_PREFIX )
-	string ( REGEX REPLACE "\n$" "" PY3_PREFIX "${PY3_PREFIX}"                            )
-	string ( CONCAT PYTHON3_INSTALL ${PY3_PREFIX} "/lib/python"                           )
-	string ( REGEX REPLACE "\n$" "" PYTHON3_INSTALL "${PYTHON3_INSTALL}"                  )
-	string ( CONCAT PYTHON3_INSTALL ${PYTHON3_INSTALL} ${PY3_VERSION}                     )
-	string ( REGEX REPLACE "\n$" "" PYTHON3_INSTALL "${PYTHON3_INSTALL}"                  )
-	string ( CONCAT PYTHON3_INSTALL2 ${PYTHON3_INSTALL} "/site-packages"                  )
-	string ( REGEX REPLACE "\n$" "" PYTHON3_INSTALL2 "${PYTHON3_INSTALL2}"                )
-	if    ( EXISTS ${PYTHON3_INSTALL2} )
-		set ( MY_PY3_INSTALL_LOCATION ${PYTHON3_INSTALL2} CACHE PATH "Python3 install location" )
-	else  ( EXISTS ${PYTHON3_INSTALL2} )
-		set ( MY_PY3_INSTALL_LOCATION ${PYTHON3_INSTALL} CACHE PATH "Python3 install location" )
-	endif ( EXISTS ${PYTHON3_INSTALL2} )
+	set ( MY_INSTALL_LOCATION  ${CMAKE_INSTALL_PREFIX}       CACHE STRING "Installation path" )
 endif ( INSTALL_LOCALLY )
 
 message              ( STATUS "Installation is set to       : " ${MY_INSTALL_LOCATION}    )
-message              ( STATUS "Python 2 Installation        : " ${MY_PY2_INSTALL_LOCATION})
-message              ( STATUS "Python 3 Installation        : " ${MY_PY3_INSTALL_LOCATION})
 
 ##########################################################################################
 ################################### Build the OBJECTS
@@ -295,27 +241,23 @@ endif  ( ${USE_MODERN_PATHS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Link library
-add_subdirectory      ( ${CMAKE_SOURCE_DIR}/cmake/lib                                     )
+if     ( ${USE_MODERN_PATHS} MATCHES 1 )
+	add_subdirectory ( ${CMAKE_SOURCE_DIR}/cmake/lib                                      )
+elseif ( ${USE_MODERN_PATHS} MATCHES 0 ) 
+	include          ( ${CMAKE_SOURCE_DIR}/cmake/lib/lib.cmake                            )
+endif  ( ${USE_MODERN_PATHS} MATCHES 1 )
 
 ##########################################################################################
-################################### Link python module
-if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
-	if     ( NO_PYTHON )
-		message ( STATUS "No python module is to be build."                               )
-	elseif ( NOT NO_PYTHON )
-    	add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python                              )
-    endif  ( NO_PYTHON )
-endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
-
-##########################################################################################
-################################### Link python3 module
-if    ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
-	if     ( NO_PYTHON )
-		message ( STATUS "No python3 module is to be build."                              )
-	elseif ( NOT NO_PYTHON )
-    	add_subdirectory  ( ${CMAKE_SOURCE_DIR}/cmake/python3                             )
-    endif  ( NO_PYTHON )
-endif ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+################################### Build python module using PyBind11
+if     ( BUILD_PYTHON )
+	if     ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+		add_subdirectory   ( ${CMAKE_SOURCE_DIR}/cmake/python                             )
+	else   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+		message            ( ERROR "This CMake version does not allow building the python module - please consider updating your CMake to at least version 3.4 if you want the python module build." )
+	endif  ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
+else   ( BUILD_PYTHON )
+	message                ( STATUS "Will not attempt to build the python module."        )
+endif  ( BUILD_PYTHON )
 
 #####################################################################################
 ################################### Remove all the ugly files 
@@ -356,19 +298,12 @@ add_custom_command (
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeCache.txt
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/CMakeFiles
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/Makefile
-					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python
-					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/python3 
 					 COMMAND rm -fr ${CMAKE_BINARY_DIR}/install_manifest.txt
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/bin/proshade.dSYM
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/include/ProSHADE.hpp
 					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/lib/libproshade.dylib
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.pyc
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/_proshade.so
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python2/proshade.py
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/__pycache__
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/_proshade.so
-					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/python3/proshade.py
+					 COMMAND rm -fr ${MY_INSTALL_LOCATION}/pythonModule/proshade.*
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/rotate_so3_fftw.o
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/rotate_so3_utils.o
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/soft-2.0/lib1/s2_cospmls.o
@@ -390,15 +325,6 @@ add_custom_command (
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
 					 COMMAND rm -fr ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
 					 COMMAND rm -fr ${CMAKE_SOURCE_DIR}/extern/gemmi
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_distances
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_overlay
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_reboxing
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/advancedAccess_symmetry
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_distances
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_overlay
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_reboxing
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/simpleAccess_symmetry
-                     COMMAND rm -fr ${CMAKE_SOURCE_DIR}/examples/libpython/proshadeBinary
 					 DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
 				     DEPENDS "${CMAKE_SOURCE_DIR}/delmeSOFT2.txt"
   					 COMMENT "Removed all files including the targets."

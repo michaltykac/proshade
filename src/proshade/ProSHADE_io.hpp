@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -56,8 +56,7 @@ namespace ProSHADE_internal_io
                                                         proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder, proshade_unsign xGridInds, proshade_unsign yGridInds,
                                                        proshade_unsign zGridInds, std::string title, int mode );
     void writeRotationTranslationJSON                 ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG,
-                                                        proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, proshade_double xMapCen, proshade_double yMapCen,
-                                                        proshade_double zMapCen, std::string fileName );
+                                                        proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, std::string fileName );
 }
 
 #endif

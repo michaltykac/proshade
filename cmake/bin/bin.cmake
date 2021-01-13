@@ -10,9 +10,13 @@ file                    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"
 file                    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"	              )
 
 ##########################################################################################
-################################### Link the executable
+################################### Add the executable target
 add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${SOURCES}                          )
-add_dependencies        ( ${PROJECT_NAME} soft2.0_lib                                     )
+
+##########################################################################################
+################################### Link the executable
+add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
+add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
 target_link_libraries   ( ${PROJECT_NAME} z                                               )
 target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a  )
 target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
@@ -30,4 +34,3 @@ set_property            (
 ##########################################################################################
 ################################### Install to bin
 #install                 ( TARGETS ${PROJECT_NAME} DESTINATION ${MY_INSTALL_LOCATION}/bin  )
-#install                 ( FILES ${MY_INSTALL_LOCATION}/bin/${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR}/bin PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ )

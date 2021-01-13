@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -1384,7 +1384,7 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case OverlayMap:
-                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->rotationCentre, &this->mapBoxMovement, &this->eulerAngles, &this->finalTranslation );
+                ProSHADE_internal_tasks::MapOverlayTask ( settings, &this->coordRotationCentre, &this->eulerAngles, &this->overlayTranslation );
                 break;
                 
             case MapManip:
@@ -1565,7 +1565,6 @@ void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
 }
 
 /*! \brief This function parses the command line arguments into the settings object.
- 
 
     \param[in] argc The count of the command line arguments (as passed to main function by the system).
     \param[in] argv The string containing the command line arguments (as passed to main function by the system).
@@ -2284,91 +2283,6 @@ void ProSHADE_settings::printSettings ( )
     
 }
 
-/*! \brief This function computes the length of 1D array required to hold all the indices of all detected D, T, O and I symmetries.
- 
-    \warning This function is required for proper passing of values to Python, but makes no sense for C++ access.
- 
-    \param[out] val The length of 1D arrat capable of containing all the detected axes indices as well as their separators.
- */
-proshade_unsign ProSHADE_settings::getListOfNonCSymmetryAxesIndicesLength ( )
-{
-    //================================================ Compute
-    proshade_unsign result                            = 0;
-    
-    //================================================ Add dihedrals with separators
-    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.size() ); dIt++ )
-    {
-        result                                       += static_cast<proshade_unsign> ( this->allDetectedDAxes.at(dIt).size() + 1 ); // +1 for separator between different Ds
-    }
-    result++;                                         // Separator between D and T
-    result                                           += static_cast<proshade_unsign> ( this->allDetectedTAxes.size() ); // Adding T's
-    result++;                                         // Separator between T and O
-    result                                           += static_cast<proshade_unsign> ( this->allDetectedOAxes.size() ); // Adding O's
-    result++;                                         // Separator between O and I
-    result                                           += static_cast<proshade_unsign> ( this->allDetectedIAxes.size() ); // Adding I's
-    result++;                                         // Final separator
-    
-    //================================================ Done
-    return                                            ( result );
-    
-}
-
-/*! \brief This function places all the indices of all detected D, T, O and I symmetries into a 1D array with separators for passing it to Python.
- 
-    \warning This function is required for proper passing of values to Python, but makes no sense for C++ access.
- 
-    \param[in] allOtherDetectedSymsIndices The 1D array to which the indices will be saved into.
-    \param[in] len The length of the input indices - this needs to be passed from Python as Python is allocating (and releasing) it, but otherwise it makes no sense.
- */
-void ProSHADE_settings::getListOfNonCSymmetryAxesIndices ( double* allOtherDetectedSymsIndices, int len )
-{
-    //================================================ Add dihedrals with separators
-    proshade_unsign dihCounter                        = 0;
-    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.size() ); dIt++ )
-    {
-        for ( proshade_unsign memIt = 0; memIt < static_cast<proshade_unsign> ( this->allDetectedDAxes.at(dIt).size() ); memIt++ )
-        {
-            allOtherDetectedSymsIndices[dihCounter]   = static_cast<double> ( this->allDetectedDAxes.at(dIt).at(memIt) );
-            dihCounter++;
-        }
-        allOtherDetectedSymsIndices[dihCounter]       = -2.0;
-        dihCounter++;
-    }
-    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
-    dihCounter++;
-    
-    //================================================ Add tetrahedral with separators
-    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedTAxes.size() ); dIt++ )
-    {
-        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedTAxes.at(dIt) );
-        dihCounter++;
-    }
-    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
-    dihCounter++;
-    
-    //================================================ Add octahedral with separators
-    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedOAxes.size() ); dIt++ )
-    {
-        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedOAxes.at(dIt) );
-        dihCounter++;
-    }
-    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
-    dihCounter++;
-    
-    //================================================ Add icosahedral with separators
-    for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( this->allDetectedIAxes.size() ); dIt++ )
-    {
-        allOtherDetectedSymsIndices[dihCounter]       = static_cast<double> ( this->allDetectedIAxes.at(dIt) );
-        dihCounter++;
-    }
-    allOtherDetectedSymsIndices[dihCounter]           = -1.0;
-    dihCounter++;
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief This function returns the energy level distances vector from the first to all other structures.
  
     \param[out] enLevs Vector of doubles of the distances.
@@ -2399,7 +2313,7 @@ std::vector< proshade_double > ProSHADE_run::getRotationFunctionVector ( )
     return                                            ( this->rotFun );
 }
 
-/*! \brief This function returns the number of structures used. This is useful for the python Numpy outputs.
+/*! \brief This function returns the number of structures used.
 
     \param[in] noStructures Number of structures supplied to the settings object.
 */
@@ -2409,7 +2323,7 @@ proshade_unsign ProSHADE_run::getNoStructures ( )
     return                                            ( this->noStructures );
 }
 
-/*! \brief This function returns the verbose value. This is useful for the python Numpy outputs.
+/*! \brief This function returns the verbose value.
 
     \param[in] verbose How loud the run should be?
 */
@@ -2417,69 +2331,6 @@ proshade_signed ProSHADE_run::getVerbose ( )
 {
     //================================================ Return the value
     return                                            ( this->verbose );
-}
-
-/*! \brief This function returns the energy level distances value for a particular structure pair.
-
-    \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
-    \param[out] val The value of the energy levels distances for the particular pair position.
-*/
-proshade_double ProSHADE_run::getEnergyLevelsVectorValue ( proshade_unsign pos )
-{
-    //================================================ Return the value
-    return                                            ( this->enLevs.at ( pos ) );
-}
-
-/*! \brief This function returns the energy level distances vector length.
-
-    \param[out] val The length of the energy levels distances vector.
-*/
-proshade_unsign ProSHADE_run::getEnergyLevelsLength ( )
-{
-    //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( this->enLevs.size() ) );
-}
-
-/*! \brief This function returns the trace sigma distances value for a particular structure pair.
-
-    \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
-    \param[out] val The value of the energy levels distances for the particular pair position.
-*/
-proshade_double ProSHADE_run::getTraceSigmaVectorValue ( proshade_unsign pos )
-{
-    //================================================ Return the value
-    return                                            ( this->trSigm.at ( pos ) );
-}
-
-/*! \brief This function returns the trace sigma distances vector length.
-
-    \param[out] val The length of the trace sigma distances vector.
-*/
-proshade_unsign ProSHADE_run::getTraceSigmaLength ( )
-{
-    //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( this->trSigm.size() ) );
-}
-
-/*! \brief This function returns the rotation function distances value for a particular structure pair.
-
-    \param[in] pos The position of the distances vector corresponding to the particular, requested pair distance.
-    \param[out] val The value of the energy levels distances for the particular pair position.
-*/
-proshade_double ProSHADE_run::getRotationFunctionVectorValue ( proshade_unsign pos )
-{
-    //================================================ Return the value
-    return                                            ( this->rotFun.at ( pos ) );
-}
-
-/*! \brief This function returns the rotation function distances vector length.
-
-    \param[out] val The length of the rotation function distances vector.
-*/
-proshade_unsign ProSHADE_run::getRotationFunctionLength ( )
-{
-    //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( this->rotFun.size() ) );
 }
 
 /*! \brief This function returns the number of detected recommended symmetry axes.
@@ -2500,100 +2351,6 @@ proshade_unsign ProSHADE_run::getNoRecommendedSymmetryAxes ( )
 {
     //================================================ Return the value
     return                                            ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) );
-}
-
-/*! \brief This function returns the length of an array which will be able to hold all C symmetries and their info.
-
-    \param[out] val The length of an array able to hold all C symmetries and their info.
-*/
-proshade_unsign ProSHADE_run::getAllSymsOneArrayLength ( )
-{
-    //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( this->allCSymAxes.size() * 6 ) );
-}
-
-/*! \brief This function returns the energy level distances array (for Numpy) from the first to all other structures.
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] verbose How loud the program run should be?
-    \param[in] enLevVec Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getEnergyLevelsVectorNumpy ( ProSHADE_run* run, int verbose, double *enLevVec, int len )
-{
-    //================================================ Sanity check
-    if ( len > static_cast<int> ( run->getEnergyLevelsLength ( ) ) )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The energy level distances are not available, yet already requested. Run the computation before the getEnergyLevelsNumpy() function is called.", "WP00036" );
-        return ;
-    }
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        enLevVec[iter]                                = static_cast<double> ( run->getEnergyLevelsVectorValue ( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the trace sigma distances array (for Numpy) from the first to all other structures.
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] verbose How loud the program run should be?
-    \param[in] trSigVec Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getTraceSigmaVectorNumpy ( ProSHADE_run* run, int verbose, double *trSigVec, int len )
-{
-    //================================================ Sanity check
-    if ( len > static_cast<int> ( run->getTraceSigmaLength ( ) ) )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The trace sigma distances are not available, yet already requested. Run the computation before the getTraceSigmaDescrNumpy() function is called.", "WP00037" );
-        return ;
-    }
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        trSigVec[iter]                                = static_cast<double> ( run->getTraceSigmaVectorValue ( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the rotation function distances array (for Numpy) from the first to all other structures.
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] verbose How loud the program run should be?
-    \param[in] rotFnVec Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getRotationFunctionVectorNumpy ( ProSHADE_run* run, int verbose, double *rotFnVec, int len )
-{
-    //================================================ Sanity check
-    if ( len > static_cast<int> ( run->getRotationFunctionLength ( ) ) )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( run->getVerbose(), "!!! ProSHADE WARNING !!! The rotation function distances are not available, yet already requested. Run the computation before the getRotationFunctionDescrNumpy() function is called.", "WP00038" );
-        return ;
-    }
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        rotFnVec[iter]                                = static_cast<double> ( run->getRotationFunctionVectorValue ( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
 }
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.
@@ -2723,55 +2480,7 @@ proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsi
     return                                            ( this->manipulatedMaps.at(strNo)[mapIndex] );
 }
 
-/*! \brief This function returns the original structure bounds array (for Numpy) for a particular structure.
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] strNo Index of the structure for which the bounds are to be returned.
-    \param[in] boundsVec Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getOriginalBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int *boundsVec, int len )
-{
-    //================================================ Get the vector
-    std::vector < proshade_signed > vals              = run->getOriginalBounds ( strNo );
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        boundsVec[iter]                               = static_cast<int> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the re-boxed structure bounds array (for Numpy) for a particular structure.
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] strNo Index of the structure for which the bounds are to be returned.
-    \param[in] reboxVec Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getReBoxedBoundsVectorNumpy ( ProSHADE_run* run, proshade_unsign strNo, int *reboxVec, int len )
-{
-    //================================================ Get the vector
-    std::vector < proshade_signed > vals              = run->getReBoxedBounds ( strNo );
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        reboxVec[iter]                                = static_cast<int> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the re-boxed structure map 1D array (for Numpy) for a particular structure.
+/*! \brief This function returns the re-boxed structure map 1D array for the processed structure.
  
     \param[in] run The ProSHADE_run object from which the values will be drawn.
     \param[in] strNo Index of the structure for which the bounds are to be returned.
@@ -2854,7 +2563,7 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
 std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
 {
     //================================================ Sanity check
-    if ( this->rotationCentre.size() != 3 )
+    if ( this->coordRotationCentre.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
@@ -2862,30 +2571,12 @@ std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
     
     //================================================ Create return variable with negative values of the internal varariable
     std::vector < proshade_double > ret;
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(0) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(1) );
-    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->rotationCentre.at(2) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->coordRotationCentre.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->coordRotationCentre.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &ret, -this->coordRotationCentre.at(2) );
     
     //================================================ Return required value
     return                                            ( ret );
-    
-}
-
-/*! \brief This function returns the vector of all translations done intenally to the input map.
-
-    \param[out] ret Vector of all translations done intenally to the input map.
-*/
-std::vector< proshade_double > ProSHADE_run::getTranslationToMapCentre ( )
-{
-    //================================================ Sanity check
-    if ( this->mapBoxMovement.size() != 3 )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
-        return                                        ( std::vector< proshade_double > ( ) );
-    }
-    
-    //================================================ Return required value
-    return                                            ( this->mapBoxMovement );
     
 }
 
@@ -2896,155 +2587,13 @@ std::vector< proshade_double > ProSHADE_run::getTranslationToMapCentre ( )
 std::vector< proshade_double > ProSHADE_run::getOriginToOverlayTranslation ( )
 {
     //================================================ Sanity check
-    if ( this->mapBoxMovement.size() != 3 )
+    if ( this->overlayTranslation.size() != 3 )
     {
         ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested rotation/translation values for Overlay functionality without having successfully computed it. Please check the correct task was used and no other warnings/errors were obtained.", "WO00042" );
         return                                        ( std::vector< proshade_double > ( ) );
     }
     
     //================================================ Return required value
-    return                                            ( this->finalTranslation );
-    
-}
-           
-/*! \brief This function returns the optimal Euler angles (for Numpy).
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] eulerAngs Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getOptimalEulerAngles ( ProSHADE_run* run, double *eulerAngs, int len )
-{
-    //================================================ Get values
-    std::vector< proshade_double > vals               = run->getEulerAngles ( );
-    
-    //======================================== Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        eulerAngs[iter]                               = static_cast<double> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the translation to origin (for Numpy).
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] toOriginTranslation Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getToOriginTranslation ( ProSHADE_run* run, double *toOriginTranslation, int len )
-{
-    //================================================ Get values
-    std::vector< proshade_double > vals               = run->getTranslationToOrigin ( );
-    
-    //======================================== Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        toOriginTranslation[iter]                     = static_cast<double> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the internal translations sum (for Numpy).
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] toMapCentreTranslation Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getToMapCentreTranslation ( ProSHADE_run* run, double *toMapCentreTranslation, int len )
-{
-    //================================================ Get values
-    std::vector< proshade_double > vals               = run->getTranslationToMapCentre ( );
-    
-    //======================================== Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        toMapCentreTranslation[iter]                  = static_cast<double> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the translation from origin to the optimal overlay location (for Numpy).
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] originToOverlayTranslation Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getOriginToOverlayTranslation ( ProSHADE_run* run, double *originToOverlayTranslation, int len )
-{
-    //================================================ Get values
-    std::vector< proshade_double > vals               = run->getOriginToOverlayTranslation ( );
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++)
-    {
-        originToOverlayTranslation[iter]              = static_cast<double> ( vals.at( iter ) );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns all of the detected symmetries information.
- 
-    \param[in] run The ProSHADE_run object from which the values will be drawn.
-    \param[in] allCSymsArray Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getAllCSymmetriesOneArray ( ProSHADE_run* run, double *allCSymsArray, int len )
-{
-    //================================================ Save the data into the output array
-    proshade_unsign counter                           = 0;
-    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( run->getAllCSyms().size() ); axIt++)
-    {
-        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( run->getAllCSyms().at(axIt).size() ); valIt++)
-        {
-            allCSymsArray[counter]                    = static_cast<double> ( run->getAllCSyms().at(axIt).at(valIt) );
-            counter                                  += 1;
-        }
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns all of the detected symmetries information.
- 
-    \param[in] run The ProSHADE_settings object from which the values will be drawn.
-    \param[in] allCSymsArray Array to which the values are to be loaded into.
-    \param[in] len The length of the array.
- */
-
-void getAllCSymmetriesOneArrayAdvanced ( ProSHADE_settings* settings, double *allCSymsArray, int len )
-{
-    //================================================ Save the data into the output array
-    proshade_unsign counter                           = 0;
-    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); axIt++)
-    {
-        for ( proshade_unsign valIt = 0; valIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.at(axIt).size() ); valIt++)
-        {
-            allCSymsArray[counter]                    = static_cast<double> ( settings->allDetectedCAxes.at(axIt).at(valIt) );
-            counter                                  += 1;
-        }
-    }
-    
-    //================================================ Done
-    return ;
+    return                                            ( this->overlayTranslation );
     
 }
