@@ -141,6 +141,7 @@ setup (
     author                                            = 'Michal Tykac, Garib N. Murshudov',
     author_email                                      = 'Michal.Tykac@gmail.com',
     url                                               = 'https://github.com/michaltykac/proshade',
+    download_url                                      = 'https://github.com/michaltykac/proshade/archive/v0.7.5.1.tar.gz',
     description                                       = 'Protein Shape Description and Symmetry Detection (ProSHADE) python module',
     long_description                                  = long_description,
     long_description_content_type                     = 'text/markdown',
@@ -161,6 +162,7 @@ setup (
     project_urls                                      = { 'Github': 'https://github.com/michaltykac/proshade',
                                                           'Bug Reports': 'https://github.com/michaltykac/proshade/issues' },
     setup_requires                                    = ['numpy'],
+    packages                                          = ['proshade'],
     zip_safe                                          = False,
 )
 
