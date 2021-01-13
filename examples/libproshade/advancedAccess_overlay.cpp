@@ -181,7 +181,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Rot. Centre to origin translation:           16 ; 20 ; 24
-//  Rot. Centre to optimal overlay translation:  -8 ; -8 ; 6
+//  Rot. Centre to optimal overlay translation:  8 ; 8 ; -6
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );

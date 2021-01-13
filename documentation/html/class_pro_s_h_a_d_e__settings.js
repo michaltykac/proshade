@@ -10,8 +10,6 @@ var class_pro_s_h_a_d_e__settings =
     [ "determineIntegrationOrder", "class_pro_s_h_a_d_e__settings.html#a6d2b5d90f31a1493e17474a044852da6", null ],
     [ "determineSphereDistances", "class_pro_s_h_a_d_e__settings.html#a4436b5eeb922db0351874eb64f350920", null ],
     [ "getCommandLineParams", "class_pro_s_h_a_d_e__settings.html#a52c1b3d4e86737c42785c0740b1f5497", null ],
-    [ "getListOfNonCSymmetryAxesIndices", "class_pro_s_h_a_d_e__settings.html#a241fe5ee7266bfe673fcc5f98870e318", null ],
-    [ "getListOfNonCSymmetryAxesIndicesLength", "class_pro_s_h_a_d_e__settings.html#ae9c4202fc3b45b391ed40411d8559726", null ],
     [ "printSettings", "class_pro_s_h_a_d_e__settings.html#a39cd81c30db3d72f279edb9b0c29a080", null ],
     [ "setAxisComparisonThreshold", "class_pro_s_h_a_d_e__settings.html#a41cdb46d64d149ee521b9a4e6ccee6de", null ],
     [ "setAxisComparisonThresholdBehaviour", "class_pro_s_h_a_d_e__settings.html#a74d3a2527a40c584af6bdb32896e8af0", null ],

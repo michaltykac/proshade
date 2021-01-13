@@ -58,6 +58,5 @@ var searchData=
   ['convertrotationfunction_107',['convertRotationFunction',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ad96cd7a72fc56e7d97cfeff1086faad9',1,'ProSHADE_internal_data::ProSHADE_data']]],
   ['copymapbybounds_108',['copyMapByBounds',['../namespace_pro_s_h_a_d_e__internal__map_manip.html#a2c857c8f26f99695e7de52025f590205',1,'ProSHADE_internal_mapManip']]],
   ['correlationkernel_109',['correlationKernel',['../class_pro_s_h_a_d_e__settings.html#ad7070cc8a98a8b8a040232eae8b2fbf3',1,'ProSHADE_settings']]],
-  ['createnewmapfrombounds_110',['createNewMapFromBounds',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a3349a7f6ffecc3ffd4e09192eb919248',1,'ProSHADE_internal_data::ProSHADE_data']]],
-  ['createnewmapfromboundspy_111',['createNewMapFromBoundsPy',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#af0ef7edd1c46d88512bc65e448a84a4c',1,'ProSHADE_internal_data::ProSHADE_data']]]
+  ['createnewmapfrombounds_110',['createNewMapFromBounds',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a3349a7f6ffecc3ffd4e09192eb919248',1,'ProSHADE_internal_data::ProSHADE_data']]]
 ];

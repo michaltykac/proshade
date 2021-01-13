@@ -31,11 +31,9 @@ var NAVTREE =
       [ "Index", "index.html#index", null ],
       [ "Installation", "index.html#install", [
         [ "Standard System Dependencies", "index.html#stdSys", null ],
-        [ "CMake options", "index.html#installBehaviour", null ],
         [ "Other dependencies", "index.html#otherDependencies", null ],
-        [ "Install", "index.html#installcode", null ],
-        [ "Uninstall", "index.html#uninstall", null ],
-        [ "Installation using \\e pip", "index.html#pipInstall", null ]
+        [ "Installing using CMake", "index.html#installBehaviour", null ],
+        [ "Installation using pip", "index.html#pipInstall", null ]
       ] ],
       [ "Input PDB files", "index.html#pdbInput", [
         [ "Spacegroups", "index.html#spaceGroups", null ],
@@ -53,7 +51,6 @@ var NAVTREE =
         [ "Examples of ProSHADE library usage", "index.html#libexamples", null ]
       ] ],
       [ "Using the Python modules", "index.html#pyusage", [
-        [ "Python modules installation notes", "index.html#pyinstall", null ],
         [ "Python module examples", "index.html#pyexamples", null ]
       ] ]
     ] ],
@@ -87,9 +84,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_pro_s_h_a_d_e_8cpp.html",
-"_pro_s_h_a_d_e__symmetry_8cpp.html#a458a09071115478efb8b666b839c18f2",
-"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#aa67115a6b234764c958899863fb60b54",
-"class_pro_s_h_a_d_e__settings.html#aa4957b0a47193ef1042028dc22b350f6"
+"_pro_s_h_a_d_e__symmetry_8hpp.html#a5dc4353223fc752e0007b2adec193079",
+"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ad409e4556676857224d1f5e00e5b7911",
+"dir_fa9be34cc2c3eb9c0decdfb277595ca7.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

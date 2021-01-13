@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('py_pro_s_h_a_d_e__bindings_8cpp_source
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">//==================================================== Declare the exported functions</span></div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;PYBIND11_MODULE ( proshade, pyProSHADE )</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;{</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="comment">//==================================================== Create new, modifyable bindings</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="comment">//================================================ Create new, modifyable bindings</span></div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    pybind11::bind_vector &lt; std::vector &lt; std::string &gt; &gt; ( pyProSHADE, <span class="stringliteral">&quot;&lt;VectorOfStrings class&gt; (Use append to add entries and [] to access them)&quot;</span>, pybind11::module_local ( <span class="keyword">true</span> ) );</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    </div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="comment">//================================================ Set the module description</span></div>

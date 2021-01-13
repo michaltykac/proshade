@@ -100,12 +100,6 @@ $(document).ready(function(){initNavTree('class_pro_s_h_a_d_e__settings.html',''
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae9c4202fc3b45b391ed40411d8559726"><td class="memItemLeft" align="right" valign="top">proshade_unsign&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_pro_s_h_a_d_e__settings.html#ae9c4202fc3b45b391ed40411d8559726">getListOfNonCSymmetryAxesIndicesLength</a> ()</td></tr>
-<tr class="memdesc:ae9c4202fc3b45b391ed40411d8559726"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function computes the length of 1D array required to hold all the indices of all detected D, T, O and I symmetries.  <a href="class_pro_s_h_a_d_e__settings.html#ae9c4202fc3b45b391ed40411d8559726">More...</a><br /></td></tr>
-<tr class="separator:ae9c4202fc3b45b391ed40411d8559726"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a241fe5ee7266bfe673fcc5f98870e318"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_pro_s_h_a_d_e__settings.html#a241fe5ee7266bfe673fcc5f98870e318">getListOfNonCSymmetryAxesIndices</a> (double *allOtherDetectedSymsIndices, int len)</td></tr>
-<tr class="memdesc:a241fe5ee7266bfe673fcc5f98870e318"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function places all the indices of all detected D, T, O and I symmetries into a 1D array with separators for passing it to Python.  <a href="class_pro_s_h_a_d_e__settings.html#a241fe5ee7266bfe673fcc5f98870e318">More...</a><br /></td></tr>
-<tr class="separator:a241fe5ee7266bfe673fcc5f98870e318"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25080bd03aaf7a4ce834f0df7aaa4250"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_pro_s_h_a_d_e__settings.html#a25080bd03aaf7a4ce834f0df7aaa4250">determineBandwidthFromAngle</a> (proshade_double uncertainty)</td></tr>
 <tr class="memdesc:a25080bd03aaf7a4ce834f0df7aaa4250"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function determines the bandwidth for the spherical harmonics computation from the allowed rotation function angle uncertainty.  <a href="class_pro_s_h_a_d_e__settings.html#a25080bd03aaf7a4ce834f0df7aaa4250">More...</a><br /></td></tr>
 <tr class="separator:a25080bd03aaf7a4ce834f0df7aaa4250"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1759,142 +1753,6 @@ std::vector&lt; proshade_unsign &gt;&#160;</td><td class="memItemRight" valign="
 <div class="line"><a name="l02090"></a><span class="lineno"> 2090</span>&#160;    return ;</div>
 <div class="line"><a name="l02091"></a><span class="lineno"> 2091</span>&#160;    </div>
 <div class="line"><a name="l02092"></a><span class="lineno"> 2092</span>&#160;}</div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="a241fe5ee7266bfe673fcc5f98870e318"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a241fe5ee7266bfe673fcc5f98870e318">&#9670;&nbsp;</a></span>getListOfNonCSymmetryAxesIndices()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ProSHADE_settings::getListOfNonCSymmetryAxesIndices </td>
-          <td>(</td>
-          <td class="paramtype">double *&#160;</td>
-          <td class="paramname"><em>allOtherDetectedSymsIndices</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>len</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>This function places all the indices of all detected D, T, O and I symmetries into a 1D array with separators for passing it to Python. </p>
-<dl class="section warning"><dt>Warning</dt><dd>This function is required for proper passing of values to Python, but makes no sense for C++ access.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">allOtherDetectedSymsIndices</td><td>The 1D array to which the indices will be saved into. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">len</td><td>The length of the input indices - this needs to be passed from Python as Python is allocating (and releasing) it, but otherwise it makes no sense. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02322">2322</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02323"></a><span class="lineno"> 2323</span>&#160;{</div>
-<div class="line"><a name="l02324"></a><span class="lineno"> 2324</span>&#160;    <span class="comment">//================================================ Add dihedrals with separators</span></div>
-<div class="line"><a name="l02325"></a><span class="lineno"> 2325</span>&#160;    proshade_unsign dihCounter                        = 0;</div>
-<div class="line"><a name="l02326"></a><span class="lineno"> 2326</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign dIt = 0; dIt &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a618c04a2c1d7f0a506d0bb3d7a0da444">allDetectedDAxes</a>.size() ); dIt++ )</div>
-<div class="line"><a name="l02327"></a><span class="lineno"> 2327</span>&#160;    {</div>
-<div class="line"><a name="l02328"></a><span class="lineno"> 2328</span>&#160;        <span class="keywordflow">for</span> ( proshade_unsign memIt = 0; memIt &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a618c04a2c1d7f0a506d0bb3d7a0da444">allDetectedDAxes</a>.at(dIt).size() ); memIt++ )</div>
-<div class="line"><a name="l02329"></a><span class="lineno"> 2329</span>&#160;        {</div>
-<div class="line"><a name="l02330"></a><span class="lineno"> 2330</span>&#160;            allOtherDetectedSymsIndices[dihCounter]   = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a618c04a2c1d7f0a506d0bb3d7a0da444">allDetectedDAxes</a>.at(dIt).at(memIt) );</div>
-<div class="line"><a name="l02331"></a><span class="lineno"> 2331</span>&#160;            dihCounter++;</div>
-<div class="line"><a name="l02332"></a><span class="lineno"> 2332</span>&#160;        }</div>
-<div class="line"><a name="l02333"></a><span class="lineno"> 2333</span>&#160;        allOtherDetectedSymsIndices[dihCounter]       = -2.0;</div>
-<div class="line"><a name="l02334"></a><span class="lineno"> 2334</span>&#160;        dihCounter++;</div>
-<div class="line"><a name="l02335"></a><span class="lineno"> 2335</span>&#160;    }</div>
-<div class="line"><a name="l02336"></a><span class="lineno"> 2336</span>&#160;    allOtherDetectedSymsIndices[dihCounter]           = -1.0;</div>
-<div class="line"><a name="l02337"></a><span class="lineno"> 2337</span>&#160;    dihCounter++;</div>
-<div class="line"><a name="l02338"></a><span class="lineno"> 2338</span>&#160;    </div>
-<div class="line"><a name="l02339"></a><span class="lineno"> 2339</span>&#160;    <span class="comment">//================================================ Add tetrahedral with separators</span></div>
-<div class="line"><a name="l02340"></a><span class="lineno"> 2340</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign dIt = 0; dIt &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#ae42ba1e294d1887c71b763f9bb5519cc">allDetectedTAxes</a>.size() ); dIt++ )</div>
-<div class="line"><a name="l02341"></a><span class="lineno"> 2341</span>&#160;    {</div>
-<div class="line"><a name="l02342"></a><span class="lineno"> 2342</span>&#160;        allOtherDetectedSymsIndices[dihCounter]       = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#ae42ba1e294d1887c71b763f9bb5519cc">allDetectedTAxes</a>.at(dIt) );</div>
-<div class="line"><a name="l02343"></a><span class="lineno"> 2343</span>&#160;        dihCounter++;</div>
-<div class="line"><a name="l02344"></a><span class="lineno"> 2344</span>&#160;    }</div>
-<div class="line"><a name="l02345"></a><span class="lineno"> 2345</span>&#160;    allOtherDetectedSymsIndices[dihCounter]           = -1.0;</div>
-<div class="line"><a name="l02346"></a><span class="lineno"> 2346</span>&#160;    dihCounter++;</div>
-<div class="line"><a name="l02347"></a><span class="lineno"> 2347</span>&#160;    </div>
-<div class="line"><a name="l02348"></a><span class="lineno"> 2348</span>&#160;    <span class="comment">//================================================ Add octahedral with separators</span></div>
-<div class="line"><a name="l02349"></a><span class="lineno"> 2349</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign dIt = 0; dIt &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a4d869a528d0af64bc3688a9a48514061">allDetectedOAxes</a>.size() ); dIt++ )</div>
-<div class="line"><a name="l02350"></a><span class="lineno"> 2350</span>&#160;    {</div>
-<div class="line"><a name="l02351"></a><span class="lineno"> 2351</span>&#160;        allOtherDetectedSymsIndices[dihCounter]       = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a4d869a528d0af64bc3688a9a48514061">allDetectedOAxes</a>.at(dIt) );</div>
-<div class="line"><a name="l02352"></a><span class="lineno"> 2352</span>&#160;        dihCounter++;</div>
-<div class="line"><a name="l02353"></a><span class="lineno"> 2353</span>&#160;    }</div>
-<div class="line"><a name="l02354"></a><span class="lineno"> 2354</span>&#160;    allOtherDetectedSymsIndices[dihCounter]           = -1.0;</div>
-<div class="line"><a name="l02355"></a><span class="lineno"> 2355</span>&#160;    dihCounter++;</div>
-<div class="line"><a name="l02356"></a><span class="lineno"> 2356</span>&#160;    </div>
-<div class="line"><a name="l02357"></a><span class="lineno"> 2357</span>&#160;    <span class="comment">//================================================ Add icosahedral with separators</span></div>
-<div class="line"><a name="l02358"></a><span class="lineno"> 2358</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign dIt = 0; dIt &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#aa4957b0a47193ef1042028dc22b350f6">allDetectedIAxes</a>.size() ); dIt++ )</div>
-<div class="line"><a name="l02359"></a><span class="lineno"> 2359</span>&#160;    {</div>
-<div class="line"><a name="l02360"></a><span class="lineno"> 2360</span>&#160;        allOtherDetectedSymsIndices[dihCounter]       = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#aa4957b0a47193ef1042028dc22b350f6">allDetectedIAxes</a>.at(dIt) );</div>
-<div class="line"><a name="l02361"></a><span class="lineno"> 2361</span>&#160;        dihCounter++;</div>
-<div class="line"><a name="l02362"></a><span class="lineno"> 2362</span>&#160;    }</div>
-<div class="line"><a name="l02363"></a><span class="lineno"> 2363</span>&#160;    allOtherDetectedSymsIndices[dihCounter]           = -1.0;</div>
-<div class="line"><a name="l02364"></a><span class="lineno"> 2364</span>&#160;    dihCounter++;</div>
-<div class="line"><a name="l02365"></a><span class="lineno"> 2365</span>&#160;    </div>
-<div class="line"><a name="l02366"></a><span class="lineno"> 2366</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l02367"></a><span class="lineno"> 2367</span>&#160;    return ;</div>
-<div class="line"><a name="l02368"></a><span class="lineno"> 2368</span>&#160;    </div>
-<div class="line"><a name="l02369"></a><span class="lineno"> 2369</span>&#160;}</div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="ae9c4202fc3b45b391ed40411d8559726"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9c4202fc3b45b391ed40411d8559726">&#9670;&nbsp;</a></span>getListOfNonCSymmetryAxesIndicesLength()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">proshade_unsign ProSHADE_settings::getListOfNonCSymmetryAxesIndicesLength </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>This function computes the length of 1D array required to hold all the indices of all detected D, T, O and I symmetries. </p>
-<dl class="section warning"><dt>Warning</dt><dd>This function is required for proper passing of values to Python, but makes no sense for C++ access.</dd></dl>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">val</td><td>The length of 1D arrat capable of containing all the detected axes indices as well as their separators. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02292">2292</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02293"></a><span class="lineno"> 2293</span>&#160;{</div>
-<div class="line"><a name="l02294"></a><span class="lineno"> 2294</span>&#160;    <span class="comment">//================================================ Compute</span></div>
-<div class="line"><a name="l02295"></a><span class="lineno"> 2295</span>&#160;    proshade_unsign result                            = 0;</div>
-<div class="line"><a name="l02296"></a><span class="lineno"> 2296</span>&#160;    </div>
-<div class="line"><a name="l02297"></a><span class="lineno"> 2297</span>&#160;    <span class="comment">//================================================ Add dihedrals with separators</span></div>
-<div class="line"><a name="l02298"></a><span class="lineno"> 2298</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign dIt = 0; dIt &lt; static_cast&lt;proshade_unsign&gt; ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a618c04a2c1d7f0a506d0bb3d7a0da444">allDetectedDAxes</a>.size() ); dIt++ )</div>
-<div class="line"><a name="l02299"></a><span class="lineno"> 2299</span>&#160;    {</div>
-<div class="line"><a name="l02300"></a><span class="lineno"> 2300</span>&#160;        result                                       += <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a618c04a2c1d7f0a506d0bb3d7a0da444">allDetectedDAxes</a>.at(dIt).size() + 1 ); <span class="comment">// +1 for separator between different Ds</span></div>
-<div class="line"><a name="l02301"></a><span class="lineno"> 2301</span>&#160;    }</div>
-<div class="line"><a name="l02302"></a><span class="lineno"> 2302</span>&#160;    result++;                                         <span class="comment">// Separator between D and T</span></div>
-<div class="line"><a name="l02303"></a><span class="lineno"> 2303</span>&#160;    result                                           += <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#ae42ba1e294d1887c71b763f9bb5519cc">allDetectedTAxes</a>.size() ); <span class="comment">// Adding T&#39;s</span></div>
-<div class="line"><a name="l02304"></a><span class="lineno"> 2304</span>&#160;    result++;                                         <span class="comment">// Separator between T and O</span></div>
-<div class="line"><a name="l02305"></a><span class="lineno"> 2305</span>&#160;    result                                           += <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#a4d869a528d0af64bc3688a9a48514061">allDetectedOAxes</a>.size() ); <span class="comment">// Adding O&#39;s</span></div>
-<div class="line"><a name="l02306"></a><span class="lineno"> 2306</span>&#160;    result++;                                         <span class="comment">// Separator between O and I</span></div>
-<div class="line"><a name="l02307"></a><span class="lineno"> 2307</span>&#160;    result                                           += <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( this-&gt;<a class="code" href="class_pro_s_h_a_d_e__settings.html#aa4957b0a47193ef1042028dc22b350f6">allDetectedIAxes</a>.size() ); <span class="comment">// Adding I&#39;s</span></div>
-<div class="line"><a name="l02308"></a><span class="lineno"> 2308</span>&#160;    result++;                                         <span class="comment">// Final separator</span></div>
-<div class="line"><a name="l02309"></a><span class="lineno"> 2309</span>&#160;    </div>
-<div class="line"><a name="l02310"></a><span class="lineno"> 2310</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l02311"></a><span class="lineno"> 2311</span>&#160;    <span class="keywordflow">return</span>                                            ( result );</div>
-<div class="line"><a name="l02312"></a><span class="lineno"> 2312</span>&#160;    </div>
-<div class="line"><a name="l02313"></a><span class="lineno"> 2313</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3957,7 +3815,6 @@ std::vector&lt; proshade_unsign &gt;&#160;</td><td class="memItemRight" valign="
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a520b751f6c9f72ce8f0a557b4de04376"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a520b751f6c9f72ce8f0a557b4de04376">ProSHADE_settings::outName</a></div><div class="ttdeci">std::string outName</div><div class="ttdoc">The file name where the output structure(s) should be saved.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00152">ProSHADE_settings.hpp:152</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_aa70d5ace2805cced4c22976fdaf29c23"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#aa70d5ace2805cced4c22976fdaf29c23">ProSHADE_settings::setMapInversion</a></div><div class="ttdeci">void setMapInversion(bool mInv)</div><div class="ttdoc">Sets the requested map inversion value in the appropriate variable.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00405">ProSHADE.cpp:405</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_aa412b57c600caa1915c99bee1135d157"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#aa412b57c600caa1915c99bee1135d157">ProSHADE_settings::setPeakNeighboursNumber</a></div><div class="ttdeci">void setPeakNeighboursNumber(proshade_unsign pkS)</div><div class="ttdoc">Sets the number of neighbour values that have to be smaller for an index to be considered a peak.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00849">ProSHADE.cpp:849</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a618c04a2c1d7f0a506d0bb3d7a0da444"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a618c04a2c1d7f0a506d0bb3d7a0da444">ProSHADE_settings::allDetectedDAxes</a></div><div class="ttdeci">std::vector&lt; std::vector&lt; proshade_unsign &gt; &gt; allDetectedDAxes</div><div class="ttdoc">The vector of all detected dihedral symmetry axes indices in allDetectedCAxes.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00191">ProSHADE_settings.hpp:191</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a51c87d0b415c8eaa517dbb9b5496e7e9"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a51c87d0b415c8eaa517dbb9b5496e7e9">ProSHADE_settings::blurFactor</a></div><div class="ttdeci">proshade_single blurFactor</div><div class="ttdoc">This is the amount by which B-factors should be increased to create the blurred map for masking.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00126">ProSHADE_settings.hpp:126</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a7c941c912cd17ad86057b8d7a15b9a21"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a7c941c912cd17ad86057b8d7a15b9a21">ProSHADE_settings::maskMap</a></div><div class="ttdeci">bool maskMap</div><div class="ttdoc">Should the map be masked from noise?</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00128">ProSHADE_settings.hpp:128</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a6dc170d9826bad9ce4a2c31a033f7f6a"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a6dc170d9826bad9ce4a2c31a033f7f6a">ProSHADE_settings::requestedSymmetryFold</a></div><div class="ttdeci">proshade_unsign requestedSymmetryFold</div><div class="ttdoc">The fold of the requested symmetry (only applicable to C and D symmetry types).</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00175">ProSHADE_settings.hpp:175</a></div></div>
@@ -3980,10 +3837,8 @@ std::vector&lt; proshade_unsign &gt;&#160;</td><td class="memItemRight" valign="
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a9f2447c98c5d2f2aa0768f7599f8954f"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a9f2447c98c5d2f2aa0768f7599f8954f">ProSHADE_settings::useCorrelationMasking</a></div><div class="ttdeci">bool useCorrelationMasking</div><div class="ttdoc">Should the blurring masking (false) or the correlation masking (true) be used?</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00129">ProSHADE_settings.hpp:129</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a2019a6bae1b3e6f7d8805ae2734b769e"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a2019a6bae1b3e6f7d8805ae2734b769e">ProSHADE_settings::usePhase</a></div><div class="ttdeci">bool usePhase</div><div class="ttdoc">If true, the full data will be used, if false, Patterson maps will be used instead and phased data wi...</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00110">ProSHADE_settings.hpp:110</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a659b07410168e301b61a64f79fc8f990"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a659b07410168e301b61a64f79fc8f990">ProSHADE_settings::setMaskBlurFactor</a></div><div class="ttdeci">void setMaskBlurFactor(proshade_single blurFac)</div><div class="ttdoc">Sets the requested map blurring factor in the appropriate variable.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00437">ProSHADE.cpp:437</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_ae42ba1e294d1887c71b763f9bb5519cc"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#ae42ba1e294d1887c71b763f9bb5519cc">ProSHADE_settings::allDetectedTAxes</a></div><div class="ttdeci">std::vector&lt; proshade_unsign &gt; allDetectedTAxes</div><div class="ttdoc">The vector of all detected tetrahedral symmetry axes indices in allDetectedCAxes.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00192">ProSHADE_settings.hpp:192</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a7666952b5e417490ba20b52a8e9a8c9d"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a7666952b5e417490ba20b52a8e9a8c9d">ProSHADE_settings::setPhaseUsage</a></div><div class="ttdeci">void setPhaseUsage(bool phaseUsage)</div><div class="ttdoc">Sets whether the phase information will be used.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00885">ProSHADE.cpp:885</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_affb17d9099f0b85b3af04a78d5c670f4"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#affb17d9099f0b85b3af04a78d5c670f4">ProSHADE_settings::maskFileName</a></div><div class="ttdeci">std::string maskFileName</div><div class="ttdoc">The filename to which mask should be saved.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00133">ProSHADE_settings.hpp:133</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a4d869a528d0af64bc3688a9a48514061"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a4d869a528d0af64bc3688a9a48514061">ProSHADE_settings::allDetectedOAxes</a></div><div class="ttdeci">std::vector&lt; proshade_unsign &gt; allDetectedOAxes</div><div class="ttdoc">The vector of all detected octahedral symmetry axes indices in allDetectedCAxes.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00193">ProSHADE_settings.hpp:193</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a89094c73ae033812d4df0bd846e03442"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a89094c73ae033812d4df0bd846e03442">ProSHADE_settings::verbose</a></div><div class="ttdeci">proshade_signed verbose</div><div class="ttdoc">Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00185">ProSHADE_settings.hpp:185</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a09da7265a83b7f5b6bef614f95a471d6"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a09da7265a83b7f5b6bef614f95a471d6">ProSHADE_settings::setBandwidth</a></div><div class="ttdeci">void setBandwidth(proshade_unsign band)</div><div class="ttdoc">Sets the requested spherical harmonics bandwidth in the appropriate variable.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00732">ProSHADE.cpp:732</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a173a6e8c54ff7d6ed0558d3d34523de3"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a173a6e8c54ff7d6ed0558d3d34523de3">ProSHADE_settings::setBoundsSpace</a></div><div class="ttdeci">void setBoundsSpace(proshade_single boundsExSp)</div><div class="ttdoc">Sets the requested number of angstroms for extra space in re-boxing in the appropriate variable.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00586">ProSHADE.cpp:586</a></div></div>
@@ -4028,7 +3883,6 @@ std::vector&lt; proshade_unsign &gt;&#160;</td><td class="memItemRight" valign="
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__spheres_html_a9592e9df40cf87ee1d1c43d6b3508e1c"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__spheres.html#a9592e9df40cf87ee1d1c43d6b3508e1c">ProSHADE_internal_spheres::autoDetermineBandwidth</a></div><div class="ttdeci">proshade_unsign autoDetermineBandwidth(proshade_unsign circumference)</div><div class="ttdoc">This function determines the bandwidth for the spherical harmonics computation.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__spheres_8cpp_source.html#l00518">ProSHADE_spheres.cpp:518</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a7e79193dd146f977d511d755b9189411"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a7e79193dd146f977d511d755b9189411">ProSHADE_settings::setRequestedSymmetry</a></div><div class="ttdeci">void setRequestedSymmetry(std::string val)</div><div class="ttdoc">Sets the user requested symmetry type.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l01044">ProSHADE.cpp:1044</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a4f6ef17085b2eb8181c66bd85648e513"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a4f6ef17085b2eb8181c66bd85648e513">ProSHADE_settings::setExtraSpace</a></div><div class="ttdeci">void setExtraSpace(proshade_single exSpace)</div><div class="ttdoc">Sets the requested map extra space value in the appropriate variable.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l00700">ProSHADE.cpp:700</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_aa4957b0a47193ef1042028dc22b350f6"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#aa4957b0a47193ef1042028dc22b350f6">ProSHADE_settings::allDetectedIAxes</a></div><div class="ttdeci">std::vector&lt; proshade_unsign &gt; allDetectedIAxes</div><div class="ttdoc">The vector of all detected icosahedral symmetry axes indices in allDetectedCAxes.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00194">ProSHADE_settings.hpp:194</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_aa3e24ef5a66fa7204a2ba9c27f2f12b9"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#aa3e24ef5a66fa7204a2ba9c27f2f12b9">ProSHADE_settings::forceBounds</a></div><div class="ttdeci">proshade_signed * forceBounds</div><div class="ttdoc">These will be the boundaries to be forced upon the map.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00140">ProSHADE_settings.hpp:140</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_a42b012ec753ebd1d87a0b6f557e97d1a"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#a42b012ec753ebd1d87a0b6f557e97d1a">ProSHADE_settings::detectedSymmetry</a></div><div class="ttdeci">std::vector&lt; proshade_double * &gt; detectedSymmetry</div><div class="ttdoc">The vector of detected symmetry axes.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00189">ProSHADE_settings.hpp:189</a></div></div>
 <div class="ttc" id="aclass_pro_s_h_a_d_e__settings_html_ac8e62cc8dbd40265e51143c8207b6638"><div class="ttname"><a href="class_pro_s_h_a_d_e__settings.html#ac8e62cc8dbd40265e51143c8207b6638">ProSHADE_settings::recommendedSymmetryFold</a></div><div class="ttdeci">proshade_unsign recommendedSymmetryFold</div><div class="ttdoc">The fold of the recommended symmetry C or D type, 0 otherwise.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__settings_8hpp_source.html#l00173">ProSHADE_settings.hpp:173</a></div></div>

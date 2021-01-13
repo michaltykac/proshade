@@ -188,8 +188,8 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( pybind11::init < ProSHADE_settings* > ( ) )
     
         //============================================ General accessors
-        .def                                          ( "getNoStructures", &ProSHADE_run::getNoStructures, "This function returns the number of structures used. This is useful for the SWIG python Numpy outputs." )
-        .def                                          ( "getVerbose", &ProSHADE_run::getVerbose, "This function returns the verbose value. This is useful for the SWIG python Numpy outputs." )
+        .def                                          ( "getNoStructures", &ProSHADE_run::getNoStructures, "This function returns the number of structures used." )
+        .def                                          ( "getVerbose", &ProSHADE_run::getVerbose, "This function returns the verbose value." )
     
         //============================================ Distances results accessor functions wrapped as lambda functions for numpy return types
         .def                                          ( "getEnergyLevelsVector",

@@ -94,9 +94,9 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ######################################################
 ### Expected output
 #   Detected D-12 symetry.
-#   Fold               x         y         z       Angle      Height
-#     12.0        +0.000      -0.000    +1.000    t+0.524    +0.9663
-#     2.0         +0.063      +0.998    +0.031    t+3.142    +0.4012
+#   Fold             x         y         z         Angle      Height
+#      12.0        +0.000      -0.000    +1.000    +0.524    +0.9663
+#       2.0        +0.063      +0.998    +0.031    +3.142    +0.4012
 
 ######################################################
 ### Get list of all cyclic axes detected
@@ -167,6 +167,7 @@ for dIt in range ( 0, len ( allNonCAxesIndices['D'] ) ):
     if (firstMatch and secondMatch) and (len(bestDCombination)==0):
         bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][0] )
         bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][1] )
+
         
 ######################################################
 ### Get the group elements for the best dihedral group
@@ -182,11 +183,11 @@ print                                                 ( "  %+1.3f    %+1.3f    %
 
 ######################################################
 ### Expected output
-#   Found a total of 24 group [2, 5] elements.
+#   Found a total of 24 group [2, 26] elements.
 #   The first non-identity element is:
-#     +0.866    -0.500    +0.001 
-#     +0.500    +0.866    +0.003 
-#     -0.002    -0.002    +1.000 
+#     +0.866    -0.500    +0.000
+#     +0.500    +0.866    -0.000
+#     +0.000    +0.000    +1.000 
 
 ######################################################
 ### Release C++ pointers

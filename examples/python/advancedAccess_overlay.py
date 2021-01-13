@@ -44,7 +44,7 @@ pSet                                                  = proshade.ProSHADE_settin
 ### Set basic settings values 
 pSet.task                                             = proshade.OverlayMap
 pSet.verbose                                          = 4
-pSet.requestedResolution                              = 4.0
+pSet.requestedResolution                              = 2.0
 pSet.usePhase                                         = False
 pSet.changeMapResolution                              = True
 pSet.maskMap                                          = False
@@ -157,12 +157,12 @@ print                                                 ( "Rot. centre to overlay 
 
 ######################################################
 ### Expected output
-#   Optimal Euler angles                :  +5.433    +0.753    +3.927
-#   Optimal Euler rotation matrix       :  -0.872    -0.078    +0.483
-#                                       :  -0.191    -0.854    -0.483
-#                                       :  +0.451    -0.514    +0.730
-#   Rot. centre to origin translation   :  +16.000    +20.000    +24.000
-#   Rot. centre to overlay translation  :  +8.000    +8.000    -6.000
+#   Optimal Euler angles                :  +5.465    +0.753    +3.894
+#   Optimal Euler rotation matrix       :  -0.863    -0.079    +0.499
+#                                       :  -0.192    -0.863    -0.467
+#                                       :  +0.467    -0.499    +0.730
+#   Rot. centre to origin translation   :  +18.000    +22.000    +24.000
+#   Rot. centre to overlay translation  :  +4.000    +4.000    -5.000
 
 
 ######################################################

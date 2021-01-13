@@ -161,19 +161,13 @@ namespace ProSHADE_internal_data
         void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
                                                         proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, bool firstModel = true );
         void writeMask                                ( std::string fName, proshade_double* mask );
-        int getMapArraySizePython                     ( void ); // SWIG only
-        void getMapPython                             ( double *mapArrayPython, int len );       // SWIG only
-        void setMapPython                             ( double *mapChangedInPython, int len );   // SWIG only
-        void setNewMapPython                          ( double *mapChangedInPython, int len );   // SWIG only
         
         //============================================ Data processing functions
         void invertMirrorMap                          ( ProSHADE_settings* settings );
         void normaliseMap                             ( ProSHADE_settings* settings );
         void maskMap                                  ( ProSHADE_settings* settings );
         void getReBoxBoundaries                       ( ProSHADE_settings* settings, proshade_signed*& ret );
-        void getReBoxBoundariesPy                     ( ProSHADE_settings* settings, int* reBoxBounds, int len ); // SWIG only
         void createNewMapFromBounds                   ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds );
-        void createNewMapFromBoundsPy                 ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len ); // SWIG only
         void reSampleMap                              ( ProSHADE_settings* settings );
         void centreMapOnCOM                           ( ProSHADE_settings* settings );
         void addExtraSpace                            ( ProSHADE_settings* settings );
@@ -184,10 +178,6 @@ namespace ProSHADE_internal_data
         void getSpherePositions                       ( ProSHADE_settings* settings );
         void mapToSpheres                             ( ProSHADE_settings* settings );
         void computeSphericalHarmonics                ( ProSHADE_settings* settings );
-        void getRealSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len ); // SWIG only???
-        void getImagSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len ); // SWIG only???
-        int sphericalHarmonicsIndex                   ( proshade_signed order, proshade_signed band, proshade_signed shell ); // SWIG only???
-        int getSphericalHarmonicsLenForShell          ( proshade_unsign shellNo, proshade_signed verbose ); // SWIG only???
         
         //============================================ Distances pre-computation functions
         bool shellBandExists                          ( proshade_unsign shell, proshade_unsign bandVal );
@@ -226,7 +216,6 @@ namespace ProSHADE_internal_data
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
-        proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings ); // SWIG?
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
         proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
         proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );
@@ -241,10 +230,6 @@ namespace ProSHADE_internal_data
         std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector<std::vector< proshade_double > >* allCSyms, proshade_unsign grPosition );
         std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector< proshade_double* >* allCSyms, proshade_unsign grPosition );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
-        proshade_unsign getAllGroupElementsLength     ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType );
-        void getAllGroupElementsPython                ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 );
-        proshade_unsign getCGroupElementsLength       ( ProSHADE_settings* settings, proshade_unsign grPosition );
-        void getCGroupElementsPython                  ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
         //============================================ Map overlay functions

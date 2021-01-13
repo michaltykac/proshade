@@ -262,6 +262,10 @@ int main ( int argc, char **argv )
     //================================================ Get point group elements for the best D point group
     std::vector<std::vector< proshade_double > > groupElements = simpleSym->getAllGroupElements ( settings, bestDAxesList, "D" );
     std::cout << "Found a total of " << groupElements.size() << " group elements." << std::endl;
+  
+    //================================================ Expected output
+//  Found a total of 8 group elements.
+    
     //================================================ Print results
     std::cout << "Point group D" << allCs.at(bestDAxesList.at(0))[0] << "-" << allCs.at(bestDAxesList.at(1))[0] << " has been found to have " << groupElements.size() << " group elements, with the first element (excluding the identity one) having rotation matrix:" << std::fixed << std::setprecision(2) << std::showpos << std::endl;
     std::cout << groupElements.at(1).at(0) << " | " << groupElements.at(1).at(1) << " | " << groupElements.at(1).at(2) << std::endl;

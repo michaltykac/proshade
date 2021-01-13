@@ -192,8 +192,6 @@ public:
     std::vector < proshade_unsign > allDetectedTAxes; //!< The vector of all detected tetrahedral symmetry axes indices in allDetectedCAxes.
     std::vector < proshade_unsign > allDetectedOAxes; //!< The vector of all detected octahedral symmetry axes indices in allDetectedCAxes.
     std::vector < proshade_unsign > allDetectedIAxes; //!< The vector of all detected icosahedral symmetry axes indices in allDetectedCAxes.
-    proshade_unsign getListOfNonCSymmetryAxesIndicesLength (  );
-    void getListOfNonCSymmetryAxesIndices             ( double* allOtherDetectedSymsIndices, int len );
     
 public: // maybe make this protected?
     //================================================ Variable modifying functions

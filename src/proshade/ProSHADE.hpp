@@ -79,22 +79,13 @@ public:
     ProSHADE_run                                      ( ProSHADE_settings* settings );
    ~ProSHADE_run                                      ( void );
     
-public: // THESE FUNCTIONS ARE BASICALLY ONLY USED BY SWIG
+public:
     //================================================ General accessor functions
     proshade_unsign getNoStructures                   ( void );
     proshade_signed getVerbose                        ( void );
-    
-    //================================================ Distances accessor functions
-    proshade_double getEnergyLevelsVectorValue        ( proshade_unsign pos = 0 );
-    proshade_unsign getEnergyLevelsLength             ( void );
-    proshade_double getTraceSigmaVectorValue          ( proshade_unsign pos = 0 );
-    proshade_unsign getTraceSigmaLength               ( void );
-    proshade_double getRotationFunctionVectorValue    ( proshade_unsign pos = 0 );
-    proshade_unsign getRotationFunctionLength         ( void );
-    
+
     //================================================ Symmetry accessor functions
     proshade_unsign getNoRecommendedSymmetryAxes      ( void );
-    proshade_unsign getAllSymsOneArrayLength          ( void );
     proshade_unsign getNoSymmetryAxes                 ( void );
     
 public:
@@ -122,20 +113,6 @@ public:
 };
 
 //==================================================== These functions should be in ProSHADE_run class, but I cannot make them work with Numpy from there, so they are here.
-void getEnergyLevelsVectorNumpy                       ( ProSHADE_run* run, int verbose, double *enLevVec, int len );
-void getTraceSigmaVectorNumpy                         ( ProSHADE_run* run, int verbose, double *trSigVec, int len );
-void getRotationFunctionVectorNumpy                   ( ProSHADE_run* run, int verbose, double *rotFnVec, int len );
-                  
-void getOriginalBoundsVectorNumpy                     ( ProSHADE_run* run, proshade_unsign strNo, int *boundsVec,   int len );
-void getReBoxedBoundsVectorNumpy                      ( ProSHADE_run* run, proshade_unsign strNo, int *reboxVec,    int len );
 void getReBoxedMap                                    ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
-                  
-void getOptimalEulerAngles                            ( ProSHADE_run* run, double *eulerAngs, int len );
-void getToOriginTranslation                           ( ProSHADE_run* run, double *toOriginTranslation, int len );
-void getToMapCentreTranslation                        ( ProSHADE_run* run, double *toMapCentreTranslation, int len );
-void getOriginToOverlayTranslation                    ( ProSHADE_run* run, double *originToOverlayTranslation, int len );
-
-void getAllCSymmetriesOneArray                        ( ProSHADE_run* run, double *allCSymsArray, int len );
-void getAllCSymmetriesOneArrayAdvanced                ( ProSHADE_settings* settings, double *allCSymsArray, int len );
 
 #endif
