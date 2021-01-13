@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -329,12 +329,9 @@ ProSHADE_internal_io::InputType ProSHADE_internal_io::figureDataType ( std::stri
     \param[in] trsX2 The optimal translation along the x-axis + reverse of the trsX1.
     \param[in] trsY2 The optimal translation along the y-axis + reverse of the trsY1.
     \param[in] trsZ2 The optimal translation along the z-axis + reverse of the trsZ1.
-    \param[in] xMapCen The translation required to move density in map to be placed correctly relating to the map centre of rotation along the x-axis.
-    \param[in] yMapCen The translation required to move density in map to be placed correctly relating to the map centre of rotation along the y-axis.
-    \param[in] zMapCen The translation required to move density in map to be placed correctly relating to the map centre of rotation along the z-axis.
     \param[in] fileName The file name of the file for which the information should be written into.
  */
-void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, proshade_double xMapCen, proshade_double yMapCen, proshade_double zMapCen, std::string fileName )
+void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1, proshade_double trsY1, proshade_double trsZ1, proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX2, proshade_double trsY2, proshade_double trsZ2, std::string fileName )
 {
     //================================================ Open file for writing
     std::ofstream jsonFile;
@@ -353,15 +350,13 @@ void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1,
     
     //================================================ Write the info
     jsonFile << "{\n";
-    jsonFile << "   \"translationToOrigin\" : [ " << trsX1 << ", " << trsY1 << ", " << trsZ1 << " ], \n";
+    jsonFile << "   \"translationToOrigin\" :           [ " << trsX1 << ", " << trsY1 << ", " << trsZ1 << " ], \n";
     
-    jsonFile << "   \"translationToMapCentre\" : [ " << xMapCen << ", " << yMapCen << ", " << zMapCen << " ], \n";
-    
-    jsonFile << "   \"rotationMatrix:\" : [ " << rotMat[0] << ", " << rotMat[1] << ", " << rotMat[2] << ", \n";
-    jsonFile << "                         " << rotMat[3] << ", " << rotMat[4] << ", " << rotMat[5] << ", \n";
-    jsonFile << "                         " << rotMat[6] << ", " << rotMat[7] << ", " << rotMat[8] << "], \n";
+    jsonFile << "   \"rotationMatrix:\" :               [ " << rotMat[0] << ", " << rotMat[1] << ", " << rotMat[2] << ", \n";
+    jsonFile << "                                         " << rotMat[3] << ", " << rotMat[4] << ", " << rotMat[5] << ", \n";
+    jsonFile << "                                         " << rotMat[6] << ", " << rotMat[7] << ", " << rotMat[8] << "], \n";
 
-    jsonFile << "   \"translationFromOriginToOverlay\" : [ " << trsX2 << ", " << trsY2 << ", " << trsZ2 << " ] \n";
+    jsonFile << "   \"translationFromRotCenToOverlay\" : [ " << trsX2 << ", " << trsY2 << ", " << trsZ2 << " ] \n";
     jsonFile << "}\n";
     
     //================================================ Close file

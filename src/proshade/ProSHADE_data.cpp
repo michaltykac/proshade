@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -65,9 +65,6 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->xAxisOrigin                                 = 0;
     this->yAxisOrigin                                 = 0;
     this->zAxisOrigin                                 = 0;
-    this->comMovX                                     = 0.0;
-    this->comMovY                                     = 0.0;
-    this->comMovZ                                     = 0.0;
     this->xCom                                        = 0.0;
     this->yCom                                        = 0.0;
     this->zCom                                        = 0.0;
@@ -85,9 +82,12 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->originalMapXCom                             = 0.0;
     this->originalMapYCom                             = 0.0;
     this->originalMapZCom                             = 0.0;
-    this->mapPostRotXCom                              = 0.0;
-    this->mapPostRotYCom                              = 0.0;
-    this->mapPostRotZCom                              = 0.0;
+    this->mapMovFromsChangeX                          = 0.0;
+    this->mapMovFromsChangeY                          = 0.0;
+    this->mapMovFromsChangeZ                          = 0.0;
+    this->mapCOMProcessChangeX                        = 0.0;
+    this->mapCOMProcessChangeY                        = 0.0;
+    this->mapCOMProcessChangeZ                        = 0.0;
     
     // ... Variables regarding rotation and translation of original input files
     this->originalPdbRotCenX                          = 0.0;
@@ -186,9 +186,6 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->xAxisOrigin                                 = xFr;
     this->yAxisOrigin                                 = yFr;
     this->zAxisOrigin                                 = zFr;
-    this->comMovX                                     = 0.0;
-    this->comMovY                                     = 0.0;
-    this->comMovZ                                     = 0.0;
     this->xCom                                        = 0.0;
     this->yCom                                        = 0.0;
     this->zCom                                        = 0.0;
@@ -206,9 +203,12 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     this->originalMapXCom                             = 0.0;
     this->originalMapYCom                             = 0.0;
     this->originalMapZCom                             = 0.0;
-    this->mapPostRotXCom                              = 0.0;
-    this->mapPostRotYCom                              = 0.0;
-    this->mapPostRotZCom                              = 0.0;
+    this->mapMovFromsChangeX                          = 0.0;
+    this->mapMovFromsChangeY                          = 0.0;
+    this->mapMovFromsChangeZ                          = 0.0;
+    this->mapCOMProcessChangeX                        = 0.0;
+    this->mapCOMProcessChangeY                        = 0.0;
+    this->mapCOMProcessChangeZ                        = 0.0;
     
     // ... Variables regarding rotation and translation of original input files
     this->originalPdbRotCenX                          = 0.0;
@@ -278,6 +278,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
             }
         }
     }
+    
+    //================================================ Release memory (it was allocated by the PyBind11 lambda function and needs to be released)
+    delete[] mapVals;
     
     //================================================ Done
     
@@ -534,6 +537,27 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
         this->reSampleMap                             ( settings );
     }
     
+    //================================================ Save the original sizes
+    this->xDimSizeOriginal                            = this->xDimSize;
+    this->yDimSizeOriginal                            = this->yDimSize;
+    this->zDimSizeOriginal                            = this->zDimSize;
+    
+    //================================================ Save the original index counts
+    this->xDimIndicesOriginal                         = this->xDimIndices;
+    this->yDimIndicesOriginal                         = this->yDimIndices;
+    this->zDimIndicesOriginal                         = this->zDimIndices;
+    
+    //================================================ Save the original axis origins
+    this->xAxisOriginOriginal                         = this->xAxisOrigin;
+    this->yAxisOriginOriginal                         = this->yAxisOrigin;
+    this->zAxisOriginOriginal                         = this->zAxisOrigin;
+    
+    //================================================ Compute and save the COM
+    this->findMapCOM                                  ( );
+    this->originalMapXCom                             = this->xCom;
+    this->originalMapYCom                             = this->yCom;
+    this->originalMapZCom                             = this->zCom;
+    
     //================================================ Done
     
 }
@@ -620,6 +644,27 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     {
         this->reSampleMap                             ( settings );
     }
+    
+    //================================================ Save the original sizes
+    this->xDimSizeOriginal                            = this->xDimSize;
+    this->yDimSizeOriginal                            = this->yDimSize;
+    this->zDimSizeOriginal                            = this->zDimSize;
+    
+    //================================================ Save the original index counts
+    this->xDimIndicesOriginal                         = this->xDimIndices;
+    this->yDimIndicesOriginal                         = this->yDimIndices;
+    this->zDimIndicesOriginal                         = this->zDimIndices;
+    
+    //================================================ Save the original axis origins
+    this->xAxisOriginOriginal                         = this->xAxisOrigin;
+    this->yAxisOriginOriginal                         = this->yAxisOrigin;
+    this->zAxisOriginOriginal                         = this->zAxisOrigin;
+    
+    //================================================ Compute and save the COM
+    this->findMapCOM                                  ( );
+    this->originalMapXCom                             = this->xCom;
+    this->originalMapYCom                             = this->yCom;
+    this->originalMapZCom                             = this->zCom;
     
     //================================================ Done
     return;
@@ -743,21 +788,22 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     
 }
 
-/*! \brief This function writes out the PDB formatted file coresponding to the structure.
+/*! \brief This function writes out the PDB formatted file coresponding to the structure so that its COM is at specific position.
 
     This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
-    it will proceed to
+    it will proceed to read in the original co-ordinates, rotate and translate them according to the arguments and then write the resulting co-ordinates
+    into a new file.
 
     \param[in] fName The filename (including path) to where the output PDB file should be saved.
     \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
     \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
     \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
-    \param[in] transX The translation to be done along the X-axis in Angstroms.
-    \param[in] transY The translation to be done along the Y-axis in Angstroms.
-    \param[in] transZ The translation to be done along the Z-axis in Angstroms.
+    \param[in] trsX The translation to be done along X-axis in Angstroms.
+    \param[in] trsY The translation to be done along Y-axis in Angstroms.
+    \param[in] trsZ The translation to be done along Z-axis in Angstroms.
     \param[in] firstModel Should only the first model, or rather all of them be used?
 */
-void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double transX, proshade_double transY, proshade_double transZ, bool firstModel )
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, bool firstModel )
 {
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
@@ -770,55 +816,18 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
-    {
-        //============================================ Save original PDB COM position
-        proshade_double xCOMOriginal = 0.0, yCOMOriginal = 0.0, zCOMOriginal = 0.0;
-        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMOriginal, &yCOMOriginal, &zCOMOriginal, firstModel );
-        
-        //============================================ Compute the rotation centre for the co-ordinates
-        proshade_double xRotPos                       = ( ( static_cast<proshade_double> ( this->xDimIndicesOriginal / 2 ) - this->xAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->xDimIndicesOriginal - 1 ) / this->xDimSizeOriginal ) ) -
-                                                          (this->originalMapXCom - xCOMOriginal);
-        proshade_double yRotPos                       = ( ( static_cast<proshade_double> ( this->yDimIndicesOriginal / 2 ) - this->yAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->yDimIndicesOriginal - 1 ) / this->yDimSizeOriginal ) ) -
-                                                          (this->originalMapYCom - yCOMOriginal);
-        proshade_double zRotPos                       = ( ( static_cast<proshade_double> ( this->zDimIndicesOriginal / 2 ) - this->zAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->zDimIndicesOriginal - 1 ) / this->zDimSizeOriginal ) ) -
-                                                          (this->originalMapZCom - zCOMOriginal);
-        
-        //============================================ Save the values
-        this->originalPdbRotCenX                      = xRotPos;
-        this->originalPdbRotCenY                      = yRotPos;
-        this->originalPdbRotCenZ                      = zRotPos;
-        
+    {        
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, xRotPos, yRotPos, zRotPos, firstModel );
-
-        //============================================ Compute the after rotation PDB COM position
-        proshade_double xCOMRotated = 0.0, yCOMRotated = 0.0, zCOMRotated = 0.0;
-        ProSHADE_internal_mapManip::findPDBCOMValues  ( pdbFile, &xCOMRotated, &yCOMRotated, &zCOMRotated, firstModel );
-
-        //============================================ Compute the after rotation position correction
-        proshade_double xPDBTrans                     = ( xCOMRotated - xCOMOriginal ) + ( this->mapPostRotXCom - this->originalMapXCom );
-        proshade_double yPDBTrans                     = ( yCOMRotated - yCOMOriginal ) + ( this->mapPostRotYCom - this->originalMapYCom );
-        proshade_double zPDBTrans                     = ( zCOMRotated - zCOMOriginal ) + ( this->mapPostRotZCom - this->originalMapZCom );
-
-        //============================================ Correct the co-ordinate position after rotation
-        ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, xPDBTrans, yPDBTrans, zPDBTrans, firstModel );
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, this->originalPdbRotCenX, this->originalPdbRotCenY, this->originalPdbRotCenZ, firstModel );
     }
 
-    //================================================ Save the values
-    this->originalPdbTransX                           = this->comMovX + transX + this->originalPdbRotCenX;
-    this->originalPdbTransY                           = this->comMovY + transY + this->originalPdbRotCenY;
-    this->originalPdbTransZ                           = this->comMovZ + transZ + this->originalPdbRotCenZ;
-    
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, this->comMovX + transX, this->comMovY + transY, this->comMovZ + transZ, firstModel );
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, trsX, trsY, trsZ, firstModel );
 
     //================================================ Write the PDB file
     std::ofstream outCoOrdFile;
     outCoOrdFile.open                                 ( fName.c_str() );
-    
+
     if ( outCoOrdFile.is_open() )
     {
         gemmi::PdbWriteOptions opt;
@@ -830,7 +839,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
         hlpMessage << "Failed to open the PDB file " << fName << " for output.";
         throw ProSHADE_exception ( hlpMessage.str().c_str(), "EP00048", __FILE__, __LINE__, __func__, "ProSHADE has failed to open the PDB output file. This is\n                    : likely caused by either not having the write privileges\n                    : to the required output path, or by making a mistake in\n                    : the path." );
     }
-    
+
     outCoOrdFile.close                                ( );
     
     //================================================ Done
@@ -928,7 +937,7 @@ void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings*
     
 }
 
-/*! \brief Function for normalising the map to mean 0 and sd 1..
+/*! \brief Function for normalising the map values to mean 0 and sd 1..
  
     This function takes the map and changes its value to have mean 0 and standard deviation of 1. This should make
     wo maps with very different density levels more comparable, but it remains to be seen if this causes any trouble.
@@ -1067,76 +1076,6 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
     
 }
 
-/*! \brief This function finds the boundaries enclosing positive map values and adds some extra space, returning values in Python friendly format.
- 
-    This function firstly finds the boundaries which enclose the positive map values and then it proceeds to add a
-    given amount of space to all dimensions (positive and negative) to make sure the map does not end exactly at the
-    bounds. It returns the new boundaries in the ret variable if they are smaller than the original bounds, or just
-    the original bounds in case decrease was not achieved. The return format is Python friendly, otherwise it is the same
-    function as the getReBoxBoundaries() function.
- 
-    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
-    \param[in] ret A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
-    \param[in] len The length of the ret array - must always be 6, but Swig/Numpy requires this number to be passed.
- */
-void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundariesPy ( ProSHADE_settings* settings, int* reBoxBounds, int len )
-{
-    //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Finding new boundaries." );
-    
-    //================================================ Initialise internal variables
-    proshade_signed* ret                              = NULL;
-    ret                                               = new proshade_signed[6];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
-    
-    //================================================ If same bounds as first one are required, test if possible and return these instead
-    if ( settings->useSameBounds && ( this->inputOrder != 0 ) )
-    {
-        for ( proshade_unsign iter = 0; iter < 6; iter++ ) { ret[iter] = settings->forceBounds[iter]; }
-    }
-    //================================================ In this case, bounds need to be found de novo
-    else
-    {
-        //============================================ Find the non-zero bounds
-        ProSHADE_internal_mapManip::getNonZeroBounds ( this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, ret );
-        
-        //============================================ Add the extra space
-        ProSHADE_internal_mapManip::addExtraBoundSpace ( this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, ret, settings->boundsExtraSpace );
-        
-        //============================================ Beautify boundaries
-        ProSHADE_internal_mapManip::beautifyBoundaries ( ret, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->boundsSimilarityThreshold, settings->verbose );
-        
-        //============================================ Report function results
-        std::stringstream ssHlp;
-        ssHlp << "New boundaries are: " << ret[1] - ret[0] + 1 << " x " << ret[3] - ret[2] + 1 << " x " << ret[5] - ret[4] + 1;
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, ssHlp.str() );
-        
-        //============================================ If need be, save boundaries to be used for all other structure
-        if ( settings->useSameBounds && ( this->inputOrder == 0 ) )
-        {
-            for ( proshade_unsign iter = 0; iter < 6; iter++ ) { settings->forceBounds[iter] = ret[iter]; }
-        }
-    }
-    
-    //================================================ Copy internal to output array
-    reBoxBounds[0]                                    = static_cast<int> ( ret[0] );
-    reBoxBounds[1]                                    = static_cast<int> ( ret[1] );
-    reBoxBounds[2]                                    = static_cast<int> ( ret[2] );
-    reBoxBounds[3]                                    = static_cast<int> ( ret[3] );
-    reBoxBounds[4]                                    = static_cast<int> ( ret[4] );
-    reBoxBounds[5]                                    = static_cast<int> ( ret[5] );
-    
-    //================================================ Release memory
-    delete[] ret;
-    
-    //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New boundaries determined." );
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief This function creates a new structure from the calling structure and new bounds values.
  
     This function takes a pointer to uninitialised structure and fills it with the calling structure values adjusted for
@@ -1149,78 +1088,6 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundariesPy ( ProSHADE_sett
     \param[in] newBounds A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
  */
 void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds )
-{
-    //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
-    
-    //================================================ Fill in basic info
-    newStr->fileName                                  = "N/A";
-    newStr->fileType                                  = ProSHADE_internal_io::MAP;
-    
-    //================================================ Fill in new structure values
-    newStr->xDimIndices                               = static_cast<proshade_signed> ( newBounds[1] ) - static_cast<proshade_signed> ( newBounds[0] ) + 1;
-    newStr->yDimIndices                               = static_cast<proshade_signed> ( newBounds[3] ) - static_cast<proshade_signed> ( newBounds[2] ) + 1;
-    newStr->zDimIndices                               = static_cast<proshade_signed> ( newBounds[5] ) - static_cast<proshade_signed> ( newBounds[4] ) + 1;
-            
-    newStr->aAngle                                    = this->aAngle;
-    newStr->bAngle                                    = this->aAngle;
-    newStr->cAngle                                    = this->aAngle;
-            
-    newStr->xDimSize                                  = static_cast<proshade_single> ( newStr->xDimIndices ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) );
-    newStr->yDimSize                                  = static_cast<proshade_single> ( newStr->yDimIndices ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) );
-    newStr->zDimSize                                  = static_cast<proshade_single> ( newStr->zDimIndices ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) );
-            
-    newStr->xGridIndices                              = newStr->xDimIndices;
-    newStr->yGridIndices                              = newStr->yDimIndices;
-    newStr->zGridIndices                              = newStr->zDimIndices;
-            
-    newStr->xAxisOrder                                = this->xAxisOrder;
-    newStr->yAxisOrder                                = this->yAxisOrder;
-    newStr->zAxisOrder                                = this->zAxisOrder;
-            
-    newStr->xAxisOrigin                               = this->xAxisOrigin + newBounds[0];
-    newStr->yAxisOrigin                               = this->yAxisOrigin + newBounds[2];
-    newStr->zAxisOrigin                               = this->zAxisOrigin + newBounds[4];
-            
-    newStr->xFrom                                     = this->xFrom + newBounds[0];
-    newStr->yFrom                                     = this->yFrom + newBounds[2];
-    newStr->zFrom                                     = this->zFrom + newBounds[4];
-            
-    newStr->xTo                                       = this->xTo - ( (this->xDimIndices-1) - newBounds[1] );
-    newStr->yTo                                       = this->yTo - ( (this->yDimIndices-1) - newBounds[3] );
-    newStr->zTo                                       = this->zTo - ( (this->zDimIndices-1) - newBounds[5] );
-    
-    //================================================ Allocate new structure map
-    newStr->internalMap                               = new proshade_double[newStr->xDimIndices * newStr->yDimIndices * newStr->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( newStr->internalMap, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Copy the map
-    ProSHADE_internal_mapManip::copyMapByBounds       ( newStr->xFrom, newStr->xTo, newStr->yFrom, newStr->yTo, newStr->zFrom, newStr->zTo,
-                                                        this->xFrom, this->yFrom, this->zFrom, newStr->yDimIndices, newStr->zDimIndices,
-                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices, newStr->internalMap, this->internalMap );
-    
-    //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New structure created." );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function creates a new structure from the calling structure and new bounds values in Python friendly format.
- 
-    This function takes a pointer to uninitialised structure and fills it with the calling structure values adjusted for
-    the new bounds. If the bounds are the same, the two structures should be identical except the file (the new structure
-    does not have an input file associated) and the type (no type for the new structure). It can deal with both larger and
-    smaller bounds than the original values. This version of the function is identical to the createNewMapFromBounds()
-    function, but it takes the input boundaries in Python friendly fassion.
- 
-    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
-    \param[in] newStr A pointer reference to a new structure class which has all the same values except for the new bounds and adequately changed map.
-    \param[in] newBounds A pointer to proshade_signed array of 6 storing the results - (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
-    \param[in] len The length of the newBounds array - this must always be 6, but Swig/Numpy requires this number to be passed.
- */
-void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBoundsPy ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len )
 {
     //================================================ Report function start
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
@@ -1400,11 +1267,6 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
     proshade_single yDist                             = ( static_cast<proshade_single> ( this->yDimIndices / 2.0 ) - yCOM ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
     proshade_single zDist                             = ( static_cast<proshade_single> ( this->zDimIndices / 2.0 ) - zCOM ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
     
-    //================================================ Save COM movement
-    this->comMovX                                     = static_cast<proshade_double> ( xDist );
-    this->comMovY                                     = static_cast<proshade_double> ( yDist );
-    this->comMovZ                                     = static_cast<proshade_double> ( zDist );
-    
     //================================================ Move the map within the box
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xDist, yDist, zDist, this->xDimSize, this->yDimSize, this->zDimSize, this->xDimIndices, this->yDimIndices, this->zDimIndices );
     
@@ -1560,9 +1422,6 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     if ( !settings->usePhase ) { this->removePhaseInormation ( settings ); ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information removed from the data." ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information retained in the data." ); }
     
-    //================================================ Compute and save the original map values
-    this->setOriginalMapValues                        ( );
-    
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
     
@@ -1626,11 +1485,14 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
 }
 
 
-/*! \brief This function simply clusters several other functions which should be called together.
+/*! \brief This function converts the internal map onto a set of concentric spheres.
  
-    This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
-    into a single function. This allows for simpler code and does not take any control away, as all the decisions
-    are ultimately driven by the settings.
+    This function starts by determining the spherical harmonics values which were not supplied by the user, these may be
+    bandwidth, taylor series cap, integration order, etc. It then proceeds to determine the optimal sphere distances, unless
+    these were determined by the user.
+ 
+    Finally, the function creates a new instance of the ProSHADE_sphere class for each of the already determined sphere
+    positions. Note: The constructor of ProSHADE_sphere is where the mapping then happens.
  
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
  */
@@ -1844,11 +1706,12 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( Pr
  */
 void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
 {
-    //================================================ Modify axis tolerance by sampling, if required by user
+    //================================================ Modify axis tolerance and matrix tolerance by sampling, if required by user
     if ( settings->axisErrToleranceDefault )
     {
         settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / this->maxShellBand );
     }
+//    proshade_double matrixTolerance                   = ( M_PI / ( this->maxShellBand ) );
     
     //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
     if ( settings->requestedSymmetryType == "C" )
@@ -1905,10 +1768,10 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     {
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-//        std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms ); //, matrixTolerance );
         std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
-        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
+        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); //, matrixTolerance );
+        if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
         
         //============================================ Decide on recommended symmetry
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
@@ -2008,9 +1871,6 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findBestCScore ( std::vec
 {
     //================================================ Sanity check
     if ( CSym->size() == 0 ) { *symInd = 0; return ( 0.0 ); }
-    
-    //================================================ Sort the vector
-    std::sort                                         ( (*CSym).begin(), (*CSym).end(), ProSHADE_internal_misc::sortSymHlpInv );
     
     //================================================ Initalise variables
     proshade_double ret                               = CSym->at(0)[5];
@@ -2217,8 +2077,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     oScore                                            = this->findOScore     ( OSym );
     iScore                                            = this->findIScore     ( ISym );
 
-    //================================================ Find the best available score
-    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3.0, std::max ( oScore * 4.0, iScore * 5.0 ) ) ) );
+    //================================================ Find the best available score - !!! Modified weights for the predicted symmetries as they have heights  0.0 (predicted) ...
+    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3000.0, std::max ( oScore * 4000.0, iScore * 5000.0 ) ) ) );
     
     //================================================ No score? Well, no symmetry.
     if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
@@ -2260,21 +2120,21 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
         }
     }
-    if ( bestWeightedScore == tScore * 3.0 )
+    if ( bestWeightedScore == tScore * 3000.0 )
     {
         settings->setRecommendedSymmetry              ( "T" );
         settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
         if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); } }
     }
-    if ( bestWeightedScore == oScore * 4.0 )
+    if ( bestWeightedScore == oScore * 4000.0 )
     {
         settings->setRecommendedSymmetry              ( "O" );
         settings->setRecommendedFold                  ( 0 );
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
         if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); } }
     }
-    if ( bestWeightedScore == iScore * 5.0 )
+    if ( bestWeightedScore == iScore * 5000.0 )
     {
         settings->setRecommendedSymmetry              ( "I" );
         settings->setRecommendedFold                  ( 0 );
@@ -2413,6 +2273,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
     proshade_double groupAngle                        = ( 2 * M_PI ) / static_cast<proshade_double> ( allCSyms->at(grPosition).at(0) );
+    proshade_double thisElementAngle;
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     
@@ -2421,7 +2282,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     for ( proshade_unsign elIt = 1; elIt < static_cast<proshade_unsign> ( allCSyms->at(grPosition).at(0) ); elIt++ )
     {
         //============================================ Find the element angle
-        proshade_double thisElementAngle              = static_cast<proshade_double> ( elIt ) * groupAngle;
+        thisElementAngle                              = static_cast<proshade_double> ( elIt ) * groupAngle;
         
         //============================================ Combine it with the group axis and get rotation matrix
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat,
@@ -2466,6 +2327,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
     proshade_double groupAngle                        = ( 2 * M_PI ) / static_cast<proshade_double> ( allCSyms->at(grPosition)[0] );
+    proshade_double thisElementAngle;
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     
@@ -2474,7 +2336,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
     for ( proshade_unsign elIt = 1; elIt < static_cast<proshade_unsign> ( allCSyms->at(grPosition)[0] ); elIt++ )
     {
         //============================================ Find the element angle
-        proshade_double thisElementAngle              = static_cast<proshade_double> ( elIt ) * groupAngle;
+        thisElementAngle                              = static_cast<proshade_double> ( elIt ) * groupAngle;
         
         //============================================ Combine it with the group axis and get rotation matrix
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat,
@@ -2551,18 +2413,18 @@ void prependIdentity ( std::vector<std::vector< proshade_double > >* vecToPrepen
  
     \param[in] elements Vector containing all group elements.
     \param[in] elem A single element which should already be in the list.
+    \param[in] matrixTolerance The maximum allowed trace error on rotation matrices to be still considered the same.
     \param[out] elementFound A boolean value stating if the element was found int the elements list or not.
  */
-bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* elements, std::vector< proshade_double >* elem )
+bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* elements, std::vector< proshade_double >* elem, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     bool elementFound                                 = false;
-    proshade_double allowedError                      = 0.1;
     
     //================================================ For each existing element
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( elements->size() ); elIt++ )
     {
-        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &elements->at(elIt), elem, allowedError ) )
+        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &elements->at(elIt), elem, matrixTolerance ) )
         {
             elementFound                              = true;
             break;
@@ -2577,9 +2439,10 @@ bool checkElementAlreadyExists ( std::vector<std::vector< proshade_double > >* e
 /*! \brief This function checks if all group element products produce another group element.
  
     \param[in] elements Vector containing all group elements.
+    \param[in] matrixTolerance The maximum trace error for the matrices to be still considered the same.
     \param[out] isGroup A boolean value stating if all group element products for another group element.
  */
-bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elements )
+bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elements, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     bool isGroup                                      = true;
@@ -2596,7 +2459,7 @@ bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elem
             std::vector< proshade_double > product    = ProSHADE_internal_maths::multiplyGroupElementMatrices ( &elements->at(gr1), &elements->at(gr2) );
         
             //======================================== Check the group already contains the produces as an element
-            if ( !checkElementAlreadyExists ( elements, &product ) )
+            if ( !checkElementAlreadyExists ( elements, &product, matrixTolerance ) )
             {
                 isGroup                               = false;
                 break;
@@ -2616,10 +2479,11 @@ bool checkElementsFormGroup ( std::vector<std::vector< proshade_double > >* elem
  
     \param[in] first Vector of group elements.
     \param[in] second Vector of group elements.
+    \param[in] matrixTolerance The maximum trace error for rotation matrices to be still considered the same.
     \param[in] combine Should the element combinations be added as well?
     \param[out] ret A vector of group elements containing all unique elements from both input element groups.
  */
-std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first, std::vector<std::vector< proshade_double > >* second, bool combine )
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first, std::vector<std::vector< proshade_double > >* second, proshade_double matrixTolerance, bool combine )
 {
     //================================================ Initialise variables
     std::vector< std::vector< proshade_double > > ret;
@@ -2627,7 +2491,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     //================================================ Add the first list to ret, checking for uniqueness
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( first->size() ); elIt++ )
     {
-        if ( !checkElementAlreadyExists( &ret, &first->at(elIt) ) )
+        if ( !checkElementAlreadyExists( &ret, &first->at(elIt), matrixTolerance ) )
         {
             ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, first->at(elIt) );
         }
@@ -2636,7 +2500,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     //================================================ Add the second list to ret, checking for uniqueness
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( second->size() ); elIt++ )
     {
-        if ( !checkElementAlreadyExists( &ret, &second->at(elIt) ) )
+        if ( !checkElementAlreadyExists( &ret, &second->at(elIt), matrixTolerance ) )
         {
             ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, second->at(elIt) );
         }
@@ -2653,7 +2517,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
                 std::vector< proshade_double > product = ProSHADE_internal_maths::multiplyGroupElementMatrices ( &first->at(gr1), &second->at(gr2) );
 
                 //==================================== Add
-                if ( !checkElementAlreadyExists( &ret, &product ) )
+                if ( !checkElementAlreadyExists( &ret, &product, matrixTolerance ) )
                 {
                     ProSHADE_internal_misc::addToDoubleVectorVector ( &ret, product );
                 }
@@ -2667,7 +2531,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     
 }
 
-/*! \brief This function returns the group elements as rotation matrices or any defined point group.
+/*! \brief This function returns the group elements as rotation matrices of any defined point group.
  
     This function generates a list of all point group elements for any group defined by a set of cyclic point groups. The set is supplied using the second
     parameter, where these need to be detected by ProSHADE first and then their index in the ProSHADE cyclic group detected list can be given here.
@@ -2682,9 +2546,10 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axesList A vector of ints specifying which C axes from the full list are members of the group.
     \param[in] groupType An optional string specifying for which symmetry type the group elements are to be computed. Leave empty if you want to use the supplied axes without any questions being asked.
+    \param[in] matrixTolerance The maximum allowed trace difference for two matrices to still be considered the same.
     \param[out] val A vector containing a vector of 9 doubles (rotation matrix) for each group element for the requested group.
  */
-std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType )
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
@@ -2702,7 +2567,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
 
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2718,13 +2583,13 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         std::vector<std::vector< proshade_double > > second = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(1) );
         
         //============================================ Join the element lists
-        ret                                           = joinElementsFromDifferentGroups ( &first, &second, true );
+        ret                                           = joinElementsFromDifferentGroups ( &first, &second, matrixTolerance, true );
         
         //============================================ Prepend identity element
         prependIdentity                               ( &ret );
         
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2745,7 +2610,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
                 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2759,7 +2624,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
                 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2767,7 +2632,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
         
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2788,7 +2653,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
 
@@ -2802,7 +2667,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2816,7 +2681,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
 
@@ -2824,7 +2689,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
 
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2845,7 +2710,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2859,7 +2724,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2873,7 +2738,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                 std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
 
                 //==================================== Join the elements to any already found
-                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, false );
+                ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
             }
         }
         
@@ -2881,7 +2746,7 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         prependIdentity                               ( &ret );
 
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2896,14 +2761,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
             std::vector<std::vector< proshade_double > > els = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, axesList.at(grIt) );
             
             //======================================== Join the elements to any already found
-            ret                                       = joinElementsFromDifferentGroups ( &els, &ret, true );
+            ret                                       = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, true );
         }
         
         //============================================ Prepend identity element
         prependIdentity                               ( &ret );
         
         //============================================ Check the element to form a group
-        if ( checkElementsFormGroup ( &ret ) ) { return ( ret ); }
+        if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
         else
         {
             throw ProSHADE_exception ( "Computed point group elements do not form a group.", "ES00060", __FILE__, __LINE__, __func__, "The supplied cyclic groups list does not form a group and\n                    : therefore such group's elements cannot be obtained. Please\n                    : check the cyclic groups list supplied to the\n                    : getAllGroupElements() function." );
@@ -2918,133 +2783,6 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         
     //================================================ Done
     return                                            ( ret );
-    
-}
-
-/*! \brief This function returns the length of 1D array that could hold all group elements rotation matrices for any group.
- 
-    Note: This is required for passing the values to python, otherwise the function has no usage.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] grIndices An array of indices to the all detected cyclic groups list, specifying which cyclic groups will form the point group for which the elements will be obtained.
-    \param[in] len The length of the grIndices array.
-    \param[in] groupType A string specifying which group type the elements will be computed for - allowed values are C, D, T, O, I and X.
-    \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
- */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getAllGroupElementsLength ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType )
-{
-    //================================================ Convert array to vector
-    std::vector< proshade_unsign > axes;
-    for ( int iter = 0; iter < len; iter++ )
-    {
-        ProSHADE_internal_misc::addToUnsignVector     ( &axes, grIndices[iter] );
-    }
-    
-    //================================================ Get the elements
-    std::vector<std::vector< proshade_double > > groupElements = this->getAllGroupElements ( settings, axes, groupType );
-    
-    //================================================ Return their size
-    return                                            ( static_cast<proshade_unsign> ( groupElements.size() * 9 ) );
-    
-}
-
-/*! \brief This function computes all point group elements for a group formed by any number of cyclic point groups.
- 
-    This function is a Python wrapper function for the getAllGroupElements() function. It takes the indices of the cyclic point groups which form the point group for which
-    the group elements are required as a Python list and fills a Python compatible array with the results.
- 
-    \warning This function has specific signature for SWIG processing into proshade Python module, please use the getAllGroupElements() funtion
-    for C++ access.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] grIndices A list of indices of cyclic point groups which should be combined to create the point group whose group elements are required.
-    \param[in] len The length of the grIndices array.
-    \param[in] groupType The type of the group. Allowed values are C, D, T, O, I and X.
-    \param[in] allGroupElement This is the array to which the results will be saved into.
-    \param[in] ln2 The lenght of the allGroupElement array.
- */
-void ProSHADE_internal_data::ProSHADE_data::getAllGroupElementsPython ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 )
-{
-    //================================================ Convert array to vector
-    std::vector< proshade_unsign > axes;
-    for ( int iter = 0; iter < len; iter++ )
-    {
-        ProSHADE_internal_misc::addToUnsignVector     ( &axes, grIndices[iter] );
-    }
-    
-    //================================================ Get the elements in C++ format
-    std::vector<std::vector< proshade_double > > groupElements = this->getAllGroupElements ( settings, axes, groupType );
-    
-    //================================================ Re-save them in Python format
-    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( groupElements.size() ); grIt++ )
-    {
-        for ( proshade_unsign matIt = 0; matIt < 9; matIt++ )
-        {
-            allGroupElement[(grIt*9)+matIt]           = groupElements.at(grIt).at(matIt);
-        }
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function returns the length of 1D array that could hold all the cyclic group elements rotation matrices.
- 
-    Note: This is required for passing the values to python, otherwise the function has no usage.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
-    \param[out] val The minimal length of a 1D array that can hold all the group elements rotation matrices.
- */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getCGroupElementsLength ( ProSHADE_settings* settings, proshade_unsign grPosition )
-{
-    //================================================ Sanity check
-    if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
-    {
-        std::stringstream hlpSS;
-        hlpSS << "The request for group elements of group " << grPosition << " cannot be\n                    : processed, as the list of all groups does not have\n                    : group with this index.";
-        throw ProSHADE_exception ( "Requested group elements for group which does not exist.", "ES00057", __FILE__, __LINE__, __func__, hlpSS.str() );
-    }
-    
-    //================================================ Done
-    return                                            ( static_cast<proshade_unsign> ( settings->allDetectedCAxes.at(grPosition).at(0) - 1 ) * 9 );
-    
-}
-
-/*! \brief This function computes the group elements rotation matrices (except for the identity element) for requested group and fills the supplied 1D array with them.
- 
-    \warning The identity element is ignored by this function.
-    \warning This function has specific signature for SWIG processing into proshade Python module, please use the computeGroupElementsForGroup() funtion
-    for C++ access.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] grPosition An index of the C symmetry group which should have its group elements computed and returned.
- */
-void ProSHADE_internal_data::ProSHADE_data::getCGroupElementsPython ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition )
-{
-    //================================================ Sanity check
-    if ( grPosition >= static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ) )
-    {
-        std::stringstream hlpSS;
-        hlpSS << "The request for group elements of group " << grPosition << " cannot be\n                    : processed, as the list of all groups does not have\n                    : group with this index.";
-        throw ProSHADE_exception ( "Requested group elements for group which does not exist.", "ES00057", __FILE__, __LINE__, __func__, hlpSS.str() );
-    }
-        
-    //================================================ Get the matrices
-    std::vector<std::vector< proshade_double > > grElements = this->computeGroupElementsForGroup ( &settings->allDetectedCAxes, grPosition );
-    
-    //================================================ Copy to Python array
-    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( grElements.size() ); elIt++ )
-    {
-        for ( proshade_unsign matIt = 0; matIt < 9; matIt++ )
-        {
-            groupElements[(elIt*9)+matIt]             = grElements.at(elIt).at(matIt);
-        }
-    }
-    
-    //================================================ Done
-    return ;
     
 }
 
@@ -3165,40 +2903,6 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     
 }
 
-/*! \brief This function sets the original structure representation value to a set of dedicated variables.
- 
- 
-    This function is called once a structure hes been read in and initially processed by ProSHADE. Therefore, the values it saves are already after axis inversion, COM centering, etc., but before any map rotation or map padding. The reason why these
-    values need to be saved is because in some circumstances (such as PDB file wiritng) these are required and the normal variables holding these may be over-written by the map manipulation process.
-*/
-void ProSHADE_internal_data::ProSHADE_data::setOriginalMapValues ()
-{
-    //================================================ Compute and save the COM
-    this->findMapCOM                                  ( );
-    this->originalMapXCom                             = this->xCom;
-    this->originalMapYCom                             = this->yCom;
-    this->originalMapZCom                             = this->zCom;
-    
-    //================================================ Save the original sizes
-    this->xDimSizeOriginal                            = this->xDimSize;
-    this->yDimSizeOriginal                            = this->yDimSize;
-    this->zDimSizeOriginal                            = this->zDimSize;
-    
-    //================================================ Save the original index counts
-    this->xDimIndicesOriginal                         = this->xDimIndices;
-    this->yDimIndicesOriginal                         = this->yDimIndices;
-    this->zDimIndicesOriginal                         = this->zDimIndices;
-    
-    //================================================ Save the original axis origins
-    this->xAxisOriginOriginal                         = this->xAxisOrigin;
-    this->yAxisOriginOriginal                         = this->yAxisOrigin;
-    this->zAxisOriginOriginal                         = this->zAxisOrigin;
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief This function finds the centre of mass of the internal map representation.
 
     This function simply computes the centre of mass for the given ProSHADE_data object map in the "real space" (i.e. the space that counts Angstroms from the bottom left further corner). These are then saved into the ProSHADE_data object.
@@ -3226,9 +2930,9 @@ void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
                 if ( this->internalMap[mapIt] <= 0.0 ) { continue; }
                 
                 //==================================== Compute Index COM
-                this->xCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( xIt + 1 );
-                this->yCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( yIt + 1 );
-                this->zCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( zIt + 1 );
+                this->xCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( xIt + this->xFrom );
+                this->yCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( yIt + this->yFrom );
+                this->zCom                           += this->internalMap[mapIt] * static_cast<proshade_double> ( zIt + this->zFrom );
                 totNonZeroPoints                     += this->internalMap[mapIt];
             }
         }
@@ -3239,9 +2943,15 @@ void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
     this->zCom                                       /= totNonZeroPoints;
     
     //================================================ Convert to real world
-    this->xCom                                        = ( (this->xCom-1) - this->xAxisOrigin ) * ( static_cast<proshade_double> ( this->xDimIndices - 1 ) / this->xDimSize );
-    this->yCom                                        = ( (this->yCom-1) - this->yAxisOrigin ) * ( static_cast<proshade_double> ( this->yDimIndices - 1 ) / this->yDimSize );
-    this->zCom                                        = ( (this->zCom-1) - this->zAxisOrigin ) * ( static_cast<proshade_double> ( this->zDimIndices - 1 ) / this->zDimSize );
+    this->xCom                                        = ( static_cast<proshade_double> ( this->xFrom ) * ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) ) +
+                                                        ( ( this->xCom - static_cast<proshade_double> ( this->xFrom ) ) *
+                                                        (   this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) );
+    this->yCom                                        = ( static_cast<proshade_double> ( this->yFrom ) * ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) ) +
+                                                        ( ( this->yCom - static_cast<proshade_double> ( this->yFrom ) ) *
+                                                        (   this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) );
+    this->zCom                                        = ( static_cast<proshade_double> ( this->zFrom ) * ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) ) +
+                                                        ( ( this->zCom - static_cast<proshade_double> ( this->zFrom ) ) *
+                                                        (   this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) );
     
     //================================================ Done
     return ;
@@ -3311,7 +3021,7 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
     }
 }
 
-/*! \brief This function removes phase from the map.
+/*! \brief This function removes phase from the map, effectively converting it to Patterson map.
  
     This function is called when the phase information needs to be removed from the internal map representation. It
     does the forward Fourier transform, removes the phase from the Fourier coefficients and then the inverse Fourier
@@ -3816,165 +3526,6 @@ void ProSHADE_internal_data::ProSHADE_data::setWignerMatrixValue ( proshade_comp
     
 }
 
-/*! \brief This function simplyfies Python access to maps - it returns how long the map array is, so that the getMap function take take this value as input.
- 
-    \param[out] val The size of the map array.
- */
-int ProSHADE_internal_data::ProSHADE_data::getMapArraySizePython ( void )
-{
-    //================================================ Done
-    return                                            ( static_cast<int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ) );
-    
-}
-
-/*! \brief This function takes an array and fills it with the internal map density data. This is necessary for Python Numpy arrays output.
-
-    \param[in] mapArrayPython The array to which the map data will be saved into.
-    \param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
-*/
-void ProSHADE_internal_data::ProSHADE_data::getMapPython ( double *mapArrayPython, int len )
-{
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
-    {
-        mapArrayPython[iter]                          = static_cast<double> ( this->internalMap[iter] );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function takes an array and re-writes the internal map value with the argument map values.
-
-    \param[in] mapChangedInPython The array from which the map data will be read.
-    \param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
-*/
-void ProSHADE_internal_data::ProSHADE_data::setMapPython ( double *mapChangedInPython, int len )
-{
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
-    {
-        this->internalMap[iter]                       = static_cast<proshade_double> ( mapChangedInPython[iter] );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function takes an array, deletes old map, allocates a new map and fills the internal map values with the argument map values.
-
-    \param[in] mapChangedInPython The array from which the map data will be read.
-    \param[in] len The length of the array, expected to be given by the getMapArraySizePython() function.
-*/
-void ProSHADE_internal_data::ProSHADE_data::setNewMapPython ( double *mapChangedInPython, int len )
-{
-    //================================================ Delete the old map data
-    delete[] this->internalMap;
-    this->internalMap                                 = NULL;
-    
-    //================================================ Allocate new map space
-    this->internalMap                                 = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( this->internalMap, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
-    {
-        this->internalMap[iter]                       = static_cast<proshade_double> ( mapChangedInPython[iter] );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function fills a given array with the real parts of the spherical harmonics values for a given shell.
-
-    \param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
-    \param[in] verbose How loud this run should be.
-    \param[in] sphericalHarmsReal The array to which the data will be loaded into.
-    \param[in] len The length of the array.
-*/
-void ProSHADE_internal_data::ProSHADE_data::getRealSphericalHarmonicsForShell ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len )
-{
-    //================================================ Sanity check
-    if ( shellNo >= this->noSpheres )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00043" );
-        return ;
-    }
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
-    {
-        sphericalHarmsReal[iter]                      = static_cast<double> ( this->sphericalHarmonics[shellNo][iter][0] );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function fills a given array with the imaginary parts of the spherical harmonics values for a given shell.
-
-    \param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
-    \param[in] verbose How loud this run should be.
-    \param[in] sphericalHarmonics The array to which the data will be loaded into.
-    \param[in] len The length of the array.
-*/
-void ProSHADE_internal_data::ProSHADE_data::getImagSphericalHarmonicsForShell ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len )
-{
-    //================================================ Sanity check
-    if ( shellNo >= this->noSpheres )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00043" );
-        return ;
-    }
-    
-    //================================================ Save the data into the output array
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
-    {
-        sphericalHarmsImag[iter]                      = static_cast<double> ( this->sphericalHarmonics[shellNo][iter][1] );
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function gets the spherical harmonics array length for a particular shell.
-
-    \param[in] shellNo The index of the shell for which the spherical harmonics are being retried.
-    \param[in] verbose How loud this run should be.
-    \param[out] val Length of spherical harmonics array or zero if error occured.
-*/
-int ProSHADE_internal_data::ProSHADE_data::getSphericalHarmonicsLenForShell  ( proshade_unsign shellNo, proshade_signed verbose )
-{
-    //================================================ Sanity check
-    if ( shellNo >= this->noSpheres )
-    {
-        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Attempted to access shell index outside of the shell range.", "WP00043" );
-        return                                        ( 0 );
-    }
-    
-    //================================================ Return the value
-    return                                            ( static_cast<int> ( (this->spheres[shellNo]->getLocalBandwidth() * 2) * (this->spheres[shellNo]->getLocalBandwidth() * 2) ) );
-}
-
-/*! \brief This function gets the spherical harmonics array index for a particular spherical harmonics band and order.
-
-    \param[in] order The order for which the spherical harmonics value index is requested.
-    \param[in] band The band for which the spherical harmonics value index is requested.
-    \param[in] shell The shell for which the spherical harmonics value index is requested.
-    \param[out] val Index value of the spherical harmonics value.
-*/
-int ProSHADE_internal_data::ProSHADE_data::sphericalHarmonicsIndex ( proshade_signed order, proshade_signed band, proshade_signed shell )
-{
-    //================================================ Return the value
-    return                                            ( static_cast<int> ( seanindex ( order, band, this->spheres[shell]->getLocalBandwidth() ) ) );
-}
-
 /*! \brief This function fills the input array with the real E matrix values for particular band and order1 (l as opposed to l').
 
     \param[in] band The band for which the real E matrix values are requested.
@@ -4207,17 +3758,6 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryA
     return                                            ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) );
 }
 
-/*! \brief This function returns the length of 1D array which would contain all detected axes info.
-
-    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
-    \param[out] val The required length of 1D array to hold all detected axes info.
-*/
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getAllSymsOneArrayLength ( ProSHADE_settings* settings )
-{
-    //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() * 6 ) );
-}
-
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.
 
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
@@ -4273,16 +3813,13 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
     moved density map, if possible the moved co-ordinates and also the overlay operations listing JSON file.
  
     \param[in] settings A pointer to settings class containing all the information required for map manipulation.
-    \param[in] trsX The optimal x-axis translation value.
-    \param[in] trsY The optimal y-axis translation value.
-    \param[in] trsZ The optimal z-axis translation value.
     \param[in] eulA The Euler alpha angle value, by which the moving structure is to be rotated by.
     \param[in] eulB The Euler beta angle value, by which the moving structure is to be rotated by.
     \param[in] eulG The Euler gamma angle value, by which the moving structure is to be rotated by.
-    \param[in] rotCentre The rotation centre position as determined by the computeOverlayTranslations function.
-    \param[in] ultimateTranslation The final translation as determined by the computeOverlayTranslations function.
+    \param[in] rotCentre The rotation centre position.
+    \param[in] ultimateTranslation The final translation as determined by the translation function.
 */
-void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre, std::vector< proshade_double >* ultimateTranslation )
+void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre, std::vector< proshade_double >* ultimateTranslation )
 {
     //================================================ Write out rotated map
     std::stringstream fNameHlp;
@@ -4294,69 +3831,14 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, trsX, trsY, trsZ, settings->firstModelOnly );
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2), settings->firstModelOnly );
     }
     
     //================================================ Write out the json file with the results
-    ProSHADE_internal_io::writeRotationTranslationJSON ( -rotCentre->at(0), -rotCentre->at(1), -rotCentre->at(2),
+    ProSHADE_internal_io::writeRotationTranslationJSON ( rotCentre->at(0), rotCentre->at(1), rotCentre->at(2),
                                                          eulA, eulB, eulG,
                                                          ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2),
-                                                         this->comMovX, this->comMovY, this->comMovZ, settings->rotTrsJSONFile );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function sets the correct translation values for the overlay mode.
-
-    This function takes the translation as computed by the translation function (in the last three input variables) and proceeds  to
-    compute and save the initial centre of rotation as well as the ultimate translation to be done after rotation to obtain the optimal
-    overlay of the moving structure over the static structure.
-    
-    \param[in] rcX Pointer to where to save the rotation centre position along the X-axis in Angstroms.
-    \param[in] rcY Pointer to where to save the rotation centre position along the Y-axis in Angstroms.
-    \param[in] rcZ Pointer to where to save the rotation centre position along the Z-axis in Angstroms.
-    \param[in] transX Pointer to where to save the translation to be done along the X-axis in Angstroms. This variable should already have the computed translation from the translation map.
-    \param[in] transY Pointer to where to save the translation to be done along the Y-axis in Angstroms. This variable should already have the computed translation from the translation map.
-    \param[in] transZ Pointer to where to save the translation to be done along the Z-axis in Angstroms. This variable should already have the computed translation from the translation map.
-*/
-void ProSHADE_internal_data::ProSHADE_data::computeOverlayTranslations ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ, proshade_double* transX, proshade_double* transY, proshade_double* transZ )
-{
-    //================================================ Write out the json file with the results
-    if ( ProSHADE_internal_io::isFilePDB ( this->fileName ) )
-    {
-        //============================================ If PDB, we already have these
-       *rcX                                           = this->originalPdbRotCenX;
-       *rcY                                           = this->originalPdbRotCenY;
-       *rcZ                                           = this->originalPdbRotCenZ;
-         
-       *transX                                        = *transX + this->originalPdbRotCenX;
-       *transY                                        = *transY + this->originalPdbRotCenY;
-       *transZ                                        = *transZ + this->originalPdbRotCenZ;
-    }
-    else
-    {
-        //============================================ Compute the rotation centre for the co-ordinates
-        proshade_double xRotPos                       = ( ( static_cast<proshade_double> ( this->xDimIndicesOriginal / 2 ) - this->xAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->xDimIndicesOriginal - 1 ) / this->xDimSizeOriginal ) ) -
-                                                          (this->comMovX);
-        proshade_double yRotPos                       = ( ( static_cast<proshade_double> ( this->yDimIndicesOriginal / 2 ) - this->yAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->yDimIndicesOriginal - 1 ) / this->yDimSizeOriginal ) ) -
-                                                          (this->comMovY);
-        proshade_double zRotPos                       = ( ( static_cast<proshade_double> ( this->zDimIndicesOriginal / 2 ) - this->zAxisOriginOriginal ) *
-                                                          ( static_cast<proshade_double> ( this->zDimIndicesOriginal - 1 ) / this->zDimSizeOriginal ) ) -
-                                                          (this->comMovZ);
-        
-        //============================================ And save
-        *rcX                                           = xRotPos;
-        *rcY                                           = yRotPos;
-        *rcZ                                           = zRotPos;
-          
-        *transX                                        = *transX + xRotPos;
-        *transY                                        = *transY + yRotPos;
-        *transZ                                        = *transZ + zRotPos;
-    }
+                                                         settings->rotTrsJSONFile );
     
     //================================================ Done
     return ;
@@ -4371,34 +3853,30 @@ void ProSHADE_internal_data::ProSHADE_data::computeOverlayTranslations ( proshad
     \param[in] eulerAngles Pointer to vector where the three Euler angles will be saved into.
     \param[in] finalTranslation Pointer to a vector where the translation required to move structure from origin to optimal overlay with static structure will be saved into.
 */
-void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
+void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
 {
     //================================================ Empty line
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "" );
     
     //================================================ Write out rotation centre translation results
-    std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is: " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
+    std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is:  " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str() );
-    
-    //================================================ Write out internal map translation results
-    std::stringstream mapBox; mapBox << std::setprecision (3) << std::showpos << "The within box internal map translation vector is  : " << mapBoxMovement->at(0) << "     " << mapBoxMovement->at(1) << "     " << mapBoxMovement->at(2);
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, mapBox.str() );
     
     //================================================ Write out rotation matrix about origin
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulerAngles->at(0), eulerAngles->at(1), eulerAngles->at(2), rotMat );
     
-    std::stringstream rotMatSS;
-    rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
-    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
-    rotMatSS << std::setprecision (3) << std::showpos << "                                                   : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
+    std::stringstream rotMatSS;  
+    rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                 : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                    : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
+    rotMatSS << std::setprecision (3) << std::showpos << "                                                    : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotMatSS.str() );
     
     delete[] rotMat;
     
     //================================================ Write out origin to overlay translation results
-    std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The origin to overlay translation vector is        : " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
+    std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The rotation centre to overlay translation vector is: " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, finTrs.str() );
     
     //================================================ Done

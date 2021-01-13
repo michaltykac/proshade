@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -31,7 +31,7 @@
  
     \param[in] settings A pointer to settings class containing all the information required for map self-rotation function computation.
  */
-void ProSHADE_internal_data::ProSHADE_data::getRotationFunction ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function computation." );
@@ -1264,7 +1264,15 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
                     ProSHADE_internal_misc::addToUnsignVectorVector ( &settings->allDetectedDAxes, DSymInd );
                     
                 }
-                else { ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax2, ax1 ); }
+                else
+                {
+                    ProSHADE_internal_symmetry::saveDSymmetry ( &ret, CSymList, ax2, ax1 );
+                    
+                    std::vector< proshade_unsign > DSymInd;
+                    ProSHADE_internal_misc::addToUnsignVector ( &DSymInd, ax2 );
+                    ProSHADE_internal_misc::addToUnsignVector ( &DSymInd, ax1 );
+                    ProSHADE_internal_misc::addToUnsignVectorVector ( &settings->allDetectedDAxes, DSymInd );
+                }
             }
         }
     }
@@ -2669,12 +2677,19 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
 /*! \brief This function predicts a list of all I symmetry axes from the already computed C symmetries list.
  
     This function starts by checking if there is a pair of C3 and C5 symmetries with the icosahedron dihedral angle ( acos( sqrt ( 5.0 ) / 3.0 ) ). If found,
-    ...
+    it calls the  predictIcosAxes() function, which uses the knowledge of the two axes (C5 and C3) which are closest to the dihedral angle to generate
+    their combinations point group elements. These can in turn be used to generate the remainder of the axes (iteratively). Once complete, all the
+    predicted axes are in the ret variable.
+ 
+    \Warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
+    which symmetry was found.
  
     \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] matrixTolerance The maximum allowed trace difference for two matrices to be still considered the same.
+    \param[out] ret A vector of all the detected axes in the standard ProSHADE format with height either the detected value (for the detected ones) or 0 for the predicted ones.
  */
-std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
+std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     std::vector< proshade_double* > ret;
@@ -2686,11 +2701,50 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Generate the rest of the axes
-        ProSHADE_internal_symmetry::predictIcos6C5s   ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::predictIcosAxes   ( settings, CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak, matrixTolerance );
+    }
+    std::cout << "The Icos search is now complete..." << std::endl;
+    exit(0);
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry prediction complete." );
+
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function predicts a list of all O symmetry axes from the already computed C symmetries list.
+ 
+    This function starts by checking if there is a pair of C3 and C4 symmetries with the octahedron dihedral angle ( acos( 1.0 / sqrt ( 3.0 ) ). If found,
+    it calls the  predictOctaAxes() function, which uses the knowledge of the two axes (C4 and C3) which are closest to the dihedral angle to generate
+    their combinations point group elements. These can in turn be used to generate the remainder of the axes (iteratively). Once complete, all the
+    predicted axes are in the ret variable.
+ 
+    \Warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
+    which symmetry was found.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] matrixTolerance The maximum allowed trace difference for two matrices to be still considered the same.
+    \param[out] ret A vector of all the detected axes in the standard ProSHADE format with height either the detected value (for the detected ones) or 0 for the predicted ones.
+ */
+std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredictedOctahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_double matrixTolerance )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_double* > ret;
+    
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry prediction." );
+    
+    //================================================ Are the basic requirements for icosahedral symmetry met?
+    if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
+    {
+        //============================================ Generate the rest of the axes
+        ProSHADE_internal_symmetry::predictOctaAxes   ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak, matrixTolerance );
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry prediction complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "O symmetry prediction complete." );
 
     //================================================ Done
     return                                            ( ret );
@@ -2737,7 +2791,7 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
                                                                                                      &CSymList->at(cSym)[3] );
             
             //======================================== Is the angle approximately the dihedral angle
-            if ( ( ( sqrt ( 5.0 ) / 3.0 ) > ( std::abs( dotProduct ) - axErr ) ) && ( ( sqrt ( 5.0 ) / 3.0 ) < ( std::abs( dotProduct ) + axErr ) ) )
+            if ( std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) < axErr )
             {
                 return                                ( true );
             }
@@ -2817,36 +2871,32 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     
 }
 
-/*! \brief This function ...
- 
-    ...
+/*! \brief This function finds the best pair of axes conforming to the icosahedron dihedral angle.
  
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
-    \param[in] ret The vector .
-    \param[in] axErr The error tolerance on angle matching.
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] axErr The error tolerance on angle matching.
+    \param[out] ret The pair of axes with closest angle to the required icosahedron dihedral angle.
  */
-void ProSHADE_internal_symmetry::predictIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr )
 {
     //================================================ Initialise variables
-    std::vector< proshade_unsign > C5List, CList;
+    std::pair< proshade_unsign, proshade_unsign > ret;
+    std::vector< proshade_unsign  > C5List;
+    proshade_double bestDihedralAngle                 = 999.9;
     proshade_double dotProduct;
-    bool found                                        = false;
     
     //================================================ Find all C5 symmetries
-    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
-    {
-        if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); }
-    }
+    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); } }
     
     //================================================ For each unique pair of C5 and C3
     for ( proshade_unsign c5 = 0; c5 < static_cast<proshade_unsign> ( C5List.size() ); c5++ )
     {
         for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
         {
-            //======================================== Compare only C3s to the C5List
+            //======================================== Compare only C3s to the C5List and only with decent average peak height
             if ( CSymList->at(cSym)[0] != 3 ) { continue; }
+            if ( CSymList->at(cSym)[5] < minPeakHeight ) { continue; }
             
             //========================================  Check the angle between the C5 and C3 axes
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &CSymList->at(C5List.at(c5))[1],
@@ -2857,29 +2907,334 @@ void ProSHADE_internal_symmetry::predictIcos6C5s ( std::vector< proshade_double*
                                                                                                      &CSymList->at(cSym)[3] );
             
             //======================================== Is the angle approximately the dihedral angle?
-            if ( ( ( sqrt ( 5.0 ) / 3.0 ) > ( std::abs( dotProduct ) - axErr ) ) && ( ( sqrt ( 5.0 ) / 3.0 ) < ( std::abs( dotProduct ) + axErr ) ) )
+            if ( std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) < axErr )
             {
-                ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C5List.at(c5)) );
-                ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(cSym) );
-                ProSHADE_internal_misc::addToUnsignVector ( &CList, C5List.at(c5) );
-                ProSHADE_internal_misc::addToUnsignVector ( &CList, cSym );
-                found                                 = true;
-                break;
+                if ( bestDihedralAngle > std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) )
+                {
+                    bestDihedralAngle                 = std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) );
+                    ret.first                         = C5List.at(c5);
+                    ret.second                        = cSym;
+                }
             }
         }
-        if ( found ) { break; }
     }
     
-    //================================================ Generate the elements
-    std::vector<std::vector< proshade_double > > elsC5 = dataObj->computeGroupElementsForGroup ( CSymList, CList.at(0) );
-    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, CList.at(1) );
-    std::vector<std::vector< proshade_double > > combo = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC5, &elsC3, true );
-    combo                                              = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &combo, &elsC3, true );
-    combo                                              = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC5, &combo, true );
+    //================================================ Done
+    return                                            ( ret );
+}
+
+/*! \brief This function predicts all icosahedral point group symmetry axes from the cyclic point groups list.
+ 
+    This function starts with finding the best detected cyclic symmetries of the right folds and having the closest angle to
+    the icosahedron dihedral angle. It then proceeds to generate all the point group elements and their combinations. From
+    these it then computes some of the missing axes and their associated angles. These steps can then be repeated until
+    no more new elements are found (a group exists) or the process fails. The the detected axes (as obtained back from
+    the point group elements) are then returned without checking for having the correct number of them.
+ 
+    \warning This function assumes that the detectIcosahedralSymmetry() function has successfully run (i.e. returned true).
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector .
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] verobse How loud the announcments should be?
+    \param[in] axisTolerance The tolerance for two axes to be considered similar in terms of cosine distance.
+    \param[in] matrixTolerance The maximum allowed rotation matrix trace difference allowed for the matrices to be considered the same.
+ */
+void ProSHADE_internal_symmetry::predictIcosAxes ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_double* > newAxes;
+    proshade_double axX, axY, axZ, axAng, foldTolerance = 0.1; // dotProd
+    proshade_unsign determinedFold, prevComboSize = 0; // bestC5, bestC3
+    std::vector< proshade_unsign > c5s, c3s, c2s;
+//    bool anglesPassed;
     
-    std::cout << "!!! " << combo.size() << std::endl;
+    //================================================ Find the best axis combination with dihedral angle and correct folds
+    std::pair< proshade_unsign, proshade_unsign > initAxes = findBestIcosDihedralPair ( CSymList, minPeakHeight, axErr );
+    dataObj->optimiseDihedralAngleFromAngleAxis ( settings, - sqrt ( 5.0 ) / 3.0, CSymList->at(initAxes.first), CSymList->at(initAxes.second) );
     
-    exit(0);
+    //================================================ Save detected axes to ret
+    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.first) );
+    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.second) );
+
+    //================================================ Generate initial group elements
+    std::vector<std::vector< proshade_double > > elsC5 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.first );
+    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.second );
+    std::vector<std::vector< proshade_double > > combo = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC5, &elsC3, matrixTolerance, true );
+    std::cout << " !@!@ Allowed axis error: " << axErr << std::endl;
+    //================================================ Iteratively find all remanining axes by multiplying the group elements
+    while ( prevComboSize < combo.size() )
+    {
+        //============================================ Sanity check
+        if ( prevComboSize > 60 ) { break; }
+        
+        //============================================ Initialise iteration
+        prevComboSize                                 = combo.size ( );
+        newAxes.clear                                 ( );
+        
+        //============================================ For each group element (this is a bit repetitive, but not slow enough to deal with right now)
+        for ( proshade_unsign cIt = 0; cIt < static_cast< proshade_unsign > ( combo.size() ); cIt++ )
+        {
+            //======================================== Find the axis of the element
+            ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &combo.at(cIt), &axX, &axY, &axZ, &axAng );
+            std::cout << "Combo " << cIt << " has axis " << axX << " ; " << axY << " ; " << axZ << " WITH ANGLE: " << axAng << std::endl;
+            
+            //======================================== Determine the fold (in terms of icosahedral symmetry fold options)
+            if      ( ( (  axAng - foldTolerance ) <          0.0           ) && ( (  axAng + foldTolerance ) >         0.0          ) ) { continue;           }    // Zero angle - identity element
+            else if ( ( (  axAng - foldTolerance ) <          M_PI          ) && ( (  axAng + foldTolerance ) >         M_PI         ) ) { determinedFold = 2; }    // Fold 2 ( angle =  pi    )
+            else if ( ( ( -axAng - foldTolerance ) <         -M_PI          ) && ( ( -axAng + foldTolerance ) >        -M_PI         ) ) { determinedFold = 2; }    // Fold 2 ( angle = -pi    )
+            else if ( ( (  axAng - foldTolerance ) < (  2.0 * M_PI / 3.0 ) ) && ( (  axAng + foldTolerance ) > (  2.0 * M_PI / 3.0 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle =  2pi/3 )
+            else if ( ( ( -axAng - foldTolerance ) < ( -2.0 * M_PI / 3.0 ) ) && ( ( -axAng + foldTolerance ) > ( -2.0 * M_PI / 3.0 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = -2pi/3 )
+            else if ( ( (  axAng - foldTolerance ) < (  2.0 * M_PI / 5.0 ) ) && ( (  axAng + foldTolerance ) > (  2.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle =  2pi/5 )
+            else if ( ( (  axAng - foldTolerance ) < (  4.0 * M_PI / 5.0 ) ) && ( (  axAng + foldTolerance ) > (  4.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle =  4pi/5 )
+            else if ( ( ( -axAng - foldTolerance ) < ( -2.0 * M_PI / 5.0 ) ) && ( ( -axAng + foldTolerance ) > ( -2.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = -2pi/5 )
+            else if ( ( ( -axAng - foldTolerance ) < ( -4.0 * M_PI / 5.0 ) ) && ( ( -axAng + foldTolerance ) > ( -4.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = -4pi/5 )
+            else                                                                                                                         { continue;           }    // Failed to find matching fold.
+            
+            
+            
+            //======================================== Is this a new axis?
+            if ( ProSHADE_internal_maths::isAxisUnique ( ret, axX, axY, axZ, determinedFold, axErr ) )
+            {
+                //==================================== Create the new axis array
+//                anglesPassed                          = true;
+                proshade_double* newAx                = new proshade_double[6];
+                ProSHADE_internal_misc::checkMemoryAllocation ( newAx, __FILE__, __LINE__, __func__ );
+                
+                newAx[0]                              = determinedFold;
+                newAx[1]                              = axX;
+                newAx[2]                              = axY;
+                newAx[3]                              = axZ;
+                newAx[4]                              = ( 2.0 * M_PI ) / determinedFold;
+                newAx[5]                              = 0.0;
+                
+                //==================================== Check for it having the correct angles to other detected axes
+//                if ( determinedFold == 5 )
+//                {
+//                    for ( proshade_unsign c5It = 0; c5It < static_cast< proshade_unsign > ( c5s.size() ); c5It++ )
+//                    {
+//                        dotProd                       = ProSHADE_internal_maths::computeDotProduct ( &ret->at(c5s.at(c5It))[1], &ret->at(c5s.at(c5It))[2], &ret->at(c5s.at(c5It))[3], &newAx[1], &newAx[2], &newAx[3] );
+//                        std::cout << "C5 to C5 dot prod: " << dotProd << std::endl;
+//                        if ( ( ( std::abs ( dotProd ) - axErr ) < 0.5 ) && ( ( std::abs ( dotProd ) + axErr ) > 0.5 ) ) { continue; }
+//                        else { anglesPassed = false; break; }
+//                    }
+//
+//                    if ( anglesPassed ) { ProSHADE_internal_misc::addToUnsignVector ( &c5s, static_cast<proshade_unsign> ( ret->size() ) ); }
+//                }
+//
+//                if ( determinedFold == 3 )
+//                {
+//                    for ( proshade_unsign c3It = 0; c3It < static_cast< proshade_unsign > ( c3s.size() ); c3It++ )
+//                    {
+//                        dotProd                       = ProSHADE_internal_maths::computeDotProduct ( &ret->at(c3s.at(c3It))[1], &ret->at(c3s.at(c3It))[2], &ret->at(c3s.at(c3It))[3], &newAx[1], &newAx[2], &newAx[3] );
+//
+////                        std::cout << "C3 to C3 dot prod: " << dotProd << std::endl;
+////                        if ( ( ( dotProd - axErr ) < 0.5 ) && ( ( dotProd + axErr ) > 0.5 ) ) { continue; }
+////                        else { anglesPassed = false; break; }
+//                    }
+//
+//                    if ( anglesPassed ) { ProSHADE_internal_misc::addToUnsignVector ( &c3s, static_cast<proshade_unsign> ( ret->size() ) ); }
+//                }
+//                if ( determinedFold == 2 )
+//                {
+//                    if ( anglesPassed ) { ProSHADE_internal_misc::addToUnsignVector ( &c2s, static_cast<proshade_unsign> ( ret->size() ) ); }
+//                }
+                
+                //==================================== If all good, save
+//                if ( anglesPassed )
+                {
+                    ProSHADE_internal_misc::addToDblPtrVector ( &newAxes, newAx );
+                    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, newAx );
+                }
+            }
+        }
+        
+//        for ( int i = 0; i < combo.size(); i++ )
+//        {
+//            for ( int j = 0; j < combo.at(i).size(); j++ )
+//            {
+//                if ( j % 3 == 0 ) { std::cout << std::endl; }
+//                std::cout << combo.at(i).at(j) << "\t";
+//            }
+//            std::cout << std::endl;
+//        }
+        
+        //============================================ Generate new group elements from the new axes and folds
+        for ( proshade_unsign aIt = 0; aIt < static_cast< proshade_unsign > ( newAxes.size() ); aIt++ )
+        {
+            std::vector< std::vector< proshade_double > > newEls = dataObj->computeGroupElementsForGroup ( &newAxes, aIt );
+            combo                                     = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &newEls, &combo, matrixTolerance, true );
+            delete[] newAxes.at(aIt);
+        }
+//
+//        for ( int i = 0; i < ret->size(); i++ )
+//        {
+//            std::cout << i << " || " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << std::endl;
+//        }
+//
+//        exit(0);
+    }
+    
+    //================================================ Sort the axes by fold
+    std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+    
+//    bool thr = true, two = true;
+//    for ( int i = 0; i < ret->size(); i++ ) { if ( ret->at(i)[0] == 3 && thr ) { std::cout << std::endl; thr = false; } if ( ret->at(i)[0] == 2 && two ) { std::cout << std::endl; two = false; } std::cout << i << ": " << ret->at(i)[0] << "  |  " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << std::endl; }
+//
+//    std::cout << "Found " << ret->size() << " icos syms and " << combo.size ( ) << " group elements." << std::endl; exit(0);
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function finds the best pair of axes conforming to the octahedron dihedral angle.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] axErr The error tolerance on angle matching.
+    \param[out] ret The pair of axes with closest angle to the required icosahedron dihedral angle.
+ */
+std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr )
+{
+    //================================================ Initialise variables
+    std::pair< proshade_unsign, proshade_unsign > ret;
+    std::vector< proshade_unsign  > C4List;
+    proshade_double bestDihedralAngle                 = 999.9;
+    proshade_double dotProduct;
+    
+    //================================================ Find all C5 symmetries
+    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { if ( CSymList->at(cSym)[0] == 4 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); } }
+    
+    //================================================ For each unique pair of C5 and C3
+    for ( proshade_unsign c4 = 0; c4 < static_cast<proshade_unsign> ( C4List.size() ); c4++ )
+    {
+        for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
+        {
+            //======================================== Compare only C3s to the C5List and only with decent average peak height
+            if ( CSymList->at(cSym)[0] != 3 ) { continue; }
+            if ( CSymList->at(cSym)[5] < minPeakHeight ) { continue; }
+            
+            //========================================  Check the angle between the C5 and C3 axes
+            dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &CSymList->at(C4List.at(c4))[1],
+                                                                                                     &CSymList->at(C4List.at(c4))[2],
+                                                                                                     &CSymList->at(C4List.at(c4))[3],
+                                                                                                     &CSymList->at(cSym)[1],
+                                                                                                     &CSymList->at(cSym)[2],
+                                                                                                     &CSymList->at(cSym)[3] );
+            
+            //======================================== Is the angle approximately the dihedral angle?
+            if ( ( ( 1.0 / sqrt ( 3.0 ) ) > ( std::abs( dotProduct ) - axErr ) ) && ( ( 1.0 / sqrt ( 3.0 ) ) < ( std::abs( dotProduct ) + axErr ) ) )
+            {
+                if ( bestDihedralAngle > std::abs( ( 1.0 / sqrt ( 3.0 ) ) - std::abs( dotProduct ) ) )
+                {
+                    bestDihedralAngle                 = std::abs( ( 1.0 / sqrt ( 3.0 ) ) - std::abs( dotProduct ) );
+                    ret.first                         = C4List.at(c4);
+                    ret.second                        = cSym;
+                }
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+}
+
+/*! \brief This function predicts all octahedral point group symmetry axes from the cyclic point groups list.
+ 
+    This function starts with finding the best detected cyclic symmetries of the right folds and having the closest angle to
+    the octahedron dihedral angle. It then proceeds to generate all the point group elements and their combinations. From
+    these it then computes some of the missing axes and their associated angles. These steps can then be repeated until
+    no more new elements are found (a group exists) or the process fails. The the detected axes (as obtained back from
+    the point group elements) are then returned without checking for having the correct number of them.
+ 
+    \warning This function assumes that the detectIcosahedralSymmetry() function has successfully run (i.e. returned true).
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] ret The vector .
+    \param[in] axErr The error tolerance on angle matching.
+    \param[in] minPeakHeight The minimum average peak height for axis to be considered.
+    \param[in] verobse How loud the announcments should be?
+    \param[in] axisTolerance The tolerance for two axes to be considered similar in terms of cosine distance.
+    \param[in] matrixTolerance The maximum allowed rotation matrix trace difference allowed for the matrices to be considered the same.
+ */
+void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance )
+{
+//    //================================================ Initialise variables
+//    std::vector< proshade_double* > newAxes;
+//    proshade_double axX, axY, axZ, axAng, foldTolerance = 0.1;
+//    proshade_unsign bestC5, bestC3, determinedFold, prevComboSize = 0;
+//
+//    //================================================ Find the best axis combination with dihedral angle and correct folds
+//    std::pair< proshade_unsign, proshade_unsign > initAxes = findBestOctaDihedralPair ( CSymList, minPeakHeight, axErr );
+//
+//    //================================================ Save detected axes to ret
+//    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.first) );
+//    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, CSymList->at(initAxes.second) );
+//
+//    //================================================ Generate initial group elements
+//    std::vector<std::vector< proshade_double > > elsC4 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.first );
+//    std::vector<std::vector< proshade_double > > elsC3 = dataObj->computeGroupElementsForGroup ( CSymList, initAxes.second );
+//    std::vector<std::vector< proshade_double > > combo = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &elsC4, &elsC3, matrixTolerance, true );
+//
+//    //================================================ Iteratively find all remanining axes by multiplying the group elements
+//    while ( prevComboSize < combo.size() )
+//    {
+//        //============================================ Sanity check
+//        if ( prevComboSize > 24 ) { break; }
+//
+//        //============================================ Initialise iteration
+//        prevComboSize                                 = combo.size ( );
+//        newAxes.clear                                 ( );
+//
+//        //============================================ For each group element (this is a bit repetitive, but not slow enough to deal with right now)
+//        for ( proshade_unsign cIt = 0; cIt < static_cast< proshade_unsign > ( combo.size() ); cIt++ )
+//        {
+//            //======================================== Find the axis of the element
+//            ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &combo.at(cIt), &axX, &axY, &axZ, &axAng );
+//
+//            //======================================== Determine the fold (in terms of icosahedral symmetry fold options)
+//            if      ( ( ( axAng - foldTolerance ) <         0.0          ) && ( ( axAng + foldTolerance ) >         0.0          ) ) { continue;           }    // Zero angle - identity element
+//            else if ( ( ( axAng - foldTolerance ) <         M_PI         ) && ( ( axAng + foldTolerance ) >         M_PI         ) ) { determinedFold = 2; }    // Fold 2 ( angle = pi    )
+//            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 3.0 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 3.0 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = 2pi/3 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 1.5 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 1.5 ) ) ) { determinedFold = 3; }    // Fold 3 ( angle = 4pi/3 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 2.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 2.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 2pi/5 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 4.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 4.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 4pi/5 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 6.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 6.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 6pi/5 )
+//            else if ( ( ( axAng - foldTolerance ) < ( 8.0 * M_PI / 5.0 ) ) && ( ( axAng + foldTolerance ) > ( 8.0 * M_PI / 5.0 ) ) ) { determinedFold = 5; }    // Fold 5 ( angle = 8pi/5 )
+//            else                                                                                                                     { continue;           }    // Failed to find matching fold.
+//
+//            //======================================== Is this a new axis?
+//            if ( ProSHADE_internal_maths::isAxisUnique ( ret, axX, axY, axZ, determinedFold, axErr ) )
+//            {
+//                proshade_double* newAx                = new proshade_double[6];
+//                ProSHADE_internal_misc::checkMemoryAllocation ( newAx, __FILE__, __LINE__, __func__ );
+//
+//                newAx[0]                              = determinedFold;
+//                newAx[1]                              = axX;
+//                newAx[2]                              = axY;
+//                newAx[3]                              = axZ;
+//                newAx[4]                              = ( 2.0 * M_PI ) / determinedFold;
+//                newAx[5]                              = 0.0;
+//
+//                ProSHADE_internal_misc::addToDblPtrVector ( &newAxes, newAx );
+//                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( ret, newAx );
+//            }
+//        }
+//
+//        //============================================ Generate new group elements from the new axes and folds
+//        for ( proshade_unsign aIt = 0; aIt < static_cast< proshade_unsign > ( newAxes.size() ); aIt++ )
+//        {
+//            std::vector< std::vector< proshade_double > > newEls = dataObj->computeGroupElementsForGroup ( &newAxes, aIt );
+//            combo                                     = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &newEls, &combo, matrixTolerance, true );
+//            delete[] newAxes.at(aIt);
+//        }
+//    }
+//
+//    //================================================ Sort the axes by fold
+//    std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+//
+//    std::cout << "Found " << ret->size() << " octa syms and " << combo.size ( ) << " group elements." << std::endl; exit(0);
     
     //================================================ Done
     return ;
@@ -3319,6 +3674,9 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         }
     }
     
+    //================================================ Sort the vector
+    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymHlpInv );
+    
     //================================================ Done
     return                                            ( ret );
 }
@@ -3403,10 +3761,6 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         this->sphereMappedRotFun.at(shIt)->removeSmallPeaks ( *peakThres );
     }
     
-    proshade_unsign tc = 0;
-    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ ) { tc += this->sphereMappedRotFun.at(shIt)->getPeaks().size(); }
- 
-    
     //================================================ Group peaks
     for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); sphIt++ )
     {
@@ -3449,6 +3803,292 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     
     //================================================ Sort ret by peak height
     std::sort                                         ( ret.begin(), ret.end(), sortProSHADESymmetryByPeak );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief ...
+ 
+    ...
+ 
+    \param[in] settings ProSHADE_settings object containing all the settings for this run.
+    \param[in] angle The cosine of angle to which the two axes should be optimised to.
+    \param[in] axis1 The first axis to be optimised.
+    \param[in] axis2 The second axis to be optimised.
+    \param[out] ret  Vector of double pointers to arrays having the standard ProSHADE symmetry group structure.
+ */
+std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::optimiseDihedralAngleFromAngleAxis ( ProSHADE_settings* settings, proshade_double angle, proshade_double* axis1, proshade_double* axis2 )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_double* > ret;
+    std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> ax1SphereMappedRotFun, ax2SphereMappedRotFun;
+    std::cout << "ANGLE: " << angle << std::endl;
+    
+    //================================================ Convert rotation function to only the required angle-axis space spheres and find all peaks for first axis
+    for ( proshade_double angIt = 1.0; angIt < axis1[0]; angIt += 1.0 )
+    {
+        //============================================ Create the angle-axis sphere with correct radius (angle)
+        ax1SphereMappedRotFun.emplace_back            ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( axis1[4],
+                                                                                                                M_PI / static_cast<proshade_double> ( axis1[0] ),
+                                                                                                                this->maxShellBand * 2.0,
+                                                                                                                axis1[4],
+                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+
+        //=========================================== Interpolate rotation function onto the sphere
+        ax1SphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
+    }
+    
+    //================================================ Convert rotation function to only the required angle-axis space spheres and find all peaks for second axis
+    for ( proshade_double angIt = 1.0; angIt < axis2[0]; angIt += 1.0 )
+    {
+        //============================================ Create the angle-axis sphere with correct radius (angle)
+        ax2SphereMappedRotFun.emplace_back            ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( axis2[4],
+                                                                                                                M_PI / static_cast<proshade_double> ( axis2[0] ),
+                                                                                                                this->maxShellBand * 2.0,
+                                                                                                                axis2[4],
+                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+
+        //=========================================== Interpolate rotation function onto the sphere
+        ax2SphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
+    }
+    
+    //================================================ Change axis1 to improve the angle
+    std::cout << "Original axes      : " << axis1[1] << " ; " << axis1[2] << " ; " << axis1[3] << " AND " << axis2[1] << " ; " << axis2[2] << " ; " << axis2[3] << std::endl;
+    proshade_double angErr = 0.05;
+    proshade_double dotProd, dotProdHlp, bestAngErr, axNorm, bestX = 0.0, bestY = 0.0, bestZ = 0.0;
+    bool axisImproved                                 = true;
+    while ( axisImproved && angErr > 0.0001 )
+    {
+        //============================================ Find current error
+        dotProd                                       = ProSHADE_internal_maths::computeDotProduct ( &axis1[1], &axis1[2], &axis1[3], &axis2[1], &axis2[2], &axis2[3] );
+        angErr                                        = std::abs ( std::abs ( angle ) - std::abs ( dotProd ) );
+        std::cout << " !!! Angle error : " << angErr << std::endl;
+        
+        //============================================ Can we improve by moving a bit?
+        axisImproved                                  = false;
+        bestAngErr                                    = angErr;
+        for ( proshade_double xCh = -1.0; xCh < 1.1; xCh += 1.0 )
+        {
+            for ( proshade_double yCh = -1.0; yCh < 1.1; yCh += 1.0 )
+            {
+                for ( proshade_double zCh = -1.0; zCh < 1.1; zCh += 1.0 )
+                {
+                    //================================ Test changed axis
+                    axNorm                            = std::sqrt ( std::pow( axis1[1] + (xCh * angErr), 2.0 ) + std::pow( axis1[2] + (yCh * angErr), 2.0 ) + std::pow ( axis1[3] + (zCh * angErr), 2.0 ) );
+                    dotProdHlp                        = ProSHADE_internal_maths::computeDotProduct ( ( axis1[1] + (xCh * angErr) ) / axNorm,
+                                                                                                     ( axis1[2] + (yCh * angErr) ) / axNorm,
+                                                                                                     ( axis1[3] + (zCh * angErr) ) / axNorm, axis2[1], axis2[2], axis2[3] );
+                    
+                    if ( bestAngErr > std::abs ( std::abs ( angle ) - std::abs ( dotProdHlp ) ) )
+                    {
+                        //============================ Improvement!
+                        bestX                         = ( axis1[1] + (xCh * angErr) ) / axNorm;
+                        bestY                         = ( axis1[2] + (yCh * angErr) ) / axNorm;
+                        bestZ                         = ( axis1[3] + (zCh * angErr) ) / axNorm;
+                        axisImproved                  = true;
+                        bestAngErr                    = std::abs ( std::abs ( angle ) - std::abs ( dotProdHlp ) );
+                    }
+                }
+            }
+        }
+        
+        //============================================ If improved, try again
+        if ( axisImproved ) { axis1[1] = bestX; axis1[2] = bestY; axis1[3] = bestZ; }
+    }
+    
+    std::cout << "Angle improved axes: " << axis1[1] << " ; " << axis1[2] << " ; " << axis1[3] << " AND " << axis2[1] << " ; " << axis2[2] << " ; " << axis2[3] << std::endl;
+    
+    //================================================ Keeping the angle, search for highest peak
+    proshade_double curSum                            = 0.0;
+    proshade_double lat, lon, bestSumChange, bestSum = 0.0, sumChange = 0.005;
+    bool sumImproved                                  = true;
+    while ( sumImproved && sumChange > 0.00001 )
+    {
+        std::cout << std::endl << " !!! New iteration axes: " << axis1[1] << " ; " << axis1[2] << " ; " << axis1[3] << " AND " << axis2[1] << " ; " << axis2[2] << " ; " << axis2[3] << std::endl;
+        sumImproved                                   = false;
+        bestSum                                       = 0.0;
+        
+        lon                                           = atan2 ( axis1[2], axis1[1] );
+        lat                                           = asin  ( axis1[3] );
+        for ( proshade_unsign sph1It = 0; sph1It < static_cast< proshade_unsign > ( ax1SphereMappedRotFun.size() ); sph1It++ )
+        {
+            bestSum                                  += ax1SphereMappedRotFun.at(sph1It)->getSphereLatLonLinearInterpolationPos ( lat, lon );
+        }
+        
+        lon                                           = atan2 ( axis2[2], axis2[1] );
+        lat                                           = asin  ( axis2[3] );
+        for ( proshade_unsign sph2It = 0; sph2It < static_cast< proshade_unsign > ( ax2SphereMappedRotFun.size() ); sph2It++ )
+        {
+            bestSum                                  += ax2SphereMappedRotFun.at(sph2It)->getSphereLatLonLinearInterpolationPos ( lat, lon );
+        }
+        
+        std::cout << " !!! !!! Current best sum is: " << bestSum << std::endl;
+        
+        bestSumChange                                 = bestSum;
+        for ( proshade_double xCh = -1.0; xCh < 1.1; xCh += 1.0 )
+        {
+            for ( proshade_double yCh = -1.0; yCh < 1.1; yCh += 1.0 )
+            {
+                for ( proshade_double zCh = -1.0; zCh < 1.1; zCh += 1.0 )
+                {
+                    curSum                            = 0.0;
+                    
+                    axNorm                            = std::sqrt ( std::pow( axis1[1] + ( xCh * sumChange ), 2.0 ) + std::pow( axis1[2] + ( yCh * sumChange ), 2.0 ) + std::pow ( axis1[3] + ( zCh * sumChange ), 2.0 ) );
+                    lon                               = atan2 ( ( axis1[2] + ( yCh * sumChange ) ) / axNorm, ( axis1[1] + ( xCh * sumChange ) ) / axNorm );
+                    lat                               = asin  ( ( axis1[3] + ( zCh * sumChange ) ) / axNorm );
+                    for ( proshade_unsign sph1It = 0; sph1It < static_cast< proshade_unsign > ( ax1SphereMappedRotFun.size() ); sph1It++ )
+                    {
+                        curSum                       += ax1SphereMappedRotFun.at(sph1It)->getSphereLatLonLinearInterpolationPos ( lat, lon );
+                    }
+                    
+                    axNorm                            = std::sqrt ( std::pow( axis2[1] + ( xCh * sumChange ), 2.0 ) + std::pow( axis2[2] + ( yCh * sumChange ), 2.0 ) + std::pow ( axis2[3] + ( zCh * sumChange ), 2.0 ) );
+                    lon                               = atan2 ( ( axis2[2] + ( yCh * sumChange ) ) / axNorm, ( axis2[1] + ( xCh * sumChange ) ) / axNorm );
+                    lat                               = asin  ( ( axis2[3] + ( zCh * sumChange ) ) / axNorm );
+                    for ( proshade_unsign sph2It = 0; sph2It < static_cast< proshade_unsign > ( ax2SphereMappedRotFun.size() ); sph2It++ )
+                    {
+                        curSum                       += ax2SphereMappedRotFun.at(sph2It)->getSphereLatLonLinearInterpolationPos ( lat, lon );
+                    }
+                    
+                   if ( curSum > bestSumChange )
+                    {
+                        sumImproved                   = true;
+                        bestX                         = ( xCh * sumChange );
+                        bestY                         = ( yCh * sumChange );
+                        bestZ                         = ( zCh * sumChange );
+                        bestSumChange                 = curSum;
+                    }
+                }
+            }
+        }
+        
+        if ( sumImproved )
+        {
+            axis1[1]                                 += bestX;
+            axis1[2]                                 += bestY;
+            axis1[3]                                 += bestZ;
+            axNorm                                    = std::sqrt ( std::pow( axis1[1], 2.0 ) + std::pow( axis1[2], 2.0 ) + std::pow ( axis1[3], 2.0 ) );
+            axis1[1]                                 /= axNorm;
+            axis1[2]                                 /= axNorm;
+            axis1[3]                                 /= axNorm;
+            
+            
+            axis2[1]                                 += bestX;
+            axis2[2]                                 += bestY;
+            axis2[3]                                 += bestZ;
+            axNorm                                    = std::sqrt ( std::pow( axis2[1], 2.0 ) + std::pow( axis2[2], 2.0 ) + std::pow ( axis2[3], 2.0 ) );
+            axis2[1]                                 /= axNorm;
+            axis2[2]                                 /= axNorm;
+            axis2[3]                                 /= axNorm;
+            
+            
+            sumChange                                 = bestSumChange - bestSum;
+            std::cout << " !!! END iteration axes: " << axis1[1] << " ; " << axis1[2] << " ; " << axis1[3] << " AND " << axis2[1] << " ; " << axis2[2] << " ; " << axis2[3] << std::endl;
+        }
+    }
+    
+    std::cout << "Sum improved axes:   " << axis1[1] << " ; " << axis1[2] << " ; " << axis1[3] << " AND " << axis2[1] << " ; " << axis2[2] << " ; " << axis2[3] << std::endl;
+    
+    //================================================
+    std::cout << "Finally, the best sum on changed axes is " << bestSum << " ." << std::endl;
+    
+    
+//    //================================================ Initialise variables
+//    proshade_double soughtAngle;
+//    std::vector< proshade_double  > allPeakHeights;
+//    std::vector< ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* > peakGroups;
+//    std::vector< proshade_double* > ret;
+//    bool newPeak;
+//
+//    //================================================ Make sure we have a clean start
+//    this->sphereMappedRotFun.clear();
+//
+//    //================================================ Convert rotation function to only the required angle-axis space spheres and find all peaks
+//    for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( fold ); angIt += 1.0 )
+//    {
+//        //============================================ Figure the angles to form the symmetry
+//        soughtAngle                                   = angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( fold ) );
+//
+//        //============================================ Create the angle-axis sphere with correct radius (angle)
+//        this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
+//                                                                                                                M_PI / static_cast<proshade_double> ( fold ),
+//                                                                                                                this->maxShellBand * 2.0,
+//                                                                                                                soughtAngle,
+//                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+//
+//        //=========================================== Interpolate rotation function onto the sphere
+//        this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
+//
+//        //============================================ Find all peaks for this sphere
+//        this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->findAllPeaks ( settings->peakNeighbours, &allPeakHeights );
+//    }
+//
+//    //============================================ Report progress
+//    std::stringstream hlpSS;
+//    hlpSS << "Found a total of " << std::pow ( this->maxShellBand * 2.0 * (fold-1), 2.0 ) - allPeakHeights.size() << " non-peaks for thresholding.";
+//    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str() );
+//
+//    //================================================ Determine the threshold for significant peaks
+//   *peakThres                                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak ) );
+//
+//    //============================================ Report progress
+//    std::stringstream hlpSS2;
+//    hlpSS2 << "Determined peak threshold " << *peakThres << ".";
+//    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS2.str() );
+//
+//    //================================================ Remove small peaks
+//    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
+//    {
+//        this->sphereMappedRotFun.at(shIt)->removeSmallPeaks ( *peakThres );
+//    }
+//
+//    proshade_unsign tc = 0;
+//    for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ ) { tc += this->sphereMappedRotFun.at(shIt)->getPeaks().size(); }
+//
+//
+//    //================================================ Group peaks
+//    for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); sphIt++ )
+//    {
+//        //============================================ For each peak
+//        for ( proshade_unsign pkIt = 0; pkIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.at(sphIt)->getPeaks().size() ); pkIt++ )
+//        {
+//            //======================================== Check if peak belongs to an already detected peak group
+//            newPeak                                   = true;
+//            for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
+//            {
+//                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance, settings->verbose ) ) { newPeak = false; break; }
+//            }
+//
+//            //======================================== If already added, go to next one
+//            if ( !newPeak ) { continue; }
+//
+//            //======================================== If not, create a new group with this peak
+//            peakGroups.emplace_back                   ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first,
+//                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second,
+//                                                                                                                         sphIt,
+//                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getAngularDim() ) );
+//        }
+//    }
+//
+//    //================================================ For each peak group, look for the requested fold
+//    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( peakGroups.size() ); grIt++ )
+//    {
+//        //============================================ Report progress
+//        std::stringstream hlpSS3;
+//        hlpSS3 << "Now considering group with LAT " << peakGroups.at(grIt)->getLatFromIndices() << " - " << peakGroups.at(grIt)->getLatToIndices() << " and LON " << peakGroups.at(grIt)->getLonFromIndices() << " - " << peakGroups.at(grIt)->getLonToIndices() << " spanning spheres ";
+//        for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( peakGroups.at(grIt)->getSpherePositions().size() ); sphIt++ ) { hlpSS3 << peakGroups.at(grIt)->getSpherePositions().at(sphIt) << " ; "; }
+//        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 5, hlpSS3.str() );
+//
+//        //============================================ Find point groups in the peak group
+//        peakGroups.at(grIt)->findCyclicPointGroupsGivenFold ( this->sphereMappedRotFun, settings->axisErrTolerance, &ret, settings->useBiCubicInterpolationOnPeaks, fold, settings->verbose );
+//
+//        //============================================ Release the memory
+//        delete peakGroups.at(grIt);
+//    }
+//
+//    //================================================ Sort ret by peak height
+//    std::sort                                         ( ret.begin(), ret.end(), sortProSHADESymmetryByPeak );
     
     //================================================ Done
     return                                            ( ret );

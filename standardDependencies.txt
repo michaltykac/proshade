@@ -6,6 +6,121 @@ Standard dependencies:
   This list is not exhaustive, but with these ProSHADE did install and run on clean system
   installations.
 
+======================
+MacOS Yosemite (10.10) 
+======================
+
+* Install Command Line Tools
+	* xcode-select --install
+* Install CMake
+	* Download from https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2.tar.gz
+	* tar -zxvf ./cmake-3.19.2.tar.gz
+	* cd ./cmake-3.19.2
+	* ./bootstrap 
+	* make
+	* sudo make install
+* Install FFTW
+	* Download from http://www.fftw.org/fftw-3.3.9.tar.gz
+	* tar -zxvf ./fftw-3.3.9.tar 
+	* cd ./fftw-3.3.9
+	* ./configure --enable-shared
+	* make
+	* sudo make install
+* Install proshade
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd ./build
+	* cmake ../proshade
+	* make 
+	* make install
+
+===========
+Ubuntu 20.4
+===========
+
+* APT INSTALL:
+	* gcc
+	* g++
+	* make
+	* cmake
+	* git
+	* fftw3-dev
+	* liblapack-dev
+	* zlib1g-dev
+
+* Install proshade
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd ./build
+	* cmake ../proshade
+	* make 
+	* make install
+
+===============
+Centos 8.1.1911 
+===============
+
+* YUM SETUP:
+	* sudo yum install dnf-plugins-core
+	* sudo yum config-manager --set-enabled powertools
+
+* YUM INSTALL:
+	* gcc
+	* gcc-c++
+	* make
+	* cmake
+	* fftw3-devel
+	* lapack-devel
+	* zlib-devel
+* Install proshade
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd ./build
+	* cmake ../proshade
+	* make 
+	* make install
+	
+=============
+Debian 10.3.0 
+=============
+
+* APT INSTALL:
+	* gcc
+	* g++
+	* make
+	* cmake
+	* git
+	* fftw3-dev
+	* liblapack-dev
+	* zlib1g-dev
+* Install proshade
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd ./build
+	* cmake ../proshade
+	* make 
+	* make install	
+
+==================
+openSUSE-Leap 15.2 
+==================
+
+* ZYPPER (sudo zypper install):
+	* gcc
+	* gcc-c++
+	* git
+	* cmake
+	* fftw3-devel
+	* lapack-devel
+	* zlib-devel
+* Install proshade
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd ./build
+	* cmake ../proshade
+	* make 
+	* make install
+	
 ==========
 Windows 10 
 ==========
@@ -31,184 +146,7 @@ Not fully supported yet.
 	* Click new and write "C:\cygwin64\bin"
 	* Click new and write "C:\cygwin64\lib\lapack"
 * Use ProSHADE from Command Prompt :-)
-		
-		
-
-======================
-MacOS Yosemite (10.10) 
-======================
-
-* Install Command Line Tools
-	* xcode-select --install
-* Install Homebrew
-	* ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	* brew install gcc
-	* brew install cmake
-	* brew install swig
-* Install pip and numpy
-	* curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-	* sudo python get-pip.py
-	* sudo pip install numpy
-* Install numpy for python3
-	* pip3 install numpy
-* Install full fftw3
-	* Download sources from http://www.fftw.org/download.html
-	* tar -zxvf fftw-3.3.8.tar.gz
-	* cd fftw-3.3.8
-	* ./configure --enable-shared 
-	* make
-	* sudo make install
-
-=============
-Ubuntu 18.4.4 
-=============
-
-APT INSTALL:
-* gcc
-* g++
-* gfortran
-* make
-* cmake
-* m4
-* fftw3-dev
-* libblas-dev
-* liblapack-dev
-* python
-* python-pip
-* python-dev
-* python3
-* python3-pip
-* python3-dev
-* swig
-* git
-* zlib1g-dev
-
-PIP INSTALL:
-* numpy
-
-PIP3 INSTALL:
-* numpy
-
-COMMAND LINE:
-$ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git zlib1g-dev
-$ sudo pip install numpy
-$ sudo pip3 install numpy
-
-===============
-Centos 8.1.1911 
-===============
-
-YUM SETUP:
-sudo yum install dnf-plugins-core
-sudo yum config-manager --set-enabled PowerTools
-
-YUM INSTALL:
-* gcc
-* gcc-c++
-* gcc-gfortran
-* make
-* cmake
-* m4
-* fftw3-devel
-* blas-devel
-* lapack-devel
-* python2
-* python2-pip
-* python2-devel
-* python3 
-* python3-pip
-* python3-devel
-* swig
-* git
-* zlib-devel
-
-PIP2 INSTALL:
-* numpy
-
-PIP3 INSTALL:
-* numpy
-
-COMMAND LINE:
-$ sudo yum install dnf-plugins-core
-$ sudo yum config-manager --set-enabled PowerTools
-$ sudo yum update -y
-$ sudo yum install gcc gcc-c++ gcc-gfortran make cmake m4 fftw3-devel blas-devel lapack-devel python2 python2-pip python2-devel python3 python3-pip python3-devel swig git zlib-devel -y
-$ sudo pip2 install numpy
-$ sudo pip3 install numpy
-
-=============
-Debian 10.3.0 
-=============
-
-APT ALLOW 
-Software -> Debian Software -> Downloadable from the Internet -> Check the "Officially supported (main)" box.
-
-APT INSTALL:
-* gcc
-* g++
-* gfortran
-* make
-* cmake
-* m4
-* fftw3-dev
-* libblas-dev
-* liblapack-dev
-* python
-* python-pip
-* python-dev
-* python3
-* python3-pip
-* python3-dev
-* swig
-* git
-* zlib1g-dev
-
-PIP INSTALL:
-* numpy
-
-PIP3 INSTALL:
-* numpy
-
-COMMAND LINE:
-$ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc g++ gfortran make cmake m4 fftw3-dev libblas-dev liblapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git zlib1g-dev
-$ sudo pip install numpy
-$ sudo pip3 install numpy
-
-==================
-openSUSE-Leap 15.1 
-==================
-
-APT INSTALL:
-* gcc
-* gcc-c++
-* gcc-fortran
-* make
-* cmake
-* m4
-* fftw3-dev
-* blas-dev
-* lapack-dev
-* python
-* python-pip
-* python-dev
-* python3
-* python3-pip
-* python3-dev
-* swig
-* git
-* zlib1g-dev
-
-PIP INSTALL:
-* numpy
-
-PIP3 INSTALL:
-* numpy
-
-COMMAND LINE:
-$ sudo apt-get update && sudo apt-get upgrade -y
-$ sudo apt-get install -y gcc gcc-c++ gcc-fortran make cmake m4 fftw3-dev blas-dev lapack-dev python python-pip python-dev python3 python3-pip python3-dev swig git zlib1g-dev
-$ sudo pip2 install numpy
-$ sudo pip3 install numpy
-
+	
+	
+	
+	

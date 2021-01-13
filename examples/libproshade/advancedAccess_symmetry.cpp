@@ -1,9 +1,12 @@
 /*! \file advancedAccess_reboxing.cpp
     \brief This file showcases how the ProSHADE symetry detection can be computed using the dynamic library's advanced interface.
 
-    This code is an example of how any C++ project linking the ProSHADE library can access the advanced ProSHADE interface. More specifically, in this example, the structure for which symmetry is to be detected is read in, processed, mapped onto spheres and its spherical harmonics decomposition is computed. Next, the
-    structure has its rotation function computed and the symmetry is detected from peaks in the self-rotation function next. ProSHADE allows accessing the recommended symmetry type and fold values using the functions shown in the code. Should the user be interested in specifying the symmetry for ProSHADE to find, it can
-    be done as shown in the second part of the code.
+    This code is an example of how any C++ project linking the ProSHADE library can access the advanced ProSHADE interface. More specifically, in this example,
+    the structure for which symmetry is to be detected is read in, processed, mapped onto spheres and its spherical harmonics decomposition is computed. Next, the
+    structure has its rotation function computed and the symmetry is detected from peaks in the angle-axis space converted self-rotation function (see documentation
+    for more details on this). ProSHADE allows accessing the recommended symmetry type and fold values using the functions shown in the code. Should the user be
+    interested in specifying the symmetry for ProSHADE to find, it can be done as shown in the second part of the code. If you want to learn more about the advanced
+    interface and the functions available, please look into the DOxygen documentation provided in the Documentation folder provided with the ProSHADE source codes.
 
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -16,12 +19,18 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
 */
 
 //==================================================== ProSHADE
 #include "../../src/proshade/ProSHADE.hpp"
+
+bool approxEqual ( double num1, double num2, double tolerance = 0.0001 )
+{
+    if ( ( std::abs ( num1 ) - tolerance < std::abs ( num2 ) ) && ( std::abs ( num1 ) + tolerance > std::abs ( num2 ) ) ) { return ( true ); }
+    return ( false );
+}
 
 //==================================================== Main
 int main ( int argc, char **argv )
@@ -52,7 +61,7 @@ int main ( int argc, char **argv )
 //    settings->setRequestedFold                        ( 6 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
-    settings->setResolution                           ( 6.0 );                              // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setResolution                           ( 8.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     
     //================================================ All other (possibly other tasks related) settings
@@ -100,12 +109,24 @@ int main ( int argc, char **argv )
     simpleSym->computeSphericalHarmonics              ( settings ); // This function computes the spherical harmonics for this structure.
     
     //================================================ Compute self-rotation function
-    simpleSym->getRotationFunction                    ( settings ); // This function computes the self-rotation function for the structure calling it.
+    simpleSym->computeRotationFunction                ( settings ); // This function computes the self-rotation function for the structure calling it.
     
     //================================================ Detect the recommended symmetry
     std::vector< proshade_double* > recomSymAxes;
     std::vector< std::vector< proshade_double > > allCSymAxes;
-    simpleSym->detectSymmetryInStructure              ( settings, &recomSymAxes, &allCSymAxes ); // This function does the symmetry detection in the peaks of the self-rotation function. Once complete, the results can be accessed as shown below
+    
+    if ( settings->usePeakSearchInRotationFunctionSpace )
+    {
+        //============================================ Detect point groups in the angle-axis space
+        simpleSym->detectSymmetryFromAngleAxisSpace   ( settings, &recomSymAxes, &allCSymAxes );
+    }
+    else
+    {
+        //============================================ Detect symmetry using the peak detection in rotation function space
+        simpleSym->detectSymmetryInStructure          ( settings, &recomSymAxes, &allCSymAxes );
+    }
+    
+    //================================================ Access symmetry detection results
     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings ); // This is how the recommended symmetry type can be obtained.
     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings ); // This is how the recommended symmetry fold can be obtained.
     
@@ -117,102 +138,45 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: D-12 with axes:
-//  Symmetry axis number 0: Fold 12 XYZ: 0.000565414 ; 1.87314e-05 ; 0.999986 Angle (radians): 0.523599 and axis peak: 0.956675
-//  Symmetry axis number 1: Fold 2 XYZ: 0.971188 ; 0.205281 ; -0.00380724 Angle (radians): 3.14159 and axis peak: 0.471463
+//  Detected symmetry: C-12 with axes:
+//  Symmetry axis number 0: Fold 12 XYZ: 0 ; 0 ; 1 Angle (radians): 0.523599 and axis peak: 0.964052
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Expected output
-//  Found total of 13 cyclic symmetry axes.
-    
-    
-//  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
-//        requested point group. This is relatively simple for T, O and I symmetries, as such list is already produced by
-//        ProSHADE - see the following examples:
-//
-//        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedTAxes, "T" );
-//        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedOAxes, "O" );
-//        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedIAxes, "I" );
-//
-//        For C point groups, this is also simple, as one can select the required >index< from the allCs variable and use
-//
-//        std::vector< proshade_unsign > bestCAxesList;
-//        bestCAxesList.emplace_back ( index );
-//        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, bestCAxesList, "C" );
-//
-//        The only problem comes when D is to be used, as ProSHADE gives a vector of all combinations (also as vector) of cyclic point groups which form
-//        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
-    
-    //================================================ Find which D axes combination was reported as best
-    std::vector< proshade_unsign > bestDAxesList;
-    bool firstMatch = false; bool secondMatch = false;
-    for ( int dIt = 0; dIt < static_cast<int> ( settings->allDetectedDAxes.size() ); dIt++ )
-    {
-        firstMatch                                    = false;
-        secondMatch                                   = false;
-        
-        for ( proshade_unsign recIt = 0; recIt < static_cast<proshade_unsign> ( recomSymAxes.size() ); recIt++ )
-        {
-            if ( ( allCs.at(settings->allDetectedDAxes.at(dIt).at(0))[1] == recomSymAxes.at(recIt)[1] ) &&
-                 ( allCs.at(settings->allDetectedDAxes.at(dIt).at(0))[2] == recomSymAxes.at(recIt)[2] ) &&
-                 ( allCs.at(settings->allDetectedDAxes.at(dIt).at(0))[3] == recomSymAxes.at(recIt)[3] ) )
-            {
-                firstMatch                            = true;
-            }
-        }
-        
-        for ( proshade_unsign recIt = 0; recIt < static_cast<proshade_unsign> ( recomSymAxes.size() ); recIt++ )
-        {
-            if ( ( allCs.at(settings->allDetectedDAxes.at(dIt).at(1))[1] == recomSymAxes.at(recIt)[1] ) &&
-                 ( allCs.at(settings->allDetectedDAxes.at(dIt).at(1))[2] == recomSymAxes.at(recIt)[2] ) &&
-                 ( allCs.at(settings->allDetectedDAxes.at(dIt).at(1))[3] == recomSymAxes.at(recIt)[3] ) )
-            {
-                secondMatch                           = true;
-            }
-        }
-        
-        if ( firstMatch && secondMatch )
-        {
-            bestDAxesList.emplace_back                ( settings->allDetectedDAxes.at(dIt).at(0) );
-            bestDAxesList.emplace_back                ( settings->allDetectedDAxes.at(dIt).at(1) );
-        }
-    }
-    
-    //================================================ Get point group elements for the best D point group
-    std::vector<std::vector< proshade_double > > groupElements = simpleSym->getAllGroupElements ( settings, bestDAxesList, "D" );
-    
-    //================================================ Print results
-    std::cout << "Point group D" << allCs.at(bestDAxesList.at(0))[0] << "-" << allCs.at(bestDAxesList.at(1))[0] << " has been found to have " << groupElements.size() << " group elements, with the first element (excluding the identity one) having rotation matrix:" << std::fixed << std::setprecision(2) << std::showpos << std::endl;
-    std::cout << groupElements.at(1).at(0) << " | " << groupElements.at(1).at(1) << " | " << groupElements.at(1).at(2) << std::endl;
-    std::cout << groupElements.at(1).at(3) << " | " << groupElements.at(1).at(4) << " | " << groupElements.at(1).at(5) << std::endl;
-    std::cout << groupElements.at(1).at(6) << " | " << groupElements.at(1).at(7) << " | " << groupElements.at(1).at(8) << std::endl << std::endl;
-    
-    //================================================ Expected output
-//  Point group D12-2 has been found to have 24 group elements, with the first element (excluding the identity one) having rotation matrix:
-//  +0.87 | -0.50 | +0.00
-//  +0.50 | +0.87 | -0.00
-//  +0.00 | +0.00 | +1.00
+//  Found total of 35 cyclic symmetry axes.
     
     //================================================ Release the object
     delete simpleSym;
     
     //================================================ Now, detect the symmetry again, but this time with user defined requested symmetry
-    settings->setRequestedSymmetry                    ( "C" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
+    settings->setRequestedSymmetry                    ( "D" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 4 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     ProSHADE_internal_data::ProSHADE_data* requestSym = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
-    requestSym->readInStructure                       ( "/Users/mysak/LMB/proshade/exp/demo/testMap2.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object.
+    requestSym->readInStructure                       ( "./emd_6324.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object.
     requestSym->processInternalMap                    ( settings );
     requestSym->mapToSpheres                          ( settings );
     requestSym->computeSphericalHarmonics             ( settings );
-    requestSym->getRotationFunction                   ( settings );
+    requestSym->computeRotationFunction               ( settings );
     
     //================================================ Detect the recommended symmetry
     std::vector< proshade_double* > reqSymAxes;
     allCSymAxes.clear();
-    requestSym->detectSymmetryInStructure             ( settings, &reqSymAxes, &allCSymAxes );
+    
+    if ( settings->usePeakSearchInRotationFunctionSpace )
+    {
+        //============================================ Detect point groups in the angle-axis space
+        requestSym->detectSymmetryFromAngleAxisSpace  ( settings, &reqSymAxes, &allCSymAxes );
+    }
+    else
+    {
+        //============================================ Detect symmetry using the peak detection in rotation function space
+        requestSym->detectSymmetryInStructure         ( settings, &reqSymAxes, &allCSymAxes );
+    }
+    
+    //================================================ Save results
     symmetryType                                      = requestSym->getRecommendedSymmetryType ( settings );
     symmetryFold                                      = requestSym->getRecommendedSymmetryFold ( settings );
     
@@ -231,8 +195,88 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: C-4 as requested. The axes are:
-//  Symmetry axis number 0: Fold +4.00 XYZ: +0.00 ; -0.00 ; +1.00 Angle (radians): +1.57 and axis peak: +0.98
+//  Detected symmetry: D-4 as requested. The axes are:
+//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.996923
+//  Symmetry axis number 1: Fold 2 XYZ: 0.802192 ; 0.596465 ; 0.0267742 Angle (radians): 3.14159 and axis peak: 0.640755
+    
+    
+    //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
+    //        requested point group. This is relatively simple for T, O and I symmetries, as such list is already produced by
+    //        ProSHADE - see the following examples:
+    //
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedTAxes, "T" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedOAxes, "O" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedIAxes, "I" );
+    //
+    //        For C point groups, this is also simple, as one can select the required >index< from the allCs variable and use
+    //
+    //        std::vector< proshade_unsign > bestCAxesList;
+    //        bestCAxesList.emplace_back ( index );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, bestCAxesList, "C" );
+    //
+    //        The only problem comes when D is to be used, as ProSHADE gives a vector of all combinations (also as vector) of cyclic point groups which form
+    //        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
+        
+    //================================================ Find which D axes combination was reported as best
+    std::vector< proshade_unsign > bestDAxesList;
+    bool firstMatch = false; bool secondMatch = false;
+    for ( int dIt = 0; dIt < static_cast<int> ( settings->allDetectedDAxes.size() ); dIt++ )
+    {
+        firstMatch                                    = false;
+        secondMatch                                   = false;
+
+        for ( proshade_unsign recIt = 0; recIt < static_cast<proshade_unsign> ( reqSymAxes.size() ); recIt++ )
+        {
+            if ( ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[1], reqSymAxes.at(recIt)[1] ) ) &&
+                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[2], reqSymAxes.at(recIt)[2] ) ) &&
+                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[3], reqSymAxes.at(recIt)[3] ) ) &&
+                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[4], reqSymAxes.at(recIt)[4] ) ) &&
+                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[5], reqSymAxes.at(recIt)[5] ) ) )
+            {
+                firstMatch                            = true;
+            }
+        }
+
+        if ( firstMatch )
+        {
+            for ( proshade_unsign recIt = 0; recIt < static_cast<proshade_unsign> ( reqSymAxes.size() ); recIt++ )
+            {
+                if ( ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[1], reqSymAxes.at(recIt)[1] ) ) &&
+                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[2], reqSymAxes.at(recIt)[2] ) ) &&
+                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[3], reqSymAxes.at(recIt)[3] ) ) &&
+                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[4], reqSymAxes.at(recIt)[4] ) ) &&
+                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[5], reqSymAxes.at(recIt)[5] ) ) )
+                {
+                    secondMatch                           = true;
+                }
+            }
+        }
+
+        if ( ( firstMatch && secondMatch ) && ( bestDAxesList.size() == 0 ) )
+        {
+            bestDAxesList.emplace_back                ( settings->allDetectedDAxes.at(dIt).at(0) );
+            bestDAxesList.emplace_back                ( settings->allDetectedDAxes.at(dIt).at(1) );
+        }
+    }
+
+    //================================================ Get point group elements for the best D point group
+    std::vector<std::vector< proshade_double > > groupElements = simpleSym->getAllGroupElements ( settings, bestDAxesList, "D" );
+    std::cout << "Found a total of " << groupElements.size() << " group elements." << std::endl;
+  
+    //================================================ Expected output
+//  Found a total of 8 group elements.
+    
+    //================================================ Print results
+    std::cout << "Point group D" << allCs.at(bestDAxesList.at(0))[0] << "-" << allCs.at(bestDAxesList.at(1))[0] << " has been found to have " << groupElements.size() << " group elements, with the first element (excluding the identity one) having rotation matrix:" << std::fixed << std::setprecision(2) << std::showpos << std::endl;
+    std::cout << groupElements.at(1).at(0) << " | " << groupElements.at(1).at(1) << " | " << groupElements.at(1).at(2) << std::endl;
+    std::cout << groupElements.at(1).at(3) << " | " << groupElements.at(1).at(4) << " | " << groupElements.at(1).at(5) << std::endl;
+    std::cout << groupElements.at(1).at(6) << " | " << groupElements.at(1).at(7) << " | " << groupElements.at(1).at(8) << std::endl << std::endl;
+        
+    //================================================ Expected output
+//  Point group D4-2 has been found to have 8 group elements, with the first element (excluding the identity one) having rotation matrix:
+//  +0.00 | -1.00 | +0.00
+//  +1.00 | +0.00 | +0.00
+//  +0.00 | +0.00 | +1.00
  
     //================================================ Release the settings and runProshade objects
     delete requestSym;

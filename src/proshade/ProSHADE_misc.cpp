@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -261,6 +261,19 @@ bool ProSHADE_internal_misc::sortDSymHlpInv ( const proshade_double* a, const pr
     
     //================================================ Compare
     return                                            ( aScore > bScore );
+    
+}
+
+/*! \brief This function compares two arrays of two based on the first number, sorting highest first.
+ 
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortSymInvFoldHlp ( const proshade_double* a, const proshade_double* b )
+{
+    //================================================ Compare
+    return                                            ( a[0] > b[0] );
     
 }
 

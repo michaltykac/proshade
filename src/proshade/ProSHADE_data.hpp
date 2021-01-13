@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
 */
 
 //==================================================== ProSHADE
@@ -74,9 +74,6 @@ namespace ProSHADE_internal_data
         proshade_signed xAxisOrigin;                  //!< This is the origin position along the x axis.
         proshade_signed yAxisOrigin;                  //!< This is the origin position along the y axis.
         proshade_signed zAxisOrigin;                  //!< This is the origin position along the z axis.
-        proshade_double comMovX;                      //!< How much the map was moved along the X-axis to achieve COM centering.
-        proshade_double comMovY;                      //!< How much the map was moved along the X-axis to achieve COM centering.
-        proshade_double comMovZ;                      //!< How much the map was moved along the X-axis to achieve COM centering.
         proshade_double xCom;                         //!< The COM of the map after processing along the X-axis.
         proshade_double yCom;                         //!< The COM of the map after processing along the Y-axis.
         proshade_double zCom;                         //!< The COM of the map after processing along the Z-axis.
@@ -94,9 +91,12 @@ namespace ProSHADE_internal_data
         proshade_double originalMapXCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the X axis.
         proshade_double originalMapYCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the Y axis.
         proshade_double originalMapZCom;              //!< The COM of the first map to be loaded/computed without any furhter changes being reflacted along the Z axis.
-        proshade_double mapPostRotXCom;               //!< The COM of the rotated map before it is processed in any other way. Along the X axis.
-        proshade_double mapPostRotYCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Y axis.
-        proshade_double mapPostRotZCom;               //!< The COM of the rotated map before it is processed in any other way. Along the Z axis.
+        proshade_double mapMovFromsChangeX;           //!< When the map is translated, the xFrom and xTo values are changed. This variable holds how much they have changed.
+        proshade_double mapMovFromsChangeY;           //!< When the map is translated, the yFrom and yTo values are changed. This variable holds how much they have changed.
+        proshade_double mapMovFromsChangeZ;           //!< When the map is translated, the zFrom and zTo values are changed. This variable holds how much they have changed.
+        proshade_double mapCOMProcessChangeX;         //!< The change in X axis between the creation of the structure (originalMapXCom) and just before rotation.
+        proshade_double mapCOMProcessChangeY;         //!< The change in Y axis between the creation of the structure (originalMapYCom) and just before rotation.
+        proshade_double mapCOMProcessChangeZ;         //!< The change in Z axis between the creation of the structure (originalMapZCom) and just before rotation.
         
         //============================================ Variables regarding rotation and translation of original input files
         proshade_double originalPdbRotCenX;           //!< The centre of rotation as it relates to the original PDB positions (and not the ProSHADE internal map) along the x-axis.
@@ -145,7 +145,6 @@ namespace ProSHADE_internal_data
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );
         void allocateRRPMemory                        ( ProSHADE_settings* settings );
-        void setOriginalMapValues                     ( void );
         
     public:
         //============================================ Constructors / Destructors
@@ -159,22 +158,16 @@ namespace ProSHADE_internal_data
         //============================================ Data I/O functions
         void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "Created by ProSHADE and written by GEMMI", int mode = 2 );
-        void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0, proshade_double transX = 0.0,
-                                                        proshade_double transY = 0.0, proshade_double transZ = 0.0, bool firstModel = true );
+        void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
+                                                        proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, bool firstModel = true );
         void writeMask                                ( std::string fName, proshade_double* mask );
-        int getMapArraySizePython                     ( void );
-        void getMapPython                             ( double *mapArrayPython, int len );
-        void setMapPython                             ( double *mapChangedInPython, int len );
-        void setNewMapPython                          ( double *mapChangedInPython, int len );
         
         //============================================ Data processing functions
         void invertMirrorMap                          ( ProSHADE_settings* settings );
         void normaliseMap                             ( ProSHADE_settings* settings );
         void maskMap                                  ( ProSHADE_settings* settings );
         void getReBoxBoundaries                       ( ProSHADE_settings* settings, proshade_signed*& ret );
-        void getReBoxBoundariesPy                     ( ProSHADE_settings* settings, int* reBoxBounds, int len );
         void createNewMapFromBounds                   ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds );
-        void createNewMapFromBoundsPy                 ( ProSHADE_settings* settings, ProSHADE_data* newStr, int* newBounds, int len );
         void reSampleMap                              ( ProSHADE_settings* settings );
         void centreMapOnCOM                           ( ProSHADE_settings* settings );
         void addExtraSpace                            ( ProSHADE_settings* settings );
@@ -185,10 +178,6 @@ namespace ProSHADE_internal_data
         void getSpherePositions                       ( ProSHADE_settings* settings );
         void mapToSpheres                             ( ProSHADE_settings* settings );
         void computeSphericalHarmonics                ( ProSHADE_settings* settings );
-        void getRealSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsReal, int len );
-        void getImagSphericalHarmonicsForShell        ( proshade_unsign shellNo, proshade_signed verbose, double *sphericalHarmsImag, int len );
-        int sphericalHarmonicsIndex                   ( proshade_signed order, proshade_signed band, proshade_signed shell );
-        int getSphericalHarmonicsLenForShell          ( proshade_unsign shellNo, proshade_signed verbose );
         
         //============================================ Distances pre-computation functions
         bool shellBandExists                          ( proshade_unsign shell, proshade_unsign bandVal );
@@ -198,7 +187,7 @@ namespace ProSHADE_internal_data
         void allocateWignerMatricesSpace              ( ProSHADE_settings* settings );
         
         //============================================ Symmetry detection functions
-        void getRotationFunction                      ( ProSHADE_settings* settings );
+        void computeRotationFunction                  ( ProSHADE_settings* settings );
         void convertRotationFunction                  ( ProSHADE_settings* settings );
         void getRealEMatrixValuesForLM                ( proshade_signed band, proshade_signed order1, double *eMatsLMReal, int len );
         void getImagEMatrixValuesForLM                ( proshade_signed band, proshade_signed order1, double *eMatsLMImag, int len );
@@ -215,17 +204,18 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        std::vector< proshade_double* > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_double matrixTolerance );
+        std::vector< proshade_double* > getPredictedOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_double matrixTolerance );
         void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         void detectSymmetryInStructurePython          ( ProSHADE_settings* settings );
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         std::vector< proshade_double* > getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings );
         std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );
+        std::vector< proshade_double* > optimiseDihedralAngleFromAngleAxis   ( ProSHADE_settings* settings, proshade_double angle, proshade_double* axis1, proshade_double* axis2 );
         void saveDetectedSymmetries                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSyms, std::vector < std::vector< proshade_double > >* allCs );
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
-        proshade_unsign getAllSymsOneArrayLength      ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
         proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
         proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );
@@ -239,17 +229,13 @@ namespace ProSHADE_internal_data
         void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes );
         std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector<std::vector< proshade_double > >* allCSyms, proshade_unsign grPosition );
         std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector< proshade_double* >* allCSyms, proshade_unsign grPosition );
-        std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "" );
-        proshade_unsign getAllGroupElementsLength     ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType );
-        void getAllGroupElementsPython                ( ProSHADE_settings* settings, int* grIndices, int len, std::string groupType, double* allGroupElement, int ln2 );
-        proshade_unsign getCGroupElementsLength       ( ProSHADE_settings* settings, proshade_unsign grPosition );
-        void getCGroupElementsPython                  ( ProSHADE_settings* settings, double* groupElements, int len, proshade_unsign grPosition );
+        std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
         //============================================ Map overlay functions
         void getOverlayRotationFunction               ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj2 );
         std::vector< proshade_double > getBestRotationMapPeaksEulerAngles ( ProSHADE_settings* settings );
-        std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure );
+        std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
         void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
         void translateMap                             ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
@@ -259,13 +245,12 @@ namespace ProSHADE_internal_data
         void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( void );
-        void computeOverlayTranslations               ( proshade_double* rcX, proshade_double* rcY, proshade_double* rcZ,
-                                                        proshade_double* transX, proshade_double* transY, proshade_double* transZ );
-        void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ,
-                                                        proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
+        void computePdbRotationCentre                 ( void );
+        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
+        void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
                                                         std::vector< proshade_double >* ultimateTranslation );
-        void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector< proshade_double >* mapBoxMovement,
-                                                        std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation );
+        void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
+                                                        std::vector < proshade_double >* finalTranslation );
         
         //============================================ Python access functions
         void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );
@@ -317,6 +302,7 @@ namespace ProSHADE_internal_data
     //================================================ Support functions
     std::vector<std::vector< proshade_double > > joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first,
                                                                                    std::vector<std::vector< proshade_double > >* second,
+                                                                                   proshade_double matrixTolerance,
                                                                                    bool combine );
 }
 

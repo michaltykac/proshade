@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -324,17 +324,20 @@ namespace ProSHADE_internal_maths
                                                         proshade_double* x, proshade_double* y, proshade_double* z );
     void getRotationMatrixFromEulerZXZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
     void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
+    void getAxisAngleFromRotationMatrix               ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
     void getRotationMatrixFromAngleAxis               ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getEulerZXZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
     void getEulerZXZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
                                                         proshade_double* eB, proshade_double* eG, proshade_unsign angDim );
     void getEulerZXZFromAngleAxisFullSearch           ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
-                                                        proshade_double* eB, proshade_double* eG, proshade_unsign angDim );
+                                                        proshade_double* eB, proshade_double* eG, proshade_signed angDim );
     void multiplyTwoSquareMatrices                    ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim );
     std::vector < proshade_signed > primeFactorsDecomp ( proshade_signed number );
     proshade_double normalDistributionValue           ( proshade_double mean, proshade_double standardDev, proshade_double value );
     proshade_double computeDotProduct                 ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2,
                                                         proshade_double* z2 );
+    proshade_double computeDotProduct                 ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
+                                                        proshade_double z2 );
     std::vector < proshade_double > findVectorFromTwoVAndTwoD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
                                                                 proshade_double z2, proshade_double dot1, proshade_double dot2 );
     std::vector < proshade_double > findVectorFromThreeVAndThreeD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
@@ -351,12 +354,13 @@ namespace ProSHADE_internal_maths
     void prepareBiCubicInterpolatorsMinusMinus        ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
                                                         std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     void prepareBiCubicInterpolatorsMinusPlus         ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
-                                                    std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
+                                                        std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     void prepareBiCubicInterpolatorsPlusMinus         ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
-                                                    std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
+                                                        std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     void prepareBiCubicInterpolatorsPlusPlus          ( proshade_double bestLattitude, proshade_double bestLongitude, std::vector<proshade_unsign>* sphereList,
-                                                    std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
+                                                        std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance = 0.1, bool improve = false );
+    bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );
     std::vector< proshade_unsign > findAllPrimes      ( proshade_unsign upTo );
 }
 

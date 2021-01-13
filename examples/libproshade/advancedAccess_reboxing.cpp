@@ -4,7 +4,8 @@
     This code is an example of how any C++ project linking the ProSHADE library can access the advanced ProSHADE interface. More specifically, in this example, a structure object is created and a structure is read into it. Then, the current object boundaries are copied
     (opitonal) and the internal structure is processed according to the settings. In this stage, map resolution and other changes are applied. Once the internal representation is processed, it is possible to do two main things. Firstly, the code shows how to creat a new ProSHADE
     internal object containing only a portion of the original object's map contained by the new boundaries. Secondaly, it shows how these new boundaries can be obtained. Finally, the new re-boxed map is written out into a file using the new ProSHADE object, which is a full
-    ProSHADE object, which can be used for any other purposes, for example symmetry detection or anything else.
+    ProSHADE object, which can be used for any other purposes, for example symmetry detection or anything else. If you want to learn more about the advanced interface and the functions available, please look into the
+    DOxygen documentation provided in the Documentation folder provided with the ProSHADE source codes.
 
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -17,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
 */
 
 //==================================================== ProSHADE

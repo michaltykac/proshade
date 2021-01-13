@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -51,6 +51,86 @@ void ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction ( ProSHAD
     
     //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Rotation function obtained." );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes the optimal rotation centre for co-ordinates.
+ 
+    This function computes the "visualisation world" (or co-ordinates space) position of the point about which the map was
+    rotated, taking into account the internal ProSHADE map manipulations and other factors. By rotating the co-ordinates
+    about this point, their position and orientation will be the same as the map position before translation function is computed.
+ 
+    \warning This function will be called automatically by the getOptimalTranslation() function, so unless directAccess is being used, the user should not need to use this function.
+ */
+void ProSHADE_internal_data::ProSHADE_data::computePdbRotationCentre ()
+{
+    //================================================ First. determine the sampling rates (value to multiply indices with to get Angstroms)
+    proshade_double xSamplRate                        = ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) );
+    proshade_double ySamplRate                        = ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) );
+    proshade_double zSamplRate                        = ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) );
+    
+    //================================================ Compute the rotation centre for the co-ordinates
+    proshade_double xRotPos                           = ( static_cast<proshade_double> ( this->xFrom - this->mapMovFromsChangeX ) * xSamplRate ) +                                // Corner X position in Angstroms
+                                                        ( ( ( static_cast<proshade_double> ( this->xTo ) - static_cast<proshade_double> ( this->xFrom ) ) / 2.0 ) * xSamplRate ); // Half of box X size
+    
+    proshade_double yRotPos                           = ( static_cast<proshade_double> ( this->yFrom - this->mapMovFromsChangeY ) * ySamplRate ) +                                // Corner Y position in Angstroms
+                                                        ( ( ( static_cast<proshade_double> ( this->yTo ) - static_cast<proshade_double> ( this->yFrom ) ) / 2.0 ) * ySamplRate ); // Half of box Y size
+    
+    proshade_double zRotPos                           = ( static_cast<proshade_double> ( this->zFrom - this->mapMovFromsChangeZ ) * zSamplRate ) +                                // Corner Z position in Angstroms
+                                                        ( ( ( static_cast<proshade_double> ( this->zTo ) - static_cast<proshade_double> ( this->zFrom ) ) / 2.0 ) * zSamplRate ); // Half of box Z size
+    
+    //============================================ Modify by change during ProSHADE map processing
+    this->originalPdbRotCenX                          = xRotPos - ( this->mapCOMProcessChangeX / 2.0 );
+    this->originalPdbRotCenY                          = yRotPos - ( this->mapCOMProcessChangeY / 2.0 );
+    this->originalPdbRotCenZ                          = zRotPos - ( this->mapCOMProcessChangeZ / 2.0 );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes and saves the optimal translation vector from the already determined translation function results.
+ 
+    This function simply saves the determined optimal translation to the appropriate variable and does a simple modification to take into account
+    any modifications that ProSHADE may have done to the internal map.
+ 
+    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] transX The translation to be done along the X-axis in Angstroms.
+    \param[in] transY The translation to be done along the Y-axis in Angstroms.
+    \param[in] transZ The translation to be done along the Z-axis in Angstroms.
+ 
+    \warning This function will be called automatically by the getOptimalTranslation() function, so unless directAccess is being used, the user should not need to use this function.
+ */
+void ProSHADE_internal_data::ProSHADE_data::computeOptimalTranslation ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
+{
+    //================================================ Reset class variables
+    this->originalPdbTransX                           = 0.0;
+    this->originalPdbTransY                           = 0.0;
+    this->originalPdbTransZ                           = 0.0;
+    
+    //================================================ Correctly apply any map modifications that ProSHADE may have done to the map to make sure map matches co-ordinates.
+    if ( ( eulA != 0.0 ) || ( eulB != 0.0 ) || ( eulG != 0.0 ) )
+    {
+        //============================================ If rotation is to be done, then ProSHADE processing map changes are already dealt with
+        ;
+    }
+    else
+    {
+        //============================================ In not, then they need to be added
+        this->originalPdbTransX                       = this->mapCOMProcessChangeX;
+        this->originalPdbTransY                       = this->mapCOMProcessChangeY;
+        this->originalPdbTransZ                       = this->mapCOMProcessChangeZ;
+    }
+
+    //================================================ Save the values
+    this->originalPdbTransX                          += trsX;
+    this->originalPdbTransY                          += trsY;
+    this->originalPdbTransZ                          += trsZ;
     
     //================================================ Done
     return ;
@@ -134,7 +214,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->mapToSpheres                     ( settings );
     movingStructure->computeSphericalHarmonics        ( settings );
     
-    //================================================ Rotate map and write it out
+    //================================================ Rotate map 
     movingStructure->rotateMap ( settings, eulA, eulB, eulG );
     
     //================================================ Zero padding for smaller structure
@@ -170,11 +250,11 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
                                                         ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
     proshade_single zCor                              = ( staticStructure->zFrom - movingStructure->zFrom ) *
                                                         ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
-    proshade_single xMov                              = staticStructure->comMovX - xCor -
+    proshade_single xMov                              = staticStructure->mapCOMProcessChangeX - xCor -
                                                         ( *trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
-    proshade_single yMov                              = staticStructure->comMovY - yCor -
+    proshade_single yMov                              = staticStructure->mapCOMProcessChangeY - yCor -
                                                         ( *trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
-    proshade_single zMov                              = staticStructure->comMovZ - zCor -
+    proshade_single zMov                              = staticStructure->mapCOMProcessChangeZ - zCor -
                                                         ( *trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
     
     //================================================ Save translation vector back
@@ -186,6 +266,11 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     std::stringstream hlpSS;
     hlpSS << "Optimal map translation distances are " << *trsX << " ; " << *trsY << " ; " << *trsZ << " Angstroms with peak height " << mapPeak / ( xDimS * yDimS * zDimS );
 
+    //================================================ Save original from variables for PDB output
+    movingStructure->mapMovFromsChangeX               = movingStructure->xFrom;
+    movingStructure->mapMovFromsChangeY               = movingStructure->yFrom;
+    movingStructure->mapMovFromsChangeZ               = movingStructure->zFrom;
+    
     //================================================ Move the map
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, movingStructure->getXDimSize(), movingStructure->getYDimSize(), movingStructure->getZDimSize(),
                                                         movingStructure->getXFromPtr(), movingStructure->getXToPtr(),
@@ -201,17 +286,26 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Translation function computation complete." );
     
+    //================================================ Keep only the change in from and to variables
+    movingStructure->mapMovFromsChangeX               = movingStructure->xFrom - movingStructure->mapMovFromsChangeX;
+    movingStructure->mapMovFromsChangeY               = movingStructure->yFrom - movingStructure->mapMovFromsChangeY;
+    movingStructure->mapMovFromsChangeZ               = movingStructure->zFrom - movingStructure->mapMovFromsChangeZ;
+    
+    //================================================ Compute the optimal rotation centre for co-ordinates
+    movingStructure->computePdbRotationCentre         ( );
+    movingStructure->computeOptimalTranslation        ( eulA, eulB, eulG, *trsX, *trsY, *trsZ );
+    
     //================================================ Done
     return ;
     
 }
 
-/*! \brief This function gets the optimal translation vector and returns it as a standard library vector.
+/*! \brief This function gets the optimal translation vector and returns it as a standard library vector. It also applies the translation to the internal map.
 
     \param[in] staticStructure A pointer to the data class object of the other ( static ) structure.
     \param[out] X A vector of doubles with the optimal translation vector in Angstroms.
 */
-std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure )
+std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG )
 {
     //================================================ Initialise local variables
     std::vector< proshade_double > ret;
@@ -238,24 +332,52 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
                                                         ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
     proshade_single zCor                              = ( staticStructure->zFrom - this->zFrom ) *
                                                         ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
-    proshade_single xMov                              = staticStructure->comMovX - xCor -
+    proshade_single xMov                              = staticStructure->mapCOMProcessChangeX - xCor -
                                                         ( trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
-    proshade_single yMov                              = staticStructure->comMovY - yCor -
+    proshade_single yMov                              = staticStructure->mapCOMProcessChangeY - yCor -
                                                         ( trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
-    proshade_single zMov                              = staticStructure->comMovZ - zCor -
+    proshade_single zMov                              = staticStructure->mapCOMProcessChangeZ - zCor -
                                                         ( trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
+    proshade_single modXMov                           = xMov;
+    proshade_single modYMov                           = yMov;
+    proshade_single modZMov                           = zMov;
     
     //================================================ Save results as vector
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -xMov ) );
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -yMov ) );
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, static_cast<proshade_double> ( -zMov ) );
+
+    //================================================ Save original from variables for PDB output
+    this->mapMovFromsChangeX                          = this->xFrom;
+    this->mapMovFromsChangeY                          = this->yFrom;
+    this->mapMovFromsChangeZ                          = this->zFrom;
+    
+    //================================================ Move the map
+    ProSHADE_internal_mapManip::moveMapByIndices      ( &modXMov, &modYMov, &modZMov, this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),
+                                                         this->getXFromPtr(), this->getXToPtr(),
+                                                         this->getYFromPtr(), this->getYToPtr(),
+                                                         this->getZFromPtr(), this->getZToPtr(),
+                                                         this->getXAxisOrigin(), this->getYAxisOrigin(), this->getZAxisOrigin() );
+    
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->getInternalMap(), modXMov, modYMov, modZMov,
+                                                        this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),
+                                                        this->getXDim(), this->getYDim(), this->getZDim() );
+
+    //================================================ Keep only the change in from and to variables
+    this->mapMovFromsChangeX                          = this->xFrom - this->mapMovFromsChangeX;
+    this->mapMovFromsChangeY                          = this->yFrom - this->mapMovFromsChangeY;
+    this->mapMovFromsChangeZ                          = this->zFrom - this->mapMovFromsChangeZ;
+    
+    //================================================ Compute the optimal rotation centre for co-ordinates
+    this->computePdbRotationCentre                    ( );
+    this->computeOptimalTranslation                   ( eulA, eulB, eulG, -xMov, -yMov, -zMov );
     
     //================================================ Done
     return                                            ( ret );
     
 }
 
-/*! \brief This function does the computation of the translation map.
+/*! \brief This function does the computation of the translation map and saves results internally.
 
     This function takes the static structure, the optimal translation to which should be found and then it
     proceeds to compute the Fourier transform of both this and the static structures. It then combines the
@@ -463,7 +585,7 @@ void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, pro
     
 }
 
-/*! \brief This function increases the size of a structure to fit the supplied new limits.
+/*! \brief This function changes the size of a structure to fit the supplied new limits.
  
     This function increases the map size by symetrically adding zeroes in each required dimension. The first zero is
     always added AFTER the structure, so for even size increases, there will be misplacement of centre of mass. The
@@ -616,6 +738,12 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     //================================================ Set maximum comparison bandwidth to maximum object bandwidth
     this->maxCompBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
     
+    //================================================ Save map COM after processing but before rotation
+    this->findMapCOM                                  ( );
+    this->mapCOMProcessChangeX                        = this->xCom - this->originalMapXCom;
+    this->mapCOMProcessChangeY                        = this->yCom - this->originalMapYCom;
+    this->mapCOMProcessChangeZ                        = this->zCom - this->originalMapZCom;
+    
     //================================================ Compute the Wigner D matrices for the Euler angles
     ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, -eulerAlpha, eulerBeta, -eulerGamma );
     
@@ -645,12 +773,6 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     {
         this->internalMap[iter]                       = densityMapRotated[iter];
     }
-    
-    //================================================ Re-calculate the map COM
-    this->findMapCOM                                  ( );
-    this->mapPostRotXCom                              = this->xCom;
-    this->mapPostRotYCom                              = this->yCom;
-    this->mapPostRotZCom                              = this->zCom;
     
     //================================================ Release rotated map (original is now rotated)
     delete[] densityMapRotated;

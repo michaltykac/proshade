@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.0
-    \date      DEC 2020
+    \version   0.7.5.1
+    \date      JAN 2021
  */
 
 //==================================================== ProSHADE
@@ -1121,6 +1121,18 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
             }
         }
         
+        //============================================ Make sure largest axis is positive and so is the angle
+        if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+        {
+            *x                                       *= -1.0;
+            *y                                       *= -1.0;
+            *z                                       *= -1.0;
+            *ang                                     *= -1.0;
+        }
+        if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
+        
         //============================================ Done
         return ;
     }
@@ -1149,6 +1161,171 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *x                                                /= normFactor;
    *y                                                /= normFactor;
    *z                                                /= normFactor;
+    
+    //================================================ Make sure largest axis is positive and so is the angle
+    if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+    {
+        *x                                           *= -1.0;
+        *y                                           *= -1.0;
+        *z                                           *= -1.0;
+        *ang                                         *= -1.0;
+    }
+    if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function converts rotation matrix to the axis-angle representation.
+ 
+    This function takes a rotation matrix as a pointer to a vector of doubles and converts it to the Angle-Axis
+    representation, which is the main rotation representation used in ProSHADE. This function deals with both
+    the North and South pole singularity of the rotation matrices.
+ 
+    \param[in] rotMat Rotation matrix as a  pointer to a vector of doubles.
+    \param[in] x Pointer to which the x-axis value of the axis vector will be saved.
+    \param[in] y Pointer to which the y-axis value of the axis vector will be saved.
+    \param[in] z Pointer to which the z-axis value of the axis vector will be saved.
+    \param[in] ang Pointer to which the angle value will be saved.
+ */
+ void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang )
+{
+    //================================================ Initialise
+    proshade_double singAtPiCheck                     = 0.01;
+    proshade_double singAtIdentity                    = 0.05;
+    
+    //================================================ Check input for singularities
+    if ( ( std::abs ( rotMat->at(1) - rotMat->at(3) ) < singAtPiCheck ) &&
+         ( std::abs ( rotMat->at(2) - rotMat->at(6) ) < singAtPiCheck ) &&
+         ( std::abs ( rotMat->at(5) - rotMat->at(7) ) < singAtPiCheck ) )
+    {
+        //============================================ Singularity in input! Check for identity matrix
+        if ( ( std::abs ( rotMat->at(1) + rotMat->at(3) ) < singAtIdentity ) &&
+             ( std::abs ( rotMat->at(2) + rotMat->at(6) ) < singAtIdentity ) &&
+             ( std::abs ( rotMat->at(5) + rotMat->at(7) ) < singAtIdentity ) &&
+             ( std::abs ( rotMat->at(0) + rotMat->at(4) + rotMat->at(8) - 3.0 ) < singAtIdentity ) )
+        {
+            //======================================== Identity matrix. Return 0 angle.
+           *x                                         = 1.0;
+           *y                                         = 0.0;
+           *z                                         = 0.0;
+           *ang                                       = 0.0;
+            
+            //======================================== Done
+            return ;
+        }
+        
+        //============================================ If we got here, this is the 180deg (pi rad) singularity. Find which axis should the rotation be done along
+       *ang                                           = M_PI;
+                
+        proshade_double xx                            = ( rotMat->at(0) + 1.0 ) / 2.0;
+        proshade_double yy                            = ( rotMat->at(4) + 1.0 ) / 2.0;
+        proshade_double zz                            = ( rotMat->at(8) + 1.0 ) / 2.0;
+        proshade_double xy                            = ( rotMat->at(1) + rotMat->at(3) ) / 4.0;
+        proshade_double xz                            = ( rotMat->at(2) + rotMat->at(6) ) / 4.0;
+        proshade_double yz                            = ( rotMat->at(5) + rotMat->at(7) ) / 4.0;
+        
+        if ( ( xx > yy ) && ( xx > zz ) ) // XX is the largest diagonal
+        {
+            if ( xx < singAtPiCheck ) // and is still 0
+            {
+               *x                                     = 0.0;
+               *y                                     = 1.0 / sqrt(2);
+               *z                                     = 1.0 / sqrt(2);
+            }
+            else
+            {
+               *x                                     =  sqrt ( xx );
+               *y                                     =  xy / sqrt ( xx );
+               *z                                     =  xz / sqrt ( xx );
+            }
+        }
+        
+        else if ( yy > zz ) // YY is the largest diagonal
+        {
+            if ( yy < singAtPiCheck ) // and is still 0
+            {
+               *x                                     =  1.0 / sqrt(2);
+               *y                                     =  0.0;
+               *z                                     =  1.0 / sqrt(2);
+            }
+            else
+            {
+               *y                                     =  sqrt ( yy );
+               *x                                     =  xy / sqrt ( yy );
+               *z                                     =  yz / sqrt ( yy );
+            }
+        }
+        
+        else // ZZ is the largest diagonal
+        {
+            if ( zz < singAtPiCheck ) // and is still 0
+            {
+               *x                                     = 1.0 / sqrt(2);
+               *y                                     = 1.0 / sqrt(2);
+               *z                                     = 0.0;
+            }
+            else
+            {
+               *z                                     = sqrt ( zz );
+               *x                                     = xz / sqrt ( zz );
+               *y                                     = yz / sqrt ( zz );
+            }
+        }
+        
+        //============================================ Make sure largest axis is positive and so is the angle
+        if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+        {
+            *x                                       *= -1.0;
+            *y                                       *= -1.0;
+            *z                                       *= -1.0;
+            *ang                                     *= -1.0;
+        }
+        
+        //============================================ Done
+        return ;
+    }
+    
+    //================================================ No singularities! Now get angle
+   *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat->at(0) + rotMat->at(4) + rotMat->at(8) ) ) - 1.0 ) / 2.0 );
+    
+    //================================================ Init return values
+   *x                                                 = 1.0;
+   *y                                                 = 0.0;
+   *z                                                 = 0.0;
+    
+    //================================================ Is angle 0? This should not happen, but will
+    if ( std::abs ( *ang ) < singAtPiCheck )
+    {
+       *ang                                           = 0.0;
+        return ;
+    }
+    
+    //================================================ Axis
+   *x                                                 = rotMat->at(7) - rotMat->at(5);
+   *y                                                 = rotMat->at(2) - rotMat->at(6);
+   *z                                                 = rotMat->at(3) - rotMat->at(1);
+    
+    proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+   *x                                                /= normFactor;
+   *y                                                /= normFactor;
+   *z                                                /= normFactor;
+    
+    //================================================ Make sure largest axis is positive and so is the angle
+    if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
+         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+    {
+        *x                                           *= -1.0;
+        *y                                           *= -1.0;
+        *z                                           *= -1.0;
+        *ang                                         *= -1.0;
+    }
     
     //================================================ Done
     return ;
@@ -1299,8 +1476,8 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     else
     {
         //============================================ Compute some extra rotation matrix elements
-        proshade_double tmp1                          = axX * axY * tAng;
-        proshade_double tmp2                          = axZ * sAng;
+        tmp1                                          = axX * axY * tAng;
+        tmp2                                          = axZ * sAng;
         proshade_double element10                     = tmp1 + tmp2;
         proshade_double element00                     = cAng + axX * axX * tAng;
         
@@ -1346,7 +1523,7 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_signed angDim )
 {
     //================================================ Initialise variables
     proshade_double bestDist                          = 999.9;
@@ -1525,6 +1702,21 @@ proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1
 {
     //================================================ Compute and return
     return                                            ( (*x1 * *x2) + (*y1 * *y2) + (*z1 * *z2) );
+}
+
+/*! \brief Simple 3D vector dot product computation.
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+ */
+proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2 )
+{
+    //================================================ Compute and return
+    return                                            ( (x1 * x2) + (y1 * y2) + (z1 * z2) );
 }
 
 /*! \brief Function for finding a vector which would have a given two dot products to two other vectors.
@@ -1798,7 +1990,7 @@ bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_d
     trace                                            -= 3.0;
     
     //================================================ Compare to tolerance
-    if ( tolerance >= std::abs ( trace ) ) { ret = true; }
+    if ( tolerance > std::abs ( trace ) ) { ret = true; }
     
     //================================================ Done
     return                                            ( ret );
@@ -1891,7 +2083,6 @@ void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double
     proshade_double lonM, lonP, latM, latP, movSum;
     std::vector<proshade_double> latVals              ( 3 );
     std::vector<proshade_double> lonVals              ( 3 );
-    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
     proshade_double learningRate                      = 0.1;
     proshade_double prevVal                           = *bestSum;
     proshade_double valChange                         = 999.9;
@@ -2215,7 +2406,7 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
         //============================================ Is fold the same?
         if ( CSymList->at(grIt)[0] == axis[0] )
         {
-            if ( vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
             {
                 ret                                   = false;
                 whichImprove                          = grIt;
@@ -2232,6 +2423,41 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
         CSymList->at(whichImprove)[3]                 = axis[3];
         CSymList->at(whichImprove)[4]                 = axis[4];
         CSymList->at(whichImprove)[5]                 = axis[5];
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function checks if new axis is unique, or already detected.
+ 
+    This function compares the supplied axis against all members of the axes vector. If the axis has the same fold and very similar
+    axis vector (i.e. all three elements are within tolerance), then the function returns false. If no such match is found, true is returned.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] X The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Y The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Z The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[out] ret Boolean specifying whether a similar axis was found or not.
+ */
+bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = true;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        if ( fold == CSymList->at(grIt)[0] )
+        {
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
+            {
+                ret                                       = false;
+                break;
+            }
+        }
     }
     
     //================================================ Done
