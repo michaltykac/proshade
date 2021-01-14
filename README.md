@@ -1,4 +1,4 @@
-![](https://github.com/michaltykac/proshade/blob/experimental/Logo_small.png)
+![](https://github.com/michaltykac/proshade/blob/experimental/proshade/Logo_small.png)
 
 ProSHADE
 ========
@@ -265,7 +265,7 @@ It is also worth noting that there are several extra functionalities available f
 
 To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the *C12* symmetry. The visualisation of the structure is shown in the following figure, while the output of the ProSHADE tool follows:
 
-![T4 Portal Protein](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_3JA7.jpg)
+![T4 Portal Protein](https://github.com/michaltykac/proshade/blob/experimental/proshade/documentation/ProSHADE_3JA7.jpg)
 
 ```
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
@@ -309,7 +309,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
  To demonstrate the output of the ProSHADE software tool for computing distances between structure shapes, the distances between the BALBES protein domains 1BFO_A_dom_1 and 1H8N_A_dom_1 (which have similar shape) and the 3IGU_A_dom_1 domain which has a different shape, as can be seen from the following figure - the first two domains are both in cluster a), while the last domain is from the cluster b). The output of the ProSHADE software tool is then shown below:
 
-![BALBES domain used for similarity detection](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_dists.png)
+![BALBES domain used for similarity detection](https://github.com/michaltykac/proshade/blob/experimental/proshade/documentation/ProSHADE_dists.png)
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
@@ -377,7 +377,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
  The following snippet shows the output of the ProSHADE tool when used to re-box the TubZ-Bt four-stranded filament structure (EMDB accession code 5762 and PDB accession code 3J4S), where the original volume can be decreased to 46.9% of the original structure volume and thus any linear processing of such structure will be more than twice faster and the original. The original TubZ-Bt four-stranded filament structure box is shown in the following figure as semi-transparent grey, while the new box is shown in non-transparent yellow.
  
-![Re-boxing result for TubZ-Bt four-stranded filament](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_rebox.png)
+![Re-boxing result for TubZ-Bt four-stranded filament](https://github.com/michaltykac/proshade/blob/experimental/proshade/documentation/ProSHADE_rebox.png)
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz
@@ -419,7 +419,7 @@ Time taken: 9 seconds.
  
  **Warning**: In order to allow visualisation of the results of ProSHADE overlap task, the translation is computed in the *real world* or *visualisation co-ordinates* space; this, however, has the implication that if the moving structure is a density, then the densty box may need to be moved in such a way that it contains the static structure's position. Therefore, the **translation computed as described above should not be applied to the density in box, but rather to the box itself** (or possibly if such box translation cannot be done perfectly, then the remainder of the imperfect box translation can be done within the box).
  
- ![ProSHADE Overlay results for 2A2Q_T_dom_2.pdb](https://github.com/michaltykac/proshade/blob/experimental/documentation/ProSHADE_overlay.jpg)
+ ![ProSHADE Overlay results for 2A2Q_T_dom_2.pdb](https://github.com/michaltykac/proshade/blob/experimental/proshade/documentation/ProSHADE_overlay.jpg)
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
@@ -1116,4 +1116,4 @@ pStruct_moving.writePdb                               ( "/Users/mysak/Desktop/mo
 
 # The End
 
-![](https://github.com/michaltykac/proshade/blob/experimental/Logo_small.png)
+![](https://github.com/michaltykac/proshade/blob/experimental/proshade/Logo_small.png)
