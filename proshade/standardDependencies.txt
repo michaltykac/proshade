@@ -148,5 +148,15 @@ Not fully supported yet.
 * Use ProSHADE from Command Prompt :-)
 	
 	
-	
+=================
+Build PyPi Module
+=================
+
+* build tar module 
+	* python setup.py sdist
+* upload to the module to PyPiTest
+	* twine upload --repository-url https://test.pypi.org/legacy/ ./dist/*
+* upload to the module to PyPi
+	* twine upload ./dist/*
+
 	

@@ -23,6 +23,14 @@
 ##############################################
 ##############################################
 
+##########################################################################################
+##########################################################################################
+##### Global settings
+##########################################################################################
+##########################################################################################
+gl_version                                            = '0.0.0.2'
+gl_download                                           = 'https://github.com/michaltykac/proshade/archive/v{0}.tar.gz'.format(gl_version)
+
 
 ##########################################################################################
 ##########################################################################################
@@ -35,8 +43,11 @@ import sys
 import sysconfig
 import platform
 import subprocess
+import requests
+import shutil
 
 from distutils.version import LooseVersion
+from distutils.dir_util import copy_tree
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
@@ -118,7 +129,7 @@ class CMakeBuild ( build_ext ):
             os.makedirs                               ( self.build_temp )
     
         ### Run CMake
-        subprocess.check_call                         ( ['cmake', ext.sourcedir]  + cmake_args, cwd = self.build_temp, env = env )
+        subprocess.check_call                         ( ['cmake', os.path.join ( ext.sourcedir, 'proshade' )]  + cmake_args, cwd = self.build_temp, env = env )
         subprocess.check_call                         ( ['cmake', '--build', '.'] + build_args, cwd = self.build_temp )
 
 ##########################################################################################
@@ -130,6 +141,15 @@ this_directory                                        = os.path.abspath ( os.pat
 with open(os.path.join(this_directory, 'README.md')) as f:
     long_description                                  = f.read ( )
 
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join('..', path, filename))
+    return paths
+
+extra_files = package_files('proshade')
+
 ##########################################################################################
 ##########################################################################################
 ##### Module info
@@ -137,10 +157,11 @@ with open(os.path.join(this_directory, 'README.md')) as f:
 ##########################################################################################
 setup (
     name                                              = 'proshade',
-    version                                           = '0.7.5.1',
+    version                                           =  gl_version,
     author                                            = 'Michal Tykac, Garib N. Murshudov',
     author_email                                      = 'Michal.Tykac@gmail.com',
     url                                               = 'https://github.com/michaltykac/proshade',
+    download_url                                      =  gl_download,
     description                                       = 'Protein Shape Description and Symmetry Detection (ProSHADE) python module',
     long_description                                  = long_description,
     long_description_content_type                     = 'text/markdown',
@@ -160,7 +181,10 @@ setup (
     keywords                                          = 'bioinformatics protein-shapes symmetry-detection computational-biology structural-biology',
     project_urls                                      = { 'Github': 'https://github.com/michaltykac/proshade',
                                                           'Bug Reports': 'https://github.com/michaltykac/proshade/issues' },
-    setup_requires                                    = ['numpy'],
+    setup_requires                                    = ['numpy','setuptools'],
+    install_requires                                  = ['numpy','setuptools'],
+    packages                                          = ['proshade'],
+    package_data                                      = {'' : extra_files },
     zip_safe                                          = False,
 )
 
