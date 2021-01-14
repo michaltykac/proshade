@@ -10,7 +10,7 @@ add_subdirectory        ( ${CMAKE_SOURCE_DIR}/extern/pybind11 build             
 
 ##########################################################################################
 ################################### Add the PyBind11 target
-pybind11_add_module     ( py${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/src/python/pyProSHADE_bindings.cpp )
+pybind11_add_module     ( py${PROJECT_NAME} MODULE ${CMAKE_SOURCE_DIR}/src/python/pyProSHADE_bindings.cpp )
 
 ##########################################################################################
 ################################### Add and link the dependencies

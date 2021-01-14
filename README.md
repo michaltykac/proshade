@@ -211,17 +211,23 @@ ProSHADE also depends on the *Gemmi* and *SOFT2.0* libraries. The installation o
   
  ## Installing using pip 
  
- If the user is interested solely in the python module to ProSHADE, then such module can be build and installed globally using pip. The appropriate *setup.py* script is located at the root of the ProSHADE directory and therefore the installation can simply be done as follows:
+ The ProSHADE python module is also available (as a source distribution) on the PyPi repository. Therefore, the ProSHADE python module can be installed by simply issuing the following command; **however, this assumes that all the system dependencies as discussed in the [Standard System Dependencies](#standard-system-dependencies) section are already installed.** If any of them is missing, then a cryptic error message will ensue - consider yourself warned.
  
  ```
-    python -m pip install \path\to\ProSHADE
+    pip install proshade
+ ```
+ 
+ Alternatively, the module can be build and installed using pip directly from the ProSHADE GitHub repository ( https://github.com/michaltykac/proshade ) using the following command. This approach has the advantage that it takes the most current stable version, rather than being dependent on the authors not forgetting to update the PyPi repository.
+ 
+ ```
+    pip install git+https://github.com/michaltykac/proshade 
  ```
   
-  Please note that the pip installation only wraps around the CMake installation and that CMake is still being run by pip in the background. Therefore, the same system dependencies are required. Moreover, if any of the system dependencies is missing or cannot be found, then a bit more cryptic error message will be printed by pip.
+  Again, please note that the pip installation only wraps around the CMake installation and that CMake is still being run by pip in the background. Therefore, the same system dependencies are required. Moreover, if any of the system dependencies is missing or cannot be found, then a bit more cryptic error message will be printed by pip.
   
   ### Uninstalling pip installed module
   
-  Should the user require to uninstall the python module and all associated data after they were installed globally using pip, the following standard pip command can achieve this task:
+  Should the user require to uninstall the python module and all associated data after they were installed globally using pip, the following standard pip command can achieve this task irrespective as to how exactly the proshade module was installed:
   
   ```
     python -m pip uninstall proshade
