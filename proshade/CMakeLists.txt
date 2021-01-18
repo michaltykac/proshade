@@ -60,14 +60,6 @@ file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                
 file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                               )
 
 ##########################################################################################
-################################### Check for header files
-include ( CheckIncludeFiles                                                               )
-check_include_files ( getopt.h HAVE_GETOPT_H                                              )
-if      ( NOT ${HAVE_GETOPT_H} )
-	message ( FATAL_ERROR "The getopt.h header was not found. Please check that its include path is in the system paths or re-install your compiler." )
-endif   ( NOT ${HAVE_GETOPT_H} )
-
-##########################################################################################
 ################################### Define the command line options variables and defaults
 set     ( INSTALL_LOCALLY        ON      CACHE BOOL   "Should installation be done locally?"   )
 set     ( INSTALL_BIN_DIR        bin     CACHE PATH   "Installation directory for executables" )
@@ -99,6 +91,16 @@ elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
   ################################# Using Visual Studio C++
   ### TO BE COMPLETED
 endif  ( )     
+
+##########################################################################################
+################################### Set flags depending on system
+if     ( CYGWIN )
+	set              ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__int64=\"long long\""       )
+elseif ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/ZLIB                            )
+	include_directories ( ${CMAKE_SOURCE_DIR}/winLibs/x64/ZLIB                            )
+	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs                            )
+endif  ( CYGWIN )
 
 ##########################################################################################
 ################################### Set targets for dependency installation from supplied sources
@@ -148,6 +150,9 @@ if    ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
     else  ( TESTED_FFTW3_INC_PATH )
         message             ( FATAL_ERROR "Cannot find FFTW3 inc in: " ${TESTED_FFTW3_INC_PATH} )
     endif ( TESTED_FFTW3_INC_PATH )
+elseif( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/FFTW3                           )
+	include_directories ( ${CMAKE_SOURCE_DIR}/winLibs/x64/FFTW3                           )
 else  ( CUSTOM_FFTW3_LIB_PATH OR CUSTOM_FFTW3_INC_PATH )
     set                 ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/findFFTW            )
     find_package        ( FFTW REQUIRED                                                   )
@@ -179,6 +184,9 @@ if    ( CUSTOM_LAPACK_LIB_PATH )
     else  ( TESTED_LAPACK_PATH )
         message             ( FATAL_ERROR "Cannot find LAPACK in   : " ${CUSTOM_LAPACK_LIB_PATH} )
     endif ( TESTED_LAPACK_PATH )
+elseif( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK                          )
+	include_directories ( ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK                          )
 else  ( CUSTOM_LAPACK_LIB_PATH )
     set                 ( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/findLapack          )
     find_package        ( lapack REQUIRED                                                 )
@@ -197,12 +205,21 @@ endif  ( CUSTOM_LAPACK_LIB_PATH )
 ################################### Add SOFT dependency
 
 ### Compile Soft-2.0 from supplied folder
-add_custom_command (
-   OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
-   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
-)
+if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	add_custom_command (
+        OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
+   	)
+else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  ) 
+	add_custom_command (
+        OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   		COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
+   		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
+   	)
+   	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/SOFT                            )
+endif ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 
 add_custom_target (
    soft2_lib

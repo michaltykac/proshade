@@ -261,7 +261,9 @@ public:
     void setMaxSymmetryFold                           ( proshade_unsign maxFold );
     
     //================================================ Command line options parsing
+#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
     void getCommandLineParams                         ( int argc, char** argv );
+#endif
     
     //================================================ Debugging
     void printSettings                                ( void );

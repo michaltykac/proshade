@@ -30,7 +30,7 @@ MacOS Yosemite (10.10)
 	* git clone https://github.com/michaltykac/proshade
 	* mkdir build
 	* cd ./build
-	* cmake ../proshade
+	* cmake ../proshade/proshade
 	* make 
 	* make install
 
@@ -52,7 +52,7 @@ Ubuntu 20.4
 	* git clone https://github.com/michaltykac/proshade
 	* mkdir build
 	* cd ./build
-	* cmake ../proshade
+	* cmake ../proshade/proshade
 	* make 
 	* make install
 
@@ -76,7 +76,7 @@ Centos 8.1.1911
 	* git clone https://github.com/michaltykac/proshade
 	* mkdir build
 	* cd ./build
-	* cmake ../proshade
+	* cmake ../proshade/proshade
 	* make 
 	* make install
 	
@@ -97,7 +97,7 @@ Debian 10.3.0
 	* git clone https://github.com/michaltykac/proshade
 	* mkdir build
 	* cd ./build
-	* cmake ../proshade
+	* cmake ../proshade/proshade
 	* make 
 	* make install	
 
@@ -117,7 +117,7 @@ openSUSE-Leap 15.2
 	* git clone https://github.com/michaltykac/proshade
 	* mkdir build
 	* cd ./build
-	* cmake ../proshade
+	* cmake ../proshade/proshade
 	* make 
 	* make install
 	
@@ -125,29 +125,52 @@ openSUSE-Leap 15.2
 Windows 10 
 ==========
 
-Not fully supported yet.
-
 * Install cygwin
 	* https://www.cygwin.com
+	* Copy installer to C:\cygwin64
 * Install cygwin packages
 	* Command Prompt
 		* cd C:\cygwin64
-		* setup-x86_64.exe -q -P wget -P gcc-g++ -P gcc-fortran -P make -P cmake -P fftw3 -P libfftw3-devel -P liblapack-devel -P swig -P zlib-devel -P git
+		* setup-x86_64.exe -q -P wget -P gcc-g++ -P make -P cmake -P fftw3 -P libfftw3-devel -P liblapack-devel -P zlib-devel -P git
 * Install ProSHADE
 	* Cygwin64 Terminal
 		* git clone https://github.com/michaltykac/proshade
-		* mkdir ./proshade/build
-		* cd ./proshade/build
-		* cmake ..
+		* mkdir ./build
+		* cd ./build
+		* cmake ../proshade/proshade
 		* make install
 * Edit system paths
-	* Control Panel -> System and Security -> System -> Advanced System Settings -> Advanced -> Environment Variables
+	* Control Panel -> System and Security -> System -> View Advanced System Settings -> Advanced -> Environment Variables
 	* Under System Variables (as opposed by User variables) find variable "Path" and click Edit...
 	* Click new and write "C:\cygwin64\bin"
 	* Click new and write "C:\cygwin64\lib\lapack"
+
+* Install Anaconda
+	* Check the "Add to PATH" option.
+	* If you want to use any other python than the one Anaconda installs, you need to figure how to access it in cygwin - activate seems to be bugged at time moment.
+
+
 * Use ProSHADE from Command Prompt :-)
+	* C:\cygwin64\usr\local\bin\proshade
 	
 	
+	
+* Get Visual Studio
+	* Download the installer from https://visualstudio.microsoft.com/downloads/
+	* Select the "Desktop Development with C++" package	
+* Install cygwin
+	* https://www.cygwin.com
+	* Copy installer to C:\cygwin64
+* Install cygwin packages
+	* Command Prompt
+		* setup-x86_64.exe -q -P git -P libgfortran3
+* Install CMake
+	* Download MSI installer from https://cmake.org/download
+	* Check the "Add to PATH" option.
+
+	
+
+
 =================
 Build PyPi Module
 =================

@@ -1309,6 +1309,7 @@ int main ( int argc, char **argv )
 {
     //================================================ Create the settings object and parse the command line arguments
     ProSHADE_settings* settings                       = new ProSHADE_settings ( );
+#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
     settings->getCommandLineParams                    ( argc, argv );
     
     //================================================ Execute
@@ -1319,7 +1320,10 @@ int main ( int argc, char **argv )
     
     //================================================ Release the executive object
     delete run;
+#else
+    std::cout << "Sadly, this is the cl.txt compiled version of ProSHADE, which does not have any getopt.h alternative on Windows implemented just yet and which therefore cannot take any command line arguments and consequently is completely useless. Solution: You can install the binary using cygwin (see the standardDependencies.txt file in the proshade folder) and get it working this way." << std::endl;
+#endif
     
     //================================================ DONE
-    return                                            ( 0 );
+    return                                            ( EXIT_SUCCESS );
 }

@@ -22,6 +22,9 @@
 //==================================================== ProSHADE
 #include "ProSHADE_version.hpp"
 
+//==================================================== MSVC Specific definition to allow M_PI 
+#define _USE_MATH_DEFINES
+
 //==================================================== Standard library
 #include <iostream>
 #include <fstream>
@@ -33,9 +36,12 @@
 #include <exception>
 #include <complex>
 #include <algorithm>
-#include <getopt.h>
 #include <iomanip>
 #include <utility>
+
+#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
+    #include <getopt.h>
+#endif
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_TYPEDEFS__

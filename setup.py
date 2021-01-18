@@ -28,7 +28,7 @@
 ##### Global settings
 ##########################################################################################
 ##########################################################################################
-gl_version                                            = '0.0.0.2'
+gl_version                                            = '0.7.5.1'
 gl_download                                           = 'https://github.com/michaltykac/proshade/archive/v{0}.tar.gz'.format(gl_version)
 
 
@@ -43,8 +43,6 @@ import sys
 import sysconfig
 import platform
 import subprocess
-import requests
-import shutil
 
 from distutils.version import LooseVersion
 from distutils.dir_util import copy_tree

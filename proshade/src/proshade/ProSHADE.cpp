@@ -1564,7 +1564,10 @@ void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
     
 }
 
+#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
 /*! \brief This function parses the command line arguments into the settings object.
+ 
+    This function required getopt.h, a file not available on Windows. This is why the test just above the function.
 
     \param[in] argc The count of the command line arguments (as passed to main function by the system).
     \param[in] argv The string containing the command line arguments (as passed to main function by the system).
@@ -2090,6 +2093,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     return ;
     
 }
+#endif
 
 /*! \brief This function prints the current values in the settings object.
  
