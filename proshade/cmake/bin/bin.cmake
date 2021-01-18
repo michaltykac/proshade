@@ -40,6 +40,13 @@ set_property            (
                 			        "${FFTW_LINK}"
                 			        "${SOFT_LINK}"
                 			        "${LAPACK_LINK}" )
+                			        
+if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	set_property            (
+              					TARGET ${PROJECT_NAME}
+                				PROPERTY INSTALL_RPATH
+                			    	    "${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs"            )
+endif  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 
 ##########################################################################################
 ################################### Install to bin
