@@ -12,10 +12,20 @@ add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS}                    
 ### Add and link the dependencies
 add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
-target_link_libraries   ( ${PROJECT_NAME}_LIB z                                           )
-target_link_libraries   ( ${PROJECT_NAME}_LIB ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
-target_link_libraries   ( ${PROJECT_NAME}_LIB fftw3                                       )
-target_link_libraries   ( ${PROJECT_NAME}_LIB lapack blas                                 )
+
+if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	target_link_libraries   ( ${PROJECT_NAME} zlib                                        )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs/libsoft1.dll )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/FFTW3/libfftw3-3.lib )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/liblapack.dll.a )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/libblas.dll.a )
+else   ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	target_link_libraries   ( ${PROJECT_NAME} z                                           )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
+	target_link_libraries   ( ${PROJECT_NAME} fftw3                                       )
+	target_link_libraries   ( ${PROJECT_NAME} lapack blas                                 )
+endif  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+
 
 ##########################################################################################
 ################################### Set RPATH for the installed library

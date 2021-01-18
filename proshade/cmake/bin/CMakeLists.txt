@@ -16,7 +16,7 @@ add_dependencies        ( ${PROJECT_NAME} soft2_lib                             
 if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	target_link_libraries   ( ${PROJECT_NAME} zlib                                        )
 	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs/libsoft1.dll )
-	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs/libfftw3-3.lib )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/FFTW3/libfftw3-3.lib )
 	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/liblapack.dll.a )
 	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/libblas.dll.a )
 else   ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
