@@ -106,12 +106,21 @@ endif  ( CYGWIN )
 ################################### Set targets for dependency installation from supplied sources
 
 ### GEMMI
-add_custom_command (
-   OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
-   COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
-   COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
-)
+if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	add_custom_command (
+   		OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
+   		COMMAND type nul > ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
+	)
+else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	add_custom_command (
+   		OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
+   		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
+	)
+endif ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 
 add_custom_target (
    gemmi_lib
@@ -208,7 +217,7 @@ endif  ( CUSTOM_LAPACK_LIB_PATH )
 if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	add_custom_command (
         OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
+   		COMMAND type nul > ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
    	)
 else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  ) 

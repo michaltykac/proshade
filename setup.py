@@ -81,11 +81,6 @@ class CMakeBuild ( build_ext ):
             out                                       = subprocess.check_output([cmake_command_name, '--version'])
         except OSError:
             cmake_command_name                        = 'cmake'
-        
-        if cmake_command_name == 'cmake':
-            sys.stderr.write ( "!!! Using normal CMAKE !!!" )
-        if cmake_command_name == 'cmake3':
-            sys.stderr.write ( "!!! Using strange CMAKE3 !!!" )
     
         ### Check if CMake can be found
         try:

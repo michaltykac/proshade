@@ -156,11 +156,20 @@ Windows 10 64-bit
 	
 	
 * Install CMake
-	* Download MSI installer from https://cmake.org/download
+	* Download 64-bit MSI installer from https://cmake.org/download
 	* Check either of the "Add to PATH" options.
 * Install git
-	* Download installer from https
-
+	* Download 64-bit installer from https://git-scm.com/download/win
+* Download Visual Studio (sorry for the huge size, but that is how microsoft is distributing its C++ compiler...)
+	* Download installer from https://visualstudio.microsoft.com/downloads/
+	* Check the "Desktop development with C++" option.
+* Open Developer Command Prompt for VS 2019 (or whichever version you have)
+	* Navigate to where you want the code to live (maybe C:\Program Files\proshade, if you have rights to write there?)
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd .\build
+	* cmake ..\proshade\proshade
+	* cmake --build .
 	
 
 
