@@ -121,9 +121,9 @@ openSUSE-Leap 15.2
 	* make 
 	* make install
 	
-==========
-Windows 10 
-==========
+=================
+Windows 10 64-bit
+=================
 
 * Install cygwin
 	* https://www.cygwin.com
@@ -155,18 +155,11 @@ Windows 10
 	
 	
 	
-* Get Visual Studio
-	* Download the installer from https://visualstudio.microsoft.com/downloads/
-	* Select the "Desktop Development with C++" package	
-* Install cygwin
-	* https://www.cygwin.com
-	* Copy installer to C:\cygwin64
-* Install cygwin packages
-	* Command Prompt
-		* setup-x86_64.exe -q -P git -P libgfortran3
 * Install CMake
 	* Download MSI installer from https://cmake.org/download
-	* Check the "Add to PATH" option.
+	* Check either of the "Add to PATH" options.
+* Install git
+	* Download installer from https
 
 	
 
