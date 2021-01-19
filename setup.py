@@ -44,10 +44,10 @@ import sysconfig
 import platform
 import subprocess
 
-from distutils.version import LooseVersion
-from distutils.dir_util import copy_tree
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+from distutils.version import LooseVersion
+from distutils.dir_util import copy_tree
 
 ##########################################################################################
 ##########################################################################################
