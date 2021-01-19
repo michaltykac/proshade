@@ -20,7 +20,7 @@ add_dependencies        ( py${PROJECT_NAME} ${PROJECT_NAME}_LIB                 
 
 if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	target_link_libraries   ( py${PROJECT_NAME} PRIVATE zlib                              )
-	target_link_libraries   ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs/libsoft1.dll )
+	target_link_libraries   ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/winLibs/x64/SOFT2/soft2.lib )
 	target_link_libraries   ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/winLibs/x64/FFTW3/libfftw3-3.lib )
 	target_link_libraries   ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/liblapack.dll.a )
 	target_link_libraries   ( py${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/libblas.dll.a )
