@@ -32,7 +32,8 @@ var NAVTREE =
       [ "Installation", "index.html#install", [
         [ "Standard System Dependencies", "index.html#stdSys", null ],
         [ "Other dependencies", "index.html#otherDependencies", null ],
-        [ "Installing using CMake", "index.html#installBehaviour", null ],
+        [ "Installing on Windows", "index.html#winInstall", null ],
+        [ "Installing using CMake on Unix", "index.html#installBehaviour", null ],
         [ "Installation using pip", "index.html#pipInstall", null ]
       ] ],
       [ "Input PDB files", "index.html#pdbInput", [
@@ -85,8 +86,8 @@ var NAVTREEINDEX =
 [
 "_pro_s_h_a_d_e_8cpp.html",
 "_pro_s_h_a_d_e__symmetry_8hpp.html#a5dc4353223fc752e0007b2adec193079",
-"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ad409e4556676857224d1f5e00e5b7911",
-"dir_fa9be34cc2c3eb9c0decdfb277595ca7.html"
+"class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ad1f180d58f829e2c0fc50569b2425d56",
+"dir_5c0d64f70903e893b1efe571a4b8de29.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

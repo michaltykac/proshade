@@ -1,5 +1,7 @@
 var _pro_s_h_a_d_e__typedefs_8hpp =
 [
+    [ "__PROSHADE_TYPEDEFS__", "_pro_s_h_a_d_e__typedefs_8hpp.html#ab396d87d5a276856609a4401e198e044", null ],
+    [ "_USE_MATH_DEFINES", "_pro_s_h_a_d_e__typedefs_8hpp.html#a525335710b53cb064ca56b936120431e", null ],
     [ "proshade_complex", "_pro_s_h_a_d_e__typedefs_8hpp.html#a10134cf48549b890102ac9d6459f8218", null ],
     [ "proshade_double", "_pro_s_h_a_d_e__typedefs_8hpp.html#acfed351cfd7495b3548de559c62a4d9e", null ],
     [ "proshade_signed", "_pro_s_h_a_d_e__typedefs_8hpp.html#a7a2e924855f89dbdb3b14c35de0d5109", null ],
