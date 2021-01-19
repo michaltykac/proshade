@@ -28,11 +28,7 @@
 ##### Global settings
 ##########################################################################################
 ##########################################################################################
-<<<<<<< HEAD
-gl_version                                            = '0.7.5.1'
-=======
 gl_version                                            = '0.7.5.2'
->>>>>>> experimental
 gl_download                                           = 'https://github.com/michaltykac/proshade/archive/v{0}.tar.gz'.format(gl_version)
 
 
