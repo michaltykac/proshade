@@ -17,10 +17,20 @@ add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${SOURCES}                
 ################################### Link the executable
 add_dependencies        ( ${PROJECT_NAME} gemmi_lib                                       )
 add_dependencies        ( ${PROJECT_NAME} soft2_lib                                       )
-target_link_libraries   ( ${PROJECT_NAME} z                                               )
-target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a  )
-target_link_libraries   ( ${PROJECT_NAME} fftw3                                           )
-target_link_libraries   ( ${PROJECT_NAME} lapack blas                                     )
+
+if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	target_link_libraries   ( ${PROJECT_NAME} zlib                                        )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs/libsoft1.dll )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/FFTW3/libfftw3-3.lib )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/liblapack.dll.a )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/winLibs/x64/LAPACK/libblas.dll.a )
+else   ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	target_link_libraries   ( ${PROJECT_NAME} z                                           )
+	target_link_libraries   ( ${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/extern/soft-2.0/libsoft1.a )
+	target_link_libraries   ( ${PROJECT_NAME} fftw3                                       )
+	target_link_libraries   ( ${PROJECT_NAME} lapack blas                                 )
+endif  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+
 
 ##########################################################################################
 ################################### Set RPATH for the installed executable
@@ -30,6 +40,13 @@ set_property            (
                 			        "${FFTW_LINK}"
                 			        "${SOFT_LINK}"
                 			        "${LAPACK_LINK}" )
+                			        
+if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+	set_property            (
+              					TARGET ${PROJECT_NAME}
+                				PROPERTY INSTALL_RPATH
+                			    	    "${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs"            )
+endif  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 
 ##########################################################################################
 ################################### Install to bin
