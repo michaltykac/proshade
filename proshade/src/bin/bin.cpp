@@ -19,7 +19,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
@@ -55,9 +55,11 @@
  *
  * 4.2) \ref otherDependencies
  *
- * 4.3) \ref installBehaviour
+ * 4.3) \ref winInstall
  *
- * 4.4) \ref pipInstall
+ * 4.4) \ref installBehaviour
+ *
+ * 4.5) \ref pipInstall
  *
  * 5) \ref pdbInput
  *
@@ -106,7 +108,7 @@
  *
  *  Generally, the following list of standard system libraries and utilities are required for successfull installation of ProSHADE on Unix systems:
  *
- * -  \b gcc
+ * - \b gcc
  * - \b g++
  * - \b make
  * - \b cmake
@@ -116,15 +118,24 @@
  * - \b zlib
  * - \b python with \b numpy
  *
+ *  This list is somewhat different for Windows systems, as ProSHADE contains 64-bit libraries for most of the dependencies already prepared, thus limiting the list. This, however, means that ProSHADE can only
+ *  be installed on Windows10 64-bit systems and currently does neither supprt the 32-bit systems, nor the older Windows systems (7, Vista, XP, ...):
+ *
+ * - \b cl
+ * - \b cmake
+ * - \b git
+ * - \b python with \b numpy
+ *
  * CMake should complain and issue a reasonably decipherable error messages if any of these dependencies are missing.
  *
  * \b Installing \b python
  *
- * While most modern Unix systems come with some version of the python language pre-installed, it seems reasonable to assume that users who are interested in using the ProSHADE python
- * module do have their preferred version of python already installed and set as the default system python (meaning that the ```python``` command points to the python executable that the user wants the ProSHADE module to be installed for).
+ * Python is not required for ProSHADE binary and library installation, but it is necessary to have it installed for successfull ProSHADE python module installation. Now, while most modern Unix systems come with
+ * some version of the python language pre-installed (although Windows does not), it seems reasonable to assume that users who are interested in using the ProSHADE python module do have their preferred
+ * version of python already installed and set as the default system python (meaning that the ```python``` command points to the python executable that the user wants the ProSHADE module to be installed for).
  *
- * Should the user not have any python version installed or should the user be interested in having multiple versions, the Anaconda environment ( https://www.anaconda.com/products/individual ) can be
- * recommended for installation of python and management of various environments.
+ * Should the user not have any python version installed or should the user be interested in having multiple versions, the Anaconda environment ( https://www.anaconda.com/products/individual ) can
+ * be recommended for all systems supported by ProSHADE. Of course, there are alternatives for installation of python and management of various environments and ProSHADE does not care which is being used.
  *
  * \b Installing \b standard \b system \b dependencies \b on \b MacOS
  *
@@ -198,7 +209,61 @@
  * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation). Please note that these dependencies do have their own licences (the Mozilla Public License for \e Gemmi
  * and the GPL licence for \e SOFT2.0) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
  *
- * \subsection installBehaviour Installing using CMake
+ * \subsection winInstall Installing on Windows
+ *
+ * As mentioned above, ProSHADE currently only supports Windows10 64-bit systems and cannot be simply installed on other Windows systems. In order to install ProSHADE on a Windows10 64-bit machine, the
+ * user is required to firstly have installed some basic pre-requisities.
+ *
+ * \b Installing CMake
+ *
+ * CMake can be installed on Windows using the 64-bit MSI installer available from https://cmake.org/download . During the installation, please make sure that the option to \e Add \e CMake \e to
+ * \e the \e system \e PATH is selected (it does not matter to ProSHADE if it is for all users or just for the current user).
+ *
+ * \b Installing \b git
+ *
+ * Git can be installed on Windows by downloading the 64-bit Windows Setup installer from https://git-scm.com/download/win . The installer asks for many options, the only imprtant one for ProSHADE
+ * installation is that in the section \e Adjusting \e you \e PATH \e environment it is required that the option \e Use \e Git \e from \e Git \e Bash \e only is \b NOT selected. This makes sure that the
+ * git executable is in the system PATH.
+ *
+ * \b Installing \b Build \b Tools \b for \b Visual \b Studio
+ *
+ * Sadly, the Authors are not aware of any simple way of installing the Microsoft C and C++ compilers and linker controlling tool - \b cl.exe except for installing the full Visual Studio or the Build Tools for Visual
+ * Studio. This will require well over 6GB of space on your hard-drive and the download is well over 1.5GB. Nonetheless, it is the main Windows compiler and linker and therefore ProSHADE cannot be installed
+ * on Windows without it.
+ *
+ * To install the Build Tools for Visual Studio, please download the installer from Microsoft at https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019 and in
+ * the Workload selection screen select the \e C++ \e Build \e Tools option. The rest of the installtion should be automatic.
+ *
+ * \b Installing \b ProSHADE
+ *
+ * Once all of the above dependencies are installed, the ProSHADE python module can now be installed using the pip installation as described in the \ref pipInstall section. Should the user require installation from
+ * the Command Prompt, they will need to open the \e Developer \e Command \e Prompt \e for \e VS \e 2019 (or the appropriate version the MS Visual Studio they have installed) and type the following
+ * commands (replacing the \path\to\proshade with the appropriate path on their machine to the location where they want ProSHADE codes to be stored). Please note that you may need to run the command prompt
+ * as administrator in order to be able to install into the system folders (\e i.e. C:\Program Files). Also, the same CMake options apply as discussed in section \ref installBehaviour:
+ *
+ \code{.sh}
+     cd \path\to\proshade
+     git clone https://github.com/michaltykac/proshade
+     mkdir build
+     cd .\build
+     cmake ..\proshade\proshade
+     cmake --build . --config Release
+     cmake --install .
+ \endcode
+ *
+ * \b Setting \b ProSHADE \b PATH
+ *
+ *  Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH.
+ *  This can be done by opening the \e Control \e Panel and selecting the \e System \e and \e Security option. In the new window, please select the \e System option and in the next window click the \e Advanced
+ *  \e system \e settings option on the right-hand side panel. In the next window, please click on the \e Environment \e Variables... button, which will open the  penultimate window. In here, in the \e System \e variables
+ *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the \e Browse... button can be clicked. In the file selector screen, please click to the
+ *  \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK button on all open windows which have one.
+ *
+ * Once the path is set, you can use ProSHADE from any Command Prompt window (not only the Developer Command Prompt used before), although you will have to close and re-open all currently open command
+ * prompt windows if you want to use ProSHADE in them.
+ *
+ * \subsection installBehaviour Installing using CMake on Unix
+ *
  * CMake is the default ProSHADE installation tool and if the binary or the library is needed, then it is the only installation option. The python module can also be build using CMake, but it will be installed only
  * locally and all python scripts will need to add the installation location to their PATH. Alternatively, if the python module is what the user is after, then it can be installed globally using pip - please see the \ref pipInstall
  * section for more details.

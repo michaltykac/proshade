@@ -130,9 +130,8 @@ Windows 10 64-bit
 	* Check either of the "Add to PATH" options.
 * Install git
 	* Download 64-bit installer from https://git-scm.com/download/win
-* Download Visual Studio (sorry for the huge size, but that is how microsoft is distributing its C++ compiler...)
-	* Download installer from https://visualstudio.microsoft.com/downloads/
-	* Check the "Desktop development with C++" Workload option.
+* Download the Build Tools for Visual Studio from https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019	
+	* From the selection screen select the "C++ Build Tools"	
 * Open Developer Command Prompt for VS 2019 (or whichever version you have)
 	* Navigate to where you want the code to live (maybe C:\Program Files\proshade, if you have rights to write there?)
 	* git clone https://github.com/michaltykac/proshade
