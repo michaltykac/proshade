@@ -211,7 +211,6 @@ namespace ProSHADE_internal_data
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         std::vector< proshade_double* > getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings );
         std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );
-        std::vector< proshade_double* > optimiseDihedralAngleFromAngleAxis   ( ProSHADE_settings* settings, proshade_double angle, proshade_double* axis1, proshade_double* axis2 );
         void saveDetectedSymmetries                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSyms, std::vector < std::vector< proshade_double > >* allCs );
         std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
@@ -227,8 +226,6 @@ namespace ProSHADE_internal_data
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes );
-        std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector<std::vector< proshade_double > >* allCSyms, proshade_unsign grPosition );
-        std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( std::vector< proshade_double* >* allCSyms, proshade_unsign grPosition );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
@@ -300,6 +297,8 @@ namespace ProSHADE_internal_data
     };
 
     //================================================ Support functions
+    std::vector<std::vector< proshade_double > > computeGroupElementsForGroup ( proshade_double xAx, proshade_double yAx, proshade_double zAx, proshade_signed fold );
+
     std::vector<std::vector< proshade_double > > joinElementsFromDifferentGroups ( std::vector<std::vector< proshade_double > >* first,
                                                                                    std::vector<std::vector< proshade_double > >* second,
                                                                                    proshade_double matrixTolerance,

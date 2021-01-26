@@ -2459,6 +2459,7 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
             }
         }
     }
+    std::cout << std::endl;
     
     //================================================ Done
     return                                            ( ret );

@@ -34,7 +34,7 @@ set_property            (
                 			        "${FFTW_LINK}"
                 			        "${SOFT_LINK}"
                 			        "${LAPACK_LINK}" )
-                			        
+                			 
 if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	set_property            (
               					TARGET ${PROJECT_NAME}

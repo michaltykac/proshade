@@ -119,10 +119,11 @@ class CMakeBuild ( build_ext ):
             
             ### If 64 bits, then make sure the build outputs for 64 bits
             if sys.maxsize > 2**32:
-                cmake_args += ['-A', 'x64']
+                cmake_args                           += ['-A', 'x64']
                 
             ###
             build_args += ['--', '/m']
+            
         else:
         ### Linux/MacOS
             cmake_args                               += [ '-DCMAKE_BUILD_TYPE=' + cfg ]
