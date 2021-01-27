@@ -133,9 +133,7 @@ namespace ProSHADE_internal_symmetry
     void findIcos6C5s                                 ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         proshade_unsign verbose, proshade_double minPeakHeight );
-    void predictIcosAxes                              ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
-                                                        proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
-                                                        proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance );
+    void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance );
@@ -157,6 +155,7 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2,
                                                         proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3,
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj );
+    void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj );
 }
 
 #endif

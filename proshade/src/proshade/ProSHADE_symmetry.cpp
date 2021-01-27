@@ -2676,10 +2676,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
 
 /*! \brief This function predicts a list of all I symmetry axes from the already computed C symmetries list.
  
-    This function starts by checking if there is a pair of C3 and C5 symmetries with the icosahedron dihedral angle ( acos( sqrt ( 5.0 ) / 3.0 ) ). If found,
-    it calls the  predictIcosAxes() function, which uses the knowledge of the two axes (C5 and C3) which are closest to the dihedral angle to generate
-    their combinations point group elements. These can in turn be used to generate the remainder of the axes (iteratively). Once complete, all the
-    predicted axes are in the ret variable.
+    This function starts by checking if there is a pair of C3 and C5 symmetries with the icosahedron dihedral angle ( acos( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) ). If found,
+    it calls the  predictIcosAxes() function, which uses the knowledge of the two axes (C5 and C3) which are closest to the dihedral angle to find the best rotation matrix matching a
+    pre-computed icosahedron model to the detected axes. After rotating the model, the model axes become the predicted axes for the structure and their peak heights are then
+    computed. Once complete, all the predicted axes are in the ret variable.
  
     \Warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
     which symmetry was found.
@@ -2698,12 +2698,30 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry prediction." );
     
     //================================================ Are the basic requirements for icosahedral symmetry met?
-    if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance * 1.5, settings->minSymPeak ) )
+    if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Generate the rest of the axes
-        ProSHADE_internal_symmetry::predictIcosAxes   ( settings, CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak, matrixTolerance );
+        ProSHADE_internal_symmetry::predictIcosAxes   ( CSymList, &ret, settings->axisErrTolerance, settings->minSymPeak );
+        
+        //============================================ Get heights for the predicted axes
+        ProSHADE_internal_symmetry::findPredictedAxesHeights ( &ret, this );
+        
+//        //============================================ Save predicted axes with heights to settings object
+//        for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
+//        {
+//            if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
+//                 ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
+//                 ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
+//                 ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
+//                 ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
+//                 ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+//            {
+//                ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, csIt );
+//            }
+//        }
     }
-    exit(0);
+    
+
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry prediction complete." );
 
@@ -2790,7 +2808,7 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
                                                                                                      &CSymList->at(cSym)[3] );
             
             //======================================== Is the angle approximately the dihedral angle
-            if ( std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) < axErr )
+            if ( std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) ) < axErr )
             {
                 return                                ( true );
             }
@@ -2906,14 +2924,13 @@ std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::ve
                                                                                                      &CSymList->at(cSym)[3] );
             
             //======================================== Is the angle approximately the dihedral angle?
-            if ( std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) < axErr )
+            if ( std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) ) < axErr )
             {
-                if ( bestDihedralAngle > std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) ) )
+                if ( bestDihedralAngle > std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) ) )
                 {
-                    bestDihedralAngle                 = std::abs ( std::abs( -sqrt ( 5.0 ) / 3.0 ) - std::abs( dotProduct ) );
+                    bestDihedralAngle                 = std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) );
                     ret.first                         = C5List.at(c5);
                     ret.second                        = cSym;
-                    std::cout << "BEST ANGLE: " << bestDihedralAngle << std::endl;
                 }
             }
         }
@@ -2929,27 +2946,78 @@ std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::ve
  
     \warning This function assumes that the detectIcosahedralSymmetry() function has successfully run (i.e. returned true).
  
- settings???
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
     \param[in] ret The vector containing all the axes forming icosahedral group or empty vector.
     \param[in] axErr The error tolerance on angle matching.
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
-    \param[in] verobse How loud the announcments should be?
-    \param[in] axisTolerance The tolerance for two axes to be considered similar in terms of cosine distance.
-    \param[in] matrixTolerance The maximum allowed rotation matrix trace difference allowed for the matrices to be considered the same.
  */
-void ProSHADE_internal_symmetry::predictIcosAxes ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight, proshade_double matrixTolerance )
+void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight )
 {
-    //================================================ Initialise variables
-    
-    
     //================================================ Find the best axis combination with dihedral angle and correct folds
-    std::pair< proshade_unsign, proshade_unsign > initAxes = findBestIcosDihedralPair ( CSymList, minPeakHeight, axErr * 1.5 );
+    std::pair< proshade_unsign, proshade_unsign > initAxes = findBestIcosDihedralPair ( CSymList, minPeakHeight, axErr );
+    
+    //================================================ Find rotation between the detected C5 and the model C5 axes.
+    proshade_double* rotMat                           = ProSHADE_internal_maths::findRotMatMatchingVectors ( ProSHADE_internal_precomputedVals::icosahedronAxes.at(0).at(1),
+                                                                                                             ProSHADE_internal_precomputedVals::icosahedronAxes.at(0).at(2),
+                                                                                                             ProSHADE_internal_precomputedVals::icosahedronAxes.at(0).at(3),
+                                                                                                             CSymList->at(initAxes.first)[1],
+                                                                                                             CSymList->at(initAxes.first)[2],
+                                                                                                             CSymList->at(initAxes.first)[3] );
 
-//    for ( int i = 0; i < ret->size(); i++ )
-//    {
-//        std::cout << i << " || " << ret->at(i)[0] << " || " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << std::endl;
-//    }
+    //================================================ Rotate the model C3 to the correct orientation relative to the detected C5 axis.
+    proshade_double* rotDetectedC3                    = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( rotMat,
+                                                                                                                        ProSHADE_internal_precomputedVals::icosahedronAxes.at(6).at(1),
+                                                                                                                        ProSHADE_internal_precomputedVals::icosahedronAxes.at(6).at(2),
+                                                                                                                        ProSHADE_internal_precomputedVals::icosahedronAxes.at(6).at(3) );
+    
+    //================================================ Find the angle betwen the rotated model C3 and the detected C3 axes.
+    proshade_double dotProduct                        = ProSHADE_internal_maths::computeDotProduct ( &rotDetectedC3[0],
+                                                                                                     &rotDetectedC3[1],
+                                                                                                     &rotDetectedC3[2],
+                                                                                                     &CSymList->at(initAxes.second)[1],
+                                                                                                     &CSymList->at(initAxes.second)[2],
+                                                                                                     &CSymList->at(initAxes.second)[3] );
+    
+    //================================================ For the rotation matrix along the detected C5 axis with the same anlge as is between the rotated model C3 and the detected C3 axes.
+    proshade_double* rotMat2                          = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat2, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat2, CSymList->at(initAxes.first)[1], CSymList->at(initAxes.first)[2], CSymList->at(initAxes.first)[3], std::acos( dotProduct ) );
+    
+    //================================================ Combine the two rotation matrices into a single rotation matrix
+    proshade_double* rotMatFin                        = ProSHADE_internal_maths::compute3x3MatrixMultiplication ( rotMat2, rotMat );
+    
+    //================================================ For each model axis
+    for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ProSHADE_internal_precomputedVals::icosahedronAxes.size() ); iter++ )
+    {
+        //============================================ Rotate the model axis to fit the detected orientation
+        proshade_double* rotAxis                      = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( rotMat,
+                                                                                                                        ProSHADE_internal_precomputedVals::icosahedronAxes.at(iter).at(1),
+                                                                                                                        ProSHADE_internal_precomputedVals::icosahedronAxes.at(iter).at(2),
+                                                                                                                        ProSHADE_internal_precomputedVals::icosahedronAxes.at(iter).at(3) );
+        
+        //============================================ Create ProSHADE symmetry axis representation
+        proshade_double* axis                         = new proshade_double[6];
+        ProSHADE_internal_misc::checkMemoryAllocation ( axis, __FILE__, __LINE__, __func__ );
+        
+        axis[0]                                       = ProSHADE_internal_precomputedVals::icosahedronAxes.at(iter).at(0);
+        axis[1]                                       = rotAxis[0];
+        axis[2]                                       = rotAxis[1];
+        axis[3]                                       = rotAxis[2];
+        axis[4]                                       = ( 2.0 * M_PI ) / axis[0];
+        axis[5]                                       = 0.0;
+        
+        //============================================ Save axis to ret
+        ProSHADE_internal_misc::addToDblPtrVector     ( ret, axis );
+        
+        //============================================ Release memory
+        delete[] rotAxis;
+    }
+    
+    //================================================ Release memory
+    delete[] rotMat;
+    delete[] rotMat2;
+    delete[] rotMatFin;
+    delete[] rotDetectedC3;
     
     //================================================ Done
     return ;
@@ -3138,7 +3206,7 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
         //============================================ Use only C3s with hight enough average
         if ( CSymList->at(cIt)[0] != 3.0 || CSymList->at(cIt)[0] < minPeakHeight ) { continue; }
 
-        //============================================ Check the C3 has acos ( sqrt ( 5.0 ) / 3.0 ) to 3 C5s and acos ( 1.0 - ( sqrt ( 5.0 ) / 3.0 ) ) to the other three C5s
+        //============================================ Check the C3 has acos ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) to 3 C5s and acos ( 1.0 - ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) ) to the other three C5s
         noClose = 0; noAway = 0;
         for ( proshade_unsign rIt = 0; rIt < 6; rIt++ )
         {
@@ -3149,8 +3217,8 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
                                                                                                      &CSymList->at(cIt)[2],
                                                                                                      &CSymList->at(cIt)[3] );
 
-            if ( ( std::abs ( dotProd ) > (       ( sqrt ( 5.0 ) / 3.0 ) - axErr ) ) && ( std::abs ( dotProd ) < (       ( sqrt ( 5.0 ) / 3.0 ) + axErr ) ) ) { noClose += 1; continue; }
-            if ( ( std::abs ( dotProd ) > ( 1.0 - ( sqrt ( 5.0 ) / 3.0 ) - axErr ) ) && ( std::abs ( dotProd ) < ( 1.0 - ( sqrt ( 5.0 ) / 3.0 ) + axErr ) ) ) { noAway  += 1; continue; }
+            if ( ( std::abs ( dotProd ) > (       ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - axErr ) ) && ( std::abs ( dotProd ) < (       ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) + axErr ) ) ) { noClose += 1; continue; }
+            if ( ( std::abs ( dotProd ) > ( 1.0 - ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - axErr ) ) && ( std::abs ( dotProd ) < ( 1.0 - ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) + axErr ) ) ) { noAway  += 1; continue; }
         }
 
         //============================================ If correct angles distribution is found, save the axis
@@ -3162,7 +3230,7 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
 
     //================================================ Search for missing axes
     for ( proshade_unsign iter = 0; iter < 6; iter++ ) { ProSHADE_internal_misc::addToUnsignVector ( &retGrp, iter ); }
-    if ( !ProSHADE_internal_symmetry::findMissingAxesDual ( &prospectiveC3s, CSymList, ret, &retGrp, 10, axErr, 3, sqrt ( 5.0 ) / 3.0, 3, 1.0 - ( sqrt ( 5.0 ) / 3.0 ), 3, dataObj ) )
+    if ( !ProSHADE_internal_symmetry::findMissingAxesDual ( &prospectiveC3s, CSymList, ret, &retGrp, 10, axErr, 3, std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ), 3, 1.0 - ( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ), 3, dataObj ) )
     {
         return ;
     }
@@ -3674,5 +3742,31 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     
     //================================================ Done
     return                                            ( ret );
+    
+}
+
+void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj )
+{
+    //================================================ Initialise variables
+    std::vector < proshade_unsign > folds;
+    
+    //================================================ Determine all the folds for which rotation function mapping will be required
+    for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ret->size() ); iter++ )
+    {
+        
+    }
+    
+    
+    
+    for ( int i = 0; i < ret->size(); i++ )
+    {
+        std::cout << i << " || " << ret->at(i)[0] << " || " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << " | " << ret->at(i)[4] << " || " << ret->at(i)[5] << std::endl;
+    }
+    
+    std::cout << "Here we are!" << std::endl;
+    exit(0);
+    
+    //================================================ Done
+    return ;
     
 }
