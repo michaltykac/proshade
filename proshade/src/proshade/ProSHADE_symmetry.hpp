@@ -155,7 +155,7 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2,
                                                         proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3,
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj );
-    void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj );
+    void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
 }
 
 #endif

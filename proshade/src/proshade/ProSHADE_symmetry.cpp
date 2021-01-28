@@ -2686,10 +2686,9 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
  
     \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
-    \param[in] matrixTolerance The maximum allowed trace difference for two matrices to be still considered the same.
     \param[out] ret A vector of all the detected axes in the standard ProSHADE format with height either the detected value (for the detected ones) or 0 for the predicted ones.
  */
-std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_double matrixTolerance )
+std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList )
 {
     //================================================ Initialise variables
     std::vector< proshade_double* > ret;
@@ -2704,21 +2703,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         ProSHADE_internal_symmetry::predictIcosAxes   ( CSymList, &ret, settings->axisErrTolerance, settings->minSymPeak );
         
         //============================================ Get heights for the predicted axes
-        ProSHADE_internal_symmetry::findPredictedAxesHeights ( &ret, this );
+        ProSHADE_internal_symmetry::findPredictedAxesHeights ( &ret, this, settings );
         
-//        //============================================ Save predicted axes with heights to settings object
-//        for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
-//        {
-//            if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
-//                 ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
-//                 ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
-//                 ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
-//                 ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
-//                 ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
-//            {
-//                ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, csIt );
-//            }
-//        }
+        //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
+        for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
+        {
+            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, ret.at(retIt) );
+            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( CSymList->size() ) );
+        }
     }
     
 
@@ -3745,26 +3737,102 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     
 }
 
-void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj )
+/*! \brief This function finds the rotation function value for all axes supplied in the ret parameter.
+ 
+    This function supplements the polyhedral symmetry prediction functions, as these functions predict the symmetry axes, but do not
+    find their peak heights. This function, then, firstly finds all the individual folds in the symmetry axes set and for each fold computes
+    the rotation function sphere mapping. Next, it converts the axes back to the spherical co-ordinates appopriate for the mapped rotation
+    function (the ProSHADE_rotFun_spherePeakGroup class function use lattitude and longitude indices, not values!). Finally, it computes
+    the corresponding rotation function value for each of the predicted axes, saving the results in the ret parameter.
+ 
+    \param[in] ret The list of axes for which the heights are to be found.
+    \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
+    \param[in] settings ProSHADE_settings object containing all the settings for this run.
+ */
+void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
 {
     //================================================ Initialise variables
     std::vector < proshade_unsign > folds;
+    bool alreadyFound;
+    proshade_double lat, lon;
+    proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( dataObj->maxShellBand * 2.0 );
+    proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( dataObj->maxShellBand * 2.0 );
     
     //================================================ Determine all the folds for which rotation function mapping will be required
     for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ret->size() ); iter++ )
     {
+        alreadyFound                                  = false;
+        for ( proshade_unsign it = 0; it < static_cast < proshade_unsign > ( folds.size() ); it++ ) { if ( folds.at(it) == ret->at(iter)[0] ) { alreadyFound = true; break; } }
         
+        if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, ret->at(iter)[0] ); }
     }
     
-    
-    
-    for ( int i = 0; i < ret->size(); i++ )
+    //================================================ For each fold which needs rotation function mapping
+    for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ )
     {
-        std::cout << i << " || " << ret->at(i)[0] << " || " << ret->at(i)[1] << " ; " << ret->at(i)[2] << " ; " << ret->at(i)[3] << " | " << ret->at(i)[4] << " || " << ret->at(i)[5] << std::endl;
+        //============================================ Make sure we have a clean start
+        dataObj->sphereMappedRotFun.clear();
+        
+        //============================================ Convert rotation function to only the required angle-axis space spheres and find all peaks
+        for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 )
+        {
+            //======================================== Create the angle-axis sphere with correct radius (angle)
+            dataObj->sphereMappedRotFun.emplace_back  ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( ( 2.0 * M_PI ) / static_cast < proshade_double > ( folds.at(foldIt) ),
+                                                                                                                M_PI / static_cast < proshade_double > ( folds.at(foldIt) ),
+                                                                                                                dataObj->maxShellBand * 2.0,
+                                                                                                                ( 2.0 * M_PI ) / static_cast < proshade_double > ( folds.at(foldIt) ),
+                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+            
+            //=========================================== Interpolate rotation function onto the sphere
+            dataObj->sphereMappedRotFun.at( static_cast < proshade_unsign > ( angIt - 1.0 ))->interpolateSphereValues ( dataObj->getInvSO3Coeffs ( ) );
+        }
+        
+        //============================================ For each ret axis with this fold
+        for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
+        {
+            //======================================== Ignore different folds
+            if ( ret->at(axIt)[0] != folds.at(foldIt) ) { continue; }
+            
+            //======================================== Convert XYZ to lat and lon INDICES
+            lat                                       = std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit;
+            lon                                       = std::acos ( ret->at(axIt)[3] ) / lonSamlUnit;
+            
+            if ( lat < 0.0 ) { lat += ( dataObj->maxShellBand * 2.0 ); }
+            if ( lon < 0.0 ) { lon += ( dataObj->maxShellBand * 2.0 ); }
+            
+            lat = std::round ( lat );
+            lon = std::round ( lon );
+            
+            //======================================== Initialise the peak group
+            ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* grp;
+            
+            //======================================== Construct a peak group with entry from each sphere with the axis as the peak
+            for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( dataObj->sphereMappedRotFun.size() ); sphIt++ )
+            {
+                if ( sphIt == 0 )
+                {
+                    //================================ If first sphere, create the peak group
+                    grp                               = new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( lat, lon, sphIt, dataObj->sphereMappedRotFun.at(sphIt)->getAngularDim() );
+                }
+                else
+                {
+                    //================================ Add to the existing object
+                    grp->checkIfPeakBelongs           ( lat, lon, sphIt, settings->axisErrTolerance, settings->verbose );
+                }
+            }
+            
+            //======================================== Find the peak height
+            std::vector < proshade_double* > detectedAxis;
+            grp->findCyclicPointGroupsGivenFold       ( dataObj->sphereMappedRotFun, settings->axisErrTolerance, &detectedAxis, settings->useBiCubicInterpolationOnPeaks, folds.at(foldIt), settings->verbose );
+            
+            //======================================== Save it!
+            ret->at(axIt)[5]                          = detectedAxis.at(0)[5];
+            
+            //======================================== Release memory
+            for ( proshade_unsign i = 0; i < static_cast < proshade_unsign > ( detectedAxis.size() ); i++ ) { delete detectedAxis.at(i); }
+            delete grp;
+        }
     }
-    
-    std::cout << "Here we are!" << std::endl;
-    exit(0);
     
     //================================================ Done
     return ;

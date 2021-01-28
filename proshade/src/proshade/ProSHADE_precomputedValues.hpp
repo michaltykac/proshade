@@ -37,7 +37,7 @@
  */
 namespace ProSHADE_internal_precomputedVals
 {
-    static  std::vector < std::vector < proshade_double > > icosahedronAxes {
+    static const std::vector < std::vector < proshade_double > > icosahedronAxes {
         { 5.0, 0.850650808352040,  0.525731112119134,  0.000000000000000, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 1
         { 5.0, 0.850650808352040, -0.525731112119134,  0.000000000000000, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 2
         { 5.0, 0.525731112119134,  0.000000000000000,  0.850650808352040, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 3
