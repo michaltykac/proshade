@@ -2424,10 +2424,6 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     //================================================ Initialise variables
     std::vector< std::vector< proshade_double > > ret;
     
-    std::cout << "First group size:  " << first->size() << std::endl;
-    std::cout << "Second group size: " << second->size() << std::endl;
-    std::cout << "Tolerance :        " << matrixTolerance << std::endl;
-    
     //================================================ Add the first list to ret, checking for uniqueness
     for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( first->size() ); elIt++ )
     {
@@ -2465,8 +2461,6 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
             }
         }
     }
-    
-    std::cout << "Final group size: " << ret.size() << std::endl;
     
     //================================================ Done
     return                                            ( ret );

@@ -401,7 +401,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -451,7 +451,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -501,7 +501,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
  *\endcode
  *
@@ -525,7 +525,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -586,7 +586,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -639,7 +639,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
  \endcode
  *

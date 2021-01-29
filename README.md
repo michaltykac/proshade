@@ -320,7 +320,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -364,7 +364,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.5.1 (JAN 2021):
+  ProSHADE 0.7.5.2 (JAN 2021):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -414,7 +414,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
   ======================
   ProSHADE run complete.
-  Time taken: 5 seconds.
+  Time taken: 4 seconds.
   ======================
 ```
  
@@ -432,7 +432,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz
-ProSHADE 0.7.5.1 (JAN 2021):
+ProSHADE 0.7.5.2 (JAN 2021):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
@@ -474,7 +474,7 @@ Time taken: 9 seconds.
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -527,7 +527,7 @@ Time taken: 9 seconds.
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
 ```
 # Using the ProSHADE library
