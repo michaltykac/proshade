@@ -1770,8 +1770,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
-        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms );
-        if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
+        if ( ISyms.size() < 31 ) {  OSyms = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
+        if ( OSyms.size() < 13 ) { TSyms = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms ); } }
         
         //============================================ Decide on recommended symmetry
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
@@ -1786,21 +1786,23 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     
     if ( settings->requestedSymmetryType == "T" )
     {
-        //============================================ Run only the T symmetry detection and search for requested fold
-        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
-//        std::vector< proshade_double* > TSyms         = this->getTetrahedralSymmetriesList ( settings, &CSyms );
-//        settings->setRecommendedFold                  ( 0 );
-//        if ( TSyms.size() == 7 ) { settings->setRecommendedSymmetry ( "T" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSyms.size() ); it++ ) { settings->setDetectedSymmetry ( TSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSyms.at(it) ); } }
-//        else                     { settings->setRecommendedSymmetry ( "" ); }
+        //============================================ Run only the T symmetry detection
+        std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
+        if ( TSyms.size() == 7 ) { settings->setRecommendedSymmetry ( "T" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSyms.size() ); it++ ) { settings->setDetectedSymmetry ( TSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSyms.at(it) ); } }
+        else                      { settings->setRecommendedSymmetry ( "" ); }
     }
     
     if ( settings->requestedSymmetryType == "O" )
     {
-        std::cerr << "Sadly, this functionality is not yet implemented. Please use the -z option to use the original peak searching symmetry detection algorithm." << std::endl;
+        //============================================ Run only the O symmetry detection
+        std::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
+        if ( OSyms.size() == 13 ) { settings->setRecommendedSymmetry ( "O" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSyms.size() ); it++ ) { settings->setDetectedSymmetry ( OSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSyms.at(it) ); } }
+        else                      { settings->setRecommendedSymmetry ( "" ); }
     }
     
     if ( settings->requestedSymmetryType == "I" )
     {
+        //============================================ Run only the I symmetry detection
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
         if ( ISyms.size() == 31 ) { settings->setRecommendedSymmetry ( "I" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISyms.size() ); it++ ) { settings->setDetectedSymmetry ( ISyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISyms.at(it) ); } }
         else                      { settings->setRecommendedSymmetry ( "" ); }
