@@ -228,7 +228,7 @@ else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
    		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
    	)
-   	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/SOFT                            )
+   	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/SOFT2                           )
 endif ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 
 add_custom_target (
