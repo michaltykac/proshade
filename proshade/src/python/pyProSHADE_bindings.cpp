@@ -1,7 +1,7 @@
 /*! \file pyProSHADE_bindings.cpp
     \brief This file contains and combines the PyBind11 bindings for the ProSHADE python module.
     
-    ...
+    This file defines the python module for PyBind11, sets the main values and then includes all of the bindings from the other files.
     
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -14,7 +14,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 

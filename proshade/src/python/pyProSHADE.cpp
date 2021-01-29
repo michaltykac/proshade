@@ -1,7 +1,8 @@
 /*! \file pyProSHADE.cpp
     \brief This file contains the PyBind11 bindings for the ProSHADE_settings class.
     
-    ...
+    This file provides the bindings for hte ProSHADE_settings class members and functions. It also defines several python specific functions (written as C++ lambda functions) which allow direct access
+    to the computed results as numpy.ndarrays, while making sure the memory is released correctly for such cross-language shared variables.
     
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -14,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
