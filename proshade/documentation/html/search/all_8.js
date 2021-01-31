@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['initialiseallmemory_327',['initialiseAllMemory',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#aa3e5098a48755bb2665044472d619029',1,'ProSHADE_internal_sphericalHarmonics']]],
+  ['initialisefftwplans_328',['initialiseFFTWPlans',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#a38c2dcddc09fd31877eecb17f1d84aa7',1,'ProSHADE_internal_sphericalHarmonics']]],
+  ['initialiseinverseshcomputation_329',['initialiseInverseSHComputation',['../namespace_pro_s_h_a_d_e__internal__overlay.html#ac173210899aeeae2e207f9acdd7670a7',1,'ProSHADE_internal_overlay']]],
+  ['initialsplitdiscretetransform_330',['initialSplitDiscreteTransform',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#a0d0b0cf8683acd16bc76285b3897b66f',1,'ProSHADE_internal_sphericalHarmonics']]],
+  ['inputfiles_331',['inputFiles',['../class_pro_s_h_a_d_e__settings.html#a8a032c43a41e79e9d86c5beccb329169',1,'ProSHADE_settings']]],
+  ['inputorder_332',['inputOrder',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a99ab4a34f3a42c17f923ef131c64b4a7',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['integorder_333',['integOrder',['../class_pro_s_h_a_d_e__settings.html#af696bcba16302fe3a42e0341b4c5415a',1,'ProSHADE_settings']]],
+  ['integrationweight_334',['integrationWeight',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a5d266289b137b48132f1456fd8fc43ea',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['internalmap_335',['internalMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a8aa6fbd67df9911e886f9001a0ef8bc2',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['interpolatealongfirst_336',['interpolateAlongFirst',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a01767ce99492c8f3b5fb33f2945e629f',1,'ProSHADE_internal_spheres::ProSHADE_sphere']]],
+  ['interpolatealongsecond_337',['interpolateAlongSecond',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a47a2a0198036c23f6fa1b0c4c9d75d3a',1,'ProSHADE_internal_spheres::ProSHADE_sphere']]],
+  ['interpolatemapfromspheres_338',['interpolateMapFromSpheres',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a94e35e44abd71bec01e959cd0d106cfa',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['interpolatespherevalues_339',['interpolateSphereValues',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__rot_fun__sphere.html#af915e4a94ebca294b9adc39b1badca5e',1,'ProSHADE_internal_spheres::ProSHADE_rotFun_sphere']]],
+  ['invertmap_340',['invertMap',['../class_pro_s_h_a_d_e__settings.html#a0d205c102e722997ab1f0953f76a288a',1,'ProSHADE_settings']]],
+  ['invertmirrormap_341',['invertMirrorMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#aa67115a6b234764c958899863fb60b54',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['invertshcoefficients_342',['invertSHCoefficients',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ac3dbae1c18d0550ee1940cadb5335684',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['isaxisunique_343',['isAxisUnique',['../namespace_pro_s_h_a_d_e__internal__maths.html#a2380a3710f7dbe672519c3adda30f7cd',1,'ProSHADE_internal_maths::isAxisUnique(std::vector&lt; proshade_double * &gt; *CSymList, proshade_double *axis, proshade_double tolerance=0.1, bool improve=false)'],['../namespace_pro_s_h_a_d_e__internal__maths.html#a49f093fbdd34498d27a4d8998b620c91',1,'ProSHADE_internal_maths::isAxisUnique(std::vector&lt; proshade_double * &gt; *CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance)']]],
+  ['isbandwithinshell_344',['isBandWithinShell',['../namespace_pro_s_h_a_d_e__internal__distances.html#a6e15740000a0079151a2d24dbbdebb2e',1,'ProSHADE_internal_distances']]],
+  ['isempty_345',['isEmpty',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ac57d606fdb59d54bd3f9249941402b12',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['isfilemap_346',['isFileMAP',['../namespace_pro_s_h_a_d_e__internal__io.html#ae496132c658b22a5abb5d7aaca5e1f56',1,'ProSHADE_internal_io']]],
+  ['isfilepdb_347',['isFilePDB',['../namespace_pro_s_h_a_d_e__internal__io.html#abc5e6a82b6b44e3666abfc190dc0bc64',1,'ProSHADE_internal_io']]],
+  ['issymmetrysame_348',['isSymmetrySame',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#abb4d85e82d1c55d0aa18795fea449adf',1,'ProSHADE_internal_symmetry']]]
+];
