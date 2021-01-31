@@ -18,6 +18,10 @@
     \date      JAN 2021
  */
 
+//==================================================== Include getopt_port for python
+#include <getopt_port/getopt.h>
+#include <getopt_port/getopt.c>
+
 //==================================================== Include ProSHADE
 #include "ProSHADE.hpp"
 

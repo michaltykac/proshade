@@ -37,6 +37,7 @@ endif  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 include_directories     ( ${CMAKE_SOURCE_DIR}/extern/pybind11/include                     )
 include_directories     ( ${CMAKE_SOURCE_DIR}/src/proshade                                )
 include_directories     ( ${CMAKE_SOURCE_DIR}/extern/gemmi                                )
+include_directories     ( ${CMAKE_SOURCE_DIR}/extern                                      )
 
 ##########################################################################################
 ################################### Set RPATH
