@@ -1,7 +1,8 @@
 /*! \file pyProSHADE.cpp
     \brief This file contains the PyBind11 bindings for the ProSHADE_settings class.
     
-    ...
+    This file provides the bindings for hte ProSHADE_settings class members and functions. It also defines several python specific functions (written as C++ lambda functions) which allow direct access
+    to the computed results as numpy.ndarrays, while making sure the memory is released correctly for such cross-language shared variables.
     
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -14,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
@@ -164,6 +165,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setMaxSymmetryFold",                   &ProSHADE_settings::setMaxSymmetryFold,                     "Sets the maximum symmetry fold (well, the maximum prime symmetry fold).",                                                  pybind11::arg ( "maxFold"        ) )
     
         //============================================ Command line parsing
+#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
         .def                                          ( "getCommandLineParams",
                                                         [] ( ProSHADE_settings &self, std::vector < std::string > args )
                                                         {
@@ -174,6 +176,9 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             
                                                             return self.getCommandLineParams ( cstrs.size ( ), cstrs.data ( ) );
                                                         }, "This function takes a VectorOfStrings and parses it as if it were command line arguments, filling in the calling ProSHADE_settings class with the values." )
+#else
+    // To be completed
+#endif
         
         //============================================ Debugging
         .def                                          ( "printSettings", &ProSHADE_settings::printSettings, "This function prints the current values in the settings object." )

@@ -15,12 +15,15 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_version.hpp"
+
+//==================================================== MSVC Specific definition to allow M_PI 
+#define _USE_MATH_DEFINES
 
 //==================================================== Standard library
 #include <iostream>
@@ -33,7 +36,6 @@
 #include <exception>
 #include <complex>
 #include <algorithm>
-#include <getopt.h>
 #include <iomanip>
 #include <utility>
 

@@ -44,8 +44,8 @@ extern void Naive_AnalysisX( double *,
 			     double *,
 			     double *);
 
-
-extern void SemiNaiveReduced( double * ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) SemiNaiveReduced( double * ,
 			      int , 
 			      int , 
 			      double * , 
@@ -53,6 +53,16 @@ extern void SemiNaiveReduced( double * ,
 			      double * ,
 			      double * ,
 			      fftw_plan *) ;
+#else
+extern void SemiNaiveReduced( double * ,
+                  int ,
+                  int ,
+                  double * ,
+                  double * ,
+                  double * ,
+                  double * ,
+                  fftw_plan *) ;
+#endif
 
 extern void InvSemiNaiveReduced( double * ,
 				 int , 

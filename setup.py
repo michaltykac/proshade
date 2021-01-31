@@ -18,7 +18,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.1
+#   \version   0.7.5.2
 #   \date      JAN 2021
 ##############################################
 ##############################################
@@ -28,7 +28,7 @@
 ##### Global settings
 ##########################################################################################
 ##########################################################################################
-gl_version                                            = '0.7.5.1'
+gl_version                                            = '0.7.5.2'
 gl_download                                           = 'https://github.com/michaltykac/proshade/archive/v{0}.tar.gz'.format(gl_version)
 
 
@@ -44,10 +44,10 @@ import sysconfig
 import platform
 import subprocess
 
-from distutils.version import LooseVersion
-from distutils.dir_util import copy_tree
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+from distutils.version import LooseVersion
+from distutils.dir_util import copy_tree
 
 ##########################################################################################
 ##########################################################################################
@@ -73,9 +73,18 @@ class CMakeBuild ( build_ext ):
     building function to build using CMake.
     """
     def run ( self ):
+        ### Some systems use cmake3 instead of cmake ...
+        cmake_command_name                            = 'cmake3'
+        
+        ### Check which command this system uses
+        try:
+            out                                       = subprocess.check_output([cmake_command_name, '--version'])
+        except OSError:
+            cmake_command_name                        = 'cmake'
+    
         ### Check if CMake can be found
         try:
-            out                                       = subprocess.check_output(['cmake', '--version'])
+            out                                       = subprocess.check_output([cmake_command_name, '--version'])
         except OSError:
             raise RuntimeError                        ( "Cannot find CMake on your system. Please install CMake version 3.4 or higher to allow for installation of ProSHADE." )
 
@@ -86,11 +95,11 @@ class CMakeBuild ( build_ext ):
     
         ### Build the extensions
         for ext in self.extensions:
-            self.build_extension                      ( ext )
+            self.build_extension                      ( ext, cmake_command_name )
 
     """
     """
-    def build_extension ( self, ext ):
+    def build_extension ( self, ext, cmake_command_name ):
         ### Path to where the extension will be build
         extdir                                        = os.path.abspath( os.path.dirname ( self.get_ext_fullpath ( ext.name ) ) )
         
@@ -103,18 +112,20 @@ class CMakeBuild ( build_ext ):
         cfg                                           = 'Debug' if self.debug else 'Release'
         build_args                                    = ['--config', cfg]
 
-### Windows specific arguments will be added when Windows is supported ...
-#        if platform.system() == "Windows":
-#            cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(
-#                cfg.upper(),
-#                extdir)]
-#            if sys.maxsize > 2**32:
-#                cmake_args += ['-A', 'x64']
-#            build_args += ['--', '/m']
-#        else:
-
-        ### Platform spacifc CMake and Make commands
-        if platform.system() != "Windows":
+        ### Windows specific arguments
+        if platform.system() == "Windows":
+            ### Use upper case directory name
+            cmake_args                               += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format( cfg.upper (), extdir)]
+            
+            ### If 64 bits, then make sure the build outputs for 64 bits
+            if sys.maxsize > 2**32:
+                cmake_args                           += ['-A', 'x64']
+                
+            ###
+            build_args += ['--', '/m']
+            
+        else:
+        ### Linux/MacOS
             cmake_args                               += [ '-DCMAKE_BUILD_TYPE=' + cfg ]
             build_args                               += [ '--', '-j2' ]
 
@@ -127,8 +138,8 @@ class CMakeBuild ( build_ext ):
             os.makedirs                               ( self.build_temp )
     
         ### Run CMake
-        subprocess.check_call                         ( ['cmake', os.path.join ( ext.sourcedir, 'proshade' )]  + cmake_args, cwd = self.build_temp, env = env )
-        subprocess.check_call                         ( ['cmake', '--build', '.'] + build_args, cwd = self.build_temp )
+        subprocess.check_call                         ( [cmake_command_name, os.path.join ( ext.sourcedir, 'proshade' )]  + cmake_args, cwd = self.build_temp, env = env )
+        subprocess.check_call                         ( [cmake_command_name, '--build', '.'] + build_args, cwd = self.build_temp )
 
 ##########################################################################################
 ##########################################################################################
@@ -171,6 +182,7 @@ setup (
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: POSIX :: Linux',
         'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows :: Windows 10',
         'Programming Language :: C',
         'Programming Language :: C++',
         'Programming Language :: Python',

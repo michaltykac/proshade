@@ -26,7 +26,13 @@ The most recent stable version of ProSHADE is available from the *master* branch
         - [Installing standard system dependencies using ZYpp](#installing-standard-system-dependencies-using-zypp)
         - [Installing standard system dependencies using yum](#installing-standard-system-dependencies-using-yum)
     - [Other dependencies](#other-dependencies)
-    - [Installing using CMake](#installing-using-cmake)
+    - [Installing on Windows](#installing-on-windows)
+        - [Installing CMake](#installing-cmake)
+        - [Installing git](#installing-git)
+        - [Installing Build Tools for Visual Studio](#installing-build-tools-for-visual-studio)
+        - [Installing ProSHADE](#installing-proshade)
+        - [Setting ProSHADE PATH](#setting-proshade-path)
+    - [Installing using CMake on Unix](#installing-using-cmake-on-unix)
         - [CMake options](#cmake-options)
         - [Uninstall using CMake](#uninstall-using-cmake)
     - [Installation using pip](#installation-using-pip)
@@ -86,13 +92,20 @@ Moreover, if CMake is used to build ProSHADE directly, then the user may make us
   - **zlib**
   - **python** with **numpy**
   
+  This list is somewhat different for Windows systems, as ProSHADE contains 64-bit libraries for most of the dependencies already prepared, thus limiting the list. This, however, means that ProSHADE can only be installed on Windows10 64-bit systems and currently does neither supprt the 32-bit systems, nor the older Windows systems (7, Vista, XP, ...):
+  
+  - **cl**
+  - **cmake**
+  - **git**
+  - **python** with **numpy**
+  
   CMake should complain and issue a reasonably decipherable error messages if any of these dependencies are missing. 
   
   ### Installing python
   
-  While most modern Unix systems come with some version of the python language pre-installed, it seems reasonable to assume that users who are interested in using the ProSHADE python module do have their preferred version of python already installed and set as the default system python (meaning that the ```python``` command points to the python executable that the user wants the ProSHADE module to be installed for).
+  Python is not required for ProSHADE binary and library installation, but it is necessary to have it installed for successfull ProSHADE python module installation. Now, while most modern Unix systems come with some version of the python language pre-installed (although Windows does not), it seems reasonable to assume that users who are interested in using the ProSHADE python module do have their preferred version of python already installed and set as the default system python (meaning that the ```python``` command points to the python executable that the user wants the ProSHADE module to be installed for).
   
-  Should the user not have any python version installed or should the user be interested in having multiple versions, the Anaconda environment ( https://www.anaconda.com/products/individual ) can be recommended for installation of python and management of various environments.
+  Should the user not have any python version installed or should the user be interested in having multiple versions, the Anaconda environment ( https://www.anaconda.com/products/individual ) can be recommended for all systems supported by ProSHADE. Of course, there are alternatives for installation of python and management of various environments and ProSHADE does not care which is being used.
   
   ### Installing standard system dependencies on MacOS
   
@@ -164,8 +177,46 @@ After this, ProSHADE should by automatically installable using the CMake system.
 ## Other dependencies
 
 ProSHADE also depends on the *Gemmi* and *SOFT2.0* libraries. The installation of these libraries is automated in the CMake scripts and therefore does not require any user input (these libraries are supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation). Please note that these dependencies do have their own licences (the Mozilla Public License for *Gemmi* and the GPL licence for *SOFT2.0*) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
+
+## Installing on Windows
+
+As mentioned above, ProSHADE currently only supports Windows10 64-bit systems and cannot be simply installed on other Windows systems. In order to install ProSHADE on a Windows10 64-bit machine, the user is required to firstly have installed some basic pre-requisities. 
+
+### Installing CMake
+
+CMake can be installed on Windows using the 64-bit MSI installer available from https://cmake.org/download . During the installation, please make sure that the option to *Add CMake to the system PATH* is selected (it does not matter to ProSHADE if it is for all users or just for the current user). 
+
+### Installing git
+
+Git can be installed on Windows by downloading the 64-bit Windows Setup installer from https://git-scm.com/download/win . The installer asks for many options, the only imprtant one for ProSHADE installation is that in the section "Adjusting you PATH environment" it is required that the option *Use Git from Git Bash only* is **NOT** selected. This makes sure that the git executable is in the system PATH.
+
+### Installing Build Tools for Visual Studio
+
+Sadly, the Authors are not aware of any simple way of installing the Microsoft C and C++ compilers and linker controlling tool - **cl.exe** except for installing the full Visual Studio or the Build Tools for Visual Studio. This will require well over 6GB of space on your hard-drive and the download is well over 1.5GB. Nonetheless, it is the main Windows compiler and linker and therefore ProSHADE cannot be installed on Windows without it. 
+
+To install the Build Tools for Visual Studio, please download the installer from Microsoft at https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019 and in the Workload selection screen select the *C++ Build Tools* option. The rest of the installtion should be automatic.
+
+### Installing ProSHADE
+
+Once all of the above dependencies are installed, the ProSHADE python module can now be installed using the pip installation as described in the [Installing using pip ](#installing-using-pip) section. Should the user require installation from the Command Prompt, they will need to open the *Developer Command Prompt for VS 2019* (or the appropriate version the MS Visual Studio they have installed) and type the following commands (replacing the \path\to\proshade with the appropriate path on their machine to the location where they want ProSHADE codes to be stored). Please note that you may need to run the command prompt as administrator in order to be able to install into the system folders (i.e. C:\Program Files). Also, the same CMake options apply as discussed in section [CMake options](#cmake-options):
+
+```
+    cd \path\to\proshade
+    git clone https://github.com/michaltykac/proshade
+    mkdir build
+    cd .\build
+    cmake ..\proshade\proshade
+    cmake --build . --config Release
+    cmake --install .
+```
  
- ## Installing using CMake
+ ### Setting ProSHADE PATH
+ 
+ Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH. This can be done by opening the *Control Panel* and selecting the *System and Security* option. In the new window, please select the *System* option and in the next window click the *Advanced system settings* option on the right-hand side panel. In the next window, please click on the *Environment Variables...* button, which will open the  penultimate window. In here, in the *System variables* section, please click on the variable named *Path* and then click on the *Edit...* button. This opens the last window, where the *New* button needs to be clicked, immediately followed by clicking the *Browse...* button can be clicked. In the file selector screen, please click to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the *OK* button on all open windows which have one.
+
+Once the path is set, you can use ProSHADE from any Command Prompt window (not only the Developer Command Prompt used before), although you will have to close and re-open all currently open command prompt windows if you want to use ProSHADE in them.
+ 
+ ## Installing using CMake on Unix
  
  CMake is the default ProSHADE installation tool and if the binary or the library is needed, then it is the only installation option. The python module can also be build using CMake, but it will be installed only locally and all python scripts will need to add the installation location to their PATH. Alternatively, if the python module is what the user is after, then it can be installed globally using pip - please see the [Installation using pip](#installation-using-pip ) section for more details.
  
@@ -269,7 +320,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -313,7 +364,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.5.1 (JAN 2021):
+  ProSHADE 0.7.5.2 (JAN 2021):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -363,7 +414,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
   ======================
   ProSHADE run complete.
-  Time taken: 5 seconds.
+  Time taken: 4 seconds.
   ======================
 ```
  
@@ -381,7 +432,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz
-ProSHADE 0.7.5.1 (JAN 2021):
+ProSHADE 0.7.5.2 (JAN 2021):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
@@ -423,7 +474,7 @@ Time taken: 9 seconds.
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -476,7 +527,7 @@ Time taken: 9 seconds.
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
 ```
 # Using the ProSHADE library

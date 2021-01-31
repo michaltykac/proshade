@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
@@ -1612,6 +1612,9 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_doub
  */
 void ProSHADE_internal_maths::multiplyTwoSquareMatrices ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim )
 {
+    //================================================ Set res to 0.0s
+    for ( proshade_unsign iter = 0; iter < 9; iter++ ) { res[iter] = 0.0; }
+    
     //================================================ Compute the matrix multiplication
     for ( proshade_unsign row = 0; row < dim; row++ )
     {
@@ -1697,6 +1700,7 @@ proshade_double ProSHADE_internal_maths::normalDistributionValue ( proshade_doub
     \param[in] x2 The x-axis element of the second vector.
     \param[in] y2 The y-axis element of the second vector.
     \param[in] z2 The z-axis element of the second vector.
+    \param[out] X The dot product of the two input vectors.
  */
 proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2, proshade_double* z2 )
 {
@@ -1712,11 +1716,223 @@ proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double* x1
     \param[in] x2 The x-axis element of the second vector.
     \param[in] y2 The y-axis element of the second vector.
     \param[in] z2 The z-axis element of the second vector.
+    \param[out] X The dot product of the two input vectors.
  */
 proshade_double ProSHADE_internal_maths::computeDotProduct ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2 )
 {
     //================================================ Compute and return
     return                                            ( (x1 * x2) + (y1 * y2) + (z1 * z2) );
+}
+
+/*! \brief Simple 3D vector cross product computation.
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+    \param[out] crossProd The vector representing the cross product of the two input vectors.
+ */
+proshade_double* ProSHADE_internal_maths::computeCrossProduct ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2, proshade_double* z2 )
+{
+    //================================================ Allocate memory
+    proshade_double* crossProd                        = new proshade_double[3];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( crossProd, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Compute
+    crossProd[0]                                      = ( (*y1) * (*z2) ) - ( (*z1) * (*y2) );
+    crossProd[1]                                      = ( (*z1) * (*x2) ) - ( (*x1) * (*z2) );
+    crossProd[2]                                      = ( (*x1) * (*y2) ) - ( (*y1) * (*x2) );
+    
+    //================================================ Done
+    return                                            ( crossProd );
+    
+}
+
+/*! \brief Function for computing a 3x3 matrix multiplication.
+ 
+    \param[in] mat1 The matrix to multiply mat2.
+    \param[in] mat2 The matrix to be multiplied by mat1.
+    \param[out] ret The matrix resulting from matrix multiplication of mat1 and mat2 in this order.
+ */
+proshade_double* ProSHADE_internal_maths::compute3x3MatrixMultiplication ( proshade_double* mat1, proshade_double* mat2 )
+{
+    //================================================ Allocate memory
+    proshade_double* ret                              = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Multiply
+    ret[0]                                            = ( mat1[0] * mat2[0] ) + ( mat1[1] * mat2[3] ) + ( mat1[2] * mat2[6] );
+    ret[1]                                            = ( mat1[0] * mat2[1] ) + ( mat1[1] * mat2[4] ) + ( mat1[2] * mat2[7] );
+    ret[2]                                            = ( mat1[0] * mat2[2] ) + ( mat1[1] * mat2[5] ) + ( mat1[2] * mat2[8] );
+    ret[3]                                            = ( mat1[3] * mat2[0] ) + ( mat1[4] * mat2[3] ) + ( mat1[5] * mat2[6] );
+    ret[4]                                            = ( mat1[3] * mat2[1] ) + ( mat1[4] * mat2[4] ) + ( mat1[5] * mat2[7] );
+    ret[5]                                            = ( mat1[3] * mat2[2] ) + ( mat1[4] * mat2[5] ) + ( mat1[5] * mat2[8] );
+    ret[6]                                            = ( mat1[6] * mat2[0] ) + ( mat1[7] * mat2[3] ) + ( mat1[8] * mat2[6] );
+    ret[7]                                            = ( mat1[6] * mat2[1] ) + ( mat1[7] * mat2[4] ) + ( mat1[8] * mat2[7] );
+    ret[8]                                            = ( mat1[6] * mat2[2] ) + ( mat1[7] * mat2[5] ) + ( mat1[8] * mat2[8] );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief Function for computing a 3x3 matrix to 3x1 vector multiplication.
+ 
+    \param[in] mat The matrix to multiply the vector with..
+    \param[in] x The x-axis element of the vector which is to be multiplied by the matrix.
+    \param[in] y The x-axis element of the vector which is to be multiplied by the matrix.
+    \param[in] z The x-axis element of the vector which is to be multiplied by the matrix.
+    \param[out] ret The vector resulting from matrix multiplication of mat and the vector in this order.
+ */
+proshade_double* ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( proshade_double* mat, proshade_double x, proshade_double y, proshade_double z )
+{
+    //================================================ Allocate memory
+    proshade_double* ret                              = new proshade_double[3];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Compute the multiplication
+    ret[0]                                            = ( x * mat[0] ) + ( y * mat[1] ) + ( z * mat[2] );
+    ret[1]                                            = ( x * mat[3] ) + ( y * mat[4] ) + ( z * mat[5] );
+    ret[2]                                            = ( x * mat[6] ) + ( y * mat[7] ) + ( z * mat[8] );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief Function for computing a 3x3 matrix inverse.
+ 
+    \param[in] mat The matrix to be inverted.
+    \param[out] inverse The inverse of matrix mat.
+ */
+proshade_double* ProSHADE_internal_maths::compute3x3MatrixInverse ( proshade_double* mat )
+{
+    //================================================ Allocate memory
+    proshade_double* inverse                          = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( inverse, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Compute determinant
+    proshade_double matDet                            = ( mat[0] * mat[4] * mat[8] ) +
+                                                        ( mat[1] * mat[5] * mat[6] ) +
+                                                        ( mat[2] * mat[3] * mat[7] ) -
+                                                        ( mat[0] * mat[5] * mat[7] ) -
+                                                        ( mat[1] * mat[3] * mat[8] ) -
+                                                        ( mat[2] * mat[4] * mat[6] );
+    
+    //================================================ Compute inverse matrix
+    inverse[0]                                        = ( mat[4] * mat[8] - mat[5] * mat[7] ) / matDet;
+    inverse[1]                                        = ( mat[2] * mat[7] - mat[1] * mat[8] ) / matDet;
+    inverse[2]                                        = ( mat[1] * mat[5] - mat[2] * mat[4] ) / matDet;
+    inverse[3]                                        = ( mat[5] * mat[6] - mat[3] * mat[8] ) / matDet;
+    inverse[4]                                        = ( mat[0] * mat[8] - mat[2] * mat[6] ) / matDet;
+    inverse[5]                                        = ( mat[2] * mat[3] - mat[0] * mat[5] ) / matDet;
+    inverse[6]                                        = ( mat[3] * mat[7] - mat[4] * mat[6] ) / matDet;
+    inverse[7]                                        = ( mat[1] * mat[6] - mat[0] * mat[7] ) / matDet;
+    inverse[8]                                        = ( mat[0] * mat[4] - mat[1] * mat[3] ) / matDet;
+    
+    //================================================ Done
+    return                                            ( inverse );
+}
+
+/*! \brief Transposes 3x3 matrix in place.
+ 
+    \param[in] mat The matrix to be transposed.
+ */
+void ProSHADE_internal_maths::transpose3x3MatrixInPlace ( proshade_double* mat )
+{
+    //================================================ Initialise variables
+    proshade_double tmp;
+    
+    //================================================ Transpose the non-diagonal values
+    tmp                                               = mat[1];
+    mat[1]                                            = mat[3];
+    mat[3]                                            = tmp;
+    
+    tmp                                               = mat[2];
+    mat[2]                                            = mat[6];
+    mat[6]                                            = tmp;
+    
+    tmp                                               = mat[5];
+    mat[5]                                            = mat[7];
+    mat[7]                                            = tmp;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Computation of rotation matrix rotating one vector onto the other.
+ 
+    This function starts by normalising both input vectors to have magnitude of 1.0. Then, it computes the cosine and sine of the angle between the two
+    vectors (using the magnitude of the cross product and the dot product); these are then sufficient to build the rotation matrix for rotation in plane on
+    which both of the vectors lie.
+ 
+    It then proceeds to compute the change of basis matrix and its inverse, which are in turn sufficient to to compute the rotation matrix in the original
+    basis. This rotation matrix is then returned.
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+    \param[out] rotMat Rotation matrix optimally rotating x1 ; y1 ; z1 to match x2 ; y2 ; z2.
+ */
+proshade_double* ProSHADE_internal_maths::findRotMatMatchingVectors ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2 )
+{
+    //================================================ Allocate required memory
+    proshade_double* inPlaneRotation                  = new proshade_double[9];
+    proshade_double* basisChangeMat                   = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( inPlaneRotation, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( basisChangeMat, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Normalise inputs
+    proshade_double normF                             = std::sqrt( std::pow( x1, 2.0 ) + std::pow ( y1, 2.0 ) + std::pow ( z1, 2.0 ) );
+    x1 /= normF; y1 /= normF; z1 /= normF;
+    
+    normF                                             = std::sqrt( std::pow( x2, 2.0 ) + std::pow ( y2, 2.0 ) + std::pow ( z2, 2.0 ) );
+    x2 /= normF; y2 /= normF; z2 /= normF;
+    
+    //================================================ Compute cross product's magnitude
+    proshade_double* crossProd                        = ProSHADE_internal_maths::computeCrossProduct( &x1, &y1, &z1, &x2, &y2, &z2 );
+    proshade_double  crossProdMag                     = std::sqrt( std::pow( crossProd[0], 2.0 ) + std::pow ( crossProd[1], 2.0 ) + std::pow ( crossProd[2], 2.0 ) );
+    delete[] crossProd;
+    
+    //================================================ Compute dot product
+    proshade_double dotProd                           = ProSHADE_internal_maths::computeDotProduct ( &x1, &y1, &z1, &x2, &y2, &z2 );
+    
+    //================================================ Construct the in-plane rotation matrix
+    inPlaneRotation[0] = dotProd;        inPlaneRotation[1] = -crossProdMag;   inPlaneRotation[2] = 0.0;
+    inPlaneRotation[3] = crossProdMag;   inPlaneRotation[4] = dotProd;         inPlaneRotation[5] = 0.0;
+    inPlaneRotation[6] = 0.0;            inPlaneRotation[7] = 0.0;             inPlaneRotation[8] = 1.0;
+    
+    //================================================ Construct change of basis matrix
+    crossProd                                         = ProSHADE_internal_maths::computeCrossProduct( &x2, &y2, &z2, &x1, &y1, &z1 );
+    normF                                             = std::sqrt ( std::pow ( x2 - ( dotProd * x1 ), 2.0 ) + std::pow ( y2 - ( dotProd * y1 ), 2.0 ) + std::pow ( z2 - ( dotProd * z1 ), 2.0 ) );
+    
+    basisChangeMat[0] = x1; basisChangeMat[1] = ( x2 - ( dotProd * x1 ) ) / normF; basisChangeMat[2] = crossProd[0];
+    basisChangeMat[3] = y1; basisChangeMat[4] = ( y2 - ( dotProd * y1 ) ) / normF; basisChangeMat[5] = crossProd[1];
+    basisChangeMat[6] = z1; basisChangeMat[7] = ( z2 - ( dotProd * z1 ) ) / normF; basisChangeMat[8] = crossProd[2];
+    
+    //================================================ Invert the change of basis matrix
+    proshade_double* basisChangeMatInverse            = ProSHADE_internal_maths::compute3x3MatrixInverse ( basisChangeMat );
+    
+    //================================================ Multiply inverse of change of basis matrix with the in plane rotation matrix, then multiply the result with the inverse
+    proshade_double* tmpMat                           = ProSHADE_internal_maths::compute3x3MatrixMultiplication ( basisChangeMat, inPlaneRotation );
+    proshade_double* rotMat                           = ProSHADE_internal_maths::compute3x3MatrixMultiplication ( tmpMat, basisChangeMatInverse );
+    
+    //================================================ Release memory
+    delete[] crossProd;
+    delete[] inPlaneRotation;
+    delete[] basisChangeMat;
+    delete[] basisChangeMatInverse;
+    delete[] tmpMat;
+    
+    //================================================ Done
+    return                                            ( rotMat );
+    
 }
 
 /*! \brief Function for finding a vector which would have a given two dot products to two other vectors.
@@ -2459,6 +2675,7 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
             }
         }
     }
+    std::cout << std::endl;
     
     //================================================ Done
     return                                            ( ret );

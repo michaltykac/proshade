@@ -34,7 +34,7 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.1
+#   \version   0.7.5.2
 #   \date      JAN 2021
 ######################################################
 ######################################################
@@ -682,6 +682,8 @@ print                                                 ( rotMatMaxVal )
 ###
 
 ### Detect symmetry
+pSet.requestedSymmetryFold                            = 12
+pSet.requestedSymmetryType                            = "D"
 pStruct.detectSymmetryInStructure                     ( pSet )
 
 ### Retrieve results
@@ -699,9 +701,9 @@ print                                                 ( "Fold      x         y  
 for iter in range ( 0, len( recSymmetryAxes ) ):
      print                                            ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( recSymmetryAxes[iter][0], recSymmetryAxes[iter][1], recSymmetryAxes[iter][2], recSymmetryAxes[iter][3], recSymmetryAxes[iter][4], recSymmetryAxes[iter][5] ) )
      
-# Expected output: Fold      x         y         z       Angle     Height
-# Expected output: 12.0    +0.000    -0.000    +1.000    +0.524    +0.9548
-# Expected output:  2.0    +0.778    +0.628    +0.032    +3.142    +0.5700
+# Expected output: Fold      x         y         z         Angle     Height
+# Expected output:  12.0    +0.000    -0.000    +1.000    +0.524    +0.9548
+# Expected output:   2.0    +0.778    +0.628    +0.032    +3.142    +0.5700
 
 ######################################################
 ### Get more symmetry results
@@ -723,13 +725,13 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 allCAxes                                              = pStruct.getAllCSyms ( pSet )
 
 print                                                 ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
-# Expected output: Found a total of 29 cyclic point groups.
+# Expected output: Found a total of 63 cyclic point groups.
 
 ### Get a list of all non-cyclic point groups detected and indices of the cyclic groups forming them
 allNonCAxesIndices                                    = pStruct.getNonCSymmetryAxesIndices ( pSet )
 
 print                                                 ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
-# Expected output: Found a total of 26 dihedral point groups.
+# Expected output: Found a total of 52 dihedral point groups.
 
 ### Get group elements for the best dihedral symmetry (indices 2 and 26)
 bestDCombination                                      = []
@@ -741,9 +743,9 @@ print                                                 ( "Found a total of " + st
 # Expected output: Found a total of 24 elements.
 
 print                                                 ( allGroupElements[1] )
-# Expected output: [[ 0.8660254 -0.5        0.       ]
-# Expected output:  [ 0.5        0.8660254 -0.       ]
-# Expected output:  [ 0.         0.         1.       ]]
+# Expected output: [[-0.5        0.8660254  0.       ]
+# Expected output:  [-0.8660254 -0.5        0.       ]
+# Expected output:  [ 0.        -0.         1.       ]]
 
 ##############################################
 ### Delete the C++ pointers

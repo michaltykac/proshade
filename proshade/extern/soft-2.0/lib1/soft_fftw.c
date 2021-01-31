@@ -1033,7 +1033,8 @@ void Forward_SO3_Naive_fftw( int bw,
 
 */
 
-void Inverse_SO3_Naive_fftw( int bw,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) Inverse_SO3_Naive_fftw( int bw,
 			     fftw_complex *coeffs,
 			     fftw_complex *data,
 			     fftw_complex *workspace_cx,
@@ -1041,6 +1042,16 @@ void Inverse_SO3_Naive_fftw( int bw,
 			     double *workspace_re,
 			     fftw_plan *p1,
 			     int flag )
+#else
+void Inverse_SO3_Naive_fftw( int bw,
+                 fftw_complex *coeffs,
+                 fftw_complex *data,
+                 fftw_complex *workspace_cx,
+                 fftw_complex *workspace_cx2,
+                 double *workspace_re,
+                 fftw_plan *p1,
+                 int flag )
+#endif
 {
   int j, n ;
   int m1, m2 ;

@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.0)
+
+include(GenerateExportHeader )
+
+PROJECT( "soft2" )
+
+file    ( GLOB COMMON  "${CMAKE_SOURCE_DIR}/common/*.c"                          )
+file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/lib1/*.c"                          )
+
+link_directories    ( ${CMAKE_SOURCE_DIR}/../../winLibs/x64/FFTW3                           )
+include_directories ( ${CMAKE_SOURCE_DIR}/../../winLibs/x64/FFTW3                           )
+include_directories ( ${CMAKE_SOURCE_DIR}/include                           )
+
+ADD_LIBRARY( soft2 SHARED ${COMMON} ${SOURCES} )
+
+target_link_libraries   ( soft2 ${CMAKE_SOURCE_DIR}/../../winLibs/x64/FFTW3/libfftw3-3.lib )
+
+set ( WINDOWS_EXPORT_ALL_SYMBOLS TRUE )
+set ( BUILD_SHARED_LIBS TRUE )

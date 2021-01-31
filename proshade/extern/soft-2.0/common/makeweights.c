@@ -51,7 +51,32 @@
 
 */
 
+#define _USE_MATH_DEFINES
 #include <math.h>
+
+#include <stdlib.h>
+
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) releaseSOFTMemory ( double* relMe )
+#else
+void releaseSOFTMemory ( double* relMe )
+#endif
+{
+    free ( relMe );
+}
+
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) releaseSOFTMemoryMulti ( double** relMe, int size )
+#else
+void releaseSOFTMemoryMulti ( double** relMe, int size )
+#endif
+{
+    for ( int i = 0; i < size; i++ )
+    {
+        free ( relMe[i] );
+    }
+    free ( relMe );
+}
 
 /*
   makeweights: given a bandwidth bw, make weights for
@@ -65,8 +90,13 @@
 
 */
 
-void makeweights( int bw,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) makeweights( int bw,
 		  double *weights )
+#else
+void makeweights( int bw,
+          double *weights )
+#endif
 {
   int j, k ;
   double fudge ;

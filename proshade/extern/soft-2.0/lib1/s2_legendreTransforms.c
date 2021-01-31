@@ -407,7 +407,8 @@ void InvSemiNaiveReduced(double *coeffs,
 
 */
 
-void SemiNaiveReduced(double *data, 
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) SemiNaiveReduced(double *data, 
 		      int bw, 
 		      int m, 
 		      double *result,
@@ -415,6 +416,16 @@ void SemiNaiveReduced(double *data,
 		      double *cos_pml_table, 
 		      double *weights,
 		      fftw_plan *fplan )
+#else
+void SemiNaiveReduced(double *data,
+              int bw,
+              int m,
+              double *result,
+              double *workspace,
+              double *cos_pml_table,
+              double *weights,
+              fftw_plan *fplan )
+#endif
 {
   int i, j, n;
   double result0, result1, result2, result3;

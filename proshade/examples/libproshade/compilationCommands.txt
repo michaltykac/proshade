@@ -15,6 +15,16 @@ g++ ./proshadeProject.cpp -I/path/to/proshade/extern/soft-2.0/include \
                           -L/path/to/proshade/install/lib \
                           -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
                           -o ./proshadeProject
+                          
+cl.exe 	/I "C:\Users\mdoub\Desktop\proshade\proshade\extern\gemmi\include" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\winLibs\x64\ZLIB" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\winLibs\x64\FFTW3" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\extern\soft-2.0\include" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\extern\gemmi\include" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\winLibs\x64\ZLIB" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\winLibs\x64\FFTW3" 
+		/I "C:\Users\mdoub\Desktop\proshade\proshade\extern" 
+		/EHsc .\proshadeBinary.cpp proshade.dll
                            
 ====================================
 compiling simpleAccess_distances.cpp
@@ -66,6 +76,8 @@ g++ ./simpleAccess_reboxing.cpp -I/path/to/proshade/extern/soft-2.0/include \
                                 -L/path/to/proshade/install/lib \
                                 -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
 							    -o ./simpleAccess_reboxing
+							    
+cl 
                                   
 ===================================
 compiling simpleAccess_symmetry.cpp

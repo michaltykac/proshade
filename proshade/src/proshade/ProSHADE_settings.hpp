@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
@@ -70,6 +70,13 @@ extern "C" {
 #endif
 
 #pragma GCC diagnostic pop
+
+//==================================================== GetOpt port (BSD License, works on Windows as well)
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    #include <getopt_port/getopt.h>
+#else
+    #include <getopt.h>
+#endif
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_SETTINGS__
