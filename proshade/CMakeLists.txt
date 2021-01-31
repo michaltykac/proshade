@@ -47,12 +47,16 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.5.1 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.5.2 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
 set     ( CMAKE_CXX_STANDARD 11                                                           )
 set     ( CMAKE_CXX_STANDARD_REQUIRED ON                                                  )
+
+##########################################################################################
+################################### Force Position Independent Code (fPIC)
+set     ( CMAKE_POSITION_INDEPENDENT_CODE ON                                              )
 
 ##########################################################################################
 ################################### Find the source files

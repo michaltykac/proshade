@@ -2981,7 +2981,7 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double*
                                                                                                                         ProSHADE_internal_precomputedVals::icosahedronAxes.at(6).at(3) );
     
     //================================================ Find the angle betwen the rotated model C3 and the detected C3 axes along the detected C5 axis.
-    proshade_double bestAng, curAngDist, bestAngDist = 999.9;
+    proshade_double bestAng = 0.0, curAngDist, bestAngDist = 999.9;
     for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.01 )
     {
         //============================================ Compute rotation matrix for this angle value
@@ -3855,7 +3855,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
             lon = std::round ( lon );
             
             //======================================== Initialise the peak group
-            ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* grp;
+            ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* grp = nullptr;
             
             //======================================== Construct a peak group with entry from each sphere with the axis as the peak
             for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( dataObj->sphereMappedRotFun.size() ); sphIt++ )
