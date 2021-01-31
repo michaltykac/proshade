@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 
@@ -38,10 +38,6 @@
 #include <algorithm>
 #include <iomanip>
 #include <utility>
-
-#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
-    #include <getopt.h>
-#endif
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_TYPEDEFS__

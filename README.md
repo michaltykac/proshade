@@ -212,7 +212,7 @@ Once all of the above dependencies are installed, the ProSHADE python module can
  
  ### Setting ProSHADE PATH
  
- Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH. This can be done by opening the *Control Panel* and selecting the *System and Security* option. In the new window, please select the *System* option and in the next window click the *Advanced system settings* option on the right-hand side panel. In the next window, please click on the *Environment Variables...* button, which will open the  penultimate window. In here, in the *System variables* section, please click on the variable named *Path* and then click on the *Edit...* button. This opens the last window, where the *Browse...* button can be clicked. In the file selector screen, please click to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the *OK* button on all open windows which have one.
+ Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH. This can be done by opening the *Control Panel* and selecting the *System and Security* option. In the new window, please select the *System* option and in the next window click the *Advanced system settings* option on the right-hand side panel. In the next window, please click on the *Environment Variables...* button, which will open the  penultimate window. In here, in the *System variables* section, please click on the variable named *Path* and then click on the *Edit...* button. This opens the last window, where the *New* button needs to be clicked, immediately followed by clicking the *Browse...* button can be clicked. In the file selector screen, please click to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the *OK* button on all open windows which have one.
 
 Once the path is set, you can use ProSHADE from any Command Prompt window (not only the Developer Command Prompt used before), although you will have to close and re-open all currently open command prompt windows if you want to use ProSHADE in them.
  
@@ -320,7 +320,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -364,7 +364,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.5.1 (JAN 2021):
+  ProSHADE 0.7.5.2 (JAN 2021):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -414,7 +414,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
   ======================
   ProSHADE run complete.
-  Time taken: 5 seconds.
+  Time taken: 4 seconds.
   ======================
 ```
  
@@ -432,7 +432,7 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz
-ProSHADE 0.7.5.1 (JAN 2021):
+ProSHADE 0.7.5.2 (JAN 2021):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
@@ -474,7 +474,7 @@ Time taken: 9 seconds.
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -527,7 +527,7 @@ Time taken: 9 seconds.
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
 ```
 # Using the ProSHADE library

@@ -515,10 +515,17 @@ int coefLoc_so3( int m1, int m2, int bw )
 
 */
 
-int so3CoefLoc( int m,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+int __declspec(dllexport) so3CoefLoc( int m,
 		int mp,
 		int l,
 		int bw )
+#else
+int so3CoefLoc( int m,
+        int mp,
+        int l,
+        int bw )
+#endif
 {
   int k ;
   int tmpA, tmpB ;

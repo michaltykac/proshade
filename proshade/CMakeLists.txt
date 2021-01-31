@@ -47,7 +47,7 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.5.1 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.5.2 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -55,9 +55,15 @@ set     ( CMAKE_CXX_STANDARD 11                                                 
 set     ( CMAKE_CXX_STANDARD_REQUIRED ON                                                  )
 
 ##########################################################################################
+################################### Force Position Independent Code (fPIC)
+set     ( CMAKE_POSITION_INDEPENDENT_CODE ON                                              )
+
+##########################################################################################
 ################################### Find the source files
-file    ( GLOB SOURCES  "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                          )
-file    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                               )
+file    ( GLOB SOURCES   "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                         )
+file    ( GLOB EXEC_SRC  "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                              )
+
+list    ( APPEND SOURCES "${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt.c"                )
 
 ##########################################################################################
 ################################### Define the command line options variables and defaults
@@ -69,7 +75,7 @@ set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"      
 set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
 set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
 set     ( BUILD_PYTHON           FALSE   CACHE BOOL   "Should python modules be build?"        )
-set     ( CMAKE_BUILD_TYPE       Release                                                       )
+set     ( CMAKE_BUILD_TYPE       Debug                                                         )
 
 ##########################################################################################
 ################################### Warn if non-local installation - sudo may be needed
@@ -127,6 +133,9 @@ add_custom_target (
    gemmi_lib
    DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
 )
+
+### GetOpt_port
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/                                         ) 
 
 ### Set paths to installed dependencies
 include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )  
@@ -228,7 +237,7 @@ else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
    		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
    	)
-   	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/SOFT                            )
+   	link_directories    ( ${CMAKE_SOURCE_DIR}/winLibs/x64/SOFT2                           )
 endif ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 
 add_custom_target (

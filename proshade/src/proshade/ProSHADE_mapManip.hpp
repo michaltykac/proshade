@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
  */
 

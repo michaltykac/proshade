@@ -19,7 +19,7 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.1
+    \version   0.7.5.2
     \date      JAN 2021
 */
 
@@ -138,15 +138,27 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: C-12 with axes:
-//  Symmetry axis number 0: Fold 12 XYZ: 0 ; 0 ; 1 Angle (radians): 0.523599 and axis peak: 0.964052
+//  Detected symmetry: O-0 with axes:
+//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.996925
+//  Symmetry axis number 1: Fold 4 XYZ: 0.982453 ; 0.186512 ; 0 Angle (radians): 1.5708 and axis peak: 0.371114
+//  Symmetry axis number 2: Fold 4 XYZ: -0.186512 ; 0.982453 ; 0 Angle (radians): 1.5708 and axis peak: 0.371103
+//  Symmetry axis number 3: Fold 3 XYZ: 0.459536 ; 0.674902 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.369835
+//  Symmetry axis number 4: Fold 3 XYZ: 0.459536 ; 0.674902 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.370613
+//  Symmetry axis number 5: Fold 3 XYZ: 0.674902 ; -0.459536 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.370049
+//  Symmetry axis number 6: Fold 3 XYZ: 0.674902 ; -0.459536 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.370358
+//  Symmetry axis number 7: Fold 2 XYZ: 0.694699 ; 0.131884 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.370649
+//  Symmetry axis number 8: Fold 2 XYZ: 0.562815 ; 0.826583 ; 0 Angle (radians): 3.14159 and axis peak: 0.630635
+//  Symmetry axis number 9: Fold 2 XYZ: -0.131884 ; 0.694699 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.371132
+//  Symmetry axis number 10: Fold 2 XYZ: 0.694699 ; 0.131884 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.371886
+//  Symmetry axis number 11: Fold 2 XYZ: -0.131884 ; 0.694699 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.371382
+//  Symmetry axis number 12: Fold 2 XYZ: 0.826583 ; -0.562815 ; 0 Angle (radians): 3.14159 and axis peak: 0.630538
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Expected output
-//  Found total of 35 cyclic symmetry axes.
+//  Found total of 47 cyclic symmetry axes.
     
     //================================================ Release the object
     delete simpleSym;
@@ -268,14 +280,14 @@ int main ( int argc, char **argv )
     
     //================================================ Print results
     std::cout << "Point group D" << allCs.at(bestDAxesList.at(0))[0] << "-" << allCs.at(bestDAxesList.at(1))[0] << " has been found to have " << groupElements.size() << " group elements, with the first element (excluding the identity one) having rotation matrix:" << std::fixed << std::setprecision(2) << std::showpos << std::endl;
-    std::cout << groupElements.at(1).at(0) << " | " << groupElements.at(1).at(1) << " | " << groupElements.at(1).at(2) << std::endl;
-    std::cout << groupElements.at(1).at(3) << " | " << groupElements.at(1).at(4) << " | " << groupElements.at(1).at(5) << std::endl;
-    std::cout << groupElements.at(1).at(6) << " | " << groupElements.at(1).at(7) << " | " << groupElements.at(1).at(8) << std::endl << std::endl;
+    std::cout << groupElements.at(0).at(0) << " | " << groupElements.at(0).at(1) << " | " << groupElements.at(0).at(2) << std::endl;
+    std::cout << groupElements.at(0).at(3) << " | " << groupElements.at(0).at(4) << " | " << groupElements.at(0).at(5) << std::endl;
+    std::cout << groupElements.at(0).at(6) << " | " << groupElements.at(0).at(7) << " | " << groupElements.at(0).at(8) << std::endl << std::endl;
         
     //================================================ Expected output
 //  Point group D4-2 has been found to have 8 group elements, with the first element (excluding the identity one) having rotation matrix:
-//  +0.00 | -1.00 | +0.00
-//  +1.00 | +0.00 | +0.00
+//  +0.00 | +1.00 | +0.00
+//  -1.00 | +0.00 | +0.00
 //  +0.00 | +0.00 | +1.00
  
     //================================================ Release the settings and runProshade objects

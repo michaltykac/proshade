@@ -56,7 +56,7 @@
 
 */
 
-
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -389,7 +389,8 @@ void FST_semi_fly( double *rdata, double *idata,
 
 /*      dataformat =0 -> samples are complex, =1 -> samples real */
 
-void InvFST_semi_fly(double *rcoeffs, double *icoeffs, 
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) InvFST_semi_fly(double *rcoeffs, double *icoeffs, 
 		     double *rdata, double *idata, 
 		     int bw, 
 		     double *workspace,
@@ -397,6 +398,16 @@ void InvFST_semi_fly(double *rcoeffs, double *icoeffs,
 		     int cutoff,
 		     fftw_plan *idctPlan,
 		     fftw_plan *ifftPlan )
+#else
+void InvFST_semi_fly(double *rcoeffs, double *icoeffs,
+             double *rdata, double *idata,
+             int bw,
+             double *workspace,
+             int dataformat,
+             int cutoff,
+             fftw_plan *idctPlan,
+             fftw_plan *ifftPlan )
+#endif
 {
   int size, m, i, n;
   double *rdataptr, *idataptr;

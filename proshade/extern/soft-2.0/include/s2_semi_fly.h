@@ -42,6 +42,16 @@ extern void FST_semi_fly( double *, double *,
 			  fftw_plan *,
 			  double * );
 
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) InvFST_semi_fly( double *, double *,
+                 double *, double *,
+                 int ,
+                 double *,
+                 int ,
+                 int ,
+                 fftw_plan *,
+                 fftw_plan * );
+#else
 extern void InvFST_semi_fly( double *, double *, 
 			     double *, double *,
 			     int , 
@@ -50,6 +60,7 @@ extern void InvFST_semi_fly( double *, double *,
 			     int ,
 			     fftw_plan *,
 			     fftw_plan * );
+#endif
 
 
 #endif /* _S2_SEMI_FLY_H */

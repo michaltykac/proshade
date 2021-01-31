@@ -38,10 +38,27 @@
 #ifndef _MAKEWEIGHTS_H
 #define _MAKEWEIGHTS_H
 
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) makeweights( int ,
+             double * ) ;
+#else
 extern void makeweights( int ,
-			 double * ) ;
+             double * ) ;
+#endif
 
 extern void makeweights2( int ,
 			  double * ) ;
+
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) releaseSOFTMemory ( double* relMe );
+#else
+extern void releaseSOFTMemory ( double* relMe );
+#endif
+
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) releaseSOFTMemoryMulti ( double** relMe, int size );
+#else
+extern void releaseSOFTMemoryMulti ( double** relMe, int size );
+#endif
 
 #endif  /* _MAKEWEIGHTS_H */

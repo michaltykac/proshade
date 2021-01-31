@@ -256,8 +256,9 @@
  *  Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH.
  *  This can be done by opening the \e Control \e Panel and selecting the \e System \e and \e Security option. In the new window, please select the \e System option and in the next window click the \e Advanced
  *  \e system \e settings option on the right-hand side panel. In the next window, please click on the \e Environment \e Variables... button, which will open the  penultimate window. In here, in the \e System \e variables
- *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the \e Browse... button can be clicked. In the file selector screen, please click to the
- *  \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK button on all open windows which have one.
+ *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the  \e New button needs to be clicked, immediately followed by clicking  \e Browse... button
+ *  can be clicked. In the file selector screen, please click to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK
+ *  button on all open windows which have one.
  *
  * Once the path is set, you can use ProSHADE from any Command Prompt window (not only the Developer Command Prompt used before), although you will have to close and re-open all currently open command
  * prompt windows if you want to use ProSHADE in them.
@@ -401,7 +402,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -451,7 +452,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -501,7 +502,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
  *\endcode
  *
@@ -525,7 +526,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -586,7 +587,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.1 (JAN 2021):
+ ProSHADE 0.7.5.2 (JAN 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -639,7 +640,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 4 seconds.
  ======================
  \endcode
  *
@@ -1374,7 +1375,6 @@ int main ( int argc, char **argv )
 {
     //================================================ Create the settings object and parse the command line arguments
     ProSHADE_settings* settings                       = new ProSHADE_settings ( );
-#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
     settings->getCommandLineParams                    ( argc, argv );
     
     //================================================ Execute
@@ -1385,9 +1385,6 @@ int main ( int argc, char **argv )
     
     //================================================ Release the executive object
     delete run;
-#else
-    std::cout << "Sadly, this is the cl.txt compiled version of ProSHADE, which does not have any getopt.h alternative on Windows implemented just yet and which therefore cannot take any command line arguments and consequently is completely useless. Solution: You can install the binary using cygwin (see the standardDependencies.txt file in the proshade folder) and get it working this way." << std::endl;
-#endif
     
     //================================================ DONE
     return                                            ( EXIT_SUCCESS );

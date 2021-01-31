@@ -50,7 +50,8 @@ extern void Forward_SO3_Naive_fftw( int ,
 				    fftw_plan * ,
 				    int ) ;
 
-extern void Inverse_SO3_Naive_fftw( int ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) Inverse_SO3_Naive_fftw( int ,
 				    fftw_complex * ,
 				    fftw_complex * ,
 				    fftw_complex * ,
@@ -58,6 +59,16 @@ extern void Inverse_SO3_Naive_fftw( int ,
 				    double * ,
 				    fftw_plan * ,
 				    int ) ;
+#else
+extern void Inverse_SO3_Naive_fftw( int ,
+                    fftw_complex * ,
+                    fftw_complex * ,
+                    fftw_complex * ,
+                    fftw_complex * ,
+                    double * ,
+                    fftw_plan * ,
+                    int ) ;
+#endif
 
 #endif /* _SOFT_FFTW_H */
 

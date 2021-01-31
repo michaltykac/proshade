@@ -28,7 +28,7 @@
 ##### Global settings
 ##########################################################################################
 ##########################################################################################
-gl_version                                            = '0.7.5.2'
+gl_version                                            = '0.0.0.8'
 gl_download                                           = 'https://github.com/michaltykac/proshade/archive/v{0}.tar.gz'.format(gl_version)
 
 
@@ -119,10 +119,11 @@ class CMakeBuild ( build_ext ):
             
             ### If 64 bits, then make sure the build outputs for 64 bits
             if sys.maxsize > 2**32:
-                cmake_args += ['-A', 'x64']
+                cmake_args                           += ['-A', 'x64']
                 
             ###
             build_args += ['--', '/m']
+            
         else:
         ### Linux/MacOS
             cmake_args                               += [ '-DCMAKE_BUILD_TYPE=' + cfg ]
@@ -181,6 +182,7 @@ setup (
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: POSIX :: Linux',
         'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows :: Windows 10',
         'Programming Language :: C',
         'Programming Language :: C++',
         'Programming Language :: Python',

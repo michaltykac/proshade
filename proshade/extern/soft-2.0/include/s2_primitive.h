@@ -72,9 +72,15 @@ extern void P_eval( int ,
 		    double * ,
 		    int ) ;
 
-extern int seanindex( int,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern int __declspec(dllexport) seanindex( int,
 		      int,
 		      int );
+#else
+extern int seanindex( int,
+              int,
+              int );
+#endif
 
 extern void seanindex2( int ,
 			int ,
