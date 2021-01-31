@@ -1374,7 +1374,6 @@ int main ( int argc, char **argv )
 {
     //================================================ Create the settings object and parse the command line arguments
     ProSHADE_settings* settings                       = new ProSHADE_settings ( );
-#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
     settings->getCommandLineParams                    ( argc, argv );
     
     //================================================ Execute
