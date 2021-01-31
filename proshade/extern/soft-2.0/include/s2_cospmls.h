@@ -34,11 +34,21 @@ extern int TableSize( int ,
 
 extern int Spharmonic_TableSize( int ) ;
 
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern int __declspec(dllexport) Reduced_SpharmonicTableSize( int ,
+                    int ) ;
+#else
 extern int Reduced_SpharmonicTableSize( int ,
 					int ) ;
+#endif
 
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern int __declspec(dllexport) Reduced_Naive_TableSize( int ,
+                    int ) ;
+#else
 extern int Reduced_Naive_TableSize( int ,
 				    int ) ;
+#endif
 
 extern int NewTableOffset( int ,
 			   int ) ;
@@ -74,16 +84,23 @@ extern double **Transpose_Spharmonic_Pml_Table( double ** ,
 						double * ,
 						double * ) ;
 
-extern double **SemiNaive_Naive_Pml_Table( int ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern double __declspec(dllexport)  **SemiNaive_Naive_Pml_Table( int ,
 					   int ,
 					   double * ,
 					   double * ) ;
+#else
+extern double **SemiNaive_Naive_Pml_Table( int ,
+                       int ,
+                       double * ,
+                       double * ) ;
+#endif
 
-extern double **Transpose_SemiNaive_Naive_Pml_Table( double ** , 
-						     int ,
-						     int ,
-						     double * ,
-						     double * ) ;
+extern double **Transpose_SemiNaive_Naive_Pml_Table( double ** ,
+                             int ,
+                             int ,
+                             double * ,
+                             double * ) ;
 
 #endif
 

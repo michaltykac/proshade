@@ -145,11 +145,17 @@ extern int coefLoc_so3( int ,
 			int ,
 			int ) ;
 
-
-extern int so3CoefLoc( int ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern int __declspec(dllexport) so3CoefLoc( int ,
 		       int ,
 		       int ,
 		       int ) ;
+#else
+extern int so3CoefLoc( int ,
+               int ,
+               int ,
+               int ) ;
+#endif
 
 
 

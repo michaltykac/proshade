@@ -85,10 +85,17 @@
 
 */
 
-void genExp( int bw ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) genExp( int bw ,
 	     double phi ,
 	     double *expValsR,
 	     double *expValsI )
+#else
+void genExp( int bw ,
+         double phi ,
+         double *expValsR,
+         double *expValsI )
+#endif
 {
   int i, expZero ;
 
@@ -169,12 +176,21 @@ void genExp( int bw ,
 
 *****************************************************************/
 
-void wignerdmat( int L,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) wignerdmat( int L,
 		 double *matIn,
 		 double *matOut,
 		 double *trigs,
 		 double *sqrts,
 		 double *workspace )
+#else
+void wignerdmat( int L,
+         double *matIn,
+         double *matOut,
+         double *trigs,
+         double *sqrts,
+         double *workspace )
+#endif
 {
 
   int i, j ;

@@ -37,17 +37,33 @@
 #ifndef _ROTATESO3_UTILS_H
 #define _ROTATESO3_UTILS_H 1
 
-extern void genExp( int ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) genExp( int ,
 		    double ,
 		    double * ,
 		    double * ) ;
+#else
+extern void genExp( int ,
+            double ,
+            double * ,
+            double * ) ;
+#endif
 
-extern void wignerdmat( int ,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+extern void __declspec(dllexport) wignerdmat( int ,
 			double * ,
 			double * ,
 			double * ,
 			double * ,
 			double * ) ;
+#else
+extern void wignerdmat( int ,
+            double * ,
+            double * ,
+            double * ,
+            double * ,
+            double * ) ;
+#endif
 
 extern void rotateCoefDegree( int ,
 			      double * , double * ,

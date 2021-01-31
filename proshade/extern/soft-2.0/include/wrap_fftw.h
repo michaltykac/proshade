@@ -42,20 +42,20 @@ extern void Inverse_SO3_Naive_fftw_W( int ,
 				      fftw_complex * ,
 				      int ) ;
 
-extern void softFFTWCor2( int ,
-			  double * ,
-			  double * ,
-			  double * ,
-			  double * ,
-			  double * ,
-			  int ) ;
+//extern void softFFTWCor2( int ,
+//			  double * ,
+//			  double * ,
+//			  double * ,
+//			  double * ,
+//			  double * ,
+//			  int ) ;
 
-extern void s2RotateFFTW( int ,
-			  double *,
-			  double *,
-			  double ,
-			  double ,
-			  double ,
-			  int ) ;
+//extern void s2RotateFFTW( int ,
+//			  double *,
+//			  double *,
+//			  double ,
+//			  double ,
+//			  double ,
+//			  int ) ;
 
 #endif /* _WRAP_FFTW_H */

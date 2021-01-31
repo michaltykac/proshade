@@ -118,127 +118,127 @@
 
 ****************/
 
-void s2RotateFFTW( int bw,
-		   double *sigIn,
-		   double *sigOut,
-		   double alpha, double beta, double gamma,
-		   int isReal)
-{
-  int i, degOut ;
-  double *scratch ;
-  double *tmpInR, *tmpInI, *tmpOutR, *tmpOutI ;
-  double *seminaive_naive_tablespace ;
-  double *trans_seminaive_naive_tablespace;
-  double **seminaive_naive_table ;
-  double **trans_seminaive_naive_table;
-
-  degOut = bw - 1 ;
-
-
-  tmpInR = (double *) malloc(sizeof(double)*(4*bw*bw));
-  tmpInI = (double *) malloc(sizeof(double)*(4*bw*bw));
-  tmpOutR = (double *) malloc(sizeof(double)*(4*bw*bw));
-  tmpOutI = (double *) malloc(sizeof(double)*(4*bw*bw));
-
-
-  scratch = (double *) malloc(sizeof(double)*((14*bw*bw) + (52*bw) + (2*bw)));
-    
-  seminaive_naive_tablespace =
-    (double *) malloc(sizeof(double) *
-		      (Reduced_Naive_TableSize(bw,bw) +
-		       Reduced_SpharmonicTableSize(bw,bw)));
-
-  trans_seminaive_naive_tablespace =
-    (double *) malloc(sizeof(double) *
-		      (Reduced_Naive_TableSize(bw,bw) +
-		       Reduced_SpharmonicTableSize(bw,bw)));
-
-
-  /****
-       At this point, check to see if all the memory has been
-       allocated. If it has not, there's no point in going further.
-  ****/
-
-  if ( (scratch == NULL) || 
-       (tmpInR == NULL) || (tmpInI == NULL) ||
-       (tmpOutR == NULL) || (tmpOutI == NULL) ||
-       (seminaive_naive_tablespace == NULL) ||
-       (trans_seminaive_naive_tablespace == NULL) )
-    {
-      perror("Error in allocating memory");
-      exit( 1 ) ;
-    }
-  
-
-  /* precompute for the S^2 transform */
-  seminaive_naive_table = SemiNaive_Naive_Pml_Table(bw, bw,
-						    seminaive_naive_tablespace,
-						    scratch);
-
-  trans_seminaive_naive_table =
-    Transpose_SemiNaive_Naive_Pml_Table(seminaive_naive_table,
-					bw, bw,
-					trans_seminaive_naive_tablespace,
-					scratch);
-
-  /* load in signal */
-  if ( isReal )
-    {
-      for( i = 0 ; i < 4*bw*bw ; i ++ )
-	{
-	  tmpInR[i] = sigIn[i];
-	  tmpInI[i] = 0. ;
-	}
-    }
-  else
-    {
-      for( i = 0 ; i < 4*bw*bw ; i ++ )
-	{
-	  tmpInR[i] = sigIn[2*i];
-	  tmpInI[i] = sigIn[2*i+1];
-	}
-    }
-
-  /* now rotate */
-  rotateFctFFTW( bw, bw, degOut,
-		 tmpInR, tmpInI,
-		 tmpOutR, tmpOutI,
-		 alpha, beta, gamma,
-		 scratch,
-		 seminaive_naive_table,
-		 trans_seminaive_naive_table ) ;
-
-  if ( isReal )
-    {
-      for( i = 0 ; i < 4*bw*bw ; i ++ )
-	{
-	  sigOut[i] = tmpOutR[i];
-	}
-    }
-  else
-    {
-      for( i = 0 ; i < 4*bw*bw ; i ++ )
-	{
-	  sigOut[2*i] = tmpOutR[i];
-	  sigOut[2*i+1] = tmpOutI[i];
-	}
-    }
-
-
-
-
-  /* clean up */
-  free(trans_seminaive_naive_table);
-  free(seminaive_naive_table);
-  free(trans_seminaive_naive_tablespace);
-  free(seminaive_naive_tablespace); 
-  free(scratch);
-  free(tmpOutI);
-  free(tmpOutR);
-  free(tmpInI);
-  free(tmpInR);
-
-
-}
-
-
+//void s2RotateFFTW( int bw,
+//		   double *sigIn,
+//		   double *sigOut,
+//		   double alpha, double beta, double gamma,
+//		   int isReal)
+//{
+//  int i, degOut ;
+//  double *scratch ;
+//  double *tmpInR, *tmpInI, *tmpOutR, *tmpOutI ;
+//  double *seminaive_naive_tablespace ;
+//  double *trans_seminaive_naive_tablespace;
+//  double **seminaive_naive_table ;
+//  double **trans_seminaive_naive_table;
+//
+//  degOut = bw - 1 ;
+//
+//
+//  tmpInR = (double *) malloc(sizeof(double)*(4*bw*bw));
+//  tmpInI = (double *) malloc(sizeof(double)*(4*bw*bw));
+//  tmpOutR = (double *) malloc(sizeof(double)*(4*bw*bw));
+//  tmpOutI = (double *) malloc(sizeof(double)*(4*bw*bw));
+//
+//
+//  scratch = (double *) malloc(sizeof(double)*((14*bw*bw) + (52*bw) + (2*bw)));
+//    
+//  seminaive_naive_tablespace =
+//    (double *) malloc(sizeof(double) *
+//		      (Reduced_Naive_TableSize(bw,bw) +
+//		       Reduced_SpharmonicTableSize(bw,bw)));
+//
+//  trans_seminaive_naive_tablespace =
+//    (double *) malloc(sizeof(double) *
+//		      (Reduced_Naive_TableSize(bw,bw) +
+//		       Reduced_SpharmonicTableSize(bw,bw)));
+//
+//
+//  /****
+//       At this point, check to see if all the memory has been
+//       allocated. If it has not, there's no point in going further.
+//  ****/
+//
+//  if ( (scratch == NULL) || 
+//       (tmpInR == NULL) || (tmpInI == NULL) ||
+//       (tmpOutR == NULL) || (tmpOutI == NULL) ||
+//       (seminaive_naive_tablespace == NULL) ||
+//       (trans_seminaive_naive_tablespace == NULL) )
+//    {
+//      perror("Error in allocating memory");
+//      exit( 1 ) ;
+//    }
+//  
+//
+//  /* precompute for the S^2 transform */
+//  seminaive_naive_table = SemiNaive_Naive_Pml_Table(bw, bw,
+//						    seminaive_naive_tablespace,
+//						    scratch);
+//
+//  trans_seminaive_naive_table =
+//    Transpose_SemiNaive_Naive_Pml_Table(seminaive_naive_table,
+//					bw, bw,
+//					trans_seminaive_naive_tablespace,
+//					scratch);
+//
+//  /* load in signal */
+//  if ( isReal )
+//    {
+//      for( i = 0 ; i < 4*bw*bw ; i ++ )
+//	{
+//	  tmpInR[i] = sigIn[i];
+//	  tmpInI[i] = 0. ;
+//	}
+//    }
+//  else
+//    {
+//      for( i = 0 ; i < 4*bw*bw ; i ++ )
+//	{
+//	  tmpInR[i] = sigIn[2*i];
+//	  tmpInI[i] = sigIn[2*i+1];
+//	}
+//    }
+//
+//  /* now rotate */
+//  rotateFctFFTW( bw, bw, degOut,
+//		 tmpInR, tmpInI,
+//		 tmpOutR, tmpOutI,
+//		 alpha, beta, gamma,
+//		 scratch,
+//		 seminaive_naive_table,
+//		 trans_seminaive_naive_table ) ;
+//
+//  if ( isReal )
+//    {
+//      for( i = 0 ; i < 4*bw*bw ; i ++ )
+//	{
+//	  sigOut[i] = tmpOutR[i];
+//	}
+//    }
+//  else
+//    {
+//      for( i = 0 ; i < 4*bw*bw ; i ++ )
+//	{
+//	  sigOut[2*i] = tmpOutR[i];
+//	  sigOut[2*i+1] = tmpOutI[i];
+//	}
+//    }
+//
+//
+//
+//
+//  /* clean up */
+//  free(trans_seminaive_naive_table);
+//  free(seminaive_naive_table);
+//  free(trans_seminaive_naive_tablespace);
+//  free(seminaive_naive_tablespace); 
+//  free(scratch);
+//  free(tmpOutI);
+//  free(tmpOutR);
+//  free(tmpInI);
+//  free(tmpInR);
+//
+//
+//}
+//
+//

@@ -297,9 +297,15 @@ void P_eval(int m,
 
   ******************************************************************/
 
-int seanindex(int m,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+int __declspec(dllexport) seanindex(int m,
 	      int l,
 	      int bw)
+#else
+int seanindex(int m,
+          int l,
+          int bw)
+#endif
 {     
   int bigL;
 

@@ -147,8 +147,13 @@ int Spharmonic_TableSize(int bw)
 
 */
 
-int Reduced_SpharmonicTableSize(int bw,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+int __declspec(dllexport) Reduced_SpharmonicTableSize(int bw,
 				int m)
+#else
+int Reduced_SpharmonicTableSize(int bw,
+                int m)
+#endif
 {
   
   int i, sum;
@@ -750,8 +755,13 @@ double **Transpose_Spharmonic_Pml_Table(double **spharmonic_pml_table,
 
 */
 
-int Reduced_Naive_TableSize(int bw,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+int __declspec(dllexport) Reduced_Naive_TableSize(int bw,
 			    int m)
+#else
+int Reduced_Naive_TableSize(int bw,
+                int m)
+#endif
 {
   
   int i, sum;
@@ -781,10 +791,17 @@ int Reduced_Naive_TableSize(int bw,
 
 ***********************************************************/
 
-double **SemiNaive_Naive_Pml_Table(int bw,
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+double __declspec(dllexport) **SemiNaive_Naive_Pml_Table(int bw,
 				   int m,
 				   double *resultspace,
 				   double *workspace)
+#else
+double **SemiNaive_Naive_Pml_Table(int bw,
+                   int m,
+                   double *resultspace,
+                   double *workspace)
+#endif
 {
   int i;
   double **seminaive_naive_table;
