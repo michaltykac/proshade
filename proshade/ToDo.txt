@@ -1,7 +1,6 @@
 To Do:
 
-* Look into gcc warnings (not shown in clang)
-* Solve the predicting of all polyhedral axis from having the two with correct dihedral angle.
+* Look into cl warnings (not shown in clang or gcc)
 
 Testing:
 * Look into symmetry - especially taking into account the average peak heights when deciding which symmetry to report.
@@ -12,11 +11,9 @@ Development
 * Timing - can it be faster?
 * Support non-orthogonal maps
 * Change to NFFT and then change the sphere sampling for spherical harmonics, rotation function and angle-axis spheres to Fibonacci sampling.
-* Switch to pybind11
-* Create Homebrew build procedure for MacOS
-* Create apt build procedure for Linux
-* Create PyPi module for Windows
-* Create MacPorts build procedure
+* Create Homebrew/MacPorts build procedure for MacOS
+* Create apt/zypper/yum build procedure for Linux
+* Modify the code to use pragmas to include the Windows specific __declspec(dllexport) modifier to make the library usable on Windows.
 
 Admin
 * Get new version to CCP-EM including new interface

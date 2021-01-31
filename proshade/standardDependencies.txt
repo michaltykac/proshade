@@ -143,11 +143,12 @@ Windows 10 64-bit
 * Edit system paths
 	* Control Panel -> System and Security -> System -> View Advanced System Settings -> Advanced -> Environment Variables
 	* Under System Variables (as opposed by User variables) find variable "Path" and click Edit...
-	* Click Browse and navigate to where proshade was cloned into, then to proshade/winLib/x64/DLLs and click OK to all the opened windows.
+	* Click New and then Browse... and navigate to where proshade was cloned into, then to proshade/winLib/x64/DLLs and click OK to all the opened windows.
+	* Close and re-open all Command Prompt windows where you want ProSHADE to be available, so that the changes take effect.
 * ProSHADE is now available from Command Prompt at the location where it was cloned to and then .\proshade\proshade\install, where
 	* The executable is at .\bin\proshade.exe
 	* The library is at .\lib\proshade.dll and its header at .\include\ProSHADE.hpp
-	* The python module is at .\pythonModule\proshade...pyd
+	* The python module is at .\pythonModule\proshade...pyd if you have requested its compilation by -DBUiLD_PYTHON=TRUE
 
 =================
 Build PyPi Module

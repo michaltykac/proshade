@@ -256,8 +256,9 @@
  *  Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH.
  *  This can be done by opening the \e Control \e Panel and selecting the \e System \e and \e Security option. In the new window, please select the \e System option and in the next window click the \e Advanced
  *  \e system \e settings option on the right-hand side panel. In the next window, please click on the \e Environment \e Variables... button, which will open the  penultimate window. In here, in the \e System \e variables
- *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the \e Browse... button can be clicked. In the file selector screen, please click to the
- *  \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK button on all open windows which have one.
+ *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the  \e New button needs to be clicked, immediately followed by clicking  \e Browse... button
+ *  can be clicked. In the file selector screen, please click to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK
+ *  button on all open windows which have one.
  *
  * Once the path is set, you can use ProSHADE from any Command Prompt window (not only the Developer Command Prompt used before), although you will have to close and re-open all currently open command
  * prompt windows if you want to use ProSHADE in them.

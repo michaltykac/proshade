@@ -182,6 +182,7 @@ setup (
         'License :: OSI Approved :: GNU General Public License (GPL)',
         'Operating System :: POSIX :: Linux',
         'Operating System :: MacOS',
+        'Operating System :: Microsoft :: Windows :: Windows 10',
         'Programming Language :: C',
         'Programming Language :: C++',
         'Programming Language :: Python',
