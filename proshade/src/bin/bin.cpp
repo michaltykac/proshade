@@ -1385,9 +1385,6 @@ int main ( int argc, char **argv )
     
     //================================================ Release the executive object
     delete run;
-#else
-    std::cout << "Sadly, this is the cl.txt compiled version of ProSHADE, which does not have any getopt.h alternative on Windows implemented just yet and which therefore cannot take any command line arguments and consequently is completely useless. Solution: You can install the binary using cygwin (see the standardDependencies.txt file in the proshade folder) and get it working this way." << std::endl;
-#endif
     
     //================================================ DONE
     return                                            ( EXIT_SUCCESS );

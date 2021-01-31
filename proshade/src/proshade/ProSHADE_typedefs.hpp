@@ -39,10 +39,6 @@
 #include <iomanip>
 #include <utility>
 
-#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
-    #include <getopt.h>
-#endif
-
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_TYPEDEFS__
 #define __PROSHADE_TYPEDEFS__

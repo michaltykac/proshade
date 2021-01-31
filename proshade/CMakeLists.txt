@@ -128,6 +128,9 @@ add_custom_target (
    DEPENDS ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
 )
 
+### GetOpt_port
+include_directories ( ${CMAKE_SOURCE_DIR}/extern/                                         ) 
+
 ### Set paths to installed dependencies
 include_directories ( ${CMAKE_SOURCE_DIR}/extern/gemmi/include                            )  
 
