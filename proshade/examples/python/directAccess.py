@@ -747,6 +747,36 @@ print                                                 ( allGroupElements[1] )
 # Expected output:  [-0.8660254 -0.5        0.       ]
 # Expected output:  [ 0.        -0.         1.       ]]
 
+######################################################
+### Computing and combining group elements
+### ======================================
+###
+### Assuming you have modified / created your own
+### cyclic groups and want to obtain their group
+### elements, ProSHADE can compute these as follows:
+gr1Elements                                           = proshade.computeGroupElementsForGroup ( 1,      # X-axis element of the group rotation axis
+                                                                                                0,      # Y-axis element of the group rotation axis
+                                                                                                0,      # Z-axis element of the group rotation axis
+                                                                                                4 )     # Fold
+                                                      
+gr2Elements                                           = proshade.computeGroupElementsForGroup ( 0,      # X-axis element of the group rotation axis
+                                                                                                1,      # Y-axis element of the group rotation axis
+                                                                                                0,      # Z-axis element of the group rotation axis
+                                                                                                2 )     # Fold
+                                                  
+### Moreover, if you have computed group elements for
+### multiple groups and would like to combine these
+### into a single group, possibly discovering new
+### group elements, this can also be done by ProSHADE
+### by using the following function:
+combinedGroupElements                                 = proshade.joinElementsFromDifferentGroups ( gr1Elements, # Elements of the first group
+                                                                                                   gr2Elements, # Elements of the second group
+                                                                                                   0.0001,      # Matrix tolerance (i.e. if the abs ( trace ( Mat1 * Mat2^(T) ) - 3.0 ) must be below this number for two matrices to be considered identical )
+                                                                                                   True )       # Should new group elements resulting from multiplication of elements from group 1 with elements from group 2 be computed?
+
+print ( len ( combinedGroupElements ) )
+# Expected output: 8
+
 ##############################################
 ### Delete the C++ pointers
 ### =======================
