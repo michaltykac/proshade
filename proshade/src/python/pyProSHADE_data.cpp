@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.2
-    \date      JAN 2021
+    \version   0.7.5.3
+    \date      FEB 2021
  */
 
 //==================================================== Include PyBind11 header
@@ -671,4 +671,104 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         
         //============================================ Description
         .def                                          ( "__repr__", [] ( const ProSHADE_internal_data::ProSHADE_data &a ) { return "<ProSHADE_data class object> (This class contains all information, results and available functionalities for a structure)"; } );
+    
+    //================================================ Export extra symmetry elements functions
+    pyProSHADE.def                                    ( "computeGroupElementsForGroup",
+                                                        [] ( proshade_double x, proshade_double y, proshade_double z, proshade_unsign fold ) -> pybind11::array_t < proshade_double >
+                                                        {
+                                                            //== Get the results
+                                                            std::vector<std::vector< proshade_double > > retVec = ProSHADE_internal_data::computeGroupElementsForGroup ( x, y, z, fold );
+        
+                                                            //== Allocate memory for the numpy values
+                                                            proshade_double* npVals = new proshade_double[static_cast<proshade_unsign> ( retVec.size() ) * 9];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy the values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( retVec.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 9; it++ ) { npVals[(iter*9)+it] = retVec.at(iter).at(it); }  }
+    
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleGrEls ( npVals, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
+                                                
+                                                            //== Create python readable object with the correct memory access
+                                                            pybind11::array_t < proshade_double > retArr = pybind11::array_t < proshade_double > (
+                                                                { static_cast< int > ( retVec.size() ), 3, 3 },                                              // Shape
+                                                                { 9 * sizeof(proshade_double), 3 * sizeof(proshade_double), sizeof(proshade_double) },       // C-stype strides
+                                                                npVals,                                                                                      // Data
+                                                                pyCapsuleGrEls );                                                                            // Capsule (destructor)
+    
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function takes the axis and fold and computes all resulting group elements (as rotation matrices), returning them in numpy.ndarray.", pybind11::arg ( "x" ), pybind11::arg ( "y" ), pybind11::arg ( "z" ), pybind11::arg ( "fold" ) );
+    pyProSHADE.def                                    ( "joinElementsFromDifferentGroups",
+                                                        [] ( pybind11::array_t < proshade_double, pybind11::array::c_style | pybind11::array::forcecast > first,
+                                                             pybind11::array_t < proshade_double, pybind11::array::c_style | pybind11::array::forcecast > second,
+                                                             proshade_double matrixTolerance,
+                                                             bool combine ) -> pybind11::array_t < proshade_double >
+                                                        {
+                                                            //== Get array buffers
+                                                            pybind11::buffer_info buf1 = first.request();
+                                                            pybind11::buffer_info buf2 = second.request();
+        
+                                                            //== Sanity check
+                                                            if ( buf1.ndim != 3 || buf2.ndim != 3 )
+                                                            {
+                                                                std::cerr << "Function joinElementsFromDifferentGroups() arguments first and second should be numpy.ndarrays with 3 dimensions indexed as follos: first[elementNumber][elementRotationMatrixRow][elementRotationMatrixColumn] - the same format as returned by the computeGroupElementsForGroup() function." << std::endl;
+                                                                return ( pybind11::array_t < proshade_double > () );
+                                                            }
+        
+                                                            //== Convert input to C++ vectors
+                                                            std::vector< std::vector< proshade_double > > fVec, sVec;
+        
+                                                            proshade_double* dataPtr1 = reinterpret_cast < proshade_double* > ( buf1.ptr );
+                                                            for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( buf1.shape.at(0) ); elIt++ )
+                                                            {
+                                                                std::vector< proshade_double > rotMat;
+                                                                for ( proshade_unsign rowIt = 0; rowIt < static_cast<proshade_unsign> ( buf1.shape.at(1) ); rowIt++ )
+                                                                {
+                                                                    for ( proshade_unsign colIt = 0; colIt < static_cast<proshade_unsign> ( buf1.shape.at(2) ); colIt++ )
+                                                                    {
+                                                                        ProSHADE_internal_misc::addToDoubleVector ( &rotMat, dataPtr1[colIt + buf1.shape.at(2) * ( rowIt + buf1.shape.at(1) * elIt )] );
+                                                                    }
+                                                                }
+                                                                ProSHADE_internal_misc::addToDoubleVectorVector ( &fVec, rotMat );
+                                                            }
+        
+                                                            proshade_double* dataPtr2 = reinterpret_cast < proshade_double* > ( buf2.ptr );
+                                                            for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( buf2.shape.at(0) ); elIt++ )
+                                                            {
+                                                                std::vector< proshade_double > rotMat;
+                                                                for ( proshade_unsign rowIt = 0; rowIt < static_cast<proshade_unsign> ( buf2.shape.at(1) ); rowIt++ )
+                                                                {
+                                                                    for ( proshade_unsign colIt = 0; colIt < static_cast<proshade_unsign> ( buf2.shape.at(2) ); colIt++ )
+                                                                    {
+                                                                        ProSHADE_internal_misc::addToDoubleVector ( &rotMat, dataPtr2[colIt + buf2.shape.at(2) * ( rowIt + buf2.shape.at(1) * elIt )] );
+                                                                    }
+                                                                }
+                                                                ProSHADE_internal_misc::addToDoubleVectorVector ( &sVec, rotMat );
+                                                            }
+        
+        
+                                                            //== Get the results
+                                                            std::vector< std::vector< proshade_double > > retVec = ProSHADE_internal_data::joinElementsFromDifferentGroups ( &fVec, &sVec, matrixTolerance, combine );
+
+                                                            //== Allocate memory for the numpy values
+                                                            proshade_double* npVals = new proshade_double[static_cast<proshade_unsign> ( retVec.size() ) * 9];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+                                                            
+                                                            //== Copy the values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( retVec.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 9; it++ ) { npVals[(iter*9)+it] = retVec.at(iter).at(it); }  }
+                                                            
+                                                            //== Create capsule to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleGrElsCombo ( npVals, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
+                                                            
+                                                            //== Create python readable object with the correct memory access
+                                                            pybind11::array_t < proshade_double > retArr = pybind11::array_t < proshade_double > (
+                                                                { static_cast< int > ( retVec.size() ), 3, 3 },                                              // Shape
+                                                                { 9 * sizeof(proshade_double), 3 * sizeof(proshade_double), sizeof(proshade_double) },       // C-stype strides
+                                                                npVals,                                                                                      // Data
+                                                                  pyCapsuleGrElsCombo );                                                                     // Capsule (destructor)
+                                                            
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function takes the axis and fold and computes all resulting group elements (as rotation matrices), returning them in numpy.ndarray.", pybind11::arg ( "first" ), pybind11::arg ( "second" ), pybind11::arg ( "matrixTolerance" ), pybind11::arg ( "combine" ) );
 }

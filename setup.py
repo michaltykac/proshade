@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.2
-#   \date      JAN 2021
+#   \version   0.7.5.3
+#   \date      FEB 2021
 ##############################################
 ##############################################
 
@@ -28,7 +28,7 @@
 ##### Global settings
 ##########################################################################################
 ##########################################################################################
-gl_version                                            = '0.0.0.8'
+gl_version                                            = '0.5.7.3'
 gl_download                                           = 'https://github.com/michaltykac/proshade/archive/v{0}.tar.gz'.format(gl_version)
 
 
