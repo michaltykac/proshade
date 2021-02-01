@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.2
-#   \date      JAN 2021
+#   \version   0.7.5.3
+#   \date      FEB 2021
 ######################################################
 ######################################################
 
@@ -31,7 +31,7 @@ import numpy
 
 ######################################################
 ### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                                       ( "/Users/mysak/BioCEV/proshade/experimental/install/pythonModule" )
+sys.path.append                                       ( "/Users/mysak/BioCEV/proshade/experimental/proshade/install/pythonModule" )
 import proshade
 
 ######################################################
@@ -187,7 +187,31 @@ print                                                 ( "  %+1.3f    %+1.3f    %
 #   The first non-identity element is:
 #     -0.500    +0.866    +0.000 
 #     -0.866    -0.500    +0.000 
-#     +0.000    -0.000    +1.000 
+#     +0.000    -0.000    +1.000
+
+######################################################
+### Assuming you have modifiex / created your own C groups
+### and want to obtain their group elements:
+gr1Elements                                           = proshade.computeGroupElementsForGroup ( 1,      # X-axis element of the group rotation axis
+                                                                                                0,      # Y-axis element of the group rotation axis
+                                                                                                0,      # Z-axis element of the group rotation axis
+                                                                                                4 )     # Fold
+                                                      
+gr2Elements                                           = proshade.computeGroupElementsForGroup ( 0,      # X-axis element of the group rotation axis
+                                                                                                1,      # Y-axis element of the group rotation axis
+                                                                                                0,      # Z-axis element of the group rotation axis
+                                                                                                2 )     # Fold
+                                                  
+combinedGroupElements                                 = proshade.joinElementsFromDifferentGroups ( gr1Elements, # Elements of the first group
+                                                                                                   gr2Elements, # Elements of the second group
+                                                                                                   0.0001,      # Matrix tolerance (i.e. if the abs ( trace ( Mat1 * Mat2^(T) ) - 3.0 ) must be below this number for two matrices to be considered identical )
+                                                                                                   True )       # Should new group elements resulting from multiplication of elements from group 1 with elements from group 2 be computed?
+
+print ( len ( combinedGroupElements ) )
+
+######################################################
+### Expected output
+#   8
 
 ######################################################
 ### Release C++ pointers
