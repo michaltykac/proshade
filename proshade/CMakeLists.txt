@@ -251,6 +251,10 @@ message                ( STATUS "SOFT include path is         : " ${CMAKE_SOURCE
 include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include                      )
 
 ##########################################################################################
+################################### Add getopt_long_port dependency
+include_directories    ( ${CMAKE_SOURCE_DIR}/extern/getopt_port                           )
+
+##########################################################################################
 ################################### Set installation folders
 if    ( INSTALL_LOCALLY )
 	set ( MY_INSTALL_LOCATION  ${CMAKE_SOURCE_DIR}/install   CACHE STRING "Installation path" )

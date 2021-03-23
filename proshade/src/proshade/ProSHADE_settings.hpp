@@ -72,7 +72,7 @@ extern "C" {
 #pragma GCC diagnostic pop
 
 //==================================================== GetOpt port (BSD License, works on Windows as well as linux)
-#include <getopt_port/getopt_port.h>
+#include <getopt_port.h>
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_SETTINGS__
