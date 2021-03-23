@@ -954,7 +954,7 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
                 real                                  = mapCoeffs[arrayPos][0];
                 imag                                  = mapCoeffs[arrayPos][1];
                 
-                //==================================== Change the B-factors, if required
+                //==================================== Convert to HKL
                 if ( uIt > static_cast<proshade_unsign> ( (xDim+1) / 2) ) { h = uIt - static_cast <proshade_signed> ( xDim ); } else { h = uIt; }
                 if ( vIt > static_cast<proshade_unsign> ( (yDim+1) / 2) ) { k = vIt - static_cast <proshade_signed> ( yDim ); } else { k = vIt; }
                 if ( wIt > static_cast<proshade_unsign> ( (zDim+1) / 2) ) { l = wIt - static_cast <proshade_signed> ( zDim ); } else { l = wIt; }

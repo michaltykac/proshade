@@ -454,7 +454,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     {
         throw ProSHADE_exception ( "Structure data class not empty.", "E000005", __FILE__, __LINE__, __func__, "Attempted to read in structure into a ProSHADE_data\n                    : object which already does have structure read in\n                    : i.e. " + this->fileName );
     }
-    
+        
     //================================================ Save the filename
     this->fileName                                    = fName;
     
@@ -1406,7 +1406,6 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested." ); }
 
     //================================================ Compute mask
-    //if ( settings->maskMap ) { if ( settings->useCorrelationMasking ) { this->maskMapCorrelation ( settings ); } else { this->maskMap ( settings ); } }
     if ( settings->maskMap ) { this->maskMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested." ); }
 
@@ -1424,7 +1423,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
-    
+        
     //================================================ Done
     return ;
     
@@ -1502,7 +1501,8 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting sphere mapping procedure." );
     
     //================================================ Determine spherical harmonics variables
-    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                        this->xDimSize,    this->yDimSize,    this->zDimSize );
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere settings determined." );
     
     //================================================ Find number of spheres supported

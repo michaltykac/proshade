@@ -391,10 +391,11 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ Create the data objects again (this time with phase)
     staticStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
     movingStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    
+
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;
     settings->changeMapResolution                     = true;
+    eulA = 0.0; eulB = 0.0; eulG = 0.0; //!!! !!! 
     ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG );
     
     //================================================ Compute the proper translations using the translation function output

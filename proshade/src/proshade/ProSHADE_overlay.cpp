@@ -210,6 +210,8 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     staticStructure->processInternalMap               ( settings );
     movingStructure->processInternalMap               ( settings );
     
+    staticStructure->writeMap ( "staticProcessed.map" );
+    
     //================================================ Compute spherical harmonics to allow Fourier space rotation
     movingStructure->mapToSpheres                     ( settings );
     movingStructure->computeSphericalHarmonics        ( settings );
@@ -575,6 +577,19 @@ void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, pro
                    *trsX                              = uIt;
                    *trsY                              = vIt;
                    *trsZ                              = wIt;
+                    
+                    for ( int a = -1; a < 2; a++ )
+                    {
+                        for ( int b = -1; b < 2; b++ )
+                        {
+                            for ( int c = -1; c < 2; c++ )
+                            {
+                                arrPos                = (wIt+c) + zD * ( (vIt+b) + yD * (uIt+a) );
+                                std::cout << (uIt+a) << " x " << (vIt+b) << " x " << (wIt+c) << " || " << resIn[arrPos][0] << std::endl;
+                            }
+                        }
+                    }
+                    std::cout << std::endl;
                 }
             }
         }

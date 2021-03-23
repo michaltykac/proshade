@@ -279,7 +279,7 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
             this->requestedResolution                 = 8.0;
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
-            this->moveToCOM                           = true;
+            this->moveToCOM                           = false;
             this->normaliseMap                        = false;
             this->reBoxMap                            = false;
             break;
@@ -1298,31 +1298,42 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
 
 /*! \brief This function determines all the required values for spherical harmonics computation.
  
-    This function takes the maximum dimension size (in indices) and uses the settings pre-set be the user to set up the
+    This function takes the maximum dimension size (in indices) and uses the settings pre-set by the user to set up the
     sphherical harmonics bandwidth, sphere sampling, sphere placement and spacing as well as the Gauss-Legendre integration
     order. This is either done using the user set values (if given), or using automated algorithm which only requires the
     resolution and max dimension.
  
+    Note that this function will use the resolution value to modify the values to be appropriate for the resolution supplied and not
+    necessarily for the map sampling given.
+ 
     \param[in] xDim The size of the x axis dimension in indices.
     \param[in] yDim The size of the y axis dimension in indices.
     \param[in] zDim The size of the z axis dimension in indices.
+    \param[in] xDimAngs The size of the x-axis in Angstroms.
+    \param[in] yDimAngs The size of the y-axis in Angstroms.
+    \param[in] zDimAngs The size of the z-axis in Angstroms.
  
     \warning Because the automated algorithm decides the values based on the first structure size, by using it one gives up on
     the idea that DIST(A,B) == DIST(B,A). If this is important, then the user should set all of these values manually to the
     settings object to avoid this issue.
  */
-void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim )
+void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_double xDimAngs, proshade_double yDimAngs, proshade_double zDimAngs )
 {
     //================================================ Print progress message
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
     
+    //================================================ Modify dims by resolution
+    proshade_unsign theoXDim                          = std::ceil ( xDimAngs / ( this->requestedResolution / 2.0 ) );
+    proshade_unsign theoYDim                          = std::ceil ( yDimAngs / ( this->requestedResolution / 2.0 ) );
+    proshade_unsign theoZDim                          = std::ceil ( zDimAngs / ( this->requestedResolution / 2.0 ) );
+    
     //================================================ Find maximum circumference
-    proshade_unsign maxDim                            = std::max ( xDim, std::max ( yDim, zDim ) );
-    proshade_unsign minDim                            = std::min ( xDim, std::min ( yDim, zDim ) );
+    proshade_unsign maxDim                            = std::max ( theoXDim, std::max ( theoYDim, theoZDim ) );
+    proshade_unsign minDim                            = std::min ( theoXDim, std::min ( theoYDim, theoZDim ) );
     proshade_unsign midDim                            = 0;
-    if      ( ( xDim < maxDim ) && ( xDim > minDim ) ) { midDim = xDim; }
-    else if ( ( yDim < maxDim ) && ( yDim > minDim ) ) { midDim = yDim; }
-    else                                               { midDim = zDim; }
+    if      ( ( xDim < maxDim ) && ( xDim > minDim ) ) { midDim = theoXDim; }
+    else if ( ( yDim < maxDim ) && ( yDim > minDim ) ) { midDim = theoYDim; }
+    else                                               { midDim = theoZDim; }
     
     proshade_unsign circ                              = ( maxDim ) + ( midDim );
     
@@ -1648,8 +1659,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         }
         
         //============================================ For each option, set the internal values appropriately
-         const char *tmp_optarg                       = optarg;
-         switch (opt)
+         switch ( opt )
          {
              //======================================= Print version info
              case 'v':
@@ -1668,7 +1678,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              //======================================= Save the argument as the verbosity value, or if no value given, just set to 3
              case '!':
              {
-                 this->setVerbosity                   ( static_cast<proshade_single> ( atoi ( tmp_optarg ) ) );
+                 this->setVerbosity                   ( static_cast<proshade_single> ( atoi ( optarg ) ) );
                  continue;
              }
                  
@@ -2073,6 +2083,16 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
              //======================================= Unknown option
              case '?':
              {
+                 //=================================== Save the argument as angular uncertainty for bandwidth determination
+                 if ( optopt )
+                 {
+                     std::cout << "!!! ProSHADE ERROR !!! Unrecognised short option -" << static_cast<char> ( optopt ) << " . Please use -h for help on the command line options." << std::endl;
+                 }
+                 else
+                 {
+                     std::cout << "!!! ProSHADE ERROR !!! Unrecognised long option " << argv[static_cast<int> (optind)-1] << " . Please use -h for help on the command line options." << std::endl;
+                 }
+                 
                  //=================================== This case is handled by getopt_long, nothing more needed.
                  exit ( EXIT_SUCCESS );
              }

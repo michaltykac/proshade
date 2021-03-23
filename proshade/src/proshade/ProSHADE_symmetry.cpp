@@ -3147,7 +3147,7 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
                                                                                                                         ProSHADE_internal_precomputedVals::octahedronAxes.at(3).at(3) );
     
     //================================================ Find the angle betwen the rotated model C3 and the detected C3 axes along the detected C4 axis.
-    proshade_double bestAng, curAngDist, bestAngDist = 999.9;
+    proshade_double bestAng = 0.0, curAngDist, bestAngDist = 999.9;
     for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.01 )
     {
         //============================================ Compute rotation matrix for this angle value
@@ -4030,7 +4030,7 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
                                                                                                                         ProSHADE_internal_precomputedVals::tetrahedronAxes.at(4).at(3) );
 
     //================================================ Find the angle betwen the rotated model C2 and the detected C2 axes along the detected C3 axis.
-    proshade_double bestAng, curAngDist, bestAngDist = 999.9;
+    proshade_double bestAng = 0.0, curAngDist, bestAngDist = 999.9;
     for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.01 )
     {
         //============================================ Compute rotation matrix for this angle value

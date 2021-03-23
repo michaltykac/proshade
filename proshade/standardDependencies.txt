@@ -121,6 +121,30 @@ openSUSE-Leap 15.2
 	* make 
 	* make install
 	
+===================
+ScientificLinux 7.9 
+===================
+
+* YUM INSTALL:
+	* openssl-devel
+	* fftw3-devel
+	* lapack-devel
+* Install CMAKE version 3 (yum allows only version 2 to be installed)
+	* Download sources from https://cmake.org/download/
+	* tar -zxvf ./cmake-3.20.0-rc5.tar.gz 
+	* cd ./cmake-3.20.0-rc
+	* ./bootstrap
+	* gmake
+	* sudo make install
+	* alias cmake=/usr/local/bin/cmake
+* Install proshade
+	* git clone https://github.com/michaltykac/proshade
+	* mkdir build
+	* cd ./build
+	* cmake ../proshade/proshade
+	* make 
+	* make install
+	
 =================
 Windows 10 64-bit
 =================
