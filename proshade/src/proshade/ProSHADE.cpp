@@ -1650,7 +1650,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     while ( true )
     {
         //============================================ Read the next option
-        int opt                                       = getopt_long ( argc, argv, shortopts, longopts, NULL );
+        int opt                                       = getopt_long_port ( argc, argv, shortopts, longopts, NULL );
         
         //============================================ Done parsing
         if ( opt == -1 )

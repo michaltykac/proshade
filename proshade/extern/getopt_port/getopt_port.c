@@ -47,7 +47,7 @@ static char* optcursor = NULL;
 [2] http://www.kernel.org/doc/man-pages/online/pages/man3/getopt.3.html
 [3] http://www.freebsd.org/cgi/man.cgi?query=getopt&sektion=3&manpath=FreeBSD+9.0-RELEASE
 */
-int getopt(int argc, char* const argv[], const char* optstring) {
+int getopt_port ( int argc, char* const argv[], const char* optstring ) {
   int optchar = -1;
   const char* optdecl = NULL;
 
@@ -153,8 +153,8 @@ no_more_optchars:
 
 [1] http://www.kernel.org/doc/man-pages/online/pages/man3/getopt.3.html
 */
-int getopt_long(int argc, char* const argv[], const char* optstring,
-  const struct option* longopts, int* longindex) {
+int getopt_long_port ( int argc, char* const argv[], const char* optstring,
+  const struct option* longopts, int* longindex ) {
   const struct option* o = longopts;
   const struct option* match = NULL;
   int num_matches = 0;
@@ -169,7 +169,7 @@ int getopt_long(int argc, char* const argv[], const char* optstring,
     return -1;
 
   if (strlen(argv[optind]) < 3 || strncmp(argv[optind], "--", 2) != 0)
-    return getopt(argc, argv, optstring);
+    return getopt_port ( argc, argv, optstring );
 
   /* It's an option; starts with -- and is longer than two chars. */
   current_argument = argv[optind] + 2;
