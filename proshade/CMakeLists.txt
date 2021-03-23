@@ -63,7 +63,7 @@ set     ( CMAKE_POSITION_INDEPENDENT_CODE ON                                    
 file    ( GLOB SOURCES   "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                         )
 file    ( GLOB EXEC_SRC  "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                              )
 
-list    ( APPEND SOURCES "${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt.c"                )
+list    ( APPEND SOURCES "${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c"           )
 
 ##########################################################################################
 ################################### Define the command line options variables and defaults

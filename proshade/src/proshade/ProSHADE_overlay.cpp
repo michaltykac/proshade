@@ -210,8 +210,6 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     staticStructure->processInternalMap               ( settings );
     movingStructure->processInternalMap               ( settings );
     
-    staticStructure->writeMap ( "staticProcessed.map" );
-    
     //================================================ Compute spherical harmonics to allow Fourier space rotation
     movingStructure->mapToSpheres                     ( settings );
     movingStructure->computeSphericalHarmonics        ( settings );

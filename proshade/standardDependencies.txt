@@ -127,7 +127,7 @@ ScientificLinux 7.9
 
 * YUM INSTALL:
 	* openssl-devel
-	* fftw3-devel
+	* fftw-devel
 	* lapack-devel
 * Install CMAKE version 3 (yum allows only version 2 to be installed)
 	* Download sources from https://cmake.org/download/
