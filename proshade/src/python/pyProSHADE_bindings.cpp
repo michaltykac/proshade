@@ -19,10 +19,8 @@
  */
 
 //==================================================== Include getopt_port for python
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-    #include <getopt_port/getopt.h>
-    #include <getopt_port/getopt.c>
-#endif
+#include <getopt_port/getopt_port.h>
+#include <getopt_port/getopt_port.c>
 
 //==================================================== Include ProSHADE
 #include "ProSHADE.hpp"

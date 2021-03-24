@@ -63,8 +63,6 @@ set     ( CMAKE_POSITION_INDEPENDENT_CODE ON                                    
 file    ( GLOB SOURCES   "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                         )
 file    ( GLOB EXEC_SRC  "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                              )
 
-list    ( APPEND SOURCES "${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c"           )
-
 ##########################################################################################
 ################################### Define the command line options variables and defaults
 set     ( INSTALL_LOCALLY        ON      CACHE BOOL   "Should installation be done locally?"   )
@@ -220,6 +218,12 @@ else  ( CUSTOM_LAPACK_LIB_PATH )
     endif ( LAPACK_FOUND )
 endif  ( CUSTOM_LAPACK_LIB_PATH )
 
+
+##########################################################################################
+################################### Add getopt_port dependency
+set ( GETOPT_SOURCE  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c   CACHE STRING "Getopt_port source" )
+set ( GETOPT_HEADER  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.h   CACHE STRING "Getopt_port header" )
+
 ##########################################################################################
 ################################### Add SOFT dependency
 
@@ -249,10 +253,6 @@ add_custom_target (
 message                ( STATUS "SOFT library path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0 )
 message                ( STATUS "SOFT include path is         : " ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include )
 include_directories    ( ${CMAKE_SOURCE_DIR}/extern/soft-2.0/include                      )
-
-##########################################################################################
-################################### Add getopt_long_port dependency
-include_directories    ( ${CMAKE_SOURCE_DIR}/extern/getopt_port                           )
 
 ##########################################################################################
 ################################### Set installation folders
