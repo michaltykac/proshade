@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== ProSHADE
@@ -575,19 +575,6 @@ void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, pro
                    *trsX                              = uIt;
                    *trsY                              = vIt;
                    *trsZ                              = wIt;
-                    
-                    for ( int a = -1; a < 2; a++ )
-                    {
-                        for ( int b = -1; b < 2; b++ )
-                        {
-                            for ( int c = -1; c < 2; c++ )
-                            {
-                                arrPos                = (wIt+c) + zD * ( (vIt+b) + yD * (uIt+a) );
-                                std::cout << (uIt+a) << " x " << (vIt+b) << " x " << (wIt+c) << " || " << resIn[arrPos][0] << std::endl;
-                            }
-                        }
-                    }
-                    std::cout << std::endl;
                 }
             }
         }

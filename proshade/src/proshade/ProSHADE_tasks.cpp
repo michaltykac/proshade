@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== ProSHADE
@@ -395,7 +395,6 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;
     settings->changeMapResolution                     = true;
-    eulA = 0.0; eulB = 0.0; eulG = 0.0; //!!! !!! 
     ProSHADE_internal_overlay::getOptimalTranslation  ( settings, staticStructure, movingStructure, &trsX, &trsY, &trsZ, eulA, eulB, eulG );
     
     //================================================ Compute the proper translations using the translation function output
