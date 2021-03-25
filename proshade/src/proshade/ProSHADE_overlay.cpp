@@ -214,7 +214,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->mapToSpheres                     ( settings );
     movingStructure->computeSphericalHarmonics        ( settings );
     
-    //================================================ Rotate map 
+    //================================================ Rotate map
     movingStructure->rotateMap ( settings, eulA, eulB, eulG );
     
     //================================================ Zero padding for smaller structure
@@ -224,7 +224,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->zeroPaddToDims                   ( std::max ( staticStructure->getXDim(), movingStructure->getXDim() ),
                                                         std::max ( staticStructure->getYDim(), movingStructure->getYDim() ),
                                                         std::max ( staticStructure->getZDim(), movingStructure->getZDim() ) );
-    
+        
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting translation function computation." );
     
