@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== ProSHADE
@@ -71,12 +71,8 @@ extern "C" {
 
 #pragma GCC diagnostic pop
 
-//==================================================== GetOpt port (BSD License, works on Windows as well)
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-    #include <getopt_port/getopt.h>
-#else
-    #include <getopt.h>
-#endif
+//==================================================== GetOpt port (BSD License, works on Windows as well as linux)
+#include <getopt_port/getopt_port.h>
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_SETTINGS__
@@ -206,7 +202,8 @@ public: // maybe make this protected?
     void determineBandwidth                           ( proshade_unsign circumference );
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
-    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
+    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_double xDimAngs,
+                                                        proshade_double yDimAngs, proshade_double zDimAngs );
     void setVariablesLeftOnAuto                       ( void );
     
 public:

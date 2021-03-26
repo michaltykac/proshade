@@ -21,8 +21,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.3
-#   \date      FEB 2021
+#   \version   0.7.5.4
+#   \date      MAR 2021
 ######################################################
 ######################################################
 
@@ -162,7 +162,7 @@ print                                                 ( "Rot. centre to overlay 
 #                                       :  -0.192    -0.863    -0.467
 #                                       :  +0.467    -0.499    +0.730
 #   Rot. centre to origin translation   :  +18.000    +22.000    +24.000
-#   Rot. centre to overlay translation  :  +4.000    +4.000    -5.000
+#   Rot. centre to overlay translation  :  +3.000    +1.000    -5.000
 
 
 ######################################################

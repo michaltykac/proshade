@@ -47,7 +47,7 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.5.3 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.5.4 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -62,8 +62,6 @@ set     ( CMAKE_POSITION_INDEPENDENT_CODE ON                                    
 ################################### Find the source files
 file    ( GLOB SOURCES   "${CMAKE_SOURCE_DIR}/src/proshade/*.cpp"                         )
 file    ( GLOB EXEC_SRC  "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"                              )
-
-list    ( APPEND SOURCES "${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt.c"                )
 
 ##########################################################################################
 ################################### Define the command line options variables and defaults
@@ -219,6 +217,12 @@ else  ( CUSTOM_LAPACK_LIB_PATH )
         message         ( FATAL_ERROR "Could not find the LAPACK dependency. Please install LAPACK to a standard location or use the cmake -DCUSTOM_LAPACK_LIB_PATH=/path/to/liblapack command line argument to supply the path to the location of the liblapack.a/so/dylib library. Alternatively, contact the author for help." )
     endif ( LAPACK_FOUND )
 endif  ( CUSTOM_LAPACK_LIB_PATH )
+
+
+##########################################################################################
+################################### Add getopt_port dependency
+set ( GETOPT_SOURCE  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c   CACHE STRING "Getopt_port source" )
+set ( GETOPT_HEADER  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.h   CACHE STRING "Getopt_port header" )
 
 ##########################################################################################
 ################################### Add SOFT dependency

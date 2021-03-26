@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.3
-#   \date      FEB 2021
+#   \version   0.7.5.4
+#   \date      MAR 2021
 ######################################################
 ######################################################
 
@@ -81,7 +81,7 @@ ps.setEnergyLevelsComputation                         ( True )                  
 ps.setTraceSigmaComputation                           ( True )                  # Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 ps.setRotationFunctionComputation                     ( True )                  # Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 ps.setEnLevShellWeight                                ( 1.0 )                   # The weighting of shell distances for energy levels descriptor.
-ps.setMapResolutionChange                             ( True )                  # Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
+ps.setMapResolutionChange                             ( False )                 # Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
 ps.setMapResolutionChangeTriLinear                    ( False )                 # Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
 ps.setPDBBFactor                                      ( -1.0 )                  # Should all B-factors in a PDB file changed to this value? If no, set to negative value.
 ps.setBandwidth                                       ( 0 )                     # The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
@@ -126,7 +126,7 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 #   Found a total of 2 cyclic symmetries.
 #   Detected symmetry C-4 with axes: 
 #   Fold      x         y         z       Angle     Height
-#     4.0    +0.000    -0.000    +1.000    +1.571    +0.9595
+#     4.0    +0.000    -0.000    +1.000    +1.571    +0.9488
 
 ######################################################
 ### Release memory

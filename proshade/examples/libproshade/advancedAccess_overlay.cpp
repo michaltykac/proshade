@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
 */
 
 //==================================================== ProSHADE
@@ -122,7 +122,7 @@ int main ( int argc, char **argv )
 
     //================================================ Expected output
 //  Optimal rotation Euler angles are:      5.43251 ; 0.752641 ; 3.92701
-//  Optimal rotation matrix is       :      -0.871914 ; -0.0783577 ; 0.483348
+//  Optimal rotation matrix is       :      -0.871914 ; -0.0783579 ; 0.483349
 //                                   :      -0.19118 ; -0.854289 ; -0.483364
 //                                   :      0.450795 ; -0.513858 ; 0.729886
     
@@ -181,7 +181,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Rot. Centre to origin translation:           16 ; 20 ; 24
-//  Rot. Centre to optimal overlay translation:  8 ; 8 ; -6
+//  Rot. Centre to optimal overlay translation:  6 ; 4 ; -6
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );

@@ -34,8 +34,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.3
-#   \date      FEB 2021
+#   \version   0.7.5.4
+#   \date      MAR 2021
 ######################################################
 ######################################################
 
@@ -520,9 +520,9 @@ fullRotationFunctionDescriptor                        = proshade.computeRotation
 print                                                 ( energyLevelsDescriptor )
 # Expected output: 0.08511260172933856
 print                                                 ( traceSigmaDescriptor )
-# Expected output: 0.22094014202099774
+# Expected output: 0.25942235196585933
 print                                                 ( fullRotationFunctionDescriptor )
-# Expected output: 0.18442020689249555
+# Expected output: 0.2191798163132629
 
 ######################################################
 ### Delete the C++ pointers
@@ -602,7 +602,7 @@ eMat                                                  = pStruct.getEMatrix ( )
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (2.7208866239708764e-10+2.0797248005641242e-10j)
+# Expected output: (-3.7999274297725994e-09+1.4511836378450943e-08j)
 
 ######################################################
 ### Accessing SO(3) coefficients
@@ -634,7 +634,7 @@ so3Coeffs                                             = pStruct.getSO3Coefficien
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (-8.059053838869017e-10-6.159982554994105e-10j)
+# Expected output: (1.1255088495984436e-08-4.298292683144373e-08j)
 
 ######################################################
 ### Accessing self-rotation function
@@ -659,15 +659,15 @@ rotMapMax                                             = numpy.where ( selfRotati
 ### Find maximum value
 print                                                 ( "Rotation map maximum is: " + str( selfRotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Rotation map maximum is: (0.9964126968124571-9.10211787746467e-18j)
+### Expected output: Rotation map maximum is: (0.9964862660379185+1.0616246590730962e-21j)
 
 ### Find rotation matrix for the maximum
 rotMatMaxVal                                          = pStruct.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
 print                                                 ( rotMatMaxVal )
 
-# Expected output: [[ 1.00000000e+00 -4.66973965e-16  0.00000000e+00]
-# Expected output:  [ 4.66973965e-16  1.00000000e+00 -0.00000000e+00]
-# Expected output:  [ 0.00000000e+00  0.00000000e+00  1.00000000e+00]]
+# Expected output: [[ 1.00000000e+00 -7.00828284e-16  0.00000000e+00]
+# Expected output:  [ 7.00828284e-16  1.00000000e+00 -0.00000000e+00]
+# Expected output:  [-0.00000000e+00  0.00000000e+00  1.00000000e+00]]
 
 ######################################################
 ### Run symmetry detection
@@ -702,8 +702,8 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
      print                                            ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( recSymmetryAxes[iter][0], recSymmetryAxes[iter][1], recSymmetryAxes[iter][2], recSymmetryAxes[iter][3], recSymmetryAxes[iter][4], recSymmetryAxes[iter][5] ) )
      
 # Expected output: Fold      x         y         z         Angle     Height
-# Expected output:  12.0    +0.000    -0.000    +1.000    +0.524    +0.9548
-# Expected output:   2.0    +0.778    +0.628    +0.032    +3.142    +0.5700
+# Expected output:   12.0    +0.000    +0.000    +1.000    +0.524    +0.9337
+# Expected output:    2.0    +0.993    -0.109    +0.034    +3.142    +0.5870
 
 ######################################################
 ### Get more symmetry results
@@ -725,13 +725,13 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 allCAxes                                              = pStruct.getAllCSyms ( pSet )
 
 print                                                 ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
-# Expected output: Found a total of 63 cyclic point groups.
+# Expected output: Found a total of 29 cyclic point groups.
 
 ### Get a list of all non-cyclic point groups detected and indices of the cyclic groups forming them
 allNonCAxesIndices                                    = pStruct.getNonCSymmetryAxesIndices ( pSet )
 
 print                                                 ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
-# Expected output: Found a total of 52 dihedral point groups.
+# Expected output: Found a total of 26 dihedral point groups.
 
 ### Get group elements for the best dihedral symmetry (indices 2 and 26)
 bestDCombination                                      = []
@@ -745,7 +745,7 @@ print                                                 ( "Found a total of " + st
 print                                                 ( allGroupElements[1] )
 # Expected output: [[-0.5        0.8660254  0.       ]
 # Expected output:  [-0.8660254 -0.5        0.       ]
-# Expected output:  [ 0.        -0.         1.       ]]
+# Expected output:  [ 0.         0.         1.       ]]
 
 ######################################################
 ### Computing and combining group elements
@@ -890,13 +890,13 @@ eMat                                                  = pStruct_moving.getEMatri
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (0.00011064986480482614-0.0008831928050137083j)
+# Expected output: (0.00010940347616058958-0.0008829784501865988j)
 
 so3Coeffs                                             = pStruct_moving.getSO3Coefficients ( )
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (-0.0003277362643005946+0.0026159481629997555j)
+# Expected output: (-0.00032404455840606596+0.002615313260730371j)
 
 ######################################################
 ### Acceasing rotation function and etc.
@@ -923,7 +923,7 @@ rotMapMax                                             = numpy.where ( rotationFu
 ### Find maximum value
 print                                                 ( "Rotation map maximum is: " + str( rotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Rotation map maximum is: (0.972619342226593-4.302335456622247e-18j)
+### Expected output: Rotation map maximum is: (0.9726465458559944+1.4785285648256816e-18j)
 
 ### Find rotation matrix for the maximum
 rotMatMaxVal                                          = pStruct_moving.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
@@ -949,9 +949,9 @@ optimalRotationAngles                                 = pStruct_moving.getBestRo
 optimalRotationMatrix                                 = pStruct_moving.getBestRotationMapPeaksRotationMatrix ( pSet )
 
 print ( optimalRotationMatrix )
-# Expected output: [[-0.87191417 -0.07835774  0.48334848]
-# Expected output:  [-0.19118044 -0.85428895 -0.48336365]
-# Expected output:  [ 0.45079455 -0.51385839  0.72988617]]
+# Expected output: [[-0.87191413 -0.07835791  0.48334851]
+# Expected output:  [-0.19118032 -0.85428897 -0.48336368]
+# Expected output:  [ 0.45079467 -0.51385835  0.72988613]]
 
 ######################################################
 ### Delete the phase-less data
@@ -1087,7 +1087,7 @@ rotMapMax                                             = numpy.where ( translatio
 ### Find maximum value
 print                                                 ( "Translation map maximum is: " + str( translationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Translation map maximum is: (247.24306619565834-1.2778260246319907e-14j)
+### Expected output: Translation map maximum is: (249.42793240953432-4.456059665620666e-15j)
 
 ######################################################
 ### Obtaining the optimal translation
@@ -1125,7 +1125,7 @@ print                                                 ( "The centre of rotation 
 
 ### Expected output
 #   The centre of rotation is:                                -16.0 ; -20.0 ; -24.0
-#   The centre of rotation to optimal overlay translation is: 8.0 ; 8.0 ; -6.0
+#   The centre of rotation to optimal overlay translation is: 6.0 ; 4.0 ; -6.0
 
 ######################################################
 ### Writing out the final structures

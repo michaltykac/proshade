@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== ProSHADE
@@ -391,7 +391,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ Create the data objects again (this time with phase)
     staticStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
     movingStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    
+
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;
     settings->changeMapResolution                     = true;

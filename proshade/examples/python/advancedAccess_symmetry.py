@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.3
-#   \date      FEB 2021
+#   \version   0.7.5.4
+#   \date      MAR 2021
 ######################################################
 ######################################################
 
@@ -41,8 +41,9 @@ pSet                                                  = proshade.ProSHADE_settin
 ######################################################
 ### Set basic settings values
 pSet.task                                             = proshade.Symmetry
-pSet.setResolution                                    ( 10.0 )
+pSet.setResolution                                    ( 8.0 )
 pSet.setMapResolutionChange                           ( True )
+pSet.setMapCentering                                  ( True )
 pSet.verbose                                          = -1
 
 ######################################################
@@ -94,9 +95,9 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ######################################################
 ### Expected output
 #   Detected D-12 symetry.
-#   Fold              x           y         z      Angle      Height
-#     12.0        +0.000      -0.000    +1.000    +0.524    +0.9663
-#      2.0        +0.063      +0.998    +0.031    +3.142    +0.4012
+#   Fold              x           y         z       Angle      Height
+#     12.0        +0.000      +0.000    +1.000    +0.524    +0.9348
+#      2.0        -0.411      +0.911    +0.027    +3.142    +0.5119
 
 ######################################################
 ### Get list of all cyclic axes detected
@@ -105,7 +106,7 @@ print                                                 ( "Found a total of " + st
 
 ######################################################
 ### Expected output
-#   Found a total of 27 cyclic point groups.
+#   Found a total of 21 cyclic point groups.
 
 ######################################################
 ### Get indices of which C axes form any detected non-C symmetry
@@ -114,7 +115,7 @@ print                                                 ( "Found a total of " + st
 
 ######################################################
 ### Expected output
-#   Found a total of 26 dihedral point groups.
+#   Found a total of 20 dihedral point groups.
 
 ######################################################
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
@@ -183,11 +184,11 @@ print                                                 ( "  %+1.3f    %+1.3f    %
 
 ######################################################
 ### Expected output
-#   Found a total of 24 group [2, 26] elements.
+#   Found a total of 24 group [2, 18] elements.
 #   The first non-identity element is:
-#     -0.500    +0.866    +0.000 
-#     -0.866    -0.500    +0.000 
-#     +0.000    -0.000    +1.000
+#     -0.500    +0.866    +0.000
+#     -0.866    -0.500    +0.000
+#     +0.000    +0.000    +1.000
 
 ######################################################
 ### Assuming you have modifiex / created your own C groups

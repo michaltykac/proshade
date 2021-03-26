@@ -14,15 +14,13 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== Include getopt_port for python
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-    #include <getopt_port/getopt.h>
-    #include <getopt_port/getopt.c>
-#endif
+#include <getopt_port/getopt_port.h>
+#include <getopt_port/getopt_port.c>
 
 //==================================================== Include ProSHADE
 #include "ProSHADE.hpp"

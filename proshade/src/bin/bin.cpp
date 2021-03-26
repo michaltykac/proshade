@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== DOxygen main page specifications
@@ -381,7 +381,7 @@
  * require a single input file to be supplied using the \p -f option. These two options are the only mandatory options, although there are many optional values that the user can supply to supersede
  * the default values and therefore modify the operation fo the ProSHADE executable to fit their purpose.
  *
- * One particular option regarding the symmetry detection mode should be noted; the \p --sym (or \p -u) option allows the user to state which symmetry they believe to exist in the structure. The allowed
+ * One particular option regarding the symmetry detection mode should be noted; the \p --reqSym (or \p -u) option allows the user to state which symmetry they believe to exist in the structure. The allowed
  * values for this command line argument are "Cx", "Dx", "T", "O" and "I", where the \e x should be an integer number specifying the fold of the requested symmetry. When this option is used, it removes the
  * default behaviour of returning the "best" detected symmetry and instead the symmetry requested by the user is returned, if it can be found in the structure.
  *
@@ -401,8 +401,8 @@
  * \image html ProSHADE_3JA7.jpg width=500cm
  *
 *\code{.sh}
- $: ./proshade -S -f ./emd_6324.map -r 8 --sym C12
- ProSHADE 0.7.5.3 (FEB 2021):
+ $: ./proshade -S -f ./emd_6324.map -r 8 --reqSym C12
+ ProSHADE 0.7.5.4 (MAR 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -420,17 +420,17 @@
 
  Detected C symmetry with fold 12 .
    Fold       X           Y          Z           Angle        Height
-    +12     +0.00000   -0.00000   +1.00000     +0.52360      +0.94620
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.93476
 
  However, since the selection of the recommended symmetry needs improvement, here is a list of all detected C symmetries:
    Fold       X           Y          Z           Angle        Height
-    +12     +0.00000   -0.00000   +1.00000     +0.52360      +0.94620
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.93476
 
  Also, for the same reason, here is a list of all detected D symmetries:
 
  ======================
  ProSHADE run complete.
- Time taken: 14 seconds.
+ Time taken: 15 seconds.
  ======================
 *\endcode
  *
@@ -452,7 +452,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.5.3 (FEB 2021):
+ ProSHADE 0.7.5.4 (MAR 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -479,9 +479,9 @@
   ... Starting trace sigma distance computation.
   ... Starting rotation function distance computation.
  Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
- Energy levels distance    : 0.895306
- Trace sigma distance      : 0.960468
- Rotation function distance: 0.756167
+ Energy levels distance    : 0.859485
+ Trace sigma distance      : 0.950227
+ Rotation function distance: 0.741744
   ... Starting to read the structure: ./3IGU_A_dom_1.pdb
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
@@ -496,13 +496,13 @@
   ... Starting trace sigma distance computation.
   ... Starting rotation function distance computation.
  Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
- Energy levels distance    : 0.559041
- Trace sigma distance      : 0.736592
- Rotation function distance: 0.452545
+ Energy levels distance    : 0.572315
+ Trace sigma distance      : 0.74436
+ Rotation function distance: 0.461415
 
  ======================
  ProSHADE run complete.
- Time taken: 4 seconds.
+ Time taken: 1 seconds.
  ======================
  *\endcode
  *
@@ -526,7 +526,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.5.3 (FEB 2021):
+ ProSHADE 0.7.5.4 (MAR 2021):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -587,7 +587,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.3 (FEB 2021):
+ ProSHADE 0.7.5.4 (MAR 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -632,7 +632,7 @@
   ... Starting spherical harmonics decomposition.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is:  -17.5     -21     -24
+ The rotation centre to origin translation vector is:  -16.6     -20     -23.8
  The rotation matrix about origin is                 : -0.872     -0.0785     +0.483
                                                      : -0.191     -0.854     -0.483
                                                      : +0.451     -0.514     +0.73
@@ -640,7 +640,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 4 seconds.
+ Time taken: 5 seconds.
  ======================
  \endcode
  *

@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== ProSHADE
@@ -454,7 +454,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     {
         throw ProSHADE_exception ( "Structure data class not empty.", "E000005", __FILE__, __LINE__, __func__, "Attempted to read in structure into a ProSHADE_data\n                    : object which already does have structure read in\n                    : i.e. " + this->fileName );
     }
-    
+        
     //================================================ Save the filename
     this->fileName                                    = fName;
     
@@ -534,7 +534,40 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
+        //============================================ Find COM pre map re-sampling
+        proshade_double xMapCOMPreReSampl  = 0.0, yMapCOMPreReSampl  = 0.0, zMapCOMPreReSampl  = 0.0;
+        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+        
+        //============================================ Get real world start position pre-sampling
+        proshade_double xOrPre                        = this->xFrom * ( this->xDimSize / static_cast<proshade_double> ( this->xDimIndices ) );
+        proshade_double yOrPre                        = this->yFrom * ( this->yDimSize / static_cast<proshade_double> ( this->yDimIndices ) );
+        proshade_double zOrPre                        = this->zFrom * ( this->zDimSize / static_cast<proshade_double> ( this->zDimIndices ) );
+        
+        //============================================ Re-sample map
         this->reSampleMap                             ( settings );
+        
+        //============================================ Find COM post map re-sampling
+        proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
+        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+        
+        //============================================ Get real world start position post sampling
+        proshade_double xOrPst                        = this->xFrom * ( this->xDimSize / static_cast<proshade_double> ( this->xDimIndices ) );
+        proshade_double yOrPst                        = this->yFrom * ( this->yDimSize / static_cast<proshade_double> ( this->yDimIndices ) );
+        proshade_double zOrPst                        = this->zFrom * ( this->zDimSize / static_cast<proshade_double> ( this->zDimIndices ) );
+        
+        //============================================ Final translation
+        proshade_double xFinMov                       = ( xMapCOMPreReSampl - xMapCOMPostReSampl ) - ( xOrPre - xOrPst );
+        proshade_double yFinMov                       = ( yMapCOMPreReSampl - yMapCOMPostReSampl ) - ( yOrPre - yOrPst );
+        proshade_double zFinMov                       = ( zMapCOMPreReSampl - zMapCOMPostReSampl ) - ( zOrPre - zOrPst );
+        
+        //============================================ Remove any sampling induced shift
+        ProSHADE_internal_mapManip::moveMapByFourier  ( this->internalMap, xFinMov, yFinMov, zFinMov,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices );
     }
     
     //================================================ Save the original sizes
@@ -601,7 +634,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
     ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
-
+    
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = 20.0 - xF;
     proshade_single yMov                              = 20.0 - yF;
@@ -638,11 +671,44 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
                                                         &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices );
-   
+    
     //================================================ If specific resolution is requested, make sure the map has it
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
+        //============================================ Find COM pre map re-sampling
+        proshade_double xMapCOMPreReSampl  = 0.0, yMapCOMPreReSampl  = 0.0, zMapCOMPreReSampl  = 0.0;
+        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+        
+        //============================================ Get real world start position pre-sampling
+        proshade_double xOrPre                        = this->xFrom * ( this->xDimSize / static_cast<proshade_double> ( this->xDimIndices ) );
+        proshade_double yOrPre                        = this->yFrom * ( this->yDimSize / static_cast<proshade_double> ( this->yDimIndices ) );
+        proshade_double zOrPre                        = this->zFrom * ( this->zDimSize / static_cast<proshade_double> ( this->zDimIndices ) );
+        
+        //============================================ Re-sample map
         this->reSampleMap                             ( settings );
+        
+        //============================================ Find COM post map re-sampling
+        proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
+        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+        
+        //============================================ Get real world start position post sampling
+        proshade_double xOrPst                        = this->xFrom * ( this->xDimSize / static_cast<proshade_double> ( this->xDimIndices ) );
+        proshade_double yOrPst                        = this->yFrom * ( this->yDimSize / static_cast<proshade_double> ( this->yDimIndices ) );
+        proshade_double zOrPst                        = this->zFrom * ( this->zDimSize / static_cast<proshade_double> ( this->zDimIndices ) );
+        
+        //============================================ Final translation
+        proshade_double xFinMov                       = ( xMapCOMPreReSampl - xMapCOMPostReSampl ) - ( xOrPre - xOrPst );
+        proshade_double yFinMov                       = ( yMapCOMPreReSampl - yMapCOMPostReSampl ) - ( yOrPre - yOrPst );
+        proshade_double zFinMov                       = ( zMapCOMPreReSampl - zMapCOMPostReSampl ) - ( zOrPre - zOrPst );
+        
+        //============================================ Remove any sampling induced shift
+        ProSHADE_internal_mapManip::moveMapByFourier  ( this->internalMap, xFinMov, yFinMov, zFinMov,
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices );
     }
     
     //================================================ Save the original sizes
@@ -1406,7 +1472,6 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested." ); }
 
     //================================================ Compute mask
-    //if ( settings->maskMap ) { if ( settings->useCorrelationMasking ) { this->maskMapCorrelation ( settings ); } else { this->maskMap ( settings ); } }
     if ( settings->maskMap ) { this->maskMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested." ); }
 
@@ -1424,7 +1489,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
-    
+        
     //================================================ Done
     return ;
     
@@ -1502,7 +1567,8 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting sphere mapping procedure." );
     
     //================================================ Determine spherical harmonics variables
-    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
+    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+                                                        this->xDimSize,    this->yDimSize,    this->zDimSize );
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere settings determined." );
     
     //================================================ Find number of spheres supported
@@ -1768,9 +1834,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
-        if ( ISyms.size() < 31 ) {  OSyms = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
-        if ( OSyms.size() < 13 ) { TSyms = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms ); } }
+        std::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );;
         
         //============================================ Decide on recommended symmetry
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );

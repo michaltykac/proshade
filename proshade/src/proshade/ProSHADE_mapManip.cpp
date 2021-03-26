@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
  */
 
 //==================================================== ProSHADE
@@ -744,14 +744,14 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
 {
     //================================================ Compute movement in indices
-    proshade_signed xIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*xMov) / ( xAngs / (*xTo - *xFrom + 1) ) ) );
-    proshade_signed yIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*yMov) / ( yAngs / (*yTo - *yFrom + 1) ) ) );
-    proshade_signed zIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*zMov) / ( zAngs / (*zTo - *zFrom + 1) ) ) );
+    proshade_signed xIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*xMov) / ( xAngs / (*xTo - *xFrom) ) ) );
+    proshade_signed yIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*yMov) / ( yAngs / (*yTo - *yFrom) ) ) );
+    proshade_signed zIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*zMov) / ( zAngs / (*zTo - *zFrom) ) ) );
     
     //================================================ Set the movs to the remainder
-    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / (*xTo - *xFrom + 1) ) );
-    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / (*yTo - *yFrom + 1) ) );
-    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / (*zTo - *zFrom + 1) ) );
+    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / (*xTo - *xFrom) ) );
+    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / (*yTo - *yFrom) ) );
+    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / (*zTo - *zFrom) ) );
     
     //================================================ Move indices by as much
     *xFrom                                           += xIndMove;
@@ -954,7 +954,7 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
                 real                                  = mapCoeffs[arrayPos][0];
                 imag                                  = mapCoeffs[arrayPos][1];
                 
-                //==================================== Change the B-factors, if required
+                //==================================== Convert to HKL
                 if ( uIt > static_cast<proshade_unsign> ( (xDim+1) / 2) ) { h = uIt - static_cast <proshade_signed> ( xDim ); } else { h = uIt; }
                 if ( vIt > static_cast<proshade_unsign> ( (yDim+1) / 2) ) { k = vIt - static_cast <proshade_signed> ( yDim ); } else { k = vIt; }
                 if ( wIt > static_cast<proshade_unsign> ( (zDim+1) / 2) ) { l = wIt - static_cast <proshade_signed> ( zDim ); } else { l = wIt; }
@@ -1365,9 +1365,9 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     }
     
     //================================================ Initialise variables
-    proshade_unsign newXDim                           = static_cast<proshade_unsign> ( std::ceil ( xAngs / ( resolution / 2.0 ) ) );
-    proshade_unsign newYDim                           = static_cast<proshade_unsign> ( std::ceil ( yAngs / ( resolution / 2.0 ) ) );
-    proshade_unsign newZDim                           = static_cast<proshade_unsign> ( std::ceil ( zAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newXDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( xAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newYDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( yAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newZDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( zAngs / ( resolution / 2.0 ) ) );
     
     if ( newXDim % 2 != 0 ) { newXDim += 1; }
     if ( newYDim % 2 != 0 ) { newYDim += 1; }
