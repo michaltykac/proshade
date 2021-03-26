@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
 */
 
 //==================================================== ProSHADE
@@ -139,26 +139,26 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: O-0 with axes:
-//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.996925
-//  Symmetry axis number 1: Fold 4 XYZ: 0.982453 ; 0.186512 ; 0 Angle (radians): 1.5708 and axis peak: 0.371114
-//  Symmetry axis number 2: Fold 4 XYZ: -0.186512 ; 0.982453 ; 0 Angle (radians): 1.5708 and axis peak: 0.371103
-//  Symmetry axis number 3: Fold 3 XYZ: 0.459536 ; 0.674902 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.369835
-//  Symmetry axis number 4: Fold 3 XYZ: 0.459536 ; 0.674902 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.370613
-//  Symmetry axis number 5: Fold 3 XYZ: 0.674902 ; -0.459536 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.370049
-//  Symmetry axis number 6: Fold 3 XYZ: 0.674902 ; -0.459536 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.370358
-//  Symmetry axis number 7: Fold 2 XYZ: 0.694699 ; 0.131884 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.370649
-//  Symmetry axis number 8: Fold 2 XYZ: 0.562815 ; 0.826583 ; 0 Angle (radians): 3.14159 and axis peak: 0.630635
-//  Symmetry axis number 9: Fold 2 XYZ: -0.131884 ; 0.694699 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.371132
-//  Symmetry axis number 10: Fold 2 XYZ: 0.694699 ; 0.131884 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.371886
-//  Symmetry axis number 11: Fold 2 XYZ: -0.131884 ; 0.694699 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.371382
-//  Symmetry axis number 12: Fold 2 XYZ: 0.826583 ; -0.562815 ; 0 Angle (radians): 3.14159 and axis peak: 0.630538
+//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.988541
+//  Symmetry axis number 1: Fold 4 XYZ: 0.147863 ; -0.989008 ; 0 Angle (radians): 1.5708 and axis peak: 0.37019
+//  Symmetry axis number 2: Fold 4 XYZ: 0.989008 ; 0.147863 ; 0 Angle (radians): 1.5708 and axis peak: 0.36993
+//  Symmetry axis number 3: Fold 3 XYZ: 0.656373 ; -0.485635 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.371807
+//  Symmetry axis number 4: Fold 3 XYZ: 0.656373 ; -0.485635 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.369289
+//  Symmetry axis number 5: Fold 3 XYZ: -0.485635 ; -0.656373 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.371268
+//  Symmetry axis number 6: Fold 3 XYZ: -0.485635 ; -0.656373 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.369423
+//  Symmetry axis number 7: Fold 2 XYZ: 0.104555 ; -0.699334 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.371559
+//  Symmetry axis number 8: Fold 2 XYZ: 0.803889 ; -0.594779 ; 0 Angle (radians): 3.14159 and axis peak: 0.630171
+//  Symmetry axis number 9: Fold 2 XYZ: 0.699334 ; 0.104555 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.370128
+//  Symmetry axis number 10: Fold 2 XYZ: 0.104555 ; -0.699334 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.367663
+//  Symmetry axis number 11: Fold 2 XYZ: 0.699334 ; 0.104555 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.368708
+//  Symmetry axis number 12: Fold 2 XYZ: -0.594779 ; -0.803889 ; 0 Angle (radians): 3.14159 and axis peak: 0.629292
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Expected output
-//  Found total of 47 cyclic symmetry axes.
+//  Found total of 54 cyclic symmetry axes.
     
     //================================================ Release the object
     delete simpleSym;
@@ -208,8 +208,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: D-4 as requested. The axes are:
-//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.996923
-//  Symmetry axis number 1: Fold 2 XYZ: 0.802192 ; 0.596465 ; 0.0267742 Angle (radians): 3.14159 and axis peak: 0.640755
+//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.986754
+//  Symmetry axis number 1: Fold 2 XYZ: -0.596465 ; 0.802192 ; 0.0267738 Angle (radians): 3.14159 and axis peak: 0.640231
     
     
     //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the

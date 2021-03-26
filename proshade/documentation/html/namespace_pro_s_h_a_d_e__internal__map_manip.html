@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.5.3 (FEB 2021)</span>
+   &#160;<span id="projectnumber">0.7.5.4 (MAR 2021)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -752,7 +752,7 @@ Functions</h2></td></tr>
 <div class="line"><a name="l00954"></a><span class="lineno">  954</span>&#160;                real                                  = mapCoeffs[arrayPos][0];</div>
 <div class="line"><a name="l00955"></a><span class="lineno">  955</span>&#160;                imag                                  = mapCoeffs[arrayPos][1];</div>
 <div class="line"><a name="l00956"></a><span class="lineno">  956</span>&#160;                </div>
-<div class="line"><a name="l00957"></a><span class="lineno">  957</span>&#160;                <span class="comment">//==================================== Change the B-factors, if required</span></div>
+<div class="line"><a name="l00957"></a><span class="lineno">  957</span>&#160;                <span class="comment">//==================================== Convert to HKL</span></div>
 <div class="line"><a name="l00958"></a><span class="lineno">  958</span>&#160;                <span class="keywordflow">if</span> ( uIt &gt; <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( (xDim+1) / 2) ) { h = uIt - <span class="keyword">static_cast &lt;</span>proshade_signed<span class="keyword">&gt;</span> ( xDim ); } <span class="keywordflow">else</span> { h = uIt; }</div>
 <div class="line"><a name="l00959"></a><span class="lineno">  959</span>&#160;                <span class="keywordflow">if</span> ( vIt &gt; <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( (yDim+1) / 2) ) { k = vIt - <span class="keyword">static_cast &lt;</span>proshade_signed<span class="keyword">&gt;</span> ( yDim ); } <span class="keywordflow">else</span> { k = vIt; }</div>
 <div class="line"><a name="l00960"></a><span class="lineno">  960</span>&#160;                <span class="keywordflow">if</span> ( wIt &gt; <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( (zDim+1) / 2) ) { l = wIt - <span class="keyword">static_cast &lt;</span>proshade_signed<span class="keyword">&gt;</span> ( zDim ); } <span class="keywordflow">else</span> { l = wIt; }</div>
@@ -2941,14 +2941,14 @@ Functions</h2></td></tr>
 <p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__map_manip_8cpp_source.html#l00744">744</a> of file <a class="el" href="_pro_s_h_a_d_e__map_manip_8cpp_source.html">ProSHADE_mapManip.cpp</a>.</p>
 <div class="fragment"><div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;{</div>
 <div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160;    <span class="comment">//================================================ Compute movement in indices</span></div>
-<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;    proshade_signed xIndMove                          = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> (  std::floor ( -(*xMov) / ( xAngs / (*xTo - *xFrom + 1) ) ) );</div>
-<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;    proshade_signed yIndMove                          = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> (  std::floor ( -(*yMov) / ( yAngs / (*yTo - *yFrom + 1) ) ) );</div>
-<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;    proshade_signed zIndMove                          = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> (  std::floor ( -(*zMov) / ( zAngs / (*zTo - *zFrom + 1) ) ) );</div>
+<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;    proshade_signed xIndMove                          = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> (  std::floor ( -(*xMov) / ( xAngs / (*xTo - *xFrom) ) ) );</div>
+<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;    proshade_signed yIndMove                          = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> (  std::floor ( -(*yMov) / ( yAngs / (*yTo - *yFrom) ) ) );</div>
+<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;    proshade_signed zIndMove                          = <span class="keyword">static_cast&lt;</span>proshade_signed<span class="keyword">&gt;</span> (  std::floor ( -(*zMov) / ( zAngs / (*zTo - *zFrom) ) ) );</div>
 <div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160;    </div>
 <div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;    <span class="comment">//================================================ Set the movs to the remainder</span></div>
-<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / (*xTo - *xFrom + 1) ) );</div>
-<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / (*yTo - *yFrom + 1) ) );</div>
-<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / (*zTo - *zFrom + 1) ) );</div>
+<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / (*xTo - *xFrom) ) );</div>
+<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / (*yTo - *yFrom) ) );</div>
+<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / (*zTo - *zFrom) ) );</div>
 <div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;    </div>
 <div class="line"><a name="l00756"></a><span class="lineno">  756</span>&#160;    <span class="comment">//================================================ Move indices by as much</span></div>
 <div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;    *xFrom                                           += xIndMove;</div>
@@ -3475,9 +3475,9 @@ Functions</h2></td></tr>
 <div class="line"><a name="l01365"></a><span class="lineno"> 1365</span>&#160;    }</div>
 <div class="line"><a name="l01366"></a><span class="lineno"> 1366</span>&#160;    </div>
 <div class="line"><a name="l01367"></a><span class="lineno"> 1367</span>&#160;    <span class="comment">//================================================ Initialise variables</span></div>
-<div class="line"><a name="l01368"></a><span class="lineno"> 1368</span>&#160;    proshade_unsign newXDim                           = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( std::ceil ( xAngs / ( resolution / 2.0 ) ) );</div>
-<div class="line"><a name="l01369"></a><span class="lineno"> 1369</span>&#160;    proshade_unsign newYDim                           = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( std::ceil ( yAngs / ( resolution / 2.0 ) ) );</div>
-<div class="line"><a name="l01370"></a><span class="lineno"> 1370</span>&#160;    proshade_unsign newZDim                           = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( std::ceil ( zAngs / ( resolution / 2.0 ) ) );</div>
+<div class="line"><a name="l01368"></a><span class="lineno"> 1368</span>&#160;    proshade_unsign newXDim                           = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( <a class="code" href="namespace_pro_s_h_a_d_e__internal__map_manip.html#a50df80b02427f9f55a2c7af033a9fb93">ProSHADE_internal_mapManip::myRound</a> ( xAngs / ( resolution / 2.0 ) ) );</div>
+<div class="line"><a name="l01369"></a><span class="lineno"> 1369</span>&#160;    proshade_unsign newYDim                           = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( <a class="code" href="namespace_pro_s_h_a_d_e__internal__map_manip.html#a50df80b02427f9f55a2c7af033a9fb93">ProSHADE_internal_mapManip::myRound</a> ( yAngs / ( resolution / 2.0 ) ) );</div>
+<div class="line"><a name="l01370"></a><span class="lineno"> 1370</span>&#160;    proshade_unsign newZDim                           = <span class="keyword">static_cast&lt;</span>proshade_unsign<span class="keyword">&gt;</span> ( <a class="code" href="namespace_pro_s_h_a_d_e__internal__map_manip.html#a50df80b02427f9f55a2c7af033a9fb93">ProSHADE_internal_mapManip::myRound</a> ( zAngs / ( resolution / 2.0 ) ) );</div>
 <div class="line"><a name="l01371"></a><span class="lineno"> 1371</span>&#160;    </div>
 <div class="line"><a name="l01372"></a><span class="lineno"> 1372</span>&#160;    <span class="keywordflow">if</span> ( newXDim % 2 != 0 ) { newXDim += 1; }</div>
 <div class="line"><a name="l01373"></a><span class="lineno"> 1373</span>&#160;    <span class="keywordflow">if</span> ( newYDim % 2 != 0 ) { newYDim += 1; }</div>

@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
 */
 
 //==================================================== ProSHADE
@@ -105,9 +105,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
     
     //================================================ Expected output
-//  Energy levels distances          : 0.89531 and 0.55904
-//  Trace sigma distances            : 0.96047 and 0.73659
-//  Rotation function distances      : 0.75617 and 0.45255
+//  Energy levels distances          : 0.85948 and 0.57232
+//  Trace sigma distances            : 0.95023 and 0.74436
+//  Rotation function distances      : 0.74174 and 0.46142
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

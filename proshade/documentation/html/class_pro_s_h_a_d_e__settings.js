@@ -4,7 +4,7 @@ var class_pro_s_h_a_d_e__settings =
     [ "ProSHADE_settings", "class_pro_s_h_a_d_e__settings.html#ae88f04ca81dc11f83329552e9f8e0d4c", null ],
     [ "~ProSHADE_settings", "class_pro_s_h_a_d_e__settings.html#a46ba91a2feeaccb274bc01aff5efb9c2", null ],
     [ "addStructure", "class_pro_s_h_a_d_e__settings.html#a0024967775d544e8512b6b157d53c1d1", null ],
-    [ "determineAllSHValues", "class_pro_s_h_a_d_e__settings.html#a46e32d9d122118fa08fd4f051f37e506", null ],
+    [ "determineAllSHValues", "class_pro_s_h_a_d_e__settings.html#aa63e3d5bce1fa03504fde999cd3a3c4c", null ],
     [ "determineBandwidth", "class_pro_s_h_a_d_e__settings.html#a46a4b300f5f4c507edcd208e1fcb9df7", null ],
     [ "determineBandwidthFromAngle", "class_pro_s_h_a_d_e__settings.html#a25080bd03aaf7a4ce834f0df7aaa4250", null ],
     [ "determineIntegrationOrder", "class_pro_s_h_a_d_e__settings.html#a6d2b5d90f31a1493e17474a044852da6", null ],

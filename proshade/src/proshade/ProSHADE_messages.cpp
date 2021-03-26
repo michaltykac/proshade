@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
 */
 
 //==================================================== ProSHADE
@@ -286,7 +286,7 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --sym                                           [DEFAULT:           \"\"]     " << std::endl;
+    std::cout << "    --reqSym                                        [DEFAULT:           \"\"]     " << std::endl;
     std::cout << "            This is where the user states any particular symmetry he is         " << std::endl;
     std::cout << "            interested in detecting. The way to specify any symmetry is to      " << std::endl;
     std::cout << "            first use the letter for the symmetry type (C = cyclic, D = di-     " << std::endl;

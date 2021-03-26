@@ -9,7 +9,7 @@ var searchData=
   ['detectsymmetryinstructure_829',['detectSymmetryInStructure',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#afac05cfadc141435c4fc4a568ecffe29',1,'ProSHADE_internal_data::ProSHADE_data']]],
   ['detectsymmetryinstructurepython_830',['detectSymmetryInStructurePython',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a3c589f8f2165cb1ad080b306dc0cbc25',1,'ProSHADE_internal_data::ProSHADE_data']]],
   ['detecttetrahedralsymmetry_831',['detectTetrahedralSymmetry',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a37925ac477480c718451debb01a9c74a',1,'ProSHADE_internal_symmetry']]],
-  ['determineallshvalues_832',['determineAllSHValues',['../class_pro_s_h_a_d_e__settings.html#a46e32d9d122118fa08fd4f051f37e506',1,'ProSHADE_settings']]],
+  ['determineallshvalues_832',['determineAllSHValues',['../class_pro_s_h_a_d_e__settings.html#aa63e3d5bce1fa03504fde999cd3a3c4c',1,'ProSHADE_settings']]],
   ['determinebandwidth_833',['determineBandwidth',['../class_pro_s_h_a_d_e__settings.html#a46a4b300f5f4c507edcd208e1fcb9df7',1,'ProSHADE_settings']]],
   ['determinebandwidthfromangle_834',['determineBandwidthFromAngle',['../class_pro_s_h_a_d_e__settings.html#a25080bd03aaf7a4ce834f0df7aaa4250',1,'ProSHADE_settings']]],
   ['determinefoldtotry_835',['determineFoldToTry',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ac0a8dc71c37de02256521ebc9178c8d4',1,'ProSHADE_internal_symmetry']]],
