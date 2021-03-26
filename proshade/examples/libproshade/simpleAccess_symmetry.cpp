@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
 */
 
 //==================================================== ProSHADE
@@ -46,7 +46,7 @@ int main ( int argc, char **argv )
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
-    settings->setMapCentering                         ( false );                             // Move structure COM to the centre of map box?
+    settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( -999.9 );                            // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -101,15 +101,15 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry D of fold 12. The symmetry axes are:
-//   ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.947155
-//   ... FOLD: 2 | XYZ: 0.557699 ; 0.82969 ; -0.0241964 | Angle: 3.14159 | Peak: 0.346369
+//    ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.934763
+//    ... FOLD: 2 | XYZ: -0.410596 ; 0.911431 ; 0.0265306 | Angle: 3.14159 | Peak: 0.51188
 
     //================================================ Get list of all detected cyclic symmetries
     std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
     std::cout << "Found a total of " << allCs.size() << " cyclic symmetries." << std::endl;
     
     //================================================ Expected output
-//  Found a total of 22 cyclic symmetries.
+//  Found a total of 21 cyclic symmetries.
     
     //================================================ Release the settings and runProshade objects
     delete runProshade;

@@ -40,7 +40,7 @@ extern "C" {
 extern char* optarg;
 extern int optind, opterr, optopt;
 
-struct option {
+struct option_port {
   const char* name;
   int has_arg;
   int* flag;
@@ -49,7 +49,7 @@ struct option {
 
 int getopt_port ( int argc, char* const argv[], const char* optstring );
 
-int getopt_long_port ( int argc, char* const argv[], const char* optstring, const struct option* longopts, int* longindex );
+int getopt_long_port ( int argc, char* const argv[], const char* optstring, const struct option_port* longopts, int* longindex );
 
 #if defined(__cplusplus)
 }

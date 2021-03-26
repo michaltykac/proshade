@@ -1586,7 +1586,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
     if ( argc == 1 ) { ProSHADE_internal_messages::printHelp ( ); }
     
     //================================================ Long options struct
-    const struct option longopts[] =
+    const struct option_port longopts[] =
     {
         { "version",         no_argument,        NULL, 'v' },
         { "help",            no_argument,        NULL, 'h' },
@@ -1635,7 +1635,7 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
         { "bicubSearch",     no_argument,        NULL, 'A' },
         { "maxSymPrime",     required_argument,  NULL, 'B' },
         { "minPeakHeight",   required_argument,  NULL, 'o' },
-        { "sym",             required_argument,  NULL, '{' },
+        { "reqSym",          required_argument,  NULL, '{' },
         { "overlayFile",     required_argument,  NULL, '}' },
         { "overlayJSONFile", required_argument,  NULL, 'y' },
         { "angUncertain",    required_argument,  NULL, ';' },

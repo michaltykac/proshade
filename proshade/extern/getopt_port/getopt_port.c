@@ -26,6 +26,10 @@
  *
  ******************************************************************************/
 
+/*******************************************************************************
+* Modified by Michal Tykac in 2021 for ProSHADE.
+******************************************************************************/
+
 #include "getopt_port.h"
 
 #include <stddef.h>
@@ -154,9 +158,9 @@ no_more_optchars:
 [1] http://www.kernel.org/doc/man-pages/online/pages/man3/getopt.3.html
 */
 int getopt_long_port ( int argc, char* const argv[], const char* optstring,
-  const struct option* longopts, int* longindex ) {
-  const struct option* o = longopts;
-  const struct option* match = NULL;
+  const struct option_port* longopts, int* longindex ) {
+  const struct option_port* o = longopts;
+  const struct option_port* match = NULL;
   int num_matches = 0;
   size_t argument_name_length = 0;
   const char* current_argument = NULL;

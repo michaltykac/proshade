@@ -17,8 +17,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.3
-    \date      FEB 2021
+    \version   0.7.5.4
+    \date      MAR 2021
 */
 
 //==================================================== ProSHADE
@@ -121,9 +121,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distance   : " << rotFunDistance << std::endl;
     
     //================================================ Expected output
-//  Energy levels distance       : 0.89531
-//  Trace sigma distance         : 0.96047
-//  Rotation function distance   : 0.75617
+//  Energy levels distance       : 0.85948
+//  Trace sigma distance         : 0.95023
+//  Rotation function distance   : 0.74174
 
     //================================================ Release the settings and runProshade objects
     delete structure1;
