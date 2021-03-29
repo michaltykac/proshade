@@ -31,7 +31,11 @@
     task to be done, it is recommended to use the constructor which takes the task as argument, so that the default values are set specifically for the
     task at hand.
  */
-ProSHADE_settings::ProSHADE_settings ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
+#else
+                      ProSHADE_settings::ProSHADE_settings ( )
+#endif
 {
     //================================================ Settings regarding the task at hand
     this->task                                        = NA;
@@ -144,7 +148,11 @@ ProSHADE_settings::ProSHADE_settings ( )
  
     \param[in] taskToPerform The task that should be performed by ProSHADE.
  */
-ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
+#else
+                      ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
+#endif
 {
     //================================================ Settings regarding the task at hand
     this->task                                        = taskToPerform;
@@ -299,7 +307,11 @@ ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskToPerform )
  
     This destructor is responsible for releasing all memory used by the settings object
  */
-ProSHADE_settings::~ProSHADE_settings ( void )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_settings::~ProSHADE_settings ( void )
+#else
+                      ProSHADE_settings::~ProSHADE_settings ( void )
+#endif
 {
     //================================================ Release boundaries variable
     delete[] this->forceBounds;
@@ -338,7 +350,11 @@ void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
  
     \param[in] structure String file name to be added to the list of structures to process.
  */
-void ProSHADE_settings::addStructure ( std::string structure )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::addStructure ( std::string structure )
+#else
+void                       ProSHADE_settings::addStructure ( std::string structure )
+#endif
 {
     //================================================ Use C++ version independent vector processing
     ProSHADE_internal_misc::addToStringVector         ( &( this->inputFiles ), structure );
@@ -354,7 +370,11 @@ void ProSHADE_settings::addStructure ( std::string structure )
  
     \param[in] resolution The requested value for the resolution to which the computations are to be done.
  */
-void ProSHADE_settings::setResolution ( proshade_single resolution )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setResolution ( proshade_single resolution )
+#else
+void                       ProSHADE_settings::setResolution ( proshade_single resolution )
+#endif
 {
     //================================================ Set the value
     this->requestedResolution                         = resolution;
@@ -370,7 +390,11 @@ void ProSHADE_settings::setResolution ( proshade_single resolution )
  
     \param[in] newBF The requested value for the B-factor value for PDB files for smooth and processible maps.
  */
-void ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
+#else
+void                       ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
+#endif
 {
     //================================================ Set the value
     this->pdbBFactorNewVal                            = newBF;
@@ -386,7 +410,11 @@ void ProSHADE_settings::setPDBBFactor ( proshade_double newBF )
  
     \param[in] normalise The requested value for the map normalisation (on = true, off = false).
  */
-void ProSHADE_settings::setNormalisation ( bool normalise )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setNormalisation ( bool normalise )
+#else
+void                       ProSHADE_settings::setNormalisation ( bool normalise )
+#endif
 {
     //================================================ Set the value
     this->normaliseMap                                = normalise;
@@ -402,7 +430,11 @@ void ProSHADE_settings::setNormalisation ( bool normalise )
  
     \param[in] mInv Should the map be inverted? (on = true, off = false).
  */
-void ProSHADE_settings::setMapInversion ( bool mInv )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMapInversion ( bool mInv )
+#else
+void                       ProSHADE_settings::setMapInversion ( bool mInv )
+#endif
 {
     //================================================ Set the value
     this->invertMap                                   = mInv;
@@ -418,7 +450,11 @@ void ProSHADE_settings::setMapInversion ( bool mInv )
  
     \param[in] verbose The requested value for verbosity. -1 means no output, while 4 means loud output
  */
-void ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
+#else
+void                       ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
+#endif
 {
     //================================================ Set the value
     this->verbose                                     = verbosity;
@@ -434,7 +470,11 @@ void ProSHADE_settings::setVerbosity ( proshade_signed verbosity )
  
     \param[in] blurFac The requested value for the blurring factor.
  */
-void ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
+#else
+void                       ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
+#endif
 {
     //================================================ Set the value
     this->blurFactor                                  = blurFac;
@@ -451,7 +491,11 @@ void ProSHADE_settings::setMaskBlurFactor ( proshade_single blurFac )
  
     \param[in] noIQRs The requested value for the number of IQRs from the median to be used for masking threshold.
  */
-void ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
+#else
+void                       ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
+#endif
 {
     //================================================ Set the value
     this->maskingThresholdIQRs                        = noIQRs;
@@ -467,7 +511,11 @@ void ProSHADE_settings::setMaskIQR ( proshade_single noIQRs )
  
     \param[in] mask The requested value for the map masking (on = true, off = false).
  */
-void ProSHADE_settings::setMasking ( bool mask )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMasking ( bool mask )
+#else
+void                       ProSHADE_settings::setMasking ( bool mask )
+#endif
 {
     //================================================ Set the value
     this->maskMap                                     = mask;
@@ -484,7 +532,11 @@ void ProSHADE_settings::setMasking ( bool mask )
  
     \param[in] corMask The requested value for the map masking type.
  */
-void ProSHADE_settings::setCorrelationMasking ( bool corMask )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setCorrelationMasking ( bool corMask )
+#else
+void                       ProSHADE_settings::setCorrelationMasking ( bool corMask )
+#endif
 {
     //================================================ Set the value
     this->useCorrelationMasking                       = corMask;
@@ -502,7 +554,11 @@ void ProSHADE_settings::setCorrelationMasking ( bool corMask )
  
     \param[in] typNoi The requested value for the typical noise size in Angstrom.
  */
-void ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
+#else
+void                       ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
+#endif
 {
     //================================================ Set the value
     this->halfMapKernel                               = typNoi;
@@ -518,7 +574,11 @@ void ProSHADE_settings::setTypicalNoiseSize ( proshade_single typNoi )
  
     \param[in] minMS The requested value for the minimum mask size in Angstrom.
  */
-void ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
+#else
+void                       ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
+#endif
 {
     //================================================ Set the value
     this->correlationKernel                           = minMS;
@@ -534,7 +594,11 @@ void ProSHADE_settings::setMinimumMaskSize ( proshade_single minMS )
  
     \param[in] savMsk If true, mask will be saved, otherwise it will not be.
  */
-void ProSHADE_settings::setMaskSaving ( bool savMsk )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMaskSaving ( bool savMsk )
+#else
+void                       ProSHADE_settings::setMaskSaving ( bool savMsk )
+#endif
 {
     //================================================ Set the value
     this->saveMask                                    = savMsk;
@@ -550,7 +614,11 @@ void ProSHADE_settings::setMaskSaving ( bool savMsk )
  
     \param[in] mskFln The filename where the mask should be saved.
  */
-void ProSHADE_settings::setMaskFilename ( std::string mskFln )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMaskFilename ( std::string mskFln )
+#else
+void                       ProSHADE_settings::setMaskFilename ( std::string mskFln )
+#endif
 {
     //================================================ Set the value
     this->maskFileName                                = mskFln;
@@ -566,7 +634,11 @@ void ProSHADE_settings::setMaskFilename ( std::string mskFln )
  
     \param[in] reBx The requested value for the re-boxing switch variable.
  */
-void ProSHADE_settings::setMapReboxing ( bool reBx )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMapReboxing ( bool reBx )
+#else
+void                       ProSHADE_settings::setMapReboxing ( bool reBx )
+#endif
 {
     //================================================ Set the value
     this->reBoxMap                                    = reBx;
@@ -583,7 +655,11 @@ void ProSHADE_settings::setMapReboxing ( bool reBx )
  
     \param[in] boundsExSp The requested value for the extra re-boxing space in angstroms.
  */
-void ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
+#else
+void                       ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
+#endif
 {
     //================================================ Set the value
     this->boundsExtraSpace                            = boundsExSp;
@@ -599,7 +675,11 @@ void ProSHADE_settings::setBoundsSpace ( proshade_single boundsExSp )
  
     \param[in] boundsThres The requested value for the bouds difference threhshold.
  */
-void ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
+#else
+void                       ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
+#endif
 {
     //================================================ Set the value
     this->boundsSimilarityThreshold                   = boundsThres;
@@ -616,7 +696,11 @@ void ProSHADE_settings::setBoundsThreshold ( proshade_signed boundsThres )
  
     \param[in] sameB The requested value for the same boundaries as first structure switch variable.
  */
-void ProSHADE_settings::setSameBoundaries ( bool sameB )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setSameBoundaries ( bool sameB )
+#else
+void                       ProSHADE_settings::setSameBoundaries ( bool sameB )
+#endif
 {
     //================================================ Set the value
     this->useSameBounds                               = sameB;
@@ -633,7 +717,11 @@ void ProSHADE_settings::setSameBoundaries ( bool sameB )
  
     \param[in] oFileName The requested value for the output file name variable.
  */
-void ProSHADE_settings::setOutputFilename ( std::string oFileName )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setOutputFilename ( std::string oFileName )
+#else
+void                       ProSHADE_settings::setOutputFilename ( std::string oFileName )
+#endif
 {
     //================================================ Set the value
     this->outName                                     = oFileName;
@@ -649,7 +737,11 @@ void ProSHADE_settings::setOutputFilename ( std::string oFileName )
  
     \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
  */
-void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMapResolutionChange ( bool mrChange )
+#else
+void                       ProSHADE_settings::setMapResolutionChange ( bool mrChange )
+#endif
 {
     //================================================ Set the value
     this->changeMapResolution                         = mrChange;
@@ -665,7 +757,11 @@ void ProSHADE_settings::setMapResolutionChange ( bool mrChange )
  
     \param[in] mrChange The requested value for the map resolution change (on = true, off = false).
  */
-void ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
+#else
+void                       ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
+#endif
 {
     //================================================ Set the value
     this->changeMapResolutionTriLinear                = mrChange;
@@ -681,7 +777,11 @@ void ProSHADE_settings::setMapResolutionChangeTriLinear ( bool mrChange )
  
     \param[in] com The requested value for the map centering (on = true, off = false).
  */
-void ProSHADE_settings::setMapCentering ( bool com )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMapCentering ( bool com )
+#else
+void                       ProSHADE_settings::setMapCentering ( bool com )
+#endif
 {
     //================================================ Set the value
     this->moveToCOM                                   = com;
@@ -697,26 +797,14 @@ void ProSHADE_settings::setMapCentering ( bool com )
  
     \param[in] exSpace The requested amount of extra space.
  */
-void ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
+#else
+void                       ProSHADE_settings::setExtraSpace ( proshade_single exSpace )
+#endif
 {
     //================================================ Set the value
     this->addExtraSpace                               = exSpace;
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Sets the requested sphere mapping value settings approach in the appropriate variable.
- 
-    This function sets the progressive sphere mapping approach between on and off.
- 
-    \param[in] com The requested value for the progressive sphere mapping (on = true, off = false).
- */
-void ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
-{
-    //================================================ Set the value
-    this->progressiveSphereMapping                    = progSphMap;
     
     //================================================ Done
     return ;
@@ -729,7 +817,11 @@ void ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
  
     \param[in] band The requested value for spherical harmonics bandwidth (0 = AUTOMATIC DETERMINATION).
  */
-void ProSHADE_settings::setBandwidth ( proshade_unsign band )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setBandwidth ( proshade_unsign band )
+#else
+void                       ProSHADE_settings::setBandwidth ( proshade_unsign band )
+#endif
 {
     //================================================ Set the value
     this->maxBandwidth                                = band;
@@ -745,7 +837,11 @@ void ProSHADE_settings::setBandwidth ( proshade_unsign band )
  
     \param[in] sphDist The requested value for distance between spheres (0 = AUTOMATIC DETERMINATION).
  */
-void ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
+#else
+void                       ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
+#endif
 {
     //================================================ Set the value
     this->maxSphereDists                              = sphDist;
@@ -761,7 +857,11 @@ void ProSHADE_settings::setSphereDistances ( proshade_single sphDist )
  
     \param[in] intOrd The requested value for the Gauss-Legendre integration order (0 = AUTOMATIC DETERMINATION).
  */
-void ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
+#else
+void                       ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
+#endif
 {
     //================================================ Set the value
     this->integOrder                                  = intOrd;
@@ -778,10 +878,34 @@ void ProSHADE_settings::setIntegrationOrder ( proshade_unsign intOrd )
  
     \param[in] tayCap The requested value for the Taylor series cap. (0 = AUTOMATIC DETERMINATION).
  */
-void ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
+#else
+void                       ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
+#endif
 {
     //================================================ Set the value
     this->taylorSeriesCap                             = tayCap;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the requested sphere mapping value settings approach in the appropriate variable.
+ 
+    This function sets the progressive sphere mapping approach between on and off.
+ 
+    \param[in] com The requested value for the progressive sphere mapping (on = true, off = false).
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
+#else
+void                       ProSHADE_settings::setProgressiveSphereMapping ( bool progSphMap )
+#endif
+{
+    //================================================ Set the value
+    this->progressiveSphereMapping                    = progSphMap;
     
     //================================================ Done
     return ;
@@ -795,7 +919,11 @@ void ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
  
     \param[in] enLevDesc The requested value for the energy levels descriptor computation switch.
  */
-void ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
+#else
+void                       ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
+#endif
 {
     //======================================== Set the value
     this->computeEnergyLevelsDesc             = enLevDesc;
@@ -812,7 +940,11 @@ void ProSHADE_settings::setEnergyLevelsComputation ( bool enLevDesc )
  
     \param[in] trSigVal The requested value for the trace sigma descriptor computation switch.
  */
-void ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
+#else
+void                       ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
+#endif
 {
     //================================================ Set the value
     this->computeTraceSigmaDesc                       = trSigVal;
@@ -829,7 +961,11 @@ void ProSHADE_settings::setTraceSigmaComputation ( bool trSigVal )
  
     \param[in] rotfVal The requested value for the rotation function descriptor computation switch.
  */
-void ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
+#else
+void                       ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
+#endif
 {
     //================================================ Set the value
     this->computeRotationFuncDesc                     = rotfVal;
@@ -846,7 +982,11 @@ void ProSHADE_settings::setRotationFunctionComputation  ( bool rotfVal )
  
     \param[in] pkS The requested value for the number of neighbours being lower for a peak.
  */
-void ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
+#else
+void                       ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
+#endif
 {
     //================================================ Set the value
     this->peakNeighbours                              = pkS;
@@ -864,7 +1004,11 @@ void ProSHADE_settings::setPeakNeighboursNumber ( proshade_unsign pkS )
  
     \param[in] noIQRs The requested number of IQRs from the median.
  */
-void ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
+#else
+void                       ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
+#endif
 {
     //================================================ Set the value
     this->noIQRsFromMedianNaivePeak                   = noIQRs;
@@ -882,7 +1026,11 @@ void ProSHADE_settings::setPeakNaiveNoIQR ( proshade_double noIQRs )
  
     \param[in] phaseUsage The requested value for the phase usage switch.
  */
-void ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
+#else
+void                       ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
+#endif
 {
     //================================================ Set the value
     this->usePhase                                    = phaseUsage;
@@ -900,7 +1048,11 @@ void ProSHADE_settings::setPhaseUsage ( bool phaseUsage )
  
     \param[in] mPower The requested value for the shell position exponential.
  */
-void ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
+#else
+void                       ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
+#endif
 {
     //================================================ Set the value
     this->enLevMatrixPowerWeight                      = mPower;
@@ -918,7 +1070,11 @@ void ProSHADE_settings::setEnLevShellWeight ( proshade_double mPower )
  
     \param[in] smFact The requested value for the grouping smoothing factor.
  */
-void ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
+#else
+void                       ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
+#endif
 {
     //================================================ Set the value
     this->smoothingFactor                             = smFact;
@@ -935,7 +1091,11 @@ void ProSHADE_settings::setGroupingSmoothingFactor ( proshade_double smFact )
  
     \param[in] mpThres The requested value for the missing peaks procedure starting threshold.
  */
-void ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
+#else
+void                       ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
+#endif
 {
     //================================================ Set the value
     this->symMissPeakThres                            = mpThres;
@@ -952,7 +1112,11 @@ void ProSHADE_settings::setMissingPeakThreshold ( proshade_double mpThres )
  
     \param[in] axThres The requested value for the axes comparison threshold.
  */
-void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
+#else
+void                       ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
+#endif
 {
     //================================================ Set the value
     this->axisErrTolerance                            = axThres;
@@ -971,7 +1135,11 @@ void ProSHADE_settings::setAxisComparisonThreshold ( proshade_double axThres )
 
     \param[in] behav The requested value for the axes comparison threshold decreasing.
 */
-void ProSHADE_settings::setAxisComparisonThresholdBehaviour ( bool behav )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setAxisComparisonThresholdBehaviour ( bool behav )
+#else
+void                       ProSHADE_settings::setAxisComparisonThresholdBehaviour ( bool behav )
+#endif
 {
     //================================================ Set the value
     this->axisErrToleranceDefault                     = behav;
@@ -988,7 +1156,11 @@ void ProSHADE_settings::setAxisComparisonThresholdBehaviour ( bool behav )
  
     \param[in] minSP The requested value for the minimum peak height.
  */
-void ProSHADE_settings::setMinimumPeakForAxis ( proshade_double minSP )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMinimumPeakForAxis ( proshade_double minSP )
+#else
+void                       ProSHADE_settings::setMinimumPeakForAxis ( proshade_double minSP )
+#endif
 {
     //================================================ Set the value
     this->minSymPeak                                  = minSP;
@@ -1006,7 +1178,11 @@ void ProSHADE_settings::setMinimumPeakForAxis ( proshade_double minSP )
  
     \warning This is an internal function and it should not be used by the user.
  */
-void ProSHADE_settings::setRecommendedSymmetry ( std::string val )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setRecommendedSymmetry ( std::string val )
+#else
+void                       ProSHADE_settings::setRecommendedSymmetry ( std::string val )
+#endif
 {
     //================================================ Set the value
     this->recommendedSymmetryType                     = val;
@@ -1025,7 +1201,11 @@ void ProSHADE_settings::setRecommendedSymmetry ( std::string val )
  
     \warning This is an internal function and it should not be used by the user.
  */
-void ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
+#else
+void                       ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
+#endif
 {
     //================================================ Set the value
     this->recommendedSymmetryFold                     = val;
@@ -1041,7 +1221,11 @@ void ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
  
     \param[in] val The requested symmetry type for the structure.
  */
-void ProSHADE_settings::setRequestedSymmetry ( std::string val )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setRequestedSymmetry ( std::string val )
+#else
+void                       ProSHADE_settings::setRequestedSymmetry ( std::string val )
+#endif
 {
     //================================================ Set the value
     this->requestedSymmetryType                       = val;
@@ -1057,7 +1241,11 @@ void ProSHADE_settings::setRequestedSymmetry ( std::string val )
  
     \param[in] val The requested symmetry fold for the structure.
  */
-void ProSHADE_settings::setRequestedFold ( proshade_unsign val )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setRequestedFold ( proshade_unsign val )
+#else
+void                       ProSHADE_settings::setRequestedFold ( proshade_unsign val )
+#endif
 {
     //================================================ Set the value
     this->requestedSymmetryFold                       = val;
@@ -1074,7 +1262,11 @@ void ProSHADE_settings::setRequestedFold ( proshade_unsign val )
  
     \param[in] sym A pointer to single symmetry axis constituting the detected symmetry.
  */
-void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
+#else
+void                       ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
+#endif
 {
     //================================================ Allocate memory
     proshade_double* hlpAxis                          = new proshade_double [6];
@@ -1103,7 +1295,11 @@ void ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
  
     \param[in] filename The filename to which the overlay structure is to be saved to.
  */
-void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setOverlaySaveFile ( std::string filename )
+#else
+void                       ProSHADE_settings::setOverlaySaveFile ( std::string filename )
+#endif
 {
     //================================================ Set the value
     this->overlayStructureName                        = filename;
@@ -1117,7 +1313,11 @@ void ProSHADE_settings::setOverlaySaveFile ( std::string filename )
  
     \param[in] filename The filename to which the overlay operations are to be saved to.
  */
-void ProSHADE_settings::setOverlayJsonFile ( std::string filename )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setOverlayJsonFile ( std::string filename )
+#else
+void                       ProSHADE_settings::setOverlayJsonFile ( std::string filename )
+#endif
 {
     //================================================ Set the value
     this->rotTrsJSONFile                              = filename;
@@ -1131,7 +1331,11 @@ void ProSHADE_settings::setOverlayJsonFile ( std::string filename )
  
     \param[in] rotFunPeaks Should the original peak detection in rotation function space be used (FALSE), or should the new angle-axis space search be used (DEFAULT - TRUE)?
  */
-void ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
+#else
+void                       ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
+#endif
 {
     //================================================ Set the value
     this->usePeakSearchInRotationFunctionSpace        = rotFunPeaks;
@@ -1145,7 +1349,11 @@ void ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
  
     \param[in] bicubPeaks Should bicubic interpolation be done to search for improved axis in between peak index values (DEFAULT - TRUE)?
  */
-void ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
+#else
+void                       ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
+#endif
 {
     //================================================ Set the value
     this->useBiCubicInterpolationOnPeaks              = bicubPeaks;
@@ -1159,7 +1367,11 @@ void ProSHADE_settings::setBicubicInterpolationSearch ( bool bicubPeaks )
  
     \param[in] maxFold Maximum prime number fold that will be searched for. Still its multiples may also be found.
  */
-void ProSHADE_settings::setMaxSymmetryFold ( proshade_unsign maxFold )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMaxSymmetryFold ( proshade_unsign maxFold )
+#else
+void                       ProSHADE_settings::setMaxSymmetryFold ( proshade_unsign maxFold )
+#endif
 {
     //================================================ Set the value
     this->maxSymmetryFold                             = maxFold;
@@ -1589,7 +1801,11 @@ void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
     \param[in] argc The count of the command line arguments (as passed to main function by the system).
     \param[in] argv The string containing the command line arguments (as passed to main function by the system).
  */
-void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
+#else
+void                       ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
+#endif
 {
     //================================================ If no command line arguments, print help
     if ( argc == 1 ) { ProSHADE_internal_messages::printHelp ( ); }
@@ -2124,7 +2340,11 @@ void ProSHADE_settings::getCommandLineParams ( int argc, char** argv )
  
     \warning This is a debugging function of no real utility to the user.
  */
-void ProSHADE_settings::printSettings ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::printSettings ( )
+#else
+void                       ProSHADE_settings::printSettings ( )
+#endif
 {
     //================================================ Print the currest values in the settings object
     std::stringstream strstr;

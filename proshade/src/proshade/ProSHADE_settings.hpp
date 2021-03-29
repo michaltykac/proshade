@@ -208,11 +208,69 @@ public: // maybe make this protected?
     
 public:
     //================================================ Constructors / Destructors
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    ProSHADE_settings      __declspec(dllexport)      ( void );
+    ProSHADE_settings      __declspec(dllexport)      ( ProSHADE_Task task );
+   ~ProSHADE_settings      __declspec(dllexport)      ( void );
+#else
     ProSHADE_settings                                 ( void );
     ProSHADE_settings                                 ( ProSHADE_Task task );
    ~ProSHADE_settings                                 ( void );
+#endif
     
     //================================================ Variable setting functions
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    void addStructure                                 __declspec(dllexport)  ( std::string structure );
+    void setResolution                                __declspec(dllexport)  ( proshade_single resolution );
+    void setPDBBFactor                                __declspec(dllexport)  ( proshade_double newBF );
+    void setNormalisation                             __declspec(dllexport)  ( bool normalise );
+    void setMapInversion                              __declspec(dllexport)  ( bool mInv );
+    void setVerbosity                                 __declspec(dllexport)  ( proshade_signed verbosity );
+    void setMaskBlurFactor                            __declspec(dllexport)  ( proshade_single blurFac );
+    void setMaskIQR                                   __declspec(dllexport)  ( proshade_single noIQRs );
+    void setMasking                                   __declspec(dllexport)  ( bool mask );
+    void setCorrelationMasking                        __declspec(dllexport)  ( bool corMask );
+    void setTypicalNoiseSize                          __declspec(dllexport)  ( proshade_single typNoi );
+    void setMinimumMaskSize                           __declspec(dllexport)  ( proshade_single minMS );
+    void setMaskSaving                                __declspec(dllexport)  ( bool savMsk );
+    void setMaskFilename                              __declspec(dllexport)  ( std::string mskFln );
+    void setMapReboxing                               __declspec(dllexport)  ( bool reBx );
+    void setBoundsSpace                               __declspec(dllexport)  ( proshade_single boundsExSp );
+    void setBoundsThreshold                           __declspec(dllexport)  ( proshade_signed boundsThres );
+    void setSameBoundaries                            __declspec(dllexport)  ( bool sameB );
+    void setOutputFilename                            __declspec(dllexport)  ( std::string oFileName );
+    void setMapResolutionChange                       __declspec(dllexport)  ( bool mrChange );
+    void setMapResolutionChangeTriLinear              __declspec(dllexport)  ( bool mrChange );
+    void setMapCentering                              __declspec(dllexport)  ( bool com );
+    void setExtraSpace                                __declspec(dllexport)  ( proshade_single exSpace );
+    void setBandwidth                                 __declspec(dllexport)  ( proshade_unsign band );
+    void setSphereDistances                           __declspec(dllexport)  ( proshade_single sphDist );
+    void setIntegrationOrder                          __declspec(dllexport)  ( proshade_unsign intOrd );
+    void setTaylorSeriesCap                           __declspec(dllexport)  ( proshade_unsign tayCap );
+    void setProgressiveSphereMapping                  __declspec(dllexport)  ( bool progSphMap );
+    void setEnergyLevelsComputation                   __declspec(dllexport)  ( bool enLevDesc );
+    void setTraceSigmaComputation                     __declspec(dllexport)  ( bool trSigVal );
+    void setRotationFunctionComputation               __declspec(dllexport)  ( bool rotfVal );
+    void setPeakNeighboursNumber                      __declspec(dllexport)  ( proshade_unsign pkS );
+    void setPeakNaiveNoIQR                            __declspec(dllexport)  ( proshade_double noIQRs );
+    void setPhaseUsage                                __declspec(dllexport)  ( bool phaseUsage );
+    void setEnLevShellWeight                          __declspec(dllexport)  ( proshade_double mPower );
+    void setGroupingSmoothingFactor                   __declspec(dllexport)  ( proshade_double smFact );
+    void setMissingPeakThreshold                      __declspec(dllexport)  ( proshade_double mpThres );
+    void setAxisComparisonThreshold                   __declspec(dllexport)  ( proshade_double axThres );
+    void setAxisComparisonThresholdBehaviour          __declspec(dllexport)  ( bool behav );
+    void setMinimumPeakForAxis                        __declspec(dllexport)   ( proshade_double minSP );
+    void setRecommendedSymmetry                       __declspec(dllexport)   ( std::string val );
+    void setRecommendedFold                           __declspec(dllexport)   ( proshade_unsign val );
+    void setRequestedSymmetry                         __declspec(dllexport)   ( std::string val );
+    void setRequestedFold                             __declspec(dllexport)   ( proshade_unsign val );
+    void setDetectedSymmetry                          __declspec(dllexport)   ( proshade_double* sym );
+    void setOverlaySaveFile                           __declspec(dllexport)   ( std::string filename );
+    void setOverlayJsonFile                           __declspec(dllexport)   ( std::string filename );
+    void setSymmetryRotFunPeaks                       __declspec(dllexport)   ( bool rotFunPeaks );
+    void setBicubicInterpolationSearch                __declspec(dllexport)   ( bool bicubPeaks );
+    void setMaxSymmetryFold                           __declspec(dllexport)   ( proshade_unsign maxFold );
+#else
     void addStructure                                 ( std::string structure );
     void setResolution                                ( proshade_single resolution );
     void setPDBBFactor                                ( proshade_double newBF );
@@ -263,12 +321,21 @@ public:
     void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );
     void setMaxSymmetryFold                           ( proshade_unsign maxFold );
+#endif
     
     //================================================ Command line options parsing
-    void getCommandLineParams                         ( int argc, char** argv );
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    void __declspec(dllexport) getCommandLineParams   ( int argc, char** argv );
+#else
+    void                       getCommandLineParams   ( int argc, char** argv );
+#endif
     
     //================================================ Debugging
-    void printSettings                                ( void );
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    void __declspec(dllexport) printSettings          ( void );
+#else
+    void                       printSettings          ( void );
+#endif
 };
 
 #endif
