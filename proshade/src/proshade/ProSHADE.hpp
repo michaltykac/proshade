@@ -141,7 +141,7 @@ public:
 
 //==================================================== These functions should be in ProSHADE_run class, but I cannot make them work with Numpy from there, so they are here.
 #if defined ( _WIN64 ) || defined ( _WIN32 )
-    void getReBoxedMap  __declspec(dllexport)         ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
+    void __declspec(dllexport) getReBoxedMap          ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
 #else
     void getReBoxedMap                                ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
 #endif
