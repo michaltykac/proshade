@@ -27,14 +27,13 @@ g++ ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
 MSVC:
 =====        
 cl.exe 	/I "/path/to/proshade\extern\gemmi\include" 
-		/I "/path/to/proshade\winLibs\x64\ZLIB" 
-		/I "/path/to/proshade\winLibs\x64\FFTW3" 
 		/I "/path/to/proshade\extern\soft-2.0\include" 
-		/I "/path/to/proshade\extern\gemmi\include" 
 		/I "/path/to/proshade\winLibs\x64\ZLIB" 
 		/I "/path/to/proshade\winLibs\x64\FFTW3" 
 		/I "/path/to/proshade\extern" 
 		/EHsc .\proshadeBinary.cpp proshade.dll
+            
+!!! This assumes that proshade.dll was copied to the location where installation is being done, or that it has been copied into system location.
                            
 
 =====

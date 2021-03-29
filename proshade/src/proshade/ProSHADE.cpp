@@ -1491,7 +1491,12 @@ ProSHADE_run::~ProSHADE_run ( )
  
     \param[out] symRecommType This is the value ( ""=None, C=cyclic, D=Dihedral, T=Tetrahedral, O=Octahedral or I=Icosahedral) of ProSHADE detected and recommended symmetry.
  */
-std::string ProSHADE_run::getSymmetryType ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::string __declspec(dllexport) ProSHADE_run::getSymmetryType ( )
+#else
+std::string                       ProSHADE_run::getSymmetryType ( )
+#endif
+
 {
     //================================================ Return the value
     return                                            ( this->symRecommType );
@@ -1501,7 +1506,11 @@ std::string ProSHADE_run::getSymmetryType ( )
  
     \param[out] symRecommFold This is the fold of ProSHADE detected and recommended symmetry (C and D symmetry types only).
  */
-proshade_unsign ProSHADE_run::getSymmetryFold ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+proshade_unsign __declspec(dllexport) ProSHADE_run::getSymmetryFold ( )
+#else
+proshade_unsign                       ProSHADE_run::getSymmetryFold ( )
+#endif
 {
     //================================================ Return the value
     return                                            ( this->symRecommFold );
@@ -2307,7 +2316,11 @@ void ProSHADE_settings::printSettings ( )
  
     \param[out] enLevs Vector of doubles of the distances.
  */
-std::vector< proshade_double > ProSHADE_run::getEnergyLevelsVector ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getEnergyLevelsVector ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getEnergyLevelsVector ( )
+#endif
 {
     //================================================ Return the value
     return                                            ( this->enLevs );
@@ -2317,7 +2330,11 @@ std::vector< proshade_double > ProSHADE_run::getEnergyLevelsVector ( )
  
     \param[out] trSigm Vector of doubles of the distances.
  */
-std::vector< proshade_double > ProSHADE_run::getTraceSigmaVector ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getTraceSigmaVector ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getTraceSigmaVector ( )
+#endif
 {
     //================================================ Return the value
     return                                            ( this->trSigm );
@@ -2327,7 +2344,11 @@ std::vector< proshade_double > ProSHADE_run::getTraceSigmaVector ( )
  
     \param[out] rotFun Vector of doubles of the distances.
  */
-std::vector< proshade_double > ProSHADE_run::getRotationFunctionVector ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getRotationFunctionVector ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getRotationFunctionVector ( )
+#endif
 {
     //================================================ Return the value
     return                                            ( this->rotFun );
@@ -2378,7 +2399,11 @@ proshade_unsign ProSHADE_run::getNoRecommendedSymmetryAxes ( )
     \param[in] axisNo The index of the axis to be returned.
     \param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle and peak height in this order.
 */
-std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisNo )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< std::string > __declspec(dllexport) ProSHADE_run::getSymmetryAxis ( proshade_unsign axisNo )
+#else
+std::vector< std::string >                       ProSHADE_run::getSymmetryAxis ( proshade_unsign axisNo )
+#endif
 {
     //================================================ Sanity checks
     if ( static_cast<proshade_unsign> ( this->RecomSymAxes.size() ) <= axisNo )
@@ -2425,7 +2450,11 @@ std::vector< std::string > ProSHADE_run::getSymmetryAxis ( proshade_unsign axisN
 
     \param[out] val A vector of vectors of doubles containing all the symmetries axis fold, x, y, z axis element, angle and peak height in this order.
 */
-std::vector < std::vector< proshade_double > > ProSHADE_run::getAllCSyms ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector < std::vector< proshade_double > > __declspec(dllexport) ProSHADE_run::getAllCSyms ( )
+#else
+std::vector < std::vector< proshade_double > >                       ProSHADE_run::getAllCSyms ( )
+#endif
 {
     //================================================ Done
     return                                            ( this->allCSymAxes );
@@ -2436,7 +2465,11 @@ std::vector < std::vector< proshade_double > > ProSHADE_run::getAllCSyms ( )
 
     \param[in] strNo The index of the structure for which the bounds are to be returned.
 */
-std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign strNo )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_signed > __declspec(dllexport) ProSHADE_run::getOriginalBounds ( proshade_unsign strNo )
+#else
+std::vector< proshade_signed >                       ProSHADE_run::getOriginalBounds ( proshade_unsign strNo )
+#endif
 {
     //================================================ Sanity checks
     if ( noStructures <= strNo )
@@ -2464,7 +2497,11 @@ std::vector< proshade_signed > ProSHADE_run::getOriginalBounds ( proshade_unsign
 
     \param[in] strNo The index of the structure for which the bounds are to be returned.
 */
-std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign strNo )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_signed > __declspec(dllexport) ProSHADE_run::getReBoxedBounds ( proshade_unsign strNo )
+#else
+std::vector< proshade_signed >                       ProSHADE_run::getReBoxedBounds ( proshade_unsign strNo )
+#endif
 {
     //================================================ Sanity checks
     if ( noStructures <= strNo )
@@ -2494,7 +2531,11 @@ std::vector< proshade_signed > ProSHADE_run::getReBoxedBounds ( proshade_unsign 
     \param[in] mapIndex The map array index of which the value is returned.
     \param[out] val The map density value for the particular mapIndex position.
 */
-proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsign mapIndex )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+proshade_double __declspec(dllexport) ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsign mapIndex )
+#else
+proshade_double                       ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsign mapIndex )
+#endif
 {
     //================================================ Return the value
     return                                            ( this->manipulatedMaps.at(strNo)[mapIndex] );
@@ -2507,8 +2548,11 @@ proshade_double ProSHADE_run::getMapValue ( proshade_unsign strNo, proshade_unsi
     \param[in] reboxMap Array to which the values are to be loaded into.
     \param[in] len The length of the array.
  */
-
-void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len )
+#else
+void                       getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len )
+#endif
 {
     //================================================ Sanity checks
     if ( run->getNoStructures() <= strNo )
@@ -2532,7 +2576,11 @@ void getReBoxedMap ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap,
 
     \param[out] ret Vector of Euler angles (ZXZ convention) which lead to the globally best overlay correlation.
 */
-std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getEulerAngles ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getEulerAngles ( )
+#endif
 {
     //================================================ Sanity check
     if ( this->eulerAngles.size() != 3 )
@@ -2550,7 +2598,11 @@ std::vector< proshade_double > ProSHADE_run::getEulerAngles ( )
 
     \param[out] ret Vector forming rotation matrix (rows first) which lead to the globally best overlay correlation.
 */
-std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getOptimalRotMat ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getOptimalRotMat ( )
+#endif
 {
     //================================================ Sanity check
     if ( this->eulerAngles.size() != 3 )
@@ -2580,7 +2632,11 @@ std::vector< proshade_double > ProSHADE_run::getOptimalRotMat ( )
 
     \param[out] ret Vector specifying the negative values of the rotation centre - i.e. the translation of the rotation centre to the origin.
 */
-std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getTranslationToOrigin ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getTranslationToOrigin ( )
+#endif
 {
     //================================================ Sanity check
     if ( this->coordRotationCentre.size() != 3 )
@@ -2604,7 +2660,11 @@ std::vector< proshade_double > ProSHADE_run::getTranslationToOrigin ( )
 
     \param[out] ret Translation required to move structure from origin to optimal overlay.
 */
-std::vector< proshade_double > ProSHADE_run::getOriginToOverlayTranslation ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getOriginToOverlayTranslation ( )
+#else
+std::vector< proshade_double >                       ProSHADE_run::getOriginToOverlayTranslation ( )
+#endif
 {
     //================================================ Sanity check
     if ( this->overlayTranslation.size() != 3 )
