@@ -209,9 +209,9 @@ public: // maybe make this protected?
 public:
     //================================================ Constructors / Destructors
 #if defined ( _WIN64 ) || defined ( _WIN32 )
-    ProSHADE_settings      __declspec(dllexport)      ( void );
-    ProSHADE_settings      __declspec(dllexport)      ( ProSHADE_Task task );
-   ~ProSHADE_settings      __declspec(dllexport)      ( void );
+    __declspec(dllexport)  ProSHADE_settings          ( void );
+    __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_Task task );
+    __declspec(dllexport) ~ProSHADE_settings          ( void );
 #else
     ProSHADE_settings                                 ( void );
     ProSHADE_settings                                 ( ProSHADE_Task task );
