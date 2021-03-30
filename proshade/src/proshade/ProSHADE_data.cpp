@@ -1740,23 +1740,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE
     
 }
 
-/*! \brief This function runs the symmetry detection algorithms on this structure saving the axes in the settings object only.
- 
-    This function runs the detectSymmetryInStructure() function without requiring the vector of double pointers arguments, so that
-    it is simply callable from Python. The axes are saved in the settings object for later retrieval.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
- */
-void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructurePython ( ProSHADE_settings* settings )
-{
-    //================================================ Run the algorithm
-    this->detectSymmetryInStructure                   ( settings, &settings->detectedSymmetry, &settings->allDetectedCAxes );
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief This function runs the symmetry detection algorithms on this structure using the angle-axis space and saving the results in the settings object.
  
     This function firstly decides whether specific C symmetry was requested or not. This decision is important as knowing the required fold allows for a rather
@@ -1832,10 +1815,15 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     if ( settings->requestedSymmetryType == "" )
     {
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
+        std::cout << "Size of CSyms after C: " << CSyms.size() << std::endl;
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
+        std::cout << "Size of CSyms after D: " << CSyms.size() << std::endl;
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
+        std::cout << "Size of CSyms after I: " << CSyms.size() << std::endl;
         std::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );;
+        std::cout << "Size of CSyms after O: " << CSyms.size() << std::endl;
+        std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
+        std::cout << "Size of CSyms after T: " << CSyms.size() << std::endl;
         
         //============================================ Decide on recommended symmetry
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
