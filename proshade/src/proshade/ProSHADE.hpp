@@ -76,8 +76,13 @@ private:
     
 public:
     //================================================ Constructors / Destructors
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    __declspec(dllexport) ProSHADE_run                ( ProSHADE_settings* settings );
+    __declspec(dllexport) ~ProSHADE_run               ( void );
+#else
     ProSHADE_run                                      ( ProSHADE_settings* settings );
    ~ProSHADE_run                                      ( void );
+#endif
     
 public:
     //================================================ General accessor functions

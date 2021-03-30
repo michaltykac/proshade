@@ -33,7 +33,9 @@ cl.exe 	/I "\path\to\proshade\extern\gemmi\include"
 		/I "\path\to\proshade\extern"
 		/I "\path\to\proshade\install\lib" 
 		/EHsc .\proshadeBinary.cpp 
-            
+		"\path\to\proshade\install\lib\proshade.lib" 
+        
+!!! NOTE: The x86_x64 version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently.    
 !!! This assumes that proshade.dll was copied to the location where installation is being done, or that it has been copied into system location.
                            
 

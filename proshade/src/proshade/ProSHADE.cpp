@@ -1578,7 +1578,11 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
  
     \param[in] settings ProSHADE_settings object specifying what should be done.
  */
-ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
+#else
+                      ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
+#endif
 {
     //================================================ Wellcome message if required
     ProSHADE_internal_messages::printWellcomeMessage  ( settings->verbose );
@@ -1673,7 +1677,11 @@ ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
  
     This destructor is responsible for releasing all memory used by the executing object
  */
-ProSHADE_run::~ProSHADE_run ( )
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_run::~ProSHADE_run ( )
+#else
+                      ProSHADE_run::~ProSHADE_run ( )
+#endif
 {
     //================================================ Release reboxing pointers
     if ( this->originalBounds.size() > 0 ) { for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->originalBounds.size() ); iter++ ) { delete[] this->originalBounds.at(iter); } }
