@@ -76,7 +76,7 @@ namespace ProSHADE_internal_symmetry
     void saveAllCSymmetries                           ( std::vector< std::vector< proshade_unsign > > detected,
                                                         std::vector< proshade_double* > peaks, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr );
-    bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres );
+    bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos );
     void saveDSymmetry                                ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList,
                                                         proshade_unsign axisOne, proshade_unsign axisTwo );
     bool detectTetrahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight );
@@ -122,7 +122,7 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_unsign >* retGroup, proshade_unsign requiredNoAxes, proshade_double axErr,
                                                         proshade_unsign noMatchesG1, proshade_double angle1, proshade_unsign noMatchesG2,
                                                         proshade_double angle2, proshade_unsign fold,  ProSHADE_internal_data::ProSHADE_data* dataObj );
-    void addAxisUnlessSame                            ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
+    proshade_signed addAxisUnlessSame                 ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
                                                         proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr );
     bool checkFittingAxisDualAndSave                  ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret,
                                                         proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,

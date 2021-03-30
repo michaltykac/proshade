@@ -1116,6 +1116,7 @@ void ProSHADE_internal_symmetry::saveAllCSymmetries ( std::vector< std::vector< 
 {
     //================================================ Initialise variables
     proshade_double sumX, sumY, sumZ, sumH;
+    proshade_signed matchedPos                        = -1;
     
     //================================================ Start saving
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( detected.size() ); symIt++ )
@@ -1149,7 +1150,7 @@ void ProSHADE_internal_symmetry::saveAllCSymmetries ( std::vector< std::vector< 
         hlpP[5]                                       = sumH;
         
         //============================================ Save the complete symmetry description to the vector, unless already there
-        if ( !ProSHADE_internal_symmetry::isSymmetrySame ( ret, hlpP, axErr ) )
+        if ( !ProSHADE_internal_symmetry::isSymmetrySame ( ret, hlpP, axErr, &matchedPos ) )
         {
             ProSHADE_internal_misc::addToDblPtrVector ( ret, hlpP );
         }
@@ -1172,12 +1173,14 @@ void ProSHADE_internal_symmetry::saveAllCSymmetries ( std::vector< std::vector< 
     \param[in] ret This is the variable where the tested array will be saved if passed. It is a vector of double[6] arrays with the following meaning: [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] sym This is a double array of 6 which is to be compared to all the vector entries.
     \param[in] simThres The threshold for dot product comparison similarity.
+    \param[in] matchedPos Pointer to variable where the matched position (if any axis is matched) is saved, or -1 is written.
     \param[out] X Boolean value stating whether a similar entry has been found (true = it was, false = it was not).
  */
-bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres )
+bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos )
 {
     //================================================ Initialise variables
     proshade_double dotProduct                        = 0.0;
+   *matchedPos                                        = -1;
     
     //================================================ Check
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( ret->size() ); symIt++ )
@@ -1190,6 +1193,9 @@ bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* 
                                                                                                      &ret->at(symIt)[3], &sym[1], &sym[2], &sym[3] );
             if ( ( ( 1.0 > ( dotProduct - simThres ) ) && ( 1.0 < ( dotProduct + simThres ) ) ) || ( ( -1.0 > ( dotProduct - simThres ) ) && ( -1.0 < ( dotProduct + simThres ) ) ) )
             {
+                //==================================== Matched. Save the index
+               *matchedPos                            = static_cast< proshade_signed > ( symIt );
+                
                 //==================================== Does the already saved have higher height?
                 if ( ret->at(symIt)[5] >= sym[5] ) { return ( true ); }
                 
@@ -2523,12 +2529,14 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
     \param[in] axHeight The average peak height of the new axis.
     \param[in] prosp The vector to which the axis is to be saved.
     \param[in] axErr The error tolerance on angle matching.
+    \param[out] addedNo Position at which the symmetry either already is, or was added to.
  */
-void ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr )
+proshade_signed ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr )
 {
     //================================================ Initialise variables
     proshade_double* symHlp                           = new proshade_double[6];
     ProSHADE_internal_misc::checkMemoryAllocation     ( symHlp, __FILE__, __LINE__, __func__ );
+    proshade_signed ret                               = -1;
     
     //================================================ Fill in the prospective axis
     symHlp[0]                                         = static_cast<proshade_double> ( fold );
@@ -2539,17 +2547,18 @@ void ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign fold, prosh
     symHlp[5]                                         = axHeight;
     
     //================================================ If it is not the same as already saved axes
-    if ( !ProSHADE_internal_symmetry::isSymmetrySame ( prosp, symHlp, axErr ) )
+    if ( !ProSHADE_internal_symmetry::isSymmetrySame ( prosp, symHlp, axErr, &ret ) )
     {
         ProSHADE_internal_misc::addToDblPtrVector     ( prosp, symHlp );
+        return                                        ( static_cast< proshade_signed > ( prosp->size() ) );
     }
     else
     {
         delete[] symHlp;
+        return                                        ( ret );
     }
     
     //================================================ Done
-    return ;
     
 }
 
@@ -2708,8 +2717,8 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
-            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, ret.at(retIt) );
-            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( CSymList->size() ) );
+            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( ret.at(retIt)[0], ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
+            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
     
@@ -2756,8 +2765,8 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
-            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, ret.at(retIt) );
-            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( CSymList->size() ) );
+            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( ret.at(retIt)[0], ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
+            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
     
@@ -3977,8 +3986,8 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
-            ProSHADE_internal_misc::addToDblPtrVector ( CSymList, ret.at(retIt) );
-            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( CSymList->size() ) );
+            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( ret.at(retIt)[0], ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
+            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
     
