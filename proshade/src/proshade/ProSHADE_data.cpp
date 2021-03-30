@@ -1815,15 +1815,10 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     if ( settings->requestedSymmetryType == "" )
     {
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
-        std::cout << "Size of CSyms after C: " << CSyms.size() << std::endl;
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        std::cout << "Size of CSyms after D: " << CSyms.size() << std::endl;
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-        std::cout << "Size of CSyms after I: " << CSyms.size() << std::endl;
-        std::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
-        std::cout << "Size of CSyms after O: " << CSyms.size() << std::endl;
+        td::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
-        std::cout << "Size of CSyms after T: " << CSyms.size() << std::endl;
         
         //============================================ Decide on recommended symmetry
         this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes );
