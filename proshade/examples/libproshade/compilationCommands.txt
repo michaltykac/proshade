@@ -26,17 +26,17 @@ g++ ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                   
 MSVC:
 =====        
-cl.exe 	/I "/path/to/proshade\extern\gemmi\include" 
-		/I "/path/to/proshade\winLibs\x64\ZLIB" 
-		/I "/path/to/proshade\winLibs\x64\FFTW3" 
-		/I "/path/to/proshade\extern\soft-2.0\include" 
-		/I "/path/to/proshade\extern\gemmi\include" 
-		/I "/path/to/proshade\winLibs\x64\ZLIB" 
-		/I "/path/to/proshade\winLibs\x64\FFTW3" 
-		/I "/path/to/proshade\extern" 
-		/EHsc .\proshadeBinary.cpp proshade.dll
+cl.exe 	/I "\path\to\proshade\extern\gemmi\include" 
+		/I "\path\to\proshade\extern\soft-2.0\include" 
+		/I "\path\to\proshade\winLibs\x64\ZLIB" 
+		/I "\path\to\proshade\winLibs\x64\FFTW3" 
+		/I "\path\to\proshade\extern"
+		/I "\path\to\proshade\install\lib" 
+		/EHsc .\proshadeBinary.cpp 
+		"\path\to\proshade\install\lib\proshade.lib" 
+        
+!!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently.    
                            
-
 =====
 NOTE:
 =====

@@ -76,8 +76,13 @@ private:
     
 public:
     //================================================ Constructors / Destructors
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    __declspec(dllexport) ProSHADE_run                ( ProSHADE_settings* settings );
+    __declspec(dllexport) ~ProSHADE_run               ( void );
+#else
     ProSHADE_run                                      ( ProSHADE_settings* settings );
    ~ProSHADE_run                                      ( void );
+#endif
     
 public:
     //================================================ General accessor functions
@@ -90,29 +95,60 @@ public:
     
 public:
     //================================================ Distances results accessor functions
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    std::vector< proshade_double > __declspec(dllexport) getEnergyLevelsVector ( void );
+    std::vector< proshade_double > __declspec(dllexport) getTraceSigmaVector ( void );
+    std::vector< proshade_double > __declspec(dllexport) getRotationFunctionVector  ( void );
+#else
     std::vector< proshade_double > getEnergyLevelsVector ( void );
     std::vector< proshade_double > getTraceSigmaVector ( void );
     std::vector< proshade_double > getRotationFunctionVector  ( void );
+#endif
 
     //================================================ Symmetry results accessor functions
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    std::string                                       __declspec(dllexport) getSymmetryType   ( void );
+    proshade_unsign                                   __declspec(dllexport) getSymmetryFold   ( void );
+    std::vector< std::string >                        __declspec(dllexport) getSymmetryAxis   ( proshade_unsign axisNo );
+    std::vector < std::vector< proshade_double > >    __declspec(dllexport) getAllCSyms       ( void );
+#else
     std::string getSymmetryType                       ( void );
     proshade_unsign getSymmetryFold                   ( void );
     std::vector< std::string > getSymmetryAxis        ( proshade_unsign axisNo );
     std::vector < std::vector< proshade_double > > getAllCSyms ( void );
+#endif
     
     //================================================ Re-boxing results accessor functions
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    std::vector< proshade_signed > __declspec(dllexport) getOriginalBounds  ( proshade_unsign strNo );
+    std::vector< proshade_signed > __declspec(dllexport) getReBoxedBounds   ( proshade_unsign strNo );
+    proshade_double                __declspec(dllexport) getMapValue        ( proshade_unsign strNo, proshade_unsign mapIndex );
+#else
     std::vector< proshade_signed > getOriginalBounds  ( proshade_unsign strNo );
     std::vector< proshade_signed > getReBoxedBounds   ( proshade_unsign strNo );
     proshade_double getMapValue                       ( proshade_unsign strNo, proshade_unsign mapIndex );
+#endif
     
     //================================================ Overlay results accessor functions
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    std::vector< proshade_double > __declspec(dllexport) getEulerAngles     ( void );
+    std::vector< proshade_double > __declspec(dllexport) getOptimalRotMat   ( void );
+    std::vector< proshade_double > __declspec(dllexport) getTranslationToOrigin ( void );
+    std::vector< proshade_double > __declspec(dllexport) getOriginToOverlayTranslation ( void );
+#else
     std::vector< proshade_double > getEulerAngles     ( void );
     std::vector< proshade_double > getOptimalRotMat   ( void );
     std::vector< proshade_double > getTranslationToOrigin ( void );
     std::vector< proshade_double > getOriginToOverlayTranslation ( void );
+#endif
+
 };
 
 //==================================================== These functions should be in ProSHADE_run class, but I cannot make them work with Numpy from there, so they are here.
-void getReBoxedMap                                    ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+    void __declspec(dllexport) getReBoxedMap          ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
+#else
+    void getReBoxedMap                                ( ProSHADE_run* run, proshade_unsign strNo, double *reboxMap, int len );
+#endif
 
 #endif
