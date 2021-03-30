@@ -35,7 +35,7 @@ The most recent stable version of ProSHADE is available from the *master* branch
     - [Installing using CMake on Unix](#installing-using-cmake-on-unix)
         - [CMake options](#cmake-options)
         - [Uninstall using CMake](#uninstall-using-cmake)
-    - [Installation using pip](#installation-using-pip)
+    - [Installation using pip](#installing-using-pip)
         - [Uninstalling pip installed module](#uninstalling-pip-installed-module)
 - [Input PDB files](#input-pdb-files)
     - [Spacegroups](#spacegroups)
@@ -260,7 +260,7 @@ Once the path is set, you can use ProSHADE from any Command Prompt window (not o
  
   To remove the installed ProSHADE components, the command ```make remove``` needs to be issued to the makefile originally created by the CMake call. Please note that ```sudo``` may need to be used if the installation was done into the system folders and your current user does not have admin rights.
   
- ## Installing using pip 
+ ## Installing using pip
  
  The ProSHADE python module is also available (as a source distribution) on the PyPi repository. Therefore, the ProSHADE python module can be installed by simply issuing the following command; **however, this assumes that all the system dependencies as discussed in the [Standard System Dependencies](#standard-system-dependencies) section are already installed.** If any of them is missing, then a cryptic error message will ensue - consider yourself warned.
  
