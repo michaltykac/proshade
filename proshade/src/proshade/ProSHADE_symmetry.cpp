@@ -3886,7 +3886,8 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
             grp->findCyclicPointGroupsGivenFold       ( dataObj->sphereMappedRotFun, settings->axisErrTolerance, &detectedAxis, settings->useBiCubicInterpolationOnPeaks, folds.at(foldIt), settings->verbose );
             
             //======================================== Save it!
-            ret->at(axIt)[5]                          = detectedAxis.at(0)[5];
+            if ( detectedAxis.size() > 0 )            { ret->at(axIt)[5] = detectedAxis.at(0)[5]; }
+            else                                      { ret->at(axIt)[5] = 0.0; }
             
             //======================================== Release memory
             for ( proshade_unsign i = 0; i < static_cast < proshade_unsign > ( detectedAxis.size() ); i++ ) { delete detectedAxis.at(i); }
