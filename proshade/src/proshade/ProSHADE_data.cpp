@@ -1817,7 +1817,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > ISyms         = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > OSyms          = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
+        std::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
         
         //============================================ Decide on recommended symmetry
