@@ -97,7 +97,7 @@ int main ( int argc, char **argv )
     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
     
     //================================================ Read in the structures
-    simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object. This example uses EMD 6324 (PDB 3JA7)
+    simpleSym->readInStructure                        ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object. This example uses EMD 6324 (PDB 3JA7)
 
     //================================================ Process internal map
     simpleSym->processInternalMap                     ( settings ); // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -160,6 +160,13 @@ int main ( int argc, char **argv )
     //================================================ Expected output
 //  Found total of 54 cyclic symmetry axes.
     
+    //================================================ Find the internal map processing COM shift
+    std::vector< proshade_double > comMove            = simpleSym->getMapCOMProcessChange ( );
+    std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
+    
+    //================================================ Expected output
+//  Internal map processing shifted the map COM by: [-0.0239693 , -0.0239671 , 8.49777].
+    
     //================================================ Release the object
     delete simpleSym;
     
@@ -167,7 +174,7 @@ int main ( int argc, char **argv )
     settings->setRequestedSymmetry                    ( "D" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
     settings->setRequestedFold                        ( 4 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     ProSHADE_internal_data::ProSHADE_data* requestSym = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
-    requestSym->readInStructure                       ( "./emd_6324.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object.
+    requestSym->readInStructure                       ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object.
     requestSym->processInternalMap                    ( settings );
     requestSym->mapToSpheres                          ( settings );
     requestSym->computeSphericalHarmonics             ( settings );

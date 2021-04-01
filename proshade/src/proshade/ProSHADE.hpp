@@ -64,6 +64,7 @@ private:
     //================================================ Variables regarding symmetry detection
     std::string symRecommType;                        //!< The resulting recommended symmetry type for the symmetry detection task.
     proshade_unsign symRecommFold;                    //!< The resulting recommended symmetry fold foe the symmetry detection task.
+    std::vector< proshade_double > mapCOMShift;       //!< Vector containing the shift applied to get the COM of the internal map to the centre of the box.
     
 private:
     //================================================ Mutator functions
@@ -107,15 +108,17 @@ public:
 
     //================================================ Symmetry results accessor functions
 #if defined ( _WIN64 ) || defined ( _WIN32 )
-    std::string                                       __declspec(dllexport) getSymmetryType   ( void );
-    proshade_unsign                                   __declspec(dllexport) getSymmetryFold   ( void );
-    std::vector< std::string >                        __declspec(dllexport) getSymmetryAxis   ( proshade_unsign axisNo );
-    std::vector < std::vector< proshade_double > >    __declspec(dllexport) getAllCSyms       ( void );
+    std::string                                       __declspec(dllexport) getSymmetryType        ( void );
+    proshade_unsign                                   __declspec(dllexport) getSymmetryFold        ( void );
+    std::vector< std::string >                        __declspec(dllexport) getSymmetryAxis        ( proshade_unsign axisNo );
+    std::vector < std::vector< proshade_double > >    __declspec(dllexport) getAllCSyms            ( void );
+    std::vector < proshade_double >                   __declspec(dllexport) getMapCOMProcessChange ( void );
 #else
-    std::string getSymmetryType                       ( void );
-    proshade_unsign getSymmetryFold                   ( void );
-    std::vector< std::string > getSymmetryAxis        ( proshade_unsign axisNo );
-    std::vector < std::vector< proshade_double > > getAllCSyms ( void );
+    std::string                                                             getSymmetryType        ( void );
+    proshade_unsign                                                         getSymmetryFold        ( void );
+    std::vector< std::string >                                              getSymmetryAxis        ( proshade_unsign axisNo );
+    std::vector < std::vector< proshade_double > >                          getAllCSyms            ( void );
+    std::vector < proshade_double >                                         getMapCOMProcessChange ( void );
 #endif
     
     //================================================ Re-boxing results accessor functions

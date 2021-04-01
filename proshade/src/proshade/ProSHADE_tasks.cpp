@@ -283,7 +283,7 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
     \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
  */
-void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
+void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_double >* mapCOMShift )
 {
     //================================================ Check the settings are complete and meaningful
     checkSymmetrySettings                             ( settings );
@@ -322,6 +322,11 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         
         //============================================ Report results
         symmetryStructure->reportSymmetryResults      ( settings );
+        
+        //============================================ Save internal map shift to run object,
+        ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeX );
+        ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeY );
+        ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeZ );
         
         //============================================ Release memory
         delete symmetryStructure;

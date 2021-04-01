@@ -165,7 +165,6 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setMaxSymmetryFold",                   &ProSHADE_settings::setMaxSymmetryFold,                     "Sets the maximum symmetry fold (well, the maximum prime symmetry fold).",                                                  pybind11::arg ( "maxFold"        ) )
     
         //============================================ Command line parsing
-#if !defined ( WIN32 ) || !defined ( _WIN32 ) || defined ( __WIN32 ) && defined(__CYGWIN__)
         .def                                          ( "getCommandLineParams",
                                                         [] ( ProSHADE_settings &self, std::vector < std::string > args )
                                                         {
@@ -176,9 +175,6 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             
                                                             return self.getCommandLineParams ( cstrs.size ( ), cstrs.data ( ) );
                                                         }, "This function takes a VectorOfStrings and parses it as if it were command line arguments, filling in the calling ProSHADE_settings class with the values." )
-#else
-    // To be completed
-#endif
         
         //============================================ Debugging
         .def                                          ( "printSettings", &ProSHADE_settings::printSettings, "This function prints the current values in the settings object." )
@@ -304,6 +300,31 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             //== Done
                                                             return ( retArr );
                                                         }, "This function returns a all symmetry axes as a 2D numpy array." )
+        .def                                          ( "getMapCOMProcessChange",
+                                                       [] ( ProSHADE_run &self ) -> pybind11::array_t < float >
+                                                       {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getMapCOMProcessChange ();
+
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<unsigned int> ( 3 )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = vals.at(iter); }
+        
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleSymShift ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( vals.size() ) },      // Shape
+                                                                                                                          { sizeof(float) },                           // C-stype strides
+                                                                                                                          npVals,                                      // Data
+                                                                                                                          pyCapsuleSymShift );                         // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the shift in Angstrom applied to the internal map representation in order to align its COM with the centre of box." )
     
         //============================================ Reboxing results accessor functions as lambda functions directly returning numpy arrays
         .def                                          ( "getOriginalBounds",

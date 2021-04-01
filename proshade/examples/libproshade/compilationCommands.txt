@@ -8,9 +8,9 @@ CLANG:
 
 clang ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                            -I/path/to/proshade/extern/gemmi/include \
-                           -I/path/to/proshade/extern
-                           -L/path/to/proshade/install/lib \
-                           -std=c++11 -lproshade -lc++ -lz \
+						   -I/path/to/proshade/extern \
+                           -L/path/to/proshade/install/lib \                                   
+                           -std=c++11 -lproshade -lc++ -lz \                                      
                            -rpath /path/to/proshade/install/lib \
                            -o ./proshadeProject
 

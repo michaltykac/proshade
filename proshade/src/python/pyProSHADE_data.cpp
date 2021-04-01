@@ -338,6 +338,32 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retList );
                                                         }, "This function returns the group elements as rotation matrices of any point group described by the detected axes.", pybind11::arg ( "settings" ), pybind11::arg ( "axList" ), pybind11::arg ( "groupType" ) = "", pybind11::arg( "matrixTolerance" ) = 0.05 )
     
+        .def                                          ( "getMapCOMProcessChange",
+                                                       [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < float >
+                                                       {
+                                                            //== Get the values
+                                                            std::vector< proshade_double > vals = self.getMapCOMProcessChange ();
+
+                                                            //== Allocate memory for the numpy values
+                                                            float* npVals = new float[static_cast<unsigned int> ( 3 )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+    
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = vals.at(iter); }
+    
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleSymShiftDat ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
+
+                                                            //== Copy the value
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( vals.size() ) },      // Shape
+                                                                                                                      { sizeof(float) },                           // C-stype strides
+                                                                                                                      npVals,                                      // Data
+                                                                                                                      pyCapsuleSymShiftDat );                      // Capsule
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function returns the shift in Angstrom applied to the internal map representation in order to align its COM with the centre of box." )
+    
         //============================================ Overlay related functions
         .def                                          ( "getOverlayRotationFunction", &ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction, "This function computes the overlay rotation function (i.e. the correlation function in SO(3) space).", pybind11::arg ( "settings" ), pybind11::arg ( "obj2" ) )
         .def                                          ( "getBestRotationMapPeaksEulerAngles",

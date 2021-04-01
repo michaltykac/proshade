@@ -118,6 +118,15 @@ print                                                 ( "Found a total of " + st
 #   Found a total of 20 dihedral point groups.
 
 ######################################################
+### Find internal map COM shift
+comShift                                              = pStruct.getMapCOMProcessChange ()
+print                                                 ( "The internal map has been shifted by " + str( comShift[0] ) + " , " + str( comShift[1] ) + " , " + str( comShift[2] ) )
+
+######################################################
+### Expected output
+#   The internal map has been shifted by -0.023969283 , -0.023967072 , 8.4977665
+
+######################################################
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
 #        requested point group. This is relatively simple for T, O and I symmetries, as such a list is already produced by
 #        ProSHADE - see the following examples:

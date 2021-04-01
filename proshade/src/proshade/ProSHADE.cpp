@@ -1602,7 +1602,7 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 break;
                 
             case Symmetry:
-                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes );
+                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes, &this->mapCOMShift );
                 this->setSymmetryResults              ( settings );
                 break;
                 
@@ -2686,6 +2686,21 @@ std::vector < std::vector< proshade_double > >                       ProSHADE_ru
 {
     //================================================ Done
     return                                            ( this->allCSymAxes );
+    
+}
+
+/*! \brief This function returns the internal map COM shift.
+
+    \param[out] val The shift used to centre the internal map COM to the centre of the box.
+*/
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector < proshade_double > __declspec(dllexport) ProSHADE_run::getMapCOMProcessChange ( )
+#else
+std::vector < proshade_double >                       ProSHADE_run::getMapCOMProcessChange ( )
+#endif
+{
+    //================================================ Done
+    return                                            ( this->mapCOMShift );
     
 }
 

@@ -129,6 +129,15 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 #     4.0    +0.000    -0.000    +1.000    +1.571    +0.9488
 
 ######################################################
+### Find the internal map COM shift
+comShift                                              = rn.getMapCOMProcessChange ()
+print                                                 ( "Internal map COM shift: " + str( comShift[0] ) + " , " + str( comShift[1] ) + " , " + str( comShift[2] ) )
+
+######################################################
+### Expected outuput
+#   Internal map COM shift: 0.0 , 0.0 , 0.0
+
+######################################################
 ### Release memory
 del rn
 del ps

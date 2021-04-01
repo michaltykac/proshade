@@ -111,6 +111,13 @@ int main ( int argc, char **argv )
     //================================================ Expected output
 //  Found a total of 21 cyclic symmetries.
     
+    //================================================ Find the internal map processing COM shift
+    std::vector< proshade_double > comMove            = runProshade->getMapCOMProcessChange ( );
+    std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
+    
+    //================================================ Expected output
+//  Internal map processing shifted the map COM by: [-0.0239693 , -0.0239671 , 8.49777].
+    
     //================================================ Release the settings and runProshade objects
     delete runProshade;
     delete settings;
