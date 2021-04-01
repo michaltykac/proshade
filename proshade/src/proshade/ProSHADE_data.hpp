@@ -286,6 +286,7 @@ namespace ProSHADE_internal_data
         proshade_signed* getZAxisOrigin               ( void );
         proshade_double*& getInternalMap              ( void );
         proshade_complex* getTranslationFnPointer     ( void );
+        std::vector< proshade_double > getMapCOMProcessChange ( void );
         
         //============================================ Mutator functions
         void setIntegrationWeight                     ( proshade_double intW );

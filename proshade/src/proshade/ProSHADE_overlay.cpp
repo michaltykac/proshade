@@ -740,9 +740,9 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     
     //================================================ Save map COM after processing but before rotation
     this->findMapCOM                                  ( );
-    this->mapCOMProcessChangeX                        = this->xCom - this->originalMapXCom;
-    this->mapCOMProcessChangeY                        = this->yCom - this->originalMapYCom;
-    this->mapCOMProcessChangeZ                        = this->zCom - this->originalMapZCom;
+    this->mapCOMProcessChangeX                       += ( this->xCom - this->originalMapXCom );
+    this->mapCOMProcessChangeY                       += ( this->yCom - this->originalMapYCom );
+    this->mapCOMProcessChangeZ                       += ( this->zCom - this->originalMapZCom );
     
     //================================================ Compute the Wigner D matrices for the Euler angles
     ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, -eulerAlpha, eulerBeta, -eulerGamma );

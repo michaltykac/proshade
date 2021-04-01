@@ -235,13 +235,13 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
     proshade_double zSampRate                         = zAngs / static_cast<proshade_single> ( zTo - zFrom );
     
     //================================================ For each map point
-    for ( proshade_signed xIt = xFrom; xIt < xTo; xIt++ )
+    for ( proshade_signed xIt = xFrom; xIt <= xTo; xIt++ )
     {
-        for ( proshade_signed yIt = yFrom; yIt < yTo; yIt++ )
+        for ( proshade_signed yIt = yFrom; yIt <= yTo; yIt++ )
         {
-            for ( proshade_signed zIt = zFrom; zIt < zTo; zIt++ )
+            for ( proshade_signed zIt = zFrom; zIt <= zTo; zIt++ )
             {
-                arrPos                                = (zIt-zFrom) + ( zTo - zFrom ) * ( (yIt-yFrom) + ( yTo - yFrom ) * (xIt-xFrom) );
+                arrPos                                = (zIt-zFrom) + ( zTo - zFrom + 1 ) * ( ( yIt - yFrom ) + ( yTo - yFrom + 1 ) * ( xIt - xFrom ) );
                 totDensity                           += map[arrPos];
                 *xCom                                += static_cast<proshade_double> ( xIt * xSampRate ) * map[arrPos];
                 *yCom                                += static_cast<proshade_double> ( yIt * ySampRate ) * map[arrPos];
