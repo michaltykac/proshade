@@ -1002,3 +1002,33 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsSmoothedZ ( proshade_comp
     return ;
     
 }
+
+/*! \brief This function simply finds all the peaks in a 1D data array.
+ 
+    ...
+ 
+    \param[in] data The input array containning (pressumably smoothened) data.
+    \param[out] peaks A vector containing all the peak indices in the  input array.
+ */
+std::vector< proshade_signed > ProSHADE_internal_peakSearch::findPeaks1D ( std::vector< proshade_double > data )
+{
+    //================================================ Initialise local variables
+    std::vector< proshade_signed > ret;
+    
+    //================================================ Peak is simply any position with both neighbours having lower position (with special care for borders)
+    for ( proshade_signed index = 0; index < static_cast< proshade_signed > ( data.size() ); index++ )
+    {
+        //============================================ Starting border?
+        if ( ( index == 0 ) && ( data.size() > 1 ) ) { if ( data.at(0) > data.at(1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } continue; }
+        
+        //============================================ End border?
+        if ( index == static_cast< proshade_signed > ( data.size() - 1 ) ) { if ( data.at(index) > data.at(index-1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } continue; }
+        
+        //============================================ Is this a peak?
+        if ( ( data.at(index) > data.at(index-1) ) && ( data.at(index) > data.at(index+1) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}

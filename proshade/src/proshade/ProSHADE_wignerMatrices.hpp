@@ -20,7 +20,7 @@
  */
 
 //==================================================== ProSHADE library code
-#include "ProSHADE_peakSearch.hpp"
+#include "ProSHADE_data.hpp"
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_WIGNERMATRICES__

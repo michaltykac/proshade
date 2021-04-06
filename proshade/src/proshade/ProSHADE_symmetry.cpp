@@ -2910,7 +2910,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::ve
     //================================================ Initialise variables
     std::pair< proshade_unsign, proshade_unsign > ret;
     std::vector< proshade_unsign  > C5List;
-    proshade_double bestDihedralAngle                 = 999.9;
+    proshade_double bestHeightSum                     = 0.0;
     proshade_double dotProduct;
     
     //================================================ Find all C5 symmetries
@@ -2936,9 +2936,9 @@ std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::ve
             //======================================== Is the angle approximately the dihedral angle?
             if ( std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) ) < axErr )
             {
-                if ( bestDihedralAngle > std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) ) )
+                if ( bestHeightSum < ( CSymList->at(C5List.at(c5))[5] + CSymList->at(cSym)[5] ) )
                 {
-                    bestDihedralAngle                 = std::abs ( std::abs( std::sqrt ( ( 1.0 + 2.0 / std::sqrt ( 5.0 ) ) / 3.0 ) ) - std::abs( dotProduct ) );
+                    bestHeightSum                     = ( CSymList->at(C5List.at(c5))[5] + CSymList->at(cSym)[5] );
                     ret.first                         = C5List.at(c5);
                     ret.second                        = cSym;
                 }
@@ -3075,7 +3075,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair ( std::ve
     //================================================ Initialise variables
     std::pair< proshade_unsign, proshade_unsign > ret;
     std::vector< proshade_unsign  > C4List;
-    proshade_double bestDihedralAngle                 = 999.9;
+    proshade_double bestHeightSum                     = 0.0;
     proshade_double dotProduct;
     
     //================================================ Find all C5 symmetries
@@ -3101,9 +3101,9 @@ std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair ( std::ve
             //======================================== Is the angle approximately the dihedral angle?
             if ( ( ( 1.0 / sqrt ( 3.0 ) ) > ( std::abs( dotProduct ) - axErr ) ) && ( ( 1.0 / sqrt ( 3.0 ) ) < ( std::abs( dotProduct ) + axErr ) ) )
             {
-                if ( bestDihedralAngle > std::abs( ( 1.0 / sqrt ( 3.0 ) ) - std::abs( dotProduct ) ) )
+                if ( bestHeightSum < ( CSymList->at(C4List.at(c4))[5] + CSymList->at(cSym)[5] ) )
                 {
-                    bestDihedralAngle                 = std::abs( ( 1.0 / sqrt ( 3.0 ) ) - std::abs( dotProduct ) );
+                    bestHeightSum                     = ( CSymList->at(C4List.at(c4))[5] + CSymList->at(cSym)[5] );
                     ret.first                         = C4List.at(c4);
                     ret.second                        = cSym;
                 }
@@ -3837,10 +3837,10 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 )
         {
             //======================================== Create the angle-axis sphere with correct radius (angle)
-            dataObj->sphereMappedRotFun.emplace_back  ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( ( 2.0 * M_PI ) / static_cast < proshade_double > ( folds.at(foldIt) ),
+            dataObj->sphereMappedRotFun.emplace_back  ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ),
                                                                                                                 M_PI / static_cast < proshade_double > ( folds.at(foldIt) ),
                                                                                                                 dataObj->maxShellBand * 2.0,
-                                                                                                                ( 2.0 * M_PI ) / static_cast < proshade_double > ( folds.at(foldIt) ),
+                                                                                                                angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ),
                                                                                                                 static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
             
             //=========================================== Interpolate rotation function onto the sphere
@@ -3912,7 +3912,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestTetraDihedralPair ( std::v
     //================================================ Initialise variables
     std::pair< proshade_unsign, proshade_unsign > ret;
     std::vector< proshade_unsign  > C3List;
-    proshade_double bestDihedralAngle                 = 999.9;
+    proshade_double bestHeightSum                     = 0.0;
     proshade_double dotProduct;
     
     //================================================ Find all C5 symmetries
@@ -3938,9 +3938,9 @@ std::pair< proshade_unsign, proshade_unsign > findBestTetraDihedralPair ( std::v
             //======================================== Is the angle approximately the dihedral angle?
             if ( ( ( 1.0 / sqrt ( 3.0 ) ) > ( std::abs( dotProduct ) - axErr ) ) && ( ( 1.0 / sqrt ( 3.0 ) ) < ( std::abs( dotProduct ) + axErr ) ) )
             {
-                if ( bestDihedralAngle > std::abs( ( 1.0 / sqrt ( 3.0 ) ) - std::abs( dotProduct ) ) )
+                if ( bestHeightSum < ( CSymList->at(C3List.at(c3))[5] + CSymList->at(cSym)[5] ) )
                 {
-                    bestDihedralAngle                 = std::abs( ( 1.0 / sqrt ( 3.0 ) ) - std::abs( dotProduct ) );
+                    bestHeightSum                     = CSymList->at(C3List.at(c3))[5] + CSymList->at(cSym)[5];
                     ret.first                         = C3List.at(c3);
                     ret.second                        = cSym;
                 }

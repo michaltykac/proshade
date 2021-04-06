@@ -2114,9 +2114,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector<
 
 /*! \brief This function takes all the detected symmetry results and decides on which are to be recommended for this structure.
  
-    This function starts by obtaining the scores (fold weighted height averages) for each of the detectable symmetry types. Then, it proceeds
-    to compute which of these should be recommended by ProSHADE based on a little shaky combination of axes number and score. This part needs to
-    be improved by using ML estimation, when I get the time.
+    ...e.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
@@ -2128,81 +2126,259 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector<
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
 {
-    //================================================ Initialise variables
-    proshade_double cScore = 0.0, dScore = 0.0, tScore = 0.0, oScore = 0.0, iScore = 0.0;
-    proshade_unsign bestCIndex, bestDIndex;
-    
-    //================================================ Find a score for each input symmetry type.
-    cScore                                            = this->findBestCScore ( CSym, &bestCIndex );
-    dScore                                            = this->findBestDScore ( DSym, &bestDIndex );
-    tScore                                            = this->findTScore     ( TSym );
-    oScore                                            = this->findOScore     ( OSym );
-    iScore                                            = this->findIScore     ( ISym );
-
-    //================================================ Find the best available score - !!! Modified weights for the predicted symmetries as they have heights  0.0 (predicted) ...
-    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3000.0, std::max ( oScore * 4000.0, iScore * 5000.0 ) ) ) );
-    
-    //================================================ No score? Well, no symmetry.
-    if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
-    
-    if ( bestWeightedScore == cScore )
+    //================================================ If no C symmetries, nothing to save...
+    if ( CSym->size() == 0 )
     {
-        settings->setRecommendedSymmetry              ( "C" );
-        settings->setRecommendedFold                  ( CSym->at(bestCIndex)[0] );
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestCIndex) );
-        if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at(bestCIndex) ); }
-        
-        //============================================ Warn if resolution does not really support this fold
-        if ( ( ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] + 1 ) ) ) <
-             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
-        {
-            std::stringstream hlpSS;
-            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry C" << CSym->at(bestCIndex)[0] << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
-            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
-        }
+        settings->setRecommendedSymmetry              ( "" );
+        settings->setRecommendedFold                  ( 0 );
+        return;
     }
-    if ( bestWeightedScore == dScore * 1.1 )
+    
+    //================================================ Initialise local variables
+    proshade_double step                              = 0.01;
+    proshade_double sigma                             = 0.02;
+    proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
+    proshade_signed windowSize                        = 5; if ( windowSize % 2 == 0 ) { windowSize += 1; }
+    
+    std::vector< std::pair < proshade_double, proshade_unsign > > vals;
+    std::vector< proshade_double > hist               ( totSize, 0.0 );
+    
+    //================================================ Get vector of pairs of peak heights and indices in CSym array
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[5], symIt ) ); }
+    
+    //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
+    proshade_unsign histPos                           = 0;
+    for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
     {
-        settings->setRecommendedSymmetry              ( "D" );
-        settings->setRecommendedFold                  ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) );
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, DSym->at(bestDIndex) );
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestDIndex)[6] );
-        if ( settings->detectedSymmetry.size() == 0 )
+        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( vals.size() ); symIt++ )
         {
-            settings->setDetectedSymmetry             ( DSym->at(bestDIndex) );
-            settings->setDetectedSymmetry             ( &DSym->at(bestDIndex)[6] );
+            //======================================== Tested all possible heights already
+            if ( vals.at(symIt).first < it ) { break; }
+            
+            //======================================== Is this height in the range?
+            if ( ( vals.at(symIt).first > it ) && ( vals.at(symIt).first <= ( it + step ) ) ) { hist.at(histPos) += 1.0; }
         }
         
-        //============================================ Warn if resolution does not really support this fold
-        if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) ) ) - ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) + 1 ) ) ) <
-             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+        //============================================ Update counter and continue
+        histPos                                      += 1;
+    }
+    
+    //================================================ Smoothen the distribution
+    std::vector< proshade_double > smoothened         = ProSHADE_internal_maths::smoothen1D ( step, windowSize, sigma, hist );
+    
+    //================================================ Find peaks in smoothened data
+    std::vector< proshade_signed > peaks              = ProSHADE_internal_peakSearch::findPeaks1D ( smoothened );
+    
+    //================================================ Take best peaks surroundings and produce a new set of "high" axes
+    proshade_signed bestHistPos                       = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 );
+    proshade_double bestHistPeakStart                 = ( bestHistPos * step ) - 0.05;
+    
+    //================================================ Find all axes in top peak range
+    vals.clear                                        ( );
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( CSym->at(symIt)[5] > bestHistPeakStart ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[5], symIt ) ); } }
+    
+    //================================================ Decide optimal C
+    proshade_signed bestC                             = -1;
+    proshade_unsign bestFold                          = 0;
+    for ( proshade_unsign iter = 0; iter < static_cast< proshade_unsign > ( vals.size() ); iter++ ) { if ( CSym->at(vals.at(iter).second)[0] > bestFold ) { bestFold = CSym->at(vals.at(iter).second)[0]; bestC = vals.at(iter).second; }  }
+    
+    //================================================ Check for existence of D symmetries with both axes having high enough peak height
+    proshade_signed bestD                             = -1;
+    bestFold                                          = 0;
+    for ( proshade_unsign dIt = 0; dIt < static_cast< proshade_unsign > ( DSym->size() ); dIt++ )
+    {
+        //============================================ Check the peak heights
+        if ( DSym->at(dIt)[5]  < bestHistPeakStart )  { continue; }
+        if ( DSym->at(dIt)[11] < bestHistPeakStart )  { continue; }
+        
+        //============================================ Both good enough! Find the highest fold
+        if ( ( DSym->at(dIt)[0] > bestFold ) || ( DSym->at(dIt)[6] > bestFold ) )
         {
-            std::stringstream hlpSS;
-            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry D" << std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
-            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+            bestFold                                  = std::max ( DSym->at(dIt)[0], DSym->at(dIt)[6] );
+            bestD                                     = dIt;
         }
     }
-    if ( bestWeightedScore == tScore * 3000.0 )
+    
+    //================================================ Check for existence of I symmetry and reasonable peak heights average
+    proshade_double avgIHeight                        = 0.0;
+    if ( ISym->size() == 31 ) { for ( proshade_unsign iIt = 0; iIt < static_cast< proshade_unsign > ( ISym->size() ); iIt++ ) { avgIHeight += ISym->at(iIt)[5];  } } avgIHeight /= 31.0;
+    
+    //================================================ Check for existence of O symmetry and reasonable peak heights average
+    proshade_double avgOHeight                        = 0.0;
+    if ( OSym->size() == 13 ) { for ( proshade_unsign oIt = 0; oIt < static_cast< proshade_unsign > ( OSym->size() ); oIt++ ) { avgOHeight += OSym->at(oIt)[5]; } } avgOHeight /= 13.0;
+    
+    //================================================ Check for existence of T symmetry and reasonable peak heights average
+    proshade_double avgTHeight                        = 0.0;
+    if ( TSym->size() == 7 ) { for ( proshade_unsign tIt = 0; tIt < static_cast< proshade_unsign > ( TSym->size() ); tIt++ ) { avgTHeight += TSym->at(tIt)[5]; } } avgTHeight /= 7.0;
+    
+    //================================================ Decision time
+    if ( ( avgTHeight > 0.75 ) || ( avgOHeight > 0.75 ) || ( avgIHeight > 0.75 ) )
     {
-        settings->setRecommendedSymmetry              ( "T" );
-        settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
-        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); } }
+        if ( avgTHeight >  std::max( avgOHeight, avgIHeight ) )
+        {
+            //======================================== The decision is I
+            settings->setRecommendedSymmetry          ( "I" );
+            settings->setRecommendedFold              ( 0 );
+            for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
+            if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); } }
+            
+            //======================================== Done
+            return ;
+        }
+        
+        if ( avgOHeight >  std::max( avgTHeight, avgIHeight ) )
+        {
+            //======================================== The decision is O
+            settings->setRecommendedSymmetry          ( "O" );
+            settings->setRecommendedFold              ( 0 );
+            for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
+            if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); } }
+            
+            //======================================== Done
+            return ;
+        }
+        
+        if ( avgIHeight >= std::max( avgTHeight, avgOHeight ) )
+        {
+            //======================================== The decision is T
+            settings->setRecommendedSymmetry          ( "T" );
+            settings->setRecommendedFold              ( 0 );
+            for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
+            if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); } }
+            
+            //======================================== Done
+            return ;
+        }
     }
-    if ( bestWeightedScore == oScore * 4000.0 )
+    else
     {
-        settings->setRecommendedSymmetry              ( "O" );
-        settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
-        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); } }
+        if ( bestD != -1 )
+        {
+            //======================================== The decision is D
+            settings->setRecommendedSymmetry          ( "D" );
+            settings->setRecommendedFold              ( std::max ( DSym->at(bestD)[0], DSym->at(bestD)[6] ) );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes,  DSym->at(bestD)    );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestD)[6] );
+            if ( settings->detectedSymmetry.size() == 0 )
+            {
+                settings->setDetectedSymmetry             (  DSym->at(bestD)    );
+                settings->setDetectedSymmetry             ( &DSym->at(bestD)[6] );
+            }
+    
+            //======================================== Warn if resolution does not really support this fold
+            if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestD)[0], DSym->at(bestD)[6] ) ) ) - ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestD)[0], DSym->at(bestD)[6] ) + 1 ) ) ) < ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+            {
+                std::stringstream hlpSS;
+                hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry D" << std::max ( DSym->at(bestD)[0], DSym->at(bestD)[6] ) << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+                ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+            }
+            
+            //======================================== Done
+            return ;
+        }
+        
+        if ( bestC != -1 )
+        {
+            //======================================== The decision is C
+            settings->setRecommendedSymmetry              ( "C" );
+            settings->setRecommendedFold                  ( CSym->at(bestC)[0] );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestC) );
+            if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at(bestC) ); }
+    
+            //======================================== Warn if resolution does not really support this fold
+            if ( ( ( 360.0 / static_cast<double> ( CSym->at(bestC)[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(bestC)[0] + 1 ) ) ) < ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+            {
+                std::stringstream hlpSS;
+                hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry C" << CSym->at(bestC)[0] << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+                ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+            }
+            
+            //======================================== Done
+            return ;
+        }
     }
-    if ( bestWeightedScore == iScore * 5000.0 )
-    {
-        settings->setRecommendedSymmetry              ( "I" );
-        settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
-        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); } }
-    }
+    
+    //================================================ No symmetry was detected with decent enough peak height.
+    
+    //================================================ Done
+    return ;
+    
+    
+//    //================================================ Initialise variables
+//    proshade_double cScore = 0.0, dScore = 0.0, tScore = 0.0, oScore = 0.0, iScore = 0.0;
+//    proshade_unsign bestCIndex, bestDIndex;
+//
+//    //================================================ Find a score for each input symmetry type.
+//    cScore                                            = this->findBestCScore ( CSym, &bestCIndex );
+//    dScore                                            = this->findBestDScore ( DSym, &bestDIndex );
+//    tScore                                            = this->findTScore     ( TSym );
+//    oScore                                            = this->findOScore     ( OSym );
+//    iScore                                            = this->findIScore     ( ISym );
+//
+//    //================================================ Find the best available score - !!! Modified weights for the predicted symmetries as they have heights  0.0 (predicted) ...
+//    proshade_double bestWeightedScore                 = std::max ( cScore, std::max ( dScore * 1.1, std::max ( tScore * 3000.0, std::max ( oScore * 4000.0, iScore * 5000.0 ) ) ) );
+//
+//    //================================================ No score? Well, no symmetry.
+//    if ( bestWeightedScore < 0.05 ) { settings->setRecommendedSymmetry ( "" ); return; }
+//
+//    if ( bestWeightedScore == cScore )
+//    {
+//        settings->setRecommendedSymmetry              ( "C" );
+//        settings->setRecommendedFold                  ( CSym->at(bestCIndex)[0] );
+//        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestCIndex) );
+//        if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at(bestCIndex) ); }
+//
+//        //============================================ Warn if resolution does not really support this fold
+//        if ( ( ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(bestCIndex)[0] + 1 ) ) ) <
+//             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+//        {
+//            std::stringstream hlpSS;
+//            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry C" << CSym->at(bestCIndex)[0] << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+//            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+//        }
+//    }
+//    if ( bestWeightedScore == dScore * 1.1 )
+//    {
+//        settings->setRecommendedSymmetry              ( "D" );
+//        settings->setRecommendedFold                  ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) );
+//        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, DSym->at(bestDIndex) );
+//        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestDIndex)[6] );
+//        if ( settings->detectedSymmetry.size() == 0 )
+//        {
+//            settings->setDetectedSymmetry             ( DSym->at(bestDIndex) );
+//            settings->setDetectedSymmetry             ( &DSym->at(bestDIndex)[6] );
+//        }
+//
+//        //============================================ Warn if resolution does not really support this fold
+//        if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) ) ) - ( 360.0 / static_cast<double> ( std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) + 1 ) ) ) <
+//             ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+//        {
+//            std::stringstream hlpSS;
+//            hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry D" << std::max ( DSym->at(bestDIndex)[0], DSym->at(bestDIndex)[6] ) << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
+//            ProSHADE_internal_messages::printWarningMessage ( settings->verbose, hlpSS.str(), "WS00054" );
+//        }
+//    }
+//    if ( bestWeightedScore == tScore * 3000.0 )
+//    {
+//        settings->setRecommendedSymmetry              ( "T" );
+//        settings->setRecommendedFold                  ( 0 );
+//        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSym->at(it) ); }
+//        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSym->size() ); it++ ) { settings->setDetectedSymmetry ( TSym->at(it) ); } }
+//    }
+//    if ( bestWeightedScore == oScore * 4000.0 )
+//    {
+//        settings->setRecommendedSymmetry              ( "O" );
+//        settings->setRecommendedFold                  ( 0 );
+//        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSym->at(it) ); }
+//        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSym->size() ); it++ ) { settings->setDetectedSymmetry ( OSym->at(it) ); } }
+//    }
+//    if ( bestWeightedScore == iScore * 5000.0 )
+//    {
+//        settings->setRecommendedSymmetry              ( "I" );
+//        settings->setRecommendedFold                  ( 0 );
+//        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISym->at(it) ); }
+//        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISym->size() ); it++ ) { settings->setDetectedSymmetry ( ISym->at(it) ); } }
+//    }
     
     //================================================ Done
     return ;

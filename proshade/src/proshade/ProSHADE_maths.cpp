@@ -2726,3 +2726,63 @@ std::vector< proshade_unsign > ProSHADE_internal_maths::findAllPrimes ( proshade
     return                                            ( ret );
     
 }
+
+/*! \brief This function computes a Gaussian (normal) distribution value given distance from mean and sigma.
+ 
+    This function simply returns the height of a normal distribution with a given sigma for a value specific distance from the mean.
+ 
+    \param[in] val The distance from the mean for which the Gaussian height should be computed.
+    \param[in] sigma The standard deviation of the Gaussian for which the computation is done.
+    \param[out] height The height of the Gaussian distribution as desctibed by the sigma.
+ */
+proshade_double ProSHADE_internal_maths::computeGaussian ( proshade_double val, proshade_double sigma )
+{
+    //================================================ Compute cumulative probability from Z-score
+    proshade_double zScore                            = ( val / sigma );
+    proshade_double cumulativeProbability             = 0.5 * std::erfc ( zScore * M_SQRT1_2 );
+    
+    //================================================ Symmetrise
+    if ( cumulativeProbability > 0.5 ) { cumulativeProbability = 1.0 - cumulativeProbability; }
+    
+    //================================================ Done
+    return                                            ( cumulativeProbability );
+    
+}
+
+/*! \brief This function takes a 1D vector and computes smoothened version based on the parameters.
+ 
+    This function firstly computes the Gaussian weights for each position in a window size accordingly to the parameters amd then
+    proceeds to compute the weighted sum for each position created by sliding this window along the data. This results in smoothening
+    of the data in accordance with the parameters.
+ 
+    \param[in] step The size of the step on scale from 0.0 to 1.0 including boarders.
+    \param[in] windowSize The size of the averaged over window. It is assumed to be odd.
+    \param[in] sigma The standard deviation of the Gaussian to be used for smoothening.
+    \param[in] data The data to be smoothened.
+    \param[out] smoothened A vector of smoothened values for the input data with length hist.size() - (windowSize - 1).
+ */
+std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data )
+{
+    //================================================ Initialise local variables
+    proshade_signed windowHalf                        = ( windowSize - 1 ) / 2;
+    proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
+    std::vector< proshade_double > smoothened         ( totSize - ( windowSize - 1 ), 0.0 );
+    std::vector< proshade_double > winWeights         ( windowSize, 0.0 );
+    
+    //================================================ Prepare window weights
+    for ( proshade_double winIt = 0.0; winIt < windowSize; winIt += 1.0 ) { winWeights.at( static_cast< proshade_unsign > ( winIt ) ) = ProSHADE_internal_maths::computeGaussian ( ( winIt - windowHalf ) * step, sigma ); }
+    
+    //================================================ Compute smoothened data
+    for ( proshade_unsign it = 0; it < static_cast< proshade_unsign > ( smoothened.size() ); it++ )
+    {
+        //============================================ Compute window weighted average
+        for ( proshade_signed winIt = 0; winIt < windowSize; winIt++ )
+        {
+            smoothened.at(it)                        += winWeights.at(winIt) * data.at( it + winIt );
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( smoothened );
+    
+}

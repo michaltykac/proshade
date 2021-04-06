@@ -22,7 +22,7 @@
 */
 
 //==================================================== ProSHADE
-#include "ProSHADE_spheres.hpp"
+#include "ProSHADE_peakSearch.hpp"
 
 //==================================================== Overinclusion protection
 #ifndef __PROSHADE_DATA__
