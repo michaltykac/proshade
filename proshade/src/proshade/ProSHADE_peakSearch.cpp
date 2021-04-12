@@ -1019,13 +1019,24 @@ std::vector< proshade_signed > ProSHADE_internal_peakSearch::findPeaks1D ( std::
     for ( proshade_signed index = 0; index < static_cast< proshade_signed > ( data.size() ); index++ )
     {
         //============================================ Starting border?
-        if ( ( index == 0 ) && ( data.size() > 1 ) ) { if ( data.at(0) > data.at(1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } continue; }
+        if ( index == 0 )
+        {
+            if ( data.size() > 1 ) { if ( data.at(0) > data.at(1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } }
+            continue;
+        }
         
         //============================================ End border?
-        if ( index == static_cast< proshade_signed > ( data.size() - 1 ) ) { if ( data.at(index) > data.at(index-1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } continue; }
+        if ( index == static_cast< proshade_signed > ( data.size() - 1 ) )
+        {
+            if ( data.at(index) > data.at(index-1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+            continue;
+        }
         
         //============================================ Is this a peak?
         if ( ( data.at(index) > data.at(index-1) ) && ( data.at(index) > data.at(index+1) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+        
+        //============================================ Deal with equally sized values
+        if ( index < ( data.size() - 2 ) ) { if ( data.at(index) >= data.at(index-1) ) { if ( data.at(index) >= data.at(index+1) ) { if ( data.at(index) > data.at(index+2) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
     }
     
     //================================================ Done
