@@ -647,7 +647,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     proshade_single yMov                              = 20.0 - yF;
     proshade_single zMov                              = 20.0 - zF;
     ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov, settings->firstModelOnly );
-
+    
     //================================================ Set the angstrom sizes
     this->xDimSize                                    = xT - xF + 40.0;
     this->yDimSize                                    = yT - yF + 40.0;
@@ -771,6 +771,11 @@ void ProSHADE_internal_data::ProSHADE_data::setPDBMapValues ( void )
     this->xDimIndices                                 = this->xTo;
     this->yDimIndices                                 = this->yTo;
     this->zDimIndices                                 = this->zTo;
+    
+    //================================================ Set the to indices properly
+    this->xTo                                        -= 1;
+    this->yTo                                        -= 1;
+    this->zTo                                        -= 1;
     
     //================================================ Set grid indexing to cell indexing
     this->xGridIndices                                = this->xDimIndices;
@@ -2139,6 +2144,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_double sigma                             = 0.02;
     proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
     proshade_signed windowSize                        = 5; if ( windowSize % 2 == 0 ) { windowSize += 1; }
+    bool foundPolyhedral                              = false;
     
     std::vector< std::pair < proshade_double, proshade_unsign > > vals;
     std::vector< proshade_double > hist               ( totSize, 0.0 );
@@ -2211,10 +2217,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_double avgTHeight                        = 0.0;
     if ( TSym->size() == 7 ) { for ( proshade_unsign tIt = 0; tIt < static_cast< proshade_unsign > ( TSym->size() ); tIt++ ) { avgTHeight += TSym->at(tIt)[5]; } } avgTHeight /= 7.0;
     
+    //================================================ Prefer large symmetries
+    if ( avgTHeight > bestHistPeakStart )             { avgTHeight *= 0.90; foundPolyhedral = true; }
+    if ( avgOHeight > bestHistPeakStart )             { avgOHeight *= 0.95; foundPolyhedral = true; }
+    if ( avgIHeight > bestHistPeakStart )             { avgIHeight *= 1.00; foundPolyhedral = true; }
+    
     //================================================ Decision time
-    if ( ( avgTHeight > 0.75 ) || ( avgOHeight > 0.75 ) || ( avgIHeight > 0.75 ) )
+    if ( foundPolyhedral )
     {
-        if ( avgTHeight >  std::max( avgOHeight, avgIHeight ) )
+        if ( avgIHeight >= std::max( avgTHeight, avgOHeight ) )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2238,7 +2249,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             return ;
         }
         
-        if ( avgIHeight >= std::max( avgTHeight, avgOHeight ) )
+        if ( avgTHeight >  std::max( avgOHeight, avgIHeight ) )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );
@@ -3042,7 +3053,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
         
         std::stringstream hlpSS3;
         ssHlp.clear(); ssHlp.str ( "" );
-        hlpSS3 << std::endl << "However, since the selection of the recommended symmetry needs improvement, here is a list of all detected C symmetries:";
+        hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str() );
         
         if ( settings->allDetectedCAxes.size() > 0 )
@@ -3055,33 +3066,6 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
-        }
-        
-        hlpSS3.clear(); hlpSS3.str ( "" );
-        hlpSS3 << std::endl << "Also, for the same reason, here is a list of all detected D symmetries:";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str() );
-        
-        if ( settings->allDetectedDAxes.size() > 0 )
-        {
-            ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << "  Fold       X           Y          Z           Angle        Height";
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
-        }
-        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedDAxes.size() ); symIt++ )
-        {
-            ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[1] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[2] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[3] << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[4] << "      " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(0))[5];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
-            
-            for ( proshade_unsign axIt = 1; axIt < static_cast<proshade_unsign> ( settings->allDetectedDAxes.at(symIt).size() ); axIt++ )
-            {
-                ssHlp.clear(); ssHlp.str ( "" );
-                ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[1] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[2] << "   " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[3] << "     " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[4] << "      " << settings->allDetectedCAxes.at(settings->allDetectedDAxes.at(symIt).at(axIt))[5];
-                ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
-            }
-            
-            ssHlp.clear(); ssHlp.str ( "" );
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
         }
         
