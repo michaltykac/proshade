@@ -2218,9 +2218,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( TSym->size() == 7 ) { for ( proshade_unsign tIt = 0; tIt < static_cast< proshade_unsign > ( TSym->size() ); tIt++ ) { avgTHeight += TSym->at(tIt)[5]; } } avgTHeight /= 7.0;
     
     //================================================ Prefer large symmetries
-    if ( avgTHeight > bestHistPeakStart )             { avgTHeight *= 0.90; foundPolyhedral = true; }
-    if ( avgOHeight > bestHistPeakStart )             { avgOHeight *= 0.95; foundPolyhedral = true; }
-    if ( avgIHeight > bestHistPeakStart )             { avgIHeight *= 1.00; foundPolyhedral = true; }
+    if ( ( avgTHeight > bestHistPeakStart ) || ( avgTHeight > 0.8 ) ) { avgTHeight *= 0.850; foundPolyhedral = true; }
+    if ( ( avgOHeight > bestHistPeakStart ) || ( avgTHeight > 0.8 ) ) { avgOHeight *= 0.925; foundPolyhedral = true; }
+    if ( ( avgIHeight > bestHistPeakStart ) || ( avgTHeight > 0.8 ) ) { avgIHeight *= 1.000; foundPolyhedral = true; }
     
     //================================================ Decision time
     if ( foundPolyhedral )
