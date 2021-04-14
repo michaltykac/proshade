@@ -242,10 +242,14 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
             for ( proshade_signed zIt = zFrom; zIt <= zTo; zIt++ )
             {
                 arrPos                                = (zIt-zFrom) + ( zTo - zFrom + 1 ) * ( ( yIt - yFrom ) + ( yTo - yFrom + 1 ) * ( xIt - xFrom ) );
-                totDensity                           += map[arrPos];
-                *xCom                                += static_cast<proshade_double> ( xIt * xSampRate ) * map[arrPos];
-                *yCom                                += static_cast<proshade_double> ( yIt * ySampRate ) * map[arrPos];
-                *zCom                                += static_cast<proshade_double> ( zIt * zSampRate ) * map[arrPos];
+                
+                if ( map[arrPos] > 0.0 )
+                {
+                    totDensity                       += map[arrPos];
+                    *xCom                            += static_cast<proshade_double> ( xIt * xSampRate ) * map[arrPos];
+                    *yCom                            += static_cast<proshade_double> ( yIt * ySampRate ) * map[arrPos];
+                    *zCom                            += static_cast<proshade_double> ( zIt * zSampRate ) * map[arrPos];
+                }
             }
         }
     }
