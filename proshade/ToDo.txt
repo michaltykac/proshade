@@ -1,9 +1,7 @@
 To Do:
-
 * Look into cl warnings (not shown in clang or gcc)
 
 Testing:
-* Look into symmetry - especially taking into account the average peak heights when deciding which symmetry to report.
 * Look into the limits of structure overlay
 
 Development

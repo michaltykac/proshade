@@ -22,13 +22,17 @@
 //==================================================== ProSHADE
 #include "ProSHADE_maths.hpp"
 
-//==================================================== Force specific compilation flags using pragmas
+//==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
 #if defined ( __GNUC__ )
-    // GCC
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wpedantic"
     #pragma GCC diagnostic ignored "-Wshadow"
     #pragma GCC diagnostic ignored "-Wall"
+#endif
+
+//==================================================== Remove MSVC C4996 Warnings caused by Gemmi code
+#if defined ( _MSC_VER )
+    #pragma warning ( disable:4996 )
 #endif
 
 //==================================================== Gemmi
@@ -40,6 +44,11 @@
     #include <gemmi/dencalc.hpp>
     #include <gemmi/fprime.hpp>
     #include <gemmi/gz.hpp>
+#endif
+
+//==================================================== Enable MSVC C4996 Warnings for the rest of the code
+#if defined ( _MSC_VER )
+    #pragma warning ( default:4996 )
 #endif
 
 //==================================================== FFTW3
@@ -73,7 +82,10 @@ extern "C" {
 }
 #endif
 
-#pragma GCC diagnostic pop
+//==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
+#if defined ( __GNUC__ )
+    #pragma GCC diagnostic pop
+#endif
 
 //==================================================== GetOpt port (BSD License, works on Windows as well as linux)
 #include <getopt_port/getopt_port.h>

@@ -124,7 +124,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     {
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere( static_cast<proshade_double> ( spIt ) * shellSpacing,
                                                                                                                shellSpacing,
-                                                                                                               this->maxShellBand * 2.0,
+                                                                                                               this->maxShellBand * 2,
                                                                                                                static_cast<proshade_double> ( spIt ) * shellSpacing,
                                                                                                                spIt - 1 ) );
     }
@@ -2450,7 +2450,7 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
     //================================================ Copy already found to prospective
     for ( proshade_unsign prIt = 0; prIt < static_cast<proshade_unsign> ( possibilities->size() ); prIt++ )
     {
-        ProSHADE_internal_symmetry::addAxisUnlessSame ( CSymList->at(possibilities->at(prIt))[0],
+        ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( CSymList->at(possibilities->at(prIt))[0] ),
                                                         CSymList->at(possibilities->at(prIt))[1],
                                                         CSymList->at(possibilities->at(prIt))[2],
                                                         CSymList->at(possibilities->at(prIt))[3],
@@ -2494,7 +2494,7 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
             if ( ProSHADE_internal_maths::isAxisUnique ( CSymList, prosp.at(iter), axErr ) )
             {
                 //==================================== Add
-                ProSHADE_internal_misc::addToUnsignVector ( possibilities, CSymList->size() );
+                ProSHADE_internal_misc::addToUnsignVector ( possibilities, static_cast< proshade_unsign > ( CSymList->size() ) );
                 ProSHADE_internal_misc::addToDblPtrVector ( CSymList, prosp.at(iter) );
             }
         }
