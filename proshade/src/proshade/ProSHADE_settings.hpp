@@ -22,10 +22,14 @@
 //==================================================== ProSHADE
 #include "ProSHADE_maths.hpp"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma GCC diagnostic ignored "-Wshadow"
-#pragma GCC diagnostic ignored "-Wall"
+//==================================================== Force specific compilation flags using pragmas
+#if defined ( __GNUC__ )
+    // GCC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wpedantic"
+    #pragma GCC diagnostic ignored "-Wshadow"
+    #pragma GCC diagnostic ignored "-Wall"
+#endif
 
 //==================================================== Gemmi
 #ifndef __PROSHADE_GEMMI_INCLUDE__

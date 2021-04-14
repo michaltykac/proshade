@@ -35,7 +35,8 @@ cl.exe 	/I "\path\to\proshade\extern\gemmi\include"
 		/EHsc .\proshadeBinary.cpp 
 		"\path\to\proshade\install\lib\proshade.lib" 
         
-!!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently.    
+!!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently. 
+!!!       To do this, use the "x64 Native Tools Command Prompt for VS2019"   
                            
 =====
 NOTE:
