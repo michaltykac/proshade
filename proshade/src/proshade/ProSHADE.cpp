@@ -1535,9 +1535,9 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
     
     //================================================ Modify dims by resolution
-    proshade_unsign theoXDim                          = std::ceil ( xDimAngs / ( this->requestedResolution / 2.0 ) );
-    proshade_unsign theoYDim                          = std::ceil ( yDimAngs / ( this->requestedResolution / 2.0 ) );
-    proshade_unsign theoZDim                          = std::ceil ( zDimAngs / ( this->requestedResolution / 2.0 ) );
+    proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0 ) ) );
+    proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0 ) ) );
+    proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0 ) ) );
     
     //================================================ Find maximum circumference
     proshade_unsign maxDim                            = std::max ( theoXDim, std::max ( theoYDim, theoZDim ) );
@@ -1554,8 +1554,8 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     else { this->determineBandwidth ( circ ); }
     
     //================================================ Find maximum diagonal in Angstroms
-    proshade_single maxDiag                           = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
-                                                                    std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) );
+    proshade_single maxDiag                           = static_cast< proshade_unsign > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
+                                                                                                     std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) ) );
     
     //================================================ Sphere distances
     this->determineSphereDistances                    ( maxDiag );
@@ -1911,7 +1911,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              //======================================= Save the argument as the verbosity value, or if no value given, just set to 3
              case '!':
              {
-                 this->setVerbosity                   ( static_cast<proshade_single> ( atoi ( optarg ) ) );
+                 this->setVerbosity                   ( static_cast<proshade_signed> ( atoi ( optarg ) ) );
                  continue;
              }
                  

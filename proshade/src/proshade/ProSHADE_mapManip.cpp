@@ -793,7 +793,7 @@ void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, prosh
     \param[in] yDim How many indices are there along the y dimension.
     \param[in] zDim How many indices are there along the z dimension.
  */
-void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, proshade_double xMov, proshade_double yMov, proshade_double zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Local variables initialisation
     proshade_signed arrayPos                          = 0;
