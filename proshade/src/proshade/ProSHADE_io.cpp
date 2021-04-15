@@ -38,6 +38,11 @@ bool ProSHADE_internal_io::isFilePDB ( std::string fName )
     }
     catch ( std::runtime_error& e )
     {
+        //============================================ Supress MSVC C4101 Unferenced variable warning
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+        (void)e;
+#endif
+        
         //============================================ Read failed. Done
         return                                        ( false );
     }
@@ -63,6 +68,11 @@ bool ProSHADE_internal_io::isFileMAP ( std::string fName )
     }
     catch ( std::runtime_error& e )
     {
+        //============================================ Supress MSVC C4101 Unferenced variable warning
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+        (void)e;
+#endif
+        
         //============================================ Failed to read the map
         return                                        ( false );
     }

@@ -1554,7 +1554,7 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     else { this->determineBandwidth ( circ ); }
     
     //================================================ Find maximum diagonal in Angstroms
-    proshade_single maxDiag                           = static_cast< proshade_unsign > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
+    proshade_single maxDiag                           = static_cast< proshade_single > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
                                                                                                      std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) ) );
     
     //================================================ Sphere distances
