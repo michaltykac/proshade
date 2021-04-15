@@ -47,7 +47,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
 {
     //================================================ Save inputs
     this->shellOrder                                  = shOrder;
-    this->sphereWidth                                 = ( spherePos->at(0) + spherePos->at(1) ) / 2.0;
+    this->sphereWidth                                 = static_cast< proshade_single > ( ( spherePos->at(0) + spherePos->at(1) ) / 2.0 );
     this->sphereRadius                                = spherePos->at(shOrder);
     
     //================================================ Determine shell ranges in angstroms
@@ -339,11 +339,11 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::getLattitudeCutoffs ( std::vect
 void ProSHADE_internal_spheres::ProSHADE_sphere::getInterpolationXYZ ( proshade_double* x, proshade_double* y, proshade_double* z, proshade_double thetaIt, std::vector<proshade_double>* lonCO, proshade_unsign phiIt, std::vector<proshade_double>* latCO )
 {
     //================================================ Compute and save XYZ interpolation positions
-   *x                                                 = this->sphereRadius * cos( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
-                                                                             cos( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
-   *y                                                 = this->sphereRadius * sin( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
-                                                                             cos( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
-   *z                                                 = this->sphereRadius * sin( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
+   *x                                                 = this->sphereRadius * std::cos ( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
+                                                                             std::cos ( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
+   *y                                                 = this->sphereRadius * std::sin ( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
+                                                                             std::cos ( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
+   *z                                                 = this->sphereRadius * std::sin ( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
     
     //================================================ Done
     return ;
@@ -370,9 +370,9 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::getInterpolationXYZ ( proshade_
 void ProSHADE_internal_spheres::ProSHADE_sphere::getXYZTopBottoms ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double x, proshade_double y, proshade_double z, proshade_signed* xBottom, proshade_signed* yBottom, proshade_signed* zBottom, proshade_signed* xTop, proshade_signed* yTop, proshade_signed* zTop )
 {
     //================================================ Get the values
-   *xBottom                                           = std::floor ( (x / this->xDimSampling) ) + (xDimMax/2);
-   *yBottom                                           = std::floor ( (y / this->yDimSampling) ) + (yDimMax/2);
-   *zBottom                                           = std::floor ( (z / this->zDimSampling) ) + (zDimMax/2);
+   *xBottom                                           = static_cast< proshade_signed > ( std::floor ( (x / this->xDimSampling) ) + (xDimMax/2) );
+   *yBottom                                           = static_cast< proshade_signed > ( std::floor ( (y / this->yDimSampling) ) + (yDimMax/2) );
+   *zBottom                                           = static_cast< proshade_signed > ( std::floor ( (z / this->zDimSampling) ) + (zDimMax/2) );
             
    *xTop                                              = *xBottom + 1;
    *yTop                                              = *yBottom + 1;
@@ -790,12 +790,12 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
             
             //======================================== Find lower and higher points and deal with boundaries
-            xBottom = std::floor ( mapX ); if ( xBottom < 0.0 ) { xBottom += this->angularDim; } if ( xBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { xBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            yBottom = std::floor ( mapY ); if ( yBottom < 0.0 ) { yBottom += this->angularDim; } if ( yBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { yBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            zBottom = std::floor ( mapZ ); if ( zBottom < 0.0 ) { zBottom += this->angularDim; } if ( zBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { zBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            xTop = std::ceil ( mapX ); if ( xTop < 0.0 ) { xTop += this->angularDim; } if ( xTop >= static_cast<proshade_signed> ( this->angularDim ) ) { xTop -= static_cast<proshade_signed> ( this->angularDim ); }
-            yTop = std::ceil ( mapY ); if ( yTop < 0.0 ) { yTop += this->angularDim; } if ( yTop >= static_cast<proshade_signed> ( this->angularDim ) ) { yTop -= static_cast<proshade_signed> ( this->angularDim ); }
-            zTop = std::ceil ( mapZ ); if ( zTop < 0.0 ) { zTop += this->angularDim; } if ( zTop >= static_cast<proshade_signed> ( this->angularDim ) ) { zTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0.0 ) { xBottom += this->angularDim; } if ( xBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { xBottom -= static_cast<proshade_signed> ( this->angularDim ); }
+            yBottom = static_cast< proshade_signed > ( std::floor ( mapY ) ); if ( yBottom < 0.0 ) { yBottom += this->angularDim; } if ( yBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { yBottom -= static_cast<proshade_signed> ( this->angularDim ); }
+            zBottom = static_cast< proshade_signed > ( std::floor ( mapZ ) ); if ( zBottom < 0.0 ) { zBottom += this->angularDim; } if ( zBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { zBottom -= static_cast<proshade_signed> ( this->angularDim ); }
+            xTop = static_cast< proshade_signed > ( std::ceil ( mapX ) ); if ( xTop < 0.0 ) { xTop += this->angularDim; } if ( xTop >= static_cast<proshade_signed> ( this->angularDim ) ) { xTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            yTop = static_cast< proshade_signed > ( std::ceil ( mapY ) ); if ( yTop < 0.0 ) { yTop += this->angularDim; } if ( yTop >= static_cast<proshade_signed> ( this->angularDim ) ) { yTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            zTop = static_cast< proshade_signed > ( std::ceil ( mapZ ) ); if ( zTop < 0.0 ) { zTop += this->angularDim; } if ( zTop >= static_cast<proshade_signed> ( this->angularDim ) ) { zTop -= static_cast<proshade_signed> ( this->angularDim ); }
             
             //======================================== Start X interpolation - bottom, bottom, bottom
             mapIndex                                  = zBottom + this->angularDim * ( yBottom + this->angularDim * xBottom );

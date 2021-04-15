@@ -2717,7 +2717,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
-            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( ret.at(retIt)[0], ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
+            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ret.at(retIt)[0] ), ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
             ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
@@ -2765,7 +2765,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
-            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( ret.at(retIt)[0], ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
+            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ret.at(retIt)[0] ), ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
             ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
@@ -3409,7 +3409,7 @@ bool ProSHADE_internal_symmetry::findMissingAxesTriple ( std::vector< proshade_u
     //================================================ Copy already found to prospective
     for ( proshade_unsign prIt = 0; prIt < static_cast<proshade_unsign> ( possibilities->size() ); prIt++ )
     {
-        ProSHADE_internal_symmetry::addAxisUnlessSame ( CSymList->at(possibilities->at(prIt))[0],
+        ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( CSymList->at(possibilities->at(prIt))[0] ),
                                                         CSymList->at(possibilities->at(prIt))[1],
                                                         CSymList->at(possibilities->at(prIt))[2],
                                                         CSymList->at(possibilities->at(prIt))[3],
@@ -3613,7 +3613,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
             for ( proshade_unsign axIt2 = 0; axIt2 < static_cast< proshade_unsign > ( ret.size() ); axIt2++ )
             {
                 //==================================== Initialise iteration
-                foldToTest                            = ret.at(axIt1)[0] * ret.at(axIt2)[0];
+                foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
                 if ( foldToTest > settings->maxSymmetryFold ) { continue; }
                 
                 //==================================== Was this fold tested already?
@@ -3719,7 +3719,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         //============================================ Create the angle-axis sphere with correct radius (angle)
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
                                                                                                                 M_PI / static_cast<proshade_double> ( fold ),
-                                                                                                                this->maxShellBand * 2.0,
+                                                                                                                this->maxShellBand * 2,
                                                                                                                 soughtAngle,
                                                                                                                 static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
         
@@ -3824,7 +3824,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         alreadyFound                                  = false;
         for ( proshade_unsign it = 0; it < static_cast < proshade_unsign > ( folds.size() ); it++ ) { if ( folds.at(it) == ret->at(iter)[0] ) { alreadyFound = true; break; } }
         
-        if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, ret->at(iter)[0] ); }
+        if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, static_cast< proshade_unsign > ( ret->at(iter)[0] ) ); }
     }
     
     //================================================ For each fold which needs rotation function mapping
@@ -3839,7 +3839,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
             //======================================== Create the angle-axis sphere with correct radius (angle)
             dataObj->sphereMappedRotFun.emplace_back  ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ),
                                                                                                                 M_PI / static_cast < proshade_double > ( folds.at(foldIt) ),
-                                                                                                                dataObj->maxShellBand * 2.0,
+                                                                                                                dataObj->maxShellBand * 2,
                                                                                                                 angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ),
                                                                                                                 static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
             
@@ -3987,7 +3987,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         //============================================ Add predicted axes to detected C axes list and also to the settings Icosahedral symmetry list
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
-            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( ret.at(retIt)[0], ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
+            proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ret.at(retIt)[0] ), ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
             ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
