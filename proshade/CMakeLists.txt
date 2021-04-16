@@ -47,7 +47,7 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.5.4 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.5.5 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -114,6 +114,7 @@ endif  ( CYGWIN )
 if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	add_custom_command (
    		OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		COMMAND rmdir "gemmi" /s /q
    		COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
    		COMMAND type nul > ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
@@ -121,6 +122,7 @@ if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	add_custom_command (
    		OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		COMMAND rm -fr ./gemmi
    		COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
    		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
