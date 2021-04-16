@@ -339,11 +339,11 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::getLattitudeCutoffs ( std::vect
 void ProSHADE_internal_spheres::ProSHADE_sphere::getInterpolationXYZ ( proshade_double* x, proshade_double* y, proshade_double* z, proshade_double thetaIt, std::vector<proshade_double>* lonCO, proshade_unsign phiIt, std::vector<proshade_double>* latCO )
 {
     //================================================ Compute and save XYZ interpolation positions
-   *x                                                 = this->sphereRadius * std::cos ( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
-                                                                             std::cos ( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
-   *y                                                 = this->sphereRadius * std::sin ( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
-                                                                             std::cos ( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
-   *z                                                 = this->sphereRadius * std::sin ( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
+   *x                                                 = this->sphereRadius * std::cos ( ( lonCO->at( static_cast<proshade_unsign> ( thetaIt ) ) + lonCO->at( static_cast<proshade_unsign> ( thetaIt+1 ) ) ) / 2.0 ) *
+                                                                             std::cos ( ( latCO->at( static_cast<proshade_unsign> ( phiIt ) )   + latCO->at( static_cast<proshade_unsign> ( phiIt+1 ) )   ) / 2.0 );
+   *y                                                 = this->sphereRadius * std::sin ( ( lonCO->at( static_cast<proshade_unsign> ( thetaIt ) ) + lonCO->at( static_cast<proshade_unsign> ( thetaIt+1 ) ) ) / 2.0 ) *
+                                                                             std::cos ( ( latCO->at( static_cast<proshade_unsign> ( phiIt ) )   + latCO->at( static_cast<proshade_unsign> ( phiIt+1 ) )   ) / 2.0 );
+   *z                                                 = this->sphereRadius * std::sin ( ( latCO->at( static_cast<proshade_unsign> ( phiIt ) )   + latCO->at( static_cast<proshade_unsign> ( phiIt+1 ) )   ) / 2.0 );
     
     //================================================ Done
     return ;
@@ -882,10 +882,10 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     proshade_signed latTop, latBottom, lonTop, lonBottom, gridIndex;
     
     //================================================ Find lower and higher indices and deal with boundaries
-    latBottom = std::floor ( lattitude ); if ( latBottom < 0.0 ) { latBottom += this->angularDim; } if ( latBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { latBottom -= this->angularDim; }
-    lonBottom = std::floor ( longitude ); if ( lonBottom < 0.0 ) { lonBottom += this->angularDim; } if ( lonBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { lonBottom -= this->angularDim; }
-    latTop    = std::ceil  ( lattitude ); if ( latTop    < 0.0 ) { latTop    += this->angularDim; } if ( latTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { latTop    -= this->angularDim; }
-    lonTop    = std::ceil  ( longitude ); if ( lonTop    < 0.0 ) { lonTop    += this->angularDim; } if ( lonTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { lonTop    -= this->angularDim; }
+    latBottom = static_cast< proshade_signed > ( std::floor ( lattitude ) ); if ( latBottom < 0.0 ) { latBottom += this->angularDim; } if ( latBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { latBottom -= this->angularDim; }
+    lonBottom = static_cast< proshade_signed > ( std::floor ( longitude ) ); if ( lonBottom < 0.0 ) { lonBottom += this->angularDim; } if ( lonBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { lonBottom -= this->angularDim; }
+    latTop    = static_cast< proshade_signed > ( std::ceil  ( lattitude ) ); if ( latTop    < 0.0 ) { latTop    += this->angularDim; } if ( latTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { latTop    -= this->angularDim; }
+    lonTop    = static_cast< proshade_signed > ( std::ceil  ( longitude ) ); if ( lonTop    < 0.0 ) { lonTop    += this->angularDim; } if ( lonTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { lonTop    -= this->angularDim; }
     
     //================================================ Interpolate
     gridIndex                                         = lonBottom + ( latBottom * static_cast<proshade_unsign> ( this->angularDim ) );
@@ -987,7 +987,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::removeSmallPeaks( prosha
 {
     //================================================ Initialise variables
     proshade_double curHeight;
-    std::vector< proshade_unsign > dels ( 0, this->peaks.size() );
+    std::vector< proshade_unsign > dels ( 0, static_cast< proshade_unsign > ( this->peaks.size() ) );
     
     //================================================ For each peak in this sphere
     for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( this->peaks.size() ); peakIt++ )
@@ -1168,8 +1168,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->latFromInds <= this->latToInds ) && !( ( lat >= this->latFromInds ) && ( lat <= this->latToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lat, this->latFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lat, this->latToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1191,8 +1191,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->latFromInds >  this->latToInds ) && !( ( lat >= this->latFromInds ) || ( lat <= this->latToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lat, this->latFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lat, this->latToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1216,8 +1216,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->lonFromInds <= this->lonToInds ) && !( ( lon >= this->lonFromInds ) && ( lon <= this->lonToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lon, this->lonFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lon, this->lonToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1239,8 +1239,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->lonFromInds >  this->lonToInds ) && !( ( lon >= this->lonFromInds ) || ( lon <= this->lonToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lon, this->lonFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lon, this->lonToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1507,12 +1507,12 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleF
             if ( angToleranceNext < std::max ( 1.5, ( 0.1 / peakErr ) ) )
             {
                 //==================================== The next fold would pass as well. Use one previous and one following fold as well to cover for errors
-                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis - 1 );
-                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis + 1 );
+                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, static_cast< proshade_unsign > ( divBasis - 1 ) );
+                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, static_cast< proshade_unsign > ( divBasis + 1 ) );
             }
             
             //======================================== This fold seems reasonable, save it
-            ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis );
+            ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, static_cast< proshade_unsign > ( divBasis ) );
         }
     }
     
@@ -1588,12 +1588,12 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getBestIndexFor
     if ( this->lonFromInds > this->lonToInds ) { this->lonToInds += this->dimension; }
     
     //================================================ Compute the best average peak height axis for peak indices
-    for ( proshade_unsign latIt = this->latFromInds; latIt <= this->latToInds; latIt++ )
+    for ( proshade_unsign latIt = static_cast< proshade_unsign > ( this->latFromInds ); latIt <= this->latToInds; latIt++ )
     {
         //============================================ Deal with boundaries
         if ( latIt >= this->dimension ) { latIt -= this->dimension; this->latToInds -= this->dimension; }
         
-        for ( proshade_unsign lonIt = this->lonFromInds; lonIt <= this->lonToInds; lonIt++ )
+        for ( proshade_unsign lonIt = static_cast< proshade_unsign > ( this->lonFromInds ); lonIt <= this->lonToInds; lonIt++ )
         {
             //======================================== Deal with boundaries
             if ( lonIt >= this->dimension ) { lonIt -= this->dimension; this->lonToInds -= this->dimension; }
