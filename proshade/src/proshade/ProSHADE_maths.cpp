@@ -869,15 +869,15 @@ void ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( proshade_complex** ma
 void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail )
 {
     //================================================ Initialise local variables
-    char job                                          = 'A';                                 // Save computation of parts of U and V matrices, they are not needed here
-    double* singularValues                            = new double[dim];                     // The array of singular values
-    std::complex<double> *rotMatU                     = new std::complex<double> [dim*dim];  // The U matrix space
-    std::complex<double> *rotMatV                     = new std::complex<double> [dim*dim];  // The V^T matrix space
-    std::complex<double> *work                        = new std::complex<double> [static_cast<proshade_unsign>( ( 3 * dim) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 3*dim, using more for performance
-    int workDim                                       = ( 3 * dim) + pow( dim, 2 );          // Formalism stating just that
+    char job                                          = 'A';                                   // Save computation of parts of U and V matrices, they are not needed here
+    double* singularValues                            = new double[dim];                       // The array of singular values
+    std::complex<double> *rotMatU                     = new std::complex< double > [dim*dim];  // The U matrix space
+    std::complex<double> *rotMatV                     = new std::complex< double > [dim*dim];  // The V^T matrix space
+    std::complex<double> *work                        = new std::complex< double > [static_cast< proshade_unsign >( ( 3 * dim) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 3*dim, using more for performance
+    int workDim                                       = static_cast< int > ( ( 3 * dim ) + pow( dim, 2 ) ); // Formalism stating just that
     double* rwork                                     = new double[static_cast<proshade_unsign>((5 * dim) + 5 * pow(dim,2))]; // Required by LAPACK
-    int* iwork                                        = new int[(8 * dim)];                  // Required by LAPACK
-    int returnValue                                   = 0;                                   // This will tell if operation succeeded
+    int* iwork                                        = new int[(8 * dim)];                    // Required by LAPACK
+    int returnValue                                   = 0;                                     // This will tell if operation succeeded
     ProSHADE_internal_misc::checkMemoryAllocation     ( singularValues, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMatU,        __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMatV,        __FILE__, __LINE__, __func__ );
@@ -2415,8 +2415,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusMinus ( proshade_d
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = bestLattitude - 2 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = bestLongitude - 2 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
             }
         }
@@ -2470,8 +2470,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusPlus ( proshade_do
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = bestLattitude - 2 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
             }
         }
@@ -2525,8 +2525,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusMinus ( proshade_do
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = bestLongitude - 2 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
             }
         }
@@ -2580,8 +2580,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_dou
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = bestLattitude - 1 + latIt; if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = bestLongitude - 1 + lonIt; if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
             }
         }
