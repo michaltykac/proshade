@@ -43,7 +43,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
     proshade_double* retHlp                           = NULL;
     proshade_double pointHeight                       = 0.0;
     proshade_signed x, y, z, peakX, peakY, peakZ, newIter, ptrIter;
-    proshade_signed xDim                              = pow ( dim, 2 );
+    proshade_signed xDim                              = static_cast< proshade_signed > ( std::pow ( dim, 2 ) );
     proshade_signed yDim                              = dim;
     bool breakPeak;
     
@@ -54,9 +54,9 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
         pointHeight                                   = pow( map[iter][0], 2.0 ) + pow( map[iter][1], 2.0 );
         
         //============================================ Find the x, y and z
-        x                                             = std::floor ( iter / xDim );
-        y                                             = std::floor ( ( iter - x * xDim ) / yDim );
-        z                                             = iter - x * xDim - y * yDim;
+        x                                             = static_cast< proshade_signed > ( std::floor ( iter / xDim ) );
+        y                                             = static_cast< proshade_signed > ( std::floor ( ( iter - x * xDim ) / yDim ) );
+        z                                             = static_cast< proshade_signed > ( iter - x * xDim - y * yDim );
         
         //==================================== Initialise the output pointer
         if ( retHlp == NULL )
@@ -222,7 +222,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
 {
     //================================================ Initialise local variables
     proshade_double *avgMat, *hlpMat, *eulA, *eulB, *eulG, *uAndV;
-    proshade_unsign noPoints                          = pow( ( ( peakSize * 2 ) + 1 ), 3 ) * 4;
+    proshade_unsign noPoints                          = static_cast< proshade_unsign > ( std::pow( ( ( peakSize * 2 ) + 1 ), 3 ) * 4 );
     proshade_double matWeight;
     
     //================================================ Allocate the required memory
@@ -239,7 +239,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         for ( proshade_unsign it = 0; it < noPoints; it += 4 )
         {
             //======================================== Get the Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, pointVec->at(iter)[it+0], pointVec->at(iter)[it+1], pointVec->at(iter)[it+2], eulA, eulB, eulG );
+            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[it+0] ), static_cast< proshade_signed > ( pointVec->at(iter)[it+1] ), static_cast< proshade_signed > ( pointVec->at(iter)[it+2] ), eulA, eulB, eulG );
             
             //======================================== Convert Euler angles to rotation matrix
             ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( *eulA, *eulB, *eulG, hlpMat );
@@ -259,7 +259,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         if ( uAndV[0] == -777.7 )
         {
             //======================================== SVD Failed. Just use the central value
-            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, pointVec->at(iter)[0], pointVec->at(iter)[1], pointVec->at(iter)[2], eulA, eulB, eulG );
+            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[0] ), static_cast< proshade_signed > ( pointVec->at(iter)[1] ), static_cast< proshade_signed > ( pointVec->at(iter)[2] ), eulA, eulB, eulG );
             matWeight                                 = pointVec->at(iter)[3];
             pointVec->at(iter)                        = new proshade_double [4];
             ProSHADE_internal_misc::checkMemoryAllocation ( pointVec->at(iter), __FILE__, __LINE__, __func__ );
@@ -854,7 +854,7 @@ void ProSHADE_internal_peakSearch::findAllSmoothedZScorePeaksWithNeighbours ( pr
 {
     //================================================ Initialise local variables
     proshade_signed x, y, z, peakX, peakY, peakZ, newIter, ptrIter;
-    proshade_unsign noNeighbours                      = pow( ((peakSize*2)+1), 3) * 4;
+    proshade_unsign noNeighbours                      = static_cast< proshade_unsign > ( std::pow( ( ( peakSize * 2 ) + 1 ), 3 ) * 4 );
     
     //================================================ Find all islands and their best representative
     std::vector < proshade_unsign > allPeaksRepresentatives;
@@ -923,7 +923,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksSmoothe
 {
     //================================================ Initialise local variables
     std::vector< proshade_double* > allHigherIndices;
-    proshade_unsign smoothingLag                      = std::floor ( smoothingFraction * dim );
+    proshade_unsign smoothingLag                      = static_cast< proshade_unsign > ( std::floor ( smoothingFraction * dim ) );
     proshade_double ZScoreThreshold                   = noIQRs;
     proshade_signed *signals;
     proshade_double *scoreOverVals, *filteredY, *avgFilter, *stdFilter, *subVec, *medianIQR, *YZMap, *XZMap, *XYMap;

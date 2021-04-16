@@ -244,18 +244,18 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     if ( *trsZ > ( zDimS / 2 ) ) { *trsZ = *trsZ - zDimS; }
     
     //================================================ Move map
-    proshade_single xCor                              = ( staticStructure->xFrom - movingStructure->xFrom ) *
-                                                        ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
-    proshade_single yCor                              = ( staticStructure->yFrom - movingStructure->yFrom ) *
-                                                        ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
-    proshade_single zCor                              = ( staticStructure->zFrom - movingStructure->zFrom ) *
-                                                        ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
-    proshade_single xMov                              = staticStructure->mapCOMProcessChangeX - xCor -
-                                                        ( *trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
-    proshade_single yMov                              = staticStructure->mapCOMProcessChangeY - yCor -
-                                                        ( *trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
-    proshade_single zMov                              = staticStructure->mapCOMProcessChangeZ - zCor -
-                                                        ( *trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
+    proshade_single xCor                              = static_cast< proshade_single > ( ( staticStructure->xFrom - movingStructure->xFrom ) *
+                                                                                         ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+    proshade_single yCor                              = static_cast< proshade_single > ( ( staticStructure->yFrom - movingStructure->yFrom ) *
+                                                                                         ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+    proshade_single zCor                              = static_cast< proshade_single > ( ( staticStructure->zFrom - movingStructure->zFrom ) *
+                                                                                         ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
+    proshade_single xMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeX - xCor -
+                                                                                         ( *trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+    proshade_single yMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeY - yCor -
+                                                                                         ( *trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+    proshade_single zMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeZ - zCor -
+                                                                                         ( *trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
     
     //================================================ Save translation vector back
    *trsX                                              = -xMov;
@@ -326,18 +326,18 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
     if ( trsZ > ( staticStructure->getZDim() / 2 ) ) { trsZ = trsZ - this->getZDim(); }
     
     //================================================ Move map
-    proshade_single xCor                              = ( staticStructure->xFrom - this->xFrom ) *
-                                                        ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
-    proshade_single yCor                              = ( staticStructure->yFrom - this->yFrom ) *
-                                                        ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
-    proshade_single zCor                              = ( staticStructure->zFrom - this->zFrom ) *
-                                                        ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
-    proshade_single xMov                              = staticStructure->mapCOMProcessChangeX - xCor -
-                                                        ( trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() );
-    proshade_single yMov                              = staticStructure->mapCOMProcessChangeY - yCor -
-                                                        ( trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() );
-    proshade_single zMov                              = staticStructure->mapCOMProcessChangeZ - zCor -
-                                                        ( trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() );
+    proshade_single xCor                              = static_cast< proshade_single > ( ( staticStructure->xFrom - this->xFrom ) *
+                                                                                         ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+    proshade_single yCor                              = static_cast< proshade_single > ( ( staticStructure->yFrom - this->yFrom ) *
+                                                                                         ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+    proshade_single zCor                              = static_cast< proshade_single > ( ( staticStructure->zFrom - this->zFrom ) *
+                                                                                         ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
+    proshade_single xMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeX - xCor -
+                                                                                         ( trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+    proshade_single yMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeY - yCor -
+                                                                                         ( trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+    proshade_single zMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeZ - zCor -
+                                                                                         ( trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
     proshade_single modXMov                           = xMov;
     proshade_single modYMov                           = yMov;
     proshade_single modZMov                           = zMov;
@@ -795,7 +795,9 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
 void ProSHADE_internal_data::ProSHADE_data::translateMap ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
 {
     //================================================ Initialise local variables
-    proshade_single xMov = -trsX, yMov = -trsY, zMov = -trsZ;
+    proshade_single xMov                              = static_cast< proshade_single > ( -trsX );
+    proshade_single yMov                              = static_cast< proshade_single > ( -trsY );
+    proshade_single zMov                              = static_cast< proshade_single > ( -trsZ );
     
     //================================================ Move the whole map frame to minimise the Fourier movement
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),

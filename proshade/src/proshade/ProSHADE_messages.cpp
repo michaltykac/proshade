@@ -76,7 +76,7 @@ void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose,
             std::cout << " ";
         }
         
-        for ( unsigned int iter = 0; iter < messageLevel; iter++ )
+        for ( proshade_signed iter = 0; iter < messageLevel; iter++ )
         {
             std::cout << "... ";
         }
