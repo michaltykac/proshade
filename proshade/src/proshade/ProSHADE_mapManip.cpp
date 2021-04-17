@@ -1061,12 +1061,9 @@ void ProSHADE_internal_mapManip::getMaskFromBlurr ( proshade_double*& blurMap, p
     \param[in] xDim The number of indices along the x axis of the map.
     \param[in] yDim The number of indices along the y axis of the map.
     \param[in] zDim The number of indices along the z axis of the map.
-    \param[in] xAngs The size of the x dimension of the map in angstroms.
-    \param[in] yAngs The size of the y dimension of the map in angstroms.
-    \param[in] zAngs The size of the z dimension of the map in angstroms.
     \param[in] ret A proshade_unsign pointer to array of 6 to which the results will be saved (0 = minX; 1 = maxX; 2 = minY; 3 = maxY; 4 - minZ; 5 = maxZ).
  */
-void ProSHADE_internal_mapManip::getNonZeroBounds ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed*& ret )
+void ProSHADE_internal_mapManip::getNonZeroBounds ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_signed*& ret )
 {
     //================================================ Initialise local variables
     proshade_unsign arrayPos                          = 0;
@@ -1897,9 +1894,8 @@ void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, pros
     \param[in] yDim The number of indices along the y axis of the map.
     \param[in] zDim The number of indices along the z axis of the map.
     \param[in] boundsDiffThres Number of indices by which boudaries in different dimensions can differ and still be made the same.
-    \param[in] verbose The verbosity of this run - this is needed for the warnings only.
  */
-void ProSHADE_internal_mapManip::beautifyBoundaries ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_signed boundsDiffThres, proshade_signed verbose )
+void ProSHADE_internal_mapManip::beautifyBoundaries ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_signed boundsDiffThres )
 {
     //================================================ If extra bounds space pushed the bounds over the physical map, freely add up to 10 indices over the current value
     while ( bounds[1] >= static_cast<proshade_signed> ( xDim ) ) { xDim += 10; }

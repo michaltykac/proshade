@@ -144,12 +144,12 @@ namespace ProSHADE_internal_data
         void setPDBMapValues                          ( void );
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );
-        void allocateRRPMemory                        ( ProSHADE_settings* settings );
+        void allocateRRPMemory                        ( );
         
     public:
         //============================================ Constructors / Destructors
-        ProSHADE_data                                 ( ProSHADE_settings* settings );
-        ProSHADE_data                                 ( ProSHADE_settings* settings, std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz,
+        ProSHADE_data                                 ( );
+        ProSHADE_data                                 ( std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz,
                                                         proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr,
                                                         proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT,
                                                         proshade_unsign inputO );
@@ -182,9 +182,9 @@ namespace ProSHADE_internal_data
         //============================================ Distances pre-computation functions
         bool shellBandExists                          ( proshade_unsign shell, proshade_unsign bandVal );
         void computeRRPMatrices                       ( ProSHADE_settings* settings );
-        void allocateEMatrices                        ( ProSHADE_settings* settings, proshade_unsign  band );
+        void allocateEMatrices                        ( proshade_unsign  band );
         void allocateSO3CoeffsSpace                   ( proshade_unsign band );
-        void allocateWignerMatricesSpace              ( ProSHADE_settings* settings );
+        void allocateWignerMatricesSpace              ( );
         
         //============================================ Symmetry detection functions
         void computeRotationFunction                  ( ProSHADE_settings* settings );
@@ -235,11 +235,11 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
         void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
-        void translateMap                             ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
-        void allocateRotatedSHMemory                  ( ProSHADE_settings* settings );
-        void computeRotatedSH                         ( ProSHADE_settings* settings );
+        void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
+        void allocateRotatedSHMemory                  ( void );
+        void computeRotatedSH                         ( void );
         void invertSHCoefficients                     ( void );
-        void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
+        void interpolateMapFromSpheres                ( proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( void );
         void computePdbRotationCentre                 ( void );

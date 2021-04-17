@@ -28,6 +28,19 @@
     #pragma GCC diagnostic ignored "-Wpedantic"
     #pragma GCC diagnostic ignored "-Wshadow"
     #pragma GCC diagnostic ignored "-Wall"
+    #pragma GCC diagnostic ignored "-Wextra"
+    #pragma GCC diagnostic ignored "-Wdouble-promotion"
+#endif
+
+//==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
+#if defined ( __clang__ )
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wpedantic"
+    #pragma clang diagnostic ignored "-Wshadow"
+    #pragma clang diagnostic ignored "-Wall"
+    #pragma clang diagnostic ignored "-Wextra"
+    #pragma clang diagnostic ignored "-Wdouble-promotion"
+    #pragma clang diagnostic ignored "-Weverything"
 #endif
 
 //==================================================== Remove MSVC C4996 Warnings caused by Gemmi code
@@ -85,6 +98,11 @@ extern "C" {
 //==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
 #if defined ( __GNUC__ )
     #pragma GCC diagnostic pop
+#endif
+
+//==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
+#if defined ( __clang__ )
+    #pragma clang diagnostic pop
 #endif
 
 //==================================================== GetOpt port (BSD License, works on Windows as well as linux)
@@ -218,7 +236,7 @@ public: // maybe make this protected?
     void determineBandwidth                           ( proshade_unsign circumference );
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
-    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_double xDimAngs,
+    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_double xDimAngs,
                                                         proshade_double yDimAngs, proshade_double zDimAngs );
     void setVariablesLeftOnAuto                       ( void );
     

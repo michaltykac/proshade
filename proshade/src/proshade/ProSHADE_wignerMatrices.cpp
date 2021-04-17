@@ -23,10 +23,8 @@
 #include "ProSHADE_wignerMatrices.hpp"
 
 /*! \brief This function allocates the memory for the Wigner matrices for the calling object.
- 
-    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
-void ProSHADE_internal_data::ProSHADE_data::allocateWignerMatricesSpace ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::allocateWignerMatricesSpace ( )
 {
     //================================================ Sanity check
     if ( this->maxCompBand == 0 )
@@ -263,7 +261,7 @@ void ProSHADE_internal_wigner::computeWignerMatricesForRotation ( ProSHADE_setti
     proshade_double *matIn, *matOut, *sqrts, *workspace, *alphaExponentReal, *alphaExponentImag, *gammaExponentReal, *gammaExponentImag, *trigs;
     
     //================================================ Allocate memory for Wigner matrices
-    obj->allocateWignerMatricesSpace                  ( settings );
+    obj->allocateWignerMatricesSpace                  ( );
     
     //================================================ Allocate the workspace memory
     allocateWignerWorkspace                           ( matIn, matOut, sqrts, workspace, alphaExponentReal, alphaExponentImag,

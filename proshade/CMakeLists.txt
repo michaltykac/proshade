@@ -82,20 +82,46 @@ if    ( NOT INSTALL_LOCALLY )
 endif ( NOT INSTALL_LOCALLY )
 
 ##########################################################################################
-################################### Set flags depending on compiler
-if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-  ################################# Using Clang
-  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"   )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
-  ################################# Using GCC
-  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"      )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
-  ################################# Using Intel C++
-  ### TO BE COMPLETED
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
-  ################################# Using Visual Studio C++
-  ### TO BE COMPLETED
-endif  ( )     
+################################### Set flags depending on compiler and build type
+if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion  -Weverything -Wno-c++98-compat -fPIC "       )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wno-c++98-compat -fPIC "       )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
+  		################################# Using GCC
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -fPIC"       )
+#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
+#  		################################# Using Intel C++
+#  		### TO BE COMPLETED
+#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
+#  		################################# Using Visual Studio C++
+#  		set   ( CMAKE_CXX_FLAGS " /Od /Z7 /DEBUG "                  )
+	endif  ( )   
+
+elseif     ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
+
+	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
+  		################################# Using GCC
+  		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             )
+#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
+#  		################################# Using Intel C++
+#  		### TO BE COMPLETED
+#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
+#  		################################# Using Visual Studio C++
+#  		set   ( CMAKE_CXX_FLAGS " /O2 "                  )
+	endif  ( )   
+
+else       ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+
+	message ( ERROR "Unrecognised build type. Will assume release, but beware that this should not have happened!" )
+
+endif      ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )  
 
 ##########################################################################################
 ################################### Set flags depending on system

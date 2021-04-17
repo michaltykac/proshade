@@ -256,7 +256,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
         case NA:
             std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
             std::cerr << "Error Code          : " << "E000014" << std::endl << std::flush;
-            std::cerr << "ProSHADE version    : " << __PROSHADE_VERSION__ << std::endl << std::flush;
+            std::cerr << "ProSHADE version    : " << PROSHADE_VERSION << std::endl << std::flush;
             std::cerr << "File                : " << "ProSHADE.cpp" << std::endl << std::flush;
             std::cerr << "Line                : " << 97 << std::endl << std::flush;
             std::cerr << "Function            : " << "ProSHADE_settings (Task) constructor" << std::endl << std::flush;
@@ -1520,7 +1520,6 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
  
     \param[in] xDim The size of the x axis dimension in indices.
     \param[in] yDim The size of the y axis dimension in indices.
-    \param[in] zDim The size of the z axis dimension in indices.
     \param[in] xDimAngs The size of the x-axis in Angstroms.
     \param[in] yDimAngs The size of the y-axis in Angstroms.
     \param[in] zDimAngs The size of the z-axis in Angstroms.
@@ -1529,7 +1528,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     the idea that DIST(A,B) == DIST(B,A). If this is important, then the user should set all of these values manually to the
     settings object to avoid this issue.
  */
-void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_double xDimAngs, proshade_double yDimAngs, proshade_double zDimAngs )
+void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_double xDimAngs, proshade_double yDimAngs, proshade_double zDimAngs )
 {
     //================================================ Print progress message
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
@@ -1625,7 +1624,7 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
     {
         std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
         std::cerr << "Error Code          : " << err.get_errc() << std::endl << std::flush;
-        std::cerr << "ProSHADE version    : " << __PROSHADE_VERSION__ << std::endl << std::flush;
+        std::cerr << "ProSHADE version    : " << PROSHADE_VERSION << std::endl << std::flush;
         std::cerr << "File                : " << err.get_file() << std::endl << std::flush;
         std::cerr << "Line                : " << err.get_line() << std::endl << std::flush;
         std::cerr << "Function            : " << err.get_func() << std::endl << std::flush;

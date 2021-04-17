@@ -36,7 +36,7 @@
     \param[in] settings ProSHADE_settings object specifying what should be done.
     \param[out] X Empty data object with deault values.
  */
-ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settings )
+ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( )
 {
     //================================================ Initialise variables
     // ... Variables regarding input file
@@ -157,7 +157,7 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settin
     \param[in] inputO The input order for this structure.
     \param[out] X Empty data object with filled in values and map.
  */
-ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( ProSHADE_settings* settings, std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz, proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr, proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT, proshade_unsign inputO )
+ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz, proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr, proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT, proshade_unsign inputO )
 {
     //================================================ Initialise variables
     // ... Variables regarding input file
@@ -710,10 +710,10 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
         proshade_double zStartPosAfter                = this->zFrom * zSampRate;
         
         //============================================ Translate by change in corners to make the boxes as similarly placed as possible
-        proshade_single xMov                          = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
-        proshade_single yMov                          = static_cast< proshade_single > ( yStartPosAfter - yStartPosBefore );
-        proshade_single zMov                          = static_cast< proshade_single > ( zStartPosAfter - zStartPosBefore );
-        ProSHADE_internal_mapManip::moveMapByIndices  ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
+        proshade_single xMovHlp                       = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
+        proshade_single yMovHlp                       = static_cast< proshade_single > ( yStartPosAfter - yStartPosBefore );
+        proshade_single zMovHlp                       = static_cast< proshade_single > ( zStartPosAfter - zStartPosBefore );
+        ProSHADE_internal_mapManip::moveMapByIndices  ( &xMovHlp, &yMovHlp, &zMovHlp, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
                                                         &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
         
@@ -1131,15 +1131,14 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
     else
     {
         //============================================ Find the non-zero bounds
-        ProSHADE_internal_mapManip::getNonZeroBounds  ( this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices,
-                                                        this->xDimSize, this->yDimSize, this->zDimSize, ret );
+        ProSHADE_internal_mapManip::getNonZeroBounds  ( this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, ret );
         
         //============================================ Add the extra space
         ProSHADE_internal_mapManip::addExtraBoundSpace ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
                                                          this->xDimSize, this->yDimSize, this->zDimSize, ret, settings->boundsExtraSpace );
         
         //============================================ Beautify boundaries
-        ProSHADE_internal_mapManip::beautifyBoundaries ( ret, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->boundsSimilarityThreshold, settings->verbose );
+        ProSHADE_internal_mapManip::beautifyBoundaries ( ret, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->boundsSimilarityThreshold );
         
         //============================================ Report function results
         std::stringstream ssHlp;
@@ -1583,7 +1582,7 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting sphere mapping procedure." );
     
     //================================================ Determine spherical harmonics variables
-    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+    settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices,
                                                         this->xDimSize,    this->yDimSize,    this->zDimSize );
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere settings determined." );
     

@@ -1036,7 +1036,7 @@ std::vector< proshade_signed > ProSHADE_internal_peakSearch::findPeaks1D ( std::
         if ( ( data.at(index) > data.at(index-1) ) && ( data.at(index) > data.at(index+1) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
         
         //============================================ Deal with equally sized values
-        if ( index < ( data.size() - 2 ) ) { if ( data.at(index) >= data.at(index-1) ) { if ( data.at(index) >= data.at(index+1) ) { if ( data.at(index) > data.at(index+2) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
+        if ( index < static_cast< proshade_signed > ( data.size() - 2 ) ) { if ( data.at(index) >= data.at(index-1) ) { if ( data.at(index) >= data.at(index+1) ) { if ( data.at(index) > data.at(index+2) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
     }
     
     //================================================ Done

@@ -64,7 +64,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
     this->zDimSampling                                = zSize / static_cast<proshade_single> (zDimMax);
     
     //================================================ Get maximum circumference
-    proshade_unsign maxCircumference                  = this->getMaxCircumference ( xDimMax, yDimMax, zDimMax, this->maxSphereRange, xSize, ySize, zSize );
+    proshade_unsign maxCircumference                  = this->getMaxCircumference ( xDimMax, yDimMax, zDimMax, this->maxSphereRange );
     
     //================================================ Get spherical harmonics calculation values
     if ( progressiveMapping )
@@ -117,11 +117,8 @@ ProSHADE_internal_spheres::ProSHADE_sphere::~ProSHADE_sphere ( )
     \param[in] yDimMax The internal map maximum index in the y dimension.
     \param[in] zDimMax The internal map maximum index in the z dimension.
     \param[in] maxRange The maximum range of shell in angstroms.
-    \param[in] xSize The size of x axis of whole map in angstroms.
-    \param[in] ySize The size of y axis of whole map in angstroms.
-    \param[in] zSize The size of z axis of whole map in angstroms.
  */
-proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double maxRange, proshade_single xSize, proshade_single ySize, proshade_single zSize )
+proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double maxRange )
 {
     //================================================ Find from and to limits on indices
     proshade_signed xFromInd                          = static_cast<proshade_signed> ( xDimMax / 2 ) -
@@ -784,7 +781,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             cZ                                        = 1.0 * std::cos ( lon );
             
             //======================================== Convert to ZXZ Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma, this->angularDim );
+            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
             ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
@@ -1357,13 +1354,12 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
     required fold and no other spheres - this assumption does not hold if the convertRotationFunction() function was called - consider yourself warned.
  
     \param[in] sphereVals A vector of spheres with mapped rotation function values.
-    \param[in] axisTolerance The tolerance for cosine distance to consider two angles identical.
     \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
     \param[in] fold The fold for which we are searching for cyclic point groups.
     \param[in] verbose The verbosity of the run.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose )
 {
     //================================================ Check that this peak group has all the angles
     if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
@@ -1468,9 +1464,8 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllAngleDiff
  
     \param[in] angDiffs A pointer to a vector containing all the unique angle differences for this peak group.
     \param[in] foldsToTry A pointer to a vector to which the predicted fold to try to find are to be saved into.
-    \param[in] sphereVals A vector of spheres with mapped rotation function values.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleFolds ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleFolds ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry )
 {
     //================================================ Initialise local variables
     proshade_double divRem, divBasis, symmErr, angTolerance, angToleranceNext;

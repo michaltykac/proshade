@@ -63,8 +63,7 @@ namespace ProSHADE_internal_mapManip
                                                         proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single blurringFactor );
     void getMaskFromBlurr                             ( proshade_double*& blurMap, proshade_double*& outMap, proshade_unsign xDimS, proshade_unsign yDimS,
                                                         proshade_unsign zDimS, proshade_single noIQRs );
-    void getNonZeroBounds                             ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_single xAngs,
-                                                        proshade_single yAngs, proshade_single zAngs, proshade_signed*& ret );
+    void getNonZeroBounds                             ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_signed*& ret );
     void addExtraBoundSpace                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_single xAngs, proshade_single yAngs,
                                                         proshade_single zAngs, proshade_signed*& bounds, proshade_single extraSpace );
     void reSampleMapToResolutionTrilinear             ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS,
@@ -91,8 +90,7 @@ namespace ProSHADE_internal_mapManip
     void connectMaskBlobs                             ( proshade_double*& mask, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim,
                                                         proshade_single xAngs, proshade_single yAngs,
                                                         proshade_single zAngs, proshade_single maskThres );
-    void beautifyBoundaries                           ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim,
-                                                        proshade_signed boundsDiffThres, proshade_signed verbose );
+    void beautifyBoundaries                           ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_signed boundsDiffThres );
     proshade_signed betterClosePrimeFactors           ( proshade_signed fromRange, proshade_signed toRange );
     void distributeSpaceToBoundaries                  ( proshade_signed& minBound, proshade_signed& maxBound, proshade_signed oldBoundRange, proshade_signed newBoundRange );
     void copyMapByBounds                              ( proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom,

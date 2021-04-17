@@ -748,10 +748,10 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, -eulerAlpha, eulerBeta, -eulerGamma );
     
     //================================================ Initialise rotated Spherical Harmonics memory
-    this->allocateRotatedSHMemory                     ( settings );
+    this->allocateRotatedSHMemory                     ( );
     
     //================================================ Multiply SH coeffs by Wigner
-    this->computeRotatedSH                            ( settings );
+    this->computeRotatedSH                            ( );
     
     //================================================ Inverse the SH coeffs to shells
     this->invertSHCoefficients                        ( );
@@ -766,7 +766,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     for ( unsigned int iter = 0; iter < static_cast<unsigned int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { densityMapRotated[iter] = 0.0; }
     
     //================================================ Interpolate onto cartesian grid
-    this->interpolateMapFromSpheres                   ( settings, densityMapRotated );
+    this->interpolateMapFromSpheres                   ( densityMapRotated );
     
     //================================================ Copy map
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
@@ -792,7 +792,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     \param[in] trsY The translation expressed as a number of angstroms to move by along the y-axis.
     \param[in] trsZ The translation expressed as a number of angstroms to move by along the z-axis.
  */
-void ProSHADE_internal_data::ProSHADE_data::translateMap ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
+void ProSHADE_internal_data::ProSHADE_data::translateMap ( proshade_double trsX, proshade_double trsY, proshade_double trsZ )
 {
     //================================================ Initialise local variables
     proshade_single xMov                              = static_cast< proshade_single > ( -trsX );
@@ -814,10 +814,8 @@ void ProSHADE_internal_data::ProSHADE_data::translateMap ( ProSHADE_settings* se
 }
 
 /*! \brief This function allocates the memory required for storing the rotated Spherical Harmonics coefficients.
- 
-    \param[in] settings The settings object specifying how exactly the rotation is to be done.
  */
-void ProSHADE_internal_data::ProSHADE_data::allocateRotatedSHMemory ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::allocateRotatedSHMemory ( )
 {
     //================================================ Allocate the main pointer and check
     this->rotSphericalHarmonics                       = new proshade_complex* [this->noSpheres];
@@ -844,10 +842,8 @@ void ProSHADE_internal_data::ProSHADE_data::allocateRotatedSHMemory ( ProSHADE_s
 }
 
 /*! \brief This function multiplies the objects spherical harmonics with the Wigner D matrices, obtaining rotated spherical harmonics coefficients.
- 
-    \param[in] settings The settings object specifying how exactly the rotation is to be done.
  */
-void ProSHADE_internal_data::ProSHADE_data::computeRotatedSH ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::computeRotatedSH ( )
 {
     //================================================ Initialise variables
     proshade_double WigDR, WigDI, *ShR, *ShI, retR, retI;
@@ -1038,10 +1034,9 @@ void ProSHADE_internal_overlay::computeAngularThreshold ( std::vector<proshade_d
 
 /*! \brief This function interpolates the density map from the sphere mapped data.
  
-    \param[in] settings The settings object specifying how exactly the rotation is to be done.
     \param[in] densityMapRotated The pointer to allocated memory where the new map values will be held.
  */
-void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( ProSHADE_settings* settings, proshade_double*& densityMapRotated )
+void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( proshade_double*& densityMapRotated )
 {
     //================================================ Initialise variables
     proshade_double rad = 0.0, lon = 0.0, lat = 0.0, newU = 0.0, newV = 0.0, newW = 0.0;

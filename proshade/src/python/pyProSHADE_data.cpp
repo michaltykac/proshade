@@ -130,15 +130,14 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             else
                                                             {
                                                                 //== Find the non-zero bounds
-                                                                ProSHADE_internal_mapManip::getNonZeroBounds  ( self.internalMap, self.xDimIndices, self.yDimIndices, self.zDimIndices,
-                                                                                                                self.xDimSize, self.yDimSize, self.zDimSize, retVals );
+                                                                ProSHADE_internal_mapManip::getNonZeroBounds  ( self.internalMap, self.xDimIndices, self.yDimIndices, self.zDimIndices, retVals );
                                                                 
                                                                 //== Add the extra space
                                                                 ProSHADE_internal_mapManip::addExtraBoundSpace ( self.xDimIndices, self.yDimIndices, self.zDimIndices,
                                                                                                                  self.xDimSize, self.yDimSize, self.zDimSize, retVals, settings->boundsExtraSpace );
                                                                 
                                                                 //== Beautify boundaries
-                                                                ProSHADE_internal_mapManip::beautifyBoundaries ( retVals, self.xDimIndices, self.yDimIndices, self.zDimIndices, settings->boundsSimilarityThreshold, settings->verbose );
+                                                                ProSHADE_internal_mapManip::beautifyBoundaries ( retVals, self.xDimIndices, self.yDimIndices, self.zDimIndices, settings->boundsSimilarityThreshold );
                                                                 
                                                                 //== If need be, save boundaries to be used for all other structure
                                                                 if ( settings->useSameBounds && ( self.inputOrder == 0 ) ) { for ( proshade_unsign iter = 0; iter < 6; iter++ ) { settings->forceBounds[iter] = retVals[iter]; } }
@@ -443,7 +442,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Done
                                                             return ( retDict );
                                                         }, "This function returns the vector from optimal rotation centre to origin and the optimal overlay translation vector. These two vectors allow overlaying the inputs (see documentation for details on how the two vectors should be used).", pybind11::arg ( "staticStructure" ), pybind11::arg ( "eulA" ), pybind11::arg ( "eulB" ), pybind11::arg ( "eulG" ) )
-        .def                                          ( "translateMap", &ProSHADE_internal_data::ProSHADE_data::translateMap, "This function translates the map by a given number of Angstroms along the three axes. Please note the translation happens firstly to the whole map box and only the translation remainder that cannot be achieved by moving the box will be corrected for using reciprocal space translation within the box.", pybind11::arg ( "settings" ), pybind11::arg ( "trsX" ), pybind11::arg ( "trsY" ), pybind11::arg ( "trsZ" ) )
+        .def                                          ( "translateMap", &ProSHADE_internal_data::ProSHADE_data::translateMap, "This function translates the map by a given number of Angstroms along the three axes. Please note the translation happens firstly to the whole map box and only the translation remainder that cannot be achieved by moving the box will be corrected for using reciprocal space translation within the box.", pybind11::arg ( "trsX" ), pybind11::arg ( "trsY" ), pybind11::arg ( "trsZ" ) )
 
         //============================================ Internal arrays access functions
         .def                                          ( "findSHIndex",

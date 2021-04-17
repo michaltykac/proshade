@@ -22,9 +22,6 @@
 //==================================================== ProSHADE
 #include "ProSHADE_version.hpp"
 
-//==================================================== MSVC Specific definition to allow M_PI 
-#define _USE_MATH_DEFINES
-
 //==================================================== Standard library
 #include <iostream>
 #include <fstream>
@@ -49,8 +46,8 @@
 #endif
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_TYPEDEFS__
-#define __PROSHADE_TYPEDEFS__
+#ifndef PROSHADE_TYPEDEFS
+#define PROSHADE_TYPEDEFS
 
 //==================================================== The Task data type
 enum ProSHADE_Task { NA, Distances, Symmetry, OverlayMap, MapManip };

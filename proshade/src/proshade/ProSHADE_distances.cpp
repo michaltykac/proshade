@@ -27,10 +27,8 @@
  
     This function belongs to the ProSHADE_data class and its role is to allocate the require memory
     for the RRP matrices, given the already determined bandwidths and shell count.
- 
-    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
-void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( )
 {
     //================================================ Allocate the required memory
     this->rrpMatrices                                 = new proshade_double** [this->maxShellBand];
@@ -64,7 +62,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing RRP matrices for structure " + this->fileName );
     
     //================================================ Allocate the memory
-    this->allocateRRPMemory                           ( settings );
+    this->allocateRRPMemory                           ( );
     
     //================================================ Start computation: For each band (l)
     proshade_double descValR                          = 0.0;
@@ -274,10 +272,9 @@ void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_inter
     for the E matrices required by both, the Trace Sigma and Full Rotational descriptors, as well as
     symmetry and rotation tasks.
  
-    \param[in] settings A pointer to settings class containing all the information required for the task.
     \param[in] band The minimal band of the comparison for which E matrices are computed.
  */
-void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( ProSHADE_settings* settings, proshade_unsign  band )
+void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( proshade_unsign  band )
 {
     //================================================ Save the maximum band to the object
     this->maxCompBand                                 = band;
@@ -518,7 +515,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Starting computation of E matrices." );
     
     //================================================ Allocatre memory for E matrices in the second object (first may be compared to more structures and therefore its data would be written over)
-    obj2->allocateEMatrices                           ( settings, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
+    obj2->allocateEMatrices                           ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
     //================================================ Initialise local variables
     proshade_double *obj1Vals, *obj2Vals, *GLAbscissas, *GLWeights;

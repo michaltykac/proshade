@@ -33,11 +33,10 @@
     \param[in] outputReal The real part of the output will be saved here.
     \param[in] outputImag The immaginary part of the output will be saved here.
     \param[in] shWeights The weights for spherical harmonics computation will be stored here.
-    \param[in] tableSpace Space where the legendre polynomials table will be stored.
     \param[in] tableSpaceHelper This space is required by SOFT for pre-computing values into this table.
     \param[in] workspace The space where multiple minor results are saved by SOFT.
  */
-void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, proshade_double*& shWeights, double**& tableSpace, proshade_double*& tableSpaceHelper, fftw_complex*& workspace )
+void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, proshade_double*& shWeights, proshade_double*& tableSpaceHelper, fftw_complex*& workspace )
 {
     //================================================ Initialise local variables
     proshade_unsign oneDimmension                     = 2 * band;
@@ -168,7 +167,7 @@ void ProSHADE_internal_sphericalHarmonics::initialiseFFTWPlans ( proshade_unsign
     \param[in] fftPlan pointer to the variable where the Fourier transform was done to be freed.
     \param[in] dctPlan pointer to the variable where the 1D r2r Fourier transform was done to be freed.
  */
-void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, double*& tableSpaceHelper, double**& tableSpace, double*& shWeights, fftw_complex*& workspace, fftw_plan& fftPlan, fftw_plan& dctPlan, proshade_unsign band )
+void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal, proshade_double*& outputImag, double*& tableSpaceHelper, double**& tableSpace, double*& shWeights, fftw_complex*& workspace, fftw_plan& fftPlan, fftw_plan& dctPlan )
 {
     //================================================ Release all memory related to SH
     delete[] inputReal;
@@ -221,7 +220,7 @@ void ProSHADE_internal_sphericalHarmonics::initialiseAllMemory ( proshade_unsign
     proshade_unsign oneDim                            = band * 2;
     
     //================================================ Allocate memory for local pointers
-    allocateComputationMemory                         ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tableSpace, tableSpaceHelper, workspace );
+    allocateComputationMemory                         ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tableSpaceHelper, workspace );
     
     //================================================ Within workspace pointers
     placeWithinWorkspacePointers                      ( workspace, oneDim, rres, ires, fltres, scratchpad );
@@ -430,7 +429,7 @@ void ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( proshade_
     applyCondonShortleyPhase                          ( band, outputReal, outputImag, shArray );
     
     //================================================ Free memory
-    releaseSphericalMemory                            ( inputReal, inputImag, outputReal, outputImag, tableSpaceHelper, tablePml, shWeights, workspace, fftPlan, dctPlan, band );
+    releaseSphericalMemory                            ( inputReal, inputImag, outputReal, outputImag, tableSpaceHelper, tablePml, shWeights, workspace, fftPlan, dctPlan );
     
     //================================================ Done
     return ;

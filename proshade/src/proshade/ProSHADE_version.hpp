@@ -19,7 +19,7 @@
  */
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_VERSION__
-#define __PROSHADE_VERSION__ "0.7.5.5 (APR 2021)"
+#ifndef PROSHADE_VERSION
+#define PROSHADE_VERSION "0.7.5.5 (APR 2021)"
 
 #endif

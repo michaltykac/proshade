@@ -72,7 +72,7 @@ PYBIND11_MODULE ( proshade, pyProSHADE )
     pyProSHADE.doc ( )                                = "Protein Shape Description and Symmetry Detection (ProSHADE) python module"; // Module docstring
     
     //================================================ Set the module version
-    pyProSHADE.attr ( "__version__" )                 = __PROSHADE_VERSION__;
+    pyProSHADE.attr ( "__version__" )                 = PROSHADE_VERSION;
 
     //================================================ Export the ProSHADE_Task enum
     pybind11::enum_ < ProSHADE_Task > ( pyProSHADE, "ProSHADE_Task" )

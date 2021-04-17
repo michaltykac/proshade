@@ -41,7 +41,7 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->inputFiles.size() ); iter++ )
     {
         //============================================ Create a data object
-        ProSHADE_internal_data::ProSHADE_data* strToRebox = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* strToRebox = new ProSHADE_internal_data::ProSHADE_data ( );
         
         //============================================ Read in the file
         strToRebox->readInStructure                   ( settings->inputFiles.at(iter), iter, settings );
@@ -53,7 +53,7 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
         strToRebox->processInternalMap                ( settings );
         
         //============================================ Create new structure for re-boxing
-        ProSHADE_internal_data::ProSHADE_data* reBoxStr = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* reBoxStr = new ProSHADE_internal_data::ProSHADE_data ( );
         
         //============================================ Re-box map, if need be
         if ( settings->reBoxMap )
@@ -150,7 +150,7 @@ void ProSHADE_internal_tasks::DistancesComputationTask ( ProSHADE_settings* sett
     checkDistancesSettings                            ( settings );
     
     //================================================ Create a data object
-    ProSHADE_internal_data::ProSHADE_data* compareAgainst  = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    ProSHADE_internal_data::ProSHADE_data* compareAgainst  = new ProSHADE_internal_data::ProSHADE_data ( );
     
     //================================================ Read in the structure all others will be compared to
     compareAgainst->readInStructure                   ( settings->inputFiles.at(0), 0, settings );
@@ -168,7 +168,7 @@ void ProSHADE_internal_tasks::DistancesComputationTask ( ProSHADE_settings* sett
     for ( proshade_unsign iter = 1; iter < static_cast<proshade_unsign> ( settings->inputFiles.size() ); iter++ )
     {
         //============================================ Create a data object
-        ProSHADE_internal_data::ProSHADE_data* compareChanging = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* compareChanging = new ProSHADE_internal_data::ProSHADE_data ( );
 
         //============================================ Read in the compared structure
         compareChanging->readInStructure              ( settings->inputFiles.at(iter), iter, settings );
@@ -292,7 +292,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->inputFiles.size() ); iter++ )
     {
         //============================================ Create a data object
-        ProSHADE_internal_data::ProSHADE_data* symmetryStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* symmetryStructure = new ProSHADE_internal_data::ProSHADE_data ( );
         
         //============================================ Read in the compared structure
         symmetryStructure->readInStructure            ( settings->inputFiles.at(iter), iter, settings );
@@ -382,8 +382,8 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     proshade_double eulA, eulB, eulG, trsX, trsY, trsZ;
     
     //================================================ Create the data objects initially (this time without phase)
-    ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    ProSHADE_internal_data::ProSHADE_data* movingStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( );
+    ProSHADE_internal_data::ProSHADE_data* movingStructure = new ProSHADE_internal_data::ProSHADE_data ( );
     
     //================================================ First, run without phase and find best rotation angles
     settings->usePhase                                = false;
@@ -394,8 +394,8 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     delete movingStructure;
     
     //================================================ Create the data objects again (this time with phase)
-    staticStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    movingStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    staticStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( );
+    movingStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( );
 
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;

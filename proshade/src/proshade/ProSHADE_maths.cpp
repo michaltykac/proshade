@@ -1434,7 +1434,7 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_unsign angDim )
+void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
     //================================================ If angle is 0 or infinity (anything divided by 0), return no rotation
     if ( ( axAng == 0.0 ) || ( std::isinf ( axAng ) ) )

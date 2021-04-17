@@ -32,7 +32,7 @@ void ProSHADE_internal_messages::printWellcomeMessage ( proshade_signed verbose 
 {
     if ( verbose >= 0 )
     {
-        std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "============================" << std::endl << std::endl << std::flush;
+        std::cout << "ProSHADE " << PROSHADE_VERSION << ":" << std::endl << "============================" << std::endl << std::endl << std::flush;
     }
     
     //================================================ Done
@@ -118,7 +118,7 @@ void ProSHADE_internal_messages::printWarningMessage ( proshade_signed verbose, 
 void ProSHADE_internal_messages::printHelp ( void )
 {
     //================================================ Print the help screen
-    std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
+    std::cout << "ProSHADE " << PROSHADE_VERSION << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
     std::cout << "                                                                                " << std::endl << std::flush;
     std::cout << "DESCRIPTION:                                                                    " << std::endl;
     std::cout << "   ProSHADE is a library of functionalities for computing distances between     " << std::endl;
