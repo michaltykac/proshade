@@ -117,7 +117,7 @@ void ProSHADE_internal_tasks::checkMapManipulationSettings ( ProSHADE_settings* 
         ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! The input file is not of the MAP (MRC) format. Will output re-boxed map, but beware that this is simple PDB->MAP conversion and REFMAC5 should be used to compute more appropriate maps.", "WB00004" );
         
         //============================================ No resolution for PDB? Problem...
-        if ( settings->requestedResolution == 0.0 )
+        if ( settings->requestedResolution == 0.0f )
         {
             throw ProSHADE_exception ( "No resolution given for PDB file re-boxing.", "EB00011", __FILE__, __LINE__, __func__, "The ProSHADE_settings object does not contain any\n                    : resolution value. However, resolution is required when\n                    : re-boxing structures read from PDB files. Please supply\n                    : the resolution value using the setResolution() function." );
         }
@@ -264,7 +264,7 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     }
     
     //================================================ Is there resolution value set?
-    if ( settings->requestedResolution == -1.0 )
+    if ( settings->requestedResolution == -1.0f )
     {
         throw ProSHADE_exception ( "Resolution value not set.", "ED00013", __FILE__, __LINE__, __func__, "The resolution value was not set. Please set the\n                    : resolution value for the distance computation by using\n                    : the setResolution() function." );
     }

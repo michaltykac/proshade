@@ -68,7 +68,7 @@ namespace ProSHADE_internal_spheres
         proshade_double* mappedDataRot;               //!< The rotated structure mapped data.
         
     protected:
-        proshade_unsign getMaxCircumference           ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double maxRange );
+        proshade_unsign getMaxCircumference           ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single maxRange );
         bool getMapPoint                              ( proshade_double* map, proshade_unsign xDimMax, proshade_unsign yDimMax,
                                                         proshade_unsign zDimMax, proshade_signed xPos,
                                                         proshade_signed yPos, proshade_signed zPos, std::vector<proshade_double>* interpVec );

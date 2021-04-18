@@ -236,8 +236,8 @@ public: // maybe make this protected?
     void determineBandwidth                           ( proshade_unsign circumference );
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
-    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_double xDimAngs,
-                                                        proshade_double yDimAngs, proshade_double zDimAngs );
+    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_single xDimAngs,
+                                                        proshade_single yDimAngs, proshade_single zDimAngs );
     void setVariablesLeftOnAuto                       ( void );
     
 public:

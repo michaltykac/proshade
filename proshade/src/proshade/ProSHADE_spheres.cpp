@@ -47,13 +47,13 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
 {
     //================================================ Save inputs
     this->shellOrder                                  = shOrder;
-    this->sphereWidth                                 = static_cast< proshade_single > ( ( spherePos->at(0) + spherePos->at(1) ) / 2.0 );
-    this->sphereRadius                                = spherePos->at(shOrder);
+    this->sphereWidth                                 = static_cast< proshade_single > ( ( spherePos->at(0) + spherePos->at(1) ) / 2.0f );
+    this->sphereRadius                                = static_cast< proshade_double > ( spherePos->at(shOrder) );
     
     //================================================ Determine shell ranges in angstroms
     proshade_double maxDist                           = 0.0;
     if ( shOrder == static_cast<proshade_unsign> ( spherePos->size() - 1 ) ) { maxDist = static_cast<proshade_double> ( spherePos->at(spherePos->size()-1) + ( spherePos->at(1) - spherePos->at(0) ) ); }
-    else { maxDist = static_cast<proshade_double> ( ( spherePos->at(shOrder) + spherePos->at(shOrder+1) ) / 2.0 ); }
+    else { maxDist = static_cast<proshade_double> ( ( spherePos->at(shOrder) + spherePos->at(shOrder+1) ) / 2.0f ); }
     
     //================================================ Set the max range
     this->maxSphereRange                              = static_cast<proshade_single> ( 2.0 * maxDist );
@@ -118,7 +118,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::~ProSHADE_sphere ( )
     \param[in] zDimMax The internal map maximum index in the z dimension.
     \param[in] maxRange The maximum range of shell in angstroms.
  */
-proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double maxRange )
+proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single maxRange )
 {
     //================================================ Find from and to limits on indices
     proshade_signed xFromInd                          = static_cast<proshade_signed> ( xDimMax / 2 ) -
@@ -223,15 +223,15 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::mapData ( proshade_double* map,
             if ( !getMapPoint ( map, xDimMax, yDimMax, zDimMax, xTop   , yTop   , zTop   , &c111 ) ) { this->mappedData[phIt * this->localAngRes + thIt] = 0.0; continue; }
 
             //======================================== Interpolate along X axis
-            xRelative                                 = ( x - ( ( xBottom - static_cast<proshade_signed> ( ( ( xDimMax ) / 2 ) ) ) * this->xDimSampling ) ) / this->xDimSampling;
+            xRelative                                 = ( x - ( static_cast< proshade_double > ( xBottom - static_cast<proshade_signed> ( ( ( xDimMax ) / 2 ) ) ) * static_cast< proshade_double > ( this->xDimSampling ) ) ) / static_cast< proshade_double > ( this->xDimSampling );
             this->interpolateAlongFirst               ( c000, c001, c010, c011, c100, c101, c110, c111, &c00, &c01, &c10, &c11, xRelative );
             
             //======================================== Interpolate along Y axis
-            yRelative                                 = ( y - ( ( yBottom - static_cast<proshade_signed> ( ( ( yDimMax ) / 2 ) ) ) * this->yDimSampling ) ) / this->yDimSampling;
+            yRelative                                 = ( y - ( static_cast< proshade_double > ( yBottom - static_cast<proshade_signed> ( ( ( yDimMax ) / 2 ) ) ) * static_cast< proshade_double > ( this->yDimSampling ) ) ) / static_cast< proshade_double > ( this->yDimSampling );
             this->interpolateAlongSecond              ( c00, c01, c10, c11, &c0, &c1, yRelative );
 
             //======================================== Save the resulting value
-            zRelative                                 = ( z - ( ( zBottom - static_cast<proshade_signed> ( ( ( zDimMax ) / 2 ) ) ) * this->zDimSampling ) ) / this->zDimSampling;
+            zRelative                                 = ( z - ( static_cast< proshade_double > ( zBottom - static_cast<proshade_signed> ( ( ( zDimMax ) / 2 ) ) ) * static_cast< proshade_double > ( this->zDimSampling ) ) ) / static_cast< proshade_double > ( this->zDimSampling );
             this->mappedData[phIt * this->localAngRes + thIt] = ( c0.at(3) * ( 1.0 - zRelative ) ) + ( c1.at(3) * zRelative );
         }
     }
@@ -367,9 +367,9 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::getInterpolationXYZ ( proshade_
 void ProSHADE_internal_spheres::ProSHADE_sphere::getXYZTopBottoms ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double x, proshade_double y, proshade_double z, proshade_signed* xBottom, proshade_signed* yBottom, proshade_signed* zBottom, proshade_signed* xTop, proshade_signed* yTop, proshade_signed* zTop )
 {
     //================================================ Get the values
-   *xBottom                                           = static_cast< proshade_signed > ( std::floor ( (x / this->xDimSampling) ) + (xDimMax/2) );
-   *yBottom                                           = static_cast< proshade_signed > ( std::floor ( (y / this->yDimSampling) ) + (yDimMax/2) );
-   *zBottom                                           = static_cast< proshade_signed > ( std::floor ( (z / this->zDimSampling) ) + (zDimMax/2) );
+   *xBottom                                           = static_cast< proshade_signed > ( std::floor ( (x / static_cast< proshade_double > ( this->xDimSampling ) ) ) + (xDimMax/2) );
+   *yBottom                                           = static_cast< proshade_signed > ( std::floor ( (y / static_cast< proshade_double > ( this->yDimSampling ) ) ) + (yDimMax/2) );
+   *zBottom                                           = static_cast< proshade_signed > ( std::floor ( (z / static_cast< proshade_double > ( this->zDimSampling ) ) ) + (zDimMax/2) );
             
    *xTop                                              = *xBottom + 1;
    *yTop                                              = *yBottom + 1;
@@ -442,25 +442,25 @@ proshade_double* ProSHADE_internal_spheres::ProSHADE_sphere::getMappedData ( voi
 void ProSHADE_internal_spheres::ProSHADE_sphere::interpolateAlongFirst ( std::vector<proshade_double> c000, std::vector<proshade_double> c001, std::vector<proshade_double> c010, std::vector<proshade_double> c011, std::vector<proshade_double> c100, std::vector<proshade_double> c101, std::vector<proshade_double> c110, std::vector<proshade_double> c111, std::vector<proshade_double>* c00, std::vector<proshade_double>* c01, std::vector<proshade_double>* c10, std::vector<proshade_double>* c11, proshade_double xd )
 {
     //================================================ Interpolate for the less less point
-    c00->at(0)                                        = ( this->xDimSampling * xd ) + c000.at(0);
+    c00->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c000.at(0);
     c00->at(1)                                        = c000.at(1);
     c00->at(2)                                        = c000.at(2);
     c00->at(3)                                        = ( c000.at(3) * ( 1.0 - xd ) ) + ( c100.at(3) * xd );
     
     //================================================ Interpolate for the less more point
-    c01->at(0)                                        = ( this->xDimSampling * xd ) + c001.at(0);
+    c01->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c001.at(0);
     c01->at(1)                                        = c001.at(1);
     c01->at(2)                                        = c001.at(2);
     c01->at(3)                                        = ( c001.at(3) * ( 1.0 - xd ) ) + ( c101.at(3) * xd );
     
     //================================================ Interpolate for the more less point
-    c10->at(0)                                        = ( this->xDimSampling * xd ) + c010.at(0);
+    c10->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c010.at(0);
     c10->at(1)                                        = c010.at(1);
     c10->at(2)                                        = c010.at(2);
     c10->at(3)                                        = ( c010.at(3) * ( 1.0 - xd ) ) + ( c110.at(3) * xd );
     
     //================================================ Interpolate for the more more point
-    c11->at(0)                                        = ( this->xDimSampling * xd ) + c011.at(0);
+    c11->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c011.at(0);
     c11->at(1)                                        = c011.at(1);
     c11->at(2)                                        = c011.at(2);
     c11->at(3)                                        = ( c011.at(3) * ( 1.0 - xd ) ) + ( c111.at(3) * xd );
@@ -489,13 +489,13 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::interpolateAlongSecond ( std::v
 {
     //================================================ Interpolate for the less point
     c0->at(0)                                         = c00.at(0);
-    c0->at(1)                                         = ( this->yDimSampling * yd ) + c00.at(1);
+    c0->at(1)                                         = ( static_cast< proshade_double > ( this->yDimSampling ) * yd ) + c00.at(1);
     c0->at(2)                                         = c00.at(2);
     c0->at(3)                                         = ( c00.at(3) * ( 1.0 - yd ) ) + ( c10.at(3) * yd );
     
     //================================================ Interpolate for the more point
     c1->at(0)                                         = c01.at(0);
-    c1->at(1)                                         = ( this->yDimSampling * yd ) + c01.at(1);
+    c1->at(1)                                         = ( static_cast< proshade_double > ( this->yDimSampling ) * yd ) + c01.at(1);
     c1->at(2)                                         = c01.at(2);
     c1->at(3)                                         = ( c01.at(3) * ( 1.0 - yd ) ) + ( c11.at(3) * yd );
     
@@ -537,7 +537,7 @@ proshade_unsign ProSHADE_internal_spheres::autoDetermineBandwidth ( proshade_uns
 proshade_single ProSHADE_internal_spheres::autoDetermineSphereDistances ( proshade_single maxMapRange, proshade_single resolution )
 {
     //================================================ Get starting point
-    proshade_single ret                               = static_cast<proshade_single> ( resolution / 2.0 );
+    proshade_single ret                               = resolution / 2.0f;
     
     //================================================ Make sure at least 10 shells will exist
     while ( std::floor ( maxMapRange / ret ) < 10 )
@@ -561,7 +561,7 @@ proshade_single ProSHADE_internal_spheres::autoDetermineSphereDistances ( prosha
 proshade_unsign ProSHADE_internal_spheres::autoDetermineIntegrationOrder ( proshade_single maxMapRange, proshade_single sphereDist )
 {
     //================================================ Initialise local variables
-    proshade_double sphereDistanceAsFractionOfTotal = static_cast<proshade_double> ( sphereDist ) / ( maxMapRange / 2.0 );
+    proshade_double sphereDistanceAsFractionOfTotal = static_cast<proshade_double> ( sphereDist / ( maxMapRange / 2.0f ) );
     proshade_unsign ret                               = 0;
     
     //================================================ Compare to precomputed values

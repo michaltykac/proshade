@@ -37,6 +37,21 @@ proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_double x )
 #endif
 }
 
+//==================================================== Define round for C++98
+/*! \brief Calls the appropriate version of round function depending on compiler version.
+ 
+    \param[in] x A decimal point number to be rounded.
+    \param[out] X The rounded number.
+ */
+proshade_signed ProSHADE_internal_mapManip::myRound ( proshade_single x )
+{
+#if __cplusplus >= 201103L
+    return                                            ( static_cast< proshade_signed > ( std::round ( x ) ) );
+#else
+    return                                            ( static_cast< proshade_signed > ( round ( x ) ) );
+#endif
+}
+
 /*! \brief Function for finding the PDB file ranges.
  
     This function does a quick read-through the PDB file and reports the x, y and z to and from values. This is used to determine if these
@@ -230,9 +245,9 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
    *yCom                                              = 0.0;
    *zCom                                              = 0.0;
     proshade_signed arrPos                            = 0;
-    proshade_double xSampRate                         = xAngs / static_cast<proshade_single> ( xTo - xFrom );
-    proshade_double ySampRate                         = yAngs / static_cast<proshade_single> ( yTo - yFrom );
-    proshade_double zSampRate                         = zAngs / static_cast<proshade_single> ( zTo - zFrom );
+    proshade_single xSampRate                         = xAngs / static_cast< proshade_single > ( xTo - xFrom );
+    proshade_single ySampRate                         = yAngs / static_cast< proshade_single > ( yTo - yFrom );
+    proshade_single zSampRate                         = zAngs / static_cast< proshade_single > ( zTo - zFrom );
     
     //================================================ For each map point
     for ( proshade_signed xIt = xFrom; xIt <= xTo; xIt++ )
@@ -287,7 +302,7 @@ proshade_double yCom, proshade_double zCom, bool firstModel )
     ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
     
     //================================================ Initialise internal variables
-    proshade_single xTmp, yTmp, zTmp;
+    proshade_double xTmp, yTmp, zTmp;
     
     //================================================ Use the first model, if it exists
     if ( pdbFile->models.size() > 0 )
@@ -320,9 +335,9 @@ proshade_double yCom, proshade_double zCom, bool firstModel )
                         gemmi::Atom *atom             = &residue->atoms.at(aIt);
                         
                         //============================ Move to mid-point
-                        xTmp                          = static_cast< proshade_single > ( atom->pos.x - xCom );
-                        yTmp                          = static_cast< proshade_single > ( atom->pos.y - yCom );
-                        zTmp                          = static_cast< proshade_single > ( atom->pos.z - zCom );
+                        xTmp                          = static_cast< proshade_double > ( atom->pos.x - xCom );
+                        yTmp                          = static_cast< proshade_double > ( atom->pos.y - yCom );
+                        zTmp                          = static_cast< proshade_double > ( atom->pos.z - zCom );
                         
                         //============================ Rotate the atom position
                         atom->pos.x                   = ( xTmp * rotMat[0] ) + ( yTmp * rotMat[1] ) + ( zTmp * rotMat[2] );
@@ -588,7 +603,7 @@ void ProSHADE_internal_mapManip::movePDBForMapCalc ( gemmi::Structure *pdbFile, 
                         gemmi::Atom *atom             = &residue->atoms.at(aIt);
                         
                         //============================ Move the atoms
-                        atom->pos                     = gemmi::Position ( atom->pos.x + xMov, atom->pos.y + yMov, atom->pos.z + zMov );
+                        atom->pos                     = gemmi::Position ( atom->pos.x + static_cast< proshade_double > ( xMov ), atom->pos.y + static_cast< proshade_double > ( yMov ), atom->pos.z + static_cast< proshade_double > ( zMov ) );
                     }
                 }
             }
@@ -630,9 +645,9 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 {
     //================================================ Set cell dimensions from the increased ranges (we need to add some space) and re-calculate cell properties
     if ( forceP1 ) { pdbFile.cell = gemmi::UnitCell(); }
-    pdbFile.cell.a                                    = xCell;
-    pdbFile.cell.b                                    = yCell;
-    pdbFile.cell.c                                    = zCell;
+    pdbFile.cell.a                                    = static_cast< proshade_double > ( xCell );
+    pdbFile.cell.b                                    = static_cast< proshade_double > ( yCell );
+    pdbFile.cell.c                                    = static_cast< proshade_double > ( zCell );
     pdbFile.cell.calculate_properties                 ( );
 
     //================================================ Get elements in Gemmi format
@@ -713,7 +728,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
             for ( proshade_signed wIt = 0; wIt < (*zTo); wIt++ )
             {
                 arrPos                                = wIt  + (*zTo) * ( vIt  + (*yTo) * uIt );
-                map[arrPos]                           = grid.get_value_q( uIt, vIt, wIt );
+                map[arrPos]                           = static_cast< proshade_double > ( grid.get_value_q( uIt, vIt, wIt ) );
             }
         }
     }
@@ -793,7 +808,7 @@ void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, prosh
     \param[in] yDim How many indices are there along the y dimension.
     \param[in] zDim How many indices are there along the z dimension.
  */
-void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, proshade_double xMov, proshade_double yMov, proshade_double zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Local variables initialisation
     proshade_signed arrayPos                          = 0;
@@ -855,9 +870,9 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
                 if ( wIt > static_cast<proshade_unsign> ( (zDim+1) / 2) ) { l = wIt - static_cast <proshade_signed> ( zDim ); } else { l = wIt; }
                 
                 //==================================== Get translation coefficient change
-                exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * (-xMov) ) +
-                                                          ( ( static_cast <proshade_double> ( k ) / static_cast <proshade_double> ( yAngs ) ) * (-yMov) ) +
-                                                          ( ( static_cast <proshade_double> ( l ) / static_cast <proshade_double> ( zAngs ) ) * (-zMov) ) ) * 2.0 * M_PI;
+                exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * static_cast< proshade_double > ( -xMov ) ) +
+                                                          ( ( static_cast <proshade_double> ( k ) / static_cast <proshade_double> ( yAngs ) ) * static_cast< proshade_double > ( -yMov ) ) +
+                                                          ( ( static_cast <proshade_double> ( l ) / static_cast <proshade_double> ( zAngs ) ) * static_cast< proshade_double > ( -zMov ) ) ) * 2.0 * M_PI;
                         
                 trCoeffReal                           = cos ( exponent );
                 trCoeffImag                           = sin ( exponent );
@@ -964,10 +979,10 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
                 if ( wIt > static_cast<proshade_unsign> ( (zDim+1) / 2) ) { l = wIt - static_cast <proshade_signed> ( zDim ); } else { l = wIt; }
                 
                 //====================================Get magnitude and phase with mask parameters
-                S                                     = ( pow( static_cast<proshade_double> ( h ) / xAngs, 2.0 ) +
-                                                          pow( static_cast<proshade_double> ( k ) / yAngs, 2.0 ) +
-                                                          pow( static_cast<proshade_double> ( l ) / zAngs, 2.0 ) );
-                mag                                   = std::sqrt ( (real*real) + (imag*imag) ) * std::exp ( - ( ( blurringFactor * S ) / 4.0 ) );
+                S                                     = ( pow( static_cast< proshade_double > ( h ) / static_cast< proshade_double > ( xAngs ), 2.0 ) +
+                                                          pow( static_cast< proshade_double > ( k ) / static_cast< proshade_double > ( yAngs ), 2.0 ) +
+                                                          pow( static_cast< proshade_double > ( l ) / static_cast< proshade_double > ( zAngs ), 2.0 ) );
+                mag                                   = std::sqrt ( (real*real) + (imag*imag) ) * std::exp ( - ( ( static_cast< proshade_double > ( blurringFactor ) * S ) / 4.0 ) );
                 phase                                 = std::atan2 ( imag, real );
                 
                 //==================================== Save the mask data
@@ -1159,7 +1174,7 @@ void ProSHADE_internal_mapManip::addExtraBoundSpace ( proshade_unsign xDim, pros
 void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
 {
     //================================================ Sanity check - the resolution needs to be set
-    if ( resolution <= 0.0 )
+    if ( resolution <= 0.0f )
     {
         throw ProSHADE_exception ( "Requested resolution not set for map re-sampling.", "EM00015", __FILE__, __LINE__, __func__, "There is no resolution value set, but map re-sampling to\n                    : this unset resolution value is required. This error\n                    : occurs when a task with no resolution requirement is\n                    : requested on a map data and the map resolution change is\n                    : set to \'on\'. Either supply a resolution value, or do not\n                    : re-sample the map." );
     }
@@ -1171,9 +1186,9 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     proshade_single oldXSample                        = ( xAngs / static_cast<proshade_single> ( xDim ) );
     proshade_single oldYSample                        = ( yAngs / static_cast<proshade_single> ( yDim ) );
     proshade_single oldZSample                        = ( zAngs / static_cast<proshade_single> ( zDim ) );
-    proshade_single newXSample                        = static_cast< proshade_single  > ( resolution / 2.0 );
-    proshade_single newYSample                        = static_cast< proshade_single  > ( resolution / 2.0 );
-    proshade_single newZSample                        = static_cast< proshade_single  > ( resolution / 2.0 );
+    proshade_single newXSample                        = static_cast< proshade_single  > ( resolution / 2.0f );
+    proshade_single newYSample                        = static_cast< proshade_single  > ( resolution / 2.0f );
+    proshade_single newZSample                        = static_cast< proshade_single  > ( resolution / 2.0f );
     
     //================================================ Compute required grid size
     proshade_signed newXDim                           = static_cast<proshade_signed> ( std::ceil ( xAngs / newXSample ) );
@@ -1268,49 +1283,49 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
                 c111.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 //==================================== Interpolate to the new grid along X
-                xRelative                             = ( ( xIt * newXSample ) - ( xBottom * oldXSample ) ) / ( ( xTop * oldXSample ) - ( xBottom * oldXSample ) );
+                xRelative                             = static_cast<proshade_double> ( ( ( xIt * newXSample ) - ( xBottom * oldXSample ) ) / ( ( xTop * oldXSample ) - ( xBottom * oldXSample ) ) );
                 
                 //==================================== Interpolate for the less less point
-                c00.at(0)                             = ( newXSample * xRelative ) + c000.at(0);
+                c00.at(0)                             = ( static_cast< proshade_double > ( newXSample ) * xRelative ) + c000.at(0);
                 c00.at(1)                             = c000.at(1);
                 c00.at(2)                             = c000.at(2);
                 c00.at(3)                             = ( c000.at(3) * ( 1.0 - xRelative ) ) + ( c100.at(3) * xRelative );
                 
                 //==================================== Interpolate for the less more point
-                c01.at(0)                             = ( newXSample * xRelative ) + c001.at(0);
+                c01.at(0)                             = ( static_cast< proshade_double > ( newXSample ) * xRelative ) + c001.at(0);
                 c01.at(1)                             = c001.at(1);
                 c01.at(2)                             = c001.at(2);
                 c01.at(3)                             = ( c001.at(3) * ( 1.0 - xRelative ) ) + ( c101.at(3) * xRelative );
                 
                 //==================================== Interpolate for the more less point
-                c10.at(0)                             = ( newXSample * xRelative ) + c010.at(0);
+                c10.at(0)                             = ( static_cast< proshade_double > ( newXSample ) * xRelative ) + c010.at(0);
                 c10.at(1)                             = c010.at(1);
                 c10.at(2)                             = c010.at(2);
                 c10.at(3)                             = ( c010.at(3) * ( 1.0 - xRelative ) ) + ( c110.at(3) * xRelative );
                 
                 //==================================== Interpolate for the more more point
-                c11.at(0)                             = ( newXSample * xRelative ) + c011.at(0);
+                c11.at(0)                             = ( static_cast< proshade_double > ( newXSample ) * xRelative ) + c011.at(0);
                 c11.at(1)                             = c011.at(1);
                 c11.at(2)                             = c011.at(2);
                 c11.at(3)                             = ( c011.at(3) * ( 1.0 - xRelative ) ) + ( c111.at(3) * xRelative );
                 
                 //==================================== Interpolate to the new grid along Y
-                yRelative                             = ( ( yIt * newYSample ) - ( yBottom * oldYSample ) ) / ( ( yTop * oldYSample ) - ( yBottom * oldYSample ) );
+                yRelative                             =  static_cast< proshade_double > ( ( ( yIt * newYSample ) - ( yBottom * oldYSample ) ) / ( ( yTop * oldYSample ) - ( yBottom * oldYSample ) ) );
                 
                 //==================================== Interpolate for the less point
                 c0.at(0)                              = c00.at(0);
-                c0.at(1)                              = ( newYSample * yRelative ) + c00.at(1);
+                c0.at(1)                              = ( static_cast< proshade_double > ( newYSample ) * yRelative ) + c00.at(1);
                 c0.at(2)                              = c00.at(2);
                 c0.at(3)                              = ( c00.at(3) * ( 1.0 - yRelative ) ) + ( c10.at(3) * yRelative );
                 
                 //==================================== Interpolate for the more point
                 c1.at(0)                              = c01.at(0);
-                c1.at(1)                              = ( newYSample * yRelative ) + c01.at(1);
+                c1.at(1)                              = ( static_cast< proshade_double > ( newYSample ) * yRelative ) + c01.at(1);
                 c1.at(2)                              = c01.at(2);
                 c1.at(3)                              = ( c01.at(3) * ( 1.0 - yRelative ) ) + ( c11.at(3) * yRelative );
                 
                 //==================================== Interpolate to the new grid along Z
-                zRelative                             = ( ( zIt * newZSample ) - ( zBottom * oldZSample ) ) / ( ( zTop * oldZSample ) - ( zBottom * oldZSample ) );
+                zRelative                             = ( ( zIt * static_cast< proshade_double > ( newZSample ) ) - static_cast< proshade_double > ( zBottom * oldZSample ) ) / static_cast< proshade_double > ( ( zTop * oldZSample ) - ( zBottom * oldZSample ) );
                 newMap[newMapIndex]                   = ( c0.at(3) * ( 1.0 - zRelative ) ) + ( c1.at(3) * zRelative );
             }
         }
@@ -1360,15 +1375,15 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
 void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
 {
     //================================================ Sanity check - the resolution needs to be set
-    if ( resolution <= 0.0 )
+    if ( resolution <= 0.0f )
     {
         throw ProSHADE_exception ( "Requested resolution not set for map re-sampling.", "EM00015", __FILE__, __LINE__, __func__, "There is no resolution value set, but map re-sampling to\n                    : this unset resolution value is required. This error\n                    : occurs when a task with no resolution requirement is\n                    : requested on a map data and the map resolution change is\n                    : set to \'on\'. Either supply a resolution value, or do not\n                    : re-sample the map." );
     }
     
     //================================================ Initialise variables
-    proshade_unsign newXDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( xAngs / ( resolution / 2.0 ) ) );
-    proshade_unsign newYDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( yAngs / ( resolution / 2.0 ) ) );
-    proshade_unsign newZDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( zAngs / ( resolution / 2.0 ) ) );
+    proshade_unsign newXDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( xAngs / ( resolution / 2.0f ) ) );
+    proshade_unsign newYDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( yAngs / ( resolution / 2.0f ) ) );
+    proshade_unsign newZDim                           = static_cast<proshade_unsign> ( ProSHADE_internal_mapManip::myRound ( zAngs / ( resolution / 2.0f ) ) );
     
     if ( newXDim % 2 != 0 ) { newXDim += 1; }
     if ( newYDim % 2 != 0 ) { newYDim += 1; }
@@ -1447,9 +1462,9 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     corrs[0]                                          = static_cast< proshade_single > ( newXDim ) - static_cast< proshade_single > ( xDimS );
     corrs[1]                                          = static_cast< proshade_single > ( newYDim ) - static_cast< proshade_single > ( yDimS );
     corrs[2]                                          = static_cast< proshade_single > ( newZDim ) - static_cast< proshade_single > ( zDimS );
-    corrs[3]                                          = static_cast< proshade_single > ( newXDim ) * static_cast< proshade_single > ( resolution / 2.0 );
-    corrs[4]                                          = static_cast< proshade_single > ( newYDim ) * static_cast< proshade_single > ( resolution / 2.0 );
-    corrs[5]                                          = static_cast< proshade_single > ( newZDim ) * static_cast< proshade_single > ( resolution / 2.0 );
+    corrs[3]                                          = static_cast< proshade_single > ( newXDim ) * static_cast< proshade_single > ( resolution / 2.0f );
+    corrs[4]                                          = static_cast< proshade_single > ( newYDim ) * static_cast< proshade_single > ( resolution / 2.0f );
+    corrs[5]                                          = static_cast< proshade_single > ( newZDim ) * static_cast< proshade_single > ( resolution / 2.0f );
 
     
     //======================================== Done
@@ -1822,7 +1837,7 @@ void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, pros
 {
     //================================================ Initialise variables
     proshade_double* hlpMap                           = new proshade_double[xDim * yDim * zDim];
-    proshade_signed addSurroundingPoints              = static_cast< proshade_signed > ( std::max ( 3L, static_cast<proshade_signed> ( std::ceil ( getIndicesFromAngstroms( xDim, yDim, zDim, xAngs, yAngs, zAngs, static_cast< proshade_single > ( std::max( xAngs, std::max( yAngs, zAngs ) ) * 0.1 ) ) ) ) ) );
+    proshade_signed addSurroundingPoints              = static_cast< proshade_signed > ( std::max ( 3L, static_cast<proshade_signed> ( std::ceil ( getIndicesFromAngstroms( xDim, yDim, zDim, xAngs, yAngs, zAngs, static_cast< proshade_single > ( std::max( xAngs, std::max( yAngs, zAngs ) ) * 0.1f ) ) ) ) ) );
     proshade_signed currPos, neighXPos, neighYPos, neighZPos, neighArrPos;
     
     //================================================ Check memory allocation
@@ -1845,7 +1860,7 @@ void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, pros
                     currPos                           = zIt + zDim * ( yIt + yDim * xIt );
                     
                     //================================ If zero, ignore
-                    if ( hlpMap[currPos] < maskThres ) { continue; }
+                    if ( hlpMap[currPos] < static_cast< proshade_double > ( maskThres ) ) { continue; }
                     
                     //================================ Check neighbours
                     for ( proshade_signed xCh = -1; xCh <= +1; xCh++ )
@@ -1863,7 +1878,7 @@ void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, pros
                                 neighArrPos           = neighZPos + zDim * ( neighYPos + yDim * neighXPos );
                                 
                                 //==================== Add to mask if this point is below it (as it is a neighbour to a point which is part of the mask)
-                                if ( hlpMap[neighArrPos] < maskThres ) { mask[neighArrPos] = maskThres; }
+                                if ( hlpMap[neighArrPos] < static_cast< proshade_double > ( maskThres ) ) { mask[neighArrPos] = static_cast< proshade_double > ( maskThres ); }
                             }
                         }
                     }

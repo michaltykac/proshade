@@ -205,7 +205,7 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<float> *gemmiMap, proshad
             for ( axOrdArr[2] = 0; axOrdArr[2] < axDimArr[zAxOrder-1]; axOrdArr[2]++ )
             {
                 arrPos                                = axOrdArr[2]  + axDimArr[zAxOrder-1] * ( axOrdArr[1]  + axDimArr[yAxOrder-1] * axOrdArr[0] );
-                map[arrPos]                           = gemmiMap->grid.get_value_q( axOrdArr[xAxOrder-1], axOrdArr[yAxOrder-1], axOrdArr[zAxOrder-1] );
+                map[arrPos]                           = static_cast< proshade_double > ( gemmiMap->grid.get_value_q( axOrdArr[xAxOrder-1], axOrdArr[yAxOrder-1], axOrdArr[zAxOrder-1] ) );
             }
         }
     }

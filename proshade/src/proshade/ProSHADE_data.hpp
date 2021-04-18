@@ -243,7 +243,7 @@ namespace ProSHADE_internal_data
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( void );
         void computePdbRotationCentre                 ( void );
-        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
+        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_single trsX, proshade_single trsY, proshade_single trsZ );
         void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
                                                         std::vector< proshade_double >* ultimateTranslation );
         void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
@@ -262,7 +262,7 @@ namespace ProSHADE_internal_data
         proshade_double getAnySphereRadius            ( proshade_unsign shell );
         proshade_double getIntegrationWeight          ( void );
         proshade_unsign getShellBandwidth             ( proshade_unsign shell );
-        proshade_double getSpherePosValue             ( proshade_unsign shell );
+        proshade_single getSpherePosValue             ( proshade_unsign shell );
         proshade_complex** getEMatrixByBand           ( proshade_unsign band );
         void getEMatrixValue                          ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag );
         proshade_complex* getInvSO3Coeffs             ( void );

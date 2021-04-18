@@ -37,6 +37,7 @@
 namespace ProSHADE_internal_mapManip
 {
     proshade_signed myRound                           ( proshade_double x );
+    proshade_signed myRound                           ( proshade_single x );
     void determinePDBRanges                           ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
                                                         proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, bool firstModel );
     void findPDBCOMValues                             ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel );
@@ -57,7 +58,7 @@ namespace ProSHADE_internal_mapManip
                                                         proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo,
                                                         proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin,
                                                         proshade_signed* zOrigin );
-    void moveMapByFourier                             ( proshade_double*& map, proshade_double xMov, proshade_double yMov, proshade_double zMov, proshade_single xAngs,
+    void moveMapByFourier                             ( proshade_double*& map, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs,
                                                         proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
     void blurSharpenMap                               ( proshade_double*& map, proshade_double*& maskedMap, proshade_unsign xDimS, proshade_unsign yDimS,
                                                         proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single blurringFactor );

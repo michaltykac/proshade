@@ -68,9 +68,9 @@ void ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction ( ProSHAD
 void ProSHADE_internal_data::ProSHADE_data::computePdbRotationCentre ()
 {
     //================================================ First. determine the sampling rates (value to multiply indices with to get Angstroms)
-    proshade_double xSamplRate                        = ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) );
-    proshade_double ySamplRate                        = ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) );
-    proshade_double zSamplRate                        = ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) );
+    proshade_double xSamplRate                        = static_cast<proshade_double> ( this->xDimSizeOriginal / static_cast< proshade_single > ( this->xDimIndicesOriginal ) );
+    proshade_double ySamplRate                        = static_cast<proshade_double> ( this->yDimSizeOriginal / static_cast< proshade_single > ( this->yDimIndicesOriginal ) );
+    proshade_double zSamplRate                        = static_cast<proshade_double> ( this->zDimSizeOriginal / static_cast< proshade_single > ( this->zDimIndicesOriginal ) );
     
     //================================================ Compute the rotation centre for the co-ordinates
     proshade_double xRotPos                           = ( static_cast<proshade_double> ( this->xFrom - this->mapMovFromsChangeX ) * xSamplRate ) +                                // Corner X position in Angstroms
@@ -106,7 +106,7 @@ void ProSHADE_internal_data::ProSHADE_data::computePdbRotationCentre ()
  
     \warning This function will be called automatically by the getOptimalTranslation() function, so unless directAccess is being used, the user should not need to use this function.
  */
-void ProSHADE_internal_data::ProSHADE_data::computeOptimalTranslation ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ )
+void ProSHADE_internal_data::ProSHADE_data::computeOptimalTranslation ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_single trsX, proshade_single trsY, proshade_single trsZ )
 {
     //================================================ Reset class variables
     this->originalPdbTransX                           = 0.0;
@@ -128,9 +128,9 @@ void ProSHADE_internal_data::ProSHADE_data::computeOptimalTranslation ( proshade
     }
 
     //================================================ Save the values
-    this->originalPdbTransX                          += trsX;
-    this->originalPdbTransY                          += trsY;
-    this->originalPdbTransZ                          += trsZ;
+    this->originalPdbTransX                          += static_cast< proshade_double > ( trsX );
+    this->originalPdbTransY                          += static_cast< proshade_double > ( trsY );
+    this->originalPdbTransZ                          += static_cast< proshade_double > ( trsZ );
     
     //================================================ Done
     return ;
@@ -245,22 +245,22 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     
     //================================================ Move map
     proshade_single xCor                              = static_cast< proshade_single > ( ( staticStructure->xFrom - movingStructure->xFrom ) *
-                                                                                         ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+                                                                                         ( static_cast< proshade_double > ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
     proshade_single yCor                              = static_cast< proshade_single > ( ( staticStructure->yFrom - movingStructure->yFrom ) *
-                                                                                         ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+                                                                                         ( static_cast< proshade_double > ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
     proshade_single zCor                              = static_cast< proshade_single > ( ( staticStructure->zFrom - movingStructure->zFrom ) *
-                                                                                         ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
-    proshade_single xMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeX - xCor -
-                                                                                         ( *trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
-    proshade_single yMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeY - yCor -
-                                                                                         ( *trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
-    proshade_single zMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeZ - zCor -
-                                                                                         ( *trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
+                                                                                         ( static_cast< proshade_double > ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
+    proshade_single xMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeX - static_cast< proshade_double > ( xCor ) -
+                                                                                         ( *trsX * static_cast< proshade_double > ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+    proshade_single yMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeY - static_cast< proshade_double > ( yCor ) -
+                                                                                         ( *trsY * static_cast< proshade_double > ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+    proshade_single zMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeZ - static_cast< proshade_double > ( zCor ) -
+                                                                                         ( *trsZ * static_cast< proshade_double > ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
     
     //================================================ Save translation vector back
-   *trsX                                              = -xMov;
-   *trsY                                              = -yMov;
-   *trsZ                                              = -zMov;
+   *trsX                                              = static_cast< proshade_double > ( -xMov );
+   *trsY                                              = static_cast< proshade_double > ( -yMov );
+   *trsZ                                              = static_cast< proshade_double > ( -zMov );
     
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -327,16 +327,16 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
     
     //================================================ Move map
     proshade_single xCor                              = static_cast< proshade_single > ( ( staticStructure->xFrom - this->xFrom ) *
-                                                                                         ( static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
+                                                                                         ( static_cast< proshade_double > ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
     proshade_single yCor                              = static_cast< proshade_single > ( ( staticStructure->yFrom - this->yFrom ) *
-                                                                                         ( static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
+                                                                                         ( static_cast< proshade_double > ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
     proshade_single zCor                              = static_cast< proshade_single > ( ( staticStructure->zFrom - this->zFrom ) *
-                                                                                         ( static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
-    proshade_single xMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeX - xCor -
+                                                                                         ( static_cast< proshade_double > ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
+    proshade_single xMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeX - static_cast< proshade_double > ( xCor ) -
                                                                                          ( trsX * static_cast<proshade_double> ( staticStructure->getXDimSize() ) / staticStructure->getXDim() ) );
-    proshade_single yMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeY - yCor -
+    proshade_single yMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeY - static_cast< proshade_double > ( yCor ) -
                                                                                          ( trsY * static_cast<proshade_double> ( staticStructure->getYDimSize() ) / staticStructure->getYDim() ) );
-    proshade_single zMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeZ - zCor -
+    proshade_single zMov                              = static_cast< proshade_single > ( staticStructure->mapCOMProcessChangeZ - static_cast< proshade_double > ( zCor ) -
                                                                                          ( trsZ * static_cast<proshade_double> ( staticStructure->getZDimSize() ) / staticStructure->getZDim() ) );
     proshade_single modXMov                           = xMov;
     proshade_single modYMov                           = yMov;
@@ -1085,7 +1085,7 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( proshade
                 upperShell                            = 0;
                 for ( proshade_unsign iter = 0; iter < (this->noSpheres-1); iter++ )
                 {
-                    if ( ( this->spherePos.at(iter) <= rad ) && ( this->spherePos.at(iter+1) > rad ) )
+                    if ( ( static_cast< proshade_double > ( this->spherePos.at(iter) ) <= rad ) && ( static_cast< proshade_double > ( this->spherePos.at(iter+1) ) > rad ) )
                     {
                         lowerShell                    = iter;
                         upperShell                    = iter+1;
@@ -1201,8 +1201,8 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( proshade
                 upperShellValue                       = ( ( 1.0 - distLLat ) * valLLon ) + ( distLLat * valULon );
                 
                 //==================================== Interpolate between shells
-                distLRad                              = std::abs ( rad - this->spherePos.at(lowerShell) ) / ( std::abs( rad - this->spherePos.at(lowerShell) ) +
-                                                                                                              std::abs( rad - this->spherePos.at(upperShell) ) );
+                distLRad                              = std::abs ( rad - static_cast< proshade_double > ( this->spherePos.at(lowerShell) ) ) / ( std::abs( rad - static_cast< proshade_double > ( this->spherePos.at(lowerShell) ) ) +
+                                                                                                              std::abs( rad - static_cast< proshade_double > ( this->spherePos.at(upperShell) ) ) );
                 
                 arrPos                                = wIt + this->zDimIndices * ( vIt + this->yDimIndices * uIt );
                 densityMapRotated[arrPos]             = ( ( 1.0 - distLRad ) * lowerShellValue ) + ( distLRad * upperShellValue );

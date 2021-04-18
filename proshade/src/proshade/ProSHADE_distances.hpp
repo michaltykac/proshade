@@ -54,7 +54,7 @@ namespace ProSHADE_internal_distances
                                                         proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist );
     proshade_double computeWeightsForEMatricesForLM   ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals,
-                                                        proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double sphereDist );
+                                                        proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist );
     void releaseTrSigmaWorkspace                      ( proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas,
                                                         proshade_double*& glWeights, proshade_complex*& radiiVals );
     void computeEMatrices                             ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,

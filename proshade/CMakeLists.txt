@@ -89,7 +89,7 @@ if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
   		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion  -Weverything -Wno-c++98-compat -fPIC "       )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
   		################################# Using Clang
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wno-c++98-compat -fPIC "       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wno-c++98-compat -fPIC "       )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   		################################# Using GCC
   		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -fPIC"       )

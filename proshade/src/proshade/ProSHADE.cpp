@@ -335,7 +335,7 @@ void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
         if ( ( this->task == Symmetry  ) && ( !this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = 5.0; }
         
         //============================================ If using the new symmetry detection algorithm, this needs to be decreasing with resolution. How much, that is a bit arbitrary...
-        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = std::max ( 0.0, 1.0 - ( this->requestedResolution * 0.05 ) ); }
+        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = static_cast< proshade_double > ( std::max ( 0.0f, 1.0f - ( this->requestedResolution * 0.05f ) ) ); }
     }
     
     //================================================ Done
@@ -1455,7 +1455,7 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
 void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
 {
     //================================================ Check the current settings value is set to auto
-    if ( this->maxSphereDists != 0.0 )
+    if ( this->maxSphereDists != 0.0f )
     {
         std::stringstream hlpSS;
         hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
@@ -1528,15 +1528,15 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     the idea that DIST(A,B) == DIST(B,A). If this is important, then the user should set all of these values manually to the
     settings object to avoid this issue.
  */
-void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_double xDimAngs, proshade_double yDimAngs, proshade_double zDimAngs )
+void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_single xDimAngs, proshade_single yDimAngs, proshade_single zDimAngs )
 {
     //================================================ Print progress message
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
     
     //================================================ Modify dims by resolution
-    proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0 ) ) );
-    proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0 ) ) );
-    proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0 ) ) );
+    proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
+    proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0f ) ) );
+    proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0f ) ) );
     
     //================================================ Find maximum circumference
     proshade_unsign maxDim                            = std::max ( theoXDim, std::max ( theoYDim, theoZDim ) );
@@ -1553,8 +1553,8 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     else { this->determineBandwidth ( circ ); }
     
     //================================================ Find maximum diagonal in Angstroms
-    proshade_single maxDiag                           = static_cast< proshade_single > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
-                                                                                                     std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) ) );
+    proshade_single maxDiag                           = static_cast< proshade_single > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0f ), 2.0f ) +
+                                                                                                     std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0f ), 2.0f ) ) );
     
     //================================================ Sphere distances
     this->determineSphereDistances                    ( maxDiag );
@@ -2108,7 +2108,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              //======================================= Save the argument as the PDB B-factor new constant value
              case 'd':
              {
-                 this->setPDBBFactor                  ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setPDBBFactor                  ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  

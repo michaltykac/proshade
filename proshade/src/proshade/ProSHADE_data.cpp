@@ -24,9 +24,50 @@
 //==================================================== ProSHADE
 #include "ProSHADE_data.hpp"
 
+//==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
+#if defined ( __GNUC__ )
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wpedantic"
+    #pragma GCC diagnostic ignored "-Wshadow"
+    #pragma GCC diagnostic ignored "-Wall"
+    #pragma GCC diagnostic ignored "-Wextra"
+    #pragma GCC diagnostic ignored "-Wdouble-promotion"
+#endif
+
+//==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
+#if defined ( __clang__ )
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wpedantic"
+    #pragma clang diagnostic ignored "-Wshadow"
+    #pragma clang diagnostic ignored "-Wall"
+    #pragma clang diagnostic ignored "-Wextra"
+    #pragma clang diagnostic ignored "-Wdouble-promotion"
+    #pragma clang diagnostic ignored "-Weverything"
+#endif
+
+//==================================================== Remove MSVC C4996 Warnings caused by Gemmi code
+#if defined ( _MSC_VER )
+    #pragma warning ( disable:4996 )
+#endif
+
 //==================================================== Gemmi PDB output - this cannot be with the rest of includes for some stb_sprintf library related reasons ...
 #define GEMMI_WRITE_IMPLEMENTATION
 #include <gemmi/to_pdb.hpp>
+
+//==================================================== Enable MSVC C4996 Warnings for the rest of the code
+#if defined ( _MSC_VER )
+    #pragma warning ( default:4996 )
+#endif
+
+//==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
+#if defined ( __GNUC__ )
+    #pragma GCC diagnostic pop
+#endif
+
+//==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
+#if defined ( __clang__ )
+    #pragma clang diagnostic pop
+#endif
 
 /*! \brief Constructor for getting empty ProSHADE_data class.
  
@@ -521,7 +562,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
     //================================================ Set resolution if need be
-    if ( settings->requestedResolution < 0.0 )
+    if ( settings->requestedResolution < 0.0f )
     {
         settings->setResolution                       ( std::min ( static_cast<proshade_single> ( this->xDimSize ) / static_cast<proshade_single> ( this->xDimIndices ),
                                                         std::min ( static_cast<proshade_single> ( this->yDimSize ) / static_cast<proshade_single> ( this->yDimIndices ),
@@ -535,14 +576,14 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
         //============================================ Before re-sampling sampling rate
-        proshade_double xSampRate                     = this->xDimSize / static_cast<proshade_double> ( this->xTo - this->xFrom );
-        proshade_double ySampRate                     = this->yDimSize / static_cast<proshade_double> ( this->yTo - this->yFrom );
-        proshade_double zSampRate                     = this->zDimSize / static_cast<proshade_double> ( this->zTo - this->zFrom );
+        proshade_single xSampRate                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
+        proshade_single ySampRate                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
+        proshade_single zSampRate                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ Bofore re-sampling first index position
-        proshade_double xStartPosBefore               = this->xFrom * xSampRate;
-        proshade_double yStartPosBefore               = this->yFrom * ySampRate;
-        proshade_double zStartPosBefore               = this->zFrom * zSampRate;
+        proshade_single xStartPosBefore               = this->xFrom * xSampRate;
+        proshade_single yStartPosBefore               = this->yFrom * ySampRate;
+        proshade_single zStartPosBefore               = this->zFrom * zSampRate;
         
         //============================================ Find COM before map re-sampling
         proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
@@ -552,14 +593,14 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
         this->reSampleMap                             ( settings );
     
         //============================================ After re-sampling sampling rate
-        xSampRate                                     = this->xDimSize / static_cast<proshade_double> ( this->xTo - this->xFrom );
-        ySampRate                                     = this->yDimSize / static_cast<proshade_double> ( this->yTo - this->yFrom );
-        zSampRate                                     = this->zDimSize / static_cast<proshade_double> ( this->zTo - this->zFrom );
+        xSampRate                                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
+        ySampRate                                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
+        zSampRate                                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ After re-sampling first index position
-        proshade_double xStartPosAfter                = this->xFrom * xSampRate;
-        proshade_double yStartPosAfter                = this->yFrom * ySampRate;
-        proshade_double zStartPosAfter                = this->zFrom * zSampRate;
+        proshade_single xStartPosAfter                = this->xFrom * xSampRate;
+        proshade_single yStartPosAfter                = this->yFrom * ySampRate;
+        proshade_single zStartPosAfter                = this->zFrom * zSampRate;
         
         //============================================ Translate by change in corners to make the boxes as similarly placed as possible
         proshade_single xMov                          = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
@@ -614,7 +655,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
 void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* settings )
 {
     //================================================ Set resolution if need be
-    if ( settings->requestedResolution < 0.0 )
+    if ( settings->requestedResolution < 0.0f )
     {
         settings->setResolution                       ( 8.0 );
     }
@@ -643,15 +684,15 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
     
     //================================================ Move ranges to have all FROM values 20
-    proshade_single xMov                              = static_cast< proshade_single > ( 20.0 - xF );
-    proshade_single yMov                              = static_cast< proshade_single > ( 20.0 - yF );
-    proshade_single zMov                              = static_cast< proshade_single > ( 20.0 - zF );
+    proshade_single xMov                              = static_cast< proshade_single > ( 20.0f - xF );
+    proshade_single yMov                              = static_cast< proshade_single > ( 20.0f - yF );
+    proshade_single zMov                              = static_cast< proshade_single > ( 20.0f - zF );
     ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
-    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + 40.0 );
-    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + 40.0 );
-    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + 40.0 );
+    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + 40.0f );
+    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + 40.0f );
+    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + 40.0f );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
@@ -683,14 +724,14 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
     {
         //============================================ Before re-sampling sampling rate
-        proshade_double xSampRate                     = this->xDimSize / static_cast<proshade_double> ( this->xTo - this->xFrom );
-        proshade_double ySampRate                     = this->yDimSize / static_cast<proshade_double> ( this->yTo - this->yFrom );
-        proshade_double zSampRate                     = this->zDimSize / static_cast<proshade_double> ( this->zTo - this->zFrom );
+        proshade_single xSampRate                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
+        proshade_single ySampRate                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
+        proshade_single zSampRate                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ Bofore re-sampling first index position
-        proshade_double xStartPosBefore               = this->xFrom * xSampRate;
-        proshade_double yStartPosBefore               = this->yFrom * ySampRate;
-        proshade_double zStartPosBefore               = this->zFrom * zSampRate;
+        proshade_single xStartPosBefore               = this->xFrom * xSampRate;
+        proshade_single yStartPosBefore               = this->yFrom * ySampRate;
+        proshade_single zStartPosBefore               = this->zFrom * zSampRate;
         
         //============================================ Find COM before map re-sampling
         proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
@@ -700,14 +741,14 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
         this->reSampleMap                             ( settings );
     
         //============================================ After re-sampling sampling rate
-        xSampRate                                     = this->xDimSize / static_cast<proshade_double> ( this->xTo - this->xFrom );
-        ySampRate                                     = this->yDimSize / static_cast<proshade_double> ( this->yTo - this->yFrom );
-        zSampRate                                     = this->zDimSize / static_cast<proshade_double> ( this->zTo - this->zFrom );
+        xSampRate                                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
+        ySampRate                                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
+        zSampRate                                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ After re-sampling first index position
-        proshade_double xStartPosAfter                = this->xFrom * xSampRate;
-        proshade_double yStartPosAfter                = this->yFrom * ySampRate;
-        proshade_double zStartPosAfter                = this->zFrom * zSampRate;
+        proshade_single xStartPosAfter                = this->xFrom * xSampRate;
+        proshade_single yStartPosAfter                = this->yFrom * ySampRate;
+        proshade_single zStartPosAfter                = this->zFrom * zSampRate;
         
         //============================================ Translate by change in corners to make the boxes as similarly placed as possible
         proshade_single xMovHlp                       = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
@@ -827,7 +868,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
 {
     //================================================ Create and prepare new Grid gemmi object
     gemmi::Grid<float> mapData;
-    mapData.set_unit_cell                             ( this->xDimSize, this->yDimSize, this->zDimSize, this->aAngle, this->bAngle, this->cAngle );
+    mapData.set_unit_cell                             ( static_cast< double > ( this->xDimSize ), static_cast< double > ( this->yDimSize ), static_cast< double > ( this->zDimSize ), static_cast< double > ( this->aAngle ), static_cast< double > ( this->bAngle ), static_cast< double > ( this->cAngle ) );
     mapData.set_size_without_checking                 ( this->xDimIndices, this->yDimIndices, this->zDimIndices );
     mapData.axis_order                                = gemmi::AxisOrder::XYZ;
     mapData.spacegroup                                = &gemmi::get_spacegroup_p1();
@@ -1325,14 +1366,14 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
                                                         this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
     
     //================================================ Find the sampling rates
-    proshade_double xSampRate                         = this->xDimSize / static_cast<proshade_double> ( this->xTo - this->xFrom );
-    proshade_double ySampRate                         = this->yDimSize / static_cast<proshade_double> ( this->yTo - this->yFrom );
-    proshade_double zSampRate                         = this->zDimSize / static_cast<proshade_double> ( this->zTo - this->zFrom );
+    proshade_single xSampRate                         = static_cast< proshade_single > ( this->xDimSize ) / static_cast< proshade_single > ( this->xTo - this->xFrom );
+    proshade_single ySampRate                         = static_cast< proshade_single > ( this->yDimSize ) / static_cast< proshade_single > ( this->yTo - this->yFrom );
+    proshade_single zSampRate                         = static_cast< proshade_single > ( this->zDimSize ) / static_cast< proshade_single > ( this->zTo - this->zFrom );
     
     //================================================ Convert to position in indices starting from 0
-    xCOM                                             /= xSampRate;
-    yCOM                                             /= ySampRate;
-    zCOM                                             /= zSampRate;
+    xCOM                                             /= static_cast< proshade_double > ( xSampRate );
+    yCOM                                             /= static_cast< proshade_double > ( ySampRate );
+    zCOM                                             /= static_cast< proshade_double > ( zSampRate );
          
     xCOM                                             -= this->xFrom;
     yCOM                                             -= this->yFrom;
@@ -1495,7 +1536,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested." ); }
     
     //================================================ Add extra space
-    if ( settings->addExtraSpace != 0.0 ) { this->addExtraSpace ( settings ); }
+    if ( settings->addExtraSpace != 0.0f ) { this->addExtraSpace ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Extra space not requested." ); }
     
     //================================================ Remove phase, if required
@@ -1544,7 +1585,7 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
                                                                                                      std::pow ( static_cast<proshade_single> ( midDim ), 2.0 ) ) );
     
     //================================================ Set between the points
-    for ( proshade_single iter = 0.5; ( iter * settings->maxSphereDists ) < ( maxDiag / 2.0 ); iter += 1.0 )
+    for ( proshade_single iter = 0.5f; ( iter * settings->maxSphereDists ) < ( maxDiag / 2.0f ); iter += 1.0f )
     {
         ProSHADE_internal_misc::addToSingleVector     ( &this->spherePos, ( iter * settings->maxSphereDists ) );
     }
@@ -3115,15 +3156,15 @@ void ProSHADE_internal_data::ProSHADE_data::findMapCOM ( )
     this->zCom                                       /= totNonZeroPoints;
     
     //================================================ Convert to real world
-    this->xCom                                        = ( static_cast<proshade_double> ( this->xFrom ) * ( this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) ) +
-                                                        ( ( this->xCom - static_cast<proshade_double> ( this->xFrom ) ) *
-                                                        (   this->xDimSizeOriginal / static_cast<proshade_double> ( this->xDimIndicesOriginal ) ) );
-    this->yCom                                        = ( static_cast<proshade_double> ( this->yFrom ) * ( this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) ) +
-                                                        ( ( this->yCom - static_cast<proshade_double> ( this->yFrom ) ) *
-                                                        (   this->yDimSizeOriginal / static_cast<proshade_double> ( this->yDimIndicesOriginal ) ) );
-    this->zCom                                        = ( static_cast<proshade_double> ( this->zFrom ) * ( this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) ) +
-                                                        ( ( this->zCom - static_cast<proshade_double> ( this->zFrom ) ) *
-                                                        (   this->zDimSizeOriginal / static_cast<proshade_double> ( this->zDimIndicesOriginal ) ) );
+    this->xCom         = static_cast< proshade_double > ( ( static_cast< proshade_single > ( this->xFrom ) * ( this->xDimSizeOriginal / static_cast< proshade_single > ( this->xDimIndicesOriginal ) ) ) +
+                                                        ( ( static_cast< proshade_single > ( this->xCom ) - static_cast< proshade_single > ( this->xFrom ) ) *
+                                                        ( static_cast< proshade_single > ( this->xDimSizeOriginal ) / static_cast< proshade_single > ( this->xDimIndicesOriginal ) ) ) );
+    this->yCom         = static_cast< proshade_double > ( ( static_cast< proshade_single > ( this->yFrom ) * ( this->yDimSizeOriginal / static_cast< proshade_single > ( this->yDimIndicesOriginal ) ) ) +
+                                                        ( ( static_cast< proshade_single > ( this->yCom ) - static_cast< proshade_single > ( this->yFrom ) ) *
+                                                        ( static_cast< proshade_single > ( this->yDimSizeOriginal ) / static_cast< proshade_single > ( this->yDimIndicesOriginal ) ) ) );
+    this->zCom         = static_cast< proshade_double > ( ( static_cast< proshade_single > ( this->zFrom ) * ( this->zDimSizeOriginal / static_cast< proshade_single > ( this->zDimIndicesOriginal ) ) ) +
+                                                        ( ( static_cast< proshade_single > ( this->zCom ) - static_cast< proshade_single > ( this->zFrom ) ) *
+                                                        ( static_cast< proshade_single > ( this->zDimSizeOriginal ) / static_cast< proshade_single > ( this->zDimIndicesOriginal ) ) ) );
     
     //================================================ Done
     return ;
@@ -3340,7 +3381,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getShellBandwidth ( prosh
     \param[in] shell The index of the sphere for which the position (radius) is to be obtained.
     \param[out] X The radius of the sphere with index shell.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::getSpherePosValue ( proshade_unsign shell )
+proshade_single ProSHADE_internal_data::ProSHADE_data::getSpherePosValue ( proshade_unsign shell )
 {
     //================================================ Done
     return                                            ( this->spherePos.at(shell) );

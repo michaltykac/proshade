@@ -432,7 +432,7 @@ void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data
     \param[in] sphereDist The distance between any two spheres.
     \param[out] sphereRange The distance between the smallest and largest usable sphere (usable as in having the required band).
  */
-proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double sphereDist )
+proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist )
 {
     //================================================ Initialise local values
     proshade_unsign obj1ValsIter                      = 0;
@@ -458,14 +458,14 @@ proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( P
     }
     
     //================================================ Integrate weights
-    proshade_double minSphereRad                      = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5 );
-    proshade_double maxSphereRad                      = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5 );
+    proshade_single minSphereRad                      = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5f );
+    proshade_single maxSphereRad                      = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5f );
             
-    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
-    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
+    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
+    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
     
     //================================================ Done
-    return                                            ( maxSphereRad - minSphereRad );
+    return                                            ( static_cast< proshade_double > ( maxSphereRad - minSphereRad ) );
     
 }
 
@@ -538,7 +538,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
             integRange                                = computeWeightsForEMatricesForLM ( obj1, obj2, bandIter, orderIter, obj1Vals, obj2Vals, settings->integOrder, GLAbscissas, GLWeights, settings->maxSphereDists );
 
             //======================================== Compute E matrices value for given band (l) and order(m)
-            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, settings->maxSphereDists );
+            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, static_cast< proshade_double > ( settings->maxSphereDists ) );
         }
         
         //============================================ Report progress
