@@ -128,8 +128,10 @@ void ProSHADE_internal_maths::vectorMeanAndSD ( std::vector<proshade_double>* ve
     ret[1]                                            = std::sqrt ( ( squaredSum / static_cast<proshade_double> ( vec->size() ) ) - std::pow ( ret[0], 2.0 ) );
     
     //================================================ Check for NaN's
-    if ( ret[0] != ret[0] ) { ret[0] = 0.0; }
-    if ( ret[1] != ret[1] ) { ret[1] = 0.0; }
+    const FloatingPoint< proshade_double > lhs1 ( ret[0] );
+    const FloatingPoint< proshade_double > lhs2 ( ret[1] );
+    if ( !lhs1.AlmostEquals ( lhs1 ) ) { ret[0] = 0.0; }
+    if ( !lhs2.AlmostEquals ( lhs2 ) ) { ret[1] = 0.0; }
     
     //================================================ Return
     return ;
@@ -1122,9 +1124,13 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
         }
         
         //============================================ Make sure largest axis is positive and so is the angle
-        if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
-             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
-             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+        const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
+        const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
+        const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
+        const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
+        if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
+             ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
+             ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
         {
             *x                                       *= -1.0;
             *y                                       *= -1.0;
@@ -1163,9 +1169,13 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *z                                                /= normFactor;
     
     //================================================ Make sure largest axis is positive and so is the angle
-    if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
+    const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
+    const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
+    const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
+    if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
     {
         *x                                           *= -1.0;
         *y                                           *= -1.0;
@@ -1277,9 +1287,13 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
         }
         
         //============================================ Make sure largest axis is positive and so is the angle
-        if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
-             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
-             ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+        const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
+        const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
+        const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
+        const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
+        if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
+             ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
+             ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
         {
             *x                                       *= -1.0;
             *y                                       *= -1.0;
@@ -1317,9 +1331,13 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
    *z                                                /= normFactor;
     
     //================================================ Make sure largest axis is positive and so is the angle
-    if ( ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *x ) ) && ( *x < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *y ) ) && ( *y < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) == std::abs ( *z ) ) && ( *z < 0.0 ) ) )
+    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
+    const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
+    const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
+    const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
+    if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
     {
         *x                                           *= -1.0;
         *y                                           *= -1.0;
@@ -1556,9 +1574,13 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_doub
                 }
                 
                 //==================================== Make sure vector direction is the same
-                if ( ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axXHlp ) ) && ( axXHlp < 0.0 ) ) ||
-                     ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axYHlp ) ) && ( axYHlp < 0.0 ) ) ||
-                     ( ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) == std::abs( axZHlp ) ) && ( axZHlp < 0.0 ) ) )
+                const FloatingPoint< proshade_double > lhs1 ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) );
+                const FloatingPoint< proshade_double > rhs1 ( std::abs( axXHlp ) );
+                const FloatingPoint< proshade_double > rhs2 ( std::abs( axYHlp ) );
+                const FloatingPoint< proshade_double > rhs3 ( std::abs( axZHlp ) );
+                if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( axXHlp < 0.0 ) ) ||
+                     ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( axYHlp < 0.0 ) ) ||
+                     ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( axZHlp < 0.0 ) ) )
                 {
                     axXHlp                           *= -1.0;
                     axYHlp                           *= -1.0;
@@ -1566,9 +1588,13 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_doub
                     axAngHlp                         *= -1.0;
                 }
                 
-                if ( ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axX ) ) && ( axX < 0.0 ) ) ||
-                     ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axY ) ) && ( axY < 0.0 ) ) ||
-                     ( ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) == std::abs( axZ ) ) && ( axZ < 0.0 ) ) )
+                const FloatingPoint< proshade_double > lhs2 ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) );
+                const FloatingPoint< proshade_double > rhs4 ( std::abs( axX ) );
+                const FloatingPoint< proshade_double > rhs5 ( std::abs( axY ) );
+                const FloatingPoint< proshade_double > rhs6 ( std::abs( axZ ) );
+                if ( ( ( lhs2.AlmostEquals ( rhs4 ) ) && ( axX < 0.0 ) ) ||
+                     ( ( lhs2.AlmostEquals ( rhs5 ) ) && ( axY < 0.0 ) ) ||
+                     ( ( lhs2.AlmostEquals ( rhs6 ) ) && ( axZ < 0.0 ) ) )
                 {
                     axX                              *= -1.0;
                     axY                              *= -1.0;
@@ -1657,7 +1683,7 @@ std::vector < proshade_signed > ProSHADE_internal_maths::primeFactorsDecomp ( pr
     }
     
     //================================================ Check all odd numbers up to the square root
-    for ( proshade_unsign posDiv = 3; posDiv <= sqrt ( number ); posDiv += 2)
+    for ( proshade_signed posDiv = 3; posDiv <= sqrt ( number ); posDiv += 2)
     {
         // If posDiv is a divisor of the number, save the result
         while ( number % posDiv == 0 )
@@ -2063,9 +2089,13 @@ std::vector < proshade_double > ProSHADE_internal_maths::findVectorFromTwoVAndTw
                                                             ( ( y1 * z2 - z1 * y2 ) * ( pow ( y1, 2.0 ) * pow ( x2, 2.0 ) + pow ( z1, 2.0 ) * pow ( x2, 2.0 ) - 2.0 * x1 * y1 * y2 * x2 - 2.0 * x1 * z1 * z2 * x2 + pow ( x1, 2.0 ) * pow ( y2, 2.0 ) + pow ( z1, 2.0 ) * pow ( y2, 2.0 ) + pow ( x1, 2.0 ) * pow ( z2, 2.0 ) + pow ( y1, 2.0 ) * pow ( z2, 2.0 ) - 2.0 * y1 * z1 * y2 * z2 ) ) ) / z2;
 
     //================================================ Set largest axis element to positive (ProSHADE standard)
-    if ( ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solX ) ) && ( solX < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solY ) ) && ( solY < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solZ ) ) && ( solZ < 0.0 ) ) ) { solX *= -1.0; solY *= -1.0; solZ *= -1.0; }
+    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) );
+    const FloatingPoint< proshade_double > rhs1 ( std::abs ( solX ) );
+    const FloatingPoint< proshade_double > rhs2 ( std::abs ( solY ) );
+    const FloatingPoint< proshade_double > rhs3 ( std::abs ( solZ ) );
+    if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( solX < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( solY < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( solZ < 0.0 ) ) ) { solX *= -1.0; solY *= -1.0; solZ *= -1.0; }
     
     //================================================ Save solutions
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, solX  );
@@ -2118,9 +2148,13 @@ std::vector < proshade_double > ProSHADE_internal_maths::findVectorFromThreeVAnd
     solZ                                             /= normFactor;
     
     //================================================ Set largest axis element to positive (ProSHADE standard)
-    if ( ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solX ) ) && ( solX < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solY ) ) && ( solY < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) == std::abs ( solZ ) ) && ( solZ < 0.0 ) ) ) { solX *= -1.0; solY *= -1.0; solZ *= -1.0; }
+    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( solX ), std::max( std::abs ( solY ), std::abs ( solZ ) ) ) );
+    const FloatingPoint< proshade_double > rhs1 ( std::abs ( solX ) );
+    const FloatingPoint< proshade_double > rhs2 ( std::abs ( solY ) );
+    const FloatingPoint< proshade_double > rhs3 ( std::abs ( solZ ) );
+    if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( solX < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( solY < 0.0 ) ) ||
+         ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( solZ < 0.0 ) ) ) { solX *= -1.0; solY *= -1.0; solZ *= -1.0; }
     
     //================================================ Save solutions
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, solX  );
@@ -2326,10 +2360,14 @@ void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double
         latP                                          = *bestLattitude + step;
         
         //============================================ Deal with optimising outside of prepared range - recursion
-        if ( latM < ( origBestLat - 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLattitude == origBestLat - 1.0 ) { *bestLattitude = tmpVal; } break; }
-        if ( latP > ( origBestLat + 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLattitude == origBestLat + 1.0 ) { *bestLattitude = tmpVal; } break; }
-        if ( lonM < ( origBestLon - 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLongitude == origBestLon - 1.0 ) { *bestLongitude = tmpVal; } break; }
-        if ( lonP > ( origBestLon + 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( *bestLongitude == origBestLon + 1.0 ) { *bestLongitude = tmpVal; } break; }
+        const FloatingPoint< proshade_double > lhs1 ( *bestLattitude ), rhs1 ( origBestLat - 1.0 );
+        const FloatingPoint< proshade_double > lhs2 ( *bestLattitude ), rhs2 ( origBestLat + 1.0 );
+        const FloatingPoint< proshade_double > lhs3 ( *bestLongitude ), rhs3 ( origBestLon - 1.0 );
+        const FloatingPoint< proshade_double > lhs4 ( *bestLongitude ), rhs4 ( origBestLon + 1.0 );
+        if ( latM < ( origBestLat - 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( lhs1.AlmostEquals ( rhs1 ) ) { *bestLattitude = tmpVal; } break; }
+        if ( latP > ( origBestLat + 1.0 ) ) { tmpVal = *bestLattitude; *bestLattitude = origBestLat + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( lhs2.AlmostEquals ( rhs2 ) ) { *bestLattitude = tmpVal; } break; }
+        if ( lonM < ( origBestLon - 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon - 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( lhs3.AlmostEquals ( rhs3 ) ) { *bestLongitude = tmpVal; } break; }
+        if ( lonP > ( origBestLon + 1.0 ) ) { tmpVal = *bestLongitude; *bestLongitude = origBestLon + 1.0; optimiseAxisBiCubicInterpolation ( bestLattitude, bestLongitude, bestSum, sphereList, sphereMappedRotFun, step ); if ( lhs4.AlmostEquals ( rhs4 ) ) { *bestLongitude = tmpVal; } break; }
 
         //============================================ Prepare vectors of tested positions
         latVals.at(0) = latM; latVals.at(1) = *bestLattitude; latVals.at(2) = latP;
@@ -2394,7 +2432,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusMinus ( proshade_d
 {
     //================================================ Initialise local variables
     proshade_signed latHlp, lonHlp;
-    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    proshade_signed angDim                            = static_cast< proshade_signed > ( sphereMappedRotFun->at(0)->getAngularDim() );
     
     //================================================ Prepare the interpolator objects for interpolation around the position
     for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
@@ -2417,7 +2455,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusMinus ( proshade_d
             {
                 latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
                 lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
-                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ), static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
 
@@ -2449,7 +2487,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusPlus ( proshade_do
 {
     //================================================ Initialise local variables
     proshade_signed latHlp, lonHlp;
-    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    proshade_signed angDim                            = static_cast< proshade_signed > ( sphereMappedRotFun->at(0)->getAngularDim() );
     
     //================================================ Prepare the interpolator objects for interpolation around the position
     for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
@@ -2472,7 +2510,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusPlus ( proshade_do
             {
                 latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
                 lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
-                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ) , static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
 
@@ -2504,7 +2542,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusMinus ( proshade_do
 {
     //================================================ Initialise local variables
     proshade_signed latHlp, lonHlp;
-    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    proshade_signed angDim                            = static_cast< proshade_signed > ( sphereMappedRotFun->at(0)->getAngularDim() );
     
     //================================================ Prepare the interpolator objects for interpolation around the position
     for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
@@ -2527,7 +2565,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusMinus ( proshade_do
             {
                 latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
                 lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
-                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ), static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
 
@@ -2559,7 +2597,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_dou
 {
     //================================================ Initialise local variables
     proshade_signed latHlp, lonHlp;
-    proshade_signed angDim                            = sphereMappedRotFun->at(0)->getAngularDim();
+    proshade_signed angDim                            = static_cast< proshade_signed > ( sphereMappedRotFun->at(0)->getAngularDim() );
     
     //================================================ Prepare the interpolator objects for interpolation around the position
     for ( proshade_unsign sphereIt = 0; sphereIt < static_cast<proshade_unsign> ( sphereList->size() ); sphereIt++ )
@@ -2582,7 +2620,7 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_dou
             {
                 latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
                 lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
-                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( latHlp, lonHlp );
+                interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ), static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
 
@@ -2614,13 +2652,14 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
 {
     //================================================ Initialise variables
     bool ret                                          = true;
-    proshade_unsign whichImprove;
+    proshade_unsign whichImprove                      = 0;
     
     //================================================ For each already detected member
     for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
     {
         //============================================ Is fold the same?
-        if ( CSymList->at(grIt)[0] == axis[0] )
+        const FloatingPoint< proshade_double > lhs ( CSymList->at(grIt)[0] ), rhs ( axis[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
         {
             if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
             {
@@ -2666,7 +2705,8 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
     //================================================ For each already detected member
     for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
     {
-        if ( fold == CSymList->at(grIt)[0] )
+        const FloatingPoint< proshade_double > lhs ( fold ), rhs ( CSymList->at(grIt)[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
         {
             if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
             {
@@ -2766,8 +2806,8 @@ std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_d
     //================================================ Initialise local variables
     proshade_signed windowHalf                        = ( windowSize - 1 ) / 2;
     proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
-    std::vector< proshade_double > smoothened         ( totSize - ( windowSize - 1 ), 0.0 );
-    std::vector< proshade_double > winWeights         ( windowSize, 0.0 );
+    std::vector< proshade_double > smoothened         ( static_cast< size_t > ( totSize - ( windowSize - 1 ) ), 0.0 );
+    std::vector< proshade_double > winWeights         ( static_cast< size_t > ( windowSize ), 0.0 );
     
     //================================================ Prepare window weights
     for ( proshade_double winIt = 0.0; winIt < windowSize; winIt += 1.0 ) { winWeights.at( static_cast< proshade_unsign > ( winIt ) ) = ProSHADE_internal_maths::computeGaussian ( ( winIt - windowHalf ) * step, sigma ); }
@@ -2778,7 +2818,7 @@ std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_d
         //============================================ Compute window weighted average
         for ( proshade_signed winIt = 0; winIt < windowSize; winIt++ )
         {
-            smoothened.at(it)                        += winWeights.at(winIt) * data.at( it + winIt );
+            smoothened.at(it)                        += winWeights.at( static_cast< size_t > (  winIt ) ) * data.at( static_cast< size_t > ( static_cast< proshade_signed > ( it ) + winIt ) );
         }
     }
     

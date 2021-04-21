@@ -86,10 +86,10 @@ endif ( NOT INSTALL_LOCALLY )
 if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
   		################################# Using Clang
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion  -Weverything -Wno-c++98-compat -fPIC "       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC "       )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
   		################################# Using Clang
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wno-c++98-compat -fPIC "       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC "       )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   		################################# Using GCC
   		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -fPIC"       )
@@ -249,8 +249,13 @@ endif  ( CUSTOM_LAPACK_LIB_PATH )
 
 ##########################################################################################
 ################################### Add getopt_port dependency
-set ( GETOPT_SOURCE  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c   CACHE STRING "Getopt_port source" )
-set ( GETOPT_HEADER  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.h   CACHE STRING "Getopt_port header" )
+set ( GETOPT_SOURCE  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c        CACHE STRING "Getopt_port source" )
+set ( GETOPT_HEADER  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.h        CACHE STRING "Getopt_port header" )
+
+##########################################################################################
+################################### Add almostEqual dependency
+set ( ALMOSTEQUAL_SOURCE  ${CMAKE_SOURCE_DIR}/extern/almostEqual CACHE STRING "almostEqual source" )
+include_directories    ( ${ALMOSTEQUAL_SOURCE}                                            )
 
 ##########################################################################################
 ################################### Add SOFT dependency

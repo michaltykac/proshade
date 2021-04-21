@@ -23,8 +23,8 @@
 #include "ProSHADE_symmetry.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_OVERLAY__
-#define __PROSHADE_OVERLAY__
+#ifndef PROSHADE_OVERLAY
+#define PROSHADE_OVERLAY
 
 //==================================================== ProSHADE_internal_overlay Namespace
 /*! \namespace ProSHADE_internal_overlay

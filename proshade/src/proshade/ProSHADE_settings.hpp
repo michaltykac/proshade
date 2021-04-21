@@ -22,6 +22,10 @@
 //==================================================== ProSHADE
 #include "ProSHADE_maths.hpp"
 
+//==================================================== Overinclusion protection
+#ifndef PROSHADE_SETTINGS
+#define PROSHADE_SETTINGS
+
 //==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
 #if defined ( __GNUC__ )
     #pragma GCC diagnostic push
@@ -107,10 +111,6 @@ extern "C" {
 
 //==================================================== GetOpt port (BSD License, works on Windows as well as linux)
 #include <getopt_port/getopt_port.h>
-
-//==================================================== Overinclusion protection
-#ifndef __PROSHADE_SETTINGS__
-#define __PROSHADE_SETTINGS__
 
 /*! \class ProSHADE_settings
     \brief This class stores all the settings and is passed to the executive classes instead of a multitude of parameters.

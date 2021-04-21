@@ -22,6 +22,13 @@
 //==================================================== ProSHADE
 #include "ProSHADE_symmetry.hpp"
 
+//==================================================== Local functions prototypes
+proshade_double                               determinePeakThreshold      ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian );
+bool                                          sortProSHADESymmetryByPeak  ( proshade_double* a, proshade_double* b );
+std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair    ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
+std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair    ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
+std::pair< proshade_unsign, proshade_unsign > findBestTetraDihedralPair   ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
+
 /*! \brief This function computes the self-rotation function for this structure.
  
     This function assumes that the spherical harmonics have been computed for a data object. It can be then called on this
@@ -148,7 +155,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     //================================================ Find all peaks in the sphere grids
     for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
     {
-        this->sphereMappedRotFun.at(shIt)->findAllPeaks  ( settings->peakNeighbours, &allPeakHeights );
+        this->sphereMappedRotFun.at(shIt)->findAllPeaks  ( static_cast< proshade_signed > ( settings->peakNeighbours ), &allPeakHeights );
     }
     
     //================================================ Report progress
@@ -198,7 +205,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     
     //================================================ Get list of peaks in the self-rotation map
     std::vector< proshade_double* > allPeaks          = ProSHADE_internal_peakSearch::getAllPeaksNaive ( this->getInvSO3Coeffs (), this->getMaxBand() * 2,
-                                                                                                         settings->peakNeighbours,
+                                                                                                         static_cast< proshade_signed > ( settings->peakNeighbours ),
                                                                                                          settings->noIQRsFromMedianNaivePeak );
     
     //================================================ Convert peaks to angle-axis
@@ -209,13 +216,13 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     
     //================================================ Get symmetry per group
     std::vector< std::vector< proshade_unsign > > detectedCSymmetries;
-    for ( proshade_signed iter = static_cast<proshade_unsign> ( peakGroupsBoundaries.size() - 1 ); iter >= 0; iter-- )
+    for ( proshade_signed iter = static_cast< proshade_signed > ( peakGroupsBoundaries.size() - 1 ); iter >= 0; iter-- )
     {
         //============================================ Get peaks group peaks only
         std::vector< proshade_double* > symPeaks;
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( peaksAA.size() ); it++ )
         {
-            if ( peaksAA.at(it)[4] > peakGroupsBoundaries.at(iter) ) { ProSHADE_internal_misc::addToDblPtrVector ( &symPeaks, peaksAA.at(it) ); }
+            if ( peaksAA.at(it)[4] > peakGroupsBoundaries.at( static_cast< size_t > ( iter ) ) ) { ProSHADE_internal_misc::addToDblPtrVector ( &symPeaks, peaksAA.at(it) ); }
         }
         
         //============================================ Search for symmetry in these peaks
@@ -253,11 +260,11 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     \param[in] verbose How loud the standard output of this run should be?
     \param[out] X A vector of pointers where angle-axis representations of the peaks will be saved.
  */
-std::vector< proshade_double* > ProSHADE_internal_symmetry::getPeaksAngleAxisPositions ( std::vector< proshade_double* > allPeaks, proshade_unsign verbose )
+std::vector< proshade_double* > ProSHADE_internal_symmetry::getPeaksAngleAxisPositions ( std::vector< proshade_double* > allPeaks, proshade_signed verbose )
 {
     //================================================ Initialise variables
     std::vector< proshade_double* > ret;
-    proshade_double* hlpP                             = NULL;
+    proshade_double* hlpP                             = nullptr;
     proshade_double* rotMat                           = new proshade_double [9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     
@@ -493,9 +500,13 @@ void ProSHADE_internal_symmetry::giveOppositeAxesSameDirection ( std::vector< pr
     //================================================ Apply to all peaks
     for ( proshade_unsign i = 0; i < static_cast<proshade_unsign> ( peaks.size() ); i++ )
     {
-        if ( ( ( std::max ( std::abs ( peaks.at(i)[0] ), std::max( std::abs ( peaks.at(i)[1] ), std::abs ( peaks.at(i)[2] ) ) ) == std::abs ( peaks.at(i)[0] ) ) && ( peaks.at(i)[0] < 0.0 ) ) ||
-             ( ( std::max ( std::abs ( peaks.at(i)[0] ), std::max( std::abs ( peaks.at(i)[1] ), std::abs ( peaks.at(i)[2] ) ) ) == std::abs ( peaks.at(i)[1] ) ) && ( peaks.at(i)[1] < 0.0 ) ) ||
-             ( ( std::max ( std::abs ( peaks.at(i)[0] ), std::max( std::abs ( peaks.at(i)[1] ), std::abs ( peaks.at(i)[2] ) ) ) == std::abs ( peaks.at(i)[2] ) ) && ( peaks.at(i)[2] < 0.0 ) ) )
+        const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( peaks.at(i)[0] ), std::max( std::abs ( peaks.at(i)[1] ), std::abs ( peaks.at(i)[2] ) ) ) );
+        const FloatingPoint< proshade_double > rhs1 ( std::abs ( peaks.at(i)[0] ) );
+        const FloatingPoint< proshade_double > rhs2 ( std::abs ( peaks.at(i)[1] ) );
+        const FloatingPoint< proshade_double > rhs3 ( std::abs ( peaks.at(i)[2] ) );
+        if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( peaks.at(i)[0] < 0.0 ) ) ||
+             ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( peaks.at(i)[1] < 0.0 ) ) ||
+             ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( peaks.at(i)[2] < 0.0 ) ) )
         {
             peaks.at(i)[0]                           *= -1.0;
             peaks.at(i)[1]                           *= -1.0;
@@ -569,7 +580,9 @@ bool ProSHADE_internal_symmetry::smallestDistanceBetweenAngles ( std::vector< pr
             for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( tried->size() ); iter += 3 )
             {
                 //==================================== Avoid already tested combinations
-                if ( ( gr2It == tried->at( iter + 1 ) ) && ( gr1It == tried->at( iter ) ) ) { skip = true; }
+                const FloatingPoint< proshade_double > lhs1 ( gr2It ), rhs1 ( tried->at( iter + 1 ) );
+                const FloatingPoint< proshade_double > lhs2 ( gr1It ), rhs2 ( tried->at( iter ) );
+                if ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( lhs2.AlmostEquals ( rhs2 ) ) ) { skip = true; }
                 
                 //==================================== Also avoid distances very close to already tested  distances (no problem until approx C700)
                 if ( !skip &&
@@ -596,7 +609,8 @@ bool ProSHADE_internal_symmetry::smallestDistanceBetweenAngles ( std::vector< pr
     }
     
     //================================================ If new dist found, save to tried and return success
-    if ( *dist != 999.9 )
+    const FloatingPoint< proshade_double > lhs1 ( *dist ), rhs1 ( 999.9 );
+    if ( !lhs1.AlmostEquals ( rhs1 ) )
     {
         ret                                           = true;
         ProSHADE_internal_misc::addToDoubleVector     ( tried, g1 );
@@ -836,7 +850,7 @@ proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_inter
                 if ( pointHeight < heightThres ) { continue; }
                 
                 //==================================== Get angle-axis values
-                ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( dataObj->getMaxBand(), static_cast<proshade_signed> ( xIt ),
+                ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< proshade_signed > ( dataObj->getMaxBand() ), static_cast<proshade_signed> ( xIt ),
                                                                        static_cast<proshade_signed> ( yIt ), static_cast<proshade_signed> ( zIt ),
                                                                        &euA, &euB, &euG );
                 ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
@@ -846,9 +860,13 @@ proshade_double ProSHADE_internal_symmetry::checkForMissingPeak ( ProSHADE_inter
                 if ( ( ( std::abs( anglPk ) - angTol ) < std::abs ( angle ) ) && ( ( std::abs( anglPk ) + angTol ) > std::abs ( angle ) ) )
                 {
                     //================================ Make sure vector direction is the same
-                    if ( ( ( std::max( std::abs( xPk ), std::max( std::abs( yPk ), std::abs( zPk ) ) ) == std::abs( xPk ) ) && ( xPk < 0.0 ) ) ||
-                         ( ( std::max( std::abs( xPk ), std::max( std::abs( yPk ), std::abs( zPk ) ) ) == std::abs( yPk ) ) && ( yPk < 0.0 ) ) ||
-                         ( ( std::max( std::abs( xPk ), std::max( std::abs( yPk ), std::abs( zPk ) ) ) == std::abs( zPk ) ) && ( zPk < 0.0 ) ) )
+                    const FloatingPoint< proshade_double > lhs1 ( std::max( std::abs( xPk ), std::max( std::abs( yPk ), std::abs( zPk ) ) ) );
+                    const FloatingPoint< proshade_double > rhs1 ( std::abs( xPk ) );
+                    const FloatingPoint< proshade_double > rhs2 ( std::abs( yPk ) );
+                    const FloatingPoint< proshade_double > rhs3 ( std::abs( zPk ) );
+                    if ( ( lhs1.AlmostEquals ( rhs1 ) && ( xPk < 0.0 ) ) ||
+                         ( lhs1.AlmostEquals ( rhs2 ) && ( yPk < 0.0 ) ) ||
+                         ( lhs1.AlmostEquals ( rhs3 ) && ( zPk < 0.0 ) ) )
                     {
                         xPk                          *= -1.0;
                         yPk                          *= -1.0;
@@ -921,7 +939,7 @@ void ProSHADE_internal_symmetry::saveDetectedCSymmetry ( proshade_unsign fold, s
     \param[in] verbose How loud the standard output of this run should be?
     \param[out] X Was the missing symmetry part completion successfull?
  */
-bool ProSHADE_internal_symmetry::completeMissingCSymmetry ( ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign fold, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< proshade_unsign >* missingPeaks, std::vector< proshade_double >* expectedAngles, std::vector< proshade_unsign >* matchedPeaks, proshade_double axErrTolerance, proshade_unsign verbose )
+bool ProSHADE_internal_symmetry::completeMissingCSymmetry ( ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign fold, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< proshade_unsign >* missingPeaks, std::vector< proshade_double >* expectedAngles, std::vector< proshade_unsign >* matchedPeaks, proshade_double axErrTolerance, proshade_signed verbose )
 {
     //================================================ Initialise variables
     bool ret                                          = true;
@@ -986,7 +1004,7 @@ bool ProSHADE_internal_symmetry::completeMissingCSymmetry ( ProSHADE_internal_da
     \param[in] missPeakThres Threshold for the percentage of missing peaks there can be to warrant a full search for missing peaks.
     \param[in] verbose How loud the standard output of this run should be?
  */
-void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< std::vector< proshade_unsign > >* ret, std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault, proshade_double missPeakThres, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::findSymmetryUsingFold ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry, std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks, std::vector< std::vector< proshade_unsign > >* ret, std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault, proshade_double missPeakThres, proshade_signed verbose )
 {
     //================================================ Initialise variables
     bool skipFold                                     = false;
@@ -1082,7 +1100,7 @@ void ProSHADE_internal_symmetry::printSymmetryGroup ( std::vector< proshade_unsi
     \param[in] noSyms The number of symmetries that were detected.
     \param[in] verbose How loud the run should be and therefore if anything should be printed at all.
  */
-void ProSHADE_internal_symmetry::printSymmetryCompletion ( proshade_unsign noSyms, proshade_unsign verbose )
+void ProSHADE_internal_symmetry::printSymmetryCompletion ( proshade_unsign noSyms, proshade_signed verbose )
 {
     //================================================ Report completion of symmetry detection
     std::stringstream ss;
@@ -1186,7 +1204,8 @@ bool ProSHADE_internal_symmetry::isSymmetrySame ( std::vector< proshade_double* 
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( ret->size() ); symIt++ )
     {
         //============================================ Minor speed-up => only test for same folds
-        if ( ret->at(symIt)[0] == sym[0] )
+        const FloatingPoint< proshade_double > lhs ( ret->at(symIt)[0] ), rhs ( sym[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
         {
             //======================================== Is axis the same?
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &ret->at(symIt)[1], &ret->at(symIt)[2],
@@ -1366,12 +1385,18 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
             {
                 for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
                 {
-                    if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
-                         ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
-                         ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
-                         ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
-                         ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
-                         ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+                    const FloatingPoint< proshade_double > lhs1 ( CSymList->at(csIt)[0] ), rhs1 ( ret.at(retIt)[0] );
+                    const FloatingPoint< proshade_double > lhs2 ( CSymList->at(csIt)[1] ), rhs2 ( ret.at(retIt)[1] );
+                    const FloatingPoint< proshade_double > lhs3 ( CSymList->at(csIt)[2] ), rhs3 ( ret.at(retIt)[2] );
+                    const FloatingPoint< proshade_double > lhs4 ( CSymList->at(csIt)[3] ), rhs4 ( ret.at(retIt)[3] );
+                    const FloatingPoint< proshade_double > lhs5 ( CSymList->at(csIt)[4] ), rhs5 ( ret.at(retIt)[4] );
+                    const FloatingPoint< proshade_double > lhs6 ( CSymList->at(csIt)[5] ), rhs6 ( ret.at(retIt)[5] );
+                    if ( ( lhs1.AlmostEquals ( rhs1 ) ) &&
+                         ( lhs2.AlmostEquals ( rhs2 ) ) &&
+                         ( lhs3.AlmostEquals ( rhs3 ) ) &&
+                         ( lhs4.AlmostEquals ( rhs4 ) ) &&
+                         ( lhs5.AlmostEquals ( rhs5 ) ) &&
+                         ( lhs6.AlmostEquals ( rhs6 ) ) )
                     {
                         ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedTAxes, csIt );
                     }
@@ -1408,7 +1433,8 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
     //================================================ Find all C3 symmetries
     for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
     {
-        if ( CSymList->at(cSym)[0] == 3 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C3List, cSym ); }
+        const FloatingPoint< proshade_double > lhs ( CSymList->at(cSym)[0] ), rhs ( 3.0 );
+        if ( lhs.AlmostEquals ( rhs ) && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C3List, cSym ); }
     }
     
     //================================================ For each unique pair of C3s
@@ -1448,7 +1474,7 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
     \param[in] verobse How loud the announcments should be?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3PossibilitiesHlp;
@@ -1748,16 +1774,20 @@ std::vector < proshade_double* > ProSHADE_internal_symmetry::findMissingAxisPoin
                 arrIndex                              = zIt  + ( dataObj->getMaxBand() * 2 ) * ( yIt  + ( dataObj->getMaxBand() * 2 ) * xIt );
                 
                 //==================================== Get angle-axis values
-                ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( dataObj->getMaxBand(), static_cast<proshade_signed> ( xIt ),
-                                                                       static_cast<proshade_signed> ( yIt ), static_cast<proshade_signed> ( zIt ),
+                ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< proshade_signed > ( dataObj->getMaxBand() ), static_cast< proshade_signed > ( xIt ),
+                                                                       static_cast< proshade_signed > ( yIt ), static_cast< proshade_signed > ( zIt ),
                                                                        &euA, &euB, &euG );
                 ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
                 ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( rotMat, &xPk, &yPk, &zPk, &anglPk );
                 
                 //==================================== Set largest axis element to positive
-                if ( ( ( std::max ( std::abs ( xPk ), std::max( std::abs ( yPk ), std::abs ( zPk ) ) ) == std::abs ( xPk ) ) && ( xPk < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( xPk ), std::max( std::abs ( yPk ), std::abs ( zPk ) ) ) == std::abs ( yPk ) ) && ( yPk < 0.0 ) ) ||
-                     ( ( std::max ( std::abs ( xPk ), std::max( std::abs ( yPk ), std::abs ( zPk ) ) ) == std::abs ( zPk ) ) && ( zPk < 0.0 ) ) )
+                const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( xPk ), std::max( std::abs ( yPk ), std::abs ( zPk ) ) ) );
+                const FloatingPoint< proshade_double > rhs1 ( std::abs ( xPk ));
+                const FloatingPoint< proshade_double > rhs2 ( std::abs ( yPk ) );
+                const FloatingPoint< proshade_double > rhs3 ( std::abs ( zPk ) );
+                if ( ( lhs1.AlmostEquals ( rhs1 ) && ( xPk < 0.0 ) ) ||
+                     ( lhs1.AlmostEquals ( rhs2 ) && ( yPk < 0.0 ) ) ||
+                     ( lhs1.AlmostEquals ( rhs3 ) && ( zPk < 0.0 ) ) )
                 {
                     xPk                              *= -1.0;
                     yPk                              *= -1.0;
@@ -1820,7 +1850,8 @@ void ProSHADE_internal_symmetry::saveMissingAxisNewOnly ( std::vector< proshade_
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( axVec->size() ); symIt++ )
     {
         //============================================ Minor speed-up => only test for same folds
-        if ( axVec->at(symIt)[0] == hlpSym[0] )
+        const FloatingPoint< proshade_double > lhs1 ( axVec->at(symIt)[0] ), rhs1 ( hlpSym[0] );
+        if ( lhs1.AlmostEquals ( rhs1 ) )
         {
             if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( axVec->at(symIt)[1],
                                                                         axVec->at(symIt)[2],
@@ -1897,9 +1928,13 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
                                                                                                              CSymList->at(grp->at(sAx))[3], angle, angle );
             
             //======================================== Set largest axis element to positive
-            if ( ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(0) ) ) && ( solVec.at(0) < 0.0 ) ) ||
-                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(1) ) ) && ( solVec.at(1) < 0.0 ) ) ||
-                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(2) ) ) && ( solVec.at(2) < 0.0 ) ) )
+            const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) );
+            const FloatingPoint< proshade_double > rhs1 ( std::abs ( solVec.at(0) ) );
+            const FloatingPoint< proshade_double > rhs2 ( std::abs ( solVec.at(1) ) );
+            const FloatingPoint< proshade_double > rhs3 ( std::abs ( solVec.at(2) ) );
+            if ( ( lhs1.AlmostEquals ( rhs1 ) && ( solVec.at(0) < 0.0 ) ) ||
+                 ( lhs1.AlmostEquals ( rhs2 ) && ( solVec.at(1) < 0.0 ) ) ||
+                 ( lhs1.AlmostEquals ( rhs3 ) && ( solVec.at(2) < 0.0 ) ) )
             {
                 solVec.at(0)                         *= -1.0;
                 solVec.at(1)                         *= -1.0;
@@ -1926,9 +1961,13 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
                                                                                                              CSymList->at(grp->at(sAx))[3], -angle, -angle );
             
             //======================================== Set largest axis element to positive
-            if ( ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(0) ) ) && ( solVec.at(0) < 0.0 ) ) ||
-                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(1) ) ) && ( solVec.at(1) < 0.0 ) ) ||
-                 ( ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) == std::abs ( solVec.at(2) ) ) && ( solVec.at(2) < 0.0 ) ) )
+            const FloatingPoint< proshade_double > lhs2 ( std::max ( std::abs ( solVec.at(0) ), std::max( std::abs ( solVec.at(1) ), std::abs ( solVec.at(2) ) ) ) );
+            const FloatingPoint< proshade_double > rhs4 ( std::abs ( solVec.at(0) ) );
+            const FloatingPoint< proshade_double > rhs5 ( std::abs ( solVec.at(1) ) );
+            const FloatingPoint< proshade_double > rhs6 ( std::abs ( solVec.at(2) ) );
+            if ( ( lhs2.AlmostEquals ( rhs4 ) && ( solVec.at(0) < 0.0 ) ) ||
+                 ( lhs2.AlmostEquals ( rhs5 ) && ( solVec.at(1) < 0.0 ) ) ||
+                 ( lhs2.AlmostEquals ( rhs6 ) && ( solVec.at(2) < 0.0 ) ) )
             {
                 solVec.at(0)                         *= -1.0;
                 solVec.at(1)                         *= -1.0;
@@ -1969,7 +2008,7 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
     \param[in] verobse How loud the announcments should be?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3s, prospectiveC2s, C2PossibilitiesHlp;
@@ -2122,12 +2161,18 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
             {
                 for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
                 {
-                    if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
-                         ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
-                         ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
-                         ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
-                         ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
-                         ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+                    const FloatingPoint< proshade_double > lhs1 ( CSymList->at(csIt)[0] ), rhs1 ( ret.at(retIt)[0] );
+                    const FloatingPoint< proshade_double > lhs2 ( CSymList->at(csIt)[1] ), rhs2 ( ret.at(retIt)[1] );
+                    const FloatingPoint< proshade_double > lhs3 ( CSymList->at(csIt)[2] ), rhs3 ( ret.at(retIt)[2] );
+                    const FloatingPoint< proshade_double > lhs4 ( CSymList->at(csIt)[3] ), rhs4 ( ret.at(retIt)[3] );
+                    const FloatingPoint< proshade_double > lhs5 ( CSymList->at(csIt)[4] ), rhs5 ( ret.at(retIt)[4] );
+                    const FloatingPoint< proshade_double > lhs6 ( CSymList->at(csIt)[5] ), rhs6 ( ret.at(retIt)[5] );
+                    if ( lhs1.AlmostEquals ( rhs1 ) &&
+                         lhs2.AlmostEquals ( rhs2 ) &&
+                         lhs3.AlmostEquals ( rhs3 ) &&
+                         lhs4.AlmostEquals ( rhs4 ) &&
+                         lhs5.AlmostEquals ( rhs5 ) &&
+                         lhs6.AlmostEquals ( rhs6 ) )
                     {
                         ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedOAxes, csIt );
                     }
@@ -2164,7 +2209,8 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
     //================================================ Find all C4 symmetries
     for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
     {
-        if ( CSymList->at(cSym)[0] == 4 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); }
+        const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 4.0 );
+        if ( lhs1.AlmostEquals ( rhs1 ) && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); }
     }
     
     //================================================ For each unique pair of C3s
@@ -2173,7 +2219,8 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
         for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
         {
             //======================================== Compare only C3s to the C3List
-            if ( CSymList->at(cSym)[0] != 3 ) { continue; }
+            const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 3.0 );
+            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             
             //========================================  Check the angle between the C4 and C3 axes
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &CSymList->at(C4List.at(c4))[1],
@@ -2209,7 +2256,7 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4PossibilitiesHlp;
@@ -2275,7 +2322,7 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] TetraSymList A vector containing the already detected tetrahedral symmetries - this is to avoid the same search for four C3 symmetry axes.
  */
-void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4s, prospectiveC3s, C3PossibilitiesHlp;
@@ -2357,7 +2404,7 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
     \param[in] verobse How loud the announcments should be?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC2s, retGrp;
@@ -2661,12 +2708,18 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
             {
                 for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
                 {
-                    if ( ( CSymList->at(csIt)[0] == ret.at(retIt)[0] ) &&
-                         ( CSymList->at(csIt)[1] == ret.at(retIt)[1] ) &&
-                         ( CSymList->at(csIt)[2] == ret.at(retIt)[2] ) &&
-                         ( CSymList->at(csIt)[3] == ret.at(retIt)[3] ) &&
-                         ( CSymList->at(csIt)[4] == ret.at(retIt)[4] ) &&
-                         ( CSymList->at(csIt)[5] == ret.at(retIt)[5] ) )
+                    const FloatingPoint< proshade_double > lhs1 ( CSymList->at(csIt)[0] ), rhs1 ( ret.at(retIt)[0] );
+                    const FloatingPoint< proshade_double > lhs2 ( CSymList->at(csIt)[1] ), rhs2 ( ret.at(retIt)[1] );
+                    const FloatingPoint< proshade_double > lhs3 ( CSymList->at(csIt)[2] ), rhs3 ( ret.at(retIt)[2] );
+                    const FloatingPoint< proshade_double > lhs4 ( CSymList->at(csIt)[3] ), rhs4 ( ret.at(retIt)[3] );
+                    const FloatingPoint< proshade_double > lhs5 ( CSymList->at(csIt)[4] ), rhs5 ( ret.at(retIt)[4] );
+                    const FloatingPoint< proshade_double > lhs6 ( CSymList->at(csIt)[5] ), rhs6 ( ret.at(retIt)[5] );
+                    if ( lhs1.AlmostEquals ( rhs1 ) &&
+                         lhs2.AlmostEquals ( rhs2 ) &&
+                         lhs3.AlmostEquals ( rhs3 ) &&
+                         lhs4.AlmostEquals ( rhs4 ) &&
+                         lhs5.AlmostEquals ( rhs5 ) &&
+                         lhs6.AlmostEquals ( rhs6 ) )
                     {
                         ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, csIt );
                     }
@@ -2690,7 +2743,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
     pre-computed icosahedron model to the detected axes. After rotating the model, the model axes become the predicted axes for the structure and their peak heights are then
     computed. Once complete, all the predicted axes are in the ret variable.
  
-    \Warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
+    \warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
     which symmetry was found.
  
     \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
@@ -2738,7 +2791,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     pre-computed octahedron model to the detected axes. After rotating the model, the model axes become the predicted axes for the structure and their peak heights are then
     computed. Once complete, all the predicted axes are in the ret variable.
  
-    \Warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
+    \warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
     which symmetry was found.
  
     \param[in] settings A pointer to settings class containing all the information required for symmetry detection.
@@ -2798,7 +2851,8 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
     //================================================ Find all C5 symmetries
     for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
     {
-        if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); }
+        const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 5.0 );
+        if ( lhs1.AlmostEquals ( rhs1 ) && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); }
     }
     
     //================================================ For each unique pair of C5 and C3
@@ -2807,7 +2861,8 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
         for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
         {
             //======================================== Compare only C3s to the C5List
-            if ( CSymList->at(cSym)[0] != 3 ) { continue; }
+            const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 3.0 );
+            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             
             //========================================  Check the angle between the C5 and C3 axes
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &CSymList->at(C5List.at(c5))[1],
@@ -2847,7 +2902,7 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C5PossibilitiesHlp;
@@ -2861,7 +2916,8 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Search only using C5s and check peak height
-        if ( CSymList->at(cIt)[0] != 5.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
+        const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cIt)[0] ), rhs1 ( 5.0 );
+        if ( !lhs1.AlmostEquals ( rhs1 ) || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
 
         //============================================ If second or more C5, check if it has the correct angle to all other already found C5s for each group
         groupMatched                                  = false;
@@ -2914,7 +2970,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::ve
     proshade_double dotProduct;
     
     //================================================ Find all C5 symmetries
-    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { if ( CSymList->at(cSym)[0] == 5 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); } }
+    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 5.0 ); if ( lhs1.AlmostEquals ( rhs1 ) && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C5List, cSym ); } }
     
     //================================================ For each unique pair of C5 and C3
     for ( proshade_unsign c5 = 0; c5 < static_cast<proshade_unsign> ( C5List.size() ); c5++ )
@@ -2922,7 +2978,8 @@ std::pair< proshade_unsign, proshade_unsign > findBestIcosDihedralPair ( std::ve
         for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
         {
             //======================================== Compare only C3s to the C5List and only with decent average peak height
-            if ( CSymList->at(cSym)[0] != 3 ) { continue; }
+            const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 3.0 );
+            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             if ( CSymList->at(cSym)[5] < minPeakHeight ) { continue; }
             
             //========================================  Check the angle between the C5 and C3 axes
@@ -3083,7 +3140,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair ( std::ve
     proshade_double dotProduct;
     
     //================================================ Find all C5 symmetries
-    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { if ( CSymList->at(cSym)[0] == 4 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); } }
+    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 4.0 ); if ( lhs1.AlmostEquals ( rhs1 ) && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C4List, cSym ); } }
     
     //================================================ For each unique pair of C5 and C3
     for ( proshade_unsign c4 = 0; c4 < static_cast<proshade_unsign> ( C4List.size() ); c4++ )
@@ -3091,7 +3148,8 @@ std::pair< proshade_unsign, proshade_unsign > findBestOctaDihedralPair ( std::ve
         for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
         {
             //======================================== Compare only C3s to the C5List and only with decent average peak height
-            if ( CSymList->at(cSym)[0] != 3 ) { continue; }
+            const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 3.0 );
+            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             if ( CSymList->at(cSym)[5] < minPeakHeight ) { continue; }
             
             //========================================  Check the angle between the C5 and C3 axes
@@ -3250,7 +3308,7 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC3s, retGrp;
@@ -3322,7 +3380,7 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] verobse How loud the announcments should be?
  */
-void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC2s, retGrp;
@@ -3735,7 +3793,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
         
         //============================================ Find all peaks for this sphere
-        this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->findAllPeaks ( settings->peakNeighbours, &allPeakHeights );
+        this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->findAllPeaks ( static_cast< proshade_signed > ( settings->peakNeighbours ), &allPeakHeights );
     }
     
     //============================================ Report progress
@@ -3830,7 +3888,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ret->size() ); iter++ )
     {
         alreadyFound                                  = false;
-        for ( proshade_unsign it = 0; it < static_cast < proshade_unsign > ( folds.size() ); it++ ) { if ( folds.at(it) == ret->at(iter)[0] ) { alreadyFound = true; break; } }
+        for ( proshade_unsign it = 0; it < static_cast < proshade_unsign > ( folds.size() ); it++ ) { const FloatingPoint< proshade_double > lhs1 ( folds.at(it) ), rhs1 ( ret->at(iter)[0] ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; break; } }
         
         if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, static_cast< proshade_unsign > ( ret->at(iter)[0] ) ); }
     }
@@ -3859,7 +3917,8 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
         {
             //======================================== Ignore different folds
-            if ( ret->at(axIt)[0] != folds.at(foldIt) ) { continue; }
+            const FloatingPoint< proshade_double > lhs1 ( ret->at(axIt)[0] ), rhs1 ( folds.at(foldIt) );
+            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             
             //======================================== Convert XYZ to lat and lon INDICES
             lat                                       = std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit;
@@ -3923,16 +3982,17 @@ std::pair< proshade_unsign, proshade_unsign > findBestTetraDihedralPair ( std::v
     proshade_double bestHeightSum                     = 0.0;
     proshade_double dotProduct;
     
-    //================================================ Find all C5 symmetries
-    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { if ( CSymList->at(cSym)[0] == 3 && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C3List, cSym ); } }
+    //================================================ Find all C3 symmetries
+    for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ ) { const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 3.0 ); if ( lhs1.AlmostEquals ( rhs1 ) && CSymList->at(cSym)[5] >= minPeakHeight ) { ProSHADE_internal_misc::addToUnsignVector ( &C3List, cSym ); } }
     
     //================================================ For each unique pair of C3 and C2
     for ( proshade_unsign c3 = 0; c3 < static_cast<proshade_unsign> ( C3List.size() ); c3++ )
     {
         for ( proshade_unsign cSym = 0; cSym < static_cast<proshade_unsign> ( CSymList->size() ); cSym++ )
         {
-            //======================================== Compare only C3s to the C5List and only with decent average peak height
-            if ( CSymList->at(cSym)[0] != 2 ) { continue; }
+            //======================================== Compare only C2s to the C3List and only with decent average peak height
+            const FloatingPoint< proshade_double > lhs1 ( CSymList->at(cSym)[0] ), rhs1 ( 2.0 );
+            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             if ( CSymList->at(cSym)[5] < minPeakHeight ) { continue; }
             
             //========================================  Check the angle between the C5 and C3 axes
@@ -3968,7 +4028,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestTetraDihedralPair ( std::v
     pre-computed tetrhedron model to the detected axes. After rotating the model, the model axes become the predicted axes for the structure and their peak heights are then
     computed. Once complete, all the predicted axes are in the ret variable.
  
-    \Warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
+    \warning This function does not check if the correct number of C axes was found, it is assumed this will be checked when the determination of
     which symmetry was found.
  
     \param[in] settings A pointer to settings class containing all the information required for symmetry detection.

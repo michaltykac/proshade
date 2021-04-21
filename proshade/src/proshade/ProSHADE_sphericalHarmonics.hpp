@@ -23,8 +23,8 @@
 #include "ProSHADE_mapManip.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_SPHERICAL_HARMONICS__
-#define __PROSHADE_SPHERICAL_HARMONICS__
+#ifndef PROSHADE_SPHERICAL_HARMONICS
+#define PROSHADE_SPHERICAL_HARMONICS
 
 //==================================================== ProSHADE_internal_sphericalHarmonics namespace
 /*! \namespace ProSHADE_internal_sphericalHarmonics

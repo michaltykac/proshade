@@ -38,10 +38,8 @@ bool ProSHADE_internal_io::isFilePDB ( std::string fName )
     }
     catch ( std::runtime_error& e )
     {
-        //============================================ Supress MSVC C4101 Unferenced variable warning
-#if defined ( _WIN64 ) || defined ( _WIN32 )
+        //============================================ Supress MSVC C4101 Unferenced variable warning / clang and gcc -Wunused-exception-parameter
         (void)e;
-#endif
         
         //============================================ Read failed. Done
         return                                        ( false );
@@ -68,10 +66,8 @@ bool ProSHADE_internal_io::isFileMAP ( std::string fName )
     }
     catch ( std::runtime_error& e )
     {
-        //============================================ Supress MSVC C4101 Unferenced variable warning
-#if defined ( _WIN64 ) || defined ( _WIN32 )
+        //============================================ Supress MSVC C4101 Unferenced variable warning / clang and gcc -Wunused-exception-parameter
         (void)e;
-#endif
         
         //============================================ Failed to read the map
         return                                        ( false );
@@ -205,7 +201,9 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<float> *gemmiMap, proshad
             for ( axOrdArr[2] = 0; axOrdArr[2] < axDimArr[zAxOrder-1]; axOrdArr[2]++ )
             {
                 arrPos                                = axOrdArr[2]  + axDimArr[zAxOrder-1] * ( axOrdArr[1]  + axDimArr[yAxOrder-1] * axOrdArr[0] );
-                map[arrPos]                           = static_cast< proshade_double > ( gemmiMap->grid.get_value_q( axOrdArr[xAxOrder-1], axOrdArr[yAxOrder-1], axOrdArr[zAxOrder-1] ) );
+                map[arrPos]                           = static_cast< proshade_double > ( gemmiMap->grid.get_value_q( static_cast< int > ( axOrdArr[xAxOrder-1] ),
+                                                                                                                     static_cast< int > ( axOrdArr[yAxOrder-1] ),
+                                                                                                                     static_cast< int > ( axOrdArr[zAxOrder-1] ) ) );
             }
         }
     }
@@ -283,7 +281,7 @@ void ProSHADE_internal_io::writeOutMapHeader ( gemmi::Ccp4<float> *map, proshade
     if ( gemmi::is_little_endian() ) { map->set_header_i32 ( 54, static_cast<int32_t> ( 0x00004144 ) ); }       // Machine stamp encoding byte ordering of data
     else                             { map->set_header_i32 ( 54, static_cast<int32_t> ( 0x11110000 ) ); }
     map->set_header_i32                               ( 56, static_cast<int32_t> ( 1 ) );                       // Number of labels used
-    std::memset                                       ( reinterpret_cast<void*> ( &(map->ccp4_header.at( 56 )) ), ' ', 800 + map->grid.spacegroup->operations().order() * 80); // 56 is used because the vector is indexed from 0
+    std::memset                                       ( reinterpret_cast<void*> ( &(map->ccp4_header.at( 56 )) ), ' ', static_cast< size_t > ( 800 + map->grid.spacegroup->operations().order() * 80 ) ); // 56 is used because the vector is indexed from 0
     map->set_header_str                               ( 57, title );                                            // Title
     
     //================================================ Done

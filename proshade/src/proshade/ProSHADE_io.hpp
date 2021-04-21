@@ -23,8 +23,8 @@
 #include "ProSHADE_settings.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_IO__
-#define __PROSHADE_IO__
+#ifndef PROSHADE_IO
+#define PROSHADE_IO
 
 //==================================================== ProSHADE_internal_io Namespace
 /*! \namespace ProSHADE_internal_io

@@ -24,8 +24,8 @@
 #include "ProSHADE_messages.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_MISC__
-#define __PROSHADE_MISC__
+#ifndef PROSHADE_MISC
+#define PROSHADE_MISC
 
 //==================================================== ProSHADE_internal_messages Namespace
 /*! \namespace ProSHADE_internal_misc
@@ -65,7 +65,7 @@ namespace ProSHADE_internal_misc
     template <class chVar> inline void checkMemoryAllocation ( chVar checkVar, std::string fileP, unsigned int lineP, std::string funcP, std::string infoP = "This error may occurs when ProSHADE requests memory to be\n                    : allocated to it and this operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes using a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : if this problem persists." )
     {
         //============================================ Check against NULL
-        if ( checkVar == NULL )
+        if ( checkVar == nullptr )
         {
             throw ProSHADE_exception                  ( "Failed to allocate memory.", "E000007", fileP, lineP, funcP, infoP );
         }

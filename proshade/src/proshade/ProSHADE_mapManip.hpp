@@ -23,8 +23,8 @@
 #include "ProSHADE_io.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_MAPMANIP__
-#define __PROSHADE_MAPMANIP__
+#ifndef PROSHADE_MAPMANIP
+#define PROSHADE_MAPMANIP
 
 //==================================================== ProSHADE_internal_mapManip namespace
 /*! \namespace ProSHADE_internal_mapManip
@@ -96,8 +96,8 @@ namespace ProSHADE_internal_mapManip
     void distributeSpaceToBoundaries                  ( proshade_signed& minBound, proshade_signed& maxBound, proshade_signed oldBoundRange, proshade_signed newBoundRange );
     void copyMapByBounds                              ( proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom,
                                                         proshade_signed zTo, proshade_signed origXFrom, proshade_signed origYFrom, proshade_signed origZFrom,
-                                                        proshade_signed yDimIndices, proshade_signed zDimIndices, proshade_signed origXDimIndices,
-                                                        proshade_signed origYDimIndices, proshade_signed origZDimIndices, proshade_double*& newMap,
+                                                        proshade_unsign yDimIndices, proshade_unsign zDimIndices, proshade_unsign origXDimIndices,
+                                                        proshade_unsign origYDimIndices, proshade_unsign origZDimIndices, proshade_double*& newMap,
                                                         proshade_double* origMap );
 }
 

@@ -82,7 +82,7 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
                                                              reBoxStr->getYToPtr(), reBoxStr->getZFromPtr(), reBoxStr->getZToPtr() );
         
         //============================================ Save the map
-        proshade_double* mapCopy                      = NULL;
+        proshade_double* mapCopy                      = nullptr;
         reBoxStr->deepCopyMap                         ( mapCopy, settings->verbose );
         ProSHADE_internal_misc::addToDblPtrVector     ( manipulatedMaps, mapCopy );
         
@@ -264,7 +264,8 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     }
     
     //================================================ Is there resolution value set?
-    if ( settings->requestedResolution == -1.0f )
+    const FloatingPoint< proshade_single > lhs ( settings->requestedResolution ), rhs ( -1.0f );
+    if ( lhs.AlmostEquals ( rhs ) )
     {
         throw ProSHADE_exception ( "Resolution value not set.", "ED00013", __FILE__, __LINE__, __func__, "The resolution value was not set. Please set the\n                    : resolution value for the distance computation by using\n                    : the setResolution() function." );
     }

@@ -23,8 +23,8 @@
 #include "ProSHADE_overlay.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_TASKS__
-#define __PROSHADE_TASKS__
+#ifndef PROSHADE_TASKS
+#define PROSHADE_TASKS
 
 //==================================================== ProSHADE_internal_tasks Namespace
 /*! \namespace ProSHADE_internal_tasks

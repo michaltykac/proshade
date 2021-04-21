@@ -24,8 +24,8 @@
 #include "ProSHADE_sphericalHarmonics.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_SPHERES__
-#define __PROSHADE_SPHERES__
+#ifndef PROSHADE_SPHERES
+#define PROSHADE_SPHERES
 
 //==================================================== ProSHADE_internal_spheres Namespace
 /*! \namespace ProSHADE_internal_spheres
@@ -164,7 +164,7 @@ namespace ProSHADE_internal_spheres
     public:
         bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose );
         void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs,
-                                                        bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose );
+                                                        bool bicubicInterp, proshade_unsign fold, proshade_signed verbose );
         
     public:
         proshade_double getLatFromIndices             ( void );

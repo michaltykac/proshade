@@ -280,7 +280,8 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     
     ProSHADE_internal_mapManip::moveMapByFourier      ( movingStructure->getInternalMap(), xMov, yMov, zMov,
                                                         movingStructure->getXDimSize(), movingStructure->getYDimSize(), movingStructure->getZDimSize(),
-                                                        movingStructure->getXDim(), movingStructure->getYDim(), movingStructure->getZDim() );
+                                                        static_cast< proshade_signed > ( movingStructure->getXDim() ), static_cast< proshade_signed > ( movingStructure->getYDim() ),
+                                                        static_cast< proshade_signed > ( movingStructure->getZDim() ) );
     
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
@@ -293,7 +294,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     
     //================================================ Compute the optimal rotation centre for co-ordinates
     movingStructure->computePdbRotationCentre         ( );
-    movingStructure->computeOptimalTranslation        ( eulA, eulB, eulG, *trsX, *trsY, *trsZ );
+    movingStructure->computeOptimalTranslation        ( eulA, eulB, eulG, static_cast< proshade_single > ( *trsX ), static_cast< proshade_single > ( *trsY ), static_cast< proshade_single > ( *trsZ ) );
     
     //================================================ Done
     return ;
@@ -361,7 +362,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
     
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->getInternalMap(), modXMov, modYMov, modZMov,
                                                         this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),
-                                                        this->getXDim(), this->getYDim(), this->getZDim() );
+                                                        static_cast< proshade_signed > ( this->getXDim() ), static_cast< proshade_signed > ( this->getYDim() ), static_cast< proshade_signed > ( this->getZDim() ) );
 
     //================================================ Keep only the change in from and to variables
     this->mapMovFromsChangeX                          = this->xFrom - this->mapMovFromsChangeX;
@@ -389,7 +390,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
 void ProSHADE_internal_data::ProSHADE_data::computeTranslationMap ( ProSHADE_internal_data::ProSHADE_data* staticStructure )
 {
     //================================================ Do this using Fourier!
-    fftw_complex *tmpIn1 = NULL, *tmpOut1 = NULL, *tmpIn2 = NULL, *tmpOut2 = NULL, *resOut = NULL;
+    fftw_complex *tmpIn1 = nullptr, *tmpOut1 = nullptr, *tmpIn2 = nullptr, *tmpOut2 = nullptr, *resOut = nullptr;
     fftw_plan forwardFourierObj1, forwardFourierObj2, inverseFourierCombo;
     proshade_unsign dimMult                           = staticStructure->getXDim() * staticStructure->getYDim() * staticStructure->getZDim();
     ProSHADE_internal_overlay::allocateTranslationFunctionMemory ( tmpIn1, tmpOut1, tmpIn2, tmpOut2, this->translationMap, resOut, forwardFourierObj1, forwardFourierObj2, inverseFourierCombo, staticStructure->getXDim(), staticStructure->getYDim(), staticStructure->getZDim() );
@@ -448,9 +449,9 @@ void ProSHADE_internal_overlay::allocateTranslationFunctionMemory ( fftw_complex
     ProSHADE_internal_misc::checkMemoryAllocation     ( resOut,  __FILE__, __LINE__, __func__ );
     
     //================================================ Get Fourier transforms of the maps
-    forwardFourierObj1                                = fftw_plan_dft_3d ( xD, yD, zD, tmpIn1, tmpOut1, FFTW_FORWARD , FFTW_ESTIMATE );
-    forwardFourierObj2                                = fftw_plan_dft_3d ( xD, yD, zD, tmpIn2, tmpOut2, FFTW_FORWARD , FFTW_ESTIMATE );
-    inverseFourierCombo                               = fftw_plan_dft_3d ( xD, yD, zD, resOut, resIn  , FFTW_BACKWARD, FFTW_ESTIMATE );
+    forwardFourierObj1                                = fftw_plan_dft_3d ( static_cast< int > ( xD ), static_cast< int > ( yD ), static_cast< int > ( zD ), tmpIn1, tmpOut1, FFTW_FORWARD , FFTW_ESTIMATE );
+    forwardFourierObj2                                = fftw_plan_dft_3d ( static_cast< int > ( xD ), static_cast< int > ( yD ), static_cast< int > ( zD ), tmpIn2, tmpOut2, FFTW_FORWARD , FFTW_ESTIMATE );
+    inverseFourierCombo                               = fftw_plan_dft_3d ( static_cast< int > ( xD ), static_cast< int > ( yD ), static_cast< int > ( zD ), resOut, resIn  , FFTW_BACKWARD, FFTW_ESTIMATE );
     
     //================================================ Done
     return ;
@@ -511,9 +512,9 @@ void ProSHADE_internal_overlay::combineFourierForTranslation ( fftw_complex* tmp
             for ( proshade_signed wIt = 0; wIt < static_cast<proshade_signed> ( zD ); wIt++ )
             {
                 //==================================== Convert to HKL
-                if ( uIt > uo2 ) { h1 = uIt - xD; } else { h1 = uIt; }
-                if ( vIt > vo2 ) { k1 = vIt - yD; } else { k1 = vIt; }
-                if ( wIt > wo2 ) { l1 = wIt - zD; } else { l1 = wIt; }
+                if ( uIt > uo2 ) { h1 = uIt - static_cast< proshade_signed > ( xD ); } else { h1 = uIt; }
+                if ( vIt > vo2 ) { k1 = vIt - static_cast< proshade_signed > ( yD ); } else { k1 = vIt; }
+                if ( wIt > wo2 ) { l1 = wIt - static_cast< proshade_signed > ( zD ); } else { l1 = wIt; }
                 
                 //==================================== Make HKL into indexable numbers
                 if ( h1 < 0 ) { h1 += xD; }
@@ -521,8 +522,8 @@ void ProSHADE_internal_overlay::combineFourierForTranslation ( fftw_complex* tmp
                 if ( l1 < 0 ) { l1 += zD; }
                 
                 //==================================== Find indices
-                hlpPos                                = l1  + zD * ( k1  + yD * h1 );
-                arrPos                                = wIt + zD * ( vIt + yD * uIt );
+                hlpPos                                = l1  + static_cast< proshade_signed > ( zD ) * ( k1  + static_cast< proshade_signed > ( yD ) * h1 );
+                arrPos                                = wIt + static_cast< proshade_signed > ( zD ) * ( vIt + static_cast< proshade_signed > ( yD ) * uIt );
                 
                 //==================================== Combine
                 ProSHADE_internal_maths::complexMultiplicationConjug ( &tmpOut1[hlpPos][0],
@@ -568,7 +569,7 @@ void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, pro
         {
             for ( proshade_signed wIt = 0; wIt < static_cast<proshade_signed> ( zD ); wIt++ )
             {
-                arrPos                                = wIt + zD * ( vIt + yD * uIt );
+                arrPos                                = wIt + static_cast< proshade_signed > ( zD ) * ( vIt + static_cast< proshade_signed > ( yD ) * uIt );
                 if ( resIn[arrPos][0] > *mapPeak )
                 {
                    *mapPeak                           = resIn[arrPos][0];
@@ -806,7 +807,8 @@ void ProSHADE_internal_data::ProSHADE_data::translateMap ( proshade_double trsX,
     
     //================================================ Finalise the movement by in-frame Fourier movement
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->getInternalMap(), xMov, yMov, zMov, this->getXDimSize(), this->getYDimSize(), this->getZDimSize(),
-                                                        this->getXDim(), this->getYDim(), this->getZDim() );
+                                                        static_cast< proshade_signed > ( this->getXDim() ), static_cast< proshade_signed > ( this->getYDim() ),
+                                                        static_cast< proshade_signed > ( this->getZDim() ) );
     
     //================================================ Done
     return ;
@@ -859,20 +861,21 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotatedSH ( )
             for ( proshade_signed order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
             {
                 //==================================== Get Spherical Harmonics value
-                ShR                                   = getRealSphHarmValue  ( bandIter, order1, shell );
-                ShI                                   = getImagSphHarmValue  ( bandIter, order1, shell );
+                ShR                                   = getRealSphHarmValue  ( static_cast< proshade_unsign > ( bandIter ), static_cast< proshade_unsign > ( order1 ), static_cast< proshade_unsign > ( shell ) );
+                ShI                                   = getImagSphHarmValue  ( static_cast< proshade_unsign > ( bandIter ), static_cast< proshade_unsign > ( order1 ), static_cast< proshade_unsign > ( shell ) );
                 
                 //==================================== For each order2
                 for ( proshade_signed order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
                 {
                     //================================ Get Wigner D values
-                    this->getWignerMatrixValue        ( bandIter, order1, order2, &WigDR, &WigDI );
+                    this->getWignerMatrixValue        ( static_cast< proshade_unsign > ( bandIter ), static_cast< proshade_unsign > ( order1 ), static_cast< proshade_unsign > ( order2 ), &WigDR, &WigDI );
                     
                     //================================ Multiply SH and Wigner
                     ProSHADE_internal_maths::complexMultiplication ( ShR, ShI, &WigDR, &WigDI, &retR, &retI );
 
                     //================================ Save
-                    arrPos                            = static_cast<proshade_unsign> ( seanindex ( order2-bandIter, bandIter, this->spheres[shell]->getLocalBandwidth() ) );
+                    arrPos                            = static_cast<proshade_unsign> ( seanindex ( static_cast< int > ( order2-bandIter ), static_cast< int > ( bandIter ),
+                                                                                                   static_cast< int > ( this->spheres[shell]->getLocalBandwidth() ) ) );
                     this->rotSphericalHarmonics[shell][arrPos][0] += retR;
                     this->rotSphericalHarmonics[shell][arrPos][1] += retI;
                 }
@@ -917,20 +920,20 @@ void ProSHADE_internal_overlay::initialiseInverseSHComputation ( proshade_unsign
     ProSHADE_internal_misc::checkMemoryAllocation     ( workspace, __FILE__, __LINE__, __func__ );
     
     //================================================ Create the cosine/sine transform plan
-    idctPlan                                          = fftw_plan_r2r_1d ( oneDim, weights, workspace, FFTW_REDFT01, FFTW_ESTIMATE );
+    idctPlan                                          = fftw_plan_r2r_1d ( static_cast< int > ( oneDim ), weights, workspace, FFTW_REDFT01, FFTW_ESTIMATE );
     
     //================================================ Set up the discrete Fourier transform
     int rank, howmany_rank;
     fftw_iodim dims[1], howmany_dims[1];
     
     rank                                              = 1;
-    dims[0].n                                         = 2 * shBand;
-    dims[0].is                                        = 2 * shBand;
+    dims[0].n                                         = 2 * static_cast< int > ( shBand );
+    dims[0].is                                        = 2 * static_cast< int > ( shBand );
     dims[0].os                                        = 1;
     howmany_rank                                      = 1;
-    howmany_dims[0].n                                 = 2 * shBand;
+    howmany_dims[0].n                                 = 2 * static_cast< int > ( shBand );
     howmany_dims[0].is                                = 1;
-    howmany_dims[0].os                                = 2 * shBand;
+    howmany_dims[0].os                                = 2 * static_cast< int > ( shBand );
     
     //================================================ Create the discrete Fourier transform
     ifftPlan                                          = fftw_plan_guru_split_dft ( rank, dims, howmany_rank, howmany_dims, sigR, sigI, rcoeffs, icoeffs, FFTW_ESTIMATE );
@@ -946,7 +949,7 @@ void ProSHADE_internal_overlay::initialiseInverseSHComputation ( proshade_unsign
 void ProSHADE_internal_data::ProSHADE_data::invertSHCoefficients ( )
 {
     //================================================ Initialise local variables
-    double *sigR =  NULL, *sigI =  NULL, *rcoeffs =  NULL, *icoeffs =  NULL, *weights =  NULL, *workspace =  NULL;
+    double *sigR =  nullptr, *sigI =  nullptr, *rcoeffs =  nullptr, *icoeffs =  nullptr, *weights =  nullptr, *workspace =  nullptr;
     fftw_plan idctPlan, ifftPlan;
     
     //================================================ For each shell
@@ -959,7 +962,7 @@ void ProSHADE_internal_data::ProSHADE_data::invertSHCoefficients ( )
          ProSHADE_internal_overlay::initialiseInverseSHComputation ( this->spheres[shell]->getLocalBandwidth(), sigR, sigI, rcoeffs, icoeffs, weights, workspace, idctPlan, ifftPlan );
          
          //=========================================== Compute weights for the transform using the appropriate shell related band
-         makeweights                                  ( this->spheres[shell]->getLocalBandwidth(), weights );
+         makeweights                                  ( static_cast< int > ( this->spheres[shell]->getLocalBandwidth() ), weights );
          
          //============================================ Allocate rotated shell mapped data memory
          this->spheres[shell]->allocateRotatedMap     ( );
@@ -978,10 +981,10 @@ void ProSHADE_internal_data::ProSHADE_data::invertSHCoefficients ( )
                                                         icoeffs,
                                                         sigR,
                                                         sigI,
-                                                        this->spheres[shell]->getLocalBandwidth(),
+                                                        static_cast< int > ( this->spheres[shell]->getLocalBandwidth() ),
                                                         workspace,
                                                         0,
-                                                        this->spheres[shell]->getLocalBandwidth(),
+                                                        static_cast< int > ( this->spheres[shell]->getLocalBandwidth() ),
                                                         &idctPlan,
                                                         &ifftPlan );
          
@@ -1063,7 +1066,7 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( proshade
                 //==================================== Deal with 0 ; 0 ; 0
                 if ( ( newU == 0.0 ) && ( newV == 0.0 ) && ( newW == 0.0 ) )
                 {
-                    arrPos                            = wIt + this->zDimIndices * ( vIt + this->yDimIndices * uIt );
+                    arrPos                            = wIt + static_cast< proshade_signed > ( this->zDimIndices ) * ( vIt + static_cast< proshade_signed > ( this->yDimIndices ) * uIt );
                     densityMapRotated[arrPos]         = this->internalMap[arrPos];
                     continue;
                 }
@@ -1095,7 +1098,7 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( proshade
                 
                 if ( upperShell == 0 )
                 {
-                    arrPos                            = wIt + this->zDimIndices * ( vIt + this->yDimIndices * uIt );
+                    arrPos                            = wIt + static_cast< proshade_signed > ( this->zDimIndices ) * ( vIt + static_cast< proshade_signed > ( this->yDimIndices ) * uIt );
                     densityMapRotated[arrPos]         = 0.0;
                     continue;
                 }
@@ -1204,7 +1207,7 @@ void ProSHADE_internal_data::ProSHADE_data::interpolateMapFromSpheres ( proshade
                 distLRad                              = std::abs ( rad - static_cast< proshade_double > ( this->spherePos.at(lowerShell) ) ) / ( std::abs( rad - static_cast< proshade_double > ( this->spherePos.at(lowerShell) ) ) +
                                                                                                               std::abs( rad - static_cast< proshade_double > ( this->spherePos.at(upperShell) ) ) );
                 
-                arrPos                                = wIt + this->zDimIndices * ( vIt + this->yDimIndices * uIt );
+                arrPos                                = wIt + static_cast< proshade_signed > ( this->zDimIndices ) * ( vIt + static_cast< proshade_signed > ( this->yDimIndices ) * uIt );
                 densityMapRotated[arrPos]             = ( ( 1.0 - distLRad ) * lowerShellValue ) + ( distLRad * upperShellValue );
             }
      

@@ -23,9 +23,12 @@
 //==================================================== ProSHADE
 #include "ProSHADE_misc.hpp"
 
+//==================================================== almostEqual for comparing floating point numbers (BSD License, works on Windows as well as linux)
+#include <almostEqual.hpp>
+
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_MATHS__
-#define __PROSHADE_MATHS__
+#ifndef PROSHADE_MATHS
+#define PROSHADE_MATHS
 
 //==================================================== Declare LAPACK functions
 extern "C"

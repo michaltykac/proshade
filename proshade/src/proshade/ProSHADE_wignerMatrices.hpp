@@ -23,8 +23,8 @@
 #include "ProSHADE_data.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_WIGNERMATRICES__
-#define __PROSHADE_WIGNERMATRICES__
+#ifndef PROSHADE_WIGNERMATRICES
+#define PROSHADE_WIGNERMATRICES
 
 //==================================================== ProSHADE Namespace
 /*! \namespace ProSHADE_internal_wigner

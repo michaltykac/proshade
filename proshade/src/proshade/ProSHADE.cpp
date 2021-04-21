@@ -264,7 +264,6 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
             std::cerr << "Further information : " << "This ProSHADE_settings class constructor is intended to\n                    : set the internal variables to default value given a\n                    : particular taks. By supplying this task as NA, this beats\n                    : the purpose of the constructor. Please use the\n                    : non-argumental constructor if task is not yet known." << std::endl << std::endl << std::flush;
             ProSHADE_internal_messages::printTerminateMessage ( this->verbose );
             exit                                      ( EXIT_FAILURE );
-            break;
             
         case Symmetry:
             this->requestedResolution                 = 6.0;
@@ -317,7 +316,7 @@ __declspec(dllexport) ProSHADE_settings::~ProSHADE_settings ( void )
     delete[] this->forceBounds;
     
     //================================================ Release symmetry axes
-    if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != NULL ) { delete[] this->detectedSymmetry.at(it); } } }
+    if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != nullptr ) { delete[] this->detectedSymmetry.at(it); } } }
     
     //================================================ Done
     
@@ -328,7 +327,8 @@ __declspec(dllexport) ProSHADE_settings::~ProSHADE_settings ( void )
 void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
 {
     //================================================ Determine the peak IQR from median threshold, unless given by user
-    if ( this->noIQRsFromMedianNaivePeak == -999.9 )
+    const FloatingPoint< proshade_double > lhs ( this->noIQRsFromMedianNaivePeak ), rhs ( -999.9 );
+    if ( lhs.AlmostEquals( rhs ) )
     {
         //============================================ If using the old symmetry detection algorithm or distances computation, this will be used on many small peaks with few outliers. Use value of 5.0
         if (   this->task == Distances )                                                      { this->noIQRsFromMedianNaivePeak = 5.0; }
@@ -1598,7 +1598,6 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
         {
             case NA:
                 throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Distances, Symmetry,\n                    : OverlayMap or MapManip." );
-                break;
                 
             case Symmetry:
                 ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes, &this->mapCOMShift );
@@ -1820,59 +1819,59 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     //================================================ Long options struct
     const struct option_port longopts[] =
     {
-        { "version",         no_argument,        NULL, 'v' },
-        { "help",            no_argument,        NULL, 'h' },
-        { "verbose",         required_argument,  NULL, '!' },
-        { "distances",       no_argument,        NULL, 'D' },
-        { "mapManip",        no_argument,        NULL, 'M' },
-        { "symmetry",        no_argument,        NULL, 'S' },
-        { "overlay",         no_argument,        NULL, 'O' },
-        { "file",            required_argument,  NULL, 'f' },
-        { "forceSpgP1",      no_argument,        NULL, 'u' },
-        { "removeWaters",    no_argument,        NULL, 'w' },
-        { "firstModel",      no_argument,        NULL, 'x' },
-        { "resolution",      required_argument,  NULL, 'r' },
-        { "bandwidth",       required_argument,  NULL, 'b' },
-        { "sphereDists",     required_argument,  NULL, 's' },
-        { "extraSpace",      required_argument,  NULL, 'e' },
-        { "integOrder",      required_argument,  NULL, 'i' },
-        { "taylorCap",       required_argument,  NULL, 't' },
-        { "invertMap",       no_argument,        NULL, '@' },
-        { "normalise",       no_argument,        NULL, '#' },
-        { "mask",            no_argument,        NULL, '$' },
-        { "saveMask",        no_argument,        NULL, '%' },
-        { "maskFile",        required_argument,  NULL, '^' },
-        { "maskBlurring",    required_argument,  NULL, '&' },
-        { "maskThreshold",   required_argument,  NULL, '*' },
-        { "mapReboxing",     no_argument,        NULL, 'R' },
-        { "boundsSpace",     required_argument,  NULL, '(' },
-        { "boundsThreshold", required_argument,  NULL, ')' },
-        { "sameBoundaries",  no_argument,        NULL, '-' },
-        { "reBoxedFilename", required_argument,  NULL, 'g' },
-        { "pdbTempFact",     required_argument,  NULL, 'd' },
-        { "center",          no_argument,        NULL, 'c' },
-        { "changeMapResol",  no_argument,        NULL, 'j' },
-        { "changeMapTriLin", no_argument,        NULL, 'a' },
-        { "noPhase",         no_argument,        NULL, 'p' },
-        { "progressive",     no_argument,        NULL, 'k' },
-        { "noEnL",           no_argument,        NULL, 'l' },
-        { "noTrS",           no_argument,        NULL, 'm' },
-        { "noFRF",           no_argument,        NULL, 'n' },
-        { "EnLWeight",       required_argument,  NULL, '_' },
-        { "peakNeigh",       required_argument,  NULL, '=' },
-        { "peakThres",       required_argument,  NULL, '+' },
-        { "missAxThres",     required_argument,  NULL, '[' },
-        { "sameAxComp",      required_argument,  NULL, ']' },
-        { "axisComBeh",      no_argument,        NULL, 'q' },
-        { "bicubSearch",     no_argument,        NULL, 'A' },
-        { "maxSymPrime",     required_argument,  NULL, 'B' },
-        { "minPeakHeight",   required_argument,  NULL, 'o' },
-        { "reqSym",          required_argument,  NULL, '{' },
-        { "overlayFile",     required_argument,  NULL, '}' },
-        { "overlayJSONFile", required_argument,  NULL, 'y' },
-        { "angUncertain",    required_argument,  NULL, ';' },
-        { "usePeaksInRotFun",no_argument,        NULL, 'z' },
-        { NULL,              0,                  NULL,  0  }
+        { "version",         no_argument,        nullptr, 'v' },
+        { "help",            no_argument,        nullptr, 'h' },
+        { "verbose",         required_argument,  nullptr, '!' },
+        { "distances",       no_argument,        nullptr, 'D' },
+        { "mapManip",        no_argument,        nullptr, 'M' },
+        { "symmetry",        no_argument,        nullptr, 'S' },
+        { "overlay",         no_argument,        nullptr, 'O' },
+        { "file",            required_argument,  nullptr, 'f' },
+        { "forceSpgP1",      no_argument,        nullptr, 'u' },
+        { "removeWaters",    no_argument,        nullptr, 'w' },
+        { "firstModel",      no_argument,        nullptr, 'x' },
+        { "resolution",      required_argument,  nullptr, 'r' },
+        { "bandwidth",       required_argument,  nullptr, 'b' },
+        { "sphereDists",     required_argument,  nullptr, 's' },
+        { "extraSpace",      required_argument,  nullptr, 'e' },
+        { "integOrder",      required_argument,  nullptr, 'i' },
+        { "taylorCap",       required_argument,  nullptr, 't' },
+        { "invertMap",       no_argument,        nullptr, '@' },
+        { "normalise",       no_argument,        nullptr, '#' },
+        { "mask",            no_argument,        nullptr, '$' },
+        { "saveMask",        no_argument,        nullptr, '%' },
+        { "maskFile",        required_argument,  nullptr, '^' },
+        { "maskBlurring",    required_argument,  nullptr, '&' },
+        { "maskThreshold",   required_argument,  nullptr, '*' },
+        { "mapReboxing",     no_argument,        nullptr, 'R' },
+        { "boundsSpace",     required_argument,  nullptr, '(' },
+        { "boundsThreshold", required_argument,  nullptr, ')' },
+        { "sameBoundaries",  no_argument,        nullptr, '-' },
+        { "reBoxedFilename", required_argument,  nullptr, 'g' },
+        { "pdbTempFact",     required_argument,  nullptr, 'd' },
+        { "center",          no_argument,        nullptr, 'c' },
+        { "changeMapResol",  no_argument,        nullptr, 'j' },
+        { "changeMapTriLin", no_argument,        nullptr, 'a' },
+        { "noPhase",         no_argument,        nullptr, 'p' },
+        { "progressive",     no_argument,        nullptr, 'k' },
+        { "noEnL",           no_argument,        nullptr, 'l' },
+        { "noTrS",           no_argument,        nullptr, 'm' },
+        { "noFRF",           no_argument,        nullptr, 'n' },
+        { "EnLWeight",       required_argument,  nullptr, '_' },
+        { "peakNeigh",       required_argument,  nullptr, '=' },
+        { "peakThres",       required_argument,  nullptr, '+' },
+        { "missAxThres",     required_argument,  nullptr, '[' },
+        { "sameAxComp",      required_argument,  nullptr, ']' },
+        { "axisComBeh",      no_argument,        nullptr, 'q' },
+        { "bicubSearch",     no_argument,        nullptr, 'A' },
+        { "maxSymPrime",     required_argument,  nullptr, 'B' },
+        { "minPeakHeight",   required_argument,  nullptr, 'o' },
+        { "reqSym",          required_argument,  nullptr, '{' },
+        { "overlayFile",     required_argument,  nullptr, '}' },
+        { "overlayJSONFile", required_argument,  nullptr, 'y' },
+        { "angUncertain",    required_argument,  nullptr, ';' },
+        { "usePeaksInRotFun",no_argument,        nullptr, 'z' },
+        { nullptr,           0,                  nullptr,  0  }
     };
     
     //================================================ Short options string
@@ -1882,7 +1881,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     while ( true )
     {
         //============================================ Read the next option
-        int opt                                       = getopt_long_port ( argc, argv, shortopts, longopts, NULL );
+        int opt                                       = getopt_long_port ( argc, argv, shortopts, longopts, nullptr );
         
         //============================================ Done parsing
         if ( opt == -1 )
@@ -1904,7 +1903,6 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'h':
              {
                  ProSHADE_internal_messages::printHelp ( );
-                 exit                                 ( EXIT_SUCCESS );
              }
                  
              //======================================= Save the argument as the verbosity value, or if no value given, just set to 3
@@ -1934,8 +1932,11 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  this->task                           = Symmetry;
                  
                  //=================================== Force default unless changed already by the user
-                 if (  this->requestedResolution == -1 ) { this->requestedResolution = 6.0;  }
-                 if (  this->pdbBFactorNewVal    == -1 ) { this->pdbBFactorNewVal    = 80.0; }
+                 const FloatingPoint< proshade_single > lhs1 ( this->requestedResolution ), rhs1 ( -1.0f );
+                 if (  lhs1.AlmostEquals ( rhs1 ) )   { this->requestedResolution = 6.0;  }
+                 
+                 const FloatingPoint< proshade_double > lhs2 ( this->pdbBFactorNewVal ), rhs2 ( -1.0 );
+                 if (  lhs2.AlmostEquals ( rhs2 ) )   { this->pdbBFactorNewVal    = 80.0; }
                  this->changeMapResolution            = !this->changeMapResolution;  // Switch value. This can be over-ridden by the user by using -j
                  this->moveToCOM                      = !this->moveToCOM;            // Switch value. This can be over-ridden by the user by using -c.
                  
@@ -2241,7 +2242,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                      this->setRequestedSymmetry ( "C" );
                      
                      std::string numHlp ( input.begin()+1, input.end() );
-                     if ( numHlp.length() > 0 ) { this->setRequestedFold ( atoi ( numHlp.c_str() ) ); }
+                     if ( numHlp.length() > 0 ) { this->setRequestedFold ( static_cast< proshade_unsign > ( atoi ( numHlp.c_str() ) ) ); }
                      else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( EXIT_FAILURE ); }
                  }
                  else
@@ -2251,7 +2252,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                          this->setRequestedSymmetry ( "D" );
                          
                          std::string numHlp ( input.begin()+1, input.end() );
-                         if ( numHlp.length() > 0 ) { this->setRequestedFold ( atoi ( numHlp.c_str() ) ); }
+                         if ( numHlp.length() > 0 ) { this->setRequestedFold ( static_cast< proshade_unsign > ( atoi ( numHlp.c_str() ) ) ); }
                          else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( EXIT_FAILURE ); }
                      }
                      else
@@ -2333,7 +2334,6 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              default:
              {
                  ProSHADE_internal_messages::printHelp ( );
-                 exit ( EXIT_SUCCESS );
              }
          }
     }

@@ -100,14 +100,12 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
                 descValR                              = 0.0;
 
                 //==================================== Sum over order (m)
-                for ( proshade_unsign order = 0; order < static_cast<proshade_unsign>  ( ( 2 * band ) + 1 ); order++ )
+                for ( proshade_unsign order = 0; order < static_cast< proshade_unsign >  ( ( 2 * band ) + 1 ); order++ )
                 {
-                    arrPos1                           = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
-                                                                                                   static_cast<proshade_signed> ( band ),
-                                                                                                   band, this->spheres[shell1]->getLocalBandwidth() ) );
-                    arrPos2                           = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
-                                                                                                   static_cast<proshade_signed> ( band ),
-                                                                                                   band, this->spheres[shell2]->getLocalBandwidth() ) );
+                    arrPos1                           = static_cast< proshade_unsign > ( seanindex ( static_cast< int > ( order ) - static_cast<int > ( band ),
+                                                                                                   static_cast< int > ( band ), static_cast< int > ( this->spheres[shell1]->getLocalBandwidth() ) ) );
+                    arrPos2                           = static_cast< proshade_unsign > ( seanindex ( static_cast< int > ( order ) - static_cast< int > ( band ),
+                                                                                                   static_cast< int > ( band ), static_cast< int > ( this->spheres[shell2]->getLocalBandwidth() ) ) );
                     descValR                         += ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( &this->sphericalHarmonics[shell1][arrPos1][0],
                                                                                                                        &this->sphericalHarmonics[shell1][arrPos1][1],
                                                                                                                        &this->sphericalHarmonics[shell2][arrPos2][0],
@@ -487,11 +485,11 @@ void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& ob
     delete[] GLweights;
     
     //================================================ Set to NULL
-    obj1Vals                                          = NULL;
-    obj2Vals                                          = NULL;
-    radiiVals                                         = NULL;
-    GLabscissas                                       = NULL;
-    GLweights                                         = NULL;
+    obj1Vals                                          = nullptr;
+    obj2Vals                                          = nullptr;
+    radiiVals                                         = nullptr;
+    GLabscissas                                       = nullptr;
+    GLweights                                         = nullptr;
     
     //================================================ Done
     return ;
@@ -731,10 +729,10 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
             for ( proshade_signed order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
             {
                 //==================================== Find output index
-                indexO                                = static_cast<proshade_unsign> ( so3CoefLoc ( orderIter - bandIter, order2Iter - bandIter, bandIter, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ) );
+                indexO                                = static_cast< proshade_unsign > ( so3CoefLoc ( static_cast< int > ( orderIter - bandIter ), static_cast< int > ( order2Iter - bandIter ), static_cast< int > ( bandIter ), static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ) ) );
                 
                 //==================================== Compute and save the SO(3) coefficients
-                obj2->getEMatrixValue                 ( bandIter, orderIter, order2Iter, &hlpValReal, &hlpValImag );
+                obj2->getEMatrixValue                 ( static_cast< proshade_unsign > ( bandIter ), static_cast< proshade_unsign > ( orderIter ), static_cast< proshade_unsign > ( order2Iter ), &hlpValReal, &hlpValImag );
                 hlpVal[0]                             = hlpValReal * wigNorm * signValue;
                 hlpVal[1]                             = hlpValImag * wigNorm * signValue;
                 obj2->setSO3CoeffValue                ( indexO, hlpVal );
@@ -784,7 +782,7 @@ void ProSHADE_internal_distances::allocateInvSOFTWorkspaces ( proshade_complex*&
     \param[in] work1 The workspace to be used for the computation.
     \param[in] invCoeffs The pointer to where the inverse SOFT transform results will be saved.
  */
-void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, proshade_unsign band, fftw_complex* work1, proshade_complex* invCoeffs )
+void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, int band, fftw_complex* work1, proshade_complex* invCoeffs )
 {
     //================================================ Prepare the plan describing variables
     int howmany                                       = 4 * band * band;
@@ -867,10 +865,10 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
     allocateInvSOFTWorkspaces                         ( workspace1, workspace2, workspace3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
     //================================================ Prepare the FFTW plan
-    prepareInvSOFTPlan                                ( &inverseSO3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ), workspace1, obj2->getInvSO3Coeffs ( ) );
+    prepareInvSOFTPlan                                ( &inverseSO3, static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ), workspace1, obj2->getInvSO3Coeffs ( ) );
     
     //================================================ Compute the transform
-    Inverse_SO3_Naive_fftw                            ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ),
+    Inverse_SO3_Naive_fftw                            ( static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ),
                                                         obj2->getSO3Coeffs ( ),
                                                         obj2->getInvSO3Coeffs ( ),
                                                         workspace1,

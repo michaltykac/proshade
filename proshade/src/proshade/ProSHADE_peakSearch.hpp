@@ -23,8 +23,8 @@
 #include "ProSHADE_spheres.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_PEAKSEARCH__
-#define __PROSHADE_PEAKSEARCH__
+#ifndef PROSHADE_PEAKSEARCH
+#define PROSHADE_PEAKSEARCH
 
 //==================================================== ProSHADE_internal_peakSearch Namespace
 /*! \namespace ProSHADE_internal_peakSearch

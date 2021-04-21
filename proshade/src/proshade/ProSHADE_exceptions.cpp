@@ -1,8 +1,8 @@
-/*! \file ProSHADE_messages.hpp
-    \brief This header file contains all message function declarations.
+/*! \file ProSHADE_exceptions.cpp
+    \brief This source  file contains the ProSHADE_exception class functions..
  
-    The functions declared in this headerr file (using the ProSHADE_internal_messages namespace) are used by ProSHADE to report various things to the user either using stdout
-    (for progress messages) or the stderr (for error messages).
+    This file simply declares the ProSHADE_exceptions class functions in order for them to be declared in a translation unit and
+    therefore to avoid the weak vtable warning.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -19,27 +19,35 @@
     \date      APR 2021
  */
 
-//============================================ ProSHADE
+//==================================================== ProSHADE
 #include "ProSHADE_exceptions.hpp"
 
-//============================================ Overinclusion protection
-#ifndef PROSHADE_MESSAGES
-#define PROSHADE_MESSAGES
-
-//============================================ ProSHADE_internal_messages Namespace
-/*! \namespace ProSHADE_internal_messages
-    \brief This namespace contains all the functions used for reporting back to the user.
+/*! \brief This function returns the exception error code.
  
-    The ProSHADE_internal_messages namespace wraps all functions for reporting back to the user. The user should not need to access this namespace when using
-    the  library.
+    \param[out] errc Error code of the exception.
  */
-namespace ProSHADE_internal_messages
-{
-    void printWellcomeMessage                         ( proshade_signed verbose );
-    void printTerminateMessage                        ( proshade_signed verbose );
-    void printProgressMessage                         ( proshade_signed verbose, proshade_signed messageLevel, std::string message );
-    void printWarningMessage                          ( proshade_signed verbose, std::string message, std::string warnCode );
-    void printHelp  [[noreturn]]                      ( void );
-}
+std::string ProSHADE_exception::get_errc ( ) { return ( this->errc ); }
 
-#endif
+/*! \brief This function returns the exception location file name.
+ 
+    \param[out] file The file from where the exception originated.
+ */
+std::string ProSHADE_exception::get_file ( ) { return ( this->file ); }
+
+/*! \brief This function returns the exception  location line.
+ 
+    \param[out] line The line of code that caused the exception.
+ */
+int long ProSHADE_exception::get_line ( ) { return ( this->line ); }
+
+/*! \brief This function returns the exception causing function name.
+ 
+    \param[out] func The name of the function from which the exception has originated.
+ */
+std::string ProSHADE_exception::get_func ( ) { return ( this->func ); }
+
+/*! \brief This function returns the exception description.
+ 
+    \param[out] info The information provided with the exception.
+ */
+std::string ProSHADE_exception::get_info ( ) { return ( this->info ); }

@@ -541,7 +541,7 @@ void ProSHADE_internal_mapManip::removeWaters ( gemmi::Structure *pdbFile, bool 
                 std::sort                             ( delVec.begin(), delVec.end(), std::greater<int>() );
                 for ( proshade_unsign vecIt = 0; vecIt < static_cast<proshade_unsign> ( delVec.size() ); vecIt++ )
                 {
-                    chain->residues.erase             ( chain->residues.begin() + delVec.at(vecIt) );
+                    chain->residues.erase             ( chain->residues.begin() + static_cast< long int > ( delVec.at(vecIt) ) );
                 }
             }
         }
@@ -666,7 +666,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
         std::string hlpStr                            = pdbFile.models[mIt].present_elements ( ).to_string<char,std::char_traits<char>,std::allocator<char> >();
         totElString                                   = totElString + hlpStr;
     }
-    std::bitset<(size_t)gemmi::El::END> present_elems ( totElString );
+    std::bitset< static_cast< size_t > ( gemmi::El::END )> present_elems ( totElString );
     
     //================================================ Sanity checks
     if ( present_elems[static_cast<int> ( gemmi::El::X )] )
@@ -692,7 +692,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     gemmi::DensityCalculator<gemmi::IT92<double>, float> dencalc;
     
     dencalc.d_min                                     = static_cast< double > ( requestedResolution );
-    for ( proshade_unsign elIt = 0; elIt < static_cast<proshade_unsign> ( present_elems.size() ); elIt++ ) { if ( present_elems[elIt] ) { dencalc.addends.set ( static_cast< gemmi::El > ( elIt ), static_cast< float > ( gemmi::cromer_libermann ( elIt, energy, nullptr ) ) ); } }
+    for ( size_t elIt = 0; elIt < present_elems.size(); elIt++ ) { if ( present_elems[elIt] ) { dencalc.addends.set ( static_cast< gemmi::El > ( elIt ), static_cast< float > ( gemmi::cromer_libermann ( static_cast< int > ( elIt ), energy, nullptr ) ) ); } }
     dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
     
     //================================================ Force P1 spacegroup
@@ -728,7 +728,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
             for ( proshade_signed wIt = 0; wIt < (*zTo); wIt++ )
             {
                 arrPos                                = wIt  + (*zTo) * ( vIt  + (*yTo) * uIt );
-                map[arrPos]                           = static_cast< proshade_double > ( grid.get_value_q( uIt, vIt, wIt ) );
+                map[arrPos]                           = static_cast< proshade_double > ( grid.get_value_q( static_cast< int > ( uIt ), static_cast< int > ( vIt ), static_cast< int > ( wIt ) ) );
             }
         }
     }
@@ -811,12 +811,12 @@ void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, prosh
 void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Local variables initialisation
-    proshade_signed arrayPos                          = 0;
+    proshade_unsign arrayPos                          = 0;
     proshade_signed h, k, l;
     proshade_double real                              = 0.0;
     proshade_double imag                              = 0.0;
     proshade_double trCoeffReal, trCoeffImag;
-    proshade_double normFactor                        = static_cast<proshade_double> ( xDim * yDim * zDim );
+    proshade_double normFactor                        = static_cast< proshade_double > ( xDim * yDim * zDim );
     proshade_double exponent                          = 0.0;
     proshade_double hlpArrReal;
     proshade_double hlpArrImag;
@@ -830,19 +830,20 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     ProSHADE_internal_misc::checkMemoryAllocation     ( translatedMap, __FILE__, __LINE__, __func__ );
     
     //================================================ Create plans
-    fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( xDim, yDim, zDim, translatedMap, fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
-    fftw_plan planBackwardFourier                     = fftw_plan_dft_3d ( xDim, yDim, zDim, fCoeffs, translatedMap, FFTW_BACKWARD, FFTW_ESTIMATE );
+    fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), translatedMap, fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    fftw_plan planBackwardFourier                     = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), fCoeffs, translatedMap, FFTW_BACKWARD, FFTW_ESTIMATE );
     
     //================================================ Copy map to complex format
-    for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )
+    for ( proshade_unsign uIt = 0; uIt < static_cast< proshade_unsign > ( xDim ); uIt++ )
     {
-        for ( proshade_unsign vIt = 0; vIt < static_cast<proshade_unsign> ( yDim ); vIt++ )
+        for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( yDim ); vIt++ )
         {
-            for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
+            for ( proshade_unsign wIt = 0; wIt < static_cast< proshade_unsign > ( zDim ); wIt++ )
             {
-                arrayPos                              = wIt + zDim * ( vIt + yDim * uIt );
+                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
                 
-                if ( map[arrayPos] == map[arrayPos] ) { translatedMap[arrayPos][0] = map[arrayPos]; }
+                const FloatingPoint< proshade_double > lhs ( map[arrayPos] ), rhs ( map[arrayPos] );
+                if ( lhs.AlmostEquals ( rhs ) )       { translatedMap[arrayPos][0] = map[arrayPos]; }
                 else                                  { translatedMap[arrayPos][0] = 0.0; }
                 translatedMap[arrayPos][1]            = 0.0;
             }
@@ -860,14 +861,14 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
             for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
             {
                 //==================================== Var init
-                arrayPos                              = wIt + zDim * ( vIt + yDim * uIt );
+                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
                 real                                  = fCoeffs[arrayPos][0];
                 imag                                  = fCoeffs[arrayPos][1];
                 
                 //==================================== Change the B-factors, if required
-                if ( uIt > static_cast<proshade_unsign> ( (xDim+1) / 2) ) { h = uIt - static_cast <proshade_signed> ( xDim ); } else { h = uIt; }
-                if ( vIt > static_cast<proshade_unsign> ( (yDim+1) / 2) ) { k = vIt - static_cast <proshade_signed> ( yDim ); } else { k = vIt; }
-                if ( wIt > static_cast<proshade_unsign> ( (zDim+1) / 2) ) { l = wIt - static_cast <proshade_signed> ( zDim ); } else { l = wIt; }
+                if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
+                if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
+                if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
                 
                 //==================================== Get translation coefficient change
                 exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * static_cast< proshade_double > ( -xMov ) ) +
@@ -889,13 +890,13 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     fftw_execute                                      ( planBackwardFourier );
     
     //================================================ Copy back to map
-    for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )
+    for ( proshade_unsign uIt = 0; uIt < static_cast< proshade_unsign > ( xDim ); uIt++ )
     {
-        for ( proshade_unsign vIt = 0; vIt < static_cast<proshade_unsign> ( yDim ); vIt++ )
+        for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( yDim ); vIt++ )
         {
-            for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
+            for ( proshade_unsign wIt = 0; wIt < static_cast< proshade_unsign > ( zDim ); wIt++ )
             {
-                arrayPos                              = wIt + zDim * ( vIt + yDim * uIt );
+                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
                 map[arrayPos]                         = translatedMap[arrayPos][0];
             }
         }
@@ -931,9 +932,9 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
 void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshade_double*& blurredMap, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single blurringFactor )
 {
     //================================================ Set local variables
-    proshade_signed xDim                              = xDimS;
-    proshade_signed yDim                              = yDimS;
-    proshade_signed zDim                              = zDimS;
+    proshade_signed xDim                              = static_cast< proshade_signed > ( xDimS );
+    proshade_signed yDim                              = static_cast< proshade_signed > ( yDimS );
+    proshade_signed zDim                              = static_cast< proshade_signed > ( zDimS );
     proshade_double real, imag, S, mag, phase;
     proshade_signed h, k, l;
     proshade_unsign arrayPos                          = 0;
@@ -955,8 +956,8 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
     }
     
     //================================================ Prepare FFTW plans
-    fftw_plan forward                                 = fftw_plan_dft_3d ( xDim, yDim, zDim, mapMask, mapCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
-    fftw_plan inverse                                 = fftw_plan_dft_3d ( xDim, yDim, zDim, mapCoeffs, mapMask, FFTW_BACKWARD, FFTW_ESTIMATE );
+    fftw_plan forward                                 = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), mapMask, mapCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    fftw_plan inverse                                 = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), mapCoeffs, mapMask, FFTW_BACKWARD, FFTW_ESTIMATE );
     
     //================================================ Run forward Fourier
     fftw_execute                                      ( forward );
@@ -969,14 +970,14 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
             for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
             {
                 //==================================== Var init
-                arrayPos                              = wIt + zDim * ( vIt + yDim * uIt );
+                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
                 real                                  = mapCoeffs[arrayPos][0];
                 imag                                  = mapCoeffs[arrayPos][1];
                 
                 //==================================== Convert to HKL
-                if ( uIt > static_cast<proshade_unsign> ( (xDim+1) / 2) ) { h = uIt - static_cast <proshade_signed> ( xDim ); } else { h = uIt; }
-                if ( vIt > static_cast<proshade_unsign> ( (yDim+1) / 2) ) { k = vIt - static_cast <proshade_signed> ( yDim ); } else { k = vIt; }
-                if ( wIt > static_cast<proshade_unsign> ( (zDim+1) / 2) ) { l = wIt - static_cast <proshade_signed> ( zDim ); } else { l = wIt; }
+                if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
+                if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
+                if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
                 
                 //====================================Get magnitude and phase with mask parameters
                 S                                     = ( pow( static_cast< proshade_double > ( h ) / static_cast< proshade_double > ( xAngs ), 2.0 ) +
@@ -1081,7 +1082,7 @@ void ProSHADE_internal_mapManip::getMaskFromBlurr ( proshade_double*& blurMap, p
 void ProSHADE_internal_mapManip::getNonZeroBounds ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_signed*& ret )
 {
     //================================================ Initialise local variables
-    proshade_unsign arrayPos                          = 0;
+    proshade_signed arrayPos                          = 0;
     
     //================================================ Initialise result variable
     ret[0]                                            = xDim;
@@ -1234,49 +1235,49 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
                 zTop                                  = zBottom + 1;
 
                 //==================================== Find the surrounding point's values from the original map
-                oldMapIndex                           = zBottom + zDimS * ( yBottom + yDimS * xBottom );
+                oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xBottom );
                 c000.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
                 c000.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
                 c000.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
                 c000.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zTop    + zDimS * ( yBottom + yDimS * xBottom );
+                oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xBottom );
                 c001.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
                 c001.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
                 c001.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
                 c001.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zBottom + zDimS * ( yTop    + yDimS * xBottom );
+                oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xBottom );
                 c010.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
                 c010.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
                 c010.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
                 c010.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zTop    + zDimS * ( yTop    + yDimS * xBottom );
+                oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xBottom );
                 c011.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
                 c011.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
                 c011.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
                 c011.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zBottom + zDimS * ( yBottom + yDimS * xTop    );
+                oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xTop    );
                 c100.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
                 c100.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
                 c100.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
                 c100.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zTop    + zDimS * ( yBottom + yDimS * xTop    );
+                oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xTop    );
                 c101.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
                 c101.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
                 c101.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
                 c101.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zBottom + zDimS * ( yTop    + yDimS * xTop    );
+                oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xTop    );
                 c110.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
                 c110.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
                 c110.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
                 c110.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
-                oldMapIndex                           = zTop    + zDimS * ( yTop    + yDimS * xTop    );
+                oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xTop    );
                 c111.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
                 c111.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
                 c111.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
@@ -1401,7 +1402,7 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     proshade_signed postYChange                       = static_cast<proshade_signed> ( yDimS ) - ( preYChange + static_cast<proshade_signed> ( newYDim ) );
     proshade_signed postZChange                       = static_cast<proshade_signed> ( zDimS ) - ( preZChange + static_cast<proshade_signed> ( newZDim ) );
     
-    proshade_signed origSizeArr = 0, newSizeArr = 0;
+    proshade_unsign origSizeArr = 0, newSizeArr = 0;
     proshade_double normFactor                        = static_cast<proshade_double> ( xDimS * yDimS * zDimS );
     
     //================================================ Manage memory
@@ -1418,7 +1419,7 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     fftw_execute                                      ( planForwardFourier );
     
     //================================================ Change the order of Fourier coefficients
-    changeFourierOrder                                ( fCoeffs, xDimS, yDimS, zDimS, true );
+    changeFourierOrder                                ( fCoeffs, static_cast< proshade_signed > ( xDimS ), static_cast< proshade_signed > ( yDimS ), static_cast< proshade_signed > ( zDimS ), true );
     
     //================================================ Re-sample the coefficients by removing high frequencies or adding these with 0 values
     for ( proshade_unsign xIt = 0; xIt < newXDim; xIt++ )
@@ -1428,12 +1429,14 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
             for ( proshade_unsign zIt = 0; zIt < newZDim; zIt++ )
             {
                 //==================================== Find the array positions
-                origSizeArr                           = (zIt + preZChange) + zDimS   * ( (yIt + preYChange) + yDimS   * (xIt + preXChange) );
+                origSizeArr                           = ( ( zIt + static_cast< proshade_unsign > ( preZChange ) ) + zDimS   *
+                                                        ( ( yIt + static_cast< proshade_unsign > ( preYChange ) ) + yDimS   *
+                                                          ( xIt + static_cast< proshade_unsign > ( preXChange ) ) ) );
                 newSizeArr                            = zIt                + newZDim * ( yIt                + newYDim * xIt                );
                 
                 //==================================== If original coefficient for this new coefficient position exists, copy
-                if ( ( ( -1  < static_cast<proshade_signed> ( xIt     + preXChange  ) ) && ( -1  < static_cast<proshade_signed> ( yIt     + preYChange  ) ) && ( -1  < static_cast<proshade_signed> ( zIt     + preZChange  ) ) ) &&
-                     ( ( xIt < static_cast<proshade_unsign> ( newXDim + postXChange ) ) && ( yIt < static_cast<proshade_unsign> ( newYDim + postYChange ) ) && ( zIt < static_cast<proshade_unsign> ( newZDim + postZChange ) ) ) )
+                if ( ( ( -1  < static_cast< proshade_signed > ( xIt )   + preXChange ) && ( -1  < static_cast<proshade_signed> ( yIt )   + preYChange ) && ( -1  < static_cast<proshade_signed> ( zIt )   + preZChange ) ) &&
+                     ( ( xIt < newXDim + static_cast<proshade_unsign> ( postXChange ) ) && ( yIt < newYDim + static_cast<proshade_unsign> ( postYChange ) ) && ( zIt < newZDim + static_cast<proshade_unsign> ( postZChange ) ) ) )
                 {
                     //================================ Copy the Fourier coeff
                     newFCoeffs[newSizeArr][0]         = fCoeffs[origSizeArr][0] / normFactor;
@@ -1444,7 +1447,7 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     }
     
     //================================================ Change the order of the re-sampled Fourier coefficients
-    changeFourierOrder                                ( newFCoeffs, newXDim, newYDim, newZDim, false );
+    changeFourierOrder                                ( newFCoeffs, static_cast< proshade_signed > ( newXDim ), static_cast< proshade_signed > ( newYDim ), static_cast< proshade_signed > ( newZDim ), false );
 
     //================================================ Get the new map from the re-sized Fourier coefficients
     fftw_execute                                      ( planBackwardRescaledFourier );
@@ -1505,8 +1508,8 @@ void ProSHADE_internal_mapManip::allocateResolutionFourierMemory ( fftw_complex*
     ProSHADE_internal_misc::checkMemoryAllocation     ( newMap,           __FILE__, __LINE__, __func__ );
     
     //================================================ Create plans
-    planForwardFourier                                = fftw_plan_dft_3d ( xDimOld, yDimOld, zDimOld, origMap,    fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
-    planBackwardRescaledFourier                       = fftw_plan_dft_3d ( xDimNew, yDimNew, zDimNew, newFCoeffs, newMap,  FFTW_BACKWARD, FFTW_ESTIMATE );
+    planForwardFourier                                = fftw_plan_dft_3d ( static_cast< int > ( xDimOld ), static_cast< int > ( yDimOld ), static_cast< int > ( zDimOld ), origMap,    fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    planBackwardRescaledFourier                       = fftw_plan_dft_3d ( static_cast< int > ( xDimNew ), static_cast< int > ( yDimNew ), static_cast< int > ( zDimNew ), newFCoeffs, newMap,  FFTW_BACKWARD, FFTW_ESTIMATE );
     
     //================================================ Done
     return ;
@@ -1677,9 +1680,9 @@ void ProSHADE_internal_mapManip::removeMapPhase ( fftw_complex*& mapCoeffs, pros
 void ProSHADE_internal_mapManip::getFakeHalfMap ( proshade_double*& map, proshade_double*& fakeHalfMap, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_signed fakeMapKernel )
 {
     //================================================ Set local variables
-    proshade_signed xDim                              = xDimS;
-    proshade_signed yDim                              = yDimS;
-    proshade_signed zDim                              = zDimS;
+    proshade_signed xDim                              = static_cast< proshade_signed > ( xDimS );
+    proshade_signed yDim                              = static_cast< proshade_signed > ( yDimS );
+    proshade_signed zDim                              = static_cast< proshade_signed > ( zDimS );
     proshade_signed currentPos, neighArrPos, neighXPos, neighYPos, neighZPos;
     proshade_double neighSum;
     proshade_double neighCount                        = pow ( ( ( fakeMapKernel * 2 ) + 1 ), 3.0 ) - 1.0;
@@ -1742,7 +1745,7 @@ void ProSHADE_internal_mapManip::getFakeHalfMap ( proshade_double*& map, proshad
 void ProSHADE_internal_mapManip::getCorrelationMapMask ( proshade_double*& map, proshade_double*& fakeHalfMap, proshade_double*& correlationMask, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_signed corrMaskKernel )
 {
     //================================================ Set local variables
-    proshade_signed xDim = xDimS, yDim = yDimS, zDim = zDimS, currentPos, neighArrPos, neighXPos, neighYPos, neighZPos, corrIter;
+    proshade_signed xDim = static_cast< proshade_signed > ( xDimS ), yDim = static_cast< proshade_signed > ( yDimS ), zDim = static_cast< proshade_signed > ( zDimS ), currentPos, neighArrPos, neighXPos, neighYPos, neighZPos, corrIter;
     proshade_unsign noCorrVals                        = static_cast<proshade_unsign> ( pow ( ( ( corrMaskKernel * 2 ) + 1 ), 3 ) );
     
     //================================================ Alocate memory
@@ -1837,7 +1840,7 @@ void ProSHADE_internal_mapManip::connectMaskBlobs ( proshade_double*& mask, pros
 {
     //================================================ Initialise variables
     proshade_double* hlpMap                           = new proshade_double[xDim * yDim * zDim];
-    proshade_signed addSurroundingPoints              = static_cast< proshade_signed > ( std::max ( 3L, static_cast<proshade_signed> ( std::ceil ( getIndicesFromAngstroms( xDim, yDim, zDim, xAngs, yAngs, zAngs, static_cast< proshade_single > ( std::max( xAngs, std::max( yAngs, zAngs ) ) * 0.1f ) ) ) ) ) );
+    proshade_signed addSurroundingPoints              = static_cast< proshade_signed > ( std::max ( 3L, static_cast<proshade_signed> ( std::ceil ( getIndicesFromAngstroms( static_cast< proshade_unsign > ( xDim ), static_cast< proshade_unsign > ( yDim ), static_cast< proshade_unsign > ( zDim ), xAngs, yAngs, zAngs, static_cast< proshade_single > ( std::max( xAngs, std::max( yAngs, zAngs ) ) * 0.1f ) ) ) ) ) );
     proshade_signed currPos, neighXPos, neighYPos, neighZPos, neighArrPos;
     
     //================================================ Check memory allocation
@@ -1918,9 +1921,9 @@ void ProSHADE_internal_mapManip::beautifyBoundaries ( proshade_signed*& bounds, 
     while ( bounds[5] >= static_cast<proshade_signed> ( zDim ) ) { zDim += 10; }
     
     //================================================ Find if better bouds exist in terms of prime numbers
-    proshade_signed addToX                            = betterClosePrimeFactors ( bounds[1] - bounds[0] + 1, xDim );
-    proshade_signed addToY                            = betterClosePrimeFactors ( bounds[3] - bounds[2] + 1, yDim );
-    proshade_signed addToZ                            = betterClosePrimeFactors ( bounds[5] - bounds[4] + 1, zDim );
+    proshade_signed addToX                            = betterClosePrimeFactors ( bounds[1] - bounds[0] + 1, static_cast< proshade_signed > ( xDim ) );
+    proshade_signed addToY                            = betterClosePrimeFactors ( bounds[3] - bounds[2] + 1, static_cast< proshade_signed > ( yDim ) );
+    proshade_signed addToZ                            = betterClosePrimeFactors ( bounds[5] - bounds[4] + 1, static_cast< proshade_signed > ( zDim ) );
     
     //================================================ Figure if similar sizes should not be forced to be the same
     proshade_signed XtoY                              = std::abs ( addToX - addToY );
@@ -2004,7 +2007,7 @@ proshade_signed ProSHADE_internal_mapManip::betterClosePrimeFactors ( proshade_s
         if ( iter %2 != 0 ) { continue; }
         
         //============================================ Better number needs to have lower prime factor sum, but also needs not to be too far
-        if ( posibles.at(iter-fromRange) < ( posibles.at(ret-fromRange) - ( iter - ret ) ) ) { ret = iter; }
+        if ( posibles.at( static_cast< size_t > ( iter - fromRange ) ) < ( posibles.at( static_cast< size_t > ( ret - fromRange ) ) - ( iter - ret ) ) ) { ret = iter; }
     }
     
     //================================================ In the case of large prime number, just add one for even number
@@ -2076,7 +2079,7 @@ void ProSHADE_internal_mapManip::distributeSpaceToBoundaries ( proshade_signed& 
     \param[in] newMap Pointer reference to the array where new map will be saved to.
     \param[in] origMap Pointer to the array where the original map can be accessed.
  */
-void ProSHADE_internal_mapManip::copyMapByBounds ( proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom, proshade_signed zTo, proshade_signed origXFrom, proshade_signed origYFrom, proshade_signed origZFrom, proshade_signed yDimIndices, proshade_signed zDimIndices, proshade_signed origXDimIndices, proshade_signed origYDimIndices, proshade_signed origZDimIndices, proshade_double*& newMap, proshade_double* origMap )
+void ProSHADE_internal_mapManip::copyMapByBounds ( proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom, proshade_signed zTo, proshade_signed origXFrom, proshade_signed origYFrom, proshade_signed origZFrom, proshade_unsign yDimIndices, proshade_unsign zDimIndices, proshade_unsign origXDimIndices, proshade_unsign origYDimIndices, proshade_unsign origZDimIndices, proshade_double*& newMap, proshade_double* origMap )
 {
     //================================================ Initialise variables
     proshade_signed newMapIndex, oldMapIndex, oldX, oldY, oldZ, newX, newY, newZ;
@@ -2101,13 +2104,13 @@ void ProSHADE_internal_mapManip::copyMapByBounds ( proshade_signed xFrom, prosha
                 oldZ                                  = ( newZ + ( zFrom - origZFrom ) );
                 
                 //==================================== Index arrays
-                newMapIndex                           = newZ + zDimIndices * ( newY + yDimIndices * newX );
-                oldMapIndex                           = oldZ + origZDimIndices * ( oldY + origYDimIndices * oldX );
+                newMapIndex                           = newZ + static_cast< proshade_signed > ( zDimIndices ) * ( newY + static_cast< proshade_signed > ( yDimIndices ) * newX );
+                oldMapIndex                           = oldZ + static_cast< proshade_signed > ( origZDimIndices ) * ( oldY + static_cast< proshade_signed > ( origYDimIndices ) * oldX );
                 
                 //============================ Check if we are adding new point
-                if ( ( ( oldX < 0 ) || ( oldX >= origXDimIndices ) ) ||
-                     ( ( oldY < 0 ) || ( oldY >= origYDimIndices ) ) ||
-                     ( ( oldZ < 0 ) || ( oldZ >= origZDimIndices ) ) )
+                if ( ( ( oldX < 0 ) || ( oldX >= static_cast< proshade_signed > ( origXDimIndices ) ) ) ||
+                     ( ( oldY < 0 ) || ( oldY >= static_cast< proshade_signed > ( origYDimIndices ) ) ) ||
+                     ( ( oldZ < 0 ) || ( oldZ >= static_cast< proshade_signed > ( origZDimIndices ) ) ) )
                 {
                     //================================ Yes, this is a new point, no known value for it
                     newMap[newMapIndex]               = 0.0;

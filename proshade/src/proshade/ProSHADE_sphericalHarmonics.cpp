@@ -54,8 +54,8 @@ void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_
     workspace                                         = new fftw_complex    [(  8 * band * band ) +  ( 10 * band )];
     
     //================================================ Allocate table
-    tableSpaceHelper                                  = new proshade_double [static_cast<proshade_unsign> ( Reduced_Naive_TableSize ( band, band ) +
-                                                                                                            Reduced_SpharmonicTableSize ( band, band ) )];
+    tableSpaceHelper                                  = new proshade_double [static_cast<proshade_unsign> ( Reduced_Naive_TableSize ( static_cast< int > ( band ), static_cast< int > ( band ) ) +
+                                                                                                            Reduced_SpharmonicTableSize ( static_cast< int > ( band ), static_cast< int > ( band ) ) )];
     
     //================================================ Check memory allocation success
     ProSHADE_internal_misc::checkMemoryAllocation     ( inputReal,        __FILE__, __LINE__, __func__ );
@@ -179,10 +179,10 @@ void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_dou
     delete[] workspace;
             
     //================================================ Set pointers to NULL
-    tableSpaceHelper                                  = NULL;
-    tableSpace                                        = NULL;
-    shWeights                                         = NULL;
-    workspace                                         = NULL;
+    tableSpaceHelper                                  = nullptr;
+    tableSpace                                        = nullptr;
+    shWeights                                         = nullptr;
+    workspace                                         = nullptr;
           
     //================================================ Delete fftw plans
     fftw_destroy_plan                                 ( dctPlan );
@@ -226,10 +226,10 @@ void ProSHADE_internal_sphericalHarmonics::initialiseAllMemory ( proshade_unsign
     placeWithinWorkspacePointers                      ( workspace, oneDim, rres, ires, fltres, scratchpad );
     
     //================================================ Generate Seminaive and naive tables for Legendre Polynomials
-    tableSpace                                        = SemiNaive_Naive_Pml_Table ( band, band, tableSpaceHelper, reinterpret_cast<double*> ( workspace ) );
+    tableSpace                                        = SemiNaive_Naive_Pml_Table ( static_cast< int > ( band ), static_cast< int > ( band ), tableSpaceHelper, reinterpret_cast<double*> ( workspace ) );
     
     //================================================ Make weights for spherical transform
-    makeweights                                       ( band, shWeights );
+    makeweights                                       ( static_cast< int > ( band ), shWeights );
     
     //================================================ Initialize FFTW Plans
     initialiseFFTWPlans                               ( band, fftPlan, dctPlan, inputReal, inputImag, rres, ires, scratchpad );
@@ -306,8 +306,8 @@ void ProSHADE_internal_sphericalHarmonics::computeSphericalTransformCoeffs ( pro
     {
         //============================================ Real part calculation
         SemiNaiveReduced                              ( rres + ( bandIter * ( band * 2 ) ),
-                                                        band,
-                                                        bandIter,
+                                                        static_cast< int > ( band ),
+                                                        static_cast< int > ( bandIter ),
                                                         fltres,
                                                         scratchpad,
                                                         tablePml[bandIter],
@@ -320,8 +320,8 @@ void ProSHADE_internal_sphericalHarmonics::computeSphericalTransformCoeffs ( pro
         
         //============================================ Imaginary part calculation
         SemiNaiveReduced                              ( ires + ( bandIter * ( band * 2 ) ),
-                                                        band,
-                                                        bandIter,
+                                                        static_cast< int > ( band ),
+                                                        static_cast< int > ( bandIter ),
                                                         fltres,
                                                         scratchpad,
                                                         tablePml[bandIter],
@@ -367,8 +367,8 @@ void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_u
         powerOne                                     *= -1.0;
         for ( proshade_signed bandIter = order; bandIter < static_cast<proshade_signed> ( band ); bandIter++)
         {
-            hlp1                                      = seanindex (  order, bandIter, band );
-            hlp2                                      = seanindex ( -order, bandIter, band );
+            hlp1                                      = static_cast< proshade_unsign > ( seanindex ( static_cast< int > (  order ), static_cast< int > ( bandIter ), static_cast< int > ( band ) ) );
+            hlp2                                      = static_cast< proshade_unsign > ( seanindex ( static_cast< int > ( -order ), static_cast< int > ( bandIter ), static_cast< int > ( band ) ) );
                     
             shArray[hlp2][0]                          =  powerOne * static_cast<proshade_double> ( outputReal[hlp1] );
             shArray[hlp2][1]                          = -powerOne * static_cast<proshade_double> ( outputImag[hlp1] );
@@ -394,10 +394,10 @@ void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_u
 void ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( proshade_unsign band, proshade_double* sphereMappedData, proshade_complex*& shArray )
 {
     //================================================ Initialise local variables
-    proshade_double *inputReal = NULL, *inputImag = NULL, *outputReal = NULL, *outputImag = NULL;
-    double *shWeights = NULL, *tableSpaceHelper = NULL;
-    double** tablePml                                 = NULL;
-    fftw_complex* workspace                           = NULL;
+    proshade_double *inputReal = nullptr, *inputImag = nullptr, *outputReal = nullptr, *outputImag = nullptr;
+    double *shWeights = nullptr, *tableSpaceHelper = nullptr;
+    double** tablePml                                 = nullptr;
+    fftw_complex* workspace                           = nullptr;
     proshade_unsign oneDim                            = static_cast<proshade_unsign> ( band * 2 );
     proshade_double normCoeff                         = ( 1.0 / ( static_cast<proshade_double> ( band * 2 ) ) ) * sqrt( 2.0 * M_PI );
     
@@ -409,11 +409,11 @@ void ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( proshade_
     }
     
     //================================================ Within workspace pointers
-    proshade_double *rres = NULL, *ires = NULL, *fltres = NULL, *scratchpad = NULL, *rdataptr = NULL, *idataptr = NULL;
+    proshade_double *rres = nullptr, *ires = nullptr, *fltres = nullptr, *scratchpad = nullptr, *rdataptr = nullptr, *idataptr = nullptr;
     
     //================================================ FFTW Plans
-    fftw_plan fftPlan                                 = NULL;
-    fftw_plan dctPlan                                 = NULL;
+    fftw_plan fftPlan                                 = nullptr;
+    fftw_plan dctPlan                                 = nullptr;
     
     //================================================ Initialise all memory
     initialiseAllMemory                               ( band, inputReal, inputImag, outputReal, outputImag, shWeights, tablePml, tableSpaceHelper, workspace,

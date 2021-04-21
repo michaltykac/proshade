@@ -323,7 +323,7 @@ void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_
 void ProSHADE_internal_misc::deepCopyBoundsSigPtrVector ( std::vector < proshade_signed* >* sigPtrVec, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo  )
 {
     //================================================ Allocate new memory
-    proshade_signed* bounds                           = NULL;
+    proshade_signed* bounds                           = nullptr;
     bounds                                            = new proshade_signed[6];
     
     //================================================ Check memory allocation

@@ -26,8 +26,8 @@
 #include "ProSHADE_tasks.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE__
-#define __PROSHADE__
+#ifndef PROSHADE
+#define PROSHADE
  
 /*! \class ProSHADE_run
     \brief This class provides the access point to the library.

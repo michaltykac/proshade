@@ -40,15 +40,15 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
     //================================================ Initialise local variables
     std::vector< proshade_double* > ret;
     std::vector< proshade_double > nonPeakVals;
-    proshade_double* retHlp                           = NULL;
+    proshade_double* retHlp                           = nullptr;
     proshade_double pointHeight                       = 0.0;
     proshade_signed x, y, z, peakX, peakY, peakZ, newIter, ptrIter;
     proshade_signed xDim                              = static_cast< proshade_signed > ( std::pow ( dim, 2 ) );
-    proshade_signed yDim                              = dim;
+    proshade_signed yDim                              = static_cast< proshade_signed > ( dim );
     bool breakPeak;
     
     //================================================ Check all points
-    for ( proshade_unsign iter = 0; iter < ( pow( static_cast<proshade_unsign> ( dim ), 3 ) ); iter++ )
+    for ( proshade_signed iter = 0; iter < ( pow( static_cast<proshade_unsign> ( dim ), 3 ) ); iter++ )
     {
         //============================================ Find point height
         pointHeight                                   = pow( map[iter][0], 2.0 ) + pow( map[iter][1], 2.0 );
@@ -59,7 +59,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
         z                                             = static_cast< proshade_signed > ( iter - x * xDim - y * yDim );
         
         //==================================== Initialise the output pointer
-        if ( retHlp == NULL )
+        if ( retHlp == nullptr )
         {
             retHlp                                    = new proshade_double[static_cast<proshade_unsign>( pow( ((peakSize*2)+1), 3) * 4 )];
             ProSHADE_internal_misc::checkMemoryAllocation ( retHlp, __FILE__, __LINE__, __func__ );
@@ -105,14 +105,14 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
         retHlp[2]                                     = z;
         retHlp[3]                                     = pointHeight;
         ProSHADE_internal_misc::addToDblPtrVector ( &ret, retHlp );
-        retHlp                                        = NULL;
+        retHlp                                        = nullptr;
     }
     
     //================================================ Save non-peak median and IQR
     ProSHADE_internal_maths::vectorMedianAndIQR       ( &nonPeakVals, medianIQR );
     
     //================================================ Release memory if need be
-    if ( retHlp != NULL ) { delete[] retHlp; }
+    if ( retHlp != nullptr ) { delete[] retHlp; }
     
     //================================================ Done
     return                                            ( ret );
@@ -137,9 +137,9 @@ void ProSHADE_internal_peakSearch::pointsAboveNeighboursRemoveSmallHeight ( std:
     //================================================ Check for passing the threshold
     for ( proshade_signed iter = static_cast<proshade_signed> ( pointVec->size()-1 ); iter >= 0  ; iter-- )
     {
-        if ( pointVec->at(iter)[3] <= backgroundThreshold )
+        if ( pointVec->at( static_cast< size_t > ( iter ) )[3] <= backgroundThreshold )
         {
-            delete[] pointVec->at(iter);
+            delete[] pointVec->at( static_cast< size_t > ( iter ) );
             pointVec->erase                           ( pointVec->begin() + iter );
         }
     }
@@ -256,7 +256,8 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         
         //============================================  Decompose the average matrix using SVD
         ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( avgMat, 3, uAndV, false );
-        if ( uAndV[0] == -777.7 )
+        const FloatingPoint< proshade_double > lhs ( uAndV[0] ), rhs ( -777.7 );
+        if ( lhs.AlmostEquals ( rhs ) )
         {
             //======================================== SVD Failed. Just use the central value
             ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[0] ), static_cast< proshade_signed > ( pointVec->at(iter)[1] ), static_cast< proshade_signed > ( pointVec->at(iter)[2] ), eulA, eulB, eulG );
@@ -354,7 +355,7 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex*
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Looking for Euler angles of highest peak." );
     
     //================================================ Get all peaks
-    std::vector< proshade_double* > allPeaks          = getAllPeaksNaive ( map, dim, settings->peakNeighbours, settings->noIQRsFromMedianNaivePeak );
+    std::vector< proshade_double* > allPeaks          = getAllPeaksNaive ( map, dim, static_cast< proshade_signed > ( settings->peakNeighbours ), settings->noIQRsFromMedianNaivePeak );
     
     //================================================ Report progress
     std::stringstream hlpSSP;
@@ -536,13 +537,11 @@ void ProSHADE_internal_peakSearch::getSmoothedZScore1D ( proshade_unsign dim, pr
         {
             if ( ( static_cast<proshade_signed>(i) + static_cast<proshade_signed>(subIt) - static_cast<proshade_signed>(smoothingLag) + 1 ) < 0 )
             {
-                subVec[subIt]                         = scoreOverVals[( static_cast<proshade_signed>(i) + static_cast<proshade_signed>(subIt) -
-                                                                        static_cast<proshade_signed>(smoothingLag) + 1 ) + dim];
+                subVec[subIt]                         = scoreOverVals[( i + static_cast< proshade_unsign > ( subIt ) - smoothingLag + 1 ) + dim];
             }
             else
             {
-                subVec[subIt]                         = filteredY[( static_cast<proshade_signed>(i) + static_cast<proshade_signed>(subIt) -
-                                                                    static_cast<proshade_signed>(smoothingLag) + 1 )];
+                subVec[subIt]                         = filteredY[( i + static_cast< proshade_unsign > ( subIt ) - smoothingLag + 1 )];
             }
         }
         ProSHADE_internal_maths::arrayMedianAndIQR    ( subVec, smoothingLag, medianIQR );
@@ -745,10 +744,11 @@ void ProSHADE_internal_peakSearch::findAllPointNeighbours ( proshade_double* YZM
                 else                            { visitedMap[newIter] = 1; }
                 
                 //==================================== If not peak, next point
-                if ( ( YZMap[newIter] + XZMap[newIter] + XYMap[newIter] ) != 3 ) { continue; }
+                const FloatingPoint< proshade_double > lhs ( YZMap[newIter] + XZMap[newIter] + XYMap[newIter] ), rhs ( 3.0 );
+                if ( lhs.AlmostEquals ( rhs ) ) { continue; }
                 
                 //==================================== This is a valid neighbour! Save
-                ProSHADE_internal_misc::addToUnsignVector ( retVals, newIter );
+                ProSHADE_internal_misc::addToUnsignVector ( retVals, static_cast< proshade_unsign > ( newIter ) );
                 
                 //==================================== ... and recurse!
                 findAllPointNeighbours                ( YZMap, XZMap, XYMap, visitedMap, dim, peakX, peakY, peakZ, retVals );
@@ -801,7 +801,8 @@ void ProSHADE_internal_peakSearch::findAllDisconnectedIslands ( proshade_complex
                 else                          { visitedMap[index] = 1; }
                 
                 //==================================== If not peak, next point
-                if ( ( YZMap[index] + XZMap[index] + XYMap[index] ) != 3 ) { continue; }
+                const FloatingPoint< proshade_double > lhs ( YZMap[index] + XZMap[index] + XYMap[index] ), rhs ( 3.0 );
+                if ( !lhs.AlmostEquals ( rhs ) ) { continue; }
                 
                 //==================================== This is a new island! Save this point
                 thisIsland.clear                      ( );
@@ -858,7 +859,7 @@ void ProSHADE_internal_peakSearch::findAllSmoothedZScorePeaksWithNeighbours ( pr
     
     //================================================ Find all islands and their best representative
     std::vector < proshade_unsign > allPeaksRepresentatives;
-    findAllDisconnectedIslands                        ( map, YZMap, XZMap, XYMap, dim, &allPeaksRepresentatives );
+    findAllDisconnectedIslands                        ( map, YZMap, XZMap, XYMap, static_cast< proshade_unsign > ( dim ), &allPeaksRepresentatives );
     
     //================================================ For each peak
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( allPeaksRepresentatives.size() ); iter++ )
@@ -867,9 +868,9 @@ void ProSHADE_internal_peakSearch::findAllSmoothedZScorePeaksWithNeighbours ( pr
         ptrIter                                       = 0;
         
         //============================================ Determine x, y and z
-        z                                             = ( allPeaksRepresentatives.at(iter) % (dim*dim) ) % dim;
-        y                                             = ( allPeaksRepresentatives.at(iter) - z ) % (dim*dim) / dim;
-        x                                             = ( allPeaksRepresentatives.at(iter) - z - ( y * dim ) ) / (dim*dim);
+        z                                             = ( static_cast< proshade_signed > ( allPeaksRepresentatives.at(iter) ) % (dim*dim) ) % dim;
+        y                                             = ( static_cast< proshade_signed > ( allPeaksRepresentatives.at(iter) ) - z ) % (dim*dim) / dim;
+        x                                             = ( static_cast< proshade_signed > ( allPeaksRepresentatives.at(iter) ) - z - ( y * dim ) ) / (dim*dim);
         
         //============================================ Allocate the memory
         proshade_double* neighbours                   = new proshade_double[noNeighbours];
@@ -947,7 +948,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksSmoothe
     getZAxisArraysSmoothedZScorePeaks                 ( dim, smoothingLag, ZScoreThreshold, signals, filteredY, avgFilter, stdFilter, subVec, medianIQR, scoreOverVals, map, XYMap );
     
     //================================================ Put all dimension peaks together and detect disconnected islands
-    findAllSmoothedZScorePeaksWithNeighbours          ( map, YZMap, XZMap, XYMap, dim, peakSize, &allHigherIndices );
+    findAllSmoothedZScorePeaksWithNeighbours          ( map, YZMap, XZMap, XYMap, static_cast< proshade_signed > ( dim ), peakSize, &allHigherIndices );
     
     //================================================ Optimise the peaks using the neighbour values
     optimisePeakPositions                             ( &allHigherIndices, peakSize, dim/2 );
@@ -1028,15 +1029,16 @@ std::vector< proshade_signed > ProSHADE_internal_peakSearch::findPeaks1D ( std::
         //============================================ End border?
         if ( index == static_cast< proshade_signed > ( data.size() - 1 ) )
         {
-            if ( data.at(index) > data.at(index-1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+            if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
             continue;
         }
         
         //============================================ Is this a peak?
-        if ( ( data.at(index) > data.at(index-1) ) && ( data.at(index) > data.at(index+1) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+        if ( ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) &&
+             ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 1 ) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
         
         //============================================ Deal with equally sized values
-        if ( index < static_cast< proshade_signed > ( data.size() - 2 ) ) { if ( data.at(index) >= data.at(index-1) ) { if ( data.at(index) >= data.at(index+1) ) { if ( data.at(index) > data.at(index+2) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
+        if ( index < static_cast< proshade_signed > ( data.size() - 2 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) - 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) + 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 2 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
     }
     
     //================================================ Done

@@ -6,7 +6,7 @@
 
 ##########################################################################################
 ################################### Add the library target
-add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS} ${GETOPT_SOURCE}             )
+add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS}                              )
 
 ##########################################################################################
 ### Add and link the dependencies

@@ -116,15 +116,15 @@ void ProSHADE_internal_wigner::allocateWignerWorkspace ( proshade_double*& matIn
 void ProSHADE_internal_wigner::releaseWignerWorkspace ( proshade_double*& matIn, proshade_double*& matOut, proshade_double*& sqrts, proshade_double*& workspace, proshade_double*& alphaExponentReal, proshade_double*& alphaExponentImag, proshade_double*& gammaExponentReal, proshade_double*& gammaExponentImag, proshade_double*& trigs )
 {
     //================================================ Allocate the memory
-    if ( matIn             != NULL ) { delete[] matIn;             }
-    if ( matOut            != NULL ) { delete[] matOut;            }
-    if ( sqrts             != NULL ) { delete[] sqrts;             }
-    if ( workspace         != NULL ) { delete[] workspace;         }
-    if ( trigs             != NULL ) { delete[] trigs;             }
-    if ( alphaExponentReal != NULL ) { delete[] alphaExponentReal; }
-    if ( alphaExponentImag != NULL ) { delete[] alphaExponentImag; }
-    if ( gammaExponentReal != NULL ) { delete[] gammaExponentReal; }
-    if ( gammaExponentImag != NULL ) { delete[] gammaExponentImag; }
+    if ( matIn             != nullptr ) { delete[] matIn;             }
+    if ( matOut            != nullptr ) { delete[] matOut;            }
+    if ( sqrts             != nullptr ) { delete[] sqrts;             }
+    if ( workspace         != nullptr ) { delete[] workspace;         }
+    if ( trigs             != nullptr ) { delete[] trigs;             }
+    if ( alphaExponentReal != nullptr ) { delete[] alphaExponentReal; }
+    if ( alphaExponentImag != nullptr ) { delete[] alphaExponentImag; }
+    if ( gammaExponentReal != nullptr ) { delete[] gammaExponentReal; }
+    if ( gammaExponentImag != nullptr ) { delete[] gammaExponentImag; }
 
     //================================================ Done
     return ;
@@ -157,8 +157,8 @@ void ProSHADE_internal_wigner::prepareTrigsSqrtsAndExponents ( proshade_double* 
     trigs[1]                                          = static_cast<proshade_double> ( sin ( 0.5 * -angBeta ) );
     
     //================================================ Get alpha and gamma exponents
-    genExp                                            ( compBand, angAlpha, alphaExponentReal, alphaExponentImag );
-    genExp                                            ( compBand, angGamma, gammaExponentReal, gammaExponentImag );
+    genExp                                            ( static_cast< int > ( compBand ), angAlpha, alphaExponentReal, alphaExponentImag );
+    genExp                                            ( static_cast< int > ( compBand ), angGamma, gammaExponentReal, gammaExponentImag );
     
     //================================================ Done
     return ;
@@ -207,7 +207,7 @@ void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settin
         rSign                                         = 1.0;
         
         //============================================ Get wigner d matrix values using beta angles only
-        wignerdmat                                    ( bandIter, matIn, matOut, trigs, sqrts, workspace );
+        wignerdmat                                    ( static_cast< int > ( bandIter ), matIn, matOut, trigs, sqrts, workspace );
         
         //============================================ Multiply the wigner d matrix by alpha and gamma values and save the wigner D matrix to output array
         for ( proshade_unsign d1Iter = 0; d1Iter < noOrders; d1Iter++ )

@@ -25,8 +25,8 @@
 #include "ProSHADE_peakSearch.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_DATA__
-#define __PROSHADE_DATA__
+#ifndef PROSHADE_DATA
+#define PROSHADE_DATA
 
 //==================================================== ProSHADE_internal_data Namespace
 /*! \namespace ProSHADE_internal_data
@@ -250,7 +250,7 @@ namespace ProSHADE_internal_data
                                                         std::vector < proshade_double >* finalTranslation );
         
         //============================================ Python access functions
-        void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );
+        void deepCopyMap                              ( proshade_double*& saveTo, proshade_signed verbose );
         
         //============================================ Accessor functions
         proshade_double getMapValue                   ( proshade_unsign pos );

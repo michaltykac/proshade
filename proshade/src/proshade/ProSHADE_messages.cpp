@@ -115,7 +115,7 @@ void ProSHADE_internal_messages::printWarningMessage ( proshade_signed verbose, 
 /*! \brief This function prints the help screen in the case -h is called, or if command line arguments cannot be parsed.
  
  */
-void ProSHADE_internal_messages::printHelp ( void )
+void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
 {
     //================================================ Print the help screen
     std::cout << "ProSHADE " << PROSHADE_VERSION << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
