@@ -48,7 +48,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
     bool breakPeak;
     
     //================================================ Check all points
-    for ( proshade_signed iter = 0; iter < ( pow( static_cast<proshade_unsign> ( dim ), 3 ) ); iter++ )
+    for ( proshade_signed iter = 0; iter < static_cast< proshade_signed > ( pow( static_cast<proshade_unsign> ( dim ), 3 ) ); iter++ )
     {
         //============================================ Find point height
         pointHeight                                   = pow( map[iter][0], 2.0 ) + pow( map[iter][1], 2.0 );
@@ -100,9 +100,9 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
         if ( breakPeak ) { ProSHADE_internal_misc::addToDoubleVector ( &nonPeakVals, pointHeight ); continue; }
         
         //============================================ If passing, save for returning
-        retHlp[0]                                     = x;
-        retHlp[1]                                     = y;
-        retHlp[2]                                     = z;
+        retHlp[0]                                     = static_cast< proshade_double > ( x );
+        retHlp[1]                                     = static_cast< proshade_double > ( y );
+        retHlp[2]                                     = static_cast< proshade_double > ( z );
         retHlp[3]                                     = pointHeight;
         ProSHADE_internal_misc::addToDblPtrVector ( &ret, retHlp );
         retHlp                                        = nullptr;
@@ -593,7 +593,7 @@ void ProSHADE_internal_peakSearch::getXAxisArraysSmoothedZScorePeaks ( proshade_
             //======================================== Save signals to YZMap
             for ( proshade_unsign xIt = 0; xIt < dim; xIt++ )
             {
-                YZMap[xIt * static_cast<proshade_unsign> (4 * pow ( ( dim / 2 ), 2 )) + yIt * dim + zIt] = signals[xIt];
+                YZMap[xIt * static_cast< proshade_unsign > (4 * pow ( ( dim / 2 ), 2 )) + yIt * dim + zIt] = static_cast< proshade_double > ( signals[xIt] );
             }
         }
     }
@@ -642,7 +642,7 @@ void ProSHADE_internal_peakSearch::getYAxisArraysSmoothedZScorePeaks ( proshade_
             //======================================== Save signals to YZMap
             for ( proshade_unsign yIt = 0; yIt < dim; yIt++ )
             {
-                XZMap[xIt * static_cast<proshade_unsign> (4 * pow ( ( dim / 2 ), 2 )) + yIt * dim + zIt] = signals[xIt];
+                XZMap[xIt * static_cast< proshade_unsign > (4 * pow ( ( dim / 2 ), 2 )) + yIt * dim + zIt] = static_cast< proshade_double > ( signals[xIt] );
             }
         }
     }
@@ -691,7 +691,7 @@ void ProSHADE_internal_peakSearch::getZAxisArraysSmoothedZScorePeaks ( proshade_
             //======================================== Save signals to YZMap
             for ( proshade_unsign zIt = 0; zIt < dim; zIt++ )
             {
-                XYMap[xIt * static_cast<proshade_unsign> (4 * pow ( ( dim / 2 ), 2 )) + yIt * dim + zIt] = signals[xIt];
+                XYMap[xIt * static_cast< proshade_unsign > (4 * pow ( ( dim / 2 ), 2 )) + yIt * dim + zIt] = static_cast< proshade_double > ( signals[xIt] );
             }
         }
     }
@@ -924,7 +924,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksSmoothe
 {
     //================================================ Initialise local variables
     std::vector< proshade_double* > allHigherIndices;
-    proshade_unsign smoothingLag                      = static_cast< proshade_unsign > ( std::floor ( smoothingFraction * dim ) );
+    proshade_unsign smoothingLag                      = static_cast< proshade_unsign > ( std::floor ( smoothingFraction * static_cast< proshade_double > ( dim ) ) );
     proshade_double ZScoreThreshold                   = noIQRs;
     proshade_signed *signals;
     proshade_double *scoreOverVals, *filteredY, *avgFilter, *stdFilter, *subVec, *medianIQR, *YZMap, *XZMap, *XYMap;

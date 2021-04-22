@@ -123,7 +123,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function conversion to angle-axis representation." );
     
     //================================================ Initialise variables
-    proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->maxShellBand * 2.0 );
+    proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->maxShellBand ) * 2.0;
     std::vector< proshade_double > allPeakHeights;
     
     //================================================ Initialise the spheres
@@ -345,7 +345,7 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findPeaksByHeightBoun
         //============================================ Check for local minima
         if ( ( prev > pdf.at(iter) ) && ( pdf.at(iter+1) > pdf.at(iter) ) )
         {
-            ProSHADE_internal_misc::addToDoubleVector ( &boundaries, iter * 0.01 );
+            ProSHADE_internal_misc::addToDoubleVector ( &boundaries, static_cast< proshade_double > ( iter ) * 0.01 );
         }
         
         //============================================ Prepare next iteration
@@ -580,8 +580,8 @@ bool ProSHADE_internal_symmetry::smallestDistanceBetweenAngles ( std::vector< pr
             for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( tried->size() ); iter += 3 )
             {
                 //==================================== Avoid already tested combinations
-                const FloatingPoint< proshade_double > lhs1 ( gr2It ), rhs1 ( tried->at( iter + 1 ) );
-                const FloatingPoint< proshade_double > lhs2 ( gr1It ), rhs2 ( tried->at( iter ) );
+                const FloatingPoint< proshade_double > lhs1 ( static_cast< proshade_double > ( gr2It ) ), rhs1 ( tried->at( iter + 1 ) );
+                const FloatingPoint< proshade_double > lhs2 ( static_cast< proshade_double > ( gr1It ) ), rhs2 ( tried->at( iter ) );
                 if ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( lhs2.AlmostEquals ( rhs2 ) ) ) { skip = true; }
                 
                 //==================================== Also avoid distances very close to already tested  distances (no problem until approx C700)
@@ -613,8 +613,8 @@ bool ProSHADE_internal_symmetry::smallestDistanceBetweenAngles ( std::vector< pr
     if ( !lhs1.AlmostEquals ( rhs1 ) )
     {
         ret                                           = true;
-        ProSHADE_internal_misc::addToDoubleVector     ( tried, g1 );
-        ProSHADE_internal_misc::addToDoubleVector     ( tried, g2 );
+        ProSHADE_internal_misc::addToDoubleVector     ( tried, static_cast< proshade_double > ( g1 ) );
+        ProSHADE_internal_misc::addToDoubleVector     ( tried, static_cast< proshade_double > ( g2 ) );
         ProSHADE_internal_misc::addToDoubleVector     ( tried, *dist );
     }
     
@@ -695,7 +695,7 @@ bool ProSHADE_internal_symmetry::determineFoldToTry ( proshade_double dist, pros
         proshade_signed angTolRound                   = std::min ( ProSHADE_internal_mapManip::myRound ( angTolerance ), static_cast<proshade_signed> ( 10 ) );
         for ( proshade_signed iter = -angTolRound; iter <= angTolRound; iter++ )
         {
-            ProSHADE_internal_misc::addToUnsignVector ( angsToTry, static_cast<proshade_unsign> ( std::max ( *divBasis + iter, 2.0 ) ) );
+            ProSHADE_internal_misc::addToUnsignVector ( angsToTry, static_cast<proshade_unsign> ( std::max ( *divBasis + static_cast< proshade_double > ( iter ), 2.0 ) ) );
         }
     }
     
@@ -724,7 +724,7 @@ void ProSHADE_internal_symmetry::findExpectedPeakRotations ( proshade_unsign fol
     //================================================ Generate expected angles
     for ( proshade_signed iter = static_cast<proshade_signed> ( -( static_cast<proshade_double> ( fold ) / 2.0 + 1.0) ); iter <= static_cast<proshade_signed> ( static_cast<proshade_double> ( fold )/2.0 + 1.0 ); iter++ )
     {
-        ProSHADE_internal_misc::addToDoubleVector     ( expAngs, iter * groupAngle );
+        ProSHADE_internal_misc::addToDoubleVector     ( expAngs, static_cast< proshade_double > ( iter ) * groupAngle );
     }
     
     //================================================ Done
@@ -1708,7 +1708,7 @@ proshade_double ProSHADE_internal_symmetry::missingAxisHeight ( proshade_double 
     std::sort                                         ( angVec.begin(), angVec.end(), ProSHADE_internal_symmetry::sortArrVecHlp );
     
     //================================================ Find the best X peaks with correct distances
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( std::floor ( ( 2.0 * M_PI / angStep ) / fold ) ); iter++ )
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( std::floor ( ( 2.0 * M_PI / angStep ) / static_cast< proshade_double > ( fold ) ) ); iter++ )
     {
         //============================================ Initialise new ang group iteration
         curSum                                        = 0.0;
@@ -1722,8 +1722,10 @@ proshade_double ProSHADE_internal_symmetry::missingAxisHeight ( proshade_double 
             //======================================== Search
             for ( proshade_unsign angIt = 0; angIt < static_cast<proshade_unsign> ( angVec.size() ); angIt++ )
             {
-                if ( angVec.at(angIt)[0] < ( ( iter*angStep )     + ( ( 2.0 * M_PI / fold ) * angCmb ) ) ) { continue; }
-                if ( angVec.at(angIt)[0] > ( ( (iter+1)*angStep ) + ( ( 2.0 * M_PI / fold ) * angCmb ) ) ) { break; }
+                if ( angVec.at(angIt)[0] < ( ( static_cast< proshade_double > ( iter ) * angStep ) +
+                                             ( ( 2.0 * M_PI / static_cast< proshade_double > ( fold ) ) * static_cast< proshade_double > ( angCmb ) ) ) ) { continue; }
+                if ( angVec.at(angIt)[0] > ( ( ( static_cast< proshade_double > ( iter ) + 1.0 ) * angStep ) +
+                                             ( ( 2.0 * M_PI / static_cast< proshade_double > ( fold ) ) * static_cast< proshade_double > ( angCmb ) ) ) ) { break; }
 
                 if ( angVec.at(angIt)[1] > maxVal ) { maxVal = angVec.at(angIt)[1]; }
             }
@@ -3798,7 +3800,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     
     //============================================ Report progress
     std::stringstream hlpSS;
-    hlpSS << "Found a total of " << std::pow ( this->maxShellBand * 2.0 * (fold-1), 2.0 ) - allPeakHeights.size() << " non-peaks for thresholding.";
+    hlpSS << "Found a total of " << std::pow ( static_cast< proshade_double > ( this->maxShellBand ) * 2.0 * ( static_cast< proshade_double > ( fold ) - 1.0 ), 2.0 ) - static_cast< proshade_double > ( allPeakHeights.size() ) << " non-peaks for thresholding.";
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str() );
     
     //================================================ Determine the threshold for significant peaks
@@ -3825,15 +3827,17 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
             newPeak                                   = true;
             for ( proshade_unsign pkGrpIt = 0; pkGrpIt < static_cast<proshade_unsign> ( peakGroups.size() ); pkGrpIt++ )
             {
-                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first, this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second, sphIt, settings->axisErrTolerance, settings->verbose ) ) { newPeak = false; break; }
+                if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( static_cast< proshade_double > ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first  ),
+                                                                  static_cast< proshade_double > ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second ),
+                                                                  sphIt, settings->axisErrTolerance, settings->verbose ) ) { newPeak = false; break; }
             }
             
             //======================================== If already added, go to next one
             if ( !newPeak ) { continue; }
             
             //======================================== If not, create a new group with this peak
-            peakGroups.emplace_back                   ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first,
-                                                                                                                         this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second,
+            peakGroups.emplace_back                   ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( static_cast< proshade_double > ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first ),
+                                                                                                                         static_cast< proshade_double > ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second ),
                                                                                                                          sphIt,
                                                                                                                          this->sphereMappedRotFun.at(sphIt)->getAngularDim() ) );
         }
@@ -3881,14 +3885,14 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     std::vector < proshade_unsign > folds;
     bool alreadyFound;
     proshade_double lat, lon;
-    proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( dataObj->maxShellBand * 2.0 );
-    proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( dataObj->maxShellBand * 2.0 );
+    proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
+    proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
     
     //================================================ Determine all the folds for which rotation function mapping will be required
     for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ret->size() ); iter++ )
     {
         alreadyFound                                  = false;
-        for ( proshade_unsign it = 0; it < static_cast < proshade_unsign > ( folds.size() ); it++ ) { const FloatingPoint< proshade_double > lhs1 ( folds.at(it) ), rhs1 ( ret->at(iter)[0] ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; break; } }
+        for ( proshade_unsign it = 0; it < static_cast < proshade_unsign > ( folds.size() ); it++ ) { const FloatingPoint< proshade_double > lhs1 ( static_cast< proshade_double > ( folds.at(it) ) ), rhs1 ( ret->at(iter)[0] ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; break; } }
         
         if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, static_cast< proshade_unsign > ( ret->at(iter)[0] ) ); }
     }
@@ -3917,18 +3921,18 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
         {
             //======================================== Ignore different folds
-            const FloatingPoint< proshade_double > lhs1 ( ret->at(axIt)[0] ), rhs1 ( folds.at(foldIt) );
+            const FloatingPoint< proshade_double > lhs1 ( ret->at(axIt)[0] ), rhs1 ( static_cast< proshade_double > ( folds.at(foldIt) ) );
             if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
             
             //======================================== Convert XYZ to lat and lon INDICES
             lat                                       = std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit;
             lon                                       = std::acos ( ret->at(axIt)[3] ) / lonSamlUnit;
             
-            if ( lat < 0.0 ) { lat += ( dataObj->maxShellBand * 2.0 ); }
-            if ( lon < 0.0 ) { lon += ( dataObj->maxShellBand * 2.0 ); }
+            if ( lat < 0.0 ) { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+            if ( lon < 0.0 ) { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
             
-            lat = std::round ( lat );
-            lon = std::round ( lon );
+            lat                                       = std::round ( lat );
+            lon                                       = std::round ( lon );
             
             //======================================== Initialise the peak group
             ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* grp = nullptr;

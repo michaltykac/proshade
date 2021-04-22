@@ -261,9 +261,9 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
                 if ( map[arrPos] > 0.0 )
                 {
                     totDensity                       += map[arrPos];
-                    *xCom                            += static_cast<proshade_double> ( xIt * xSampRate ) * map[arrPos];
-                    *yCom                            += static_cast<proshade_double> ( yIt * ySampRate ) * map[arrPos];
-                    *zCom                            += static_cast<proshade_double> ( zIt * zSampRate ) * map[arrPos];
+                    *xCom                            += static_cast<proshade_double> ( static_cast< proshade_single > ( xIt ) * xSampRate ) * map[arrPos];
+                    *yCom                            += static_cast<proshade_double> ( static_cast< proshade_single > ( yIt ) * ySampRate ) * map[arrPos];
+                    *zCom                            += static_cast<proshade_double> ( static_cast< proshade_single > ( zIt ) * zSampRate ) * map[arrPos];
                 }
             }
         }
@@ -763,22 +763,22 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
 {
     //================================================ Compute movement in indices
-    proshade_signed xIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*xMov) / ( xAngs / (*xTo - *xFrom) ) ) );
-    proshade_signed yIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*yMov) / ( yAngs / (*yTo - *yFrom) ) ) );
-    proshade_signed zIndMove                          = static_cast<proshade_signed> (  std::floor ( -(*zMov) / ( zAngs / (*zTo - *zFrom) ) ) );
+    proshade_single xIndMove                          = std::floor ( -(*xMov) / ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) ) ) );
+    proshade_single yIndMove                          = std::floor ( -(*yMov) / ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) ) ) );
+    proshade_single zIndMove                          = std::floor ( -(*zMov) / ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) ) ) );
     
     //================================================ Set the movs to the remainder
-    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / (*xTo - *xFrom) ) );
-    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / (*yTo - *yFrom) ) );
-    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / (*zTo - *zFrom) ) );
+    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) ) ) );
+    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) ) ) );
+    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) ) ) );
     
     //================================================ Move indices by as much
-    *xFrom                                           += xIndMove;
-    *xTo                                             += xIndMove;
-    *yFrom                                           += yIndMove;
-    *yTo                                             += yIndMove;
-    *zFrom                                           += zIndMove;
-    *zTo                                             += zIndMove;
+    *xFrom                                           += static_cast< proshade_signed > ( xIndMove );
+    *xTo                                             += static_cast< proshade_signed > ( xIndMove );
+    *yFrom                                           += static_cast< proshade_signed > ( yIndMove );
+    *yTo                                             += static_cast< proshade_signed > ( yIndMove );
+    *zFrom                                           += static_cast< proshade_signed > ( zIndMove );
+    *zTo                                             += static_cast< proshade_signed > ( zIndMove );
     
     //================================================ And set origin to reflect the changes
     *xOrigin                                          = *xFrom;
@@ -1227,64 +1227,64 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
                 newMapIndex                           = zIt + newZDim * ( yIt + newYDim * xIt );
                 
                 //==================================== Find this points bottom and top positions in the old map (including periodicity)
-                for ( proshade_unsign ox = 0; ox < (xDimS-1); ox++ ) { if ( ( ( xIt * newXSample ) >= ( ox * oldXSample ) ) && ( ( xIt * newXSample ) <= ( (ox+1) * oldXSample ) ) ) { xBottom = static_cast<proshade_signed> ( ox ); break; } }
-                for ( proshade_unsign oy = 0; oy < (yDimS-1); oy++ ) { if ( ( ( yIt * newYSample ) >= ( oy * oldYSample ) ) && ( ( yIt * newYSample ) <= ( (oy+1) * oldYSample ) ) ) { yBottom = static_cast<proshade_signed> ( oy ); break; } }
-                for ( proshade_unsign oz = 0; oz < (zDimS-1); oz++ ) { if ( ( ( zIt * newZSample ) >= ( oz * oldZSample ) ) && ( ( zIt * newZSample ) <= ( (oz+1) * oldZSample ) ) ) { zBottom = static_cast<proshade_signed> ( oz ); break; } }
+                for ( proshade_signed ox = 0; ox < ( static_cast< proshade_signed > ( xDimS ) - 1 ); ox++ ) { if ( ( ( static_cast< proshade_single > ( xIt ) * newXSample ) >= ( static_cast< proshade_single > ( ox ) * oldXSample ) ) && ( ( static_cast< proshade_single > ( xIt ) * newXSample ) <= ( ( static_cast< proshade_single > ( ox ) + 1 ) * oldXSample ) ) ) { xBottom = ox; break; } }
+                for ( proshade_signed oy = 0; oy < ( static_cast< proshade_signed > ( yDimS ) - 1 ); oy++ ) { if ( ( ( static_cast< proshade_single > ( yIt ) * newYSample ) >= ( static_cast< proshade_single > ( oy ) * oldYSample ) ) && ( ( static_cast< proshade_single > ( yIt ) * newYSample ) <= ( ( static_cast< proshade_single > ( oy ) + 1 ) * oldYSample ) ) ) { yBottom = oy; break; } }
+                for ( proshade_signed oz = 0; oz < ( static_cast< proshade_signed > ( zDimS ) - 1 ); oz++ ) { if ( ( ( static_cast< proshade_single > ( zIt ) * newZSample ) >= ( static_cast< proshade_single > ( oz ) * oldZSample ) ) && ( ( static_cast< proshade_single > ( zIt ) * newZSample ) <= ( ( static_cast< proshade_single > ( oz ) + 1 ) * oldZSample ) ) ) { zBottom = oz; break; } }
                 xTop                                  = xBottom + 1;
                 yTop                                  = yBottom + 1;
                 zTop                                  = zBottom + 1;
 
                 //==================================== Find the surrounding point's values from the original map
                 oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xBottom );
-                c000.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
-                c000.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
-                c000.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
+                c000.at(0)                            = static_cast<proshade_double> ( xBottom ) * static_cast<proshade_double> ( oldXSample );
+                c000.at(1)                            = static_cast<proshade_double> ( yBottom ) * static_cast<proshade_double> ( oldYSample );
+                c000.at(2)                            = static_cast<proshade_double> ( zBottom ) * static_cast<proshade_double> ( oldZSample );
                 c000.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xBottom );
-                c001.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
-                c001.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
-                c001.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
+                c001.at(0)                            = static_cast<proshade_double> ( xBottom ) * static_cast<proshade_double> ( oldXSample );
+                c001.at(1)                            = static_cast<proshade_double> ( yBottom ) * static_cast<proshade_double> ( oldYSample );
+                c001.at(2)                            = static_cast<proshade_double> ( zTop    ) * static_cast<proshade_double> ( oldZSample );
                 c001.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xBottom );
-                c010.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
-                c010.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
-                c010.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
+                c010.at(0)                            = static_cast<proshade_double> ( xBottom ) * static_cast<proshade_double> ( oldXSample );
+                c010.at(1)                            = static_cast<proshade_double> ( yTop    ) * static_cast<proshade_double> ( oldYSample );
+                c010.at(2)                            = static_cast<proshade_double> ( zBottom ) * static_cast<proshade_double> ( oldZSample );
                 c010.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xBottom );
-                c011.at(0)                            = static_cast<proshade_double> ( xBottom * oldXSample );
-                c011.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
-                c011.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
+                c011.at(0)                            = static_cast<proshade_double> ( xBottom ) * static_cast<proshade_double> ( oldXSample );
+                c011.at(1)                            = static_cast<proshade_double> ( yTop    ) * static_cast<proshade_double> ( oldYSample );
+                c011.at(2)                            = static_cast<proshade_double> ( zTop    ) * static_cast<proshade_double> ( oldZSample );
                 c011.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xTop    );
-                c100.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
-                c100.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
-                c100.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
+                c100.at(0)                            = static_cast<proshade_double> ( xTop    ) * static_cast<proshade_double> ( oldXSample );
+                c100.at(1)                            = static_cast<proshade_double> ( yBottom ) * static_cast<proshade_double> ( oldYSample );
+                c100.at(2)                            = static_cast<proshade_double> ( zBottom ) * static_cast<proshade_double> ( oldZSample );
                 c100.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yBottom + static_cast< proshade_signed > ( yDimS ) * xTop    );
-                c101.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
-                c101.at(1)                            = static_cast<proshade_double> ( yBottom * oldYSample );
-                c101.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
+                c101.at(0)                            = static_cast<proshade_double> ( xTop    ) * static_cast<proshade_double> ( oldXSample );
+                c101.at(1)                            = static_cast<proshade_double> ( yBottom ) * static_cast<proshade_double> ( oldYSample );
+                c101.at(2)                            = static_cast<proshade_double> ( zTop    ) * static_cast<proshade_double> ( oldZSample );
                 c101.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zBottom + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xTop    );
-                c110.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
-                c110.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
-                c110.at(2)                            = static_cast<proshade_double> ( zBottom * oldZSample );
+                c110.at(0)                            = static_cast<proshade_double> ( xTop    ) * static_cast<proshade_double> ( oldXSample );
+                c110.at(1)                            = static_cast<proshade_double> ( yTop    ) * static_cast<proshade_double> ( oldYSample );
+                c110.at(2)                            = static_cast<proshade_double> ( zBottom ) * static_cast<proshade_double> ( oldZSample );
                 c110.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 oldMapIndex                           = zTop    + static_cast< proshade_signed > ( zDimS ) * ( yTop    + static_cast< proshade_signed > ( yDimS ) * xTop    );
-                c111.at(0)                            = static_cast<proshade_double> ( xTop    * oldXSample );
-                c111.at(1)                            = static_cast<proshade_double> ( yTop    * oldYSample );
-                c111.at(2)                            = static_cast<proshade_double> ( zTop    * oldZSample );
+                c111.at(0)                            = static_cast<proshade_double> ( xTop    ) * static_cast<proshade_double> ( oldXSample );
+                c111.at(1)                            = static_cast<proshade_double> ( yTop    ) * static_cast<proshade_double> ( oldYSample );
+                c111.at(2)                            = static_cast<proshade_double> ( zTop    ) * static_cast<proshade_double> ( oldZSample );
                 c111.at(3)                            = static_cast<proshade_double> ( map[oldMapIndex] );
                 
                 //==================================== Interpolate to the new grid along X
-                xRelative                             = static_cast<proshade_double> ( ( ( xIt * newXSample ) - ( xBottom * oldXSample ) ) / ( ( xTop * oldXSample ) - ( xBottom * oldXSample ) ) );
+                xRelative                             = ( ( static_cast<proshade_double> ( xIt ) * static_cast<proshade_double> ( newXSample ) ) - ( static_cast<proshade_double> ( xBottom ) * static_cast<proshade_double> ( oldXSample ) ) ) / ( ( static_cast<proshade_double> ( xTop ) * static_cast<proshade_double> ( oldXSample ) ) - ( static_cast<proshade_double> ( xBottom ) * static_cast<proshade_double> ( oldXSample ) ) );
                 
                 //==================================== Interpolate for the less less point
                 c00.at(0)                             = ( static_cast< proshade_double > ( newXSample ) * xRelative ) + c000.at(0);
@@ -1311,7 +1311,7 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
                 c11.at(3)                             = ( c011.at(3) * ( 1.0 - xRelative ) ) + ( c111.at(3) * xRelative );
                 
                 //==================================== Interpolate to the new grid along Y
-                yRelative                             =  static_cast< proshade_double > ( ( ( yIt * newYSample ) - ( yBottom * oldYSample ) ) / ( ( yTop * oldYSample ) - ( yBottom * oldYSample ) ) );
+                yRelative                             =  ( ( static_cast<proshade_double> ( yIt ) * static_cast<proshade_double> ( newYSample ) ) - ( static_cast<proshade_double> ( yBottom ) * static_cast<proshade_double> ( oldYSample ) ) ) / ( ( static_cast<proshade_double> ( yTop ) * static_cast<proshade_double> ( oldYSample ) ) - ( static_cast<proshade_double> ( yBottom ) * static_cast<proshade_double> ( oldYSample ) ) );
                 
                 //==================================== Interpolate for the less point
                 c0.at(0)                              = c00.at(0);
@@ -1326,7 +1326,7 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
                 c1.at(3)                              = ( c01.at(3) * ( 1.0 - yRelative ) ) + ( c11.at(3) * yRelative );
                 
                 //==================================== Interpolate to the new grid along Z
-                zRelative                             = ( ( zIt * static_cast< proshade_double > ( newZSample ) ) - static_cast< proshade_double > ( zBottom * oldZSample ) ) / static_cast< proshade_double > ( ( zTop * oldZSample ) - ( zBottom * oldZSample ) );
+                zRelative                             = ( ( static_cast<proshade_double> ( zIt ) * static_cast< proshade_double > ( newZSample ) ) - ( static_cast<proshade_double> ( zBottom ) * static_cast<proshade_double> ( oldZSample ) ) ) / static_cast< proshade_double > ( ( static_cast<proshade_double> ( zTop ) * static_cast<proshade_double> ( oldZSample ) ) - ( static_cast<proshade_double> ( zBottom ) * static_cast<proshade_double> ( oldZSample ) ) );
                 newMap[newMapIndex]                   = ( c0.at(3) * ( 1.0 - zRelative ) ) + ( c1.at(3) * zRelative );
             }
         }
@@ -1349,9 +1349,9 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     corrs[0]                                          = static_cast< proshade_single > ( newXDim - xDim );
     corrs[1]                                          = static_cast< proshade_single > ( newYDim - yDim );
     corrs[2]                                          = static_cast< proshade_single > ( newZDim - zDim );
-    corrs[3]                                          = static_cast< proshade_single > ( newXDim * newXSample );
-    corrs[4]                                          = static_cast< proshade_single > ( newYDim * newYSample );
-    corrs[5]                                          = static_cast< proshade_single > ( newZDim * newZSample );
+    corrs[3]                                          = static_cast< proshade_single > ( newXDim ) * static_cast< proshade_single > ( newXSample );
+    corrs[4]                                          = static_cast< proshade_single > ( newYDim ) * static_cast< proshade_single > ( newYSample );
+    corrs[5]                                          = static_cast< proshade_single > ( newZDim ) * static_cast< proshade_single > ( newZSample );
     
     //======================================== Done
     return ;
@@ -1391,12 +1391,12 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     if ( newZDim % 2 != 0 ) { newZDim += 1; }
  
     proshade_signed preXChange, preYChange, preZChange;
-    if ( ( xDimS % 2 ) == 0 ) { preXChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ) ); }
-    else                      { preXChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2.0 ) ); }
-    if ( ( yDimS % 2 ) == 0 ) { preYChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2.0 ) ); }
-    else                      { preYChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2.0 ) ); }
-    if ( ( zDimS % 2 ) == 0 ) { preZChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2.0 ) ); }
-    else                      { preZChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2.0 ) ); }
+    if ( ( xDimS % 2 ) == 0 ) { preXChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2 ) ); }
+    else                      { preXChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2 ) ); }
+    if ( ( yDimS % 2 ) == 0 ) { preYChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2 ) ); }
+    else                      { preYChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2 ) ); }
+    if ( ( zDimS % 2 ) == 0 ) { preZChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2 ) ); }
+    else                      { preZChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2 ) ); }
     
     proshade_signed postXChange                       = static_cast<proshade_signed> ( xDimS ) - ( preXChange + static_cast<proshade_signed> ( newXDim ) );
     proshade_signed postYChange                       = static_cast<proshade_signed> ( yDimS ) - ( preYChange + static_cast<proshade_signed> ( newYDim ) );

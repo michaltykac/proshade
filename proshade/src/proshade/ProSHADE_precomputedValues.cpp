@@ -40,7 +40,7 @@ ProSHADE_internal_precomputedVals::tetrahedronAxes::tetrahedronAxes ( )
     
     //================================================ Done
     
-};
+}
 
 /*! \brief Destructor of the tetrahedronAxes class.
  */
@@ -55,7 +55,7 @@ ProSHADE_internal_precomputedVals::tetrahedronAxes::~tetrahedronAxes ( )
     
     //================================================ Done
     
-};
+}
 
 /*! \brief Accessor for the tetrahedronAxesVals variable.
  
@@ -70,7 +70,7 @@ proshade_double ProSHADE_internal_precomputedVals::tetrahedronAxes::getValue ( p
     //================================================ Done
     return                                            ( this->tetrahedronAxesVals.at(axis).at(element) );
     
-};
+}
 
 /*! \brief Accessor for the tetrahedronAxesVals variable number of axes.
  
@@ -81,7 +81,7 @@ proshade_unsign ProSHADE_internal_precomputedVals::tetrahedronAxes::getNoAxes ( 
     //================================================ Done
     return                                            ( static_cast< proshade_unsign > ( this->tetrahedronAxesVals.size() ) );
     
-};
+}
 
 /*! \brief Constructor of the octahedronAxes class.
  */
@@ -108,7 +108,7 @@ ProSHADE_internal_precomputedVals::octahedronAxes::octahedronAxes ( )
     
     //================================================ Done
     
-};
+}
 
 /*! \brief Destructor of the octahedronAxes class.
  */
@@ -123,7 +123,7 @@ ProSHADE_internal_precomputedVals::octahedronAxes::~octahedronAxes ( )
     
     //================================================ Done
     
-};
+}
 
 /*! \brief Accessor for the octahedronAxesVals variable.
  
@@ -138,7 +138,7 @@ proshade_double ProSHADE_internal_precomputedVals::octahedronAxes::getValue ( pr
     //================================================ Done
     return                                            ( this->octahedronAxesVals.at(axis).at(element) );
     
-};
+}
 
 /*! \brief Accessor for the octahedronAxesVals variable number of axes.
  
@@ -149,7 +149,7 @@ proshade_unsign ProSHADE_internal_precomputedVals::octahedronAxes::getNoAxes ( )
     //================================================ Done
     return                                            ( static_cast< proshade_unsign > ( this->octahedronAxesVals.size() ) );
     
-};
+}
 
 
 /*! \brief Constructor of the icosahedronAxes class.
@@ -195,7 +195,7 @@ ProSHADE_internal_precomputedVals::icosahedronAxes::icosahedronAxes ( )
     
     //================================================ Done
     
-};
+}
 
 /*! \brief Destructor of the icosahedronAxes class.
  */
@@ -210,7 +210,7 @@ ProSHADE_internal_precomputedVals::icosahedronAxes::~icosahedronAxes ( )
     
     //================================================ Done
     
-};
+}
 
 /*! \brief Accessor for the icosahedronAxesVals variable.
  
@@ -225,7 +225,7 @@ proshade_double ProSHADE_internal_precomputedVals::icosahedronAxes::getValue ( p
     //================================================ Done
     return                                            ( this->icosahedronAxesVals.at(axis).at(element) );
     
-};
+}
 
 /*! \brief Accessor for the octahedronAxesVals variable number of axes.
  
@@ -236,4 +236,4 @@ proshade_unsign ProSHADE_internal_precomputedVals::icosahedronAxes::getNoAxes ( 
     //================================================ Done
     return                                            ( static_cast< proshade_unsign > ( this->icosahedronAxesVals.size() ) );
     
-};
+}

@@ -75,9 +75,9 @@ void ProSHADE_internal_data::ProSHADE_data::allocateWignerMatricesSpace ( )
 void ProSHADE_internal_wigner::allocateWignerWorkspace ( proshade_double*& matIn, proshade_double*& matOut, proshade_double*& sqrts, proshade_double*& workspace, proshade_double*& alphaExponentReal, proshade_double*& alphaExponentImag, proshade_double*& gammaExponentReal, proshade_double*& gammaExponentImag, proshade_double*& trigs, proshade_unsign compBand )
 {
     //================================================ Allocate the memory
-    matIn                                             = new proshade_double[static_cast<proshade_unsign> ( 4 * pow( compBand, 2.0 ) - 4 * compBand + 1 )];
+    matIn                                             = new proshade_double[static_cast<proshade_unsign> ( 4 * pow( compBand, 2.0 ) ) - 4 * compBand + 1];
             
-    matOut                                            = new proshade_double[static_cast<proshade_unsign> ( 4 * pow( compBand, 2.0 ) - 4 * compBand + 1 )];
+    matOut                                            = new proshade_double[static_cast<proshade_unsign> ( 4 * pow( compBand, 2.0 ) ) - 4 * compBand + 1];
     sqrts                                             = new proshade_double[static_cast<proshade_unsign> ( 2 * compBand )];
     workspace                                         = new proshade_double[static_cast<proshade_unsign> ( 4 * pow( compBand, 2.0 ) )];
     alphaExponentReal                                 = new proshade_double[static_cast<proshade_unsign> ( 2 * compBand - 1 )];

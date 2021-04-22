@@ -34,6 +34,7 @@
     #pragma GCC diagnostic ignored "-Wall"
     #pragma GCC diagnostic ignored "-Wextra"
     #pragma GCC diagnostic ignored "-Wdouble-promotion"
+    #pragma GCC diagnostic ignored "-Wconversion"
 #endif
 
 //==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE

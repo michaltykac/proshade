@@ -32,6 +32,7 @@
     #pragma GCC diagnostic ignored "-Wall"
     #pragma GCC diagnostic ignored "-Wextra"
     #pragma GCC diagnostic ignored "-Wdouble-promotion"
+    #pragma GCC diagnostic ignored "-Wconversion"
 #endif
 
 //==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
@@ -585,9 +586,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
         proshade_single zSampRate                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ Bofore re-sampling first index position
-        proshade_single xStartPosBefore               = this->xFrom * xSampRate;
-        proshade_single yStartPosBefore               = this->yFrom * ySampRate;
-        proshade_single zStartPosBefore               = this->zFrom * zSampRate;
+        proshade_single xStartPosBefore               = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
+        proshade_single yStartPosBefore               = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
+        proshade_single zStartPosBefore               = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
         
         //============================================ Find COM before map re-sampling
         proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
@@ -602,9 +603,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
         zSampRate                                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ After re-sampling first index position
-        proshade_single xStartPosAfter                = this->xFrom * xSampRate;
-        proshade_single yStartPosAfter                = this->yFrom * ySampRate;
-        proshade_single zStartPosAfter                = this->zFrom * zSampRate;
+        proshade_single xStartPosAfter                = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
+        proshade_single yStartPosAfter                = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
+        proshade_single zStartPosAfter                = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
         
         //============================================ Translate by change in corners to make the boxes as similarly placed as possible
         proshade_single xMov                          = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
@@ -741,9 +742,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
         proshade_single zSampRate                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ Bofore re-sampling first index position
-        proshade_single xStartPosBefore               = this->xFrom * xSampRate;
-        proshade_single yStartPosBefore               = this->yFrom * ySampRate;
-        proshade_single zStartPosBefore               = this->zFrom * zSampRate;
+        proshade_single xStartPosBefore               = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
+        proshade_single yStartPosBefore               = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
+        proshade_single zStartPosBefore               = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
         
         //============================================ Find COM before map re-sampling
         proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
@@ -758,9 +759,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
         zSampRate                                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
         
         //============================================ After re-sampling first index position
-        proshade_single xStartPosAfter                = this->xFrom * xSampRate;
-        proshade_single yStartPosAfter                = this->yFrom * ySampRate;
-        proshade_single zStartPosAfter                = this->zFrom * zSampRate;
+        proshade_single xStartPosAfter                = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
+        proshade_single yStartPosAfter                = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
+        proshade_single zStartPosAfter                = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
         
         //============================================ Translate by change in corners to make the boxes as similarly placed as possible
         proshade_single xMovHlp                       = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
@@ -1342,12 +1343,12 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     this->zDimSize                                    = changeVals[5];
 
     //================================================ Figure how much the new map moved
-    proshade_single xMov                              = -( ( this->xFrom * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices - changeVals[0] ) ) ) -
-                                                           ( this->xFrom * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
-    proshade_single yMov                              = -( ( this->yFrom * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices - changeVals[1] ) ) ) -
-                                                           ( this->yFrom * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) ) );
-    proshade_single zMov                              = -( ( this->zFrom * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices - changeVals[2] ) ) ) -
-                                                           ( this->zFrom * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) ) );
+    proshade_single xMov                              = -( ( static_cast<proshade_single> ( this->xFrom ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) - changeVals[0] ) ) -
+                                                           ( static_cast<proshade_single> ( this->xFrom ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
+    proshade_single yMov                              = -( ( static_cast<proshade_single> ( this->yFrom ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) - changeVals[1] ) ) -
+                                                           ( static_cast<proshade_single> ( this->yFrom ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) ) );
+    proshade_single zMov                              = -( ( static_cast<proshade_single> ( this->zFrom ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) - changeVals[2] ) ) -
+                                                           ( static_cast<proshade_single> ( this->zFrom ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) ) );
 
     //================================================ Move by indices (this should be sufficient)
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo,
@@ -1398,14 +1399,14 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
     yCOM                                             /= static_cast< proshade_double > ( ySampRate );
     zCOM                                             /= static_cast< proshade_double > ( zSampRate );
          
-    xCOM                                             -= this->xFrom;
-    yCOM                                             -= this->yFrom;
-    zCOM                                             -= this->zFrom;
+    xCOM                                             -= static_cast< proshade_double > ( this->xFrom );
+    yCOM                                             -= static_cast< proshade_double > ( this->yFrom );
+    zCOM                                             -= static_cast< proshade_double > ( this->zFrom );
     
     //================================================ Find distance from COM to map centre in Angstroms
-    proshade_double xDist                             = ( static_cast<proshade_double> ( this->xDimIndices / 2.0 ) - xCOM ) * static_cast<proshade_double> ( this->xDimSize / this->xDimIndices );
-    proshade_double yDist                             = ( static_cast<proshade_double> ( this->yDimIndices / 2.0 ) - yCOM ) * static_cast<proshade_double> ( this->yDimSize / this->yDimIndices );
-    proshade_double zDist                             = ( static_cast<proshade_double> ( this->zDimIndices / 2.0 ) - zCOM ) * static_cast<proshade_double> ( this->zDimSize / this->zDimIndices );
+    proshade_double xDist                             = ( ( static_cast<proshade_double> ( this->xDimIndices ) / 2.0 ) - xCOM ) * static_cast<proshade_double> ( this->xDimSize ) / static_cast<proshade_double> ( this->xDimIndices );
+    proshade_double yDist                             = ( ( static_cast<proshade_double> ( this->yDimIndices ) / 2.0 ) - yCOM ) * static_cast<proshade_double> ( this->yDimSize ) / static_cast<proshade_double> ( this->yDimIndices );
+    proshade_double zDist                             = ( ( static_cast<proshade_double> ( this->zDimIndices ) / 2.0 ) - zCOM ) * static_cast<proshade_double> ( this->zDimSize ) / static_cast<proshade_double> ( this->zDimIndices );
     
     //================================================ Move the map within the box
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap,
@@ -1446,14 +1447,14 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1,  hlpSS.str() );
     
     //================================================ Figure how much indices need to change
-    proshade_unsign xAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->xDimSize / this->xDimIndices ) ) );
-    proshade_unsign yAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->yDimSize / this->yDimIndices ) ) );
-    proshade_unsign zAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / static_cast<proshade_single> ( this->zDimSize / this->zDimIndices ) ) );
+    proshade_unsign xAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) );
+    proshade_unsign yAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) );
+    proshade_unsign zAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) );
     
     //================================================ Update internal data variables
-    this->xDimSize                                   += static_cast<proshade_single> ( 2 * xAddIndices ) * static_cast<proshade_single> ( this->xDimSize / this->xDimIndices );
-    this->yDimSize                                   += static_cast<proshade_single> ( 2 * yAddIndices ) * static_cast<proshade_single> ( this->yDimSize / this->yDimIndices );
-    this->zDimSize                                   += static_cast<proshade_single> ( 2 * zAddIndices ) * static_cast<proshade_single> ( this->zDimSize / this->zDimIndices );
+    this->xDimSize                                   += 2 * static_cast<proshade_single> ( xAddIndices ) * this->xDimSize / static_cast<proshade_single> ( this->xDimIndices );
+    this->yDimSize                                   += 2 * static_cast<proshade_single> ( yAddIndices ) * this->yDimSize / static_cast<proshade_single> ( this->yDimIndices );
+    this->zDimSize                                   += 2 * static_cast<proshade_single> ( zAddIndices ) * this->zDimSize / static_cast<proshade_single> ( this->zDimIndices );
             
     this->xDimIndices                                += 2 * xAddIndices;
     this->yDimIndices                                += 2 * yAddIndices;
@@ -1607,9 +1608,9 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
     proshade_unsign maxDim                            = static_cast< proshade_unsign > ( std::max ( this->xDimSize, std::max ( this->yDimSize, this->zDimSize ) ) );
     proshade_unsign minDim                            = static_cast< proshade_unsign > ( std::min ( this->xDimSize, std::min ( this->yDimSize, this->zDimSize ) ) );
     proshade_unsign midDim                            = static_cast< proshade_unsign > ( 0 );
-    if      ( ( this->xDimSize < maxDim ) && ( this->xDimSize > minDim ) ) { midDim = static_cast< proshade_unsign > ( this->xDimSize ); }
-    else if ( ( this->yDimSize < maxDim ) && ( this->yDimSize > minDim ) ) { midDim = static_cast< proshade_unsign > ( this->yDimSize ); }
-    else                                                                   { midDim = static_cast< proshade_unsign > ( this->zDimSize ); }
+    if      ( ( this->xDimSize < static_cast< proshade_single > ( maxDim ) ) && ( this->xDimSize > static_cast< proshade_single > ( minDim ) ) ) { midDim = static_cast< proshade_unsign > ( this->xDimSize ); }
+    else if ( ( this->yDimSize < static_cast< proshade_single > ( maxDim ) ) && ( this->yDimSize > static_cast< proshade_single > ( minDim ) ) ) { midDim = static_cast< proshade_unsign > ( this->yDimSize ); }
+    else                                                                                                                                         { midDim = static_cast< proshade_unsign > ( this->zDimSize ); }
     
     proshade_single maxDiag                           = static_cast< proshade_single > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ), 2.0 ) +
                                                                                                      std::pow ( static_cast<proshade_single> ( midDim ), 2.0 ) ) );
@@ -1844,7 +1845,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     //================================================ Modify axis tolerance and matrix tolerance by sampling, if required by user
     if ( settings->axisErrToleranceDefault )
     {
-        settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / this->maxShellBand );
+        settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / static_cast< proshade_double > ( this->maxShellBand ) );
     }
     
     //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
@@ -2247,7 +2248,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     
     //================================================ Take best peaks surroundings and produce a new set of "high" axes
     proshade_signed bestHistPos                       = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 );
-    proshade_double bestHistPeakStart                 = ( bestHistPos * step ) - 0.05;
+    proshade_double bestHistPeakStart                 = ( static_cast< proshade_double > ( bestHistPos ) * step ) - 0.05;
     
     //================================================ Find all axes in top peak range
     vals.clear                                        ( );
@@ -2256,7 +2257,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     //================================================ Decide optimal C
     proshade_signed bestC                             = -1;
     proshade_unsign bestFold                          = 0;
-    for ( proshade_unsign iter = 0; iter < static_cast< proshade_unsign > ( vals.size() ); iter++ ) { if ( CSym->at(vals.at(iter).second)[0] > bestFold ) { bestFold = static_cast< proshade_unsign > ( CSym->at(vals.at(iter).second)[0] ); bestC = static_cast< proshade_signed > ( vals.at(iter).second ); }  }
+    for ( proshade_unsign iter = 0; iter < static_cast< proshade_unsign > ( vals.size() ); iter++ ) { if ( CSym->at(vals.at(iter).second)[0] > static_cast< proshade_double > ( bestFold ) ) { bestFold = static_cast< proshade_unsign > ( CSym->at(vals.at(iter).second)[0] ); bestC = static_cast< proshade_signed > ( vals.at(iter).second ); }  }
     
     //================================================ Check for existence of D symmetries with both axes having high enough peak height
     proshade_signed bestD                             = -1;
@@ -2268,7 +2269,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         if ( DSym->at(dIt)[11] < bestHistPeakStart )  { continue; }
         
         //============================================ Both good enough! Find the highest fold
-        if ( ( DSym->at(dIt)[0] > bestFold ) || ( DSym->at(dIt)[6] > bestFold ) )
+        if ( ( DSym->at(dIt)[0] > static_cast< proshade_double > ( bestFold ) ) || ( DSym->at(dIt)[6] > static_cast< proshade_double > ( bestFold ) ) )
         {
             bestFold                                  = static_cast< proshade_unsign > ( std::max ( DSym->at(dIt)[0], DSym->at(dIt)[6] ) );
             bestD                                     = static_cast< proshade_signed > ( dIt );
@@ -2338,16 +2339,16 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             //======================================== The decision is D
             settings->setRecommendedSymmetry          ( "D" );
             settings->setRecommendedFold              ( static_cast< proshade_unsign > ( std::max ( DSym->at( static_cast< unsigned long int > ( bestD ) )[0], DSym->at( static_cast< unsigned long int > ( bestD ) )[6] ) ) );
-            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes,  DSym->at( static_cast< unsigned long int > ( bestD ) )    );
-            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at( static_cast< unsigned long int > ( bestD ) )[6] );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes,  DSym->at( static_cast< size_t > ( bestD ) )    );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at( static_cast< size_t > ( bestD ) )[6] );
             if ( settings->detectedSymmetry.size() == 0 )
             {
-                settings->setDetectedSymmetry             (  DSym->at( static_cast< unsigned long int > ( bestD ) )    );
-                settings->setDetectedSymmetry             ( &DSym->at( static_cast< unsigned long int > ( bestD ) )[6] );
+                settings->setDetectedSymmetry             (  DSym->at( static_cast< size_t > ( bestD ) )    );
+                settings->setDetectedSymmetry             ( &DSym->at( static_cast< size_t > ( bestD ) )[6] );
             }
     
             //======================================== Warn if resolution does not really support this fold
-            if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at( static_cast< unsigned long int > ( bestD ) )[0], DSym->at( static_cast< unsigned long int > ( bestD ) )[6] ) ) ) - ( 360.0 / static_cast<double> ( std::max ( DSym->at( static_cast< unsigned long int > ( bestD ) )[0], DSym->at( static_cast< unsigned long int > ( bestD ) )[6] ) + 1 ) ) ) < ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+            if ( ( ( 360.0 / static_cast<double> ( std::max ( DSym->at( static_cast< size_t > ( bestD ) )[0], DSym->at( static_cast< size_t > ( bestD ) )[6] ) ) ) - ( 360.0 / static_cast< proshade_double > ( std::max ( DSym->at( static_cast< size_t > ( bestD ) )[0], DSym->at( static_cast< size_t > ( bestD ) )[6] ) + 1 ) ) ) < ( 360.0 / static_cast< proshade_double > ( settings->maxBandwidth ) * 4.0 ) )
             {
                 std::stringstream hlpSS;
                 hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry D" << std::max ( DSym->at( static_cast< unsigned long int > ( bestD ) )[0], DSym->at( static_cast< unsigned long int > ( bestD ) )[6] ) << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
@@ -2367,7 +2368,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at( static_cast< unsigned long int > ( bestC ) ) ); }
     
             //======================================== Warn if resolution does not really support this fold
-            if ( ( ( 360.0 / static_cast<double> ( CSym->at( static_cast< unsigned long int > (  bestC ) )[0] ) ) - ( 360.0 / static_cast<double> ( CSym->at(static_cast< unsigned long int > ( bestC ) )[0] + 1 ) ) ) < ( 360.0 / static_cast<double> ( settings->maxBandwidth * 4.0 ) ) )
+            if ( ( ( 360.0 / static_cast< proshade_double > ( CSym->at( static_cast< size_t > (  bestC ) )[0] ) ) - ( 360.0 / static_cast< proshade_double > ( CSym->at(static_cast< size_t > ( bestC ) )[0] + 1 ) ) ) < ( 360.0 / static_cast< proshade_double > ( settings->maxBandwidth ) * 4.0 ) )
             {
                 std::stringstream hlpSS;
                 hlpSS << "!!! ProSHADE WARNING !!! Reporting symmetry C" << CSym->at(static_cast< unsigned long int > ( bestC ) )[0] << ", however, the grid sampling does not provide reasonable accuracy for symmetry with such high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).";
@@ -2407,7 +2408,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( CSym->size() ); iter++ )
     {
         //============================================ Check if it is tbe correct fold
-        const FloatingPoint< proshade_double > lhs1 ( CSym->at(iter)[0] ), rhs1 ( settings->requestedSymmetryFold );
+        const FloatingPoint< proshade_double > lhs1 ( CSym->at(iter)[0] ), rhs1 ( static_cast< proshade_double > ( settings->requestedSymmetryFold ) );
         if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
         
         //============================================ If correct, is it the highest found?
@@ -2459,7 +2460,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( DSym->size() ); iter++ )
     {
         //============================================ Check if it is tbe correct fold
-        const FloatingPoint< proshade_double > lhs1 ( std::max ( DSym->at(iter)[0], DSym->at(iter)[6] ) ), rhs1 ( settings->requestedSymmetryFold );
+        const FloatingPoint< proshade_double > lhs1 ( std::max ( DSym->at(iter)[0], DSym->at(iter)[6] ) ), rhs1 ( static_cast< proshade_double > ( settings->requestedSymmetryFold ) );
         if ( lhs1.AlmostEquals ( rhs1 ) ) { continue; }
 
         //============================================ If correct, is it the highest found?

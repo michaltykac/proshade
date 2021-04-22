@@ -254,8 +254,8 @@ proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* val
         xMean                                        += valSet1[iter];
         yMean                                        += valSet2[iter];
     }
-    xMean                                            /= static_cast<proshade_double> ( length - zeroCount );
-    yMean                                            /= static_cast<proshade_double> ( length - zeroCount );
+    xMean                                            /= static_cast<proshade_double> ( length ) - zeroCount;
+    yMean                                            /= static_cast<proshade_double> ( length ) - zeroCount;
     
     //================================================ Get Pearson's correlation coefficient
     proshade_double xmmymm                            = 0.0;
@@ -644,7 +644,7 @@ proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade
         //============================================ Find lesser and upper bounds
         for ( proshade_unsign valIt = 0; valIt < valsSize; valIt++ )
         {
-            if ( ( ( valIt * maxSphereDists ) <=  posVals[0] ) && ( ( ( valIt + 1 ) * maxSphereDists ) > posVals[0] ) )
+            if ( ( ( static_cast< proshade_double > ( valIt ) * maxSphereDists ) <=  posVals[0] ) && ( ( ( static_cast< proshade_double > ( valIt ) + 1.0 ) * maxSphereDists ) > posVals[0] ) )
             {
                 lesserPos                             = static_cast<proshade_unsign> ( valIt );
                 upperPos                              = static_cast<proshade_unsign> ( valIt + 1 );
@@ -658,7 +658,7 @@ proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade
         if ( lesserPos != 0 )
         {
             //======================================== Here we realise that the lesser and upper bounds were determined on scale 1 ... N, while our values are on scale 0 ... N-1 and therefore after determining the linear interpolation weights, we subtract 1 from both lesserPos and upperPos; however ...
-            lesserWeight                              = upperPos - ( posVals[0] / maxSphereDists );
+            lesserWeight                              = static_cast< proshade_double > ( upperPos ) - ( posVals[0] / maxSphereDists );
             upperWeight                               = 1.0 - lesserWeight;
                     
             posVals[1]                                = ( lesserWeight * vals[lesserPos-1] ) + ( upperWeight * vals[upperPos-1] );
@@ -666,7 +666,7 @@ proshade_double ProSHADE_internal_maths::gaussLegendreIntegrationReal ( proshade
         else
         {
             //======================================== ... this then means that we would require position -1 for when the integration value is between 0 and the first shell. To resolve this, we assume that the values are 0 below the first shell and proceed as follows:
-            upperWeight                               = 1.0 - ( upperPos - ( posVals[0] / maxSphereDists ) );
+            upperWeight                               = 1.0 - ( static_cast< proshade_double > ( upperPos ) - ( posVals[0] / maxSphereDists ) );
                     
             posVals[1]                                = ( upperWeight * vals[upperPos-1] );
         }
@@ -734,7 +734,7 @@ void ProSHADE_internal_maths::gaussLegendreIntegration ( proshade_complex* vals,
         //============================================ Find lesser and upper bounds
         for ( proshade_unsign valIt = 0; valIt < valsSize; valIt++ )
         {
-            if ( ( ( valIt * maxSphereDists ) <=  posVals[0] ) && ( ( ( valIt + 1 ) * maxSphereDists ) > posVals[0] ) )
+            if ( ( ( static_cast< proshade_double > ( valIt ) * maxSphereDists ) <=  posVals[0] ) && ( ( ( static_cast< proshade_double > ( valIt ) + 1.0 ) * maxSphereDists ) > posVals[0] ) )
             {
                 lesserPos                             = static_cast<proshade_unsign> ( valIt );
                 upperPos                              = static_cast<proshade_unsign> ( valIt + 1 );
@@ -748,7 +748,7 @@ void ProSHADE_internal_maths::gaussLegendreIntegration ( proshade_complex* vals,
         if ( lesserPos != 0 )
         {
             //======================================== Here we realise that the lesser and upper bounds were determined on scale 1 ... N, while our values are on scale 0 ... N-1 and therefore after determining the linear interpolation weights, we subtract 1 from both lesserPos and upperPos; however ...
-            lesserWeight                              = upperPos - ( posVals[0] / maxSphereDists );
+            lesserWeight                              = static_cast< proshade_double > ( upperPos ) - ( posVals[0] / maxSphereDists );
             upperWeight                               = 1.0 - lesserWeight;
                     
             posVals[1]                                = ( lesserWeight * vals[lesserPos-1][0] ) + ( upperWeight * vals[upperPos-1][0] );
@@ -757,7 +757,7 @@ void ProSHADE_internal_maths::gaussLegendreIntegration ( proshade_complex* vals,
         else
         {
             //======================================== ... this then means that we would require position -1 for when the integration value is between 0 and the first shell. To resolve this, we assume that the values are 0 below the first shell and proceed as follows:
-            upperWeight                               = 1.0 - ( upperPos - ( posVals[0] / maxSphereDists ) );
+            upperWeight                               = 1.0 - ( static_cast< proshade_double > ( upperPos ) - ( posVals[0] / maxSphereDists ) );
                     
             posVals[1]                                = ( upperWeight * vals[upperPos-1][0] );
             posVals[2]                                = ( upperWeight * vals[upperPos-1][1] );
@@ -963,9 +963,9 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
 void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
 {
     //================================================ Convert index to Euler angles
-   *eulerGamma                                        = ( M_PI * y / static_cast<proshade_double> ( 1.0 * band ) );
-   *eulerBeta                                         = ( M_PI * x / static_cast<proshade_double> ( 2.0 * band ) );
-   *eulerAlpha                                        = ( M_PI * z / static_cast<proshade_double> ( 1.0 * band ) );
+   *eulerGamma                                        = ( M_PI * static_cast<proshade_double> ( y ) / ( 1.0 * static_cast<proshade_double> ( band ) ) );
+   *eulerBeta                                         = ( M_PI * static_cast<proshade_double> ( x ) / ( 2.0 * static_cast<proshade_double> ( band ) ) );
+   *eulerAlpha                                        = ( M_PI * static_cast<proshade_double> ( z ) / ( 1.0 * static_cast<proshade_double> ( band ) ) );
     
     //================================================ Done
     return ;
@@ -988,9 +988,9 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
 void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
 {
     //================================================ Convert Euler angles to indices
-    *x                                                = static_cast<proshade_double> ( ( eulerBeta  * static_cast<proshade_double> ( 2.0 * band ) ) / M_PI );
-    *y                                                = static_cast<proshade_double> ( ( eulerGamma * static_cast<proshade_double> ( band       ) ) / M_PI );
-    *z                                                = static_cast<proshade_double> ( ( eulerAlpha * static_cast<proshade_double> ( band       ) ) / M_PI );
+    *x                                                = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
+    *y                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
+    *z                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
     
     //================================================ Done
     return ;
@@ -1683,13 +1683,13 @@ std::vector < proshade_signed > ProSHADE_internal_maths::primeFactorsDecomp ( pr
     }
     
     //================================================ Check all odd numbers up to the square root
-    for ( proshade_signed posDiv = 3; posDiv <= sqrt ( number ); posDiv += 2)
+    for ( proshade_double posDiv = 3; posDiv <= sqrt ( static_cast< proshade_double > ( number ) ); posDiv += 2.0 )
     {
         // If posDiv is a divisor of the number, save the result
-        while ( number % posDiv == 0 )
+        while ( number % static_cast< proshade_signed > ( posDiv ) == 0 )
         {
-            ProSHADE_internal_misc::addToSignedVector ( &ret, posDiv );
-            number                                    = number / posDiv;
+            ProSHADE_internal_misc::addToSignedVector ( &ret, static_cast< proshade_signed > ( posDiv ) );
+            number                                    = number / static_cast< proshade_signed > ( posDiv );
         }
     }
     
@@ -2449,12 +2449,12 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusMinus ( proshade_d
         }
 
         //============================================ Fill in the value grid on which the interpolation is to be done
-        for ( proshade_unsign latIt = 0; latIt < 4; latIt++ )
+        for ( proshade_signed latIt = 0; latIt < 4; latIt++ )
         {
-            for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
+            for ( proshade_signed lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 2.0 + static_cast< proshade_double > ( latIt ) ); if ( latHlp < 0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 2.0 + static_cast< proshade_double > ( lonIt ) ); if ( lonHlp < 0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ), static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
@@ -2508,8 +2508,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsMinusPlus ( proshade_do
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 2 + static_cast< proshade_double > ( latIt ) ); if ( latHlp < 0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + static_cast< proshade_double > ( lonIt ) ); if ( lonHlp < 0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ) , static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
@@ -2563,8 +2563,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusMinus ( proshade_do
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + static_cast< proshade_double > ( latIt ) ); if ( latHlp < 0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 2 + static_cast< proshade_double > ( lonIt ) ); if ( lonHlp < 0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ), static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
@@ -2618,8 +2618,8 @@ void ProSHADE_internal_maths::prepareBiCubicInterpolatorsPlusPlus ( proshade_dou
         {
             for ( proshade_unsign lonIt = 0; lonIt < 4; lonIt++ )
             {
-                latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + latIt ); if ( latHlp < 0.0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
-                lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + lonIt ); if ( lonHlp < 0.0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
+                latHlp = static_cast< proshade_signed > ( bestLattitude - 1 + static_cast< proshade_double > ( latIt ) ); if ( latHlp < 0 ) { latHlp += angDim; } if ( latHlp >= angDim ) { latHlp -= angDim; }
+                lonHlp = static_cast< proshade_signed > ( bestLongitude - 1 + static_cast< proshade_double > ( lonIt ) ); if ( lonHlp < 0 ) { lonHlp += angDim; } if ( lonHlp >= angDim ) { lonHlp -= angDim; }
                 interpGrid[latIt][lonIt]              = sphereMappedRotFun->at(sphereList->at(sphereIt))->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latHlp ), static_cast< proshade_unsign > ( lonHlp ) );
             }
         }
@@ -2810,7 +2810,7 @@ std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_d
     std::vector< proshade_double > winWeights         ( static_cast< size_t > ( windowSize ), 0.0 );
     
     //================================================ Prepare window weights
-    for ( proshade_double winIt = 0.0; winIt < windowSize; winIt += 1.0 ) { winWeights.at( static_cast< proshade_unsign > ( winIt ) ) = ProSHADE_internal_maths::computeGaussian ( ( winIt - windowHalf ) * step, sigma ); }
+    for ( proshade_double winIt = 0.0; winIt < static_cast< proshade_double > ( windowSize ); winIt += 1.0 ) { winWeights.at( static_cast< proshade_unsign > ( winIt ) ) = ProSHADE_internal_maths::computeGaussian ( ( winIt - static_cast< proshade_double > ( windowHalf ) ) * step, sigma ); }
     
     //================================================ Compute smoothened data
     for ( proshade_unsign it = 0; it < static_cast< proshade_unsign > ( smoothened.size() ); it++ )
