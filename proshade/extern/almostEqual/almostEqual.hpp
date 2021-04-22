@@ -50,6 +50,10 @@
 // For now it only handles UInt (unsigned int) as that's all Google Test
 // needs.  Other types can be easily added in the future if need
 // arises.
+
+#ifndef PROSHADE_ALMOSTEQUAL
+#define PROSHADE_ALMOSTEQUAL
+
 template <size_t size>
 class TypeWithSize {
  public:
@@ -259,3 +263,5 @@ class FloatingPoint {
 
   FloatingPointUnion u_;
 };
+
+#endif

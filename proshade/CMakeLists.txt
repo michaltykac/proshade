@@ -92,13 +92,13 @@ if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
   		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Weverything -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC " )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   		################################# Using GCC
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wformat-overflow -fstack-usage -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-padded -fPIC"       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wformat-overflow -fstack-usage -Wundef -Wconversion -ffunction-sections -fdata-sections -fno-common -Wno-padded -fPIC"       )
 #	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
 #  		################################# Using Intel C++
 #  		### TO BE COMPLETED
-#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
-#  		################################# Using Visual Studio C++
-#  		set   ( CMAKE_CXX_FLAGS " /Od /Z7 /DEBUG "                  )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
+  		################################# Using Visual Studio C++
+  		set   ( CMAKE_CXX_FLAGS " /Od /Z7 /DEBUG /W4 "                  )
 	endif  ( )   
 
 elseif     ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
@@ -106,15 +106,18 @@ elseif     ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
 	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
   		################################# Using Clang
   		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             )
+  	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             ) 	
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   		################################# Using GCC
   		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             )
 #	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
 #  		################################# Using Intel C++
 #  		### TO BE COMPLETED
-#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
-#  		################################# Using Visual Studio C++
-#  		set   ( CMAKE_CXX_FLAGS " /O2 "                  )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
+  		################################# Using Visual Studio C++
+  		set   ( CMAKE_CXX_FLAGS " /O2 /GL /Gw /Qpar /Qspectre /Qspectre-load /Qspectre-load-cf /RTC " )
 	endif  ( )   
 
 else       ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )

@@ -31,12 +31,12 @@ void add_dataClass ( pybind11::module& pyProSHADE )
     pybind11::class_ < ProSHADE_internal_data::ProSHADE_data > ( pyProSHADE, "ProSHADE_data" )
         
         //============================================ Constructors (destructors do not need wrappers???)
-        .def                                          ( pybind11::init < ProSHADE_settings* > ( ), pybind11::arg ( "settings" ) )
-        .def                                          ( pybind11::init ( [] ( ProSHADE_settings* settings, std::string strName, pybind11::array_t < float, pybind11::array::c_style | pybind11::array::forcecast > mapData, proshade_single xDmSz, proshade_single yDmSz, proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr, proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT,  proshade_unsign inputO )
+        .def                                          ( pybind11::init ( ) )
+        .def                                          ( pybind11::init ( [] ( std::string strName, pybind11::array_t < float, pybind11::array::c_style | pybind11::array::forcecast > mapData, proshade_single xDmSz, proshade_single yDmSz, proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr, proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT,  proshade_unsign inputO )
                                                       {
                                                         //== Find the array size
                                                         pybind11::buffer_info buf = mapData.request();
-                                                        proshade_unsign len = buf.size;
+                                                        proshade_unsign len = static_cast< proshade_unsign > ( buf.size );
             
                                                         //== Allocate memory
                                                         double* npVals = new double[static_cast<proshade_unsign> ( len )];
@@ -56,7 +56,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 {
                                                                     for ( proshade_unsign zIt = 0; zIt < static_cast<proshade_unsign> ( buf.shape.at(2) ); zIt++ )
                                                                     {
-                                                                        npVals[zIt + buf.shape.at(2) * ( yIt + buf.shape.at(1) * xIt )] = static_cast < double > ( dataPtr[zIt + buf.shape.at(2) * ( yIt + buf.shape.at(1) * xIt )] );
+                                                                        npVals[zIt + static_cast< proshade_unsign > ( buf.shape.at(2) ) * ( yIt + static_cast< proshade_unsign > ( buf.shape.at(1) ) * xIt )] = static_cast < double > ( dataPtr[zIt + static_cast< proshade_unsign > ( buf.shape.at(2) ) * ( yIt + static_cast< proshade_unsign > ( buf.shape.at(1) ) * xIt )] );
                                                                     }
                                                                 }
                                                             }
@@ -68,8 +68,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         }
             
                                                         //== Call the ProSHADE_data constructor
-                                                        return new ProSHADE_internal_data::ProSHADE_data ( settings,
-                                                                                                           strName,
+                                                        return new ProSHADE_internal_data::ProSHADE_data ( strName,
                                                                                                            npVals,
                                                                                                            static_cast<int> ( len ),
                                                                                                            xDmSz,
@@ -130,7 +129,11 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             else
                                                             {
                                                                 //== Find the non-zero bounds
-                                                                ProSHADE_internal_mapManip::getNonZeroBounds  ( self.internalMap, self.xDimIndices, self.yDimIndices, self.zDimIndices, retVals );
+                                                                ProSHADE_internal_mapManip::getNonZeroBounds  ( self.internalMap,
+                                                                                                                static_cast< proshade_signed > ( self.xDimIndices ),
+                                                                                                                static_cast< proshade_signed > ( self.yDimIndices ),
+                                                                                                                static_cast< proshade_signed > ( self.zDimIndices ),
+                                                                                                                retVals );
                                                                 
                                                                 //== Add the extra space
                                                                 ProSHADE_internal_mapManip::addExtraBoundSpace ( self.xDimIndices, self.yDimIndices, self.zDimIndices,
@@ -205,14 +208,14 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def                                          ( "getRecommendedSymmetryType", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType, "This function simply returns the detected recommended symmetry type.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryFold", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold, "This function simply returns the detected recommended symmetry fold.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryAxes",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_settings* settings ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
                                                             float* npVals = new float[static_cast<unsigned int> ( settings->detectedSymmetry.size() * 6 )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
     
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = settings->detectedSymmetry.at(iter)[it]; } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = static_cast< float > ( settings->detectedSymmetry.at(iter)[it] ); } }
     
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleStrRecSym ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -227,14 +230,14 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns the recommended symmetry axes as a 2D numpy array." )
         .def                                          ( "getAllCSyms",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_settings* settings ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
                                                             float* npVals = new float[static_cast<unsigned int> ( settings->allDetectedCAxes.size() * 6 )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = settings->allDetectedCAxes.at(iter).at(it); } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = static_cast< float > ( settings->allDetectedCAxes.at(iter).at(it) ); } }
         
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleStrSymList ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -249,7 +252,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns all symmetry axes as a 2D numpy array." )
         .def                                          ( "getNonCSymmetryAxesIndices",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::dict
+                                                        [] ( ProSHADE_settings* settings ) -> pybind11::dict
                                                         {
                                                             //== Initialise local variables
                                                             pybind11::dict retDict;
@@ -302,7 +305,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             
                                                             //== Convert to vector of unsigns
                                                             std::vector< proshade_unsign > axesList;
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( axList.size() ); iter++ ) { ProSHADE_internal_misc::addToUnsignVector ( &axesList, axList.at(iter) ); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( axList.size() ); iter++ ) { ProSHADE_internal_misc::addToUnsignVector ( &axesList, static_cast< proshade_unsign > ( axList.at(iter) ) ); }
             
                                                             //== Get the results
                                                             std::vector < std::vector< proshade_double > > vals = self.getAllGroupElements ( settings, axesList, groupType, matrixTolerance );
@@ -318,7 +321,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
                                                                 
                                                                 //== Copy values to memory
-                                                                for ( proshade_unsign it = 0; it < 9; it++ ) { npVals[it] = vals.at(iter).at(it); }
+                                                                for ( proshade_unsign it = 0; it < 9; it++ ) { npVals[it] = static_cast< float > ( vals.at(iter).at(it) ); }
     
                                                                 //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                                 pybind11::capsule pyCapsuleGrpEl ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -348,7 +351,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
     
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
     
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleSymShiftDat ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -376,7 +379,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
 
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleEuPeak ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -449,7 +452,9 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self, proshade_signed shell, proshade_signed band, proshade_signed order ) -> proshade_signed
                                                         {
                                                             //== Get value
-                                                            proshade_signed index = seanindex ( order, band, self.spheres[shell]->getLocalBandwidth() );
+                                                            proshade_signed index = seanindex ( static_cast< int > ( order ),
+                                                                                                static_cast< int > ( band ),
+                                                                                                static_cast< int > ( self.spheres[shell]->getLocalBandwidth() ) );
             
                                                             //== Done
                                                             return ( index );
@@ -475,8 +480,10 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 {
                                                                     for ( proshade_signed order = -bnd; order <= bnd; order++ )
                                                                     {
-                                                                        pyPosSH = ( shIt * pow( self.maxShellBand, 2.0 ) );
-                                                                        pyPos   = seanindex ( order, bnd, self.spheres[shIt]->getLocalBandwidth() );
+                                                                        pyPosSH = ( static_cast< proshade_signed > ( shIt ) * static_cast< proshade_signed > ( std::pow ( self.maxShellBand, 2 ) ) );
+                                                                        pyPos   = seanindex ( static_cast< int > ( order ),
+                                                                                              static_cast< int > ( bnd ),
+                                                                                              static_cast< int > ( self.spheres[shIt]->getLocalBandwidth() ) );
                                                                         npVals[pyPosSH+pyPos].real ( self.sphericalHarmonics[shIt][pyPos][0] );
                                                                         npVals[pyPosSH+pyPos].imag ( self.sphericalHarmonics[shIt][pyPos][1] );
                                                                     }
@@ -489,7 +496,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Copy the value
                                                             pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
                                                                 { static_cast<int> ( self.noSpheres ), static_cast<int> ( pow ( self.maxShellBand, 2.0  ) ) },
-                                                                { sizeof ( std::complex < proshade_double > ) * static_cast<int> ( pow ( self.maxShellBand, 2.0  ) ), sizeof ( std::complex < proshade_double > ) },
+                                                                { sizeof ( std::complex < proshade_double > ) * static_cast< proshade_unsign > ( std::pow ( static_cast< proshade_unsign > ( self.maxShellBand ), 2 ) ), sizeof ( std::complex < proshade_double > ) },
                                                                 npVals,
                                                                 pyCapsuleSHs );
                 
@@ -512,11 +519,11 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Copy data to new memory
                                                             for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxShellBand ); bandIter++ )
                                                             {
-                                                                for ( proshade_unsign order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
+                                                                for ( proshade_signed order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
                                                                 {
-                                                                    for ( proshade_unsign order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
+                                                                    for ( proshade_signed order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
                                                                     {
-                                                                        index = order2 + ( ( self.maxShellBand * 2 ) + 1 ) * ( order1 + ( ( self.maxShellBand * 2 ) + 1 ) * bandIter );
+                                                                        index = order2 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * ( order1 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * bandIter );
                                                                         npVals[index].real ( self.eMatrices[bandIter][order1][order2][0] );
                                                                         npVals[index].imag ( self.eMatrices[bandIter][order1][order2][1] );
                                                                     }
@@ -529,8 +536,8 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Create the output object
                                                             pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
                                                                             { self.maxShellBand, ( ( self.maxShellBand * 2 ) + 1 ), ( ( self.maxShellBand * 2 ) + 1 ) },
-                                                                            { sizeof ( std::complex < proshade_double > ) * static_cast<int> ( ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ),
-                                                                              sizeof ( std::complex < proshade_double > ) * static_cast<int>   ( ( self.maxShellBand * 2 ) + 1 ),
+                                                                            { sizeof ( std::complex < proshade_double > ) * static_cast< proshade_unsign > ( ( ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1 ) * ( ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1 ) ),
+                                                                              sizeof ( std::complex < proshade_double > ) * ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1,
                                                                               sizeof ( std::complex < proshade_double > ) },
                                                                             npVals,
                                                                             pyCapsuleEMs );
@@ -554,13 +561,13 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Copy data to new memory
                                                             for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxShellBand ); bandIter++ )
                                                             {
-                                                                for ( proshade_unsign order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
+                                                                for ( proshade_signed order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
                                                                 {
-                                                                    for ( proshade_unsign order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
+                                                                    for ( proshade_signed order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
                                                                     {
-                                                                        index = order2 + ( ( self.maxShellBand * 2 ) + 1 ) * ( order1 + ( ( self.maxShellBand * 2 ) + 1 ) * bandIter );
-                                                                        npVals[index].real ( self.so3Coeffs[self.so3CoeffsArrayIndex ( order1 - bandIter, order2 - bandIter, bandIter )][0] );
-                                                                        npVals[index].imag ( self.so3Coeffs[self.so3CoeffsArrayIndex ( order1 - bandIter, order2 - bandIter, bandIter )][1] );
+                                                                        index = order2 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * ( order1 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * bandIter );
+                                                                        npVals[index].real ( self.so3Coeffs[self.so3CoeffsArrayIndex ( static_cast< proshade_signed > ( order1 - bandIter ), order2 - bandIter, bandIter )][0] );
+                                                                        npVals[index].imag ( self.so3Coeffs[self.so3CoeffsArrayIndex ( static_cast< proshade_signed > ( order1 - bandIter ), order2 - bandIter, bandIter )][1] );
                                                                     }
                                                                 }
                                                             }
@@ -571,8 +578,8 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         //== Create the output object
                                                         pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
                                                                         { self.maxShellBand, ( ( self.maxShellBand * 2 ) + 1 ), ( ( self.maxShellBand * 2 ) + 1 ) },
-                                                                        { sizeof ( std::complex < proshade_double > ) * static_cast<int> ( ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ),
-                                                                          sizeof ( std::complex < proshade_double > ) * static_cast<int>   ( ( self.maxShellBand * 2 ) + 1 ),
+                                                                        { sizeof ( std::complex < proshade_double > ) * ( ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1 ) * ( ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1 ),
+                                                                          sizeof ( std::complex < proshade_double > ) * ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1,
                                                                           sizeof ( std::complex < proshade_double > ) },
                                                                         npVals,
                                                                         pyCapsuleSOCoeffs );
@@ -616,7 +623,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             proshade_double eulA, eulB, eulG;
             
                                                             //== Compute the Euler angles from SOFT position
-                                                            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( self.maxShellBand, xPos, yPos, zPos, &eulA, &eulB, &eulG );
+                                                            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxShellBand ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
             
                                                             //== Compute the rotation matrix
                                                             ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, npVals );
@@ -695,14 +702,14 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "inputOrder",        &ProSHADE_internal_data::ProSHADE_data::inputOrder    )
         
         //============================================ Description
-        .def                                          ( "__repr__", [] ( const ProSHADE_internal_data::ProSHADE_data &a ) { return "<ProSHADE_data class object> (This class contains all information, results and available functionalities for a structure)"; } );
+        .def                                          ( "__repr__", [] ( ) { return "<ProSHADE_data class object> (This class contains all information, results and available functionalities for a structure)"; } );
     
     //================================================ Export extra symmetry elements functions
     pyProSHADE.def                                    ( "computeGroupElementsForGroup",
                                                         [] ( proshade_double x, proshade_double y, proshade_double z, proshade_unsign fold ) -> pybind11::array_t < proshade_double >
                                                         {
                                                             //== Get the results
-                                                            std::vector<std::vector< proshade_double > > retVec = ProSHADE_internal_data::computeGroupElementsForGroup ( x, y, z, fold );
+                                                            std::vector<std::vector< proshade_double > > retVec = ProSHADE_internal_data::computeGroupElementsForGroup ( x, y, z, static_cast< proshade_signed > ( fold ) );
         
                                                             //== Allocate memory for the numpy values
                                                             proshade_double* npVals = new proshade_double[static_cast<proshade_unsign> ( retVec.size() ) * 9];
@@ -752,7 +759,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 {
                                                                     for ( proshade_unsign colIt = 0; colIt < static_cast<proshade_unsign> ( buf1.shape.at(2) ); colIt++ )
                                                                     {
-                                                                        ProSHADE_internal_misc::addToDoubleVector ( &rotMat, dataPtr1[colIt + buf1.shape.at(2) * ( rowIt + buf1.shape.at(1) * elIt )] );
+                                                                        ProSHADE_internal_misc::addToDoubleVector ( &rotMat, dataPtr1[colIt + static_cast< proshade_unsign > ( buf1.shape.at(2) ) * ( rowIt + static_cast< proshade_unsign > ( buf1.shape.at(1) ) * elIt )] );
                                                                     }
                                                                 }
                                                                 ProSHADE_internal_misc::addToDoubleVectorVector ( &fVec, rotMat );
@@ -766,7 +773,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 {
                                                                     for ( proshade_unsign colIt = 0; colIt < static_cast<proshade_unsign> ( buf2.shape.at(2) ); colIt++ )
                                                                     {
-                                                                        ProSHADE_internal_misc::addToDoubleVector ( &rotMat, dataPtr2[colIt + buf2.shape.at(2) * ( rowIt + buf2.shape.at(1) * elIt )] );
+                                                                        ProSHADE_internal_misc::addToDoubleVector ( &rotMat, dataPtr2[colIt + static_cast< proshade_unsign > ( buf2.shape.at(2) ) * ( rowIt + static_cast< proshade_unsign > ( buf2.shape.at(1) ) * elIt )] );
                                                                     }
                                                                 }
                                                                 ProSHADE_internal_misc::addToDoubleVectorVector ( &sVec, rotMat );

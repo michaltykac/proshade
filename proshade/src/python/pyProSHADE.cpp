@@ -173,14 +173,14 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             for ( auto &s : args )
                                                                 cstrs.push_back ( const_cast < char * > ( s.c_str ( ) ) );
                                                             
-                                                            return self.getCommandLineParams ( cstrs.size ( ), cstrs.data ( ) );
+                                                            return self.getCommandLineParams ( static_cast< int > ( cstrs.size ( ) ), cstrs.data ( ) );
                                                         }, "This function takes a VectorOfStrings and parses it as if it were command line arguments, filling in the calling ProSHADE_settings class with the values." )
         
         //============================================ Debugging
         .def                                          ( "printSettings", &ProSHADE_settings::printSettings, "This function prints the current values in the settings object." )
     
         //============================================ Description
-        .def                                          ( "__repr__", [] ( const ProSHADE_settings &a ) { return "<ProSHADE_settings class object> (Settings class is used to set all settings values in a single place)"; } );
+        .def                                          ( "__repr__", [] ( ) { return "<ProSHADE_settings class object> (Settings class is used to set all settings values in a single place)"; } );
     
     //================================================ Export the ProSHADE_run class
     pybind11::class_ < ProSHADE_run >                 ( pyProSHADE, "ProSHADE_run" )
@@ -204,7 +204,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
             
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
             
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleEnLevs ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -230,7 +230,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
         
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleTrSigs ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -256,7 +256,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
         
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleRotFun ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -286,7 +286,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
             
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = vals.at(iter).at(it); } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = static_cast< float > ( vals.at(iter).at(it) ); } }
             
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleSymList ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -311,7 +311,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < 3; iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
         
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleSymShift ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -387,16 +387,16 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             std::vector< proshade_signed > vals = self.getReBoxedBounds ( strNo );
 
                                                             //== Determine dimensions
-                                                            proshade_unsign xDim = vals.at(1) - vals.at(0) + 1;
-                                                            proshade_unsign yDim = vals.at(3) - vals.at(2) + 1;
-                                                            proshade_unsign zDim = vals.at(5) - vals.at(4) + 1;
+                                                            proshade_unsign xDim = static_cast< proshade_unsign > ( vals.at(1) ) - static_cast< proshade_unsign > ( vals.at(0) ) + 1;
+                                                            proshade_unsign yDim = static_cast< proshade_unsign > ( vals.at(3) ) - static_cast< proshade_unsign > ( vals.at(2) ) + 1;
+                                                            proshade_unsign zDim = static_cast< proshade_unsign > ( vals.at(5) ) - static_cast< proshade_unsign > ( vals.at(4) ) + 1;
             
                                                             //== Allocate memory for the numpy values
                                                             float* npVals = new float[xDim * yDim * zDim];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < (xDim * yDim * zDim); iter++ ) { npVals[iter] = self.getMapValue ( strNo, iter ); }
+                                                            for ( proshade_unsign iter = 0; iter < (xDim * yDim * zDim); iter++ ) { npVals[iter] = static_cast< float > ( self.getMapValue ( strNo, iter ) ); }
 
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleRebMap ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -423,7 +423,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
 
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleEulAngs ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -449,7 +449,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
 
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleRotMat ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -475,7 +475,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
 
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleTTO ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -500,7 +500,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
 
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = vals.at(iter); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { npVals[iter] = static_cast< float > ( vals.at(iter) ); }
 
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleOTOT ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
@@ -517,5 +517,5 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
     
     
         //============================================ Description
-        .def                                          ( "__repr__", [] ( const ProSHADE_run &a ) { return "<ProSHADE_run class object> (Run class constructor takes a ProSHADE_settings object and completes a single run according to the settings object information)"; } );
+        .def                                          ( "__repr__", [] ( ) { return "<ProSHADE_run class object> (Run class constructor takes a ProSHADE_settings object and completes a single run according to the settings object information)"; } );
 }
