@@ -86,13 +86,13 @@ endif ( NOT INSTALL_LOCALLY )
 if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
   		################################# Using Clang
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC "       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Weverything -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC " )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
   		################################# Using Clang
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC "       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Weverything -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC " )
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
   		################################# Using GCC
-  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -fPIC"       )
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wformat-overflow -fstack-usage -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC"       )
 #	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
 #  		################################# Using Intel C++
 #  		### TO BE COMPLETED
