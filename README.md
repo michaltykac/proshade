@@ -276,6 +276,8 @@ Once the path is set, you can use ProSHADE from any Command Prompt window (not o
   
   Again, please note that the pip installation only wraps around the CMake installation and that CMake is still being run by pip in the background. Therefore, the same system dependencies are required. Moreover, if any of the system dependencies is missing or cannot be found, then a bit more cryptic error message will be printed by pip.
   
+  **Warning:** When installing using *pip* on Windows, the *Command Prompt* window needs to be closed once the installation is complete before ProSHADE will work. This is because the installation makes changes to the PATH variable and these will not be reflected by any windows opened before the installation completes.
+  
   ### Uninstalling pip installed module
   
   Should the user require to uninstall the python module and all associated data after they were installed globally using pip, the following standard pip command can achieve this task irrespective as to how exactly the proshade module was installed:
