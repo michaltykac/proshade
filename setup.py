@@ -157,46 +157,135 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
-extra_files = package_files('proshade')
+extra_files                                           = package_files( 'proshade' )
+
+##########################################################################################
+##########################################################################################
+##### If on Windows, modify path to contain the DLLs
+##########################################################################################
+##########################################################################################
+def modifyWindowsPath ():
+
+    if platform.system() == "Windows":
+
+        try:
+            from os import system, environ
+            import distutils
+            import win32con
+            from win32gui import SendMessage
+            from winreg import ( CloseKey, OpenKey, QueryValueEx, SetValueEx, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_ALL_ACCESS, KEY_READ, REG_EXPAND_SZ, REG_SZ )
+        except ImportError as e:
+            os.system                                 ( 'pip install pypiwin32' )
+            return 
+        
+        def env_keys ( user = True ):
+            if user:
+                root                                  = HKEY_CURRENT_USER
+                subkey                                = 'Environment'
+            else:
+                root                                  = HKEY_LOCAL_MACHINE
+                subkey                                = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+            return root, subkey
+        
+        def set_env ( name, value ):
+            key                                       = OpenKey(HKEY_CURRENT_USER, 'Environment', 0, KEY_ALL_ACCESS)
+            SetValueEx                                ( key, name, 0, REG_EXPAND_SZ, value )
+            CloseKey                                  ( key )
+            SendMessage                               ( win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, 'Environment' )
+        
+        def get_env ( name, user = True ):
+            root, subkey                              = env_keys ( user )
+            key                                       = OpenKey ( root, subkey, 0, KEY_READ )
+            try:
+                value, _                              = QueryValueEx ( key, name )
+            except WindowsError:
+                return ''
+            return value
+        
+        def remove ( paths, value ):
+            while value in paths:
+                paths.remove                          ( value )
+        
+        
+        def unique ( paths ):
+            unique                                    = []
+            for value in paths:
+                if value not in unique:
+                    unique.append                     ( value )
+            return unique
+        
+        
+        def prepend_env ( name, values ):
+            for value in values:
+                paths                                 = get_env ( name ).split( ';' )
+                remove                                ( paths, '' )
+                paths                                 = unique ( paths )
+                remove                                ( paths, value )
+                paths.insert                          ( 0, value )
+                set_env                               ( name, ';'.join ( paths ) )
+    
+        prepend_env                                   ( 'Path', [ os.path.join( distutils.sysconfig.get_python_lib(), 'proshade', 'winLibs', 'x64', 'DLLs' ) ] )
+
+##########################################################################################
+##########################################################################################
+##### Set required modules based on platform
+##########################################################################################
+##########################################################################################
+setupRequiresVals                                     = []
+installRequiresVals                                   = []
+
+if platform.system() == "Windows":
+    setupRequiresVals                                 = ['numpy','setuptools','pypiwin32']
+    installRequiresVals                               = [ ]
+else:
+    setupRequiresVals                                 = ['numpy','setuptools']
+    installRequiresVals                               = [ ]
+
 
 ##########################################################################################
 ##########################################################################################
 ##### Module info
 ##########################################################################################
 ##########################################################################################
-setup (
-    name                                              = 'proshade',
-    version                                           =  gl_version,
-    author                                            = 'Michal Tykac, Garib N. Murshudov',
-    author_email                                      = 'Michal.Tykac@gmail.com',
-    url                                               = 'https://github.com/michaltykac/proshade',
-    download_url                                      =  gl_download,
-    description                                       = 'Protein Shape Description and Symmetry Detection (ProSHADE) python module',
-    long_description                                  = long_description,
-    long_description_content_type                     = 'text/markdown',
-    ext_modules                                       = [ CMakeExtension ( 'proshade' ) ],
-    cmdclass                                          = dict ( build_ext = CMakeBuild ),
-    classifiers = [
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: POSIX :: Linux',
-        'Operating System :: MacOS',
-        'Operating System :: Microsoft :: Windows :: Windows 10',
-        'Programming Language :: C',
-        'Programming Language :: C++',
-        'Programming Language :: Python',
-        'Topic :: Scientific/Engineering :: Bio-Informatics',
-    ],
-    keywords                                          = 'bioinformatics protein-shapes symmetry-detection computational-biology structural-biology',
-    project_urls                                      = { 'Github': 'https://github.com/michaltykac/proshade',
-                                                          'Bug Reports': 'https://github.com/michaltykac/proshade/issues' },
-    setup_requires                                    = ['numpy','setuptools'],
-    install_requires                                  = ['numpy','setuptools'],
-    packages                                          = ['proshade'],
-    package_data                                      = {'' : extra_files },
-    zip_safe                                          = False,
-)
+try:
+    setup (
+        name                                          = 'proshade',
+        version                                       =  gl_version,
+        author                                        = 'Michal Tykac, Garib N. Murshudov',
+        author_email                                  = 'Michal.Tykac@gmail.com',
+        url                                           = 'https://github.com/michaltykac/proshade',
+        download_url                                  =  gl_download,
+        description                                   = 'Protein Shape Description and Symmetry Detection (ProSHADE) python module',
+        long_description                              = long_description,
+        long_description_content_type                 = 'text/markdown',
+        ext_modules                                   = [ CMakeExtension ( 'proshade' ) ],
+        cmdclass                                      = dict ( build_ext = CMakeBuild ),
+        classifiers = [
+            'Development Status :: 3 - Alpha',
+            'Intended Audience :: Science/Research',
+            'License :: OSI Approved :: GNU General Public License (GPL)',
+            'Operating System :: POSIX :: Linux',
+            'Operating System :: MacOS',
+            'Operating System :: Microsoft :: Windows :: Windows 10',
+            'Programming Language :: C',
+            'Programming Language :: C++',
+            'Programming Language :: Python',
+            'Topic :: Scientific/Engineering :: Bio-Informatics',
+        ],
+        keywords                                      = 'bioinformatics protein-shapes symmetry-detection computational-biology structural-biology',
+        project_urls                                  = { 'Github': 'https://github.com/michaltykac/proshade',
+                                                        'Bug Reports': 'https://github.com/michaltykac/proshade/issues' },
+        setup_requires                                = setupRequiresVals,
+        install_requires                              = installRequiresVals,
+        packages                                      = ['proshade'],
+        package_data                                  = {'' : extra_files },
+        include_package_data                          = True,
+        platforms                                     = ['Windows10', 'Linux', 'MacOS'],
+        zip_safe                                      = False,
+    )
+finally:
+    ### Modify path if on Windows
+    modifyWindowsPath                                 ( )
 
 ##########################################################################################
 ##########################################################################################

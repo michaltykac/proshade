@@ -52,7 +52,9 @@
 //==================================================== Include ProSHADE
 #include "ProSHADE.hpp"
 
-//==================================================== Include full ProSHADE (including cpp files looks horrible, but it is the only way I can find to stop PyBind11 from complaining)
+//==================================================== Include full ProSHADE - including cpp files looks horrible, but it is the only way I can find to stop PyBind11 from complaining on Windows10. I believe this has to do with windows not exporting symbols unless the __cdecl_dllexport is used, which for most functions is not yet there...
+#include "ProSHADE_precomputedValues.cpp"
+#include "ProSHADE_exceptions.cpp"
 #include "ProSHADE_misc.cpp"
 #include "ProSHADE_maths.cpp"
 #include "ProSHADE_tasks.cpp"
