@@ -36,6 +36,94 @@
 #include <iomanip>
 #include <utility>
 
+//==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
+#if defined ( __GNUC__ )
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wpedantic"
+    #pragma GCC diagnostic ignored "-Wshadow"
+    #pragma GCC diagnostic ignored "-Wall"
+    #pragma GCC diagnostic ignored "-Wextra"
+    #pragma GCC diagnostic ignored "-Wdouble-promotion"
+    #pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
+//==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE
+#if defined ( __clang__ )
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wpedantic"
+    #pragma clang diagnostic ignored "-Wshadow"
+    #pragma clang diagnostic ignored "-Wall"
+    #pragma clang diagnostic ignored "-Wextra"
+    #pragma clang diagnostic ignored "-Wdouble-promotion"
+    #pragma clang diagnostic ignored "-Weverything"
+#endif
+
+//==================================================== Remove MSVC C4996 Warnings caused by Gemmi code
+#if defined ( _MSC_VER )
+    #pragma warning ( disable:4996 )
+#endif
+
+//==================================================== Gemmi
+#ifndef __PROSHADE_GEMMI_INCLUDE__
+    #define __PROSHADE_GEMMI_INCLUDE__
+    #include <gemmi/mmread.hpp>
+    #include <gemmi/ccp4.hpp>
+    #include <gemmi/it92.hpp>
+    #include <gemmi/dencalc.hpp>
+    #include <gemmi/fprime.hpp>
+    #include <gemmi/gz.hpp>
+#endif
+
+//==================================================== Enable MSVC C4996 Warnings for the rest of the code
+#if defined ( _MSC_VER )
+    #pragma warning ( default:4996 )
+#endif
+
+//==================================================== FFTW3
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+#include <fftw3.h>
+    
+#ifdef __cplusplus
+}
+#endif
+
+//==================================================== SOFT
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+#include <wrap_fftw.h>
+#include <makeweights.h>
+#include <s2_primitive.h>
+#include <s2_cospmls.h>
+#include <s2_legendreTransforms.h>
+#include <s2_semi_fly.h>
+#include <rotate_so3_utils.h>
+#include <utils_so3.h>
+#include <soft_fftw.h>
+#include <rotate_so3_fftw.h>
+    
+#ifdef __cplusplus
+}
+#endif
+
+//==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
+#if defined ( __GNUC__ )
+    #pragma GCC diagnostic pop
+#endif
+
+//==================================================== Now the flags can be restored and used as per the CMakeLists.txt file.
+#if defined ( __clang__ )
+    #pragma clang diagnostic pop
+#endif
+
+//==================================================== GetOpt port (BSD License, works on Windows as well as linux)
+#include <getopt_port/getopt_port.h>
+
+
 //==================================================== Define maths constants in case cmath fails to have them
 #ifndef M_PI
     #define M_PI           3.14159265358979323846

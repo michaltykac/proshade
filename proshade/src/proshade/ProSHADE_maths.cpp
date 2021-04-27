@@ -2826,3 +2826,269 @@ std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_d
     return                                            ( smoothened );
     
 }
+
+/*! \brief This function computes the resolution of a particular reflection.
+ 
+    \param[in] h The index of the reflection in reciprocal space along the x-axis.
+    \param[in] k The index of the reflection in reciprocal space along the y-axis.
+    \param[in] l The index of the reflection in reciprocal space along the z-axis.
+    \param[in] xDim The dimension of the cell along the x-axis in Angstroms.
+    \param[in] yDim The dimension of the cell along the y-axis in Angstroms.
+    \param[in] zDim The dimension of the cell along the z-axis in Angstroms.
+    \param[out] ret The resolution of the particular reflection.
+ */
+proshade_single ProSHADE_internal_maths::getResolutionOfReflection ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim )
+{
+    //================================================ Compute volume and proportions
+    proshade_single vol                               = ( xDim * yDim * zDim );
+    proshade_single sa                                = ( yDim * zDim ) / vol;
+    proshade_single sb                                = ( xDim * zDim ) / vol;
+    proshade_single sc                                = ( xDim * yDim ) / vol;
+    
+    //================================================ Compute distance
+    proshade_single s2                                = ( std::pow ( h * sa, 2.0f ) +
+                                                          std::pow ( k * sb, 2.0f ) +
+                                                          std::pow ( l * sc, 2.0f ) ) / 4.0f;
+    
+    //================================================ Deal with F000
+    if ( s2 == 0.0f ) { s2 = 0.0000000001f; }
+    
+    //================================================ Done
+    return                                            ( 1.0f / ( 2.0f * std::sqrt ( s2 ) ) );
+    
+}
+
+/*! \brief This function does binning of the reciprocal space reflections.
+ 
+    This funcion uses the knowledge of the cell dimensions to firstly decide which dimension is the limitting one in terms
+    of FSC binning and then it proceeds to compute the bins, their positions in terms of distance from F000. Finally, it uses
+    this information to compute a "mask" map, where each position has the value corresponding to the appropriate bin
+    index, thus allowing fast binning of any map with the same dimensions as supplied to this function.
+ 
+    \param[in] xInds The number of indices along the x-axis.
+    \param[in] yInds The number of indices along the y-axis.
+    \param[in] zInds The number of indices along the z-axis.
+    \param[in] noBin Variable to which the number of binds found will be saved into.
+    \param[in] binIndexing A pointer to which the map of bin belonging for each reflection will be saved into.
+ */
+void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed* noBin, proshade_signed*& binIndexing )
+{
+    //================================================ Allocate output bin indexing memory and set to -100
+    binIndexing                                       = new proshade_signed [xInds * yInds * zInds];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( binIndexing, __FILE__, __LINE__, __func__ );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( xInds * yInds * zInds ); iter++ ) { binIndexing[iter] = -100; }
+    
+    //================================================ Allocate local memory
+    proshade_single *mins                             = new proshade_single[3];
+    proshade_single *maxs                             = new proshade_single[3];
+    proshade_single *resMins                          = new proshade_single[3];
+    proshade_signed *resMinLoc                        = new proshade_signed[3];
+    proshade_single *steps                            = new proshade_single[3];
+    
+    //================================================ Check local memory
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mins,      __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( maxs,      __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( resMins,   __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( resMinLoc, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( steps,     __FILE__, __LINE__, __func__ );
+    
+    //================================================ Initialise local variables
+    proshade_single resol                             = 0.0f;
+    proshade_signed reciX, reciY, reciZ, arrPos = 0, minLoc = -1;
+   *noBin                                             = 0;
+    
+    //================================================ Determine reciprocal space indexing
+    mins[0]                                           = std::floor ( static_cast< proshade_single > ( xInds ) / -2.0f );
+    mins[1]                                           = std::floor ( static_cast< proshade_single > ( yInds ) / -2.0f );
+    mins[2]                                           = std::floor ( static_cast< proshade_single > ( zInds ) / -2.0f );
+        
+    maxs[0]                                           = -mins[0];
+    maxs[1]                                           = -mins[1];
+    maxs[2]                                           = -mins[2];
+    
+    if ( xInds % 2 == 0 ) { mins[0] -= 1.0f; }
+    if ( yInds % 2 == 0 ) { mins[1] -= 1.0f; }
+    if ( zInds % 2 == 0 ) { mins[2] -= 1.0f; }
+    
+    //================================================ Get minimum resolution based on dims for each dimension
+    resMins[0]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( maxs[0], 0.0f, 0.0f, xInds, yInds, zInds );
+    resMins[1]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, maxs[1], 0.0f, xInds, yInds, zInds );
+    resMins[2]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, maxs[2], xInds, yInds, zInds );
+
+    //================================================ Decide which dimension to work with (the one with the lowest resolution)
+    resMinLoc[0] = 0; resMinLoc[1] = 0; resMinLoc[2] = 0;
+    const FloatingPoint< proshade_single > lhs1 ( resMins[0] ), lhs2 ( resMins[1] ), lhs3 ( resMins[2] ), rhs1 ( std::min( resMins[0], std::min( resMins[1], resMins[2] ) ) );
+    if ( lhs1.AlmostEquals ( rhs1 ) ) { resMinLoc[0] = 1; minLoc = 0; }
+    if ( lhs2.AlmostEquals ( rhs1 ) ) { resMinLoc[1] = 1; minLoc = 1; }
+    if ( lhs3.AlmostEquals ( rhs1 ) ) { resMinLoc[2] = 1; minLoc = 2; }
+    
+    //================================================ Find the bins and corresponding cut-offs
+    std::vector< proshade_single > resArray           ( static_cast< size_t > ( maxs[minLoc] - 1 ), 0.0f );
+    std::vector< proshade_single > binArray           ( static_cast< size_t > ( maxs[minLoc] - 1 ), 0.0f );
+    for ( proshade_signed dimIt = 0; dimIt < maxs[minLoc] - 1; dimIt++ )
+    {
+        //============================================ Prepare steps
+        steps[0]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[0] );
+        steps[1]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[1] );
+        steps[2]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[2] );
+        
+        //============================================ Find resolution
+        resol                                         = ProSHADE_internal_maths::getResolutionOfReflection ( steps[0], steps[1], steps[2], xInds, yInds, zInds );
+        
+        //============================================ Assign to arrays
+        resArray.at( static_cast< size_t > ( dimIt ) ) = resol;
+        binArray.at( static_cast< size_t > ( dimIt ) ) = dimIt + 2.5f;
+       *noBin                                          = dimIt + 1;
+    }
+    
+    //================================================ Assign reflections to bins
+    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xInds ); xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yInds ); yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zInds / 2 ) + 1; zIt++ )
+            {
+                //==================================== Deal with reciprocal indices ordering
+                reciX = xIt; if ( reciX > maxs[0] ) { reciX -= static_cast< proshade_signed > ( xInds ); }
+                reciY = yIt; if ( reciY > maxs[1] ) { reciY -= static_cast< proshade_signed > ( yInds ); }
+                reciZ = zIt; if ( reciZ > maxs[2] ) { reciZ -= static_cast< proshade_signed > ( zInds ); }
+                
+                //==================================== For each bin, check if this reflection belongs to it
+                for ( proshade_signed binIt = 0; binIt < (*noBin); binIt++ )
+                {
+                    //================================ Check by comparing distances
+                    if ( std::sqrt ( std::pow ( static_cast< proshade_single > ( reciX ), 2.0f ) +
+                                     std::pow ( static_cast< proshade_single > ( reciY ), 2.0f ) +
+                                     std::pow ( static_cast< proshade_single > ( reciZ ), 2.0f ) ) <= binArray.at( static_cast< size_t > ( binIt ) ) )
+                    {
+                        //============================ This is the bin for this reflection. Assign it.
+                        arrPos                        = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
+                        binIndexing[ static_cast< size_t > ( arrPos ) ] = binIt;
+                        
+                        //============================ If one of the uneven ends, do not use Friedel's Law
+                        if ( reciX == static_cast< proshade_signed > ( mins[0] ) || -reciX == static_cast< proshade_signed > ( mins[0] ) ) { break; }
+                        if ( reciY == static_cast< proshade_signed > ( mins[1] ) || -reciY == static_cast< proshade_signed > ( mins[1] ) ) { break; }
+                        if ( reciZ == static_cast< proshade_signed > ( mins[2] ) || -reciZ == static_cast< proshade_signed > ( mins[2] ) ) { break; }
+                        
+                        //============================ Use Friedel's Law to find the second index (this is why we can use zDim / 2)
+                        reciX *= -1; if ( reciX < 0 ) { reciX += static_cast< proshade_signed > ( xInds ); }
+                        reciY *= -1; if ( reciY < 0 ) { reciY += static_cast< proshade_signed > ( yInds ); }
+                        reciZ *= -1; if ( reciZ < 0 ) { reciZ += static_cast< proshade_signed > ( zInds ); }
+
+                        //============================ Apply Friedel's Law
+                        arrPos                        = reciZ + static_cast< proshade_signed > ( zInds ) * ( reciY + static_cast< proshade_signed > ( yInds ) * reciX );
+                        binIndexing[ static_cast< size_t > ( arrPos ) ] = binIt;
+                        
+                        //============================ Done, exit bins loop
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    //================================================ Release memory
+    delete[] mins;
+    delete[] maxs;
+    delete[] resMins;
+    delete[] resMinLoc;
+    delete[] steps;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes the FSC.
+ 
+    This funcion computes the Fourier Shell Correlation from two identically sized arrays of Fourier coefficients. It requires these to
+    have been pre-computed as well as the number of bins and bin mapping to be pre-computed (using the binReciprocalSpaceReflections
+    function). Given all these inputs, this function simply computes all the required sums for each bin, processes them and outputs the un-weighted
+    average FSC over all bins.
+ 
+    \param[in] fCoeffs1 The Fourier coefficients of the first map.
+    \param[in] fCoeffs2 The Fourier coefficients of the second map.
+    \param[in] xInds The number of indices along the x-axis.
+    \param[in] yInds The number of indices along the y-axis.
+    \param[in] zInds The number of indices along the z-axis.
+    \param[in] noBin Number of bins.
+    \param[in] binIndexing The map of bin belonging for each reflection.
+    \param[in] binData Array of arrays for holding temporary results of the FSC computation. It needs to have been already allocated and have dimensions of noBins x 12. This array is modified by the function in case the caller would like access to these.
+    \param[in] binCounts Array of counts for each bin. It needs to be pre-allocated and have dimension of noBins. This array is modified by the function in case the caller would like access to these.
+    \param[out] fsc The Fourier Shell Correlation between the two supplied Fourier coefficient maps.
+ */
+proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts )
+{
+    //================================================ Initialise local variables
+    proshade_double realOrig, realRot, imagOrig, imagRot, fsc = 0.0;;
+    proshade_signed indx, arrPos;
+    std::vector< proshade_double > covarByBin         ( static_cast< size_t > ( noBins ), 0.0 );
+    std::vector< proshade_double > fscByBin           ( static_cast< size_t > ( noBins ), 0.0 );
+    
+    //================================================ Compute bin sums
+    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xInds ); xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yInds ); yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zInds ); zIt++ )
+            {
+                //==================================== Find array position
+                arrPos                                = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
+                
+                //==================================== If no bin is associated, skip this reflection
+                indx                                  = binIndexing[ static_cast< size_t > ( arrPos ) ];
+                if ( ( indx < 0 ) || ( indx > noBins ) ) { continue; }
+                
+                //==================================== Calculate the sums
+                realOrig                              = fCoeffs1[arrPos][0];
+                imagOrig                              = fCoeffs1[arrPos][1];
+                realRot                               = fCoeffs2[arrPos][0];
+                imagRot                               = fCoeffs2[arrPos][1];
+                    
+                binData[indx][0]                     += realOrig;
+                binData[indx][1]                     += imagOrig;
+                binData[indx][2]                     += realRot;
+                binData[indx][3]                     += imagRot;
+                binData[indx][4]                     += realOrig * realRot;
+                binData[indx][5]                     += imagOrig * imagRot;
+                binData[indx][6]                     += std::pow ( realOrig, 2.0 );
+                binData[indx][7]                     += std::pow ( imagOrig, 2.0 );
+                binData[indx][8]                     += std::pow ( realRot,  2.0 );
+                binData[indx][9]                     += std::pow ( imagRot,  2.0 );
+                
+                //==================================== Update bin counts
+                binCounts[indx]                  += 1;
+            }
+        }
+    }
+    
+    //================================================ Compute covariance by bin
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
+    {
+        covarByBin.at(binIt)                          = ( ( binData[binIt][4] + binData[binIt][5] ) / binCounts[binIt]   -
+                                                        ( ( binData[binIt][0]                       / binCounts[binIt]   *
+                                                            binData[binIt][2]                       / binCounts[binIt] ) +
+                                                          ( binData[binIt][1]                       / binCounts[binIt]   *
+                                                            binData[binIt][3]                       / binCounts[binIt] ) ) );
+    }
+    
+    //================================================ Get FSC by bin
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
+    {
+        binData[binIt][10]                            = ( binData[binIt][6] + binData[binIt][7] ) / binCounts[binIt] -
+                                                        ( std::pow ( binData[binIt][0] / binCounts[binIt], 2.0 ) +
+                                                          std::pow ( binData[binIt][1] / binCounts[binIt], 2.0 ) );
+        binData[binIt][11]                            = ( binData[binIt][8] + binData[binIt][9] ) / binCounts[binIt] -
+                                                        ( std::pow ( binData[binIt][2] / binCounts[binIt], 2.0 ) +
+                                                          std::pow ( binData[binIt][3] / binCounts[binIt], 2.0 ) );
+        fscByBin.at(binIt)                            = covarByBin.at(binIt) / ( std::sqrt ( binData[binIt][10] ) * std::sqrt ( binData[binIt][11] ) );
+    }
+    
+    //================================================ Get average FSC over all bins
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { fsc += fscByBin.at(binIt); }
+    fsc                                              /= static_cast< proshade_double > ( noBins );
+    
+    //================================================ Done
+    return                                            ( fsc );
+    
+}

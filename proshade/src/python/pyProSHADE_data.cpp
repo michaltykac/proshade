@@ -230,7 +230,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns the recommended symmetry axes as a 2D numpy array." )
         .def                                          ( "getAllCSyms",
-                                                        [] ( ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
                                                             float* npVals = new float[static_cast<unsigned int> ( settings->allDetectedCAxes.size() * 6 )];

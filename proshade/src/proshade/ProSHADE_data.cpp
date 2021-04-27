@@ -2188,43 +2188,35 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findIScore ( std::vector<
     
 }
 
-/*! \brief This function takes all the detected symmetry results and decides on which are to be recommended for this structure.
+/*! \brief This function finds the distinct group of axes with highest peak heights.
  
-    ...e.
+    This function starts by getting a vector of all peak heights detected in all C symmetries detected in the structure. It then proceeds to convert
+    this vector into a histogram, which it then smoothens using Gaussian convolution according to the input parameters. Finally, it searches for
+    peaks in the smoothened histogram function and reports the minimal value that average peak height must be in order for the axis to be
+    considered part of this top group.
  
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
-    \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
-    \param[in] TSym A vector of pointers to double arrays, all of which together form the axes of tetrahedral symmetry.
-    \param[in] OSym A vector of pointers to double arrays, all of which together form the axes of octahedral symmetry.
-    \param[in] ISym A vector of pointers to double arrays, all of which together form the axes of icosahedral symmetry.
-    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] step The granulosity of the interval <0,1> using which the search should be done.
+    \param[in] sigma The variance of the Gaussian used to smoothen the peak height histogram.
+    \param[in] windowSize The width of the window over which smoothening is done.
+    \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
  */
-void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
+proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, proshade_double step, proshade_double sigma, proshade_signed windowSize )
 {
-    //================================================ If no C symmetries, nothing to save...
-    if ( CSym->size() == 0 )
-    {
-        settings->setRecommendedSymmetry              ( "" );
-        settings->setRecommendedFold                  ( 0 );
-        return;
-    }
-    
     //================================================ Initialise local variables
-    proshade_double step                              = 0.01;
-    proshade_double sigma                             = 0.02;
+    proshade_double threshold                         = 0.0;
     proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
-    proshade_signed windowSize                        = 5; if ( windowSize % 2 == 0 ) { windowSize += 1; }
-    bool foundPolyhedral                              = false;
-    
     std::vector< std::pair < proshade_double, proshade_unsign > > vals;
     std::vector< proshade_double > hist               ( static_cast< unsigned long int > ( totSize ), 0.0 );
+    proshade_unsign histPos                           = 0;
+    
+    //================================================ Make sure window size is odd
+    if ( windowSize % 2 == 0 )                        { windowSize += 1; }
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[5], symIt ) ); }
     
     //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
-    proshade_unsign histPos                           = 0;
     for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
     {
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( vals.size() ); symIt++ )
@@ -2248,11 +2240,141 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     
     //================================================ Take best peaks surroundings and produce a new set of "high" axes
     proshade_signed bestHistPos                       = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 );
-    proshade_double bestHistPeakStart                 = ( static_cast< proshade_double > ( bestHistPos ) * step ) - 0.05;
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( windowSize * step );
     
-    //================================================ Find all axes in top peak range
-    vals.clear                                        ( );
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( CSym->at(symIt)[5] > bestHistPeakStart ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[5], symIt ) ); } }
+    //================================================ Done
+    return                                            ( threshold );
+    
+}
+
+/*! \brief This function allocates the memory required for FSC computation.
+ 
+    \param[in] mapData The input array for Fourier transform.
+    \param[in] origCoeffs The array for holding the Fourier coefficients of the original (non-rotated) density.
+    \param[in] fCoeffs The array for holding the results of Fourier transform
+ */
+void ProSHADE_internal_data::ProSHADE_data::allocateFSCFourierMemory ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs )
+{
+    //================================================ Allocate the memory
+    mapData                                           = new fftw_complex [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    origCoeffs                                        = new fftw_complex [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    fCoeffs                                           = new fftw_complex [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mapData,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( origCoeffs,    __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( fCoeffs,       __FILE__, __LINE__, __func__ );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function takes all the detected symmetry results and decides on which are to be recommended for this structure.
+ 
+    This function is the brain of symmetry detection in the sense that it decides which symmetry group ProSHADE recommends as being
+    detected. It starts by taking all C symmetries and building a histogram of their peak heights. From this histogram, it determines a group
+    of C symmetries which have high and distinct peak height values. Each symmetry in this group then has the FSC computed for the
+    first rotation against the original (non-rotated) map.
+ 
+    Next, from all the C symmetries which have high enough FSC value, the final decision is made. To do this,
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
+    \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
+    \param[in] TSym A vector of pointers to double arrays, all of which together form the axes of tetrahedral symmetry.
+    \param[in] OSym A vector of pointers to double arrays, all of which together form the axes of octahedral symmetry.
+    \param[in] ISym A vector of pointers to double arrays, all of which together form the axes of icosahedral symmetry.
+    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+ */
+void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
+{
+    //================================================ If no C symmetries, nothing to save...
+    if ( CSym->size() == 0 )
+    {
+        settings->setRecommendedSymmetry              ( "" );
+        settings->setRecommendedFold                  ( 0 );
+        return;
+    }
+    
+    //================================================ Find the top group minimum threshold using smoothened histogram
+    proshade_double step                              = 0.01;
+    proshade_double sigma                             = 0.02;
+    proshade_signed windowSize                        = 5;
+    proshade_double bestHistPeakStart                 = this->findTopGroupSmooth ( CSym, step, sigma, windowSize );
+    
+    //================================================ Initialise local variables
+    bool foundPolyhedral                              = false;
+    proshade_double eulA = 0.0, eulB = 0.0, eulG = 0.0;
+    std::vector< std::pair < proshade_double, size_t > > vals;
+    
+    //================================================ Allocate memory for Fourier transforms
+    fftw_complex *mapData, *origCoeffs, *fCoeffs;
+    this->allocateFSCFourierMemory                    ( mapData, origCoeffs, fCoeffs );
+    fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( this->xDimIndices ), static_cast< int > ( this->yDimIndices ), static_cast< int > ( this->zDimIndices ), mapData, fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
+    
+    //================================================ Compute Fourier transform of the original map
+    for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { mapData[iter][0] = this->internalMap[iter]; mapData[iter][1] = 0.0; }
+    fftw_execute                                      ( planForwardFourier );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { origCoeffs[iter][0] = fCoeffs[iter][0]; origCoeffs[iter][1] = fCoeffs[iter][1]; }
+    
+    //================================================ Decide number of bins and allocate which reflection belongs to which bin
+    proshade_signed *binIndexing, noBins;
+    ProSHADE_internal_maths::binReciprocalSpaceReflections ( this->xDimIndices, this->yDimIndices, this->zDimIndices, &noBins, binIndexing );
+    
+    //================================================ Initialise memory for the FSC computation
+    proshade_double **bindata                         = new proshade_double*[noBins];
+    proshade_signed  *binCounts                       = new proshade_signed [noBins];
+    
+    ProSHADE_internal_misc::checkMemoryAllocation     ( bindata,   __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( binCounts, __FILE__, __LINE__, __func__ );
+    
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
+    {
+        bindata[binIt]                                = new proshade_double[12];
+        ProSHADE_internal_misc::checkMemoryAllocation ( bindata[binIt], __FILE__, __LINE__, __func__ );
+    }
+    
+    //================================================ For each of the top axes
+    for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
+    {
+        //============================================ Use only top group axes
+        if ( CSym->at(cIt)[5] <= bestHistPeakStart ) { continue; }
+
+        //============================================ Find Euler angles for smallest rotation along the symmetry axis
+        ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( CSym->at(cIt)[1], CSym->at(cIt)[2], CSym->at(cIt)[3], ( 2.0 * M_PI ) / CSym->at(cIt)[0], &eulA, &eulB, &eulG );
+        
+        //============================================ Get rotated map by the smallest fold angle along the symmetry axis
+        proshade_double *rotMap;
+        this->rotateMap                               ( settings, eulA, eulB, eulG, rotMap );
+        
+        //============================================ Get Fourier for the rotated map
+        for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { mapData[iter][0] = rotMap[iter]; mapData[iter][1] = 0.0; }
+        fftw_execute                                      ( planForwardFourier );
+        
+        //============================================ Clean FSC computation memory
+        for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { bindata[binIt][valIt] = 0.0; } }
+        for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
+        
+        //============================================ Compute FSC
+        proshade_double averageFSC                    = ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts );
+        
+        //============================================ Save if FSC over threshold
+        if ( averageFSC > 0.8 ) { vals.emplace_back ( std::pair < proshade_double, size_t > ( averageFSC, cIt ) ); }
+        
+        //============================================ Release memory
+        delete[] rotMap;
+    }
+
+    //================================================ Release memory after FSC computation
+    delete[] mapData   ;
+    delete[] origCoeffs;
+    delete[] fCoeffs;
+    fftw_destroy_plan                                 ( planForwardFourier );
+    delete[] binIndexing;
+    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
+    delete[] bindata;
+    delete[] binCounts;
     
     //================================================ Decide optimal C
     proshade_signed bestC                             = -1;

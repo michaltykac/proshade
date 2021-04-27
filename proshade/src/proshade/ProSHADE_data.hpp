@@ -221,6 +221,8 @@ namespace ProSHADE_internal_data
         proshade_double findTScore                    ( std::vector< proshade_double* >* TSym );
         proshade_double findOScore                    ( std::vector< proshade_double* >* OSym );
         proshade_double findIScore                    ( std::vector< proshade_double* >* ISym );
+        proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, proshade_double step, proshade_double sigma, proshade_signed windowSize );
+        void allocateFSCFourierMemory                 ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes );
@@ -235,6 +237,7 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
         void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
+        void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double*& map );
         void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
         void allocateRotatedSHMemory                  ( void );
         void computeRotatedSH                         ( void );

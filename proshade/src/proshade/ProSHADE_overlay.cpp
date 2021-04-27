@@ -795,6 +795,59 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
     
 }
 
+/*! \brief This function rotates a map based on the given Euler angles.
+ 
+    This function starts by computing the Wigner D matrices for the given Euler angles and then it proceeds to multiply the
+    spherical harmonics coefficients with these, thus producing spherical harmonics coefficients of a rotated structure. Then,
+    it computes the inverse spherical harmonics decomposition, thus obtaining the sphere mapped values for the rotated structure.
+    Finally, it interpolates these sphere mapped values back to Cartesian grid, thus obtaining a map rotated by the given Euler angles.
+ 
+    \param[in] settings The settings object specifying how exactly the rotation is to be done.
+    \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
+    \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
+    \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
+    \param[in] map A pointer which will be set to point to the rotated map.
+ */
+void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double*& map )
+{
+    //================================================ Set maximum comparison bandwidth to maximum object bandwidth
+    this->maxCompBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
+    
+    //================================================ Save map COM after processing but before rotation
+    this->findMapCOM                                  ( );
+    this->mapCOMProcessChangeX                       += ( this->xCom - this->originalMapXCom );
+    this->mapCOMProcessChangeY                       += ( this->yCom - this->originalMapYCom );
+    this->mapCOMProcessChangeZ                       += ( this->zCom - this->originalMapZCom );
+    
+    //================================================ Compute the Wigner D matrices for the Euler angles
+    ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, -eulerAlpha, eulerBeta, -eulerGamma );
+    
+    //================================================ Initialise rotated Spherical Harmonics memory
+    this->allocateRotatedSHMemory                     ( );
+    
+    //================================================ Multiply SH coeffs by Wigner
+    this->computeRotatedSH                            ( );
+    
+    //================================================ Inverse the SH coeffs to shells
+    this->invertSHCoefficients                        ( );
+    
+    //================================================ Find spherical cut-offs
+    std::vector<proshade_double> lonCO, latCO;
+    ProSHADE_internal_overlay::computeAngularThreshold ( &lonCO, &latCO, settings->maxBandwidth * 2 );
+    
+    //================================================ Allocate memory for the rotated map
+    map                                               = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
+    for ( unsigned int iter = 0; iter < static_cast<unsigned int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { map[iter] = 0.0; }
+    
+    //================================================ Interpolate onto cartesian grid
+    this->interpolateMapFromSpheres                   ( map );
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function simply translates the map by a given number of Angstroms along the three axes.
  
     This function calls the internal functions to first provide the maximum possible movement by changing the frame
