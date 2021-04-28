@@ -187,7 +187,7 @@ void ProSHADE_internal_wigner::prepareTrigsSqrtsAndExponents ( proshade_double* 
 void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj, proshade_double* alphaExponentReal, proshade_double* alphaExponentImag, proshade_double* gammaExponentReal, proshade_double* gammaExponentImag, proshade_double* matIn, proshade_double* matOut, proshade_double* trigs, proshade_double* sqrts, proshade_double* workspace )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Start Wigner D matrix computation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 4, "Start Wigner D matrix computation." );
     
     //================================================ For each band, find the Wigned d matrix
     proshade_double *expARStart, *expAIStart, *expGRStart, *expGIStart;
@@ -236,7 +236,7 @@ void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settin
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Wigner D matrices obtained." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 5, "Wigner D matrices obtained." );
 
     //================================================ Done
     return ;

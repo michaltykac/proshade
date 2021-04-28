@@ -223,6 +223,12 @@ namespace ProSHADE_internal_data
         proshade_double findIScore                    ( std::vector< proshade_double* >* ISym );
         proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, proshade_double step, proshade_double sigma, proshade_signed windowSize );
         void allocateFSCFourierMemory                 ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs );
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,
+                                                        fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins,
+                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts );
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
+                                                        fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes );

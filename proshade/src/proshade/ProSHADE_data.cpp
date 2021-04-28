@@ -1880,11 +1880,16 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         return ;
     }
     
-    //============================================ Report progress
+    //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting C symmetry detection." );
 
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
+    
+    //================================================ Report progress
+    std::stringstream ss;
+    ss << "Detected " << CSyms.size() << " C symmetries.";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str() );
     
     //================================================ Sanity check - was the rotation function mapped properly?
     if ( this->sphereMappedRotFun.size() < 1 )
@@ -2270,6 +2275,146 @@ void ProSHADE_internal_data::ProSHADE_data::allocateFSCFourierMemory ( fftw_comp
     
 }
 
+/*! \brief This function computes FSC for any given axis in the supplied CSym symmetry axes vector.
+ 
+    This function drives the FSC computation for symmetry detection. It starts with finding the Euler angles representing the smallest rotation
+    given by the fold along the symmetry axis and then computing the rotated map using Wigner D matrices multiplication. Next, it computes
+    the Fourier transform of the rotated map, followed by binning it and computing the sums over all bins for the combination of this rotated
+    map Fourier transform and the supplied Fourier transform of the original map. From these bin sums, the FSC is computed and returned.
+ 
+    \warning This function does not really work on its own, it makes plethora of assumptions, the main ones being: Fourier transform of
+    original (non-rotated) map is already computed and supplied, the FFTW plan for the Fourier transform of the rotated map is prepared and
+    supplied, the workspace is allocated and supplied, the binning mask and number of bins is already determined ans supplied and so on.
+    It would not be hard to remove these, but then repeated calls of this function would become much slower as all of these steps would have
+    to be done for each call separately.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
+    \param[in] symIndex The index of the symmetry axis in the CSym vector for which FSC should be computed.
+    \param[in] mapData FFTW complex array which will be the input for the Fourier transform done by the planForwardFourier plan.
+    \param[in] fCoeffs FFTW complex array where the Fourier transform coefficients will be saved into by the planForwardFourier plan.
+    \param[in] origCoeffs FFTW complex array holding already compute Fourier transform of the non-rotated map.
+    \param[in] planForwardFourier A prepared FFTW3 plan for transforming the mapData onto fCoeffs.
+    \param[in] noBins The number of bins as already pre-computed.
+    \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
+    \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[out] fsc The FSC value found for the first (smallest) rotated map along the symmetry axis and the original map.
+ */
+proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts )
+{
+    //================================================ Sanity check
+    if ( symIndex >= CSym->size() )
+    {
+        std::cerr << "The supplied symmetry axes vector does not contain element number " << symIndex << ". Returning FSC 0.0." << std::endl;
+        return                                        ( 0.0 );
+    }
+    
+    //================================================ Report progress
+    std::stringstream ss2;
+    ss2 << "Computing FSC for symmetry C" << CSym->at(symIndex)[0] << " ( " << CSym->at(symIndex)[1] << " ; " << CSym->at(symIndex)[2] << " ; " << CSym->at(symIndex)[3] << " ) with peak height " << CSym->at(symIndex)[5];
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss2.str() );
+    
+    //================================================ Initialise local variables
+    proshade_double eulA = 0.0, eulB = 0.0, eulG = 0.0;
+    proshade_double *rotMap;
+    
+    //================================================ Find Euler angles for smallest rotation along the symmetry axis
+    ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( 2.0 * M_PI ) / CSym->at(symIndex)[0], &eulA, &eulB, &eulG );
+    
+    //================================================ Get rotated map by the smallest fold angle along the symmetry axis
+    this->rotateMap                                   ( settings, eulA, eulB, eulG, rotMap );
+    
+    //================================================ Get Fourier for the rotated map
+    for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { mapData[iter][0] = rotMap[iter]; mapData[iter][1] = 0.0; }
+    fftw_execute                                      ( *planForwardFourier );
+    
+    //================================================ Clean FSC computation memory
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { bindata[binIt][valIt] = 0.0; } }
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
+    
+    //================================================ Compute FSC
+    proshade_double averageFSC                        = ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts );
+    
+    //================================================ Report progress
+    std::stringstream ss3;
+    ss3 << "FSC value is " << averageFSC << " .";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, ss3.str() );
+    
+    //================================================ Release memory
+    delete[] rotMap;
+    
+    //================================================ Done
+    return                                            ( averageFSC );
+    
+}
+
+/*! \brief This function computes FSC for any given axis in the supplied CSym symmetry axes vector.
+ 
+    This function drives the FSC computation for symmetry detection. It starts with finding the Euler angles representing the smallest rotation
+    given by the fold along the symmetry axis and then computing the rotated map using Wigner D matrices multiplication. Next, it computes
+    the Fourier transform of the rotated map, followed by binning it and computing the sums over all bins for the combination of this rotated
+    map Fourier transform and the supplied Fourier transform of the original map. From these bin sums, the FSC is computed and returned.
+ 
+    \warning This function does not really work on its own, it makes plethora of assumptions, the main ones being: Fourier transform of
+    original (non-rotated) map is already computed and supplied, the FFTW plan for the Fourier transform of the rotated map is prepared and
+    supplied, the workspace is allocated and supplied, the binning mask and number of bins is already determined ans supplied and so on.
+    It would not be hard to remove these, but then repeated calls of this function would become much slower as all of these steps would have
+    to be done for each call separately.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] sym A single double array containing a single Cyclic symmetry entry in the ProSHADE format.
+    \param[in] mapData FFTW complex array which will be the input for the Fourier transform done by the planForwardFourier plan.
+    \param[in] fCoeffs FFTW complex array where the Fourier transform coefficients will be saved into by the planForwardFourier plan.
+    \param[in] origCoeffs FFTW complex array holding already compute Fourier transform of the non-rotated map.
+    \param[in] planForwardFourier A prepared FFTW3 plan for transforming the mapData onto fCoeffs.
+    \param[in] noBins The number of bins as already pre-computed.
+    \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
+    \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[out] fsc The FSC value found for the first (smallest) rotated map along the symmetry axis and the original map.
+ */
+proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts )
+{
+    //================================================ Report progress
+    std::stringstream ss2;
+    ss2 << "Computing FSC for symmetry C" << sym[0] << " ( " << sym[1] << " ; " << sym[2] << " ; " << sym[3] << " ) with peak height " << sym[5];
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss2.str() );
+    
+    //================================================ Initialise local variables
+    proshade_double eulA = 0.0, eulB = 0.0, eulG = 0.0;
+    proshade_double *rotMap;
+    
+    //================================================ Find Euler angles for smallest rotation along the symmetry axis
+    ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( sym[1], sym[2], sym[3], ( 2.0 * M_PI ) / sym[0], &eulA, &eulB, &eulG );
+    
+    //================================================ Get rotated map by the smallest fold angle along the symmetry axis
+    this->rotateMap                                   ( settings, eulA, eulB, eulG, rotMap );
+    
+    //================================================ Get Fourier for the rotated map
+    for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { mapData[iter][0] = rotMap[iter]; mapData[iter][1] = 0.0; }
+    fftw_execute                                      ( *planForwardFourier );
+    
+    //================================================ Clean FSC computation memory
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { bindata[binIt][valIt] = 0.0; } }
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
+    
+    //================================================ Compute FSC
+    proshade_double averageFSC                        = ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts );
+    
+    //================================================ Report progress
+    std::stringstream ss3;
+    ss3 << "FSC value is " << averageFSC << " .";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, ss3.str() );
+    
+    //============================================ Release memory
+    delete[] rotMap;
+    
+    //================================================ Done
+    return                                            ( averageFSC );
+    
+}
+
 /*! \brief This function takes all the detected symmetry results and decides on which are to be recommended for this structure.
  
     This function is the brain of symmetry detection in the sense that it decides which symmetry group ProSHADE recommends as being
@@ -2289,6 +2434,12 @@ void ProSHADE_internal_data::ProSHADE_data::allocateFSCFourierMemory ( fftw_comp
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
 {
+    //== Settings ...
+    proshade_double fscThreshold = 0.8;
+    
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting recommended symmetry decision procedure." );
+    
     //================================================ If no C symmetries, nothing to save...
     if ( CSym->size() == 0 )
     {
@@ -2303,10 +2454,12 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_signed windowSize                        = 5;
     proshade_double bestHistPeakStart                 = this->findTopGroupSmooth ( CSym, step, sigma, windowSize );
     
-    //================================================ Initialise local variables
-    bool foundPolyhedral                              = false;
-    proshade_double eulA = 0.0, eulB = 0.0, eulG = 0.0;
-    std::vector< std::pair < proshade_double, size_t > > vals;
+    //================================================ Report progress
+    proshade_unsign noPassed = 0; for ( size_t cIt = 0; cIt < CSym->size(); cIt++ ) { if ( CSym->at(cIt)[5] > bestHistPeakStart ) { noPassed += 1; } }
+    std::stringstream ss;
+    ss << "Smoothening has resolved in " << noPassed << " C symmetries.";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Starting FSC computation to confirm the C symmetries existence." );
     
     //================================================ Allocate memory for Fourier transforms
     fftw_complex *mapData, *origCoeffs, *fCoeffs;
@@ -2335,90 +2488,20 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         ProSHADE_internal_misc::checkMemoryAllocation ( bindata[binIt], __FILE__, __LINE__, __func__ );
     }
     
-    //================================================ For each of the top axes
-    for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
+    //================================================ Decide if I is the answer
+    if ( ISym->size() == 31 )
     {
-        //============================================ Use only top group axes
-        if ( CSym->at(cIt)[5] <= bestHistPeakStart ) { continue; }
-
-        //============================================ Find Euler angles for smallest rotation along the symmetry axis
-        ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( CSym->at(cIt)[1], CSym->at(cIt)[2], CSym->at(cIt)[3], ( 2.0 * M_PI ) / CSym->at(cIt)[0], &eulA, &eulB, &eulG );
+        //============================================ Initialise decision vars
+        bool C5Found                                  = false;
+        bool C3Found                                  = false;
+        proshade_double fscVal                        = 0.0;
         
-        //============================================ Get rotated map by the smallest fold angle along the symmetry axis
-        proshade_double *rotMap;
-        this->rotateMap                               ( settings, eulA, eulB, eulG, rotMap );
+        //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
+        for ( size_t iIt = 0; iIt < 6; iIt++ ) { if ( ISym->at(iIt)[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, ISym, iIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C5Found = true; break; } } }
+        for ( size_t iIt = 6; iIt < 16; iIt++ ) { if ( ISym->at(iIt)[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, ISym, iIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C3Found = true; break; } } }
         
-        //============================================ Get Fourier for the rotated map
-        for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { mapData[iter][0] = rotMap[iter]; mapData[iter][1] = 0.0; }
-        fftw_execute                                      ( planForwardFourier );
-        
-        //============================================ Clean FSC computation memory
-        for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { bindata[binIt][valIt] = 0.0; } }
-        for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
-        
-        //============================================ Compute FSC
-        proshade_double averageFSC                    = ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts );
-        
-        //============================================ Save if FSC over threshold
-        if ( averageFSC > 0.8 ) { vals.emplace_back ( std::pair < proshade_double, size_t > ( averageFSC, cIt ) ); }
-        
-        //============================================ Release memory
-        delete[] rotMap;
-    }
-
-    //================================================ Release memory after FSC computation
-    delete[] mapData   ;
-    delete[] origCoeffs;
-    delete[] fCoeffs;
-    fftw_destroy_plan                                 ( planForwardFourier );
-    delete[] binIndexing;
-    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
-    delete[] bindata;
-    delete[] binCounts;
-    
-    //================================================ Decide optimal C
-    proshade_signed bestC                             = -1;
-    proshade_unsign bestFold                          = 0;
-    for ( proshade_unsign iter = 0; iter < static_cast< proshade_unsign > ( vals.size() ); iter++ ) { if ( CSym->at(vals.at(iter).second)[0] > static_cast< proshade_double > ( bestFold ) ) { bestFold = static_cast< proshade_unsign > ( CSym->at(vals.at(iter).second)[0] ); bestC = static_cast< proshade_signed > ( vals.at(iter).second ); }  }
-    
-    //================================================ Check for existence of D symmetries with both axes having high enough peak height
-    proshade_signed bestD                             = -1;
-    bestFold                                          = 0;
-    for ( proshade_unsign dIt = 0; dIt < static_cast< proshade_unsign > ( DSym->size() ); dIt++ )
-    {
-        //============================================ Check the peak heights
-        if ( DSym->at(dIt)[5]  < bestHistPeakStart )  { continue; }
-        if ( DSym->at(dIt)[11] < bestHistPeakStart )  { continue; }
-        
-        //============================================ Both good enough! Find the highest fold
-        if ( ( DSym->at(dIt)[0] > static_cast< proshade_double > ( bestFold ) ) || ( DSym->at(dIt)[6] > static_cast< proshade_double > ( bestFold ) ) )
-        {
-            bestFold                                  = static_cast< proshade_unsign > ( std::max ( DSym->at(dIt)[0], DSym->at(dIt)[6] ) );
-            bestD                                     = static_cast< proshade_signed > ( dIt );
-        }
-    }
-    
-    //================================================ Check for existence of I symmetry and reasonable peak heights average
-    proshade_double avgIHeight                        = 0.0;
-    if ( ISym->size() == 31 ) { for ( proshade_unsign iIt = 0; iIt < static_cast< proshade_unsign > ( ISym->size() ); iIt++ ) { avgIHeight += ISym->at(iIt)[5];  } } avgIHeight /= 31.0;
-    
-    //================================================ Check for existence of O symmetry and reasonable peak heights average
-    proshade_double avgOHeight                        = 0.0;
-    if ( OSym->size() == 13 ) { for ( proshade_unsign oIt = 0; oIt < static_cast< proshade_unsign > ( OSym->size() ); oIt++ ) { avgOHeight += OSym->at(oIt)[5]; } } avgOHeight /= 13.0;
-    
-    //================================================ Check for existence of T symmetry and reasonable peak heights average
-    proshade_double avgTHeight                        = 0.0;
-    if ( TSym->size() == 7 ) { for ( proshade_unsign tIt = 0; tIt < static_cast< proshade_unsign > ( TSym->size() ); tIt++ ) { avgTHeight += TSym->at(tIt)[5]; } } avgTHeight /= 7.0;
-    
-    //================================================ Prefer large symmetries
-    if ( ( avgTHeight > bestHistPeakStart ) || ( avgTHeight > 0.8 ) ) { avgTHeight *= 0.850; foundPolyhedral = true; }
-    if ( ( avgOHeight > bestHistPeakStart ) || ( avgTHeight > 0.8 ) ) { avgOHeight *= 0.925; foundPolyhedral = true; }
-    if ( ( avgIHeight > bestHistPeakStart ) || ( avgTHeight > 0.8 ) ) { avgIHeight *= 1.000; foundPolyhedral = true; }
-    
-    //================================================ Decision time
-    if ( foundPolyhedral )
-    {
-        if ( avgIHeight >= std::max( avgTHeight, avgOHeight ) )
+        //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
+        if ( C5Found && C3Found )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2429,8 +2512,22 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             //======================================== Done
             return ;
         }
+    }
+    
+    //================================================ Decide if O is the answer
+    if ( OSym->size() == 13 )
+    {
+        //============================================ Initialise decision vars
+        bool C4Found                                  = false;
+        bool C3Found                                  = false;
+        proshade_double fscVal                        = 0.0;
         
-        if ( avgOHeight >  std::max( avgTHeight, avgIHeight ) )
+        //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
+        for ( size_t oIt = 0; oIt < 3; oIt++ ) { if ( OSym->at(oIt)[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, OSym, oIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C4Found = true; break; } } }
+        for ( size_t oIt = 3; oIt < 7; oIt++ ) { if ( OSym->at(oIt)[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, OSym, oIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C3Found = true; break; } } }
+        
+        //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
+        if ( C4Found && C3Found )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2441,8 +2538,22 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             //======================================== Done
             return ;
         }
+    }
+    
+    //================================================ Decide if T is the answer
+    if ( TSym->size() == 7 )
+    {
+        //============================================ Initialise decision vars
+        bool C3Found                                  = false;
+        bool C2Found                                  = false;
+        proshade_double fscVal                        = 0.0;
         
-        if ( avgTHeight >  std::max( avgOHeight, avgIHeight ) )
+        //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
+        for ( size_t tIt = 0; tIt < 4; tIt++ ) { if ( TSym->at(tIt)[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, TSym, tIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C3Found = true; break; } } }
+        for ( size_t tIt = 4; tIt < 7; tIt++ ) { if ( TSym->at(tIt)[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, TSym, tIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C2Found = true; break; } } }
+        
+        //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
+        if ( C3Found && C2Found )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );
@@ -2454,8 +2565,39 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             return ;
         }
     }
-    else
+    
+    //================================================ Decide if D is the answer
+    if ( DSym->size() > 0 )
     {
+        //============================================ Initialise decision vars
+        proshade_signed bestD                         = -1;
+        proshade_unsign bestFold                      = 0;
+        proshade_double fscVal1, fscVal2;
+        
+        //============================================ Check if both C symmetries are reliable
+        for ( size_t dIt = 0; dIt < DSym->size(); dIt++ )
+        {
+            //======================================== Check the peak heights
+            if ( DSym->at(dIt)[5]  < bestHistPeakStart ) { continue; }
+            if ( DSym->at(dIt)[11] < bestHistPeakStart ) { continue; }
+            
+            //======================================== Check if this improves the best already found fold
+            if ( ( DSym->at(dIt)[0] > static_cast< proshade_double > ( bestFold ) ) || ( DSym->at(dIt)[6] > static_cast< proshade_double > ( bestFold ) ) )
+            {
+                //==================================== Compute FSC
+                fscVal1                               = this->computeFSC ( settings,   DSym->at(dIt)    , mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
+                fscVal2                               = this->computeFSC ( settings, &(DSym->at(dIt))[6], mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
+                
+                //==================================== If both FSC's pass
+                if ( ( fscVal1 > fscThreshold ) && ( fscVal2 > fscThreshold ) )
+                {
+                    bestFold                          = static_cast< proshade_unsign > ( std::max ( DSym->at(dIt)[0], DSym->at(dIt)[6] ) );
+                    bestD                             = static_cast< proshade_signed > ( dIt );
+                }
+            }
+        }
+        
+        //============================================ Anything?
         if ( bestD != -1 )
         {
             //======================================== The decision is D
@@ -2480,14 +2622,45 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             //======================================== Done
             return ;
         }
+    }
+
+    //================================================ Decide if C is the answer
+    if ( CSym->size() > 0 )
+    {
+        //============================================ Initialise decision vars
+        proshade_signed bestC                         = -1;
+        proshade_unsign bestFold                      = 0;
+        proshade_double fscVal                        = 0.0;
         
+        //============================================ Check if any C symmetry is reliable
+        for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
+        {
+            //======================================== Check the peak height
+            if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
+            
+            //======================================== Check if this improves the best already found fold
+            if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
+            {
+                //==================================== Compute FSC
+                fscVal                                = this->computeFSC ( settings, CSym, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
+                
+                //==================================== If FSC passes
+                if ( fscVal > fscThreshold )
+                {
+                    bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
+                    bestC                             = static_cast< proshade_signed > ( cIt );
+                }
+            }
+        }
+        
+        //============================================ Anything?
         if ( bestC != -1 )
         {
             //======================================== The decision is C
             settings->setRecommendedSymmetry              ( "C" );
-            settings->setRecommendedFold                  ( static_cast< proshade_unsign > ( CSym->at( static_cast< unsigned long int > ( bestC ) )[0] ) );
-            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at( static_cast< unsigned long int > ( bestC ) ) );
-            if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at( static_cast< unsigned long int > ( bestC ) ) ); }
+            settings->setRecommendedFold                  ( static_cast< proshade_unsign > ( CSym->at( static_cast< size_t > ( bestC ) )[0] ) );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at( static_cast< size_t > ( bestC ) ) );
+            if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at( static_cast< size_t > ( bestC ) ) ); }
     
             //======================================== Warn if resolution does not really support this fold
             if ( ( ( 360.0 / static_cast< proshade_double > ( CSym->at( static_cast< size_t > (  bestC ) )[0] ) ) - ( 360.0 / static_cast< proshade_double > ( CSym->at(static_cast< size_t > ( bestC ) )[0] + 1 ) ) ) < ( 360.0 / static_cast< proshade_double > ( settings->maxBandwidth ) * 4.0 ) )
@@ -2501,7 +2674,17 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             return ;
         }
     }
-    
+
+    //================================================ Release memory after FSC computation
+    delete[] mapData   ;
+    delete[] origCoeffs;
+    delete[] fCoeffs;
+    fftw_destroy_plan                                 ( planForwardFourier );
+    delete[] binIndexing;
+    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
+    delete[] bindata;
+    delete[] binCounts;
+
     //================================================ No symmetry was detected with decent enough peak height.
     
     //================================================ Done
