@@ -16,7 +16,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.5.5
-    \date      APR 2021
+    \date      MAY 2021
 */
 
 //==================================================== ProSHADE
