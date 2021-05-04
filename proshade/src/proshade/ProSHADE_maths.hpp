@@ -326,14 +326,14 @@ namespace ProSHADE_internal_maths
     void getSOFTPositionFromEulerZXZ                  ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma,
                                                         proshade_double* x, proshade_double* y, proshade_double* z );
     void getRotationMatrixFromEulerZXZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
+    void getRotationMatrixFromEulerZXZAngles          ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix );
     void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
     void getAxisAngleFromRotationMatrix               ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
     void getRotationMatrixFromAngleAxis               ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
+    void getRotationMatrixFromAngleAxis               ( proshade_single* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getEulerZXZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
     void getEulerZXZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
                                                         proshade_double* eB, proshade_double* eG );
-    void getEulerZXZFromAngleAxisFullSearch           ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
-                                                        proshade_double* eB, proshade_double* eG, proshade_signed angDim );
     void multiplyTwoSquareMatrices                    ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim = 3 );
     std::vector < proshade_signed > primeFactorsDecomp ( proshade_signed number );
     proshade_double normalDistributionValue           ( proshade_double mean, proshade_double standardDev, proshade_double value );
@@ -345,6 +345,7 @@ namespace ProSHADE_internal_maths
                                                         proshade_double* z2 );
     proshade_double* compute3x3MatrixMultiplication   ( proshade_double* mat1, proshade_double* mat2 );
     proshade_double* compute3x3MatrixVectorMultiplication ( proshade_double* mat, proshade_double x, proshade_double y, proshade_double z );
+    proshade_single* compute3x3MatrixVectorMultiplication ( proshade_single* mat, proshade_single x, proshade_single y, proshade_single z );
     proshade_double* compute3x3MatrixInverse          ( proshade_double* mat );
     void transpose3x3MatrixInPlace                    ( proshade_double* mat );
     proshade_double* findRotMatMatchingVectors        ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,

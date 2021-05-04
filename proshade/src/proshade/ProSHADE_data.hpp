@@ -223,10 +223,10 @@ namespace ProSHADE_internal_data
         proshade_double findIScore                    ( std::vector< proshade_double* >* ISym );
         proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, proshade_double step, proshade_double sigma, proshade_signed windowSize );
         void allocateFSCFourierMemory                 ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs );
-        proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >*& CSym, size_t symIndex, fftw_complex* mapData,
                                                         fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins,
                                                         proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts );
-        proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double*& sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
                                                         fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
                                                         proshade_signed*& binCounts );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
@@ -242,8 +242,8 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double > getBestRotationMapPeaksEulerAngles ( ProSHADE_settings* settings );
         std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
-        void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
-        void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double*& map );
+        void rotateMapReciprocalSpace                 ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
+        void rotateMapRealSpace                       ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map );
         void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
         void allocateRotatedSHMemory                  ( void );
         void computeRotatedSH                         ( void );

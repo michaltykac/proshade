@@ -43,12 +43,14 @@ namespace ProSHADE_internal_misc
     void addToSignedVector                            ( std::vector < proshade_signed  >* vecToAddTo, proshade_signed elementToAdd );
     void addToDblPtrVector                            ( std::vector < proshade_double* >* vecToAddTo, proshade_double* elementToAdd );
     void addToSigPtrVector                            ( std::vector < proshade_signed* >* vecToAddTo, proshade_signed* elementToAdd );
+    void addToUnsPtrVector                            ( std::vector < proshade_unsign* >* vecToAddTo, proshade_unsign* elementToAdd );
     void addToUnsignVectorVector                      ( std::vector < std::vector < proshade_unsign  > >* vecToAddTo, std::vector < proshade_unsign  > elementToAdd );
     void addToDoubleVectorVector                      ( std::vector < std::vector < proshade_double  > >* vecToAddTo, std::vector < proshade_double  > elementToAdd );
             
     bool sortSymHlp                                   ( const proshade_double* a, const proshade_double* b );
     bool sortSymHlpInv                                ( const proshade_double* a, const proshade_double* b );
     bool sortDSymHlpInv                               ( const proshade_double* a, const proshade_double* b );
+    bool sortSymFoldHlp                               ( const proshade_double* a, const proshade_double* b );
     bool sortSymInvFoldHlp                            ( const proshade_double* a, const proshade_double* b );
         
     void deepCopyAxisToDblPtrVector                   ( std::vector < proshade_double* >* dblPtrVec, proshade_double* axis );

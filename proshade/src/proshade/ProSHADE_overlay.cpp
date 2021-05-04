@@ -215,7 +215,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     movingStructure->computeSphericalHarmonics        ( settings );
     
     //================================================ Rotate map
-    movingStructure->rotateMap ( settings, eulA, eulB, eulG );
+    movingStructure->rotateMapReciprocalSpace         ( settings, eulA, eulB, eulG );
     
     //================================================ Zero padding for smaller structure
     staticStructure->zeroPaddToDims                   ( std::max ( staticStructure->getXDim(), movingStructure->getXDim() ),
@@ -746,7 +746,7 @@ void ProSHADE_internal_overlay::paddMapWithZeroes ( proshade_double* oldMap, pro
     \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
     \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
  */
-void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma )
+void ProSHADE_internal_data::ProSHADE_data::rotateMapReciprocalSpace ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma )
 {
     //================================================ Set maximum comparison bandwidth to maximum object bandwidth
     this->maxCompBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
@@ -797,51 +797,163 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* setti
 
 /*! \brief This function rotates a map based on the given Euler angles.
  
-    This function starts by computing the Wigner D matrices for the given Euler angles and then it proceeds to multiply the
-    spherical harmonics coefficients with these, thus producing spherical harmonics coefficients of a rotated structure. Then,
-    it computes the inverse spherical harmonics decomposition, thus obtaining the sphere mapped values for the rotated structure.
-    Finally, it interpolates these sphere mapped values back to Cartesian grid, thus obtaining a map rotated by the given Euler angles.
+    ...d
  
-    \param[in] settings The settings object specifying how exactly the rotation is to be done.
     \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
     \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
     \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
     \param[in] map A pointer which will be set to point to the rotated map.
  */
-void ProSHADE_internal_data::ProSHADE_data::rotateMap ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double*& map )
+void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpace ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map )
 {
-    //================================================ Set maximum comparison bandwidth to maximum object bandwidth
-    this->maxCompBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
+    //================================================ Initialise local variables
+    bool withinBounds                                 = true;
+    proshade_double c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1;
+    size_t arrPos                                     = 0;
+    proshade_double xCOM, yCOM, zCOM;
     
-    //================================================ Save map COM after processing but before rotation
-    this->findMapCOM                                  ( );
-    this->mapCOMProcessChangeX                       += ( this->xCom - this->originalMapXCom );
-    this->mapCOMProcessChangeY                       += ( this->yCom - this->originalMapYCom );
-    this->mapCOMProcessChangeZ                       += ( this->zCom - this->originalMapZCom );
+    //================================================ Store sampling rates
+    proshade_single xSampRate                         = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
+    proshade_single ySampRate                         = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
+    proshade_single zSampRate                         = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
     
-    //================================================ Compute the Wigner D matrices for the Euler angles
-    ProSHADE_internal_wigner::computeWignerMatricesForRotation ( settings, this, -eulerAlpha, eulerBeta, -eulerGamma );
+    //================================================ Compute map COM
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOM, &yCOM, &zCOM, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
     
-    //================================================ Initialise rotated Spherical Harmonics memory
-    this->allocateRotatedSHMemory                     ( );
+    //================================================ Allocate local variables
+    proshade_single *mins                             = new proshade_single[3];
+    proshade_single *maxs                             = new proshade_single[3];
+    proshade_single *rotMat                           = new proshade_single[9];
+    proshade_single *rotVec;
+    proshade_single *interpMins                       = new proshade_single[3];
+    proshade_single *interpMaxs                       = new proshade_single[3];
+    proshade_single *interpDiff                       = new proshade_single[3];
+    proshade_single *movs                             = new proshade_single[3];
+    map                                               = new proshade_double[ this->xDimIndices * this->yDimIndices * this->zDimIndices ];
     
-    //================================================ Multiply SH coeffs by Wigner
-    this->computeRotatedSH                            ( );
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mins,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( maxs,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat,     __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( interpMins, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( interpMaxs, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( interpDiff, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( movs,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map,        __FILE__, __LINE__, __func__ );
     
-    //================================================ Inverse the SH coeffs to shells
-    this->invertSHCoefficients                        ( );
+    //================================================ Fill map with zeroes
+    for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { map[iter] = 0.0; }
     
-    //================================================ Find spherical cut-offs
-    std::vector<proshade_double> lonCO, latCO;
-    ProSHADE_internal_overlay::computeAngularThreshold ( &lonCO, &latCO, settings->maxBandwidth * 2 );
+    //================================================ Determine map max's and min's in terms of the hkl system
+    mins[0]                                           = std::floor ( static_cast< proshade_signed > ( this->xDimIndices ) / -2.0f );
+    mins[1]                                           = std::floor ( static_cast< proshade_signed > ( this->yDimIndices ) / -2.0f );
+    mins[2]                                           = std::floor ( static_cast< proshade_signed > ( this->zDimIndices ) / -2.0f );
+        
+    maxs[0]                                           = -mins[0];
+    maxs[1]                                           = -mins[1];
+    maxs[2]                                           = -mins[2];
     
-    //================================================ Allocate memory for the rotated map
-    map                                               = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
-    for ( unsigned int iter = 0; iter < static_cast<unsigned int> ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { map[iter] = 0.0; }
+    if ( this->xDimIndices % 2 == 0 ) { maxs[0] -= 1.0f; }
+    if ( this->yDimIndices % 2 == 0 ) { maxs[1] -= 1.0f; }
+    if ( this->zDimIndices % 2 == 0 ) { maxs[2] -= 1.0f; }
     
-    //================================================ Interpolate onto cartesian grid
-    this->interpolateMapFromSpheres                   ( map );
+    //================================================ Rotate about COM instead of map midpoint
+    movs[0]                                           = ( static_cast< proshade_single > ( xCOM ) / xSampRate ) + mins[0];
+    movs[1]                                           = ( static_cast< proshade_single > ( yCOM ) / ySampRate ) + mins[1];
+    movs[2]                                           = ( static_cast< proshade_single > ( zCOM ) / zSampRate ) + mins[2];
+    
+    //================================================ Get rotation matrix from Euler angles
+    ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, axX, axY, axZ, axAng );
+    
+    //================================================ For each point
+    for ( proshade_single xIt = mins[0]; xIt <= maxs[0]; xIt += 1.0f )
+    {
+        for ( proshade_single yIt = mins[1]; yIt <= maxs[1]; yIt += 1.0f )
+        {
+            for ( proshade_single zIt = mins[2]; zIt <= maxs[2]; zIt += 1.0f )
+            {
+                //==================================== Compute new point position
+                rotVec                                = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( rotMat, xIt - movs[0], yIt - movs[1], zIt - movs[2] );
+                
+                //==================================== Find surrounding grid points indices and check for boundaries
+                withinBounds                          = true;
+                for ( size_t posIt = 0; posIt < 3; posIt++ )
+                {
+                    //================================ Determine surrounding points indices in this dimension
+                    interpMins[posIt]                 = std::floor ( rotVec[posIt] );
+                    interpMaxs[posIt]                 = interpMins[posIt] + 1.0f;
+                    
+                    //================================ Check for boundaries
+                    if ( ( maxs[posIt] < interpMins[posIt] ) || ( interpMins[posIt] < mins[posIt] ) || ( maxs[posIt] < interpMaxs[posIt] ) || ( interpMaxs[posIt] < mins[posIt] ) )
+                    {
+                        withinBounds                  = false;
+                        break;
+                    }
+                    
+                    //================================ Compute the difference from position to min index along this axis
+                    interpDiff[posIt]                 = rotVec[posIt] - interpMins[posIt];
+                }
+                if ( !withinBounds ) { continue; }
+                
+                //==================================== Make sure interpolation max's are within bounds
+                for ( size_t posIt = 0; posIt < 3; posIt++ )
+                {
+                    interpMaxs[posIt]                 = std::min ( maxs[posIt], std::max ( mins[posIt], interpMaxs[posIt] ) );
+                }
+                
+                //==================================== Release memory
+                delete[] rotVec;
+                
+                //==================================== Find the surrounding points values from their indices
+                arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                c000                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                c001                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                c010                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                c011                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                c100                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                c101                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                c110                                  = this->internalMap[arrPos];
+                
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                c111                                  = this->internalMap[arrPos];
+
+                //==================================== Interpolate along x-axis
+                c00                                   = ( c000 * ( 1.0 - static_cast< proshade_double > ( interpDiff[0] ) ) ) + ( c100 * static_cast< proshade_double > ( interpDiff[0] ) );
+                c01                                   = ( c001 * ( 1.0 - static_cast< proshade_double > ( interpDiff[0] ) ) ) + ( c101 * static_cast< proshade_double > ( interpDiff[0] ) );
+                c10                                   = ( c010 * ( 1.0 - static_cast< proshade_double > ( interpDiff[0] ) ) ) + ( c110 * static_cast< proshade_double > ( interpDiff[0] ) );
+                c11                                   = ( c011 * ( 1.0 - static_cast< proshade_double > ( interpDiff[0] ) ) ) + ( c111 * static_cast< proshade_double > ( interpDiff[0] ) );
+                
+                //==================================== Interpolate along y-axis
+                c0                                    = ( c00  * ( 1.0 - static_cast< proshade_double > ( interpDiff[1] ) ) ) + ( c10  * static_cast< proshade_double > ( interpDiff[1] ) );
+                c1                                    = ( c01  * ( 1.0 - static_cast< proshade_double > ( interpDiff[1] ) ) ) + ( c11  * static_cast< proshade_double > ( interpDiff[1] ) );
+
+                //==================================== Interpolate along z-axis
+                arrPos                                = static_cast< size_t > ( ( zIt - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( yIt - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( xIt - mins[0] ) ) );
+                map[arrPos]                           = ( c0   * ( 1.0 - static_cast< proshade_double > ( interpDiff[2] ) ) ) + ( c1   * static_cast< proshade_double > ( interpDiff[2] ) );
+            }
+        }
+    }
+    
+    //================================================ Release memory
+    delete[] mins;
+    delete[] maxs;
+    delete[] rotMat;
+    delete[] interpMins;
+    delete[] interpMaxs;
+    delete[] interpDiff;
+    delete[] movs;
     
     //================================================ Done
     return ;

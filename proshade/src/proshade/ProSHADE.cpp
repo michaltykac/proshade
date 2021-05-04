@@ -1269,7 +1269,7 @@ void                       ProSHADE_settings::setDetectedSymmetry ( proshade_dou
 #endif
 {
     //================================================ Allocate memory
-    proshade_double* hlpAxis                          = new proshade_double [6];
+    proshade_double* hlpAxis                          = new proshade_double [7];
     ProSHADE_internal_misc::checkMemoryAllocation     ( hlpAxis, __FILE__, __LINE__, __func__ );
     
     //================================================ Copy (deep) data
@@ -1279,6 +1279,7 @@ void                       ProSHADE_settings::setDetectedSymmetry ( proshade_dou
     hlpAxis[3]                                        = sym[3];
     hlpAxis[4]                                        = sym[4];
     hlpAxis[5]                                        = sym[5];
+    hlpAxis[6]                                        = sym[6];
     
     //================================================ Save
     ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, hlpAxis );

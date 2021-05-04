@@ -1384,7 +1384,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     }
     
     //================================================ Create ProSHADE symmetry axis array and save it
-    proshade_double* detectedSymmetry                 = new proshade_double[6];
+    proshade_double* detectedSymmetry                 = new proshade_double[7];
     ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
     
     detectedSymmetry[0]                               = static_cast<proshade_double> ( fold );
@@ -1393,6 +1393,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
+    detectedSymmetry[6]                               = -1.0;
     
     //================================================ Make sure max is positive
     const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) );

@@ -177,6 +177,29 @@ void ProSHADE_internal_misc::addToSigPtrVector ( std::vector < proshade_signed* 
     
 }
 
+/*! \brief Adds the element to the vector.
+ 
+    This function takes a pointer to a vector of proshade_unsign pointers and a single proshade_unsign pointer and adds this
+    element to the end of the vector. The reason for this function is to make vector elongation C++ standard independent
+    (push_back vs. emplace_back)
+ 
+    \param[in] vecToAddTo Pointer to vector of proshade_unsign pointer's which should be elongated.
+    \param[in] elementToAdd proshade_unsign pointer to be added to the back of the vector.
+ */
+void ProSHADE_internal_misc::addToUnsPtrVector ( std::vector < proshade_unsign* >* vecToAddTo, proshade_unsign* elementToAdd )
+{
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
+#if __cplusplus >= 201103L
+    vecToAddTo->emplace_back                          ( elementToAdd );
+#else
+    vecToAddTo->push_back                             ( elementToAdd );
+#endif
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Adds the element to the vector of vectors.
  
     This function takes a pointer to a vector of vectors of unsigns and a single vector of unsigns adds this element to the end of
@@ -279,7 +302,7 @@ bool ProSHADE_internal_misc::sortSymInvFoldHlp ( const proshade_double* a, const
 
 /*! \brief Does a deep copy of a double array to a vector of double arrays.
  
-    This function deep copies a single symmetry axis ( proshade_double[6] ) into a vector of such arrays.
+    This function deep copies a single symmetry axis ( proshade_double[7] ) into a vector of such arrays.
  
     \param[in] dblPtrVec Pointer to vector of proshade_double arrays to which the second argument is to be deep copied.
     \param[in] axis The proshade_double array to be copied to the first argument.
@@ -287,7 +310,7 @@ bool ProSHADE_internal_misc::sortSymInvFoldHlp ( const proshade_double* a, const
 void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_double* >* dblPtrVec, proshade_double* axis )
 {
     //================================================ Allocate new memory
-    proshade_double* symAx                            = new proshade_double[6];
+    proshade_double* symAx                            = new proshade_double[7];
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( symAx, __FILE__, __LINE__, __func__ );
@@ -299,6 +322,7 @@ void ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( std::vector< proshade_
     symAx[3]                                          = axis[3];
     symAx[4]                                          = axis[4];
     symAx[5]                                          = axis[5];
+    symAx[6]                                          = axis[6];
     
     //================================================ Save
     ProSHADE_internal_misc::addToDblPtrVector         ( dblPtrVec, symAx );

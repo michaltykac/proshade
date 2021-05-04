@@ -1026,6 +1026,35 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
     
 }
 
+/*! \brief Function to find the rotation matrix from Euler angles (ZXZ convention).
+ 
+    \param[in] eulerAlpha The Euler alpha angle value.
+    \param[in] eulerBeta The Euler beta angle value.
+    \param[in] eulerGamma The Euler gamma angle value.
+    \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
+ */
+void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
+{
+    //================================================ First row
+    matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
+  
+    //================================================ Second row
+    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
+  
+    //================================================ Third row
+    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[8]                                         =  cos ( eulerBeta  );
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function converts rotation matrix to the axis-angle representation.
  
     This function takes a rotation matrix as an array of 9 numbers and converts it to the Angle-Axis representation,
@@ -1402,6 +1431,58 @@ void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_double* 
     
 }
 
+/*! \brief This function converts the axis-angle representation to the rotation matrix representation.
+ 
+    \param[in] rotMat Rotation matrix as an array of 9 values will be saved to this pointer, must already be allocated.
+    \param[in] x The x-axis value of the axis vector.
+    \param[in] y The y-axis value of the axis vector.
+    \param[in] z The z-axis value of the axis vector.
+    \param[in] angThe angle value.
+ */
+void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_single* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang )
+{
+    //================================================ If angle is 0 or infinity (anything divided by 0), return identity matrix
+    if ( ( ang == 0.0 ) || ( std::isinf ( ang ) ) )
+    {
+        //============================================ Create identity
+        for ( size_t i = 0; i < 9; i++ ) { rotMat[i] = 0.0f; }
+        rotMat[0]                                     = 1.0f;
+        rotMat[4]                                     = 1.0f;
+        rotMat[8]                                     = 1.0f;
+        
+        //============================================ Done
+        return ;
+    }
+    
+    //================================================ Compute the matrix
+    proshade_single cAng                              = cos ( static_cast< proshade_single > ( ang ) );
+    proshade_single sAng                              = sin ( static_cast< proshade_single > ( ang ) );
+    proshade_single tAng                              = 1.0f - cAng;
+            
+    rotMat[0]                                         = cAng + static_cast< proshade_single > ( x ) * static_cast< proshade_single > ( x ) * tAng;
+    rotMat[4]                                         = cAng + static_cast< proshade_single > ( y ) * static_cast< proshade_single > ( y ) * tAng;
+    rotMat[8]                                         = cAng + static_cast< proshade_single > ( z ) * static_cast< proshade_single > ( z ) * tAng;
+            
+    proshade_single tmp1                              = static_cast< proshade_single > ( x ) * static_cast< proshade_single > ( y ) * tAng;
+    proshade_single tmp2                              = static_cast< proshade_single > ( z ) * sAng;
+    rotMat[3]                                         = tmp1 + tmp2;
+    rotMat[1]                                         = tmp1 - tmp2;
+            
+    tmp1                                              = static_cast< proshade_single > ( x ) * static_cast< proshade_single > ( z ) * tAng;
+    tmp2                                              = static_cast< proshade_single > ( y ) * sAng;
+    rotMat[6]                                         = tmp1 - tmp2;
+    rotMat[2]                                         = tmp1 + tmp2;
+            
+    tmp1                                              = static_cast< proshade_single > ( y ) * static_cast< proshade_single > ( z ) * tAng;
+    tmp2                                              = static_cast< proshade_single > ( x ) * sAng;
+    rotMat[7]                                         = tmp1 + tmp2;
+    rotMat[5]                                         = tmp1 - tmp2;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function converts rotation matrix to the Euler ZXZ angles representation.
  
     \param[in] rotMat Rotation matrix as an array of 9 values.
@@ -1509,9 +1590,9 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
         }
         if ( element22 <= -0.99999 )
         {
-            //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
+            //======================================== In this case, beta = PI and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
            *eA                                        = std::atan2 ( element10, element00 );
-           *eB                                        = M_PI / 2.0;
+           *eB                                        = M_PI;
            *eG                                        = 0.0;
         }
     }
@@ -1524,107 +1605,6 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     //================================================ Done
     return ;
    
-}
-
-/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation using full search.
- 
-    This function is meant for solving the issue of angle-axis conversion to Euler ZXZ convention for axis 0,0,1, where all the rotation matrix
-    elements used for Euler alpha and gamma angles are 0.0. The function overcomes this by simply searching all the rotation function indices
-    for having angle-axis value similar to the required one - a rather slow approach. Therefore, the getEulerZXZFromAngleAxis() function should
-    be used instead and only if it fails (has all angles 0.0), then this function should be used instead.
- 
-    \param[in] axX Angle-axis representation axis x element.
-    \param[in] axY Angle-axis representation axis y element.
-    \param[in] axZ Angle-axis representation axis z element.
-    \param[in] axAng Angle-axis representation angle.
-    \param[in] eA Pointer to which the Euler angle alpha value will be saved.
-    \param[in] eB Pointer to which the Euler angle beta value will be saved.
-    \param[in] eG Pointer to which the Euler angle gamma value will be saved.
- */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxisFullSearch ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG, proshade_signed angDim )
-{
-    //================================================ Initialise variables
-    proshade_double bestDist                          = 999.9;
-    proshade_double eAHlp, eBHlp, eGHlp, axXHlp, axYHlp, axZHlp, axAngHlp, axDist;
-    
-    //================================================ Allocate memory
-    proshade_double* rMat                             = new proshade_double[9];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
-
-    //================================================ For each rotation function index (i.e. existing Euler angles ZXZ combination)
-    for ( proshade_signed xIt = 0; xIt < angDim; xIt++ )
-    {
-        for ( proshade_signed yIt = 0; yIt < angDim; yIt++ )
-        {
-            for ( proshade_signed zIt = 0; zIt < angDim; zIt++ )
-            {
-                //==================================== Speed up
-                if ( bestDist < 0.001 ) { break; }
-                
-                //==================================== Get Euler ZXZ from the indices
-                getEulerZXZFromSOFTPosition           ( angDim/2, xIt, yIt, zIt, &eAHlp, &eBHlp, &eGHlp );
-                getRotationMatrixFromEulerZXZAngles   ( eAHlp, eBHlp, eGHlp, rMat );
-                getAxisAngleFromRotationMatrix        ( rMat, &axXHlp, &axYHlp, &axZHlp, &axAngHlp );
-                
-                //==================================== If angle is larger than 180 degrees
-                if ( axAng > M_PI )
-                {
-                    axAng                             = ( 2.0 * M_PI ) - axAng;
-                    axAng                            *= -1.0;
-                }
-                
-                //==================================== Make sure vector direction is the same
-                const FloatingPoint< proshade_double > lhs1 ( std::max( std::abs( axXHlp ), std::max( std::abs( axYHlp ), std::abs( axZHlp ) ) ) );
-                const FloatingPoint< proshade_double > rhs1 ( std::abs( axXHlp ) );
-                const FloatingPoint< proshade_double > rhs2 ( std::abs( axYHlp ) );
-                const FloatingPoint< proshade_double > rhs3 ( std::abs( axZHlp ) );
-                if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( axXHlp < 0.0 ) ) ||
-                     ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( axYHlp < 0.0 ) ) ||
-                     ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( axZHlp < 0.0 ) ) )
-                {
-                    axXHlp                           *= -1.0;
-                    axYHlp                           *= -1.0;
-                    axZHlp                           *= -1.0;
-                    axAngHlp                         *= -1.0;
-                }
-                
-                const FloatingPoint< proshade_double > lhs2 ( std::max( std::abs( axX ), std::max( std::abs( axY ), std::abs( axZ ) ) ) );
-                const FloatingPoint< proshade_double > rhs4 ( std::abs( axX ) );
-                const FloatingPoint< proshade_double > rhs5 ( std::abs( axY ) );
-                const FloatingPoint< proshade_double > rhs6 ( std::abs( axZ ) );
-                if ( ( ( lhs2.AlmostEquals ( rhs4 ) ) && ( axX < 0.0 ) ) ||
-                     ( ( lhs2.AlmostEquals ( rhs5 ) ) && ( axY < 0.0 ) ) ||
-                     ( ( lhs2.AlmostEquals ( rhs6 ) ) && ( axZ < 0.0 ) ) )
-                {
-                    axX                              *= -1.0;
-                    axY                              *= -1.0;
-                    axZ                              *= -1.0;
-                    axAng                            *= -1.0;
-                }
-                
-                //==================================== Compute distance to the requested angle-axis values
-                axDist                                = std::abs( axAng - axAngHlp ) + ( 1.0 - std::abs ( ( ( axX * axXHlp ) + ( axY * axYHlp ) + ( axZ * axZHlp ) ) /
-                                                        ( sqrt( pow( axX, 2.0 ) + pow( axY, 2.0 ) + pow( axZ, 2.0 ) ) * sqrt( pow( axXHlp, 2.0 ) + pow( axYHlp, 2.0 ) + pow( axZHlp, 2.0 ) ) ) ) );
-                
-                //==================================== Is this point an improvement
-                if ( std::abs ( axDist ) < bestDist )
-                {
-                    //================================ If so, note it
-                    bestDist                          = std::abs ( axDist );
-                   *eA                                = eAHlp;
-                   *eB                                = eBHlp;
-                   *eG                                = eGHlp;
-                }
-            }
-        }
-    }
-    
-    //================================================ Release memory
-    delete[] rMat;
-    
-    //================================================ Done
-    return ;
-    
 }
 
 /*! \brief Function to compute matrix multiplication.
@@ -1816,6 +1796,30 @@ proshade_double* ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication (
 {
     //================================================ Allocate memory
     proshade_double* ret                              = new proshade_double[3];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Compute the multiplication
+    ret[0]                                            = ( x * mat[0] ) + ( y * mat[1] ) + ( z * mat[2] );
+    ret[1]                                            = ( x * mat[3] ) + ( y * mat[4] ) + ( z * mat[5] );
+    ret[2]                                            = ( x * mat[6] ) + ( y * mat[7] ) + ( z * mat[8] );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief Function for computing a 3x3 matrix to 3x1 vector multiplication.
+ 
+    \param[in] mat The matrix to multiply the vector with..
+    \param[in] x The x-axis element of the vector which is to be multiplied by the matrix.
+    \param[in] y The x-axis element of the vector which is to be multiplied by the matrix.
+    \param[in] z The x-axis element of the vector which is to be multiplied by the matrix.
+    \param[out] ret The vector resulting from matrix multiplication of mat and the vector in this order.
+ */
+proshade_single* ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( proshade_single* mat, proshade_single x, proshade_single y, proshade_single z )
+{
+    //================================================ Allocate memory
+    proshade_single* ret                              = new proshade_single[3];
     ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
     
     //================================================ Compute the multiplication
@@ -2906,9 +2910,9 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     maxs[1]                                           = -mins[1];
     maxs[2]                                           = -mins[2];
     
-    if ( xInds % 2 == 0 ) { mins[0] -= 1.0f; }
-    if ( yInds % 2 == 0 ) { mins[1] -= 1.0f; }
-    if ( zInds % 2 == 0 ) { mins[2] -= 1.0f; }
+    if ( xInds % 2 == 0 ) { mins[0] += 1.0f; }
+    if ( yInds % 2 == 0 ) { mins[1] += 1.0f; }
+    if ( zInds % 2 == 0 ) { mins[2] += 1.0f; }
     
     //================================================ Get minimum resolution based on dims for each dimension
     resMins[0]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( maxs[0], 0.0f, 0.0f, xInds, yInds, zInds );

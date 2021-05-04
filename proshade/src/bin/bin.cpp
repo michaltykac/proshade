@@ -1262,7 +1262,7 @@
  * \e Rotating \e the \e internal \e map \e representation
  *
  * Once the optimal rotation angles are obtained, it is the next logical step to rotate the structure by these angles to get the two structures in identical orientation. This can also be done with
- * ProSHADE function \e rotateMap(), which works with the Euler angles as reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which are multiplied
+ * ProSHADE function \e rotateMapReciprocalSpace(), which works with the Euler angles as reported by ProSHADE. The rotation is done using the spherical harmonics coefficients, which are multiplied
  * by the Wigner D matrices for the required rotation and the resulting rotated coefficients are then inverted back and interpolated to a new map. This process has two side effects: Firstly,
  * the resulting maps tend to suffer from minor artefacts resulting from the sequence termination errors and the interpolation to and from spheres to cartesian co-ordinates. And secondly,
  * the input maps need to have their spherical harmonics coefficients computed. Therefore, this approach is not recommended for any maps that are to be deposited or fitted into, but they
@@ -1298,7 +1298,7 @@
  pStruct_moving.computeSphericalHarmonics             ( pSet )
 
  """ Rotate the moving structure by the pre-determined Euler angles of the best rotation map peak """
- pStruct_moving.rotateMap                             ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
+ pStruct_moving.rotateMapReciprocalSpace              ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
  \endcode
  *
  * \e Computing \e the \e translation \e function

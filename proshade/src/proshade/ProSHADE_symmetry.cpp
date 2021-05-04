@@ -1326,24 +1326,26 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
 void ProSHADE_internal_symmetry::saveDSymmetry ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList, proshade_unsign axisOne, proshade_unsign axisTwo )
 {
     //================================================ Allocate the memory
-    proshade_double* hlpP                             = new proshade_double [12];
+    proshade_double* hlpP                             = new proshade_double [14];
     ProSHADE_internal_misc::checkMemoryAllocation     ( hlpP, __FILE__, __LINE__, __func__ );
     
     //================================================ Set obvious values
     hlpP[0]                                           = static_cast<proshade_double> ( CSymList->at(axisOne)[0] );
     hlpP[4]                                           = static_cast<proshade_double> ( ( 2.0 * M_PI ) / hlpP[0] );
-    hlpP[6]                                           = static_cast<proshade_double> ( CSymList->at(axisTwo)[0] );
-    hlpP[10]                                          = static_cast<proshade_double> ( ( 2.0 * M_PI ) / hlpP[6] );
+    hlpP[7]                                           = static_cast<proshade_double> ( CSymList->at(axisTwo)[0] );
+    hlpP[11]                                          = static_cast<proshade_double> ( ( 2.0 * M_PI ) / hlpP[6] );
     
     //================================================ Set the axis and heights
     hlpP[1]                                           = CSymList->at(axisOne)[1];
     hlpP[2]                                           = CSymList->at(axisOne)[2];
     hlpP[3]                                           = CSymList->at(axisOne)[3];
     hlpP[5]                                           = CSymList->at(axisOne)[5];
-    hlpP[7]                                           = CSymList->at(axisTwo)[1];
-    hlpP[8]                                           = CSymList->at(axisTwo)[2];
-    hlpP[9]                                           = CSymList->at(axisTwo)[3];
-    hlpP[11]                                          = CSymList->at(axisTwo)[5];
+    hlpP[6]                                           = CSymList->at(axisOne)[6];
+    hlpP[8]                                           = CSymList->at(axisTwo)[1];
+    hlpP[9]                                           = CSymList->at(axisTwo)[2];
+    hlpP[10]                                          = CSymList->at(axisTwo)[3];
+    hlpP[12]                                          = CSymList->at(axisTwo)[5];
+    hlpP[12]                                          = CSymList->at(axisTwo)[6];
     
     //================================================ Save to ret
     ProSHADE_internal_misc::addToDblPtrVector         ( ret, hlpP );
@@ -1385,6 +1387,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
             {
                 for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
                 {
+                    //======================================== Sort ret by fold
+                    std::sort                                 ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+                    
+                    //======================================== Save indices
                     const FloatingPoint< proshade_double > lhs1 ( CSymList->at(csIt)[0] ), rhs1 ( ret.at(retIt)[0] );
                     const FloatingPoint< proshade_double > lhs2 ( CSymList->at(csIt)[1] ), rhs2 ( ret.at(retIt)[1] );
                     const FloatingPoint< proshade_double > lhs3 ( CSymList->at(csIt)[2] ), rhs3 ( ret.at(retIt)[2] );
@@ -1910,7 +1916,7 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
     
     //================================================ Initialise variables
     proshade_double axHeight                          = 0.0;
-    proshade_double* symHlp                           = new proshade_double[6];
+    proshade_double* symHlp                           = new proshade_double[7];
     ProSHADE_internal_misc::checkMemoryAllocation     ( symHlp, __FILE__, __LINE__, __func__ );
     
     //================================================ For each axis pair in the group, find the possible solutions
@@ -1944,7 +1950,7 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
             }
             
             //======================================== Does the solution fit the whole group?
-            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2);
+            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2); symHlp[6] = -1.0;
             if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, true ) )
             {
                 //==================================== Find the height for the axis
@@ -1977,7 +1983,7 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
             }
             
             //======================================== Does the solution fit the whole group?
-            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2);
+            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2); symHlp[6] = -1.0;
             if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, true ) )
             {
                 //==================================== Find the height for the axis
@@ -2163,6 +2169,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
             {
                 for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
                 {
+                    //======================================== Sort ret by fold
+                    std::sort                                 ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+                    
+                    //======================================== Save indices
                     const FloatingPoint< proshade_double > lhs1 ( CSymList->at(csIt)[0] ), rhs1 ( ret.at(retIt)[0] );
                     const FloatingPoint< proshade_double > lhs2 ( CSymList->at(csIt)[1] ), rhs2 ( ret.at(retIt)[1] );
                     const FloatingPoint< proshade_double > lhs3 ( CSymList->at(csIt)[2] ), rhs3 ( ret.at(retIt)[2] );
@@ -2583,7 +2593,7 @@ bool ProSHADE_internal_symmetry::findMissingAxesDual ( std::vector< proshade_uns
 proshade_signed ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr )
 {
     //================================================ Initialise variables
-    proshade_double* symHlp                           = new proshade_double[6];
+    proshade_double* symHlp                           = new proshade_double[7];
     ProSHADE_internal_misc::checkMemoryAllocation     ( symHlp, __FILE__, __LINE__, __func__ );
     proshade_signed ret                               = -1;
     
@@ -2594,12 +2604,13 @@ proshade_signed ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign 
     symHlp[3]                                         = axZ;
     symHlp[4]                                         = 2.0 * M_PI / symHlp[0];
     symHlp[5]                                         = axHeight;
+    symHlp[6]                                         = -1.0;
     
     //================================================ If it is not the same as already saved axes
     if ( !ProSHADE_internal_symmetry::isSymmetrySame ( prosp, symHlp, axErr, &ret ) )
     {
         ProSHADE_internal_misc::addToDblPtrVector     ( prosp, symHlp );
-        return                                        ( static_cast< proshade_signed > ( prosp->size() ) );
+        return                                        ( static_cast< proshade_signed > ( prosp->size() - 1 ) );
     }
     else
     {
@@ -2706,6 +2717,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
         if ( ret.size() != 31 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         else
         {
+            //======================================== Sort ret by fold
+            std::sort                                 ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+            
+            //======================================== Save indices
             for ( proshade_unsign csIt = 0; csIt < static_cast<proshade_unsign> ( CSymList->size() ); csIt++ )
             {
                 for ( proshade_unsign retIt = 0; retIt < static_cast<proshade_unsign> ( ret.size() ); retIt++ )
@@ -2821,7 +2836,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
             proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ret.at(retIt)[0] ), ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
-            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
+            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedOAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
     
@@ -3097,7 +3112,7 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double*
                                                                                                                         icoAx->getValue ( iter, 3 ) );
         
         //============================================ Create ProSHADE symmetry axis representation
-        proshade_double* axis                         = new proshade_double[6];
+        proshade_double* axis                         = new proshade_double[7];
         ProSHADE_internal_misc::checkMemoryAllocation ( axis, __FILE__, __LINE__, __func__ );
         
         axis[0]                                       = icoAx->getValue ( iter, 0 );
@@ -3106,6 +3121,7 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double*
         axis[3]                                       = rotAxis[2];
         axis[4]                                       = ( 2.0 * M_PI ) / axis[0];
         axis[5]                                       = 0.0;
+        axis[6]                                       = -1.0;
         
         //============================================ Save axis to ret
         ProSHADE_internal_misc::addToDblPtrVector     ( ret, axis );
@@ -3268,7 +3284,7 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
                                                                                                                         octAx->getValue ( iter, 3 ) );
         
         //============================================ Create ProSHADE symmetry axis representation
-        proshade_double* axis                         = new proshade_double[6];
+        proshade_double* axis                         = new proshade_double[7];
         ProSHADE_internal_misc::checkMemoryAllocation ( axis, __FILE__, __LINE__, __func__ );
         
         axis[0]                                       = octAx->getValue ( iter, 0 );
@@ -3277,6 +3293,7 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
         axis[3]                                       = rotAxis[2];
         axis[4]                                       = ( 2.0 * M_PI ) / axis[0];
         axis[5]                                       = 0.0;
+        axis[6]                                       = -1.0;
         
         //============================================ Save axis to ret
         ProSHADE_internal_misc::addToDblPtrVector     ( ret, axis );
@@ -3966,6 +3983,9 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         }
     }
     
+    //================================================ Sort axes by fold
+    std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+    
     //================================================ Done
     return ;
     
@@ -4060,7 +4080,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
         for ( proshade_unsign retIt = 0; retIt < static_cast < proshade_unsign > ( ret.size() ); retIt++ )
         {
             proshade_signed matchedPos                = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ret.at(retIt)[0] ), ret.at(retIt)[1], ret.at(retIt)[2], ret.at(retIt)[3], ret.at(retIt)[5], CSymList, settings->axisErrTolerance );
-            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedIAxes, static_cast < proshade_unsign > ( matchedPos ) );
+            ProSHADE_internal_misc::addToUnsignVector ( &settings->allDetectedTAxes, static_cast < proshade_unsign > ( matchedPos ) );
         }
     }
     
@@ -4160,7 +4180,7 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
                                                                                                                         tetAx->getValue ( iter, 3 ) );
 
         //============================================ Create ProSHADE symmetry axis representation
-        proshade_double* axis                         = new proshade_double[6];
+        proshade_double* axis                         = new proshade_double[7];
         ProSHADE_internal_misc::checkMemoryAllocation ( axis, __FILE__, __LINE__, __func__ );
 
         axis[0]                                       = tetAx->getValue ( iter, 0 );
@@ -4169,6 +4189,7 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
         axis[3]                                       = rotAxis[2];
         axis[4]                                       = ( 2.0 * M_PI ) / axis[0];
         axis[5]                                       = 0.0;
+        axis[6]                                       = -1.0;
 
         //============================================ Save axis to ret
         ProSHADE_internal_misc::addToDblPtrVector     ( ret, axis );

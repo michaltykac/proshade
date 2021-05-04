@@ -416,7 +416,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         //== Done
                                                         return ( retArr );
                                                     }, "This function returns a rotation matrix representing the best peak in the rotation map.", pybind11::arg ( "settings" ) )
-        .def                                          ( "rotateMap", &ProSHADE_internal_data::ProSHADE_data::rotateMap, "This function rotates a map based on the given Euler angles.", pybind11::arg ( "settings" ), pybind11::arg ( "eulerAlpha" ), pybind11::arg ( "eulerBeta" ), pybind11::arg ( "eulerGamma" ) )
+        .def                                          ( "rotateMapReciprocalSpace", &ProSHADE_internal_data::ProSHADE_data::rotateMapReciprocalSpace, "This function rotates a map based on the given Euler angles.", pybind11::arg ( "settings" ), pybind11::arg ( "eulerAlpha" ), pybind11::arg ( "eulerBeta" ), pybind11::arg ( "eulerGamma" ) )
         .def                                          ( "zeroPaddToDims", &ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims, "This function changes the size of a structure to fit the supplied new limits.", pybind11::arg ( "xDimMax" ), pybind11::arg ( "yDimMax" ), pybind11::arg ( "zDimMax" ) )
         .def                                          ( "computeTranslationMap", &ProSHADE_internal_data::ProSHADE_data::computeTranslationMap, "This function does the computation of the translation map and saves results internally.", pybind11::arg ( "staticStructure" ) )
         .def                                          ( "getOverlayTranslations",
