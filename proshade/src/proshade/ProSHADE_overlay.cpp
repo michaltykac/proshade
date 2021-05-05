@@ -859,9 +859,9 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpace ( proshade_double
     if ( this->zDimIndices % 2 == 0 ) { maxs[2] -= 1.0f; }
     
     //================================================ Rotate about COM instead of map midpoint
-    movs[0]                                           = ( static_cast< proshade_single > ( xCOM ) / xSampRate ) + mins[0];
-    movs[1]                                           = ( static_cast< proshade_single > ( yCOM ) / ySampRate ) + mins[1];
-    movs[2]                                           = ( static_cast< proshade_single > ( zCOM ) / zSampRate ) + mins[2];
+    movs[0]                                           = ( static_cast< proshade_single > ( xCOM ) / xSampRate ) + ( mins[0] - this->xFrom );
+    movs[1]                                           = ( static_cast< proshade_single > ( yCOM ) / ySampRate ) + ( mins[1] - this->yFrom );
+    movs[2]                                           = ( static_cast< proshade_single > ( zCOM ) / zSampRate ) + ( mins[2] - this->zFrom );
     
     //================================================ Get rotation matrix from Euler angles
     ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, axX, axY, axZ, axAng );

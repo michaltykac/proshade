@@ -1329,23 +1329,21 @@ void ProSHADE_internal_symmetry::saveDSymmetry ( std::vector< proshade_double* >
     proshade_double* hlpP                             = new proshade_double [14];
     ProSHADE_internal_misc::checkMemoryAllocation     ( hlpP, __FILE__, __LINE__, __func__ );
     
-    //================================================ Set obvious values
-    hlpP[0]                                           = static_cast<proshade_double> ( CSymList->at(axisOne)[0] );
-    hlpP[4]                                           = static_cast<proshade_double> ( ( 2.0 * M_PI ) / hlpP[0] );
-    hlpP[7]                                           = static_cast<proshade_double> ( CSymList->at(axisTwo)[0] );
-    hlpP[11]                                          = static_cast<proshade_double> ( ( 2.0 * M_PI ) / hlpP[6] );
-    
     //================================================ Set the axis and heights
+    hlpP[0]                                           = CSymList->at(axisOne)[0];
     hlpP[1]                                           = CSymList->at(axisOne)[1];
     hlpP[2]                                           = CSymList->at(axisOne)[2];
     hlpP[3]                                           = CSymList->at(axisOne)[3];
+    hlpP[4]                                           = CSymList->at(axisOne)[4];
     hlpP[5]                                           = CSymList->at(axisOne)[5];
     hlpP[6]                                           = CSymList->at(axisOne)[6];
+    hlpP[7]                                           = CSymList->at(axisTwo)[0];
     hlpP[8]                                           = CSymList->at(axisTwo)[1];
     hlpP[9]                                           = CSymList->at(axisTwo)[2];
     hlpP[10]                                          = CSymList->at(axisTwo)[3];
+    hlpP[11]                                          = CSymList->at(axisTwo)[4];
     hlpP[12]                                          = CSymList->at(axisTwo)[5];
-    hlpP[12]                                          = CSymList->at(axisTwo)[6];
+    hlpP[13]                                          = CSymList->at(axisTwo)[6];
     
     //================================================ Save to ret
     ProSHADE_internal_misc::addToDblPtrVector         ( ret, hlpP );
