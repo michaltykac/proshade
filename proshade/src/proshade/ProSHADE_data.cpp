@@ -2446,9 +2446,9 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     detected. It starts by taking all C symmetries and building a histogram of their peak heights. From this histogram, it determines a threshold
     which contains only the most reliable axes.
  
-    Next, the function tests for at least two axes being over this threshold for the polyhedral symmetries - I, O and T in this order. If two such
-    axes (with different fold) are found, their FSC will be checked against the supplied (settings object) threshold (default: 0.8). If both axes
-    pass the FSC test, then the corresponding polyhedral symmetry is determined as recommended.
+    Next, the function tests for all axes being over this threshold for the polyhedral symmetries - I, O and T in this order. If all such
+    axes (with appropriate folds) are found, their FSCs will be checked against the supplied (settings object) threshold (default: 0.75).
+    If all axes pass the FSC test, then the corresponding polyhedral symmetry is determined as recommended.
  
     Should no polyhedral symmetries be found, the list of detected D symmetries will be tested next with very similar approach - both axes are
     required to pass the peak height threshold as well as the FSC threshold. Should multiple axes pairs pass, the one with the highest fold will
@@ -2468,9 +2468,6 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes )
 {
-    //== Settings ...
-    proshade_double fscThreshold = 0.8;
-    
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting recommended symmetry decision procedure." );
     
@@ -2487,6 +2484,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_double sigma                             = 0.03;
     proshade_signed windowSize                        = 9;
     proshade_double bestHistPeakStart                 = this->findTopGroupSmooth ( CSym, step, sigma, windowSize );
+    if ( bestHistPeakStart > settings->peakThresholdMin ) { bestHistPeakStart = settings->peakThresholdMin; }
     
     //================================================ Report progress
     proshade_unsign noPassed = 0; for ( size_t cIt = 0; cIt < CSym->size(); cIt++ ) { if ( CSym->at(cIt)[5] > bestHistPeakStart ) { noPassed += 1; } }
@@ -2527,19 +2525,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ISym->size() == 31 )
     {
         //============================================ Initialise decision vars
-        bool AllC5sFound                              = true;
-        bool AllC3sFound                              = true;
-        bool AllC2sFound                              = true;
         proshade_double fscVal                        = 0.0;
+        proshade_double fscValAvg                     = 0.0;
         
         //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t iIt = 0; iIt < 6; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
-                if ( fscVal < fscThreshold ) { AllC5sFound = false; break; } } }
-        if ( AllC5sFound ) { for ( size_t iIt = 6; iIt < 16; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC3sFound = false; break; } } } }
-        if ( AllC3sFound ) { for ( size_t iIt = 16; iIt < 31; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC2sFound = false; break; } } } }
+        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); fscValAvg += fscVal; } }
+        fscValAvg                                    /= 31.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( AllC2sFound && AllC3sFound && AllC5sFound )
+        if ( fscValAvg >= settings->fscThreshold )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2556,18 +2550,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ( OSym->size() == 13 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
-        bool AllC4sFound                              = true;
-        bool AllC3sFound                              = true;
-        bool AllC2sFound                              = true;
         proshade_double fscVal                        = 0.0;
+        proshade_double fscValAvg                     = 0.0;
         
         //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t oIt = 0; oIt < 3; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC4sFound = false; break; } } }
-        if ( AllC4sFound ) { for ( size_t oIt = 3; oIt < 7; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC3sFound = false; break; } } } }
-        if ( AllC3sFound ) { for ( size_t oIt = 7; oIt < 13; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC2sFound = false; break; } } } }
+        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); fscValAvg += fscVal; } }
+        fscValAvg                                    /= 13.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( AllC2sFound && AllC3sFound && AllC4sFound )
+        if ( fscValAvg >= settings->fscThreshold )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2584,16 +2575,15 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ( TSym->size() == 7 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
-        bool AllC3sFound                              = false;
-        bool AllC2sFound                              = false;
         proshade_double fscVal                        = 0.0;
+        proshade_double fscValAvg                     = 0.0;
         
         //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t tIt = 0; tIt < 4; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC3sFound = false; break; } } }
-        if ( AllC3sFound ) { for ( size_t tIt = 4; tIt < 7; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC2sFound = false; break; } } } }
+        for ( size_t tIt = 0; tIt < 7; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); fscValAvg += fscVal; } }
+        fscValAvg                                    /= 7.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( AllC3sFound && AllC2sFound )
+        if ( fscValAvg >= settings->fscThreshold )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );
@@ -2626,11 +2616,11 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             {
                 //==================================== Compute FSC
                 fscVal1                               = this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
-                if ( fscVal1 <= fscThreshold ) { continue; }
+                if ( fscVal1 <= settings->fscThreshold ) { continue; }
                 fscVal2                               = this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
                 
                 //==================================== If both FSC's pass
-                if ( fscVal2 > fscThreshold )
+                if ( fscVal2 > settings->fscThreshold )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
                     bestD                             = static_cast< proshade_signed > ( dIt );
@@ -2678,7 +2668,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                 fscVal                                = this->computeFSC ( settings, CSym, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
                 
                 //==================================== If FSC passes
-                if ( fscVal > fscThreshold )
+                if ( fscVal > settings->fscThreshold )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );

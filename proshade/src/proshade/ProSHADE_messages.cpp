@@ -286,6 +286,14 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    --fscThres or -C                               [DEFAULT:          0.75]     " << std::endl;
+    std::cout << "            The Fourier Shell Correlation value the axes need to achieve in     " << std::endl;
+    std::cout << "            order to be considered \"real\" by the symmetry detection algorithm.  " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --peakMinThres or -E                           [DEFAULT:          0.80]     " << std::endl;
+    std::cout << "            The average peak height value the axes need to achieve in order     " << std::endl;
+    std::cout << "            to be considered \"possible\" by the symmetry detection algorithm.    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    --reqSym                                        [DEFAULT:           \"\"]     " << std::endl;
     std::cout << "            This is where the user states any particular symmetry he is         " << std::endl;
     std::cout << "            interested in detecting. The way to specify any symmetry is to      " << std::endl;

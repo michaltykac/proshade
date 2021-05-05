@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.5.5
+    \date      MAY 2021
 */
 
 //==================================================== ProSHADE
@@ -56,6 +56,8 @@ int main ( int argc, char **argv )
     settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
+    settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
+    settings->setPeakThreshold                        ( 0.80 );                              // Sets the minimum peak height threshold for axis to be considered possible.
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( -999.9 );                            // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.

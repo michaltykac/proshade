@@ -119,6 +119,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
+    this->fscThreshold                                = 0.75;
+    this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -234,6 +236,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
+    this->fscThreshold                                = 0.75;
+    this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -1382,6 +1386,42 @@ void                       ProSHADE_settings::setMaxSymmetryFold ( proshade_unsi
     
 }
 
+/*! \brief Sets the minimum FSC threshold for axis to be considered detected.
+ 
+    \param[in] fscThr The minimum axis FSC threshold for the axis to be considered detected.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setFSCThreshold ( proshade_double fscThr )
+#else
+void                       ProSHADE_settings::setFSCThreshold ( proshade_double fscThr )
+#endif
+{
+    //================================================ Set the value
+    this->fscThreshold                                = fscThr;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the minimum peak height threshold for axis to be considered possible.
+ 
+    \param[in] fscThr The minimum axis peak height threshold for the axis to be considered possible.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setPeakThreshold ( proshade_double peakThr )
+#else
+void                       ProSHADE_settings::setPeakThreshold ( proshade_double peakThr )
+#endif
+{
+    //================================================ Set the value
+    this->peakThresholdMin                            = peakThr;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1867,6 +1907,8 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "bicubSearch",     no_argument,        nullptr, 'A' },
         { "maxSymPrime",     required_argument,  nullptr, 'B' },
         { "minPeakHeight",   required_argument,  nullptr, 'o' },
+        { "fscThres",        required_argument,  nullptr, 'C' },
+        { "peakMinThres",    required_argument,  nullptr, 'E' },
         { "reqSym",          required_argument,  nullptr, '{' },
         { "overlayFile",     required_argument,  nullptr, '}' },
         { "overlayJSONFile", required_argument,  nullptr, 'y' },
@@ -1876,7 +1918,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cd:DE:e:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2208,14 +2250,14 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              //======================================= Save the argument as the missing axis threshold value
              case 'q':
              {
-                 setAxisComparisonThresholdBehaviour  ( !this->axisErrToleranceDefault );
+                 this->setAxisComparisonThresholdBehaviour ( !this->axisErrToleranceDefault );
                  continue;
              }
                  
              //======================================= Save the argument as the bicubic interpolation search requirement value
              case 'A':
              {
-                 setBicubicInterpolationSearch        ( !this->useBiCubicInterpolationOnPeaks );
+                 this->setBicubicInterpolationSearch  ( !this->useBiCubicInterpolationOnPeaks );
                  continue;
              }
                  
@@ -2230,6 +2272,20 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'o':
              {
                  this->minSymPeak                     = static_cast<proshade_double> ( atof ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Minimum FSC value for axis to be detected
+             case 'C':
+             {
+                 this->setFSCThreshold                ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Minimum peak height value for axis to be considered possible
+             case 'E':
+             {
+                 this->setPeakThreshold               ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  

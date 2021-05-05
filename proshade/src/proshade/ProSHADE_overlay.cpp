@@ -797,7 +797,8 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMapReciprocalSpace ( ProSHADE_
 
 /*! \brief This function rotates a map based on the given Euler angles.
  
-    ...d
+    This function takes the axis and angle of the required rotation as well as a pointer to which the rotated map should be
+    saved into and proceeds to rotate the map in real space using tri-linear interpolation.
  
     \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
     \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.

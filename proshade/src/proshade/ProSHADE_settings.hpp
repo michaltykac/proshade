@@ -127,6 +127,8 @@ public:
     bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
+    proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
+    proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -218,6 +220,8 @@ public:
     void __declspec(dllexport) setSymmetryRotFunPeaks                         ( bool rotFunPeaks );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
     void __declspec(dllexport) setMaxSymmetryFold                             ( proshade_unsign maxFold );
+    void __declspec(dllexport) setFSCThreshold                                ( proshade_double fscThr );
+    void __declspec(dllexport) setPeakThreshold                               ( proshade_double peakThr );
 #else
     void addStructure                                 ( std::string structure );
     void setResolution                                ( proshade_single resolution );
@@ -269,6 +273,8 @@ public:
     void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );
     void setMaxSymmetryFold                           ( proshade_unsign maxFold );
+    void setFSCThreshold                              ( proshade_double fscThr );
+    void setPeakThreshold                             ( proshade_double peakThr );
 #endif
     
     //================================================ Command line options parsing

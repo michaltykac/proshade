@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.4
-#   \date      MAR 2021
+#   \version   0.7.5.5
+#   \date      MAY 2021
 ######################################################
 ######################################################
 
@@ -48,6 +48,8 @@ ps.addStructure                                       ( "/Users/mysak/BioCEV/pro
 ps.setSymmetryRotFunPeaks                             ( True )                  # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                  # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                    # The maximum prime number fold that will be searched for.
+ps.setFSCThreshold                                    ( 0.75 )                  # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.80 )                  # The threshold for peak height above which axes are considered possible.
 ps.forceP1                                            = True                    # Should PDB files be forced to have P1 spacegroup?
 ps.removeWaters                                       = True                    # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                    # Should PDB files have only their first model used, or should ProSHADE use all models?
