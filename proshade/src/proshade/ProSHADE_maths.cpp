@@ -1006,20 +1006,47 @@ void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band
  */
 void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
 {
-    //================================================ First row
-    matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
-  
-    //================================================ Second row
-    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
-    matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
-    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
-  
-    //================================================ Third row
-    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
-    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
-    matrix[8]                                         =  cos ( eulerBeta  );
+    //================================================ No singularity/glimbal lock present
+    if ( std::abs ( std::cos ( eulerBeta ) ) <= 0.9999999 )
+    {
+        //============================================ First row
+        matrix[0]                                     =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
+        matrix[1]                                     =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+        matrix[2]                                     = -sin ( eulerBeta  ) * cos ( eulerGamma );
+      
+        //============================================ Second row
+        matrix[3]                                     = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+        matrix[4]                                     = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
+        matrix[5]                                     =  sin ( eulerBeta  ) * sin ( eulerGamma );
+      
+        //============================================ Third row
+        matrix[6]                                     =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+        matrix[7]                                     =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+        matrix[8]                                     =  cos ( eulerBeta  );
+    }
+    else
+    {
+        //============================================ Beta is either 0 or pi, making the alpha and gamma dimensions collapse into one (either only alpha+gamma or alpha-gamma are defined). In this case, we use conversion through quatermions.
+        proshade_double qi                            = std::cos ( ( eulerAlpha - eulerGamma ) / 2.0 ) * std::sin ( eulerBeta / 2.0 );
+        proshade_double qj                            = std::sin ( ( eulerAlpha - eulerGamma ) / 2.0 ) * std::sin ( eulerBeta / 2.0 );
+        proshade_double qk                            = std::sin ( ( eulerAlpha + eulerGamma ) / 2.0 ) * std::cos ( eulerBeta / 2.0 );
+        proshade_double qr                            = std::cos ( ( eulerAlpha + eulerGamma ) / 2.0 ) * std::cos ( eulerBeta / 2.0 );
+        
+        //============================================ First row
+        matrix[0]                                     = -1.0 + 2.0 * std::pow ( qi, 2.0 ) + 2.0 * std::pow ( qr, 2.0 );
+        matrix[1]                                     =  2.0 * ( qi * qj - qk * qr );
+        matrix[2]                                     =  2.0 * ( qi * qk + qj * qr );
+      
+        //============================================ Second row
+        matrix[3]                                     =  2.0 * ( qi * qj + qk * qr );
+        matrix[4]                                     = -1.0 + 2.0 * std::pow ( qj, 2.0 ) + 2.0 * std::pow ( qr, 2.0 );
+        matrix[5]                                     =  2.0 * ( qj * qk - qi * qr );
+      
+        //============================================ Third row
+        matrix[6]                                     =  2.0 * ( qi * qk - qj * qr );
+        matrix[7]                                     =  2.0 * ( qj * qk + qi * qr );
+        matrix[8]                                     = -1.0 + 2.0 * std::pow ( qk, 2.0 ) + 2.0 * std::pow ( qr, 2.0 );
+    }
     
     //================================================ Done
     return ;
@@ -1035,20 +1062,47 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
  */
 void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
 {
-    //================================================ First row
-    matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
-    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
-  
-    //================================================ Second row
-    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
-    matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
-    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
-  
-    //================================================ Third row
-    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
-    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
-    matrix[8]                                         =  cos ( eulerBeta  );
+    //================================================ No singularity/glimbal lock present
+    if ( std::abs ( std::cos ( eulerBeta ) ) <= 0.9999999f )
+    {
+        //============================================ First row
+        matrix[0]                                     =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
+        matrix[1]                                     =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+        matrix[2]                                     = -sin ( eulerBeta  ) * cos ( eulerGamma );
+      
+        //============================================ Second row
+        matrix[3]                                     = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+        matrix[4]                                     = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
+        matrix[5]                                     =  sin ( eulerBeta  ) * sin ( eulerGamma );
+      
+        //============================================ Third row
+        matrix[6]                                     =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+        matrix[7]                                     =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+        matrix[8]                                     =  cos ( eulerBeta  );
+    }
+    else
+    {
+        //============================================ Beta is either 0 or pi, making the alpha and gamma dimensions collapse into one (either only alpha+gamma or alpha-gamma are defined). In this case, we use conversion through quatermions.
+        proshade_single qi                            = std::cos ( ( eulerAlpha - eulerGamma ) / 2.0f ) * std::sin ( eulerBeta / 2.0f );
+        proshade_single qj                            = std::sin ( ( eulerAlpha - eulerGamma ) / 2.0f ) * std::sin ( eulerBeta / 2.0f );
+        proshade_single qk                            = std::sin ( ( eulerAlpha + eulerGamma ) / 2.0f ) * std::cos ( eulerBeta / 2.0f );
+        proshade_single qr                            = std::cos ( ( eulerAlpha + eulerGamma ) / 2.0f ) * std::cos ( eulerBeta / 2.0f );
+        
+        //============================================ First row
+        matrix[0]                                     = -1.0f + 2.0f * std::pow ( qi, 2.0f ) + 2.0f * std::pow ( qr, 2.0f );
+        matrix[1]                                     =  2.0f * ( qi * qj - qk * qr );
+        matrix[2]                                     =  2.0f * ( qi * qk + qj * qr );
+      
+        //============================================ Second row
+        matrix[3]                                     =  2.0f * ( qi * qj + qk * qr );
+        matrix[4]                                     = -1.0f + 2.0f * std::pow ( qj, 2.0f ) + 2.0f * std::pow ( qr, 2.0f );
+        matrix[5]                                     =  2.0f * ( qj * qk - qi * qr );
+      
+        //============================================ Third row
+        matrix[6]                                     =  2.0f * ( qi * qk - qj * qr );
+        matrix[7]                                     =  2.0f * ( qj * qk + qi * qr );
+        matrix[8]                                     = -1.0f + 2.0f * std::pow ( qk, 2.0f ) + 2.0f * std::pow ( qr, 2.0f );
+    }
     
     //================================================ Done
     return ;
@@ -1492,23 +1546,31 @@ void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_single* 
  */
 void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
-    //================================================ Get ZXZ Euler from matrix
-   *eA                                                = atan2 ( rotMat[7],  rotMat[6] );
-   *eB                                                = acos  ( rotMat[8] );
-   *eG                                                = atan2 ( rotMat[5], -rotMat[2] );
-    
-    //================================================ Solve undefined 0,0 inputs (i.e. identity matrix)
-    proshade_double errLimit                          = 0.001;
-    if ( ( ( rotMat[7] < errLimit ) && ( rotMat[7] > -errLimit ) ) && ( ( rotMat[6] < errLimit ) && ( rotMat[6] > -errLimit ) ) )
+    //================================================ Convert to Eulers
+    if ( std::abs( rotMat[8] ) <= 0.99999 )
     {
-        //============================================ atan2 (0,0) is undefined, we want 0.0 here
-       *eA                                            = 0.0;
+        //============================================ This case occurs when there is no singularity in the rotation matrix (i.e. it does not have 0 or 180 degrees angle)
+       *eA                                            = std::atan2 ( rotMat[7],  rotMat[6] );
+       *eB                                            = std::acos  ( rotMat[8] );
+       *eG                                            = std::atan2 ( rotMat[5], -rotMat[2] );
     }
-    
-    if ( ( ( rotMat[5] < errLimit ) && ( rotMat[5] > -errLimit ) ) && ( ( rotMat[2] < errLimit ) && ( rotMat[2] > -errLimit ) ) )
+    else
     {
-        //============================================ atan2 (0,0) is undefined, we want 0.0 here
-       *eG                                            = 0.0;
+        //============================================ This case occurs when there is either 0 or 180 degrees rotation angle in the rotation matrix and therefore when beta is zero.
+        if ( rotMat[8] >= 0.99999 )
+        {
+            //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their sum. So we arbitrarily set gamma to 0 and solve alpha.
+           *eA                                        = std::atan2 ( rotMat[3], rotMat[0] );
+           *eB                                        = 0.0;
+           *eG                                        = 0.0;
+        }
+        if ( rotMat[8] <= -0.99999 )
+        {
+            //======================================== In this case, beta = PI and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
+           *eA                                        = std::atan2 ( rotMat[3], rotMat[0] );
+           *eB                                        = M_PI;
+           *eG                                        = 0.0;
+        }
     }
     
     //================================================ Get the angles to proper range

@@ -2527,16 +2527,19 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ISym->size() == 31 )
     {
         //============================================ Initialise decision vars
-        bool C5Found                                  = false;
-        bool C3Found                                  = false;
+        bool AllC5sFound                              = true;
+        bool AllC3sFound                              = true;
+        bool AllC2sFound                              = true;
         proshade_double fscVal                        = 0.0;
         
         //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t iIt = 0; iIt < 6; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C5Found = true; break; } } }
-        if ( C5Found ) { for ( size_t iIt = 6; iIt < 16; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C3Found = true; break; } } } }
+        for ( size_t iIt = 0; iIt < 6; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
+                if ( fscVal < fscThreshold ) { AllC5sFound = false; break; } } }
+        if ( AllC5sFound ) { for ( size_t iIt = 6; iIt < 16; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC3sFound = false; break; } } } }
+        if ( AllC3sFound ) { for ( size_t iIt = 16; iIt < 31; iIt++ ) { if ( CSym->at(settings->allDetectedIAxes.at(iIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC2sFound = false; break; } } } }
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( C5Found && C3Found )
+        if ( AllC2sFound && AllC3sFound && AllC5sFound )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2553,16 +2556,18 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ( OSym->size() == 13 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
-        bool C4Found                                  = false;
-        bool C3Found                                  = false;
+        bool AllC4sFound                              = true;
+        bool AllC3sFound                              = true;
+        bool AllC2sFound                              = true;
         proshade_double fscVal                        = 0.0;
         
         //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t oIt = 0; oIt < 3; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C4Found = true; break; } } }
-        if ( C4Found ) { for ( size_t oIt = 3; oIt < 7; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C3Found = true; break; } } } }
+        for ( size_t oIt = 0; oIt < 3; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC4sFound = false; break; } } }
+        if ( AllC4sFound ) { for ( size_t oIt = 3; oIt < 7; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC3sFound = false; break; } } } }
+        if ( AllC3sFound ) { for ( size_t oIt = 7; oIt < 13; oIt++ ) { if ( CSym->at(settings->allDetectedOAxes.at(oIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC2sFound = false; break; } } } }
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( C4Found && C3Found )
+        if ( AllC2sFound && AllC3sFound && AllC4sFound )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2579,16 +2584,16 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ( TSym->size() == 7 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
-        bool C3Found                                  = false;
-        bool C2Found                                  = false;
+        bool AllC3sFound                              = false;
+        bool AllC2sFound                              = false;
         proshade_double fscVal                        = 0.0;
         
         //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t tIt = 0; tIt < 4; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C3Found = true; break; } } }
-        if ( C3Found ) { for ( size_t tIt = 4; tIt < 7; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal > fscThreshold ) { C2Found = true; break; } } } }
+        for ( size_t tIt = 0; tIt < 4; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC3sFound = false; break; } } }
+        if ( AllC3sFound ) { for ( size_t tIt = 4; tIt < 7; tIt++ ) { if ( CSym->at(settings->allDetectedTAxes.at(tIt))[5] > bestHistPeakStart ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); if ( fscVal < fscThreshold ) { AllC2sFound = false; break; } } } }
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( C3Found && C2Found )
+        if ( AllC3sFound && AllC2sFound )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );
