@@ -1876,7 +1876,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     //================================================ Modify axis tolerance and matrix tolerance by sampling, if required by user
     if ( settings->axisErrToleranceDefault )
     {
-        settings->axisErrTolerance                    = std::max ( 0.01, ( 2.0 * M_PI ) / static_cast< proshade_double > ( this->maxShellBand ) );
+        settings->axisErrTolerance                    = std::min ( std::max ( 0.01, ( 2.0 * M_PI ) / static_cast< proshade_double > ( this->maxShellBand ) ), 0.05 );
     }
     
     //================================================ Prepare FSC computation memory and variables

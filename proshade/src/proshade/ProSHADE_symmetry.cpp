@@ -3664,7 +3664,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         std::vector< proshade_double* > prSyms        = this->findRequestedCSymmetryFromAngleAxis ( settings, primes.at(prIt), &symThres );
         
         //============================================ Save the detected C symmetries
-        for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( prSyms.size() ); axIt++ )
+        for ( size_t axIt = 0; axIt < prSyms.size(); axIt++ )
         {
             //======================================== Is this symmetry passing the threshold?
             if ( prSyms.at(axIt)[5] >= symThres )
@@ -3714,7 +3714,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 std::vector< proshade_double* > prSyms = this->findRequestedCSymmetryFromAngleAxis ( settings, foldToTest, &symThres );
                 
                 //==================================== For each detected group with the required fold
-                for ( proshade_unsign newAxIt = 0; newAxIt < static_cast< proshade_unsign > ( prSyms.size() ); newAxIt++ )
+                for ( size_t newAxIt = 0; newAxIt < prSyms.size(); newAxIt++ )
                 {
                     if ( prSyms.at(newAxIt)[5] >= symThres )
                     {

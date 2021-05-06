@@ -286,18 +286,18 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                                             std::vector< std::vector< proshade_double > > vals = self.getAllCSyms ();
     
                                                             //== Allocate memory for the numpy values
-                                                            float* npVals = new float[static_cast<unsigned int> ( vals.size() * 6 )];
+                                                            float* npVals = new float[static_cast<unsigned int> ( vals.size() * 7 )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
             
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = static_cast< float > ( vals.at(iter).at(it) ); } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( vals.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 7; it++ ) { npVals[(iter*7)+it] = static_cast< float > ( vals.at(iter).at(it) ); } }
             
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleSymList ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
     
                                                             //== Copy the value
-                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( vals.size() ), static_cast<int> ( 6 ) },  // Shape
-                                                                                                                            { 6 * sizeof(float), sizeof(float) },                          // C-stype strides
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( vals.size() ), static_cast<int> ( 7 ) },  // Shape
+                                                                                                                            { 7 * sizeof(float), sizeof(float) },                          // C-stype strides
                                                                                                                             npVals,                                                        // Data
                                                                                                                             pyCapsuleSymList );                                            // Capsule
     
