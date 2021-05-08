@@ -3066,11 +3066,11 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double*
     
     //================================================ Find the angle betwen the rotated model C3 and the detected C3 axes along the detected C5 axis.
     proshade_double bestAng = 0.0, curAngDist, bestAngDist = 999.9;
-    for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.01 )
+    proshade_double* rotMatHlp                    = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation ( rotMatHlp, __FILE__, __LINE__, __func__ );
+    for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.002 )
     {
         //============================================ Compute rotation matrix for this angle value
-        proshade_double* rotMatHlp                    = new proshade_double[9];
-        ProSHADE_internal_misc::checkMemoryAllocation ( rotMatHlp, __FILE__, __LINE__, __func__ );
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMatHlp, CSymList->at(initAxes.first)[1], CSymList->at(initAxes.first)[2], CSymList->at(initAxes.first)[3], ang );
         
         //============================================ Rotate the rotated C2 by the matrix
@@ -3088,9 +3088,11 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double*
         if ( curAngDist < bestAngDist ) { bestAngDist = curAngDist; bestAng = ang; }
         
         //============================================ Release memory
-        delete[] rotMatHlp;
         delete[] rotRotModelC3;
     }
+    
+    //============================================ Release memory
+    delete[] rotMatHlp;
     
     //================================================ For the rotation matrix along the detected C5 axis with the same anlge as is between the rotated model C3 and the detected C3 axes.
     proshade_double* rotMat2                          = new proshade_double[9];
@@ -3238,11 +3240,11 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
     
     //================================================ Find the angle betwen the rotated model C3 and the detected C3 axes along the detected C4 axis.
     proshade_double bestAng = 0.0, curAngDist, bestAngDist = 999.9;
-    for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.01 )
+    proshade_double* rotMatHlp                    = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation ( rotMatHlp, __FILE__, __LINE__, __func__ );
+    for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.002 )
     {
         //============================================ Compute rotation matrix for this angle value
-        proshade_double* rotMatHlp                    = new proshade_double[9];
-        ProSHADE_internal_misc::checkMemoryAllocation ( rotMatHlp, __FILE__, __LINE__, __func__ );
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMatHlp, CSymList->at(initAxes.first)[1], CSymList->at(initAxes.first)[2], CSymList->at(initAxes.first)[3], ang );
         
         //============================================ Rotate the rotated C2 by the matrix
@@ -3260,9 +3262,11 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
         if ( curAngDist < bestAngDist ) { bestAngDist = curAngDist; bestAng = ang; }
         
         //============================================ Release memory
-        delete[] rotMatHlp;
         delete[] rotRotModelC3;
     }
+    
+    //============================================ Release memory
+    delete[] rotMatHlp;
     
     //================================================ For the rotation matrix along the detected C5 axis with the same anlge as is between the rotated model C3 and the detected C3 axes.
     proshade_double* rotMat2                          = new proshade_double[9];
@@ -3989,6 +3993,88 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     
 }
 
+/*! \brief This function finds the rotation function value for a single axis.
+ 
+    This function is a simplified version of the findPredictedAxesHeights, except this one searches for the density map
+    peak height for a single supplied axis (with the format of the array being x = [0], y = [1] and z = [2] and the fold being
+    supplied separately).
+ 
+    \param[in] axis A single axis for which the height is to be found.
+    \param[in] fold The fold the axis should have.
+    \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
+    \param[in] settings ProSHADE_settings object containing all the settings for this run.
+    \param[out] height The height for this axis.
+ */
+proshade_double ProSHADE_internal_symmetry::findPredictedSingleAxisHeight ( proshade_double* axis, proshade_double fold, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
+{
+    //================================================ Initialise variables
+    proshade_double height                            = 0.0;
+    proshade_double lat, lon;
+    proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
+    proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
+    
+    //================================================ Make sure we have a clean start
+    dataObj->sphereMappedRotFun.clear                 ( );
+    
+    //================================================ Convert rotation function to only the required angle-axis space spheres and find all peaks
+    for ( proshade_double angIt = 1.0; angIt < fold; angIt += 1.0 )
+    {
+        //============================================ Create the angle-axis sphere with correct radius (angle)
+        dataObj->sphereMappedRotFun.emplace_back      ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angIt * ( 2.0 * M_PI / fold ),
+                                                                                                                M_PI / fold,
+                                                                                                                dataObj->maxShellBand * 2,
+                                                                                                                angIt * ( 2.0 * M_PI / fold ),
+                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+        
+        //============================================ Interpolate rotation function onto the sphere
+        dataObj->sphereMappedRotFun.at( static_cast < proshade_unsign > ( angIt - 1.0 ))->interpolateSphereValues ( dataObj->getInvSO3Coeffs ( ) );
+    }
+    
+    //================================================ Convert XYZ to lat and lon INDICES
+    lat                                               = std::atan2( axis[1], axis[0] ) / latSamlUnit;
+    lon                                               = std::acos ( axis[2] ) / lonSamlUnit;
+    
+    if ( lat < 0.0 ) { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+    if ( lon < 0.0 ) { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+    
+    lat                                               = std::round ( lat );
+    lon                                               = std::round ( lon );
+    
+    //================================================ Initialise the peak group
+    ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* grp = nullptr;
+    
+    //================================================ Construct a peak group with entry from each sphere with the axis as the peak
+    for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( dataObj->sphereMappedRotFun.size() ); sphIt++ )
+    {
+        if ( sphIt == 0 )
+        {
+            //======================================== If first sphere, create the peak group
+            grp                                       = new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( lat, lon, sphIt, dataObj->sphereMappedRotFun.at(sphIt)->getAngularDim() );
+        }
+        else
+        {
+            //======================================== Add to the existing object
+            grp->checkIfPeakBelongs                   ( lat, lon, sphIt, settings->axisErrTolerance, settings->verbose );
+        }
+    }
+    
+    //================================================ Find the peak height
+    std::vector < proshade_double* > detectedAxis;
+    grp->findCyclicPointGroupsGivenFold               ( dataObj->sphereMappedRotFun, &detectedAxis, settings->useBiCubicInterpolationOnPeaks, static_cast< proshade_unsign > ( fold ), settings->verbose );
+    
+    //================================================ Save it!
+    if ( detectedAxis.size() > 0 )                    { height = detectedAxis.at(0)[5]; }
+    else                                              { height = 0.0; }
+    
+    //================================================ Release memory
+    for ( proshade_unsign i = 0; i < static_cast < proshade_unsign > ( detectedAxis.size() ); i++ ) { delete detectedAxis.at(i); }
+    delete grp;
+    
+    //================================================ Done
+    return                                            ( height );
+    
+}
+
 /*! \brief This function finds the best pair of axes conforming to the tetrahedron dihedral angle.
  
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
@@ -4134,11 +4220,11 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
 
     //================================================ Find the angle betwen the rotated model C2 and the detected C2 axes along the detected C3 axis.
     proshade_double bestAng = 0.0, curAngDist, bestAngDist = 999.9;
-    for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.01 )
+    proshade_double* rotMatHlp                        = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMatHlp, __FILE__, __LINE__, __func__ );
+    for ( proshade_double ang = 0.0; ang < ( M_PI * 2.0 ); ang += 0.002 )
     {
         //============================================ Compute rotation matrix for this angle value
-        proshade_double* rotMatHlp                    = new proshade_double[9];
-        ProSHADE_internal_misc::checkMemoryAllocation ( rotMatHlp, __FILE__, __LINE__, __func__ );
         ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMatHlp, CSymList->at(initAxes.first)[1], CSymList->at(initAxes.first)[2], CSymList->at(initAxes.first)[3], ang );
         
         //============================================ Rotate the rotated C2 by the matrix
@@ -4156,9 +4242,11 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
         if ( curAngDist < bestAngDist ) { bestAngDist = curAngDist; bestAng = ang; }
         
         //============================================ Release memory
-        delete[] rotMatHlp;
         delete[] rotRotModelC2;
     }
+    
+    //================================================ Release memory
+    delete[] rotMatHlp;
     
     //================================================ For the rotation matrix along the detected C5 axis with the same anlge as is between the rotated model C3 and the detected C3 axes.
     proshade_double* rotMat2                          = new proshade_double[9];

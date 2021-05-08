@@ -1410,6 +1410,12 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
         detectedSymmetry[4]                          *= -1.0;
     }
     
+    //================================================ Check for decimal underflows. They are not an issue as rounding to zero is fine, but having negative sign to zero will switch the signs and cause problems.
+    const FloatingPoint< proshade_double > llhs1 ( detectedSymmetry[1] ), llhs2 ( detectedSymmetry[2] ), llhs3 ( detectedSymmetry[3] ), rrhs1 ( 0.0 );
+    if ( llhs1.AlmostEquals ( rrhs1 ) ) { detectedSymmetry[1] = 0.0; }
+    if ( llhs2.AlmostEquals ( rrhs1 ) ) { detectedSymmetry[2] = 0.0; }
+    if ( llhs3.AlmostEquals ( rrhs1 ) ) { detectedSymmetry[3] = 0.0; }
+    
     //================================================ Save detected point group
     ProSHADE_internal_misc::addToDblPtrVector         ( detectedCs, detectedSymmetry );
     
