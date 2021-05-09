@@ -47,6 +47,7 @@ ps.addStructure                                       ( "/Users/mysak/BioCEV/pro
 ######################################################
 ### Further useful settings
 ps.forceP1                                            = True                         # Should PDB files be forced to have P1 spacegroup?
+ps.setNegativeDensity                                 ( True )                       # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                         # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                         # Should PDB files have only their first model used, or should ProSHADE use all models?
 ps.setMasking                                         ( True )                       # Should maps be masked by blurring?

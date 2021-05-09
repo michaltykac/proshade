@@ -39,6 +39,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
                                 
         .def_readwrite                                ( "inputFiles",                           &ProSHADE_settings::inputFiles                          )
         .def_readwrite                                ( "forceP1",                              &ProSHADE_settings::forceP1                             )
+        .def_readwrite                                ( "removeNegativeDensity",                &ProSHADE_settings::removeNegativeDensity               )
         .def_readwrite                                ( "removeWaters",                         &ProSHADE_settings::removeWaters                        )
         .def_readwrite                                ( "firstModelOnly",                       &ProSHADE_settings::firstModelOnly                      )
                 
@@ -167,6 +168,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setMaxSymmetryFold",                   &ProSHADE_settings::setMaxSymmetryFold,                     "Sets the maximum symmetry fold (well, the maximum prime symmetry fold).",                                               pybind11::arg ( "maxFold"       ) )
         .def                                          ( "setFSCThreshold",                      &ProSHADE_settings::setFSCThreshold,                        "Sets the minimum FSC threshold for axis to be considered detected.",                                                     pybind11::arg ( "fscThr"        ) )
         .def                                          ( "setPeakThreshold",                     &ProSHADE_settings::setPeakThreshold,                       "Sets the minimum peak height threshold for axis to be considered possible.",                                          pybind11::arg ( "peakThr"       ) )
+        .def                                          ( "setNegativeDensity",                   &ProSHADE_settings::setNegativeDensity,                     "Sets the internal variable deciding whether input files negative density should be removed.",                           pybind11::arg ( "nDens"         ) )
     
         //============================================ Command line parsing
         .def                                          ( "getCommandLineParams",

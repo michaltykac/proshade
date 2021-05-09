@@ -51,6 +51,7 @@ ps.setMaxSymmetryFold                                 ( 30 )                    
 ps.setFSCThreshold                                    ( 0.75 )                  # The threshold for FSC value under which the axis is considered to be likely noise.
 ps.setPeakThreshold                                   ( 0.80 )                  # The threshold for peak height above which axes are considered possible.
 ps.forceP1                                            = True                    # Should PDB files be forced to have P1 spacegroup?
+ps.setNegativeDensity                                 ( True )                  # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                    # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                    # Should PDB files have only their first model used, or should ProSHADE use all models?
 ps.setProgressiveSphereMapping                        ( False )                 # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.

@@ -216,7 +216,7 @@ namespace ProSHADE_internal_data
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
-        proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, proshade_double step, proshade_double sigma, proshade_signed windowSize );
+        proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
         void prepareFSCFourierMemory                  ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs, proshade_signed*& binIndexing,
                                                         proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,

@@ -42,6 +42,7 @@ int main ( int argc, char **argv )
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
     settings->setPeakThreshold                        ( 0.80 );                              // Sets the minimum peak height threshold for axis to be considered possible.
     settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->setNegativeDensity                      ( true );                              // Should the negative density be removed from input files?
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.

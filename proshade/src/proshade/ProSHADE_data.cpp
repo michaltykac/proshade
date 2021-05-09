@@ -567,6 +567,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     //================================================ Save the map density to ProSHADE variable
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
+    //================================================ Remove negative values if so required
+    if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
+    
     //================================================ Set resolution if need be
     if ( settings->requestedResolution < 0.0f )
     {
@@ -709,6 +712,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
+    
+    //================================================ Remove negative values if so required
+    if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
     
     //================================================ Set the internal variables to correct values
     this->setPDBMapValues                             ( );
@@ -2151,7 +2157,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
     \param[in] windowSize The width of the window over which smoothening is done.
     \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, proshade_double step, proshade_double sigma, proshade_signed windowSize )
+proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize )
 {
     //================================================ Initialise local variables
     proshade_double threshold                         = 0.0;
@@ -2164,16 +2170,13 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std:
     if ( windowSize % 2 == 0 )                        { windowSize += 1; }
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[5], symIt ) ); }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); }
     
     //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
     for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
     {
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( vals.size() ); symIt++ )
         {
-            //======================================== Tested all possible heights already
-            if ( vals.at(symIt).first < it ) { break; }
-            
             //======================================== Is this height in the range?
             if ( ( vals.at(symIt).first > it ) && ( vals.at(symIt).first <= ( it + step ) ) ) { hist.at(histPos) += 1.0; }
         }
@@ -2189,7 +2192,10 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std:
     std::vector< proshade_signed > peaks              = ProSHADE_internal_peakSearch::findPeaks1D ( smoothened );
     
     //================================================ Take best peaks surroundings and produce a new set of "high" axes
-    proshade_signed bestHistPos                       = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 );
+    proshade_signed bestHistPos;
+    if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
+    else                    { bestHistPos = 0.0; }
+    
     threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( windowSize * step );
     
     //================================================ Done
@@ -2463,7 +2469,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_double step                              = 0.01;
     proshade_double sigma                             = 0.03;
     proshade_signed windowSize                        = 9;
-    proshade_double bestHistPeakStart                 = this->findTopGroupSmooth ( CSym, step, sigma, windowSize );
+    proshade_double bestHistPeakStart                 = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
     if ( bestHistPeakStart > settings->peakThresholdMin ) { bestHistPeakStart = settings->peakThresholdMin; }
     
     //================================================ Report progress
@@ -2548,14 +2554,31 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             alreadyDecided                            = true;
         }
     }
-    
+
     //================================================ Decide if D is the answer
     if ( ( settings->allDetectedDAxes.size() > 0 ) && ( DSym->size() > 0 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
         proshade_signed bestD                         = -1;
         proshade_unsign bestFold                      = 0;
-        proshade_double fscVal1, fscVal2;
+        
+        //============================================ Find FSCs
+        for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
+        {
+            //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
+            if ( dIt > 20 ) { continue; }
+            
+            //======================================== Check the peak heights
+            if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) { continue; }
+            if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) { continue; }
+            
+            //======================================== Find FSCs
+            this->computeFSC                          ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
+            this->computeFSC                          ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
+        }
+        
+        //============================================ Find FSC top group threshold
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
         
         //============================================ Check if both C symmetries are reliable
         for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
@@ -2564,20 +2587,17 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) { continue; }
             if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) { continue; }
             
-            //======================================== Check if this improves the best already found fold
+            //======================================== Does this improve the best fold?
             if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] > static_cast< proshade_double > ( bestFold ) ) || ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] > static_cast< proshade_double > ( bestFold ) ) )
             {
-                //==================================== Compute FSC
-                fscVal1                               = this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
-                if ( fscVal1 <= settings->fscThreshold ) { continue; }
-                fscVal2                               = this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
+                //==================================== Check the FSC vals
+                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < settings->fscThreshold ) { continue; }
+                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < settings->fscThreshold ) { continue; }
+                if ( !( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] >= std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) ) && ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] >= bestHistFSCStart ) ) && !( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] >= std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) ) && ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] >= bestHistFSCStart ) ) ) { continue; }
                 
-                //==================================== If both FSC's pass
-                if ( fscVal2 > settings->fscThreshold )
-                {
-                    bestFold                          = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
-                    bestD                             = static_cast< proshade_signed > ( dIt );
-                }
+                //==================================== All good!
+                bestFold                              = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
+                bestD                                 = static_cast< proshade_signed > ( dIt );
             }
         }
         
@@ -2591,37 +2611,46 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1)) );
             if ( settings->detectedSymmetry.size() == 0 )
             {
-                settings->setDetectedSymmetry             ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0)) );
-                settings->setDetectedSymmetry             ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1)) );
+                settings->setDetectedSymmetry         ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0)) );
+                settings->setDetectedSymmetry         ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1)) );
             }
             
             //======================================== Done
             alreadyDecided                            = true;
         }
     }
-
+    
     //================================================ Decide if C is the answer
     if ( ( CSym->size() > 0 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
         proshade_signed bestC                         = -1;
         proshade_unsign bestFold                      = 0;
-        proshade_double fscVal                        = 0.0;
         
-        //============================================ Check if any C symmetry is reliable
+        //============================================ Find FSCs for C syms
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
         {
+            //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
+            if ( cIt > 20 ) { continue; }
+            
             //======================================== Check the peak height
             if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
             
+            //======================================== Compute FSC
+            this->computeFSC                          ( settings, CSym, cIt, mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
+        }
+        
+        //============================================ Find FSC top group threshold
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        
+        //============================================ Find reliable C syms
+        for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
+        {
             //======================================== Check if this improves the best already found fold
             if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
             {
-                //==================================== Compute FSC
-                fscVal                                = this->computeFSC ( settings, CSym, cIt, mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
-                
                 //==================================== If FSC passes
-                if ( fscVal > settings->fscThreshold )
+                if ( ( CSym->at(cIt)[6] > settings->fscThreshold ) && ( CSym->at(cIt)[6] >= bestHistFSCStart ) )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );

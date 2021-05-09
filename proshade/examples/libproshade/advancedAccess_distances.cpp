@@ -40,6 +40,7 @@ int main ( int argc, char **argv )
     
     //================================================ Further useful settings
     settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->setNegativeDensity                      ( true );                              // Should the negative density be removed from input files?
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.

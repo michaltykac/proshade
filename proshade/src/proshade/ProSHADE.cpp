@@ -44,6 +44,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->forceP1                                     = true;
     this->removeWaters                                = true;
     this->firstModelOnly                              = true;
+    this->removeNegativeDensity                       = true;
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
@@ -163,6 +164,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->forceP1                                     = true;
     this->removeWaters                                = true;
     this->firstModelOnly                              = true;
+    this->removeNegativeDensity                       = true;
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
@@ -275,7 +277,6 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
             this->moveToCOM                           = true;
-            this->normaliseMap                        = true;
             this->reBoxMap                            = false;
             break;
             
@@ -291,7 +292,6 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
             this->moveToCOM                           = false;
-            this->normaliseMap                        = false;
             this->reBoxMap                            = false;
             break;
                     
@@ -1422,6 +1422,24 @@ void                       ProSHADE_settings::setPeakThreshold ( proshade_double
     
 }
 
+/*! \brief Sets the internal variable deciding whether input files negative density should be removed.
+ 
+    \param[in] nDens Should the negative density be removed from input files?
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setNegativeDensity ( bool nDens )
+#else
+void                       ProSHADE_settings::setNegativeDensity ( bool nDens )
+#endif
+{
+    //================================================ Set the value
+    this->removeNegativeDensity                       = nDens;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1914,11 +1932,12 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "overlayJSONFile", required_argument,  nullptr, 'y' },
         { "angUncertain",    required_argument,  nullptr, ';' },
         { "usePeaksInRotFun",no_argument,        nullptr, 'z' },
+        { "keepNegDens",     no_argument,        nullptr, 'F' },
         { nullptr,           0,                  nullptr,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cd:DE:e:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2363,10 +2382,17 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  continue;
              }
                  
-             //======================================= Save the argument as angular uncertainty for bandwidth determination
+             //======================================= Forces usage of the old symmetry detection algorithm - DEPRECATED
              case 'z':
              {
                  this->setSymmetryRotFunPeaks         ( false );
+                 continue;
+             }
+
+             //======================================= Should the negative density from input files be removed?
+             case 'F':
+             {
+                 this->setNegativeDensity             ( false );
                  continue;
              }
                  
@@ -2440,6 +2466,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     if ( this->firstModelOnly ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Only 1st model      : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->removeNegativeDensity ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Remove neg. dens.   : %37s\n", strstr.str().c_str() );
     
     //== Settings regarding the resolution of calculations
     strstr.str(std::string());

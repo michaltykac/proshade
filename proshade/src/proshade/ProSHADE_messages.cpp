@@ -223,6 +223,11 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            and to allow simple dealing with this, if this value is >= 0.0,     " << std::endl;
     std::cout << "            then all B-factors of all PDB inputs will be set to this value.     " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -F or --keepNegDens                             [DEFAULT:         TRUE]     " << std::endl;
+    std::cout << "            Some input files have negative density that causes differences      " << std::endl;
+    std::cout << "            to be detected between structures that appear identical. By         " << std::endl;
+    std::cout << "            default negative density is removed, this option keeps it in.       " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskFile                                      [DEFAULT: \"./maskFile\"]     " << std::endl;
     std::cout << "            The filename to which the mask will be saved to. The extension      " << std::endl;
     std::cout << "            will be added as well as the structure index (order of input).      " << std::endl;
