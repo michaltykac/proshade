@@ -2009,7 +2009,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             fscValAvg                                /= 7.0;
             
             //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-            if ( fscValAvg >= ( settings->fscThreshold * 0.9 ) )
+            if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
             {
                 //==================================== The decision is T
                 settings->setRecommendedSymmetry      ( "T" );
@@ -2036,7 +2036,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             fscValAvg                                /= 13.0;
             
             //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-            if ( fscValAvg >= ( settings->fscThreshold * 0.9 ) )
+            if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
             {
                 //==================================== The decision is O
                 settings->setRecommendedSymmetry      ( "O" );
@@ -2063,7 +2063,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             fscValAvg                                /= 31.0;
             
             //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-            if ( fscValAvg >= ( settings->fscThreshold * 0.9 ) )
+            if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
             {
                 //==================================== The decision is I
                 settings->setRecommendedSymmetry      ( "I" );
@@ -2419,7 +2419,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     which contains only the most reliable axes.
  
     Next, the function tests for all axes being over this threshold for the polyhedral symmetries - I, O and T in this order. If all such
-    axes (with appropriate folds) are found, their FSCs will be checked against the supplied (settings object) threshold (default: 0.75).
+    axes (with appropriate folds) are found, their FSCs will be checked against the supplied (settings object) threshold (default: 0.80).
     If all axes pass the FSC test, then the corresponding polyhedral symmetry is determined as recommended.
  
     Should no polyhedral symmetries be found, the list of detected D symmetries will be tested next with very similar approach - both axes are
@@ -2486,7 +2486,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 31.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.9 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2511,7 +2511,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 13.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.9 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2536,7 +2536,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 7.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.9 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );

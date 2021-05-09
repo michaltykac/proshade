@@ -119,7 +119,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.75;
+    this->fscThreshold                                = 0.80;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -236,7 +236,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.75;
+    this->fscThreshold                                = 0.80;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -2411,6 +2411,7 @@ void                       ProSHADE_settings::printSettings ( )
 #endif
 {
     //================================================ Print the currest values in the settings object
+    //== Settings regarding the task at hand
     std::stringstream strstr;
     strstr.str(std::string());
     if ( this->task == NA ) { strstr << "NA"; }
@@ -2420,6 +2421,7 @@ void                       ProSHADE_settings::printSettings ( )
     if ( this->task == OverlayMap ) { strstr << "MAP OVERLAY"; }
     printf ( "Task to perform     : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding the input files
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->inputFiles.size() ); iter++ )
     {
         strstr.str(std::string());
@@ -2427,26 +2429,6 @@ void                       ProSHADE_settings::printSettings ( )
         printf ( "File(s) to process  : %37s\n", strstr.str().c_str() );
     }
     
-    strstr.str(std::string());
-    strstr << this->verbose;
-    printf ( "Verbosity           : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->requestedResolution;
-    printf ( "Resolution (comp)   : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maxBandwidth;
-    printf ( "Bandwidth           : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maxSphereDists;
-    printf ( "Sphere distances    : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->addExtraSpace;
-    printf ( "Extra space         : %37s\n", strstr.str().c_str() );
-
     strstr.str(std::string());
     if ( this->forceP1 ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Force P1 spacegroup : %37s\n", strstr.str().c_str() );
@@ -2459,6 +2441,44 @@ void                       ProSHADE_settings::printSettings ( )
     if ( this->firstModelOnly ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Only 1st model      : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding the resolution of calculations
+    strstr.str(std::string());
+    strstr << this->requestedResolution;
+    printf ( "Resolution (comp)   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->changeMapResolution ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Change map resol    : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->changeMapResolutionTriLinear ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Change map tri-lin  : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the PDB B-factor change
+    strstr.str(std::string());
+    strstr << this->pdbBFactorNewVal;
+    printf ( "PDB B-factor const  : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the bandwidth of calculations
+    strstr.str(std::string());
+    strstr << this->maxBandwidth;
+    printf ( "Bandwidth           : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->rotationUncertainty;
+    printf ( "Rotation doubt      : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the phase
+    strstr.str(std::string());
+    if ( this->usePhase ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Use phase info      : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the spheres
+    strstr.str(std::string());
+    strstr << this->maxSphereDists;
+    printf ( "Sphere distances    : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the Gauss-Legendre integration
     strstr.str(std::string());
     strstr << this->integOrder;
     printf ( "Integration order   : %37s\n", strstr.str().c_str() );
@@ -2467,25 +2487,40 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->taylorSeriesCap;
     printf ( "Taylor series cap   : %37s\n", strstr.str().c_str() );
     
-    strstr.str(std::string());
-    strstr << this->pdbBFactorNewVal;
-    printf ( "PDB B-factor const  : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    if ( this->reBoxMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Map re-boxing       : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    if ( this->invertMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Map inversion       : %37s\n", strstr.str().c_str() );
-    
+    //== Settings regarding map normalisation
     strstr.str(std::string());
     if ( this->normaliseMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map normalisation   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding map inversion
+    strstr.str(std::string());
+    if ( this->invertMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Map inversion       : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding map masking
+    strstr.str(std::string());
+    strstr << this->blurFactor;
+    printf ( "Map blurring        : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->maskingThresholdIQRs;
+    printf ( "Masking threshold   : %37s\n", strstr.str().c_str() );
+    
     strstr.str(std::string());
     if ( this->maskMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map masking         : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->useCorrelationMasking ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Correlation mask    : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->halfMapKernel;
+    printf ( "Half-map kernel     : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->correlationKernel;
+    printf ( "Correlation kernel  : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     if ( this->saveMask ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
@@ -2495,13 +2530,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->maskFileName;
     printf ( "Map mask filename   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding re-boxing
     strstr.str(std::string());
-    strstr << this->blurFactor;
-    printf ( "Map blurring        : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maskingThresholdIQRs;
-    printf ( "Masking threshold   : %37s\n", strstr.str().c_str() );
+    if ( this->reBoxMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Map re-boxing       : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->boundsExtraSpace;
@@ -2516,29 +2548,38 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Same boundaries     : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
-    strstr << this->outName;
-    printf ( "Re-boxed filename   : %37s\n", strstr.str().c_str() );
+    if ( this->forceBounds != nullptr )
+    {
+        strstr << this->forceBounds[0] << " - " << this->forceBounds[1] << " | " << this->forceBounds[2] << " - " << this->forceBounds[3] << " | " << this->forceBounds[4] << " - " << this->forceBounds[5];
+        printf ( "Bounds similarity   : %37s\n", strstr.str().c_str() );
+    }
+    else
+    {
+        strstr << "Not allocated";
+        printf ( "Bounds similarity   : %37s\n", strstr.str().c_str() );
+    }
     
+    //== Settings regarding COM
     strstr.str(std::string());
     if ( this->moveToCOM ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map COM centering   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding extra cell space
     strstr.str(std::string());
-    if ( this->changeMapResolution ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Change map resol    : %37s\n", strstr.str().c_str() );
+    strstr << this->addExtraSpace;
+    printf ( "Extra space         : %37s\n", strstr.str().c_str() );
     
-    strstr.str(std::string());
-    if ( this->changeMapResolutionTriLinear ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Change map tri-lin  : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    if ( this->usePhase ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Use phase info      : %37s\n", strstr.str().c_str() );
-    
+    //== Settings regarding shell settings
     strstr.str(std::string());
     if ( this->progressiveSphereMapping ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Progressive spheres : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding output file name
+    strstr.str(std::string());
+    strstr << this->outName;
+    printf ( "Re-boxed filename   : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding distances computation
     strstr.str(std::string());
     if ( this->computeEnergyLevelsDesc ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Energy lvl desc     : %37s\n", strstr.str().c_str() );
@@ -2555,6 +2596,7 @@ void                       ProSHADE_settings::printSettings ( )
     if ( this->computeRotationFuncDesc ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Full RF desc        : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding peak searching
     strstr.str(std::string());
     strstr << this->peakNeighbours;
     printf ( "Neightbours to peak : %37s\n", strstr.str().c_str() );
@@ -2563,13 +2605,15 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->noIQRsFromMedianNaivePeak;
     printf ( "Peak IQR threshold  : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding 1D grouping
+    strstr.str(std::string());
+    strstr << this->smoothingFactor;
+    printf ( "Smoothing factor    : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the symmetry detection
     strstr.str(std::string());
     strstr << this->symMissPeakThres;
     printf ( "Missing ax. thres   : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->minSymPeak;
-    printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->axisErrTolerance;
@@ -2580,9 +2624,38 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Same ax. thre. decr.: %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
+    strstr << this->minSymPeak;
+    printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->recommendedSymmetryType << "-" << this->recommendedSymmetryFold;
+    printf ( "Recommended symm.   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;
     printf ( "Requested symm.     : %37s\n", strstr.str().c_str() );
 
+    strstr.str(std::string());
+    if ( this->usePeakSearchInRotationFunctionSpace ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Use RF Peaks        : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->useBiCubicInterpolationOnPeaks ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Use bicubic interp. : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->maxSymmetryFold;
+    printf ( "Max symmetry fold   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->fscThreshold;
+    printf ( "FSC Threshold       : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->peakThresholdMin;
+    printf ( "Peak Threshold      : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the structure overlay
     strstr.str(std::string());
     strstr << this->overlayStructureName;
     printf ( "Overlay file        : %37s\n", strstr.str().c_str() );
@@ -2590,6 +2663,11 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->rotTrsJSONFile;
     printf ( "JSON overlay file   : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding verbosity of the program
+    strstr.str(std::string());
+    strstr << this->verbose;
+    printf ( "Verbosity           : %37s\n", strstr.str().c_str() );
     
     //================================================ Done
     return ;

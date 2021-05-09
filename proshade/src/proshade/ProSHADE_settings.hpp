@@ -35,7 +35,7 @@
  */
 class ProSHADE_settings
 {
-public:
+public: 
     //================================================ Settings regarding the task at hand
     ProSHADE_Task task;                               //!< This custom type variable determines which task to perfom (i.e. symmetry detection, distances computation, etc.).
     
