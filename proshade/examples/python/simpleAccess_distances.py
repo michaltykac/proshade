@@ -83,6 +83,7 @@ ps.setMaskBlurFactor                                  ( 350.0 )                 
 ps.setMaskIQR                                         ( 3.0 )                                                            # Number of inter-quartile ranges from median to use as the masking threshold.
 ps.setMaskSaving                                      ( False )                                                          # Should map mask be saved?
 ps.setMaskFilename                                    ( "maskFile" )                                                     # The filename (no extension) to which the map masks will be saved into.
+ps.setAppliedMaskFilename                             ( "" )                                                             # The filename from which mask data will be read from.
 ps.setBoundsSpace                                     ( 3.0 )                                                            # The extra space in Angs to add to the minimal boundaries when re-boxing.
 ps.setBoundsThreshold                                 ( 0 )                                                              # If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
 ps.setSameBoundaries                                  ( False )                                                          # Make multiple structures have the same boundaries. This is useful for half-maps.

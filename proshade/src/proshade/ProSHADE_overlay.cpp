@@ -210,12 +210,8 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     staticStructure->processInternalMap               ( settings );
     movingStructure->processInternalMap               ( settings );
     
-    //================================================ Compute spherical harmonics to allow Fourier space rotation
-    movingStructure->mapToSpheres                     ( settings );
-    movingStructure->computeSphericalHarmonics        ( settings );
-    
     //================================================ Rotate map
-    movingStructure->rotateMapReciprocalSpace         ( settings, eulA, eulB, eulG );
+    movingStructure->rotateMapRealSpaceInPlace        ( eulA, eulB, eulG );
     
     //================================================ Zero padding for smaller structure
     staticStructure->zeroPaddToDims                   ( std::max ( staticStructure->getXDim(), movingStructure->getXDim() ),
@@ -237,7 +233,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     proshade_unsign yDimS                             = staticStructure->getYDim();
     proshade_unsign zDimS                             = staticStructure->getZDim();
     ProSHADE_internal_overlay::findHighestValueInMap  ( movingStructure->getTranslationFnPointer(), xDimS, yDimS, zDimS, trsX, trsY, trsZ, &mapPeak );
-    
+      
     //================================================ Dont translate over half
     if ( *trsX > ( static_cast< proshade_double > ( xDimS ) / 2.0 ) ) { *trsX = *trsX - static_cast< proshade_double > ( xDimS ); }
     if ( *trsY > ( static_cast< proshade_double > ( yDimS ) / 2.0 ) ) { *trsY = *trsY - static_cast< proshade_double > ( yDimS ); }
@@ -409,7 +405,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeTranslationMap ( ProSHADE_int
     
     //================================================ Fill in input data
     for ( proshade_unsign iter = 0; iter < dimMult; iter++ ) { tmpIn1[iter][0] = staticStructure->getMapValue ( iter ); tmpIn1[iter][1] = 0.0; }
-    for ( proshade_unsign iter = 0; iter < dimMult; iter++ ) { tmpIn2[iter][0] = this->getMapValue ( iter ); tmpIn2[iter][1] = 0.0; }
+    for ( proshade_unsign iter = 0; iter < dimMult; iter++ ) { tmpIn2[iter][0] = this->getMapValue            ( iter ); tmpIn2[iter][1] = 0.0; }
     
     //================================================ Calculate Fourier
     fftw_execute                                      ( forwardFourierObj1 );
@@ -511,48 +507,59 @@ void ProSHADE_internal_overlay::combineFourierForTranslation ( fftw_complex* tmp
 {
     //================================================ Initialise local variables
     double normFactor                                 = static_cast<double> ( xD * yD * zD );
-    proshade_signed h1, k1, l1, hlpPos, arrPos;
-    proshade_signed uo2                               = xD / 2;
-    proshade_signed vo2                               = yD / 2;
-    proshade_signed wo2                               = zD / 2;
+    proshade_signed arrPos;
+    
+    //================================================ Allocate local memory
+    proshade_single *mins                             = new proshade_single[3];
+    proshade_single *maxs                             = new proshade_single[3];
+    
+    //================================================ Check local memory
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mins,      __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( maxs,      __FILE__, __LINE__, __func__ );
+    
+    //================================================ Determine reciprocal space indexing
+    mins[0]                                           = std::floor ( static_cast< proshade_single > ( xD ) / -2.0f );
+    mins[1]                                           = std::floor ( static_cast< proshade_single > ( yD ) / -2.0f );
+    mins[2]                                           = std::floor ( static_cast< proshade_single > ( zD ) / -2.0f );
+        
+    maxs[0]                                           = -mins[0];
+    maxs[1]                                           = -mins[1];
+    maxs[2]                                           = -mins[2];
+    
+    if ( xD % 2 == 0 ) { mins[0] += 1.0f; }
+    if ( yD % 2 == 0 ) { mins[1] += 1.0f; }
+    if ( zD % 2 == 0 ) { mins[2] += 1.0f; }
     
     //================================================ Combine the coefficients
-    for ( proshade_signed uIt = 0; uIt < static_cast<proshade_signed> ( xD ); uIt++ )
+    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xD ); xIt++ )
     {
-        for ( proshade_signed vIt = 0; vIt < static_cast<proshade_signed> ( yD ); vIt++ )
+        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yD ); yIt++ )
         {
-            for ( proshade_signed wIt = 0; wIt < static_cast<proshade_signed> ( zD ); wIt++ )
+            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zD / 2 ) + 1; zIt++ )
             {
-                //==================================== Convert to HKL
-                if ( uIt > uo2 ) { h1 = uIt - static_cast< proshade_signed > ( xD ); } else { h1 = uIt; }
-                if ( vIt > vo2 ) { k1 = vIt - static_cast< proshade_signed > ( yD ); } else { k1 = vIt; }
-                if ( wIt > wo2 ) { l1 = wIt - static_cast< proshade_signed > ( zD ); } else { l1 = wIt; }
-                
-                //==================================== Make HKL into indexable numbers
-                if ( h1 < 0 ) { h1 += xD; }
-                if ( k1 < 0 ) { k1 += yD; }
-                if ( l1 < 0 ) { l1 += zD; }
-                
                 //==================================== Find indices
-                hlpPos                                = l1  + static_cast< proshade_signed > ( zD ) * ( k1  + static_cast< proshade_signed > ( yD ) * h1 );
-                arrPos                                = wIt + static_cast< proshade_signed > ( zD ) * ( vIt + static_cast< proshade_signed > ( yD ) * uIt );
+                arrPos                                = zIt   + static_cast< proshade_signed > ( zD ) * ( yIt   + static_cast< proshade_signed > ( yD ) * xIt );
                 
                 //==================================== Combine
-                ProSHADE_internal_maths::complexMultiplicationConjug ( &tmpOut1[hlpPos][0],
-                                                                       &tmpOut1[hlpPos][1],
+                ProSHADE_internal_maths::complexMultiplicationConjug ( &tmpOut1[arrPos][0],
+                                                                       &tmpOut1[arrPos][1],
                                                                        &tmpOut2[arrPos][0],
                                                                        &tmpOut2[arrPos][1],
-                                                                       &resOut[hlpPos][0],
-                                                                       &resOut[hlpPos][1] );
+                                                                       &resOut[arrPos][0],
+                                                                       &resOut[arrPos][1] );
                 
                 //==================================== Save
-                resOut[hlpPos][0]                    /= normFactor;
-                resOut[hlpPos][1]                    /= normFactor;
+                resOut[arrPos][0]                    /= normFactor;
+                resOut[arrPos][1]                    /= normFactor;
             }
         }
     }
     
-    //======================================== Done
+    //================================================ Delete local memory
+    delete[] mins;
+    delete[] maxs;
+    
+    //================================================ Done
     return ;
     
 }
@@ -795,14 +802,15 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMapReciprocalSpace ( ProSHADE_
     
 }
 
-/*! \brief This function rotates a map based on the given Euler angles.
+/*! \brief This function rotates a map based on the given angle-axis rotation.
  
     This function takes the axis and angle of the required rotation as well as a pointer to which the rotated map should be
     saved into and proceeds to rotate the map in real space using tri-linear interpolation.
  
-    \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
-    \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
-    \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
+    \param[in] axX The x-axis element of the angle-axis rotation representation.
+    \param[in] axY The y-axis element of the angle-axis rotation representation.
+    \param[in] axZ The z-axis element of the angle-axis rotation representation.
+    \param[in] axAng The angle about the axis by which the rotation is to be done.
     \param[in] map A pointer which will be set to point to the rotated map.
  */
 void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpace ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map )
@@ -955,6 +963,64 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpace ( proshade_double
     delete[] interpMaxs;
     delete[] interpDiff;
     delete[] movs;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function rotates a map based on the given Euler angles in place.
+ 
+    This function takes the Euler angles of the required rotation and proceeds to make use of the
+    rotateMapRealSpace () function to rotate the map in real space using trilinear interpolation,
+    replacing the original map with the rotated one.
+ 
+    \param[in] eulerAlpha The rotation expressed as a pointer to Euler alpha angle.
+    \param[in] eulerBeta The rotation expressed as a pointer to Euler beta angle.
+    \param[in] eulerGamma The rotation expressed as a pointer to Euler gamma angle.
+ */
+void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpaceInPlace ( proshade_double eulA, proshade_double eulB, proshade_double eulG )
+{
+    //================================================ Initialise local variables
+    proshade_double axX, axY, axZ, axAng, tmp, *rMat, *map;
+    
+    //================================================ Allocate local memory
+    rMat =                                            new proshade_double[9];
+    
+    //================================================ Check local memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Convert Euler angles to rotation matrix
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, rMat );
+    
+    //================================================ Transpose the rotation matrix
+    tmp     = rMat[1];
+    rMat[1] = rMat[3];
+    rMat[3] = tmp;
+    
+    tmp     = rMat[2];
+    rMat[2] = rMat[6];
+    rMat[6] = tmp;
+    
+    tmp     = rMat[5];
+    rMat[5] = rMat[7];
+    rMat[7] = tmp;
+ 
+    //================================================ Convert rotation matrix to angle-axis
+    ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( rMat, &axX, &axY, &axZ, &axAng );
+    
+    //================================================ Rotate the internal map
+    this->rotateMapRealSpace                          ( axX, axY, axZ, axAng, map );
+    
+    //================================================ Copy the rotated map in place of the internal map
+    for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
+    {
+        this->internalMap[iter]                       = map[iter];
+    }
+    
+    //================================================ Release local memory
+    delete[] rMat;
+    delete[] map;
     
     //================================================ Done
     return ;

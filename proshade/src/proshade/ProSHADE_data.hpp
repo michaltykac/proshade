@@ -244,6 +244,7 @@ namespace ProSHADE_internal_data
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
         void rotateMapReciprocalSpace                 ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
         void rotateMapRealSpace                       ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map );
+        void rotateMapRealSpaceInPlace                ( proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
         void allocateRotatedSHMemory                  ( void );
         void computeRotatedSH                         ( void );

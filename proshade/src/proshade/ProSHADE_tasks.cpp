@@ -389,7 +389,7 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ First, run without phase and find best rotation angles
     settings->usePhase                                = false;
     ProSHADE_internal_overlay::getOptimalRotation     ( settings, staticStructure, movingStructure, &eulA, &eulB, &eulG );
-
+    
     //================================================ Release memory
     delete staticStructure;
     delete movingStructure;

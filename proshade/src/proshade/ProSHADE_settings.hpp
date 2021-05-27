@@ -83,6 +83,7 @@ public:
     proshade_single correlationKernel;                //!< This value in Angstrom will be used as the kernel for the map-FHM correlation computation.
     bool saveMask;                                    //!< Should the mask be saved?
     std::string maskFileName;                         //!< The filename to which mask should be saved.
+    std::string appliedMaskFileName;                  //!< The filename from which mask data will be read from.
     
     //================================================ Settings regarding re-boxing
     bool reBoxMap;                                    //!< This switch decides whether re-boxing is needed.
@@ -185,6 +186,7 @@ public:
     void __declspec(dllexport) setMinimumMaskSize                             ( proshade_single minMS );
     void __declspec(dllexport) setMaskSaving                                  ( bool savMsk );
     void __declspec(dllexport) setMaskFilename                                ( std::string mskFln );
+    void __declspec(dllexport) setAppliedMaskFilename                         ( std::string mskFln );
     void __declspec(dllexport) setMapReboxing                                 ( bool reBx );
     void __declspec(dllexport) setBoundsSpace                                 ( proshade_single boundsExSp );
     void __declspec(dllexport) setBoundsThreshold                             ( proshade_signed boundsThres );
@@ -239,6 +241,7 @@ public:
     void setMinimumMaskSize                           ( proshade_single minMS );
     void setMaskSaving                                ( bool savMsk );
     void setMaskFilename                              ( std::string mskFln );
+    void setAppliedMaskFilename                       ( std::string mskFln );
     void setMapReboxing                               ( bool reBx );
     void setBoundsSpace                               ( proshade_single boundsExSp );
     void setBoundsThreshold                           ( proshade_signed boundsThres );

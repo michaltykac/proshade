@@ -231,6 +231,10 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "    --maskFile                                      [DEFAULT: \"./maskFile\"]     " << std::endl;
     std::cout << "            The filename to which the mask will be saved to. The extension      " << std::endl;
     std::cout << "            will be added as well as the structure index (order of input).      " << std::endl;
+    std::cout << "    -G or --applyMask                                 [DEFAULT:         \"\"]     " << std::endl;
+    std::cout << "            This option allows supplying a map mask, which will be applied      " << std::endl;
+    std::cout << "            before any other processing in the input map. This option is only   " << std::endl;
+    std::cout << "            available for the map manipulation and symmetry detection tasks.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskBlurring                                  [DEFAULT:        350.0]     " << std::endl;
     std::cout << "            The B-factor (temperature factor) increase, which should be         " << std::endl;

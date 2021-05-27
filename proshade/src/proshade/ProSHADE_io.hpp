@@ -50,6 +50,8 @@ namespace ProSHADE_internal_io
                                                         proshade_unsign *zGridInds );
     void readInMapData                                ( gemmi::Ccp4<float> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
                                                         proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
+    void readInMapData                                ( gemmi::Ccp4<int8_t> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
+                                                        proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
     void writeOutMapHeader                            ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim,
                                                         proshade_single yDim, proshade_single zDim, proshade_single aAng, proshade_single bAng, proshade_single cAng, proshade_signed xFrom,
                                                         proshade_signed yFrom, proshade_signed zFrom, proshade_signed xAxOrigin, proshade_signed yAxOrigin, proshade_signed zAxOrigin,

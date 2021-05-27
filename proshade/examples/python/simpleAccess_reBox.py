@@ -65,6 +65,7 @@ ps.setMaskBlurFactor                                  ( 350.0 )                 
 ps.setMaskIQR                                         ( 3.0 )                        # Number of inter-quartile ranges from median to use as the masking threshold.
 ps.setMaskSaving                                      ( False )                      # Should map mask be saved?
 ps.setMaskFilename                                    ( "maskFile" )                 # The filename (no extension) to which the map masks will be saved into.
+ps.setAppliedMaskFilename                             ( "" )                         # The filename from which mask data will be read from.
 
 ######################################################
 ### All other (possibly other tasks related) settings

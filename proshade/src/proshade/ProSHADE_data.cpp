@@ -567,6 +567,46 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     //================================================ Save the map density to ProSHADE variable
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
     
+    //================================================ If mask is supplied and the correct task is used
+    if ( ( settings->appliedMaskFileName != "" ) && ( ( settings->task == MapManip ) || ( settings->task == Symmetry ) ) )
+    {
+        //============================================ Open the mask
+        gemmi::Ccp4<float> mask;
+        mask.read_ccp4                                ( gemmi::MaybeGzipped ( settings->appliedMaskFileName.c_str() ) );
+        
+        //============================================ Convert to XYZ and create complete mask, if need be
+        mask.setup                                    ( gemmi::GridSetup::ReorderOnly, 0 );
+        
+        //============================================ Read in the rest of the mask file header
+        proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
+        proshade_single xDS, yDS, zDS, aA, bA, cA;
+        proshade_signed xF, yF, zF, xAO, yAO, zAO;
+        ProSHADE_internal_io::readInMapHeader         ( &mask,
+                                                        &xDI,  &yDI,  &zDI,
+                                                        &xDS,  &yDS,  &zDS,
+                                                        &aA,   &bA,   &cA,
+                                                        &xF,   &yF,   &zF,
+                                                        &xAO,  &yAO,  &zAO,
+                                                        &xAOR, &yAOR, &zAOR,
+                                                        &xGI,  &yGI,  &zGI );
+        
+        //============================================ Sanity check
+        if ( ( this->xDimIndices != xDI ) || ( this->yDimIndices != yDI ) || ( this->zDimIndices != zDI ) )
+        {
+            throw ProSHADE_exception                  ( "The supplied map mask has different dimensions than the\n                    : density map.", "EM00065", __FILE__, __LINE__, __func__, "Most likely the mask is not the correct mask for this map,\n                    : as it has different dimensions from the density map.\n                    : Please review that the supplied map and mask form a pair." );
+        }
+        
+        //============================================ Save the mask values to ProSHADE variable
+        proshade_double* internalMask = nullptr;
+        ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
+        
+        //============================================ Apply the mask to the map
+        for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { this->internalMap[iter] *= internalMask[iter]; }
+        
+        //============================================ Release the memory
+        delete[] internalMask;
+    }
+    
     //================================================ Remove negative values if so required
     if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
     
@@ -2492,7 +2532,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 31.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2517,7 +2557,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 13.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2542,7 +2582,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 7.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.8 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );
@@ -4312,7 +4352,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     std::stringstream fNameHlp;
     fNameHlp << settings->overlayStructureName << ".map";
     this->writeMap                                    ( fNameHlp.str() );
-    
+     
     //================================================ Write out rotated co-ordinates if possible
     if ( ProSHADE_internal_io::isFilePDB ( this->fileName ) )
     {

@@ -71,6 +71,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "correlationKernel",                    &ProSHADE_settings::correlationKernel                   )
         .def_readwrite                                ( "saveMask",                             &ProSHADE_settings::saveMask                            )
         .def_readwrite                                ( "maskFileName",                         &ProSHADE_settings::maskFileName                        )
+        .def_readwrite                                ( "appliedMaskFileName",                  &ProSHADE_settings::appliedMaskFileName                 )
     
         .def_readwrite                                ( "reBoxMap",                             &ProSHADE_settings::reBoxMap                            )
         .def_readwrite                                ( "boundsExtraSpace",                     &ProSHADE_settings::boundsExtraSpace                    )

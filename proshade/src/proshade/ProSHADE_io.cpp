@@ -217,6 +217,62 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<float> *gemmiMap, proshad
     
 }
 
+/*! \brief This function converts the gemmi Ccp4 object data to ProSHADE mask representation.
+ 
+    This function firstly allocates the required memory for the ProSHADE mask representation variable according to the grid size. Then, it iterates over the axes in such a way, so that the resulting ProSHADE
+    variable would have XYZ axis order independently on the axis order of the Ccp4 gemmi object. This should not be necessary as the gemmi setup function should have been called by now, but one never knows.
+ 
+    \param[in] gemmiMap Pointer to a gemmi Ccp4 object containing the read in mask file information.
+    \param[in] map Pointer reference to a variable to save the map data.
+    \param[in] xDimInds The size of x dimension in indices.
+    \param[in] yDimInds The size of y dimension in indices.
+    \param[in] zDimInds The size of z dimension in indices.
+    \param[in] xAxOrder The order of the x-axis.
+    \param[in] yAxOrder The order of the y-axis.
+    \param[in] zAxOrder The order of the z-axis.
+ */
+void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<int8_t> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder )
+{
+    //================================================ Allocate internal variables
+    proshade_unsign *axOrdArr                         = new proshade_unsign[3];
+    proshade_unsign *axDimArr                         = new proshade_unsign[3];
+    proshade_unsign arrPos                            = 0;
+    
+    //================================================ Check memory allocation and fill in values
+    ProSHADE_internal_misc::checkMemoryAllocation     ( axOrdArr, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( axDimArr, __FILE__, __LINE__, __func__ );
+    axDimArr[0]                                       = xDimInds;
+    axDimArr[1]                                       = yDimInds;
+    axDimArr[2]                                       = zDimInds;
+    
+    //================================================ Allocate the ProSHADE internal map variable memory
+    map                                               = new proshade_double [xDimInds * yDimInds * zDimInds];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( map, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Copy read in data to internal map variable
+    for ( axOrdArr[0] = 0; axOrdArr[0] < axDimArr[xAxOrder-1]; axOrdArr[0]++ )
+    {
+        for ( axOrdArr[1] = 0; axOrdArr[1] < axDimArr[yAxOrder-1]; axOrdArr[1]++ )
+        {
+            for ( axOrdArr[2] = 0; axOrdArr[2] < axDimArr[zAxOrder-1]; axOrdArr[2]++ )
+            {
+                arrPos                                = axOrdArr[2]  + axDimArr[zAxOrder-1] * ( axOrdArr[1]  + axDimArr[yAxOrder-1] * axOrdArr[0] );
+                map[arrPos]                           = static_cast< proshade_double > ( gemmiMap->grid.get_value_q( static_cast< int > ( axOrdArr[xAxOrder-1] ),
+                                                                                                                     static_cast< int > ( axOrdArr[yAxOrder-1] ),
+                                                                                                                     static_cast< int > ( axOrdArr[zAxOrder-1] ) ) );
+            }
+        }
+    }
+    
+    //================================================ Release internal variables memory
+    delete[] axDimArr;
+    delete[] axOrdArr;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function parses the CCP4 MAP file header as read in by gemmi.
  
     This function uses the gemmi Ccp4 object, which contains all the information read in from a MAP file (including the header), to parse out the ProSHADE required

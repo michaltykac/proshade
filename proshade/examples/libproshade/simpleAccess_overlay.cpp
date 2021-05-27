@@ -84,6 +84,7 @@ int main ( int argc, char **argv )
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
+    settings->setAppliedMaskFilename                  ( "" );                                // The filename from which mask data will be read from.
 
     //================================================ Print all the settings values
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.

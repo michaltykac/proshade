@@ -83,6 +83,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->correlationKernel                           = 0.0;
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
+    this->appliedMaskFileName                         = "";
     
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
@@ -203,6 +204,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->correlationKernel                           = 0.0;
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
+    this->appliedMaskFileName                         = "";
     this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding re-boxing
@@ -626,6 +628,26 @@ void                       ProSHADE_settings::setMaskFilename ( std::string mskF
 {
     //================================================ Set the value
     this->maskFileName                                = mskFln;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the filename of the mask data that should be applied to the input map.
+ 
+    This function sets the the filename from which mask should be read from.
+ 
+    \param[in] mskFln The filename where the mask should be read from.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setAppliedMaskFilename ( std::string mskFln )
+#else
+void                       ProSHADE_settings::setAppliedMaskFilename ( std::string mskFln )
+#endif
+{
+    //================================================ Set the value
+    this->appliedMaskFileName                         = mskFln;
     
     //================================================ Done
     return ;
@@ -1900,6 +1922,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "mask",            no_argument,        nullptr, '$' },
         { "saveMask",        no_argument,        nullptr, '%' },
         { "maskFile",        required_argument,  nullptr, '^' },
+        { "applyMask",       required_argument,  nullptr, 'G' },
         { "maskBlurring",    required_argument,  nullptr, '&' },
         { "maskThreshold",   required_argument,  nullptr, '*' },
         { "mapReboxing",     no_argument,        nullptr, 'R' },
@@ -1937,7 +1960,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2115,6 +2138,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case '^':
              {
                  this->setMaskFilename                ( static_cast<std::string> ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the mask filename value
+             case 'G':
+             {
+                 this->setAppliedMaskFilename         ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  

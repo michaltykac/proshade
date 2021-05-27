@@ -56,6 +56,7 @@ int main ( int argc, char **argv )
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
+    settings->setAppliedMaskFilename                  ( "" );                                // The filename from which mask data will be read from.
 
     //================================================ All other (possibly other tasks related) settings
     settings->setExtraSpace                           ( 0.0 );                               // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
