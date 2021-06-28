@@ -570,6 +570,11 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     //================================================ If mask is supplied and the correct task is used
     if ( ( settings->appliedMaskFileName != "" ) && ( ( settings->task == MapManip ) || ( settings->task == Symmetry ) ) )
     {
+        //================================================ Report progress
+        std::stringstream hlpSS;
+        hlpSS << "Reading mask file " << settings->appliedMaskFileName;
+        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, hlpSS.str() );
+        
         //============================================ Open the mask
         gemmi::Ccp4<float> mask;
         mask.read_ccp4                                ( gemmi::MaybeGzipped ( settings->appliedMaskFileName.c_str() ) );
@@ -605,6 +610,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
         
         //============================================ Release the memory
         delete[] internalMask;
+        
+        //============================================ Report progress
+        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Mask read in and applied successfully." );
     }
     
     //================================================ Remove negative values if so required
@@ -1944,8 +1952,19 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         proshade_double symThres                      = 0.0;
         std::vector< proshade_double* > CSyms         = this->findRequestedCSymmetryFromAngleAxis ( settings, settings->requestedSymmetryFold, &symThres );
         
+        //============================================ Deal with the rotation function 0 1 0 PI issue
+        bool possible010PIIssue                       = false;
+        for ( size_t iter = 0; iter < CSyms.size(); iter++ ) { if ( ProSHADE_internal_maths::isAxisUnique ( &CSyms, 0.0, 1.0, 0.0, 2.0, 0.1 ) ) { possible010PIIssue = true; } }
+        if ( possible010PIIssue )
+        {
+            proshade_double* addAxis                  = new proshade_double[7];
+            addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -1.0;
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &CSyms, addAxis );
+            delete[] addAxis;
+        }
+        
         //============================================ Compute FSC for all possible axes
-        for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { if ( CSyms.at(cIt)[5] > settings->peakThresholdMin ) { this->computeFSC ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); } }
+        for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { const FloatingPoint< proshade_double > lhs ( CSyms.at(cIt)[5] ), rhs ( -999.9 ); if ( ( CSyms.at(cIt)[5] > settings->peakThresholdMin ) || ( lhs.AlmostEquals ( rhs ) ) ) { this->computeFSC ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); } }
         
         //============================================ Sort by FSC
         std::sort                                     ( CSyms.begin(), CSyms.end(), sortProSHADESymmetryByFSC );
@@ -2001,6 +2020,19 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
 
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
+    
+    //============================================ Deal with the rotation function 0 1 0 PI issue
+    bool possible010PIIssue                       = false;
+    for ( size_t iter = 0; iter < CSyms.size(); iter++ ) { if ( ProSHADE_internal_maths::isAxisUnique ( &CSyms, 0.0, 1.0, 0.0, 2.0, 0.1 ) ) { possible010PIIssue = true; } }
+    if ( possible010PIIssue )
+    {
+        proshade_double* addAxis                  = new proshade_double[7];
+        addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -1.0;
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &CSyms, addAxis );
+        delete[] addAxis;
+    }
+    
+    for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { const FloatingPoint< proshade_double > lhs ( CSyms.at(cIt)[5] ), rhs ( -999.9 ); if ( lhs.AlmostEquals ( rhs ) ) { this->computeFSC ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); } }
     
     //================================================ Report progress
     std::stringstream ss;
@@ -2609,8 +2641,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( dIt > 20 ) { continue; }
             
             //======================================== Check the peak heights
-            if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) { continue; }
-            if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) { continue; }
+            const FloatingPoint< proshade_double > lhs999a ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] ), lhs999b ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) && !( lhs999a.AlmostEquals( rhs999 ) ) ) { continue; }
+            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
             
             //======================================== Find FSCs
             this->computeFSC                          ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );
@@ -2624,8 +2657,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
         {
             //======================================== Check the peak heights
-            if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) { continue; }
-            if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) { continue; }
+            const FloatingPoint< proshade_double > lhs999a2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] ), lhs999b2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) && !( lhs999a2.AlmostEquals( rhs999 ) ) ) { continue; }
+            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) && !( lhs999b2.AlmostEquals( rhs999 ) ) ) { continue; }
             
             //======================================== Does this improve the best fold?
             if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] > static_cast< proshade_double > ( bestFold ) ) || ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] > static_cast< proshade_double > ( bestFold ) ) )
@@ -2633,7 +2667,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                 //==================================== Check the FSC vals
                 if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < settings->fscThreshold ) { continue; }
                 if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < settings->fscThreshold ) { continue; }
-                if ( !( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] >= std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) ) && ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] >= bestHistFSCStart ) ) && !( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] >= std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) ) && ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] >= bestHistFSCStart ) ) ) { continue; }
+                if ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) < bestHistFSCStart ) { continue; }
                 
                 //==================================== All good!
                 bestFold                              = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
@@ -2794,8 +2828,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
         if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
 
         //============================================ Check if peak height is decent
-        if ( DSym->at(iter)[5]  < settings->peakThresholdMin ) { continue; }
-        if ( DSym->at(iter)[12] < settings->peakThresholdMin ) { continue; }
+        const FloatingPoint< proshade_double > lhs999a ( DSym->at(iter)[5] ), lhs999b ( DSym->at(iter)[12] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+        if ( ( DSym->at(iter)[5]  < settings->peakThresholdMin ) && !( lhs999a.AlmostEquals( rhs999 ) ) ) { continue; }
+        if ( ( DSym->at(iter)[12] < settings->peakThresholdMin ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
         
         //============================================ If correct, compute FSC
         this->computeFSC                              ( settings, &DSym->at(iter)[0], mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts );

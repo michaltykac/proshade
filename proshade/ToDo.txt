@@ -1,5 +1,4 @@
 To Do:
-* Look into cl warnings (not shown in clang or gcc)
 
 Testing:
 * Look into the limits of structure overlay
@@ -12,6 +11,7 @@ Development
 * Create Homebrew/MacPorts build procedure for MacOS
 * Create apt/zypper/yum build procedure for Linux
 * Modify the code to use pragmas to include the Windows specific __declspec(dllexport) modifier to make the library usable on Windows.
+* Add mmCIF output support.
 
 Admin
 * Get new version to CCP-EM including new interface

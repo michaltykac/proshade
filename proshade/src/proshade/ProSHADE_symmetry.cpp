@@ -1260,7 +1260,8 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
     for ( proshade_unsign ax1 = 0; ax1 < static_cast<proshade_unsign> ( CSymList->size() ); ax1++ )
     {
         //============================================ Ignore small axes
-        if ( CSymList->at(ax1)[5] < settings->minSymPeak ) { continue; }
+        const FloatingPoint< proshade_double > lhs1 ( CSymList->at(ax1)[5] ), rhs1 ( -999.9 );
+        if ( ( CSymList->at(ax1)[5] < settings->minSymPeak ) && !( lhs1.AlmostEquals ( rhs1 ) ) ) { continue; }
         
         for ( proshade_unsign ax2 = 1; ax2 < static_cast<proshade_unsign> ( CSymList->size() ); ax2++ )
         {
@@ -1268,7 +1269,8 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
             if ( ax1 >= ax2 ) { continue; }
             
             //======================================== Ignore small axes
-            if ( CSymList->at(ax2)[5] < settings->minSymPeak ) { continue; }
+            const FloatingPoint< proshade_double > lhs2 ( CSymList->at(ax2)[5] ), rhs2 ( -999.9 );
+            if ( ( CSymList->at(ax2)[5] < settings->minSymPeak ) && !( lhs2.AlmostEquals ( rhs2 ) ) ) { continue; }
             
             //======================================= Compute the dot product
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &CSymList->at(ax1)[1], &CSymList->at(ax1)[2],
@@ -2033,7 +2035,8 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
         for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
         {
             //======================================== Search only using C2s
-            if ( CSymList->at(cIt)[0] != 2.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
+            const FloatingPoint< proshade_double > lhs999 ( CSymList->at(cIt)[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+            if ( CSymList->at(cIt)[0] != 2.0 || ( ( CSymList->at(cIt)[5] < minPeakHeight ) && !( lhs999.AlmostEquals( rhs999 ) ) ) ) { continue; }
             
             //======================================== Check the C2 axis to the C3 ( acos ( 0.5 ) )
             dotProd = ProSHADE_internal_maths::computeDotProduct ( &ret->at(rIt)[1], &ret->at(rIt)[2], &ret->at(rIt)[3],
@@ -2428,7 +2431,8 @@ void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >*
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Use only C2s
-        if ( CSymList->at(cIt)[0] != 2.0 || CSymList->at(cIt)[5] < minPeakHeight ) { continue; }
+        const FloatingPoint< proshade_double > lhs999 ( CSymList->at(cIt)[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+        if ( CSymList->at(cIt)[0] != 2.0 || ( ( CSymList->at(cIt)[5] < minPeakHeight ) && ! ( lhs999.AlmostEquals( rhs999 ) ) ) ) { continue; }
         
         //============================================ Check the C2 has acos ( 1/sqrt(2) ) to 2 C4s and acos ( 0.0 ) to the third C4
         noPerpendicular = 0; noSqrtTwo = 0;
@@ -3415,7 +3419,8 @@ void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
     {
         //============================================ Use only C2s
-        if ( CSymList->at(cIt)[0] != 2.0 || CSymList->at(cIt)[0] < minPeakHeight ) { continue; }
+        const FloatingPoint< proshade_double > lhs999 ( CSymList->at(cIt)[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+        if ( CSymList->at(cIt)[0] != 2.0 || ( ( CSymList->at(cIt)[5] < minPeakHeight ) && !( lhs999.AlmostEquals( rhs999 ) ) ) ) { continue; }
 
         //============================================ Check the C2 has acos ( 0.0 ) to 2 C5s, acos ( 0.5 ) to another 2 C5s and acos ( sqrt ( 3.0 ) / 2.0 ) to the last two C5s
         noClose = 0; noMidway = 0; noAway = 0;
@@ -3805,7 +3810,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         
         //============================================ Create the angle-axis sphere with correct radius (angle)
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
-                                                                                                                M_PI / static_cast<proshade_double> ( fold ),
+                                                                                                                M_PI / static_cast< proshade_double > ( this->maxShellBand ),
                                                                                                                 this->maxShellBand * 2,
                                                                                                                 soughtAngle,
                                                                                                                 static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
