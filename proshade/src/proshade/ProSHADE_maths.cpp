@@ -3070,9 +3070,9 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
 
 /*! \brief This function computes the FSC.
  
-    This funcion computes the Fourier Shell Correlation from two identically sized arrays of Fourier coefficients. It requires these to
+    This funcion computes the Fourier Shell Correlation weighted average from two identically sized arrays of Fourier coefficients. It requires these to
     have been pre-computed as well as the number of bins and bin mapping to be pre-computed (using the binReciprocalSpaceReflections
-    function). Given all these inputs, this function simply computes all the required sums for each bin, processes them and outputs the un-weighted
+    function). Given all these inputs, this function simply computes all the required sums for each bin, processes them and outputs the weighted
     average FSC over all bins.
  
     \param[in] fCoeffs1 The Fourier coefficients of the first map.
@@ -3154,8 +3154,13 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     }
     
     //================================================ Get average FSC over all bins
-    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { fsc += fscByBin.at(binIt); }
-    fsc                                              /= static_cast< proshade_double > ( noBins );
+    proshade_double binSizeSum                        = 0.0;
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
+    {
+        fsc                                          += fscByBin.at(binIt) * binCounts[binIt];
+        binSizeSum                                   += binCounts[binIt];
+    }
+    fsc                                              /= static_cast< proshade_double > ( binSizeSum );
     
     //================================================ Done
     return                                            ( fsc );

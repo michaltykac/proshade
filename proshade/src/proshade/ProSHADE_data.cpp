@@ -3412,7 +3412,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
         if ( settings->detectedSymmetry.size() > 0 )
         {
             ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << "  Fold       X           Y          Z           Angle        Height         FSC";
+            ssHlp << "  Fold       X           Y          Z           Angle        Height         Average FSC";
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
         }
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); symIt++ )
@@ -3430,7 +3430,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
         if ( settings->allDetectedCAxes.size() > 0 )
         {
             ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << "  Fold       X           Y          Z           Angle        Height         FSC";
+            ssHlp << "  Fold       X           Y          Z           Angle        Height         Average FSC";
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
         }
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
