@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.5
-    \date      MAY 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
@@ -77,6 +77,7 @@ namespace ProSHADE_internal_symmetry
                                                         std::vector< proshade_double* > peaks, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr );
     bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos );
+    bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos, proshade_double fscVal );
     void saveDSymmetry                                ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList,
                                                         proshade_unsign axisOne, proshade_unsign axisTwo );
     bool detectTetrahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight );
@@ -124,6 +125,8 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_double angle2, proshade_unsign fold,  ProSHADE_internal_data::ProSHADE_data* dataObj );
     proshade_signed addAxisUnlessSame                 ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
                                                         proshade_double axHeight, std::vector< proshade_double* >* prosp, proshade_double axErr );
+    proshade_signed addAxisUnlessSame                 ( proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
+                                                       proshade_double axHeight, proshade_double averageFSC, std::vector< proshade_double* >* prosp, proshade_double axErr );
     bool checkFittingAxisDualAndSave                  ( std::vector< proshade_unsign >* retGroup, std::vector< proshade_double* >* ret,
                                                         proshade_unsign fold, proshade_double axX, proshade_double axY, proshade_double axZ,
                                                         std::vector< proshade_double* >* prosp, proshade_double axErr, proshade_unsign noMatchesG1,
@@ -153,7 +156,7 @@ namespace ProSHADE_internal_symmetry
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj );
     proshade_double findPredictedSingleAxisHeight     ( proshade_double* axis, proshade_double fold, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
     void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
-    void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
+    void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictTetraAxes                             ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
 }
