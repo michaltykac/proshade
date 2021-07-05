@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.5
-    \date      MAY 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -90,7 +90,7 @@ int main ( int argc, char **argv )
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
 
     //================================================ Create the structure objects
-    ProSHADE_internal_data::ProSHADE_data* reboxStr   = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
+    ProSHADE_internal_data::ProSHADE_data* reboxStr   = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the structure object
     
     //================================================ Read in the structures
     reboxStr->readInStructure                         ( "./emd_5762.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object. This example uses EMDB map 5762 (PDB accession code 3J4S)
@@ -109,7 +109,7 @@ int main ( int argc, char **argv )
     reboxStr->processInternalMap                     ( settings );  // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
     
     //================================================ Create a new structure where the re-boxed data will live
-    ProSHADE_internal_data::ProSHADE_data* reBoxedStr = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises a new structure object
+    ProSHADE_internal_data::ProSHADE_data* reBoxedStr = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises a new structure object
 
     //================================================ Find new boundaries (in a temporary variable)
     proshade_signed* newBounds                        = new proshade_signed[6];
@@ -144,7 +144,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  The original structure boundaries were: -128 to 127 ; -128 to 127 and -128 to 127
-//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -136 to 135
+//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -132 to 131
 //  // And of course the reBoxed.map file :-)
     
     //================================================ Release the settings and runProshade objects

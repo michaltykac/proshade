@@ -1,4 +1,4 @@
-/*! \file advancedAccess_reboxing.cpp
+/*! \file advancedAccess_symmetry.cpp
     \brief This file showcases how the ProSHADE symetry detection can be computed using the dynamic library's advanced interface.
 
     This code is an example of how any C++ project linking the ProSHADE library can access the advanced ProSHADE interface. More specifically, in this example,
@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.5
-    \date      MAY 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -64,7 +64,7 @@ int main ( int argc, char **argv )
 //    settings->setRequestedFold                        ( 6 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
     settings->setMapCentering                         ( true );                              // Move structure COM to the centre of map box?
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
-    settings->setResolution                           ( 8.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+    settings->setResolution                           ( 15.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->verbose                                 = -1;                                  // How verbose should the run be? -1 Means no verbal output at all.
     
     //================================================ All other (possibly other tasks related) settings
@@ -98,10 +98,10 @@ int main ( int argc, char **argv )
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
 
     //================================================ Create the structure objects
-    ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
+    ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the structure object
     
     //================================================ Read in the structures
-    simpleSym->readInStructure                        ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );   // This is how a particular structure file is read into the ProSHADE object. This example uses EMD 6324 (PDB 3JA7)
+    simpleSym->readInStructure                        ( "/Users/mysak/BioCEV/proshade/playground/emd_0116.map.gz", 0, settings );   // This is how a particular structure file is read into the ProSHADE object. This example uses EMD 6324 (PDB 3JA7)
 
     //================================================ Process internal map
     simpleSym->processInternalMap                     ( settings ); // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
@@ -138,47 +138,36 @@ int main ( int argc, char **argv )
     std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
     for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( recomSymAxes.size() ); axIt++ )
     {
-        std::cout << "Symmetry axis number " << axIt << ": Fold " << recomSymAxes.at(axIt)[0] << " XYZ: " << recomSymAxes.at(axIt)[1] << " ; " << recomSymAxes.at(axIt)[2] << " ; " << recomSymAxes.at(axIt)[3] << " Angle (radians): " << recomSymAxes.at(axIt)[4] << " and axis peak: " << recomSymAxes.at(axIt)[5] << std::endl;
+        std::cout << "Symmetry axis number " << axIt << ": Fold " << recomSymAxes.at(axIt)[0] << " XYZ: " << recomSymAxes.at(axIt)[1] << " ; " << recomSymAxes.at(axIt)[2] << " ; " << recomSymAxes.at(axIt)[3] << " Angle (radians): " << recomSymAxes.at(axIt)[4] << " , axis peak: " << recomSymAxes.at(axIt)[5] << " and averaged FSC of " <<  recomSymAxes.at(axIt)[6] << std::endl;
     }
     
     //================================================ Expected output
-//  Detected symmetry: O-0 with axes:
-//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.988541
-//  Symmetry axis number 1: Fold 4 XYZ: 0.147863 ; -0.989008 ; 0 Angle (radians): 1.5708 and axis peak: 0.37019
-//  Symmetry axis number 2: Fold 4 XYZ: 0.989008 ; 0.147863 ; 0 Angle (radians): 1.5708 and axis peak: 0.36993
-//  Symmetry axis number 3: Fold 3 XYZ: 0.656373 ; -0.485635 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.371807
-//  Symmetry axis number 4: Fold 3 XYZ: 0.656373 ; -0.485635 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.369289
-//  Symmetry axis number 5: Fold 3 XYZ: -0.485635 ; -0.656373 ; 0.57735 Angle (radians): 2.0944 and axis peak: 0.371268
-//  Symmetry axis number 6: Fold 3 XYZ: -0.485635 ; -0.656373 ; -0.57735 Angle (radians): 2.0944 and axis peak: 0.369423
-//  Symmetry axis number 7: Fold 2 XYZ: 0.104555 ; -0.699334 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.371559
-//  Symmetry axis number 8: Fold 2 XYZ: 0.803889 ; -0.594779 ; 0 Angle (radians): 3.14159 and axis peak: 0.630171
-//  Symmetry axis number 9: Fold 2 XYZ: 0.699334 ; 0.104555 ; 0.707107 Angle (radians): 3.14159 and axis peak: 0.370128
-//  Symmetry axis number 10: Fold 2 XYZ: 0.104555 ; -0.699334 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.367663
-//  Symmetry axis number 11: Fold 2 XYZ: 0.699334 ; 0.104555 ; -0.707107 Angle (radians): 3.14159 and axis peak: 0.368708
-//  Symmetry axis number 12: Fold 2 XYZ: -0.594779 ; -0.803889 ; 0 Angle (radians): 3.14159 and axis peak: 0.629292
+//  Detected symmetry: D-6 with axes:
+//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.983466 and averaged FSC of 0.967818
+//  Symmetry axis number 1: Fold 2 XYZ: 1 ; 0 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 0.985993 and averaged FSC of 0.998901
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Expected output
-//  Found total of 54 cyclic symmetry axes.
+//  Found total of 9 cyclic symmetry axes.
     
     //================================================ Find the internal map processing COM shift
     std::vector< proshade_double > comMove            = simpleSym->getMapCOMProcessChange ( );
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [-0.0239693 , -0.0239671 , 8.49777].
+//  Internal map processing shifted the map COM by: [-4.20439 , -4.20564 , -6.00848].
     
     //================================================ Release the object
     delete simpleSym;
     
     //================================================ Now, detect the symmetry again, but this time with user defined requested symmetry
     settings->setRequestedSymmetry                    ( "D" );                               // Which symmetry type (C,D,T,O or I) is requested to be detected? If none, then leave empty
-    settings->setRequestedFold                        ( 4 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
-    ProSHADE_internal_data::ProSHADE_data* requestSym = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
-    requestSym->readInStructure                       ( "/Users/mysak/Downloads/emd_6324.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object.
+    settings->setRequestedFold                        ( 3 );                                 // For C and D symmetries, which symmetry fold is requested to be detected? If none, leave 0.
+    ProSHADE_internal_data::ProSHADE_data* requestSym = new ProSHADE_internal_data::ProSHADE_data ( );            // This line initialises the structure object
+    requestSym->readInStructure                       ( "/Users/mysak/BioCEV/proshade/playground/emd_0116.map.gz", 0, settings );     // This is how a particular structure file is read into the ProSHADE object.
     requestSym->processInternalMap                    ( settings );
     requestSym->mapToSpheres                          ( settings );
     requestSym->computeSphericalHarmonics             ( settings );
@@ -287,7 +276,7 @@ int main ( int argc, char **argv )
     std::cout << "Found a total of " << groupElements.size() << " group elements." << std::endl;
   
     //================================================ Expected output
-//  Found a total of 8 group elements.
+//  Found a total of 6 group elements.
     
     //================================================ Print results
     std::cout << "Point group D" << allCs.at(bestDAxesList.at(0))[0] << "-" << allCs.at(bestDAxesList.at(1))[0] << " has been found to have " << groupElements.size() << " group elements, with the first element (excluding the identity one) having rotation matrix:" << std::fixed << std::setprecision(2) << std::showpos << std::endl;
@@ -296,9 +285,9 @@ int main ( int argc, char **argv )
     std::cout << groupElements.at(0).at(6) << " | " << groupElements.at(0).at(7) << " | " << groupElements.at(0).at(8) << std::endl << std::endl;
         
     //================================================ Expected output
-//  Point group D4-2 has been found to have 8 group elements, with the first element (excluding the identity one) having rotation matrix:
-//  +0.00 | +1.00 | +0.00
-//  -1.00 | +0.00 | +0.00
+//  Point group D3-2 has been found to have 6 group elements, with the first element (excluding the identity one) having rotation matrix:
+//  -0.50 | +0.87 | +0.00
+//  -0.87 | -0.50 | +0.00
 //  +0.00 | +0.00 | +1.00
  
     //================================================ Release the settings and runProshade objects

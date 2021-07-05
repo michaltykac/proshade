@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.ř
-    \date      MAY 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -100,27 +100,26 @@ int main ( int argc, char **argv )
     for ( proshade_unsign iter = 0; iter < runProshade->getNoSymmetryAxes(); iter++ )
     {
         std::vector< std::string > detectedSymAxis    = runProshade->getSymmetryAxis ( iter );
-        std::cout << " ... FOLD: " << detectedSymAxis.at(0) << " | XYZ: " << detectedSymAxis.at(1) << " ; " << detectedSymAxis.at(2) << " ; " << detectedSymAxis.at(3) << " | Angle: " << detectedSymAxis.at(4) << " | Peak: " << detectedSymAxis.at(5) << std::endl;
+        std::cout << " ... FOLD: " << detectedSymAxis.at(0) << " | XYZ: " << detectedSymAxis.at(1) << " ; " << detectedSymAxis.at(2) << " ; " << detectedSymAxis.at(3) << " | Angle: " << detectedSymAxis.at(4) << " | Peak: " << detectedSymAxis.at(5) << " | Average FSC: " << detectedSymAxis.at(6) << std::endl;
     }
     
     //================================================ Expected output
-//  Detected symmetry D of fold 12. The symmetry axes are:
-//    ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.934763
-//    ... FOLD: 2 | XYZ: -0.410596 ; 0.911431 ; 0.0265306 | Angle: 3.14159 | Peak: 0.51188
+//  Detected symmetry C of fold 12. The symmetry axes are:
+//   ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.973208 | Average FSC: 0.971874
 
     //================================================ Get list of all detected cyclic symmetries
     std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
     std::cout << "Found a total of " << allCs.size() << " cyclic symmetries." << std::endl;
     
     //================================================ Expected output
-//  Found a total of 21 cyclic symmetries.
+//  Found a total of 49 cyclic symmetries.
     
     //================================================ Find the internal map processing COM shift
     std::vector< proshade_double > comMove            = runProshade->getMapCOMProcessChange ( );
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [-0.0239693 , -0.0239671 , 8.49777].
+//  Internal map processing shifted the map COM by: [-0.0308251 , -0.0256403 , 9.75918].
     
     //================================================ Release the settings and runProshade objects
     delete runProshade;

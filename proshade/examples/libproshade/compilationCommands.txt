@@ -9,6 +9,7 @@ CLANG:
 clang ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                            -I/path/to/proshade/extern/gemmi/include \
 						   -I/path/to/proshade/extern \
+						   -I/Users/mysak/BioCEV/proshade/experimental/proshade/extern/almostEqual \
                            -L/path/to/proshade/install/lib \                                   
                            -std=c++11 -lproshade -lc++ -lz \                                      
                            -rpath /path/to/proshade/install/lib \

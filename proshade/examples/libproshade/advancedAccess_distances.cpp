@@ -17,8 +17,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.5
-    \date      MAY 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -93,8 +93,8 @@ int main ( int argc, char **argv )
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
     
     //================================================ Create the structure objects
-    ProSHADE_internal_data::ProSHADE_data* structure1 = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the strcture object
-    ProSHADE_internal_data::ProSHADE_data* structure2 = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the strcture object
+    ProSHADE_internal_data::ProSHADE_data* structure1 = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the strcture object
+    ProSHADE_internal_data::ProSHADE_data* structure2 = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the strcture object
     
     //================================================ Read in the structures
     structure1->readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, settings ); // This is how a particular structure file is read into the ProSHADE object.
@@ -125,9 +125,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distance   : " << rotFunDistance << std::endl;
     
     //================================================ Expected output
-//  Energy levels distance       : 0.85948
-//  Trace sigma distance         : 0.95023
-//  Rotation function distance   : 0.74174
+//  Energy levels distance       : 0.8585
+//  Trace sigma distance         : 0.96229
+//  Rotation function distance   : 0.62479
 
     //================================================ Release the settings and runProshade objects
     delete structure1;
