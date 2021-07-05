@@ -16,16 +16,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_messages.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_MISC__
-#define __PROSHADE_MISC__
+#ifndef PROSHADE_MISC
+#define PROSHADE_MISC
 
 //==================================================== ProSHADE_internal_messages Namespace
 /*! \namespace ProSHADE_internal_misc
@@ -43,12 +43,14 @@ namespace ProSHADE_internal_misc
     void addToSignedVector                            ( std::vector < proshade_signed  >* vecToAddTo, proshade_signed elementToAdd );
     void addToDblPtrVector                            ( std::vector < proshade_double* >* vecToAddTo, proshade_double* elementToAdd );
     void addToSigPtrVector                            ( std::vector < proshade_signed* >* vecToAddTo, proshade_signed* elementToAdd );
+    void addToUnsPtrVector                            ( std::vector < proshade_unsign* >* vecToAddTo, proshade_unsign* elementToAdd );
     void addToUnsignVectorVector                      ( std::vector < std::vector < proshade_unsign  > >* vecToAddTo, std::vector < proshade_unsign  > elementToAdd );
     void addToDoubleVectorVector                      ( std::vector < std::vector < proshade_double  > >* vecToAddTo, std::vector < proshade_double  > elementToAdd );
             
     bool sortSymHlp                                   ( const proshade_double* a, const proshade_double* b );
     bool sortSymHlpInv                                ( const proshade_double* a, const proshade_double* b );
     bool sortDSymHlpInv                               ( const proshade_double* a, const proshade_double* b );
+    bool sortSymFoldHlp                               ( const proshade_double* a, const proshade_double* b );
     bool sortSymInvFoldHlp                            ( const proshade_double* a, const proshade_double* b );
         
     void deepCopyAxisToDblPtrVector                   ( std::vector < proshade_double* >* dblPtrVec, proshade_double* axis );
@@ -65,7 +67,7 @@ namespace ProSHADE_internal_misc
     template <class chVar> inline void checkMemoryAllocation ( chVar checkVar, std::string fileP, unsigned int lineP, std::string funcP, std::string infoP = "This error may occurs when ProSHADE requests memory to be\n                    : allocated to it and this operation fails. This could\n                    : happen when not enough memory is available, either due to\n                    : other processes using a lot of memory, or when the machine\n                    : does not have sufficient memory available. Re-run to see\n                    : if this problem persists." )
     {
         //============================================ Check against NULL
-        if ( checkVar == NULL )
+        if ( checkVar == nullptr )
         {
             throw ProSHADE_exception                  ( "Failed to allocate memory.", "E000007", fileP, lineP, funcP, infoP );
         }

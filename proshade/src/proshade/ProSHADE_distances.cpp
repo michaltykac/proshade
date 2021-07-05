@@ -16,8 +16,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
@@ -27,10 +27,8 @@
  
     This function belongs to the ProSHADE_data class and its role is to allocate the require memory
     for the RRP matrices, given the already determined bandwidths and shell count.
- 
-    \param[in] settings A pointer to settings class containing all the information required for the task.
  */
-void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( )
 {
     //================================================ Allocate the required memory
     this->rrpMatrices                                 = new proshade_double** [this->maxShellBand];
@@ -64,7 +62,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing RRP matrices for structure " + this->fileName );
     
     //================================================ Allocate the memory
-    this->allocateRRPMemory                           ( settings );
+    this->allocateRRPMemory                           ( );
     
     //================================================ Start computation: For each band (l)
     proshade_double descValR                          = 0.0;
@@ -102,14 +100,12 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
                 descValR                              = 0.0;
 
                 //==================================== Sum over order (m)
-                for ( proshade_unsign order = 0; order < static_cast<proshade_unsign>  ( ( 2 * band ) + 1 ); order++ )
+                for ( proshade_unsign order = 0; order < static_cast< proshade_unsign >  ( ( 2 * band ) + 1 ); order++ )
                 {
-                    arrPos1                           = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
-                                                                                                   static_cast<proshade_signed> ( band ),
-                                                                                                   band, this->spheres[shell1]->getLocalBandwidth() ) );
-                    arrPos2                           = static_cast<proshade_unsign> ( seanindex ( static_cast<proshade_signed> ( order ) -
-                                                                                                   static_cast<proshade_signed> ( band ),
-                                                                                                   band, this->spheres[shell2]->getLocalBandwidth() ) );
+                    arrPos1                           = static_cast< proshade_unsign > ( seanindex ( static_cast< int > ( order ) - static_cast<int > ( band ),
+                                                                                                   static_cast< int > ( band ), static_cast< int > ( this->spheres[shell1]->getLocalBandwidth() ) ) );
+                    arrPos2                           = static_cast< proshade_unsign > ( seanindex ( static_cast< int > ( order ) - static_cast< int > ( band ),
+                                                                                                   static_cast< int > ( band ), static_cast< int > ( this->spheres[shell2]->getLocalBandwidth() ) ) );
                     descValR                         += ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( &this->sphericalHarmonics[shell1][arrPos1][0],
                                                                                                                        &this->sphericalHarmonics[shell1][arrPos1][1],
                                                                                                                        &this->sphericalHarmonics[shell2][arrPos2][0],
@@ -274,10 +270,9 @@ void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_inter
     for the E matrices required by both, the Trace Sigma and Full Rotational descriptors, as well as
     symmetry and rotation tasks.
  
-    \param[in] settings A pointer to settings class containing all the information required for the task.
     \param[in] band The minimal band of the comparison for which E matrices are computed.
  */
-void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( ProSHADE_settings* settings, proshade_unsign  band )
+void ProSHADE_internal_data::ProSHADE_data::allocateEMatrices ( proshade_unsign  band )
 {
     //================================================ Save the maximum band to the object
     this->maxCompBand                                 = band;
@@ -435,7 +430,7 @@ void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data
     \param[in] sphereDist The distance between any two spheres.
     \param[out] sphereRange The distance between the smallest and largest usable sphere (usable as in having the required band).
  */
-proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double sphereDist )
+proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist )
 {
     //================================================ Initialise local values
     proshade_unsign obj1ValsIter                      = 0;
@@ -461,14 +456,14 @@ proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( P
     }
     
     //================================================ Integrate weights
-    proshade_double minSphereRad                      = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5 );
-    proshade_double maxSphereRad                      = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5 );
+    proshade_single minSphereRad                      = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5f );
+    proshade_single maxSphereRad                      = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5f );
             
-    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
-    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, maxSphereRad - minSphereRad, sphereDist ) );
+    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
+    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
     
     //================================================ Done
-    return                                            ( maxSphereRad - minSphereRad );
+    return                                            ( static_cast< proshade_double > ( maxSphereRad - minSphereRad ) );
     
 }
 
@@ -490,11 +485,11 @@ void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& ob
     delete[] GLweights;
     
     //================================================ Set to NULL
-    obj1Vals                                          = NULL;
-    obj2Vals                                          = NULL;
-    radiiVals                                         = NULL;
-    GLabscissas                                       = NULL;
-    GLweights                                         = NULL;
+    obj1Vals                                          = nullptr;
+    obj2Vals                                          = nullptr;
+    radiiVals                                         = nullptr;
+    GLabscissas                                       = nullptr;
+    GLweights                                         = nullptr;
     
     //================================================ Done
     return ;
@@ -518,7 +513,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Starting computation of E matrices." );
     
     //================================================ Allocatre memory for E matrices in the second object (first may be compared to more structures and therefore its data would be written over)
-    obj2->allocateEMatrices                           ( settings, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
+    obj2->allocateEMatrices                           ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
     //================================================ Initialise local variables
     proshade_double *obj1Vals, *obj2Vals, *GLAbscissas, *GLWeights;
@@ -541,7 +536,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
             integRange                                = computeWeightsForEMatricesForLM ( obj1, obj2, bandIter, orderIter, obj1Vals, obj2Vals, settings->integOrder, GLAbscissas, GLWeights, settings->maxSphereDists );
 
             //======================================== Compute E matrices value for given band (l) and order(m)
-            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, settings->maxSphereDists );
+            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, static_cast< proshade_double > ( settings->maxSphereDists ) );
         }
         
         //============================================ Report progress
@@ -721,7 +716,7 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
     for ( proshade_signed bandIter = 0; bandIter < static_cast<proshade_signed> ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ); bandIter++ )
     {
         //============================================ Get wigner normalisation factor
-        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * bandIter + 1.0 ) ) ;
+        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * static_cast< proshade_double > ( bandIter ) + 1.0 ) ) ;
         
         //============================================ For each order (m)
         for ( proshade_signed orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
@@ -734,10 +729,10 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
             for ( proshade_signed order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
             {
                 //==================================== Find output index
-                indexO                                = static_cast<proshade_unsign> ( so3CoefLoc ( orderIter - bandIter, order2Iter - bandIter, bandIter, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ) );
+                indexO                                = static_cast< proshade_unsign > ( so3CoefLoc ( static_cast< int > ( orderIter - bandIter ), static_cast< int > ( order2Iter - bandIter ), static_cast< int > ( bandIter ), static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ) ) );
                 
                 //==================================== Compute and save the SO(3) coefficients
-                obj2->getEMatrixValue                 ( bandIter, orderIter, order2Iter, &hlpValReal, &hlpValImag );
+                obj2->getEMatrixValue                 ( static_cast< proshade_unsign > ( bandIter ), static_cast< proshade_unsign > ( orderIter ), static_cast< proshade_unsign > ( order2Iter ), &hlpValReal, &hlpValImag );
                 hlpVal[0]                             = hlpValReal * wigNorm * signValue;
                 hlpVal[1]                             = hlpValImag * wigNorm * signValue;
                 obj2->setSO3CoeffValue                ( indexO, hlpVal );
@@ -787,7 +782,7 @@ void ProSHADE_internal_distances::allocateInvSOFTWorkspaces ( proshade_complex*&
     \param[in] work1 The workspace to be used for the computation.
     \param[in] invCoeffs The pointer to where the inverse SOFT transform results will be saved.
  */
-void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, proshade_unsign band, fftw_complex* work1, proshade_complex* invCoeffs )
+void ProSHADE_internal_distances::prepareInvSOFTPlan ( fftw_plan* inverseSO3, int band, fftw_complex* work1, proshade_complex* invCoeffs )
 {
     //================================================ Prepare the plan describing variables
     int howmany                                       = 4 * band * band;
@@ -870,10 +865,10 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
     allocateInvSOFTWorkspaces                         ( workspace1, workspace2, workspace3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
     
     //================================================ Prepare the FFTW plan
-    prepareInvSOFTPlan                                ( &inverseSO3, std::min ( obj1->getMaxBand(), obj2->getMaxBand() ), workspace1, obj2->getInvSO3Coeffs ( ) );
+    prepareInvSOFTPlan                                ( &inverseSO3, static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ), workspace1, obj2->getInvSO3Coeffs ( ) );
     
     //================================================ Compute the transform
-    Inverse_SO3_Naive_fftw                            ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ),
+    Inverse_SO3_Naive_fftw                            ( static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ),
                                                         obj2->getSO3Coeffs ( ),
                                                         obj2->getInvSO3Coeffs ( ),
                                                         workspace1,

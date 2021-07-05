@@ -15,16 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_symmetry.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_OVERLAY__
-#define __PROSHADE_OVERLAY__
+#ifndef PROSHADE_OVERLAY
+#define PROSHADE_OVERLAY
 
 //==================================================== ProSHADE_internal_overlay Namespace
 /*! \namespace ProSHADE_internal_overlay

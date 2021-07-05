@@ -15,16 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE library code
-#include "ProSHADE_peakSearch.hpp"
+#include "ProSHADE_data.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_WIGNERMATRICES__
-#define __PROSHADE_WIGNERMATRICES__
+#ifndef PROSHADE_WIGNERMATRICES
+#define PROSHADE_WIGNERMATRICES
 
 //==================================================== ProSHADE Namespace
 /*! \namespace ProSHADE_internal_wigner

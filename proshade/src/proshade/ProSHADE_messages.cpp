@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -32,7 +32,7 @@ void ProSHADE_internal_messages::printWellcomeMessage ( proshade_signed verbose 
 {
     if ( verbose >= 0 )
     {
-        std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "============================" << std::endl << std::endl << std::flush;
+        std::cout << "ProSHADE " << PROSHADE_VERSION << ":" << std::endl << "============================" << std::endl << std::endl << std::flush;
     }
     
     //================================================ Done
@@ -76,7 +76,7 @@ void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose,
             std::cout << " ";
         }
         
-        for ( unsigned int iter = 0; iter < messageLevel; iter++ )
+        for ( proshade_signed iter = 0; iter < messageLevel; iter++ )
         {
             std::cout << "... ";
         }
@@ -115,10 +115,10 @@ void ProSHADE_internal_messages::printWarningMessage ( proshade_signed verbose, 
 /*! \brief This function prints the help screen in the case -h is called, or if command line arguments cannot be parsed.
  
  */
-void ProSHADE_internal_messages::printHelp ( void )
+void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
 {
     //================================================ Print the help screen
-    std::cout << "ProSHADE " << __PROSHADE_VERSION__ << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
+    std::cout << "ProSHADE " << PROSHADE_VERSION << ":" << std::endl << "==========================" << std::endl << std::endl << std::flush;
     std::cout << "                                                                                " << std::endl << std::flush;
     std::cout << "DESCRIPTION:                                                                    " << std::endl;
     std::cout << "   ProSHADE is a library of functionalities for computing distances between     " << std::endl;
@@ -223,9 +223,18 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "            and to allow simple dealing with this, if this value is >= 0.0,     " << std::endl;
     std::cout << "            then all B-factors of all PDB inputs will be set to this value.     " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -F or --keepNegDens                             [DEFAULT:         TRUE]     " << std::endl;
+    std::cout << "            Some input files have negative density that causes differences      " << std::endl;
+    std::cout << "            to be detected between structures that appear identical. By         " << std::endl;
+    std::cout << "            default negative density is removed, this option keeps it in.       " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskFile                                      [DEFAULT: \"./maskFile\"]     " << std::endl;
     std::cout << "            The filename to which the mask will be saved to. The extension      " << std::endl;
     std::cout << "            will be added as well as the structure index (order of input).      " << std::endl;
+    std::cout << "    -G or --applyMask                                 [DEFAULT:         \"\"]     " << std::endl;
+    std::cout << "            This option allows supplying a map mask, which will be applied      " << std::endl;
+    std::cout << "            before any other processing in the input map. This option is only   " << std::endl;
+    std::cout << "            available for the map manipulation and symmetry detection tasks.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskBlurring                                  [DEFAULT:        350.0]     " << std::endl;
     std::cout << "            The B-factor (temperature factor) increase, which should be         " << std::endl;
@@ -285,6 +294,14 @@ void ProSHADE_internal_messages::printHelp ( void )
     std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --fscThres or -C                               [DEFAULT:          0.75]     " << std::endl;
+    std::cout << "            The Fourier Shell Correlation value the axes need to achieve in     " << std::endl;
+    std::cout << "            order to be considered \"real\" by the symmetry detection algorithm.  " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    --peakMinThres or -E                           [DEFAULT:          0.80]     " << std::endl;
+    std::cout << "            The average peak height value the axes need to achieve in order     " << std::endl;
+    std::cout << "            to be considered \"possible\" by the symmetry detection algorithm.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --reqSym                                        [DEFAULT:           \"\"]     " << std::endl;
     std::cout << "            This is where the user states any particular symmetry he is         " << std::endl;

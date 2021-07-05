@@ -15,16 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_overlay.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_TASKS__
-#define __PROSHADE_TASKS__
+#ifndef PROSHADE_TASKS
+#define PROSHADE_TASKS
 
 //==================================================== ProSHADE_internal_tasks Namespace
 /*! \namespace ProSHADE_internal_tasks
@@ -40,7 +40,8 @@ namespace ProSHADE_internal_tasks
                                                         std::vector < proshade_signed* >* reboxedBounds, std::vector < proshade_double* >* manipulatedMaps );
     void DistancesComputationTask                     ( ProSHADE_settings* settings, std::vector< proshade_double >* enLevs, std::vector< proshade_double >* trSigm,
                                                         std::vector< proshade_double >* rotFun );
-    void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
+    void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs,
+                                                        std::vector< proshade_double >* mapCOMShift );
     void MapOverlayTask                               ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
                                                         std::vector < proshade_double >* finalTranslation );
             

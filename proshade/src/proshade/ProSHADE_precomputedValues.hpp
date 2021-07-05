@@ -1,8 +1,9 @@
-/*! \file ProSHADE_precomputedValues.cpp
-    \brief This header file contains the pre-computed value that would take too long to obtain in run-time.
+/*! \file ProSHADE_precomputedValues.hpp
+    \brief This header file contains the pre-computed values in classes that would take too long to obtain in run-time.
  
-    This header file currently contains an array listing the largest Gauss-Legendre integration sampling distance between absciccas for a given integration order. There
-    may be more variables in the future, the main point of this file is that computing the required value in run-time would be time-consuming and provide no particular advantage.
+    This header file currently contains an array listing the largest Gauss-Legendre integration sampling distance between absciccas for a given integration order,
+    as well as the theoretical axes values for the tetrahedron, octahedron and icosahedron. These are held in classes in order to comply with the exit-destructor
+    existence requirement of C++.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -15,21 +16,20 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_typedefs.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_PRECOMPUTED__
-#define __PROSHADE_PRECOMPUTED__
+#ifndef PROSHADE_PRECOMPUTED
+#define PROSHADE_PRECOMPUTED
 
 //==================================================== ProSHADE_internal_precomputedVals Namespace
 /*! \namespace ProSHADE_internal_precomputedVals
     \brief This namespace contains the pre-computed values for the ProSHADE run.
- 
  
     The ProSHADE_internal_precomputedVals namespace contains the pre-computed numbers so that the slow functions required
     to obtain these would not have to be run every time ProSHADE is being used. This approach has its limits, but in some
@@ -37,69 +37,46 @@
  */
 namespace ProSHADE_internal_precomputedVals
 {
-    static const std::vector < std::vector < proshade_double > > icosahedronAxes {
-        { 5.0, 0.850650808352040,  0.525731112119134,  0.000000000000000, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 1
-        { 5.0, 0.850650808352040, -0.525731112119134,  0.000000000000000, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 2
-        { 5.0, 0.525731112119134,  0.000000000000000,  0.850650808352040, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 3
-        { 5.0, 0.525731112119134,  0.000000000000000, -0.850650808352040, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 4
-        { 5.0, 0.000000000000000,  0.850650808352040,  0.525731112119134, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 5
-        { 5.0, 0.000000000000000,  0.850650808352040, -0.525731112119134, (2.0 * M_PI) / 5.0, 0.0 },       // C5 axis 6
-        
-        { 3.0, 0.577350269189626,  0.577350269189626,  0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 1
-        { 3.0, 0.577350269189626,  0.577350269189626, -0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 2
-        { 3.0, 0.577350269189626, -0.577350269189626,  0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 3
-        { 3.0, 0.577350269189626, -0.577350269189626, -0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 4
-        { 3.0, 0.356822089773090,  0.934172358962716,  0.000000000000000, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 5
-        { 3.0,-0.356822089773090,  0.934172358962716,  0.000000000000000, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 6
-        { 3.0, 0.934172358962716,  0.000000000000000,  0.356822089773090, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 7
-        { 3.0, 0.934172358962716,  0.000000000000000, -0.356822089773090, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 8
-        { 3.0, 0.000000000000000,  0.356822089773090,  0.934172358962716, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 9
-        { 3.0, 0.000000000000000,  0.356822089773090, -0.934172358962716, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 10
-        
-        { 2.0, 0.500000000000000,  0.809016994374947,  0.309016994374947, M_PI, 0.0 },                     // C2 axis 1
-        { 2.0, 0.309016994374947,  0.500000000000000,  0.809016994374947, M_PI, 0.0 },                     // C2 axis 2
-        { 2.0, 0.809016994374947,  0.309016994374947,  0.500000000000000, M_PI, 0.0 },                     // C2 axis 3
-        { 2.0, 0.809016994374947,  0.309016994374947, -0.500000000000000, M_PI, 0.0 },                     // C2 axis 4
-        { 2.0, 0.309016994374947,  0.500000000000000, -0.809016994374947, M_PI, 0.0 },                     // C2 axis 5
-        { 2.0, 0.500000000000000,  0.809016994374947, -0.309016994374947, M_PI, 0.0 },                     // C2 axis 6
-        { 2.0, 0.809016994374947, -0.309016994374947,  0.500000000000000, M_PI, 0.0 },                     // C2 axis 7
-        { 2.0, 0.309016994374947, -0.500000000000000,  0.809016994374947, M_PI, 0.0 },                     // C2 axis 8
-        { 2.0, 0.500000000000000, -0.809016994374947,  0.309016994374947, M_PI, 0.0 },                     // C2 axis 9
-        { 2.0, 0.500000000000000, -0.809016994374947, -0.309016994374947, M_PI, 0.0 },                     // C2 axis 10
-        { 2.0, 0.309016994374947, -0.500000000000000, -0.809016994374947, M_PI, 0.0 },                     // C2 axis 11
-        { 2.0, 0.809016994374947, -0.309016994374947, -0.500000000000000, M_PI, 0.0 },                     // C2 axis 12
-        { 2.0, 0.500000000000000,  0.809016994374947, -0.309016994374947, M_PI, 0.0 },                     // C2 axis 13
-        { 2.0, 0.000000000000000,  1.000000000000000,  0.000000000000000, M_PI, 0.0 },                     // C2 axis 14
-        { 2.0, 0.500000000000000,  0.809016994374947,  0.309016994374947, M_PI, 0.0 }                      // C2 axis 15
+    class icosahedronAxes
+    {
+    private:
+        std::vector < std::vector < proshade_double > > icosahedronAxesVals;
+    public:
+        //============================================ Constructors
+        icosahedronAxes ( );
+       ~icosahedronAxes ( );
+
+        //============================================ Accessors
+        proshade_double getValue  ( proshade_unsign axis, proshade_unsign element );
+        proshade_unsign getNoAxes ( );
     };
 
-    static const std::vector < std::vector < proshade_double > > octahedronAxes {
-        { 4.0, 1.000000000000000,  0.000000000000000,  0.000000000000000, (2.0 * M_PI) / 4.0, 0.0 },       // C4 axis 1
-        { 4.0, 0.000000000000000,  1.000000000000000,  0.000000000000000, (2.0 * M_PI) / 4.0, 0.0 },       // C4 axis 2
-        { 4.0, 0.000000000000000,  0.000000000000000,  1.000000000000000, (2.0 * M_PI) / 4.0, 0.0 },       // C4 axis 3
+    class octahedronAxes
+    {
+    private:
+        std::vector < std::vector < proshade_double > > octahedronAxesVals;
+    public:
+        //============================================ Constructors
+        octahedronAxes ( );
+       ~octahedronAxes ( );
     
-        { 3.0, 0.577350269189626,  0.577350269189626,  0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 1
-        { 3.0,-0.577350269189626,  0.577350269189626,  0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 2
-        { 3.0, 0.577350269189626,  0.577350269189626, -0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 3
-        { 3.0,-0.577350269189626,  0.577350269189626, -0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 4
-        
-        { 2.0, 0.707106781186547,  0.707106781186547,  0.000000000000000, M_PI, 0.0 },                     // C2 axis 1
-        { 2.0, 0.000000000000000,  0.707106781186547,  0.707106781186547, M_PI, 0.0 },                     // C2 axis 2
-        { 2.0, 0.707106781186547,  0.000000000000000,  0.707106781186547, M_PI, 0.0 },                     // C2 axis 3
-        { 2.0,-0.707106781186547,  0.707106781186547,  0.000000000000000, M_PI, 0.0 },                     // C2 axis 4
-        { 2.0,-0.707106781186547,  0.000000000000000,  0.707106781186547, M_PI, 0.0 },                     // C2 axis 5
-        { 2.0, 0.000000000000000,  0.707106781186547, -0.707106781186547, M_PI, 0.0 }                      // C2 axis 6
+        //============================================ Accessors
+        proshade_double getValue  ( proshade_unsign axis, proshade_unsign element );
+        proshade_unsign getNoAxes ( );
     };
 
-    static const std::vector < std::vector < proshade_double > > tetrahedronAxes {
-        { 3.0, 0.816496580927726,  0.000000000000000, -0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 1
-        { 3.0,-0.816496580927726,  0.000000000000000, -0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 2
-        { 3.0, 0.000000000000000,  0.816496580927726,  0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 3
-        { 3.0, 0.000000000000000, -0.816496580927726,  0.577350269189626, (2.0 * M_PI) / 3.0, 0.0 },       // C3 axis 4
+    class tetrahedronAxes
+    {
+    private:
+        std::vector < std::vector < proshade_double > > tetrahedronAxesVals; 
+    public:
+        //============================================ Constructors
+        tetrahedronAxes ( );
+       ~tetrahedronAxes ( );
         
-        { 2.0, 0.000000000000000,  0.000000000000000, -1.000000000000000, M_PI, 0.0 },                     // C2 axis 1
-        { 2.0,-0.707106781186547,  0.707106781186547,  0.000000000000000, M_PI, 0.0 },                     // C2 axis 2
-        { 2.0, 0.707106781186547,  0.707106781186547,  0.000000000000000, M_PI, 0.0 },                     // C2 axis 3
+        //============================================ Accessors
+        proshade_double getValue  ( proshade_unsign axis, proshade_unsign element );
+        proshade_unsign getNoAxes ( );
     };
 
     static const proshade_double glIntMaxDists[]      = { +999.9,

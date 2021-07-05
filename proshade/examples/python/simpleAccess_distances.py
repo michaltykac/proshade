@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.4
-#   \date      MAR 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -49,6 +49,7 @@ ps.addStructure                                       ( "/Users/mysak/LMB/1_Prot
 ######################################################
 ### Further useful settings
 ps.forceP1                                            = True                                                             # Should PDB files be forced to have P1 spacegroup?
+ps.setNegativeDensity                                 ( True )                                                           # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                                                             # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                                                             # Should PDB files have only their first model used, or should ProSHADE use all models?
 ps.setProgressiveSphereMapping                        ( False )                                                          # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
@@ -76,10 +77,13 @@ ps.setEnLevShellWeight                                ( 1.0 )                   
 ps.setSymmetryRotFunPeaks                             ( True )                                                           # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                                                           # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                                                             # The maximum prime number fold that will be searched for.
+ps.setFSCThreshold                                    ( 0.75 )                                                           # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.80 )                                                           # The threshold for peak height above which axes are considered possible.
 ps.setMaskBlurFactor                                  ( 350.0 )                                                          # If masking, what blur factor should be used? 350 seems to work for most maps.
 ps.setMaskIQR                                         ( 3.0 )                                                            # Number of inter-quartile ranges from median to use as the masking threshold.
 ps.setMaskSaving                                      ( False )                                                          # Should map mask be saved?
 ps.setMaskFilename                                    ( "maskFile" )                                                     # The filename (no extension) to which the map masks will be saved into.
+ps.setAppliedMaskFilename                             ( "" )                                                             # The filename from which mask data will be read from.
 ps.setBoundsSpace                                     ( 3.0 )                                                            # The extra space in Angs to add to the minimal boundaries when re-boxing.
 ps.setBoundsThreshold                                 ( 0 )                                                              # If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
 ps.setSameBoundaries                                  ( False )                                                          # Make multiple structures have the same boundaries. This is useful for half-maps.
@@ -113,9 +117,9 @@ print                                                 ( "Full rotation function 
 
 ######################################################
 ### Expected output
-#   Energy levels distance          : 0.85948473        0.5723151
-#   Trace sigma distance            : 0.95022666        0.74436015
-#   Full rotation function distance : 0.74174434        0.46141508
+#   Energy levels distance          : 0.85850143       0.58064646
+#   Trace sigma distance            : 0.9622864        0.75547904
+#   Full rotation function distance : 0.6247927        0.47406107
 
 ######################################################
 ### Release memory

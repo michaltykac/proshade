@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.4
-#   \date      MAR 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -41,14 +41,18 @@ ps                                                    = proshade.ProSHADE_settin
 ps.task                                               = proshade.Symmetry
 ps.verbose                                            = -1                      # How verbose should the run be? -1 Means no verbal output at all.
 ps.setResolution                                      ( 8.0 )                   # The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
-ps.addStructure                                       ( "/Users/mysak/BioCEV/proshade/playground/emd_5762.map" ) # A path to the structure to be processed. This example uses EMDB map 5762 (PDB accession code 3J4S)
+ps.addStructure                                       ( "/Users/mysak/BioCEV/proshade/playground/emd_0094.map" ) # A path to the structure to be processed. This example uses EMDB map 0094
+ps.setAppliedMaskFilename                             ( "/Users/mysak/BioCEV/proshade/playground/emd_0094_mask.map" )
 
 ######################################################
 ### Further useful settings
 ps.setSymmetryRotFunPeaks                             ( True )                  # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                  # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                    # The maximum prime number fold that will be searched for.
+ps.setFSCThreshold                                    ( 0.75 )                  # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.80 )                  # The threshold for peak height above which axes are considered possible.
 ps.forceP1                                            = True                    # Should PDB files be forced to have P1 spacegroup?
+ps.setNegativeDensity                                 ( True )                  # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                    # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                    # Should PDB files have only their first model used, or should ProSHADE use all models?
 ps.setProgressiveSphereMapping                        ( False )                 # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
@@ -70,6 +74,7 @@ ps.setMaskBlurFactor                                  ( 350.0 )                 
 ps.setMaskIQR                                         ( 3.0 )                   # Number of inter-quartile ranges from median to use as the masking threshold.
 ps.setMaskSaving                                      ( False )                 # Should map mask be saved?
 ps.setMaskFilename                                    ( "maskFile" )            # The filename (no extension) to which the map masks will be saved into.
+ps.setAppliedMaskFilename                             ( "" )                    # The filename from which mask data will be read from.
 ps.setBoundsSpace                                     ( 3.0 )                   # The extra space in Angs to add to the minimal boundaries when re-boxing.
 ps.setBoundsThreshold                                 ( 0 )                     # If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
 ps.setSameBoundaries                                  ( False )                 # Make multiple structures have the same boundaries. This is useful for half-maps.
@@ -108,25 +113,34 @@ print                                                 ( "Found a total of " + st
 
 ##############################################
 ### Expected output
-#   Found a total of 2 cyclic symmetries.
+#   Found a total of 37 cyclic symmetries.
 
 ######################################################
 ### Print results
 print                                                 ( "Detected symmetry " + str( symType ) + "-" + str( symFold ) + " with axes: " )
-print                                                 ( "Fold      x         y         z       Angle     Height" )
-print                                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( float ( symAxis[0] ),
-                                                                                                                     float ( symAxis[1] ),
-                                                                                                                     float ( symAxis[2] ),
-                                                                                                                     float ( symAxis[3] ),
-                                                                                                                     float ( symAxis[4] ),
-                                                                                                                     float ( symAxis[5] ) ) )
+print                                                 ( "Fold      x         y         z       Angle     Height    Averaged FSC" )
+print                                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f      %+1.4f" % ( float ( symAxis[0] ),
+                                                                                                                                 float ( symAxis[1] ),
+                                                                                                                                 float ( symAxis[2] ),
+                                                                                                                                 float ( symAxis[3] ),
+                                                                                                                                 float ( symAxis[4] ),
+                                                                                                                                 float ( symAxis[5] ),
+                                                                                                                                 float ( symAxis[6] ) ) )
 
 ######################################################
 ### Expected outuput
-#   Found a total of 2 cyclic symmetries.
 #   Detected symmetry C-4 with axes: 
-#   Fold      x         y         z       Angle     Height
-#     4.0    +0.000    -0.000    +1.000    +1.571    +0.9488
+#   Fold      x         y         z       Angle     Height    Averaged FSC
+#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9780      +0.9781
+
+######################################################
+### Find the internal map COM shift
+comShift                                              = rn.getMapCOMProcessChange ()
+print                                                 ( "Internal map COM shift: " + str( comShift[0] ) + " , " + str( comShift[1] ) + " , " + str( comShift[2] ) )
+
+######################################################
+### Expected outuput
+#   Internal map COM shift: 0.0 , 0.0 , 0.0
 
 ######################################################
 ### Release memory

@@ -6,7 +6,7 @@
 
 ##########################################################################################
 ################################### Add the executable target
-add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${GETOPT_SOURCE} ${OBJS}            )
+add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${OBJS}                             )
 
 ##########################################################################################
 ### Add and link the dependencies

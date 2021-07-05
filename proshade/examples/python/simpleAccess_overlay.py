@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.4
-#   \date      MAR 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -49,6 +49,7 @@ ps.addStructure                                       ( "/Users/mysak/LMB/1_Prot
 ######################################################
 ### Set up the run Further useful settings
 ps.forceP1                                            = True                                                             # Should PDB files be forced to have P1 spacegroup?
+ps.setNegativeDensity                                 ( True )                                                           # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                                                             # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                                                             # Should PDB files have only their first model used, or should ProSHADE use all models?
 ps.setProgressiveSphereMapping                        ( False )                                                          # Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
@@ -67,6 +68,8 @@ ps.setExtraSpace                                      ( 10.0 )                  
 ps.setSymmetryRotFunPeaks                             ( True )                                                           # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                                                           # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                                                             # The maximum prime number fold that will be searched for.
+ps.setFSCThreshold                                    ( 0.75 )                                                           # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.80 )                                                           # The threshold for peak height above which axes are considered possible.
 ps.setPeakNeighboursNumber                            ( 1 )                                                              # Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
 ps.setPeakNaiveNoIQR                                  ( -999.9 )                                                         # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 ps.setMissingPeakThreshold                            ( 0.3 )                                                            # Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -93,6 +96,7 @@ ps.setMaskBlurFactor                                  ( 350.0 )                 
 ps.setMaskIQR                                         ( 3.0 )                                                            # Number of inter-quartile ranges from median to use as the masking threshold.
 ps.setMaskSaving                                      ( False )                                                          # Should map mask be saved?
 ps.setMaskFilename                                    ( "maskFile" )                                                     # The filename (no extension) to which the map masks will be saved into.
+ps.setAppliedMaskFilename                             ( "" )                                                             # The filename from which mask data will be read from.
 
 ######################################################
 ### Run ProSHADE
@@ -116,12 +120,12 @@ print                                                 ( "Translation to overlay 
 
 ######################################################
 ### Expected outuput
-#   Optimal rotation Euler angles : 5.4325056    0.7526409    3.9270065
-#   Optimal rotation matrix       : -0.87191415    -0.07835774    0.4833485
-#                                 : -0.19118044    -0.85428894    -0.48336366
-#                                 : 0.45079455    -0.5138584    0.7298862
-#   Translation to origin         : -16.0    -20.0    -24.0
-#   Translation to overlay        : 8.0    8.0    -6.0
+#   Optimal rotation Euler angles :  3.8862262      0.74404687      5.4567637
+#   Optimal rotation matrix       : -0.865          0.20303503     -0.4588592
+#                                 :  0.06123119    -0.86493164     -0.49814057
+#                                 : -0.4980218     -0.4589881       0.7357338
+#   Translation to origin         : -17.0    -21.0    -23.0
+#   Translation to overlay        : 4.0    4.0    -4.0
 
 ######################################################
 ### Release memory

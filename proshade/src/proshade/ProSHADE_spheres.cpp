@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //============================================ ProSHADE
@@ -47,13 +47,13 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
 {
     //================================================ Save inputs
     this->shellOrder                                  = shOrder;
-    this->sphereWidth                                 = ( spherePos->at(0) + spherePos->at(1) ) / 2.0;
-    this->sphereRadius                                = spherePos->at(shOrder);
+    this->sphereWidth                                 = static_cast< proshade_single > ( ( spherePos->at(0) + spherePos->at(1) ) / 2.0f );
+    this->sphereRadius                                = static_cast< proshade_double > ( spherePos->at(shOrder) );
     
     //================================================ Determine shell ranges in angstroms
     proshade_double maxDist                           = 0.0;
     if ( shOrder == static_cast<proshade_unsign> ( spherePos->size() - 1 ) ) { maxDist = static_cast<proshade_double> ( spherePos->at(spherePos->size()-1) + ( spherePos->at(1) - spherePos->at(0) ) ); }
-    else { maxDist = static_cast<proshade_double> ( ( spherePos->at(shOrder) + spherePos->at(shOrder+1) ) / 2.0 ); }
+    else { maxDist = static_cast<proshade_double> ( ( spherePos->at(shOrder) + spherePos->at(shOrder+1) ) / 2.0f ); }
     
     //================================================ Set the max range
     this->maxSphereRange                              = static_cast<proshade_single> ( 2.0 * maxDist );
@@ -64,7 +64,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
     this->zDimSampling                                = zSize / static_cast<proshade_single> (zDimMax);
     
     //================================================ Get maximum circumference
-    proshade_unsign maxCircumference                  = this->getMaxCircumference ( xDimMax, yDimMax, zDimMax, this->maxSphereRange, xSize, ySize, zSize );
+    proshade_unsign maxCircumference                  = this->getMaxCircumference ( xDimMax, yDimMax, zDimMax, this->maxSphereRange );
     
     //================================================ Get spherical harmonics calculation values
     if ( progressiveMapping )
@@ -86,7 +86,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
     ProSHADE_internal_misc::checkMemoryAllocation     ( this->mappedData, __FILE__, __LINE__, __func__ );
     
     //================================================ Set rotated mapped data
-    this->mappedDataRot                               = NULL;
+    this->mappedDataRot                               = nullptr;
     
     //================================================ Map the data to the sphere
     this->mapData                                     ( map, xDimMax, yDimMax, zDimMax );
@@ -103,7 +103,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::~ProSHADE_sphere ( )
 {
     delete[] this->mappedData;
     
-    if ( this->mappedDataRot != NULL )
+    if ( this->mappedDataRot != nullptr )
     {
         delete[] this->mappedDataRot;
     }
@@ -117,11 +117,8 @@ ProSHADE_internal_spheres::ProSHADE_sphere::~ProSHADE_sphere ( )
     \param[in] yDimMax The internal map maximum index in the y dimension.
     \param[in] zDimMax The internal map maximum index in the z dimension.
     \param[in] maxRange The maximum range of shell in angstroms.
-    \param[in] xSize The size of x axis of whole map in angstroms.
-    \param[in] ySize The size of y axis of whole map in angstroms.
-    \param[in] zSize The size of z axis of whole map in angstroms.
  */
-proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double maxRange, proshade_single xSize, proshade_single ySize, proshade_single zSize )
+proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single maxRange )
 {
     //================================================ Find from and to limits on indices
     proshade_signed xFromInd                          = static_cast<proshade_signed> ( xDimMax / 2 ) -
@@ -142,14 +139,14 @@ proshade_unsign ProSHADE_internal_spheres::ProSHADE_sphere::getMaxCircumference 
     if ( xFromInd < 0 ) { xFromInd = 0; }
     if ( yFromInd < 0 ) { yFromInd = 0; }
     if ( zFromInd < 0 ) { zFromInd = 0; }
-    if ( xToInd > static_cast<proshade_signed> ( xDimMax ) ) { xToInd = xDimMax; }
-    if ( yToInd > static_cast<proshade_signed> ( yDimMax ) ) { yToInd = yDimMax; }
-    if ( zToInd > static_cast<proshade_signed> ( zDimMax ) ) { zToInd = zDimMax; }
+    if ( xToInd > static_cast<proshade_signed> ( xDimMax ) ) { xToInd = static_cast<proshade_signed> ( xDimMax ); }
+    if ( yToInd > static_cast<proshade_signed> ( yDimMax ) ) { yToInd = static_cast<proshade_signed> ( yDimMax ); }
+    if ( zToInd > static_cast<proshade_signed> ( zDimMax ) ) { zToInd = static_cast<proshade_signed> ( zDimMax ); }
     
     //================================================ Get dim sizes
-    proshade_unsign xDimSZ                            = xToInd - xFromInd;
-    proshade_unsign yDimSZ                            = yToInd - yFromInd;
-    proshade_unsign zDimSZ                            = zToInd - zFromInd;
+    proshade_unsign xDimSZ                            = static_cast< proshade_unsign > ( xToInd - xFromInd );
+    proshade_unsign yDimSZ                            = static_cast< proshade_unsign > ( yToInd - yFromInd );
+    proshade_unsign zDimSZ                            = static_cast< proshade_unsign > ( zToInd - zFromInd );
     
     //================================================ check for too sparse sampling
     if ( ( xDimSZ == 0 ) && ( yDimSZ == 0 ) && ( zDimSZ == 0 ) ) { xDimSZ = 1; yDimSZ = 1; zDimSZ = 1; }
@@ -226,15 +223,15 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::mapData ( proshade_double* map,
             if ( !getMapPoint ( map, xDimMax, yDimMax, zDimMax, xTop   , yTop   , zTop   , &c111 ) ) { this->mappedData[phIt * this->localAngRes + thIt] = 0.0; continue; }
 
             //======================================== Interpolate along X axis
-            xRelative                                 = ( x - ( ( xBottom - static_cast<proshade_signed> ( ( ( xDimMax ) / 2 ) ) ) * this->xDimSampling ) ) / this->xDimSampling;
+            xRelative                                 = ( x - ( static_cast< proshade_double > ( xBottom - static_cast<proshade_signed> ( ( ( xDimMax ) / 2 ) ) ) * static_cast< proshade_double > ( this->xDimSampling ) ) ) / static_cast< proshade_double > ( this->xDimSampling );
             this->interpolateAlongFirst               ( c000, c001, c010, c011, c100, c101, c110, c111, &c00, &c01, &c10, &c11, xRelative );
             
             //======================================== Interpolate along Y axis
-            yRelative                                 = ( y - ( ( yBottom - static_cast<proshade_signed> ( ( ( yDimMax ) / 2 ) ) ) * this->yDimSampling ) ) / this->yDimSampling;
+            yRelative                                 = ( y - ( static_cast< proshade_double > ( yBottom - static_cast<proshade_signed> ( ( ( yDimMax ) / 2 ) ) ) * static_cast< proshade_double > ( this->yDimSampling ) ) ) / static_cast< proshade_double > ( this->yDimSampling );
             this->interpolateAlongSecond              ( c00, c01, c10, c11, &c0, &c1, yRelative );
 
             //======================================== Save the resulting value
-            zRelative                                 = ( z - ( ( zBottom - static_cast<proshade_signed> ( ( ( zDimMax ) / 2 ) ) ) * this->zDimSampling ) ) / this->zDimSampling;
+            zRelative                                 = ( z - ( static_cast< proshade_double > ( zBottom - static_cast<proshade_signed> ( ( ( zDimMax ) / 2 ) ) ) * static_cast< proshade_double > ( this->zDimSampling ) ) ) / static_cast< proshade_double > ( this->zDimSampling );
             this->mappedData[phIt * this->localAngRes + thIt] = ( c0.at(3) * ( 1.0 - zRelative ) ) + ( c1.at(3) * zRelative );
         }
     }
@@ -263,7 +260,7 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::mapData ( proshade_double* map,
 bool ProSHADE_internal_spheres::ProSHADE_sphere::getMapPoint ( proshade_double* map, proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_signed xPos, proshade_signed yPos, proshade_signed zPos, std::vector<proshade_double>* interpVec )
 {
     //================================================ Initialise local variables
-    proshade_signed posIter                           = zPos + zDimMax * ( yPos  + yDimMax * xPos );
+    proshade_signed posIter                           = zPos + static_cast<proshade_signed> ( zDimMax ) * ( yPos  + static_cast<proshade_signed> ( yDimMax ) * xPos );
     
     //================================================ Check of out-of-bounds shells
     if ( ( xPos < 0 ) || ( xPos >= static_cast<proshade_signed> ( xDimMax ) ) ) { return ( false ); }
@@ -271,9 +268,9 @@ bool ProSHADE_internal_spheres::ProSHADE_sphere::getMapPoint ( proshade_double* 
     if ( ( zPos < 0 ) || ( zPos >= static_cast<proshade_signed> ( zDimMax ) ) ) { return ( false ); }
     
     //================================================ Get the interpolation values
-    interpVec->at(0)                                  = static_cast<proshade_double> ( xPos * this->xDimSampling );
-    interpVec->at(1)                                  = static_cast<proshade_double> ( yPos * this->yDimSampling );
-    interpVec->at(2)                                  = static_cast<proshade_double> ( zPos * this->zDimSampling );
+    interpVec->at(0)                                  = static_cast<proshade_double> ( xPos ) * static_cast<proshade_double> ( this->xDimSampling );
+    interpVec->at(1)                                  = static_cast<proshade_double> ( yPos ) * static_cast<proshade_double> ( this->yDimSampling );
+    interpVec->at(2)                                  = static_cast<proshade_double> ( zPos ) * static_cast<proshade_double> ( this->zDimSampling );
     interpVec->at(3)                                  = map[posIter];
     
     //================================================ Done
@@ -339,11 +336,11 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::getLattitudeCutoffs ( std::vect
 void ProSHADE_internal_spheres::ProSHADE_sphere::getInterpolationXYZ ( proshade_double* x, proshade_double* y, proshade_double* z, proshade_double thetaIt, std::vector<proshade_double>* lonCO, proshade_unsign phiIt, std::vector<proshade_double>* latCO )
 {
     //================================================ Compute and save XYZ interpolation positions
-   *x                                                 = this->sphereRadius * cos( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
-                                                                             cos( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
-   *y                                                 = this->sphereRadius * sin( ( lonCO->at(thetaIt) + lonCO->at(thetaIt+1) ) / 2.0 ) *
-                                                                             cos( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
-   *z                                                 = this->sphereRadius * sin( ( latCO->at(phiIt)   + latCO->at(phiIt+1)   ) / 2.0 );
+   *x                                                 = this->sphereRadius * std::cos ( ( lonCO->at( static_cast<proshade_unsign> ( thetaIt ) ) + lonCO->at( static_cast<proshade_unsign> ( thetaIt+1 ) ) ) / 2.0 ) *
+                                                                             std::cos ( ( latCO->at( static_cast<proshade_unsign> ( phiIt ) )   + latCO->at( static_cast<proshade_unsign> ( phiIt+1 ) )   ) / 2.0 );
+   *y                                                 = this->sphereRadius * std::sin ( ( lonCO->at( static_cast<proshade_unsign> ( thetaIt ) ) + lonCO->at( static_cast<proshade_unsign> ( thetaIt+1 ) ) ) / 2.0 ) *
+                                                                             std::cos ( ( latCO->at( static_cast<proshade_unsign> ( phiIt ) )   + latCO->at( static_cast<proshade_unsign> ( phiIt+1 ) )   ) / 2.0 );
+   *z                                                 = this->sphereRadius * std::sin ( ( latCO->at( static_cast<proshade_unsign> ( phiIt ) )   + latCO->at( static_cast<proshade_unsign> ( phiIt+1 ) )   ) / 2.0 );
     
     //================================================ Done
     return ;
@@ -370,9 +367,9 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::getInterpolationXYZ ( proshade_
 void ProSHADE_internal_spheres::ProSHADE_sphere::getXYZTopBottoms ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double x, proshade_double y, proshade_double z, proshade_signed* xBottom, proshade_signed* yBottom, proshade_signed* zBottom, proshade_signed* xTop, proshade_signed* yTop, proshade_signed* zTop )
 {
     //================================================ Get the values
-   *xBottom                                           = std::floor ( (x / this->xDimSampling) ) + (xDimMax/2);
-   *yBottom                                           = std::floor ( (y / this->yDimSampling) ) + (yDimMax/2);
-   *zBottom                                           = std::floor ( (z / this->zDimSampling) ) + (zDimMax/2);
+   *xBottom                                           = static_cast< proshade_signed > ( std::floor ( ( x / static_cast< proshade_double > ( this->xDimSampling ) ) ) + ( static_cast< proshade_double > ( xDimMax ) / 2.0 ) );
+   *yBottom                                           = static_cast< proshade_signed > ( std::floor ( ( y / static_cast< proshade_double > ( this->yDimSampling ) ) ) + ( static_cast< proshade_double > ( yDimMax ) / 2.0 ) );
+   *zBottom                                           = static_cast< proshade_signed > ( std::floor ( ( z / static_cast< proshade_double > ( this->zDimSampling ) ) ) + ( static_cast< proshade_double > ( zDimMax ) / 2.0 ) );
             
    *xTop                                              = *xBottom + 1;
    *yTop                                              = *yBottom + 1;
@@ -445,25 +442,25 @@ proshade_double* ProSHADE_internal_spheres::ProSHADE_sphere::getMappedData ( voi
 void ProSHADE_internal_spheres::ProSHADE_sphere::interpolateAlongFirst ( std::vector<proshade_double> c000, std::vector<proshade_double> c001, std::vector<proshade_double> c010, std::vector<proshade_double> c011, std::vector<proshade_double> c100, std::vector<proshade_double> c101, std::vector<proshade_double> c110, std::vector<proshade_double> c111, std::vector<proshade_double>* c00, std::vector<proshade_double>* c01, std::vector<proshade_double>* c10, std::vector<proshade_double>* c11, proshade_double xd )
 {
     //================================================ Interpolate for the less less point
-    c00->at(0)                                        = ( this->xDimSampling * xd ) + c000.at(0);
+    c00->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c000.at(0);
     c00->at(1)                                        = c000.at(1);
     c00->at(2)                                        = c000.at(2);
     c00->at(3)                                        = ( c000.at(3) * ( 1.0 - xd ) ) + ( c100.at(3) * xd );
     
     //================================================ Interpolate for the less more point
-    c01->at(0)                                        = ( this->xDimSampling * xd ) + c001.at(0);
+    c01->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c001.at(0);
     c01->at(1)                                        = c001.at(1);
     c01->at(2)                                        = c001.at(2);
     c01->at(3)                                        = ( c001.at(3) * ( 1.0 - xd ) ) + ( c101.at(3) * xd );
     
     //================================================ Interpolate for the more less point
-    c10->at(0)                                        = ( this->xDimSampling * xd ) + c010.at(0);
+    c10->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c010.at(0);
     c10->at(1)                                        = c010.at(1);
     c10->at(2)                                        = c010.at(2);
     c10->at(3)                                        = ( c010.at(3) * ( 1.0 - xd ) ) + ( c110.at(3) * xd );
     
     //================================================ Interpolate for the more more point
-    c11->at(0)                                        = ( this->xDimSampling * xd ) + c011.at(0);
+    c11->at(0)                                        = ( static_cast< proshade_double > ( this->xDimSampling ) * xd ) + c011.at(0);
     c11->at(1)                                        = c011.at(1);
     c11->at(2)                                        = c011.at(2);
     c11->at(3)                                        = ( c011.at(3) * ( 1.0 - xd ) ) + ( c111.at(3) * xd );
@@ -492,13 +489,13 @@ void ProSHADE_internal_spheres::ProSHADE_sphere::interpolateAlongSecond ( std::v
 {
     //================================================ Interpolate for the less point
     c0->at(0)                                         = c00.at(0);
-    c0->at(1)                                         = ( this->yDimSampling * yd ) + c00.at(1);
+    c0->at(1)                                         = ( static_cast< proshade_double > ( this->yDimSampling ) * yd ) + c00.at(1);
     c0->at(2)                                         = c00.at(2);
     c0->at(3)                                         = ( c00.at(3) * ( 1.0 - yd ) ) + ( c10.at(3) * yd );
     
     //================================================ Interpolate for the more point
     c1->at(0)                                         = c01.at(0);
-    c1->at(1)                                         = ( this->yDimSampling * yd ) + c01.at(1);
+    c1->at(1)                                         = ( static_cast< proshade_double > ( this->yDimSampling ) * yd ) + c01.at(1);
     c1->at(2)                                         = c01.at(2);
     c1->at(3)                                         = ( c01.at(3) * ( 1.0 - yd ) ) + ( c11.at(3) * yd );
     
@@ -540,12 +537,12 @@ proshade_unsign ProSHADE_internal_spheres::autoDetermineBandwidth ( proshade_uns
 proshade_single ProSHADE_internal_spheres::autoDetermineSphereDistances ( proshade_single maxMapRange, proshade_single resolution )
 {
     //================================================ Get starting point
-    proshade_single ret                               = static_cast<proshade_single> ( resolution / 2.0 );
+    proshade_single ret                               = resolution / 2.0f;
     
     //================================================ Make sure at least 10 shells will exist
     while ( std::floor ( maxMapRange / ret ) < 10 )
     {
-        ret                                          /= 2.0;
+        ret                                          /= 2.0f;
     }
     
     //================================================ Done
@@ -564,7 +561,7 @@ proshade_single ProSHADE_internal_spheres::autoDetermineSphereDistances ( prosha
 proshade_unsign ProSHADE_internal_spheres::autoDetermineIntegrationOrder ( proshade_single maxMapRange, proshade_single sphereDist )
 {
     //================================================ Initialise local variables
-    proshade_double sphereDistanceAsFractionOfTotal = static_cast<proshade_double> ( sphereDist ) / ( maxMapRange / 2.0 );
+    proshade_double sphereDistanceAsFractionOfTotal = static_cast<proshade_double> ( sphereDist / ( maxMapRange / 2.0f ) );
     proshade_unsign ret                               = 0;
     
     //================================================ Compare to precomputed values
@@ -599,7 +596,7 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_sphere::getShellRadius ( voi
 void ProSHADE_internal_spheres::ProSHADE_sphere::allocateRotatedMap ( void )
 {
     //================================================ Allocate memory for sphere mapping
-    this->mappedDataRot                               = NULL;
+    this->mappedDataRot                               = nullptr;
     this->mappedDataRot                               = new proshade_double[this->localAngRes * this->localAngRes];
     ProSHADE_internal_misc::checkMemoryAllocation     ( this->mappedDataRot, __FILE__, __LINE__, __func__ );
     
@@ -784,49 +781,49 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             cZ                                        = 1.0 * std::cos ( lon );
             
             //======================================== Convert to ZXZ Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma, this->angularDim );
+            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
             ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
             
             //======================================== Find lower and higher points and deal with boundaries
-            xBottom = std::floor ( mapX ); if ( xBottom < 0.0 ) { xBottom += this->angularDim; } if ( xBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { xBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            yBottom = std::floor ( mapY ); if ( yBottom < 0.0 ) { yBottom += this->angularDim; } if ( yBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { yBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            zBottom = std::floor ( mapZ ); if ( zBottom < 0.0 ) { zBottom += this->angularDim; } if ( zBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { zBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            xTop = std::ceil ( mapX ); if ( xTop < 0.0 ) { xTop += this->angularDim; } if ( xTop >= static_cast<proshade_signed> ( this->angularDim ) ) { xTop -= static_cast<proshade_signed> ( this->angularDim ); }
-            yTop = std::ceil ( mapY ); if ( yTop < 0.0 ) { yTop += this->angularDim; } if ( yTop >= static_cast<proshade_signed> ( this->angularDim ) ) { yTop -= static_cast<proshade_signed> ( this->angularDim ); }
-            zTop = std::ceil ( mapZ ); if ( zTop < 0.0 ) { zTop += this->angularDim; } if ( zTop >= static_cast<proshade_signed> ( this->angularDim ) ) { zTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0 ) { xBottom += this->angularDim; } if ( xBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { xBottom -= static_cast<proshade_signed> ( this->angularDim ); }
+            yBottom = static_cast< proshade_signed > ( std::floor ( mapY ) ); if ( yBottom < 0 ) { yBottom += this->angularDim; } if ( yBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { yBottom -= static_cast<proshade_signed> ( this->angularDim ); }
+            zBottom = static_cast< proshade_signed > ( std::floor ( mapZ ) ); if ( zBottom < 0 ) { zBottom += this->angularDim; } if ( zBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { zBottom -= static_cast<proshade_signed> ( this->angularDim ); }
+            xTop = static_cast< proshade_signed > ( std::ceil ( mapX ) ); if ( xTop < 0 ) { xTop += this->angularDim; } if ( xTop >= static_cast<proshade_signed> ( this->angularDim ) ) { xTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            yTop = static_cast< proshade_signed > ( std::ceil ( mapY ) ); if ( yTop < 0 ) { yTop += this->angularDim; } if ( yTop >= static_cast<proshade_signed> ( this->angularDim ) ) { yTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            zTop = static_cast< proshade_signed > ( std::ceil ( mapZ ) ); if ( zTop < 0 ) { zTop += this->angularDim; } if ( zTop >= static_cast<proshade_signed> ( this->angularDim ) ) { zTop -= static_cast<proshade_signed> ( this->angularDim ); }
             
             //======================================== Start X interpolation - bottom, bottom, bottom
-            mapIndex                                  = zBottom + this->angularDim * ( yBottom + this->angularDim * xBottom );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
             c000                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, bottom, top
-            mapIndex                                  = zTop    + this->angularDim * ( yBottom + this->angularDim * xBottom );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
             c001                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, top, bottom
-            mapIndex                                  = zBottom + this->angularDim * ( yTop    + this->angularDim * xBottom );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
             c010                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, top, top
-            mapIndex                                  = zTop    + this->angularDim * ( yTop    + this->angularDim * xBottom );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
             c011                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, bottom, bottom
-            mapIndex                                  = zBottom + this->angularDim * ( yBottom + this->angularDim * xTop    );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
             c100                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, bottom, top
-            mapIndex                                  = zTop    + this->angularDim * ( yBottom + this->angularDim * xTop    );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
             c101                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, top, bottom
-            mapIndex                                  = zBottom + this->angularDim * ( yTop    + this->angularDim * xTop    );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
             c110                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, top, top
-            mapIndex                                  = zTop    + this->angularDim * ( yTop    + this->angularDim * xTop    );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
             c111                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== Solve for X
@@ -845,7 +842,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             zRelative                                 = mapZ - std::floor( mapZ );
             
             //======================================== Save result
-            mapIndex                                  = lonIt + ( latIt * static_cast<proshade_unsign> ( this->angularDim ) );
+            mapIndex                                  = lonIt + ( latIt * static_cast< proshade_signed > ( this->angularDim ) );
             this->axesValues[mapIndex]                = ( c0 * ( 1.0 - zRelative ) ) + ( c1 * zRelative );
         }
     }
@@ -882,22 +879,22 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     proshade_signed latTop, latBottom, lonTop, lonBottom, gridIndex;
     
     //================================================ Find lower and higher indices and deal with boundaries
-    latBottom = std::floor ( lattitude ); if ( latBottom < 0.0 ) { latBottom += this->angularDim; } if ( latBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { latBottom -= this->angularDim; }
-    lonBottom = std::floor ( longitude ); if ( lonBottom < 0.0 ) { lonBottom += this->angularDim; } if ( lonBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { lonBottom -= this->angularDim; }
-    latTop    = std::ceil  ( lattitude ); if ( latTop    < 0.0 ) { latTop    += this->angularDim; } if ( latTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { latTop    -= this->angularDim; }
-    lonTop    = std::ceil  ( longitude ); if ( lonTop    < 0.0 ) { lonTop    += this->angularDim; } if ( lonTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { lonTop    -= this->angularDim; }
+    latBottom = static_cast< proshade_signed > ( std::floor ( lattitude ) ); if ( latBottom < 0 ) { latBottom += this->angularDim; } if ( latBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { latBottom -= this->angularDim; }
+    lonBottom = static_cast< proshade_signed > ( std::floor ( longitude ) ); if ( lonBottom < 0 ) { lonBottom += this->angularDim; } if ( lonBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { lonBottom -= this->angularDim; }
+    latTop    = static_cast< proshade_signed > ( std::ceil  ( lattitude ) ); if ( latTop    < 0 ) { latTop    += this->angularDim; } if ( latTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { latTop    -= this->angularDim; }
+    lonTop    = static_cast< proshade_signed > ( std::ceil  ( longitude ) ); if ( lonTop    < 0 ) { lonTop    += this->angularDim; } if ( lonTop    >= static_cast<proshade_signed> ( this->angularDim ) ) { lonTop    -= this->angularDim; }
     
     //================================================ Interpolate
-    gridIndex                                         = lonBottom + ( latBottom * static_cast<proshade_unsign> ( this->angularDim ) );
+    gridIndex                                         = lonBottom + ( latBottom * static_cast< proshade_signed > ( this->angularDim ) );
     c00                                               = this->axesValues[gridIndex];
     
-    gridIndex                                         = lonBottom + ( latTop    * static_cast<proshade_unsign> ( this->angularDim ) );
+    gridIndex                                         = lonBottom + ( latTop    * static_cast< proshade_signed > ( this->angularDim ) );
     c01                                               = this->axesValues[gridIndex];
     
-    gridIndex                                         = lonTop    + ( latBottom * static_cast<proshade_unsign> ( this->angularDim ) );
+    gridIndex                                         = lonTop    + ( latBottom * static_cast< proshade_signed > ( this->angularDim ) );
     c10                                               = this->axesValues[gridIndex];
     
-    gridIndex                                         = lonTop    + ( latTop    * static_cast<proshade_unsign> ( this->angularDim ) );
+    gridIndex                                         = lonTop    + ( latTop    * static_cast< proshade_signed > ( this->angularDim ) );
     c11                                               = this->axesValues[gridIndex];
     
     //================================================ Solve for longitude
@@ -934,7 +931,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_
         for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->angularDim ); lonIt++ )
         {
             //======================================== Initialise peak search
-            currentHeight                             = this->getSphereLatLonPosition ( latIt, lonIt );
+            currentHeight                             = this->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latIt ), static_cast< proshade_unsign > ( lonIt ) );
             isPeak                                    = true;
             
             //======================================== Find all neighbours in the same sphere
@@ -952,7 +949,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_
                     if ( nbLon < 0 ) { nbLon += this->angularDim; } if ( nbLon >= static_cast<proshade_signed> ( this->angularDim ) ) { nbLon -= this->angularDim; }
                     
                     //================================ If this value is larger than the tested one, no peak
-                    if ( this->getSphereLatLonPosition ( nbLat, nbLon ) > currentHeight ) { isPeak = false; break; }
+                    if ( this->getSphereLatLonPosition ( static_cast< proshade_unsign > ( nbLat ), static_cast< proshade_unsign > ( nbLon ) ) > currentHeight ) { isPeak = false; break; }
                 }
                 
                 if ( !isPeak ) { break; }
@@ -987,7 +984,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::removeSmallPeaks( prosha
 {
     //================================================ Initialise variables
     proshade_double curHeight;
-    std::vector< proshade_unsign > dels ( 0, this->peaks.size() );
+    std::vector< proshade_unsign > dels ( 0, static_cast< proshade_unsign > ( this->peaks.size() ) );
     
     //================================================ For each peak in this sphere
     for ( proshade_unsign peakIt = 0; peakIt < static_cast<proshade_unsign> ( this->peaks.size() ); peakIt++ )
@@ -1008,7 +1005,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::removeSmallPeaks( prosha
     //================================================ Delete the low peaks
     for ( proshade_unsign delIt = 0; delIt < static_cast< proshade_unsign > ( dels.size() ); delIt++ )
     {
-        this->peaks.erase                             ( this->peaks.begin() + dels.at(delIt) );
+        this->peaks.erase                             ( this->peaks.begin() + static_cast< long int > ( dels.at(delIt) ) );
     }
     
     //================================================ Done
@@ -1109,8 +1106,8 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::computeCornerPo
 proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angularDistanceWithBorders ( proshade_signed newAngul, proshade_signed currentAngul )
 {
     //================================================ Initialise variables
-    proshade_signed smallerAngul                      = newAngul - this->dimension;
-    proshade_signed largerAngul                       = newAngul + this->dimension;
+    proshade_signed smallerAngul                      = newAngul - static_cast< proshade_signed > ( this->dimension );
+    proshade_signed largerAngul                       = newAngul + static_cast< proshade_signed > ( this->dimension );
     
     //================================================ Find the smallest distance
     proshade_signed ret                               = std::min ( std::abs ( currentAngul - newAngul ), std::min ( std::abs ( currentAngul - smallerAngul ), std::abs ( currentAngul - largerAngul ) ) );
@@ -1160,7 +1157,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS2.str() );
         
         //============================================ Initialise local variables
-        proshade_unsign largerCorner, smallerCorner;
+        proshade_signed largerCorner, smallerCorner;
         bool latCornersDone                           = false;
         bool lonCornersDone                           = false;
         
@@ -1168,8 +1165,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->latFromInds <= this->latToInds ) && !( ( lat >= this->latFromInds ) && ( lat <= this->latToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lat, this->latFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lat, this->latToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1191,8 +1188,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->latFromInds >  this->latToInds ) && !( ( lat >= this->latFromInds ) || ( lat <= this->latToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lat, this->latFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lat, this->latToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lat ), static_cast< proshade_signed > ( this->latToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1216,8 +1213,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->lonFromInds <= this->lonToInds ) && !( ( lon >= this->lonFromInds ) && ( lon <= this->lonToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lon, this->lonFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lon, this->lonToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1239,8 +1236,8 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         if ( ( this->lonFromInds >  this->lonToInds ) && !( ( lon >= this->lonFromInds ) || ( lon <= this->lonToInds ) ) )
         {
             //======================================== Lattitude is outside of group boundaries
-            smallerCorner                             = angularDistanceWithBorders ( lon, this->lonFromInds );
-            largerCorner                              = angularDistanceWithBorders ( lon, this->lonToInds );
+            smallerCorner                             = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonFromInds ) );
+            largerCorner                              = angularDistanceWithBorders ( static_cast< proshade_signed > ( lon ), static_cast< proshade_signed > ( this->lonToInds   ) );
             
             if ( smallerCorner < largerCorner )
             {
@@ -1357,13 +1354,12 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
     required fold and no other spheres - this assumption does not hold if the convertRotationFunction() function was called - consider yourself warned.
  
     \param[in] sphereVals A vector of spheres with mapped rotation function values.
-    \param[in] axisTolerance The tolerance for cosine distance to consider two angles identical.
     \param[in] detectedCs A vector of double pointers pointer to which any detected axis will be added in the ProSHADE format - [0] = fold, [1] = x-axis, [2] = y-axis, [3] = z-axis, [4] = angle, [5] = average peak height.
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
     \param[in] fold The fold for which we are searching for cyclic point groups.
     \param[in] verbose The verbosity of the run.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose )
 {
     //================================================ Check that this peak group has all the angles
     if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
@@ -1388,7 +1384,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     }
     
     //================================================ Create ProSHADE symmetry axis array and save it
-    proshade_double* detectedSymmetry                 = new proshade_double[6];
+    proshade_double* detectedSymmetry                 = new proshade_double[7];
     ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
     
     detectedSymmetry[0]                               = static_cast<proshade_double> ( fold );
@@ -1397,17 +1393,28 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
+    detectedSymmetry[6]                               = -1.0;
     
     //================================================ Make sure max is positive
-    if ( ( ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) == std::abs ( detectedSymmetry[1] ) ) && ( detectedSymmetry[1] < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) == std::abs ( detectedSymmetry[2] ) ) && ( detectedSymmetry[2] < 0.0 ) ) ||
-         ( ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) == std::abs ( detectedSymmetry[3] ) ) && ( detectedSymmetry[3] < 0.0 ) ) )
+    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) );
+    const FloatingPoint< proshade_double > rhs1 ( std::abs ( detectedSymmetry[1] ) );
+    const FloatingPoint< proshade_double > rhs2 ( std::abs ( detectedSymmetry[2] ) );
+    const FloatingPoint< proshade_double > rhs3 ( std::abs ( detectedSymmetry[3] ) );
+    if ( ( lhs1.AlmostEquals ( rhs1 ) && ( detectedSymmetry[1] < 0.0 ) ) ||
+         ( lhs1.AlmostEquals ( rhs2 ) && ( detectedSymmetry[2] < 0.0 ) ) ||
+         ( lhs1.AlmostEquals ( rhs3 ) && ( detectedSymmetry[3] < 0.0 ) ) )
     {
         detectedSymmetry[1]                          *= -1.0;
         detectedSymmetry[2]                          *= -1.0;
         detectedSymmetry[3]                          *= -1.0;
         detectedSymmetry[4]                          *= -1.0;
     }
+    
+    //================================================ Check for decimal underflows. They are not an issue as rounding to zero is fine, but having negative sign to zero will switch the signs and cause problems.
+    const FloatingPoint< proshade_double > llhs1 ( detectedSymmetry[1] ), llhs2 ( detectedSymmetry[2] ), llhs3 ( detectedSymmetry[3] ), rrhs1 ( 0.0 );
+    if ( llhs1.AlmostEquals ( rrhs1 ) ) { detectedSymmetry[1] = 0.0; }
+    if ( llhs2.AlmostEquals ( rrhs1 ) ) { detectedSymmetry[2] = 0.0; }
+    if ( llhs3.AlmostEquals ( rrhs1 ) ) { detectedSymmetry[3] = 0.0; }
     
     //================================================ Save detected point group
     ProSHADE_internal_misc::addToDblPtrVector         ( detectedCs, detectedSymmetry );
@@ -1468,9 +1475,8 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllAngleDiff
  
     \param[in] angDiffs A pointer to a vector containing all the unique angle differences for this peak group.
     \param[in] foldsToTry A pointer to a vector to which the predicted fold to try to find are to be saved into.
-    \param[in] sphereVals A vector of spheres with mapped rotation function values.
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleFolds ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleFolds ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry )
 {
     //================================================ Initialise local variables
     proshade_double divRem, divBasis, symmErr, angTolerance, angToleranceNext;
@@ -1490,10 +1496,11 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleF
         }
         
         //============================================ Remove fold 1, that is not really what we are after here ...
-        if ( divBasis == 1 ) { continue; }
+        const FloatingPoint< proshade_double > lhs1 ( divBasis ), rhs1 ( 1.0 );
+        if ( lhs1.AlmostEquals ( rhs1 ) ) { continue; }
         
         //============================================ Is there enough angles in the group for such a fold?
-        if ( static_cast<proshade_unsign> ( this->spherePositions.size() ) < ( divBasis - 1 ) ) { continue; }
+        if ( static_cast< proshade_double > ( this->spherePositions.size() ) < ( divBasis - 1.0 ) ) { continue; }
         
         //============================================ Determine errors on peaks and on folds
         symmErr                                       = divRem * ( ( 2.0 * M_PI ) / static_cast<proshade_double> ( divBasis ) );
@@ -1507,12 +1514,12 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getAllPossibleF
             if ( angToleranceNext < std::max ( 1.5, ( 0.1 / peakErr ) ) )
             {
                 //==================================== The next fold would pass as well. Use one previous and one following fold as well to cover for errors
-                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis - 1 );
-                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis + 1 );
+                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, static_cast< proshade_unsign > ( divBasis - 1 ) );
+                ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, static_cast< proshade_unsign > ( divBasis + 1 ) );
             }
             
             //======================================== This fold seems reasonable, save it
-            ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, divBasis );
+            ProSHADE_internal_misc::addToUnsignVector ( foldsToTry, static_cast< proshade_unsign > ( divBasis ) );
         }
     }
     
@@ -1536,7 +1543,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getSpheresFormi
 {
     //================================================ Initialise local variables
     proshade_double soughtAngle, minSphereVal;
-    proshade_unsign minSpherePos;
+    proshade_unsign minSpherePos                      = 0;
     
     //================================================ Generate expected angles and check if close-by sphere exists
     for ( proshade_double fIt = 1.0; fIt < static_cast<proshade_double> ( foldToTry ); fIt += 1.0 )
@@ -1559,7 +1566,8 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getSpheresFormi
         }
        
         //============================================ If no passing sphere, test next fold
-        if ( minSphereVal == 999.9 ) { break; }
+        const FloatingPoint< proshade_double > lhs1 ( minSphereVal ), rhs1 ( 999.9 );
+        if ( lhs1.AlmostEquals ( rhs1 ) ) { break; }
         
         //============================================ Save best position
         ProSHADE_internal_misc::addToUnsignVector     ( spheresFormingFold, this->spherePositions.at(minSpherePos) );
@@ -1584,19 +1592,19 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getBestIndexFor
     //================================================ Initialise variables
     proshade_double curPosVal;
    *bestPosVal                                        = -1.0;
-    if ( this->latFromInds > this->latToInds ) { this->latToInds += this->dimension; }
-    if ( this->lonFromInds > this->lonToInds ) { this->lonToInds += this->dimension; }
+    if ( this->latFromInds > this->latToInds ) { this->latToInds += static_cast< proshade_double > ( this->dimension ); }
+    if ( this->lonFromInds > this->lonToInds ) { this->lonToInds += static_cast< proshade_double > ( this->dimension ); }
     
     //================================================ Compute the best average peak height axis for peak indices
-    for ( proshade_unsign latIt = this->latFromInds; latIt <= this->latToInds; latIt++ )
+    for ( proshade_unsign latIt = static_cast< proshade_unsign > ( this->latFromInds ); latIt <= static_cast< proshade_unsign > ( this->latToInds ); latIt++ )
     {
         //============================================ Deal with boundaries
-        if ( latIt >= this->dimension ) { latIt -= this->dimension; this->latToInds -= this->dimension; }
+        if ( latIt >= this->dimension ) { latIt -= this->dimension; this->latToInds -= static_cast< proshade_double > ( this->dimension ); }
         
-        for ( proshade_unsign lonIt = this->lonFromInds; lonIt <= this->lonToInds; lonIt++ )
+        for ( proshade_unsign lonIt = static_cast< proshade_unsign > ( this->lonFromInds ); lonIt <= static_cast< proshade_unsign > ( this->lonToInds ); lonIt++ )
         {
             //======================================== Deal with boundaries
-            if ( lonIt >= this->dimension ) { lonIt -= this->dimension; this->lonToInds -= this->dimension; }
+            if ( lonIt >= this->dimension ) { lonIt -= this->dimension; this->lonToInds -= static_cast< proshade_double > ( this->dimension ); }
             
             //======================================== Initialise variables
             curPosVal                                 = 1.0;
@@ -1611,8 +1619,8 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::getBestIndexFor
             if ( curPosVal > *bestPosVal )
             {
                *bestPosVal                            = curPosVal;
-               *bestLatInd                            = latIt;
-               *bestLonInd                            = lonIt;
+               *bestLatInd                            = static_cast< proshade_double > ( latIt );
+               *bestLonInd                            = static_cast< proshade_double > ( lonIt );
             }
         }
     }

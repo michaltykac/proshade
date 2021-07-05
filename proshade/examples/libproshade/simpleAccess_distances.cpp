@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -42,6 +42,7 @@ int main ( int argc, char **argv )
     
     //================================================ Further useful settings
     settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->setNegativeDensity                      ( true );                              // Should the negative density be removed from input files?
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
@@ -68,10 +69,13 @@ int main ( int argc, char **argv )
     settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
+    settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
+    settings->setPeakThreshold                        ( 0.80 );                              // Sets the minimum peak height threshold for axis to be considered possible.
     settings->setMaskBlurFactor                       ( 350.0 );                             // If masking, what blur factor should be used? 350 seems to work for most maps.
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
+    settings->setAppliedMaskFilename                  ( "" );                                // The filename from which mask data will be read from.
     settings->setBoundsSpace                          ( 3.0 );                               // The extra space in Angs to add to the minimal boundaries when re-boxing.
     settings->setBoundsThreshold                      ( 0 );                                 // If two boundaries are within this threshold, the smaller one will be increased to have the same value as the larger one.
     settings->setSameBoundaries                       ( false );                             // Make multiple structures have the same boundaries. This is useful for half-maps.
@@ -105,9 +109,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
     
     //================================================ Expected output
-//  Energy levels distances          : 0.85948 and 0.57232
-//  Trace sigma distances            : 0.95023 and 0.74436
-//  Rotation function distances      : 0.74174 and 0.46142
+//  Energy levels distances          : 0.8585 and 0.58065
+//  Trace sigma distances            : 0.96229 and 0.75548
+//  Rotation function distances      : 0.62479 and 0.47406
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

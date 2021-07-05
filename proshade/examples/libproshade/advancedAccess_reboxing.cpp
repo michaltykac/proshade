@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -38,6 +38,7 @@ int main ( int argc, char **argv )
     
     //================================================ Further useful settings
     settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->setNegativeDensity                      ( true );                              // Should the negative density be removed from input files?
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setOutputFilename                       ( "reBoxed" );                         // Filename to where re-boxed structure will be written to.
@@ -50,6 +51,7 @@ int main ( int argc, char **argv )
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
+    settings->setAppliedMaskFilename                  ( "" );                                // The filename from which mask data will be read from.
     settings->setResolution                           ( 4.0 );                               // The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
     settings->setMapResolutionChange                  ( false );                             // Should maps be re-sample to the computation resolution using reciprocal-space re-sampling?
     settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
@@ -58,6 +60,8 @@ int main ( int argc, char **argv )
     settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
+    settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
+    settings->setPeakThreshold                        ( 0.80 );                              // Sets the minimum peak height threshold for axis to be considered possible.
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( -999.9 );                            // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -86,7 +90,7 @@ int main ( int argc, char **argv )
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
 
     //================================================ Create the structure objects
-    ProSHADE_internal_data::ProSHADE_data* reboxStr   = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the structure object
+    ProSHADE_internal_data::ProSHADE_data* reboxStr   = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the structure object
     
     //================================================ Read in the structures
     reboxStr->readInStructure                         ( "./emd_5762.map", 0, settings );     // This is how a particular structure file is read into the ProSHADE object. This example uses EMDB map 5762 (PDB accession code 3J4S)
@@ -105,7 +109,7 @@ int main ( int argc, char **argv )
     reboxStr->processInternalMap                     ( settings );  // This function does the internal map processing such as map centering, masking, invertion, phase removal, etc. for the structure which calls it.
     
     //================================================ Create a new structure where the re-boxed data will live
-    ProSHADE_internal_data::ProSHADE_data* reBoxedStr = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises a new structure object
+    ProSHADE_internal_data::ProSHADE_data* reBoxedStr = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises a new structure object
 
     //================================================ Find new boundaries (in a temporary variable)
     proshade_signed* newBounds                        = new proshade_signed[6];
@@ -140,7 +144,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  The original structure boundaries were: -128 to 127 ; -128 to 127 and -128 to 127
-//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -136 to 135
+//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -132 to 131
 //  // And of course the reBoxed.map file :-)
     
     //================================================ Release the settings and runProshade objects

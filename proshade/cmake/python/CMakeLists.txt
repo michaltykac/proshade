@@ -40,15 +40,6 @@ include_directories     ( ${CMAKE_SOURCE_DIR}/extern/gemmi                      
 include_directories     ( ${CMAKE_SOURCE_DIR}/extern                                      )
 
 ##########################################################################################
-################################### Set RPATH
-if     ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
-	set_property            (
-              					TARGET py${PROJECT_NAME}
-                				PROPERTY INSTALL_RPATH
-                			    	    "${CMAKE_SOURCE_DIR}/winLibs/x64/DLLs"            )
-endif  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
-
-##########################################################################################
 ################################### Install to bin
 set_target_properties   ( py${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}"      )
 install                 ( TARGETS py${PROJECT_NAME} DESTINATION ${MY_INSTALL_LOCATION}/pythonModule  )

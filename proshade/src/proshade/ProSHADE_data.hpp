@@ -17,16 +17,16 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
-#include "ProSHADE_spheres.hpp"
+#include "ProSHADE_peakSearch.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_DATA__
-#define __PROSHADE_DATA__
+#ifndef PROSHADE_DATA
+#define PROSHADE_DATA
 
 //==================================================== ProSHADE_internal_data Namespace
 /*! \namespace ProSHADE_internal_data
@@ -144,12 +144,12 @@ namespace ProSHADE_internal_data
         void setPDBMapValues                          ( void );
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );
-        void allocateRRPMemory                        ( ProSHADE_settings* settings );
+        void allocateRRPMemory                        ( );
         
     public:
         //============================================ Constructors / Destructors
-        ProSHADE_data                                 ( ProSHADE_settings* settings );
-        ProSHADE_data                                 ( ProSHADE_settings* settings, std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz,
+        ProSHADE_data                                 ( );
+        ProSHADE_data                                 ( std::string strName, double *mapVals, int len, proshade_single xDmSz, proshade_single yDmSz,
                                                         proshade_single zDmSz, proshade_unsign xDmInd, proshade_unsign yDmInd, proshade_unsign zDmInd, proshade_signed xFr,
                                                         proshade_signed yFr, proshade_signed zFr, proshade_signed xT, proshade_signed yT, proshade_signed zT,
                                                         proshade_unsign inputO );
@@ -182,9 +182,9 @@ namespace ProSHADE_internal_data
         //============================================ Distances pre-computation functions
         bool shellBandExists                          ( proshade_unsign shell, proshade_unsign bandVal );
         void computeRRPMatrices                       ( ProSHADE_settings* settings );
-        void allocateEMatrices                        ( ProSHADE_settings* settings, proshade_unsign  band );
+        void allocateEMatrices                        ( proshade_unsign  band );
         void allocateSO3CoeffsSpace                   ( proshade_unsign band );
-        void allocateWignerMatricesSpace              ( ProSHADE_settings* settings );
+        void allocateWignerMatricesSpace              ( );
         
         //============================================ Symmetry detection functions
         void computeRotationFunction                  ( ProSHADE_settings* settings );
@@ -204,7 +204,7 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        std::vector < std::vector< proshade_double* > > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getPredictedOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getPredictedTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
@@ -216,16 +216,24 @@ namespace ProSHADE_internal_data
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
-        proshade_double findBestCScore                ( std::vector< proshade_double* >* CSym, proshade_unsign* symInd );
-        proshade_double findBestDScore                ( std::vector< proshade_double* >* DSym, proshade_unsign* symInd );
-        proshade_double findTScore                    ( std::vector< proshade_double* >* TSym );
-        proshade_double findOScore                    ( std::vector< proshade_double* >* OSym );
-        proshade_double findIScore                    ( std::vector< proshade_double* >* ISym );
+        proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
+        void prepareFSCFourierMemory                  ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs, proshade_signed*& binIndexing,
+                                                        proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier );
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,
+                                                        fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins,
+                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts );
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
+                                                        fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
-                                                        std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes );
+                                                        std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
+                                                        fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
+                                                        proshade_double** bindata, proshade_signed* binCounts );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
-        void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes );
+        void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
+                                                        fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
+                                                        proshade_double** bindata, proshade_signed* binCounts );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
@@ -234,23 +242,25 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double > getBestRotationMapPeaksEulerAngles ( ProSHADE_settings* settings );
         std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
-        void rotateMap                                ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
-        void translateMap                             ( ProSHADE_settings* settings, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
-        void allocateRotatedSHMemory                  ( ProSHADE_settings* settings );
-        void computeRotatedSH                         ( ProSHADE_settings* settings );
+        void rotateMapReciprocalSpace                 ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
+        void rotateMapRealSpace                       ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map );
+        void rotateMapRealSpaceInPlace                ( proshade_double eulA, proshade_double eulB, proshade_double eulG );
+        void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
+        void allocateRotatedSHMemory                  ( void );
+        void computeRotatedSH                         ( void );
         void invertSHCoefficients                     ( void );
-        void interpolateMapFromSpheres                ( ProSHADE_settings* settings, proshade_double*& densityMapRotated );
+        void interpolateMapFromSpheres                ( proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( void );
         void computePdbRotationCentre                 ( void );
-        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_double trsX, proshade_double trsY, proshade_double trsZ );
+        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_single trsX, proshade_single trsY, proshade_single trsZ );
         void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
                                                         std::vector< proshade_double >* ultimateTranslation );
         void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
                                                         std::vector < proshade_double >* finalTranslation );
         
         //============================================ Python access functions
-        void deepCopyMap                              ( proshade_double*& saveTo, proshade_unsign verbose );
+        void deepCopyMap                              ( proshade_double*& saveTo, proshade_signed verbose );
         
         //============================================ Accessor functions
         proshade_double getMapValue                   ( proshade_unsign pos );
@@ -262,7 +272,7 @@ namespace ProSHADE_internal_data
         proshade_double getAnySphereRadius            ( proshade_unsign shell );
         proshade_double getIntegrationWeight          ( void );
         proshade_unsign getShellBandwidth             ( proshade_unsign shell );
-        proshade_double getSpherePosValue             ( proshade_unsign shell );
+        proshade_single getSpherePosValue             ( proshade_unsign shell );
         proshade_complex** getEMatrixByBand           ( proshade_unsign band );
         void getEMatrixValue                          ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag );
         proshade_complex* getInvSO3Coeffs             ( void );
@@ -286,6 +296,7 @@ namespace ProSHADE_internal_data
         proshade_signed* getZAxisOrigin               ( void );
         proshade_double*& getInternalMap              ( void );
         proshade_complex* getTranslationFnPointer     ( void );
+        std::vector< proshade_double > getMapCOMProcessChange ( void );
         
         //============================================ Mutator functions
         void setIntegrationWeight                     ( proshade_double intW );

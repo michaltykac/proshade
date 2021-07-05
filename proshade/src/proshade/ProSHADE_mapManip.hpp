@@ -15,16 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_io.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_MAPMANIP__
-#define __PROSHADE_MAPMANIP__
+#ifndef PROSHADE_MAPMANIP
+#define PROSHADE_MAPMANIP
 
 //==================================================== ProSHADE_internal_mapManip namespace
 /*! \namespace ProSHADE_internal_mapManip
@@ -37,6 +37,7 @@
 namespace ProSHADE_internal_mapManip
 {
     proshade_signed myRound                           ( proshade_double x );
+    proshade_signed myRound                           ( proshade_single x );
     void determinePDBRanges                           ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
                                                         proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, bool firstModel );
     void findPDBCOMValues                             ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel );
@@ -63,8 +64,7 @@ namespace ProSHADE_internal_mapManip
                                                         proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single blurringFactor );
     void getMaskFromBlurr                             ( proshade_double*& blurMap, proshade_double*& outMap, proshade_unsign xDimS, proshade_unsign yDimS,
                                                         proshade_unsign zDimS, proshade_single noIQRs );
-    void getNonZeroBounds                             ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_single xAngs,
-                                                        proshade_single yAngs, proshade_single zAngs, proshade_signed*& ret );
+    void getNonZeroBounds                             ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_signed*& ret );
     void addExtraBoundSpace                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_single xAngs, proshade_single yAngs,
                                                         proshade_single zAngs, proshade_signed*& bounds, proshade_single extraSpace );
     void reSampleMapToResolutionTrilinear             ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS,
@@ -91,14 +91,13 @@ namespace ProSHADE_internal_mapManip
     void connectMaskBlobs                             ( proshade_double*& mask, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim,
                                                         proshade_single xAngs, proshade_single yAngs,
                                                         proshade_single zAngs, proshade_single maskThres );
-    void beautifyBoundaries                           ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim,
-                                                        proshade_signed boundsDiffThres, proshade_signed verbose );
+    void beautifyBoundaries                           ( proshade_signed*& bounds, proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_signed boundsDiffThres );
     proshade_signed betterClosePrimeFactors           ( proshade_signed fromRange, proshade_signed toRange );
     void distributeSpaceToBoundaries                  ( proshade_signed& minBound, proshade_signed& maxBound, proshade_signed oldBoundRange, proshade_signed newBoundRange );
     void copyMapByBounds                              ( proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom,
                                                         proshade_signed zTo, proshade_signed origXFrom, proshade_signed origYFrom, proshade_signed origZFrom,
-                                                        proshade_signed yDimIndices, proshade_signed zDimIndices, proshade_signed origXDimIndices,
-                                                        proshade_signed origYDimIndices, proshade_signed origZDimIndices, proshade_double*& newMap,
+                                                        proshade_unsign yDimIndices, proshade_unsign zDimIndices, proshade_unsign origXDimIndices,
+                                                        proshade_unsign origYDimIndices, proshade_unsign origZDimIndices, proshade_double*& newMap,
                                                         proshade_double* origMap );
 }
 

@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
@@ -41,7 +41,7 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->inputFiles.size() ); iter++ )
     {
         //============================================ Create a data object
-        ProSHADE_internal_data::ProSHADE_data* strToRebox = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* strToRebox = new ProSHADE_internal_data::ProSHADE_data ( );
         
         //============================================ Read in the file
         strToRebox->readInStructure                   ( settings->inputFiles.at(iter), iter, settings );
@@ -53,7 +53,7 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
         strToRebox->processInternalMap                ( settings );
         
         //============================================ Create new structure for re-boxing
-        ProSHADE_internal_data::ProSHADE_data* reBoxStr = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* reBoxStr = new ProSHADE_internal_data::ProSHADE_data ( );
         
         //============================================ Re-box map, if need be
         if ( settings->reBoxMap )
@@ -82,7 +82,7 @@ void ProSHADE_internal_tasks::MapManipulationTask ( ProSHADE_settings* settings,
                                                              reBoxStr->getYToPtr(), reBoxStr->getZFromPtr(), reBoxStr->getZToPtr() );
         
         //============================================ Save the map
-        proshade_double* mapCopy                      = NULL;
+        proshade_double* mapCopy                      = nullptr;
         reBoxStr->deepCopyMap                         ( mapCopy, settings->verbose );
         ProSHADE_internal_misc::addToDblPtrVector     ( manipulatedMaps, mapCopy );
         
@@ -117,7 +117,7 @@ void ProSHADE_internal_tasks::checkMapManipulationSettings ( ProSHADE_settings* 
         ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! The input file is not of the MAP (MRC) format. Will output re-boxed map, but beware that this is simple PDB->MAP conversion and REFMAC5 should be used to compute more appropriate maps.", "WB00004" );
         
         //============================================ No resolution for PDB? Problem...
-        if ( settings->requestedResolution == 0.0 )
+        if ( settings->requestedResolution == 0.0f )
         {
             throw ProSHADE_exception ( "No resolution given for PDB file re-boxing.", "EB00011", __FILE__, __LINE__, __func__, "The ProSHADE_settings object does not contain any\n                    : resolution value. However, resolution is required when\n                    : re-boxing structures read from PDB files. Please supply\n                    : the resolution value using the setResolution() function." );
         }
@@ -150,7 +150,7 @@ void ProSHADE_internal_tasks::DistancesComputationTask ( ProSHADE_settings* sett
     checkDistancesSettings                            ( settings );
     
     //================================================ Create a data object
-    ProSHADE_internal_data::ProSHADE_data* compareAgainst  = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    ProSHADE_internal_data::ProSHADE_data* compareAgainst  = new ProSHADE_internal_data::ProSHADE_data ( );
     
     //================================================ Read in the structure all others will be compared to
     compareAgainst->readInStructure                   ( settings->inputFiles.at(0), 0, settings );
@@ -168,7 +168,7 @@ void ProSHADE_internal_tasks::DistancesComputationTask ( ProSHADE_settings* sett
     for ( proshade_unsign iter = 1; iter < static_cast<proshade_unsign> ( settings->inputFiles.size() ); iter++ )
     {
         //============================================ Create a data object
-        ProSHADE_internal_data::ProSHADE_data* compareChanging = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* compareChanging = new ProSHADE_internal_data::ProSHADE_data ( );
 
         //============================================ Read in the compared structure
         compareChanging->readInStructure              ( settings->inputFiles.at(iter), iter, settings );
@@ -264,7 +264,8 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     }
     
     //================================================ Is there resolution value set?
-    if ( settings->requestedResolution == -1.0 )
+    const FloatingPoint< proshade_single > lhs ( settings->requestedResolution ), rhs ( -1.0f );
+    if ( lhs.AlmostEquals ( rhs ) )
     {
         throw ProSHADE_exception ( "Resolution value not set.", "ED00013", __FILE__, __LINE__, __func__, "The resolution value was not set. Please set the\n                    : resolution value for the distance computation by using\n                    : the setResolution() function." );
     }
@@ -283,7 +284,7 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
     \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
  */
-void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
+void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_double >* mapCOMShift )
 {
     //================================================ Check the settings are complete and meaningful
     checkSymmetrySettings                             ( settings );
@@ -292,7 +293,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->inputFiles.size() ); iter++ )
     {
         //============================================ Create a data object
-        ProSHADE_internal_data::ProSHADE_data* symmetryStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
+        ProSHADE_internal_data::ProSHADE_data* symmetryStructure = new ProSHADE_internal_data::ProSHADE_data ( );
         
         //============================================ Read in the compared structure
         symmetryStructure->readInStructure            ( settings->inputFiles.at(iter), iter, settings );
@@ -322,6 +323,11 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         
         //============================================ Report results
         symmetryStructure->reportSymmetryResults      ( settings );
+        
+        //============================================ Save internal map shift to run object,
+        ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeX );
+        ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeY );
+        ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeZ );
         
         //============================================ Release memory
         delete symmetryStructure;
@@ -377,20 +383,20 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     proshade_double eulA, eulB, eulG, trsX, trsY, trsZ;
     
     //================================================ Create the data objects initially (this time without phase)
-    ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    ProSHADE_internal_data::ProSHADE_data* movingStructure = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( );
+    ProSHADE_internal_data::ProSHADE_data* movingStructure = new ProSHADE_internal_data::ProSHADE_data ( );
     
     //================================================ First, run without phase and find best rotation angles
     settings->usePhase                                = false;
     ProSHADE_internal_overlay::getOptimalRotation     ( settings, staticStructure, movingStructure, &eulA, &eulB, &eulG );
-
+    
     //================================================ Release memory
     delete staticStructure;
     delete movingStructure;
     
     //================================================ Create the data objects again (this time with phase)
-    staticStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    movingStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    staticStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( );
+    movingStructure                                   = new ProSHADE_internal_data::ProSHADE_data ( );
 
     //================================================ Now, run with phase and find optimal translation
     settings->usePhase                                = true;

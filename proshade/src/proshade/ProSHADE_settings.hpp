@@ -15,68 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_maths.hpp"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma GCC diagnostic ignored "-Wshadow"
-#pragma GCC diagnostic ignored "-Wall"
-
-//==================================================== Gemmi
-#ifndef __PROSHADE_GEMMI_INCLUDE__
-    #define __PROSHADE_GEMMI_INCLUDE__
-    #include <gemmi/mmread.hpp>
-    #include <gemmi/ccp4.hpp>
-    #include <gemmi/it92.hpp>
-    #include <gemmi/dencalc.hpp>
-    #include <gemmi/fprime.hpp>
-    #include <gemmi/gz.hpp>
-#endif
-
-//==================================================== FFTW3
-#ifdef __cplusplus
-extern "C" {
-#endif
-    
-#include <fftw3.h>
-    
-#ifdef __cplusplus
-}
-#endif
-
-//==================================================== SOFT
-#ifdef __cplusplus
-extern "C" {
-#endif
-    
-#include <wrap_fftw.h>
-#include <makeweights.h>
-#include <s2_primitive.h>
-#include <s2_cospmls.h>
-#include <s2_legendreTransforms.h>
-#include <s2_semi_fly.h>
-#include <rotate_so3_utils.h>
-#include <utils_so3.h>
-#include <soft_fftw.h>
-#include <rotate_so3_fftw.h>
-    
-#ifdef __cplusplus
-}
-#endif
-
-#pragma GCC diagnostic pop
-
-//==================================================== GetOpt port (BSD License, works on Windows as well as linux)
-#include <getopt_port/getopt_port.h>
-
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_SETTINGS__
-#define __PROSHADE_SETTINGS__
+#ifndef PROSHADE_SETTINGS
+#define PROSHADE_SETTINGS
 
 /*! \class ProSHADE_settings
     \brief This class stores all the settings and is passed to the executive classes instead of a multitude of parameters.
@@ -87,7 +35,7 @@ extern "C" {
  */
 class ProSHADE_settings
 {
-public:
+public: 
     //================================================ Settings regarding the task at hand
     ProSHADE_Task task;                               //!< This custom type variable determines which task to perfom (i.e. symmetry detection, distances computation, etc.).
     
@@ -96,6 +44,7 @@ public:
     bool forceP1;                                     //!< Should the P1 spacegroup be forced on the input PDB files?
     bool removeWaters;                                //!< Should all waters be removed from input PDB files?
     bool firstModelOnly;                              //!< Shoud only the first PDB model be used, or should all models be used?
+    bool removeNegativeDensity;                       //!< Should the negative density be removed from input files?
     
     //================================================ Settings regarding the resolution of calculations
     proshade_single requestedResolution;              //!< The resolution to which the calculations are to be done.
@@ -134,6 +83,7 @@ public:
     proshade_single correlationKernel;                //!< This value in Angstrom will be used as the kernel for the map-FHM correlation computation.
     bool saveMask;                                    //!< Should the mask be saved?
     std::string maskFileName;                         //!< The filename to which mask should be saved.
+    std::string appliedMaskFileName;                  //!< The filename from which mask data will be read from.
     
     //================================================ Settings regarding re-boxing
     bool reBoxMap;                                    //!< This switch decides whether re-boxing is needed.
@@ -179,6 +129,8 @@ public:
     bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
+    proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
+    proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -202,8 +154,8 @@ public: // maybe make this protected?
     void determineBandwidth                           ( proshade_unsign circumference );
     void determineSphereDistances                     ( proshade_single maxMapRange );
     void determineIntegrationOrder                    ( proshade_single maxMapRange );
-    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_double xDimAngs,
-                                                        proshade_double yDimAngs, proshade_double zDimAngs );
+    void determineAllSHValues                         ( proshade_unsign xDim, proshade_unsign yDim, proshade_single xDimAngs,
+                                                        proshade_single yDimAngs, proshade_single zDimAngs );
     void setVariablesLeftOnAuto                       ( void );
     
 public:
@@ -234,6 +186,7 @@ public:
     void __declspec(dllexport) setMinimumMaskSize                             ( proshade_single minMS );
     void __declspec(dllexport) setMaskSaving                                  ( bool savMsk );
     void __declspec(dllexport) setMaskFilename                                ( std::string mskFln );
+    void __declspec(dllexport) setAppliedMaskFilename                         ( std::string mskFln );
     void __declspec(dllexport) setMapReboxing                                 ( bool reBx );
     void __declspec(dllexport) setBoundsSpace                                 ( proshade_single boundsExSp );
     void __declspec(dllexport) setBoundsThreshold                             ( proshade_signed boundsThres );
@@ -270,6 +223,9 @@ public:
     void __declspec(dllexport) setSymmetryRotFunPeaks                         ( bool rotFunPeaks );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
     void __declspec(dllexport) setMaxSymmetryFold                             ( proshade_unsign maxFold );
+    void __declspec(dllexport) setFSCThreshold                                ( proshade_double fscThr );
+    void __declspec(dllexport) setPeakThreshold                               ( proshade_double peakThr );
+    void __declspec(dllexport) setNegativeDensity                             ( bool nDens );
 #else
     void addStructure                                 ( std::string structure );
     void setResolution                                ( proshade_single resolution );
@@ -285,6 +241,7 @@ public:
     void setMinimumMaskSize                           ( proshade_single minMS );
     void setMaskSaving                                ( bool savMsk );
     void setMaskFilename                              ( std::string mskFln );
+    void setAppliedMaskFilename                       ( std::string mskFln );
     void setMapReboxing                               ( bool reBx );
     void setBoundsSpace                               ( proshade_single boundsExSp );
     void setBoundsThreshold                           ( proshade_signed boundsThres );
@@ -321,6 +278,9 @@ public:
     void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );
     void setMaxSymmetryFold                           ( proshade_unsign maxFold );
+    void setFSCThreshold                              ( proshade_double fscThr );
+    void setPeakThreshold                             ( proshade_double peakThr );
+    void setNegativeDensity                           ( bool nDens );
 #endif
     
     //================================================ Command line options parsing
