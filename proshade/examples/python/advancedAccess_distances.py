@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.4
-#   \date      MAR 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -46,8 +46,8 @@ pSet.setResolution                                    ( 6.0 )
 
 ######################################################
 ### Create the structure objects
-pStruct1                                              = proshade.ProSHADE_data ( pSet )
-pStruct2                                              = proshade.ProSHADE_data ( pSet )
+pStruct1                                              = proshade.ProSHADE_data ( )
+pStruct2                                              = proshade.ProSHADE_data ( )
 
 ######################################################
 ### Read in the structures
@@ -84,8 +84,8 @@ print                                                 ( "The rotation function d
 ######################################################
 ### Expected output
 #   The energy levels distance is          +0.859
-#   The trace sigma distance is            +0.950
-#   The rotation function distance is      +0.742
+#   The trace sigma distance is            +0.962
+#   The rotation function distance is      +0.625
 
 ######################################################
 ### Release C++ pointers

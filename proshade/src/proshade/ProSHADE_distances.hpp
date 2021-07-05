@@ -16,16 +16,16 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //============================================ ProSHADE
 #include "ProSHADE_wignerMatrices.hpp"
 
 //============================================ Overinclusion protection
-#ifndef __PROSHADE_DISTANCES__
-#define __PROSHADE_DISTANCES__
+#ifndef PROSHADE_DISTANCES
+#define PROSHADE_DISTANCES
 
 //============================================ ProSHADE_internal_distances Namespace
 
@@ -54,7 +54,7 @@ namespace ProSHADE_internal_distances
                                                         proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist );
     proshade_double computeWeightsForEMatricesForLM   ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals,
-                                                        proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double sphereDist );
+                                                        proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist );
     void releaseTrSigmaWorkspace                      ( proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas,
                                                         proshade_double*& glWeights, proshade_complex*& radiiVals );
     void computeEMatrices                             ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
@@ -66,7 +66,7 @@ namespace ProSHADE_internal_distances
     void generateSO3CoeffsFromEMatrices               ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         ProSHADE_settings* settings );
     void allocateInvSOFTWorkspaces                    ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3, proshade_unsign band );
-    void prepareInvSOFTPlan                           ( fftw_plan* inverseSO3, proshade_unsign band, fftw_complex* work1, proshade_complex* invCoeffs );
+    void prepareInvSOFTPlan                           ( fftw_plan* inverseSO3, int band, fftw_complex* work1, proshade_complex* invCoeffs );
     void releaseInvSOFTMemory                         ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3 );
     void computeInverseSOFTTransform                  ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         ProSHADE_settings* settings );

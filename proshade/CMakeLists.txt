@@ -47,7 +47,7 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.5.4 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.5.5 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -82,20 +82,49 @@ if    ( NOT INSTALL_LOCALLY )
 endif ( NOT INSTALL_LOCALLY )
 
 ##########################################################################################
-################################### Set flags depending on compiler
-if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-  ################################# Using Clang
-  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-macro-redefined -fPIC"   )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
-  ################################# Using GCC
-  set   ( CMAKE_CXX_FLAGS "-O3 -g -Wshadow -Wpedantic -Wall -Wno-c++11-compat -fPIC"      )
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
-  ################################# Using Intel C++
-  ### TO BE COMPLETED
-elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
-  ################################# Using Visual Studio C++
-  ### TO BE COMPLETED
-endif  ( )     
+################################### Set flags depending on compiler and build type
+if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Weverything -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC " )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Weverything -Wundef -Wconversion -ffunction-sections -fdata-sections -flto -fno-common -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-documentation -Wno-padded -Wno-poison-system-directories -fPIC " )
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
+  		################################# Using GCC
+  		set   ( CMAKE_CXX_FLAGS " -O0 -g3 -Wshadow -Wpedantic -Wall -Wextra -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wformat-overflow -fstack-usage -Wundef -Wconversion -ffunction-sections -fdata-sections -fno-common -Wno-padded -fPIC"       )
+#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
+#  		################################# Using Intel C++
+#  		### TO BE COMPLETED
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
+  		################################# Using Visual Studio C++
+  		set   ( CMAKE_CXX_FLAGS " /Od /Z7 /DEBUG /W4 "                  )
+	endif  ( )   
+
+elseif     ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
+
+	if     ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             )
+  	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+  		################################# Using Clang
+  		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             ) 	
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"   )
+  		################################# Using GCC
+  		set   ( CMAKE_CXX_FLAGS " -O3 -fPIC "                                             )
+#	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
+#  		################################# Using Intel C++
+#  		### TO BE COMPLETED
+	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
+  		################################# Using Visual Studio C++
+  		set   ( CMAKE_CXX_FLAGS " /O2 /GL /Gw /Qpar /Qspectre /Qspectre-load /Qspectre-load-cf /RTC " )
+	endif  ( )   
+
+else       ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+
+	message ( ERROR "Unrecognised build type. Will assume release, but beware that this should not have happened!" )
+
+endif      ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )  
 
 ##########################################################################################
 ################################### Set flags depending on system
@@ -114,6 +143,7 @@ endif  ( CYGWIN )
 if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	add_custom_command (
    		OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		COMMAND rmdir "gemmi" /s /q
    		COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
    		COMMAND type nul > ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
@@ -121,6 +151,7 @@ if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
 	add_custom_command (
    		OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
+   		COMMAND rm -fr ./gemmi
    		COMMAND git clone https://github.com/project-gemmi/gemmi.git --quiet
    		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildGEMMI
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern
@@ -221,8 +252,13 @@ endif  ( CUSTOM_LAPACK_LIB_PATH )
 
 ##########################################################################################
 ################################### Add getopt_port dependency
-set ( GETOPT_SOURCE  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c   CACHE STRING "Getopt_port source" )
-set ( GETOPT_HEADER  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.h   CACHE STRING "Getopt_port header" )
+set ( GETOPT_SOURCE  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.c        CACHE STRING "Getopt_port source" )
+set ( GETOPT_HEADER  ${CMAKE_SOURCE_DIR}/extern/getopt_port/getopt_port.h        CACHE STRING "Getopt_port header" )
+
+##########################################################################################
+################################### Add almostEqual dependency
+set ( ALMOSTEQUAL_SOURCE  ${CMAKE_SOURCE_DIR}/extern/almostEqual CACHE STRING "almostEqual source" )
+include_directories    ( ${ALMOSTEQUAL_SOURCE}                                            )
 
 ##########################################################################################
 ################################### Add SOFT dependency

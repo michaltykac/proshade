@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
 */
 
 //==================================================== ProSHADE
@@ -44,6 +44,7 @@ int main ( int argc, char **argv )
     
     //================================================ Further useful settings
     settings->forceP1                                 = true;                                // Should PDB files be forced to have P1 spacegroup?
+    settings->setNegativeDensity                      ( true );                              // Should the negative density be removed from input files?
     settings->removeWaters                            = true;                                // Should PDB files have their water molecules removed?
     settings->firstModelOnly                          = true;                                // Should PDB files have only their first model used, or should ProSHADE use all models?
     settings->setProgressiveSphereMapping             ( false );                             // Should smaller spheres be less sampled? It is considerably faster, but may sacrifice some (little) accuracy.
@@ -56,6 +57,8 @@ int main ( int argc, char **argv )
     settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
+    settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
+    settings->setPeakThreshold                        ( 0.80 );                              // Sets the minimum peak height threshold for axis to be considered possible.
     settings->setPeakNeighboursNumber                 ( 1 );                                 // Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
     settings->setPeakNaiveNoIQR                       ( -999.9 );                            // Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
     settings->setMissingPeakThreshold                 ( 0.3 );                               // Fraction of peaks that can be missing for missing axis search to be initiated.
@@ -81,13 +84,14 @@ int main ( int argc, char **argv )
     settings->setMaskIQR                              ( 3.0 );                               // Number of inter-quartile ranges from median to use as the masking threshold.
     settings->setMaskSaving                           ( false );                             // Should map mask be saved?
     settings->setMaskFilename                         ( "maskFile" );                        // The filename (no extension) to which the map masks will be saved into.
+    settings->setAppliedMaskFilename                  ( "" );                                // The filename from which mask data will be read from.
 
     //================================================ Print all the settings values
 //    settings->printSettings                           ( );                                   // Prints all the ProSHADE_settings values. Mostly for debugging purposes.
 
     //================================================ Create the structure objects
-    ProSHADE_internal_data::ProSHADE_data* staticStr  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the strcture object
-    ProSHADE_internal_data::ProSHADE_data* movingStr  = new ProSHADE_internal_data::ProSHADE_data ( settings ); // This line initialises the strcture object
+    ProSHADE_internal_data::ProSHADE_data* staticStr  = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the strcture object
+    ProSHADE_internal_data::ProSHADE_data* movingStr  = new ProSHADE_internal_data::ProSHADE_data ( ); // This line initialises the strcture object
     
     //================================================ Read in the structures
     staticStr->readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, settings ); // This is how a particular structure file is read into the ProSHADE object. This example uses BALBES domain 1BFO_A_dom_1.
@@ -121,10 +125,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      5.43251 ; 0.752641 ; 3.92701
-//  Optimal rotation matrix is       :      -0.871914 ; -0.0783579 ; 0.483349
-//                                   :      -0.19118 ; -0.854289 ; -0.483364
-//                                   :      0.450795 ; -0.513858 ; 0.729886
+//  Optimal rotation Euler angles are:      3.88623 ; 0.744047 ; 5.45676
+//  Optimal rotation matrix is       :      -0.865 ; 0.203035 ; -0.458859
+//                                   :      0.0612312 ; -0.864932 ; -0.498141
+//                                   :      -0.498022 ; -0.458988 ; 0.735734
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
@@ -135,8 +139,8 @@ int main ( int argc, char **argv )
     settings->setMapResolutionChange                  ( true );                              // Should maps be re-sample to the computation resolution?
     
     //================================================ Create new structures
-    staticStr                                         = new ProSHADE_internal_data::ProSHADE_data ( settings );
-    movingStr                                         = new ProSHADE_internal_data::ProSHADE_data ( settings );
+    staticStr                                         = new ProSHADE_internal_data::ProSHADE_data ( );
+    movingStr                                         = new ProSHADE_internal_data::ProSHADE_data ( );
     
     //================================================ Read in the structures again
     staticStr->readInStructure                        ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, settings );  // This is how a particular structure file is read into the ProSHADE object. This example uses BALBES domain 1BFO_A_dom_1.
@@ -153,7 +157,7 @@ int main ( int argc, char **argv )
     movingStr->computeSphericalHarmonics              ( settings );  // This function computes the spherical harmonics for this structure.
     
     //================================================ Rotate the moving structure using the optimal rotation Euler angles computed before.
-    movingStr->rotateMap                              ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2) ); // This function rotates the internal map representation in the spherical harmonics space (using Wigner D matrices).
+    movingStr->rotateMapRealSpaceInPlace              ( optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2) ); // This function rotates the internal map representation in the real space using tri-linear interpolation.
     
     //================================================ Zero padding for both structures (only really applied to the smaller one, as nothing is added if the dimensions already have the requested size). This is needed to make the structures Fourier coefficients comparable
     staticStr->zeroPaddToDims                         ( int ( std::max ( staticStr->getXDim(), movingStr->getXDim() ) ),
@@ -180,8 +184,8 @@ int main ( int argc, char **argv )
     std::cout << "Rot. Centre to optimal overlay translation:  " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Rot. Centre to origin translation:           16 ; 20 ; 24
-//  Rot. Centre to optimal overlay translation:  6 ; 4 ; -6
+//  Rot. Centre to origin translation:           17 ; 21 ; 23
+//  Rot. Centre to optimal overlay translation:  4 ; 4 ; -4
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );

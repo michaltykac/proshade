@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
@@ -44,6 +44,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->forceP1                                     = true;
     this->removeWaters                                = true;
     this->firstModelOnly                              = true;
+    this->removeNegativeDensity                       = true;
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
@@ -82,6 +83,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->correlationKernel                           = 0.0;
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
+    this->appliedMaskFileName                         = "";
     
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
@@ -119,6 +121,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
+    this->fscThreshold                                = 0.80;
+    this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -161,6 +165,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->forceP1                                     = true;
     this->removeWaters                                = true;
     this->firstModelOnly                              = true;
+    this->removeNegativeDensity                       = true;
     
     //================================================ Settings regarding the resolution of calculations
     this->requestedResolution                         = -1.0;
@@ -199,6 +204,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->correlationKernel                           = 0.0;
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
+    this->appliedMaskFileName                         = "";
     this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding re-boxing
@@ -234,6 +240,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
+    this->fscThreshold                                = 0.80;
+    this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -256,7 +264,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
         case NA:
             std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
             std::cerr << "Error Code          : " << "E000014" << std::endl << std::flush;
-            std::cerr << "ProSHADE version    : " << __PROSHADE_VERSION__ << std::endl << std::flush;
+            std::cerr << "ProSHADE version    : " << PROSHADE_VERSION << std::endl << std::flush;
             std::cerr << "File                : " << "ProSHADE.cpp" << std::endl << std::flush;
             std::cerr << "Line                : " << 97 << std::endl << std::flush;
             std::cerr << "Function            : " << "ProSHADE_settings (Task) constructor" << std::endl << std::flush;
@@ -264,7 +272,6 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
             std::cerr << "Further information : " << "This ProSHADE_settings class constructor is intended to\n                    : set the internal variables to default value given a\n                    : particular taks. By supplying this task as NA, this beats\n                    : the purpose of the constructor. Please use the\n                    : non-argumental constructor if task is not yet known." << std::endl << std::endl << std::flush;
             ProSHADE_internal_messages::printTerminateMessage ( this->verbose );
             exit                                      ( EXIT_FAILURE );
-            break;
             
         case Symmetry:
             this->requestedResolution                 = 6.0;
@@ -272,7 +279,6 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
             this->moveToCOM                           = true;
-            this->normaliseMap                        = true;
             this->reBoxMap                            = false;
             break;
             
@@ -288,7 +294,6 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
             this->changeMapResolution                 = true;
             this->maskMap                             = false;
             this->moveToCOM                           = false;
-            this->normaliseMap                        = false;
             this->reBoxMap                            = false;
             break;
                     
@@ -317,7 +322,7 @@ __declspec(dllexport) ProSHADE_settings::~ProSHADE_settings ( void )
     delete[] this->forceBounds;
     
     //================================================ Release symmetry axes
-    if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != NULL ) { delete[] this->detectedSymmetry.at(it); } } }
+    if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != nullptr ) { delete[] this->detectedSymmetry.at(it); } } }
     
     //================================================ Done
     
@@ -328,14 +333,15 @@ __declspec(dllexport) ProSHADE_settings::~ProSHADE_settings ( void )
 void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
 {
     //================================================ Determine the peak IQR from median threshold, unless given by user
-    if ( this->noIQRsFromMedianNaivePeak == -999.9 )
+    const FloatingPoint< proshade_double > lhs ( this->noIQRsFromMedianNaivePeak ), rhs ( -999.9 );
+    if ( lhs.AlmostEquals( rhs ) )
     {
         //============================================ If using the old symmetry detection algorithm or distances computation, this will be used on many small peaks with few outliers. Use value of 5.0
         if (   this->task == Distances )                                                      { this->noIQRsFromMedianNaivePeak = 5.0; }
         if ( ( this->task == Symmetry  ) && ( !this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = 5.0; }
         
         //============================================ If using the new symmetry detection algorithm, this needs to be decreasing with resolution. How much, that is a bit arbitrary...
-        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = std::max ( 0.0, 1.0 - ( this->requestedResolution * 0.05 ) ); }
+        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = static_cast< proshade_double > ( std::max ( 0.0f, 1.0f - ( this->requestedResolution * 0.05f ) ) ); }
     }
     
     //================================================ Done
@@ -622,6 +628,26 @@ void                       ProSHADE_settings::setMaskFilename ( std::string mskF
 {
     //================================================ Set the value
     this->maskFileName                                = mskFln;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the filename of the mask data that should be applied to the input map.
+ 
+    This function sets the the filename from which mask should be read from.
+ 
+    \param[in] mskFln The filename where the mask should be read from.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setAppliedMaskFilename ( std::string mskFln )
+#else
+void                       ProSHADE_settings::setAppliedMaskFilename ( std::string mskFln )
+#endif
+{
+    //================================================ Set the value
+    this->appliedMaskFileName                         = mskFln;
     
     //================================================ Done
     return ;
@@ -1269,7 +1295,7 @@ void                       ProSHADE_settings::setDetectedSymmetry ( proshade_dou
 #endif
 {
     //================================================ Allocate memory
-    proshade_double* hlpAxis                          = new proshade_double [6];
+    proshade_double* hlpAxis                          = new proshade_double [7];
     ProSHADE_internal_misc::checkMemoryAllocation     ( hlpAxis, __FILE__, __LINE__, __func__ );
     
     //================================================ Copy (deep) data
@@ -1279,6 +1305,7 @@ void                       ProSHADE_settings::setDetectedSymmetry ( proshade_dou
     hlpAxis[3]                                        = sym[3];
     hlpAxis[4]                                        = sym[4];
     hlpAxis[5]                                        = sym[5];
+    hlpAxis[6]                                        = sym[6];
     
     //================================================ Save
     ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, hlpAxis );
@@ -1381,6 +1408,60 @@ void                       ProSHADE_settings::setMaxSymmetryFold ( proshade_unsi
     
 }
 
+/*! \brief Sets the minimum FSC threshold for axis to be considered detected.
+ 
+    \param[in] fscThr The minimum axis FSC threshold for the axis to be considered detected.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setFSCThreshold ( proshade_double fscThr )
+#else
+void                       ProSHADE_settings::setFSCThreshold ( proshade_double fscThr )
+#endif
+{
+    //================================================ Set the value
+    this->fscThreshold                                = fscThr;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the minimum peak height threshold for axis to be considered possible.
+ 
+    \param[in] fscThr The minimum axis peak height threshold for the axis to be considered possible.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setPeakThreshold ( proshade_double peakThr )
+#else
+void                       ProSHADE_settings::setPeakThreshold ( proshade_double peakThr )
+#endif
+{
+    //================================================ Set the value
+    this->peakThresholdMin                            = peakThr;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the internal variable deciding whether input files negative density should be removed.
+ 
+    \param[in] nDens Should the negative density be removed from input files?
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setNegativeDensity ( bool nDens )
+#else
+void                       ProSHADE_settings::setNegativeDensity ( bool nDens )
+#endif
+{
+    //================================================ Set the value
+    this->removeNegativeDensity                       = nDens;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief This function determines the bandwidth for the spherical harmonics computation.
  
     This function is here to automstically determine the bandwidth to which the spherical harmonics computations should be done.
@@ -1455,7 +1536,7 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
 void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
 {
     //================================================ Check the current settings value is set to auto
-    if ( this->maxSphereDists != 0.0 )
+    if ( this->maxSphereDists != 0.0f )
     {
         std::stringstream hlpSS;
         hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
@@ -1520,7 +1601,6 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
  
     \param[in] xDim The size of the x axis dimension in indices.
     \param[in] yDim The size of the y axis dimension in indices.
-    \param[in] zDim The size of the z axis dimension in indices.
     \param[in] xDimAngs The size of the x-axis in Angstroms.
     \param[in] yDimAngs The size of the y-axis in Angstroms.
     \param[in] zDimAngs The size of the z-axis in Angstroms.
@@ -1529,15 +1609,15 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     the idea that DIST(A,B) == DIST(B,A). If this is important, then the user should set all of these values manually to the
     settings object to avoid this issue.
  */
-void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, proshade_double xDimAngs, proshade_double yDimAngs, proshade_double zDimAngs )
+void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_single xDimAngs, proshade_single yDimAngs, proshade_single zDimAngs )
 {
     //================================================ Print progress message
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
     
     //================================================ Modify dims by resolution
-    proshade_unsign theoXDim                          = std::ceil ( xDimAngs / ( this->requestedResolution / 2.0 ) );
-    proshade_unsign theoYDim                          = std::ceil ( yDimAngs / ( this->requestedResolution / 2.0 ) );
-    proshade_unsign theoZDim                          = std::ceil ( zDimAngs / ( this->requestedResolution / 2.0 ) );
+    proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
+    proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0f ) ) );
+    proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0f ) ) );
     
     //================================================ Find maximum circumference
     proshade_unsign maxDim                            = std::max ( theoXDim, std::max ( theoYDim, theoZDim ) );
@@ -1554,8 +1634,8 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     else { this->determineBandwidth ( circ ); }
     
     //================================================ Find maximum diagonal in Angstroms
-    proshade_single maxDiag                           = std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) +
-                                                                    std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0 ), 2.0 ) );
+    proshade_single maxDiag                           = static_cast< proshade_single > ( std::sqrt ( std::pow ( static_cast<proshade_single> ( maxDim ) * ( this->requestedResolution / 2.0f ), 2.0f ) +
+                                                                                                     std::pow ( static_cast<proshade_single> ( midDim ) * ( this->requestedResolution / 2.0f ), 2.0f ) ) );
     
     //================================================ Sphere distances
     this->determineSphereDistances                    ( maxDiag );
@@ -1599,10 +1679,9 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
         {
             case NA:
                 throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Distances, Symmetry,\n                    : OverlayMap or MapManip." );
-                break;
                 
             case Symmetry:
-                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes );
+                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes, &this->mapCOMShift );
                 this->setSymmetryResults              ( settings );
                 break;
                 
@@ -1625,7 +1704,7 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
     {
         std::cerr << std::endl << "=====================" << std::endl << "!! ProSHADE ERROR !!" << std::endl << "=====================" << std::endl << std::flush;
         std::cerr << "Error Code          : " << err.get_errc() << std::endl << std::flush;
-        std::cerr << "ProSHADE version    : " << __PROSHADE_VERSION__ << std::endl << std::flush;
+        std::cerr << "ProSHADE version    : " << PROSHADE_VERSION << std::endl << std::flush;
         std::cerr << "File                : " << err.get_file() << std::endl << std::flush;
         std::cerr << "Line                : " << err.get_line() << std::endl << std::flush;
         std::cerr << "Function            : " << err.get_func() << std::endl << std::flush;
@@ -1821,69 +1900,73 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     //================================================ Long options struct
     const struct option_port longopts[] =
     {
-        { "version",         no_argument,        NULL, 'v' },
-        { "help",            no_argument,        NULL, 'h' },
-        { "verbose",         required_argument,  NULL, '!' },
-        { "distances",       no_argument,        NULL, 'D' },
-        { "mapManip",        no_argument,        NULL, 'M' },
-        { "symmetry",        no_argument,        NULL, 'S' },
-        { "overlay",         no_argument,        NULL, 'O' },
-        { "file",            required_argument,  NULL, 'f' },
-        { "forceSpgP1",      no_argument,        NULL, 'u' },
-        { "removeWaters",    no_argument,        NULL, 'w' },
-        { "firstModel",      no_argument,        NULL, 'x' },
-        { "resolution",      required_argument,  NULL, 'r' },
-        { "bandwidth",       required_argument,  NULL, 'b' },
-        { "sphereDists",     required_argument,  NULL, 's' },
-        { "extraSpace",      required_argument,  NULL, 'e' },
-        { "integOrder",      required_argument,  NULL, 'i' },
-        { "taylorCap",       required_argument,  NULL, 't' },
-        { "invertMap",       no_argument,        NULL, '@' },
-        { "normalise",       no_argument,        NULL, '#' },
-        { "mask",            no_argument,        NULL, '$' },
-        { "saveMask",        no_argument,        NULL, '%' },
-        { "maskFile",        required_argument,  NULL, '^' },
-        { "maskBlurring",    required_argument,  NULL, '&' },
-        { "maskThreshold",   required_argument,  NULL, '*' },
-        { "mapReboxing",     no_argument,        NULL, 'R' },
-        { "boundsSpace",     required_argument,  NULL, '(' },
-        { "boundsThreshold", required_argument,  NULL, ')' },
-        { "sameBoundaries",  no_argument,        NULL, '-' },
-        { "reBoxedFilename", required_argument,  NULL, 'g' },
-        { "pdbTempFact",     required_argument,  NULL, 'd' },
-        { "center",          no_argument,        NULL, 'c' },
-        { "changeMapResol",  no_argument,        NULL, 'j' },
-        { "changeMapTriLin", no_argument,        NULL, 'a' },
-        { "noPhase",         no_argument,        NULL, 'p' },
-        { "progressive",     no_argument,        NULL, 'k' },
-        { "noEnL",           no_argument,        NULL, 'l' },
-        { "noTrS",           no_argument,        NULL, 'm' },
-        { "noFRF",           no_argument,        NULL, 'n' },
-        { "EnLWeight",       required_argument,  NULL, '_' },
-        { "peakNeigh",       required_argument,  NULL, '=' },
-        { "peakThres",       required_argument,  NULL, '+' },
-        { "missAxThres",     required_argument,  NULL, '[' },
-        { "sameAxComp",      required_argument,  NULL, ']' },
-        { "axisComBeh",      no_argument,        NULL, 'q' },
-        { "bicubSearch",     no_argument,        NULL, 'A' },
-        { "maxSymPrime",     required_argument,  NULL, 'B' },
-        { "minPeakHeight",   required_argument,  NULL, 'o' },
-        { "reqSym",          required_argument,  NULL, '{' },
-        { "overlayFile",     required_argument,  NULL, '}' },
-        { "overlayJSONFile", required_argument,  NULL, 'y' },
-        { "angUncertain",    required_argument,  NULL, ';' },
-        { "usePeaksInRotFun",no_argument,        NULL, 'z' },
-        { NULL,              0,                  NULL,  0  }
+        { "version",         no_argument,        nullptr, 'v' },
+        { "help",            no_argument,        nullptr, 'h' },
+        { "verbose",         required_argument,  nullptr, '!' },
+        { "distances",       no_argument,        nullptr, 'D' },
+        { "mapManip",        no_argument,        nullptr, 'M' },
+        { "symmetry",        no_argument,        nullptr, 'S' },
+        { "overlay",         no_argument,        nullptr, 'O' },
+        { "file",            required_argument,  nullptr, 'f' },
+        { "forceSpgP1",      no_argument,        nullptr, 'u' },
+        { "removeWaters",    no_argument,        nullptr, 'w' },
+        { "firstModel",      no_argument,        nullptr, 'x' },
+        { "resolution",      required_argument,  nullptr, 'r' },
+        { "bandwidth",       required_argument,  nullptr, 'b' },
+        { "sphereDists",     required_argument,  nullptr, 's' },
+        { "extraSpace",      required_argument,  nullptr, 'e' },
+        { "integOrder",      required_argument,  nullptr, 'i' },
+        { "taylorCap",       required_argument,  nullptr, 't' },
+        { "invertMap",       no_argument,        nullptr, '@' },
+        { "normalise",       no_argument,        nullptr, '#' },
+        { "mask",            no_argument,        nullptr, '$' },
+        { "saveMask",        no_argument,        nullptr, '%' },
+        { "maskFile",        required_argument,  nullptr, '^' },
+        { "applyMask",       required_argument,  nullptr, 'G' },
+        { "maskBlurring",    required_argument,  nullptr, '&' },
+        { "maskThreshold",   required_argument,  nullptr, '*' },
+        { "mapReboxing",     no_argument,        nullptr, 'R' },
+        { "boundsSpace",     required_argument,  nullptr, '(' },
+        { "boundsThreshold", required_argument,  nullptr, ')' },
+        { "sameBoundaries",  no_argument,        nullptr, '-' },
+        { "reBoxedFilename", required_argument,  nullptr, 'g' },
+        { "pdbTempFact",     required_argument,  nullptr, 'd' },
+        { "center",          no_argument,        nullptr, 'c' },
+        { "changeMapResol",  no_argument,        nullptr, 'j' },
+        { "changeMapTriLin", no_argument,        nullptr, 'a' },
+        { "noPhase",         no_argument,        nullptr, 'p' },
+        { "progressive",     no_argument,        nullptr, 'k' },
+        { "noEnL",           no_argument,        nullptr, 'l' },
+        { "noTrS",           no_argument,        nullptr, 'm' },
+        { "noFRF",           no_argument,        nullptr, 'n' },
+        { "EnLWeight",       required_argument,  nullptr, '_' },
+        { "peakNeigh",       required_argument,  nullptr, '=' },
+        { "peakThres",       required_argument,  nullptr, '+' },
+        { "missAxThres",     required_argument,  nullptr, '[' },
+        { "sameAxComp",      required_argument,  nullptr, ']' },
+        { "axisComBeh",      no_argument,        nullptr, 'q' },
+        { "bicubSearch",     no_argument,        nullptr, 'A' },
+        { "maxSymPrime",     required_argument,  nullptr, 'B' },
+        { "minPeakHeight",   required_argument,  nullptr, 'o' },
+        { "fscThres",        required_argument,  nullptr, 'C' },
+        { "peakMinThres",    required_argument,  nullptr, 'E' },
+        { "reqSym",          required_argument,  nullptr, '{' },
+        { "overlayFile",     required_argument,  nullptr, '}' },
+        { "overlayJSONFile", required_argument,  nullptr, 'y' },
+        { "angUncertain",    required_argument,  nullptr, ';' },
+        { "usePeaksInRotFun",no_argument,        nullptr, 'z' },
+        { "keepNegDens",     no_argument,        nullptr, 'F' },
+        { nullptr,           0,                  nullptr,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:cd:De:f:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
     {
         //============================================ Read the next option
-        int opt                                       = getopt_long_port ( argc, argv, shortopts, longopts, NULL );
+        int opt                                       = getopt_long_port ( argc, argv, shortopts, longopts, nullptr );
         
         //============================================ Done parsing
         if ( opt == -1 )
@@ -1905,13 +1988,12 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'h':
              {
                  ProSHADE_internal_messages::printHelp ( );
-                 exit                                 ( EXIT_SUCCESS );
              }
                  
              //======================================= Save the argument as the verbosity value, or if no value given, just set to 3
              case '!':
              {
-                 this->setVerbosity                   ( static_cast<proshade_single> ( atoi ( optarg ) ) );
+                 this->setVerbosity                   ( static_cast<proshade_signed> ( atoi ( optarg ) ) );
                  continue;
              }
                  
@@ -1935,8 +2017,11 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  this->task                           = Symmetry;
                  
                  //=================================== Force default unless changed already by the user
-                 if (  this->requestedResolution == -1 ) { this->requestedResolution = 6.0;  }
-                 if (  this->pdbBFactorNewVal    == -1 ) { this->pdbBFactorNewVal    = 80.0; }
+                 const FloatingPoint< proshade_single > lhs1 ( this->requestedResolution ), rhs1 ( -1.0f );
+                 if (  lhs1.AlmostEquals ( rhs1 ) )   { this->requestedResolution = 6.0;  }
+                 
+                 const FloatingPoint< proshade_double > lhs2 ( this->pdbBFactorNewVal ), rhs2 ( -1.0 );
+                 if (  lhs2.AlmostEquals ( rhs2 ) )   { this->pdbBFactorNewVal    = 80.0; }
                  this->changeMapResolution            = !this->changeMapResolution;  // Switch value. This can be over-ridden by the user by using -j
                  this->moveToCOM                      = !this->moveToCOM;            // Switch value. This can be over-ridden by the user by using -c.
                  
@@ -2056,6 +2141,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  continue;
              }
                  
+             //======================================= Save the argument as the mask filename value
+             case 'G':
+             {
+                 this->setAppliedMaskFilename         ( static_cast<std::string> ( optarg ) );
+                 continue;
+             }
+                 
              //======================================= Save the argument as the mask blurring factor value
              case '&':
              {
@@ -2109,7 +2201,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              //======================================= Save the argument as the PDB B-factor new constant value
              case 'd':
              {
-                 this->setPDBBFactor                  ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 this->setPDBBFactor                  ( static_cast<proshade_double> ( atof ( optarg ) ) );
                  continue;
              }
                  
@@ -2207,14 +2299,14 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              //======================================= Save the argument as the missing axis threshold value
              case 'q':
              {
-                 setAxisComparisonThresholdBehaviour  ( !this->axisErrToleranceDefault );
+                 this->setAxisComparisonThresholdBehaviour ( !this->axisErrToleranceDefault );
                  continue;
              }
                  
              //======================================= Save the argument as the bicubic interpolation search requirement value
              case 'A':
              {
-                 setBicubicInterpolationSearch        ( !this->useBiCubicInterpolationOnPeaks );
+                 this->setBicubicInterpolationSearch  ( !this->useBiCubicInterpolationOnPeaks );
                  continue;
              }
                  
@@ -2232,6 +2324,20 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  continue;
              }
                  
+             //======================================= Minimum FSC value for axis to be detected
+             case 'C':
+             {
+                 this->setFSCThreshold                ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Minimum peak height value for axis to be considered possible
+             case 'E':
+             {
+                 this->setPeakThreshold               ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
              //======================================= Save the argument as the requested symmetry and potentially fold value
              case '{':
              {
@@ -2242,7 +2348,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                      this->setRequestedSymmetry ( "C" );
                      
                      std::string numHlp ( input.begin()+1, input.end() );
-                     if ( numHlp.length() > 0 ) { this->setRequestedFold ( atoi ( numHlp.c_str() ) ); }
+                     if ( numHlp.length() > 0 ) { this->setRequestedFold ( static_cast< proshade_unsign > ( atoi ( numHlp.c_str() ) ) ); }
                      else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( EXIT_FAILURE ); }
                  }
                  else
@@ -2252,7 +2358,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                          this->setRequestedSymmetry ( "D" );
                          
                          std::string numHlp ( input.begin()+1, input.end() );
-                         if ( numHlp.length() > 0 ) { this->setRequestedFold ( atoi ( numHlp.c_str() ) ); }
+                         if ( numHlp.length() > 0 ) { this->setRequestedFold ( static_cast< proshade_unsign > ( atoi ( numHlp.c_str() ) ) ); }
                          else { std::cerr << "!!! ProSHADE ERROR !!! The input argument requests search for Cyclic/Dihedral symmetry, but does not specify the requested fold." << std::endl;  exit ( EXIT_FAILURE ); }
                      }
                      else
@@ -2306,10 +2412,17 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  continue;
              }
                  
-             //======================================= Save the argument as angular uncertainty for bandwidth determination
+             //======================================= Forces usage of the old symmetry detection algorithm - DEPRECATED
              case 'z':
              {
                  this->setSymmetryRotFunPeaks         ( false );
+                 continue;
+             }
+
+             //======================================= Should the negative density from input files be removed?
+             case 'F':
+             {
+                 this->setNegativeDensity             ( false );
                  continue;
              }
                  
@@ -2334,7 +2447,6 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              default:
              {
                  ProSHADE_internal_messages::printHelp ( );
-                 exit ( EXIT_SUCCESS );
              }
          }
     }
@@ -2355,6 +2467,7 @@ void                       ProSHADE_settings::printSettings ( )
 #endif
 {
     //================================================ Print the currest values in the settings object
+    //== Settings regarding the task at hand
     std::stringstream strstr;
     strstr.str(std::string());
     if ( this->task == NA ) { strstr << "NA"; }
@@ -2364,6 +2477,7 @@ void                       ProSHADE_settings::printSettings ( )
     if ( this->task == OverlayMap ) { strstr << "MAP OVERLAY"; }
     printf ( "Task to perform     : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding the input files
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->inputFiles.size() ); iter++ )
     {
         strstr.str(std::string());
@@ -2371,26 +2485,6 @@ void                       ProSHADE_settings::printSettings ( )
         printf ( "File(s) to process  : %37s\n", strstr.str().c_str() );
     }
     
-    strstr.str(std::string());
-    strstr << this->verbose;
-    printf ( "Verbosity           : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->requestedResolution;
-    printf ( "Resolution (comp)   : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maxBandwidth;
-    printf ( "Bandwidth           : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maxSphereDists;
-    printf ( "Sphere distances    : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->addExtraSpace;
-    printf ( "Extra space         : %37s\n", strstr.str().c_str() );
-
     strstr.str(std::string());
     if ( this->forceP1 ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Force P1 spacegroup : %37s\n", strstr.str().c_str() );
@@ -2404,6 +2498,48 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Only 1st model      : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
+    if ( this->removeNegativeDensity ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Remove neg. dens.   : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the resolution of calculations
+    strstr.str(std::string());
+    strstr << this->requestedResolution;
+    printf ( "Resolution (comp)   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->changeMapResolution ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Change map resol    : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->changeMapResolutionTriLinear ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Change map tri-lin  : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the PDB B-factor change
+    strstr.str(std::string());
+    strstr << this->pdbBFactorNewVal;
+    printf ( "PDB B-factor const  : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the bandwidth of calculations
+    strstr.str(std::string());
+    strstr << this->maxBandwidth;
+    printf ( "Bandwidth           : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->rotationUncertainty;
+    printf ( "Rotation doubt      : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the phase
+    strstr.str(std::string());
+    if ( this->usePhase ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Use phase info      : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the spheres
+    strstr.str(std::string());
+    strstr << this->maxSphereDists;
+    printf ( "Sphere distances    : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the Gauss-Legendre integration
+    strstr.str(std::string());
     strstr << this->integOrder;
     printf ( "Integration order   : %37s\n", strstr.str().c_str() );
     
@@ -2411,25 +2547,40 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->taylorSeriesCap;
     printf ( "Taylor series cap   : %37s\n", strstr.str().c_str() );
     
-    strstr.str(std::string());
-    strstr << this->pdbBFactorNewVal;
-    printf ( "PDB B-factor const  : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    if ( this->reBoxMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Map re-boxing       : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    if ( this->invertMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Map inversion       : %37s\n", strstr.str().c_str() );
-    
+    //== Settings regarding map normalisation
     strstr.str(std::string());
     if ( this->normaliseMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map normalisation   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding map inversion
+    strstr.str(std::string());
+    if ( this->invertMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Map inversion       : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding map masking
+    strstr.str(std::string());
+    strstr << this->blurFactor;
+    printf ( "Map blurring        : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->maskingThresholdIQRs;
+    printf ( "Masking threshold   : %37s\n", strstr.str().c_str() );
+    
     strstr.str(std::string());
     if ( this->maskMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map masking         : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->useCorrelationMasking ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Correlation mask    : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->halfMapKernel;
+    printf ( "Half-map kernel     : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->correlationKernel;
+    printf ( "Correlation kernel  : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     if ( this->saveMask ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
@@ -2439,13 +2590,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->maskFileName;
     printf ( "Map mask filename   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding re-boxing
     strstr.str(std::string());
-    strstr << this->blurFactor;
-    printf ( "Map blurring        : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->maskingThresholdIQRs;
-    printf ( "Masking threshold   : %37s\n", strstr.str().c_str() );
+    if ( this->reBoxMap ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Map re-boxing       : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->boundsExtraSpace;
@@ -2460,29 +2608,38 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Same boundaries     : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
-    strstr << this->outName;
-    printf ( "Re-boxed filename   : %37s\n", strstr.str().c_str() );
+    if ( this->forceBounds != nullptr )
+    {
+        strstr << this->forceBounds[0] << " - " << this->forceBounds[1] << " | " << this->forceBounds[2] << " - " << this->forceBounds[3] << " | " << this->forceBounds[4] << " - " << this->forceBounds[5];
+        printf ( "Bounds similarity   : %37s\n", strstr.str().c_str() );
+    }
+    else
+    {
+        strstr << "Not allocated";
+        printf ( "Bounds similarity   : %37s\n", strstr.str().c_str() );
+    }
     
+    //== Settings regarding COM
     strstr.str(std::string());
     if ( this->moveToCOM ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map COM centering   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding extra cell space
     strstr.str(std::string());
-    if ( this->changeMapResolution ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Change map resol    : %37s\n", strstr.str().c_str() );
+    strstr << this->addExtraSpace;
+    printf ( "Extra space         : %37s\n", strstr.str().c_str() );
     
-    strstr.str(std::string());
-    if ( this->changeMapResolutionTriLinear ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Change map tri-lin  : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    if ( this->usePhase ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Use phase info      : %37s\n", strstr.str().c_str() );
-    
+    //== Settings regarding shell settings
     strstr.str(std::string());
     if ( this->progressiveSphereMapping ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Progressive spheres : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding output file name
+    strstr.str(std::string());
+    strstr << this->outName;
+    printf ( "Re-boxed filename   : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding distances computation
     strstr.str(std::string());
     if ( this->computeEnergyLevelsDesc ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Energy lvl desc     : %37s\n", strstr.str().c_str() );
@@ -2499,6 +2656,7 @@ void                       ProSHADE_settings::printSettings ( )
     if ( this->computeRotationFuncDesc ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Full RF desc        : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding peak searching
     strstr.str(std::string());
     strstr << this->peakNeighbours;
     printf ( "Neightbours to peak : %37s\n", strstr.str().c_str() );
@@ -2507,13 +2665,15 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->noIQRsFromMedianNaivePeak;
     printf ( "Peak IQR threshold  : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding 1D grouping
+    strstr.str(std::string());
+    strstr << this->smoothingFactor;
+    printf ( "Smoothing factor    : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the symmetry detection
     strstr.str(std::string());
     strstr << this->symMissPeakThres;
     printf ( "Missing ax. thres   : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->minSymPeak;
-    printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->axisErrTolerance;
@@ -2524,9 +2684,38 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Same ax. thre. decr.: %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
+    strstr << this->minSymPeak;
+    printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->recommendedSymmetryType << "-" << this->recommendedSymmetryFold;
+    printf ( "Recommended symm.   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;
     printf ( "Requested symm.     : %37s\n", strstr.str().c_str() );
 
+    strstr.str(std::string());
+    if ( this->usePeakSearchInRotationFunctionSpace ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Use RF Peaks        : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->useBiCubicInterpolationOnPeaks ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Use bicubic interp. : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->maxSymmetryFold;
+    printf ( "Max symmetry fold   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->fscThreshold;
+    printf ( "FSC Threshold       : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->peakThresholdMin;
+    printf ( "Peak Threshold      : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding the structure overlay
     strstr.str(std::string());
     strstr << this->overlayStructureName;
     printf ( "Overlay file        : %37s\n", strstr.str().c_str() );
@@ -2534,6 +2723,11 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->rotTrsJSONFile;
     printf ( "JSON overlay file   : %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding verbosity of the program
+    strstr.str(std::string());
+    strstr << this->verbose;
+    printf ( "Verbosity           : %37s\n", strstr.str().c_str() );
     
     //================================================ Done
     return ;
@@ -2669,6 +2863,10 @@ std::vector< std::string >                       ProSHADE_run::getSymmetryAxis (
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
+    ssHlp << this->RecomSymAxes.at(axisNo)[6];
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+    
     //================================================ Done
     return                                            ( ret );
     
@@ -2686,6 +2884,21 @@ std::vector < std::vector< proshade_double > >                       ProSHADE_ru
 {
     //================================================ Done
     return                                            ( this->allCSymAxes );
+    
+}
+
+/*! \brief This function returns the internal map COM shift.
+
+    \param[out] val The shift used to centre the internal map COM to the centre of the box.
+*/
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+std::vector < proshade_double > __declspec(dllexport) ProSHADE_run::getMapCOMProcessChange ( )
+#else
+std::vector < proshade_double >                       ProSHADE_run::getMapCOMProcessChange ( )
+#endif
+{
+    //================================================ Done
+    return                                            ( this->mapCOMShift );
     
 }
 

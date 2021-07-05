@@ -15,16 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_settings.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_IO__
-#define __PROSHADE_IO__
+#ifndef PROSHADE_IO
+#define PROSHADE_IO
 
 //==================================================== ProSHADE_internal_io Namespace
 /*! \namespace ProSHADE_internal_io
@@ -49,6 +49,8 @@ namespace ProSHADE_internal_io
                                                         proshade_unsign *xAxOrder, proshade_unsign *yAxOrder, proshade_unsign *zAxOrder, proshade_unsign *xGridInds, proshade_unsign *yGridInds,
                                                         proshade_unsign *zGridInds );
     void readInMapData                                ( gemmi::Ccp4<float> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
+                                                        proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
+    void readInMapData                                ( gemmi::Ccp4<int8_t> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
                                                         proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
     void writeOutMapHeader                            ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim,
                                                         proshade_single yDim, proshade_single zDim, proshade_single aAng, proshade_single bAng, proshade_single cAng, proshade_signed xFrom,

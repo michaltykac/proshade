@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.4
-#   \date      MAR 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -47,6 +47,7 @@ ps.addStructure                                       ( "/Users/mysak/BioCEV/pro
 ######################################################
 ### Further useful settings
 ps.forceP1                                            = True                         # Should PDB files be forced to have P1 spacegroup?
+ps.setNegativeDensity                                 ( True )                       # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                         # Should PDB files have their water molecules removed?
 ps.firstModelOnly                                     = True                         # Should PDB files have only their first model used, or should ProSHADE use all models?
 ps.setMasking                                         ( True )                       # Should maps be masked by blurring?
@@ -64,6 +65,7 @@ ps.setMaskBlurFactor                                  ( 350.0 )                 
 ps.setMaskIQR                                         ( 3.0 )                        # Number of inter-quartile ranges from median to use as the masking threshold.
 ps.setMaskSaving                                      ( False )                      # Should map mask be saved?
 ps.setMaskFilename                                    ( "maskFile" )                 # The filename (no extension) to which the map masks will be saved into.
+ps.setAppliedMaskFilename                             ( "" )                         # The filename from which mask data will be read from.
 
 ######################################################
 ### All other (possibly other tasks related) settings
@@ -71,6 +73,8 @@ ps.setExtraSpace                                      ( 0.0 )                   
 ps.setSymmetryRotFunPeaks                             ( True )                       # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                       # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                         # The maximum prime number fold that will be searched for.
+ps.setFSCThreshold                                    ( 0.75 )                       # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.80 )                       # The threshold for peak height above which axes are considered possible.
 ps.setPeakNeighboursNumber                            ( 1 )                          # Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
 ps.setPeakNaiveNoIQR                                  ( -999.9 )                     # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 ps.setMissingPeakThreshold                            ( 0.3 )                        # Fraction of peaks that can be missing for missing axis search to be initiated.

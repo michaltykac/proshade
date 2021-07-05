@@ -8,9 +8,10 @@ CLANG:
 
 clang ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                            -I/path/to/proshade/extern/gemmi/include \
-                           -I/path/to/proshade/extern
-                           -L/path/to/proshade/install/lib \
-                           -std=c++11 -lproshade -lc++ -lz \
+						   -I/path/to/proshade/extern \
+						   -I/path/to/proshade/extern/almostEqual \
+                           -L/path/to/proshade/install/lib \                                   
+                           -std=c++11 -lproshade -lc++ -lz \                                      
                            -rpath /path/to/proshade/install/lib \
                            -o ./proshadeProject
 
@@ -19,6 +20,8 @@ GCC:
 ====            
 g++ ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                          -I/path/to/proshade/extern/gemmi/include \
+                         -I/path/to/proshade/extern \
+                         -I/path/to/proshade/extern/almostEqual \
                          -L/path/to/proshade/install/lib \
                          -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
                          -o ./proshadeProject
@@ -32,10 +35,12 @@ cl.exe 	/I "\path\to\proshade\extern\gemmi\include"
 		/I "\path\to\proshade\winLibs\x64\FFTW3" 
 		/I "\path\to\proshade\extern"
 		/I "\path\to\proshade\install\lib" 
+		/I "\path\to\proshade\extern\almostEqual" \
 		/EHsc .\proshadeBinary.cpp 
 		"\path\to\proshade\install\lib\proshade.lib" 
         
-!!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently.    
+!!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently. 
+!!!       To do this, use the "x64 Native Tools Command Prompt for VS2019"   
                            
 =====
 NOTE:

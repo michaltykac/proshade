@@ -6,7 +6,7 @@
 
 ##########################################################################################
 ################################### and compile into OBJECTS library
-add_library              ( compileObjs OBJECT ${SOURCES}                                  )
+add_library              ( compileObjs OBJECT ${SOURCES} ${GETOPT_SOURCE}                 )
 
 ##########################################################################################
 ### Add the dependencies

@@ -11,7 +11,7 @@ file                    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"	    
 
 ##########################################################################################
 ################################### Add the library target
-add_library             ( ${PROJECT_NAME}_LIB SHARED ${EXEC_SRC} ${SOURCES} ${GETOPT_SOURCE} )
+add_library             ( ${PROJECT_NAME}_LIB SHARED ${EXEC_SRC} ${SOURCES}               )
 
 ##########################################################################################
 ### Add and link the dependencies

@@ -15,16 +15,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_mapManip.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_SPHERICAL_HARMONICS__
-#define __PROSHADE_SPHERICAL_HARMONICS__
+#ifndef PROSHADE_SPHERICAL_HARMONICS
+#define PROSHADE_SPHERICAL_HARMONICS
 
 //==================================================== ProSHADE_internal_sphericalHarmonics namespace
 /*! \namespace ProSHADE_internal_sphericalHarmonics
@@ -37,7 +37,7 @@
 namespace ProSHADE_internal_sphericalHarmonics
 {
     void allocateComputationMemory                    ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal,
-                                                        proshade_double*& outputImag, double*& shWeights, double**& tableSpace, double*& tableSpaceHelper, fftw_complex*& workspace );
+                                                        proshade_double*& outputImag, double*& shWeights, double*& tableSpaceHelper, fftw_complex*& workspace );
     void placeWithinWorkspacePointers                 ( fftw_complex*& workspace, proshade_unsign oDim, proshade_double*& rres, proshade_double*& ires,
                                                         proshade_double*& fltres, proshade_double*& scratchpad );
     void initialiseFFTWPlans                          ( proshade_unsign band, fftw_plan& fftPlan, fftw_plan& dctPlan, proshade_double*& inputReal,
@@ -45,8 +45,7 @@ namespace ProSHADE_internal_sphericalHarmonics
                                                         proshade_double*& scratchpad );
     void releaseSphericalMemory                       ( proshade_double*& inputReal, proshade_double*& inputImag, proshade_double*& outputReal,
                                                         proshade_double*& outputImag, double*& tableSpaceHelper, double**& tableSpace,
-                                                        double*& shWeights, fftw_complex*& workspace, fftw_plan& fftPlan, fftw_plan& dctPlan,
-                                                        proshade_unsign band );
+                                                        double*& shWeights, fftw_complex*& workspace, fftw_plan& fftPlan, fftw_plan& dctPlan );
     void initialiseAllMemory                          ( proshade_unsign band, proshade_double*& inputReal, proshade_double*& inputImag,
                                                         proshade_double*& outputReal,
                                                         proshade_double*& outputImag, double*& shWeights, double**& tableSpace,

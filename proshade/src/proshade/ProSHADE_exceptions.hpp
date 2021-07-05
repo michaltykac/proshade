@@ -16,16 +16,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_precomputedValues.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_EXCEPTIONS__
-#define __PROSHADE_EXCEPTIONS__
+#ifndef PROSHADE_EXCEPTIONS
+#define PROSHADE_EXCEPTIONS
 
 /*! \class ProSHADE_exception
     \brief This class is the representation of ProSHADE exception.
@@ -37,9 +37,9 @@ class ProSHADE_exception : public std::runtime_error
 {
     std::string errc;
     std::string file;
-    unsigned int line;
     std::string func;
     std::string info;
+    int long line;
     
 public:
     ProSHADE_exception ( const char* msg, std::string errc_, std::string file_, unsigned int line_, std::string func_, std::string info_): std::runtime_error ( msg )
@@ -50,13 +50,12 @@ public:
         this->func                                    = func_;
         this->info                                    = info_;
     }
-   ~ProSHADE_exception ( ) throw ( ) { }
     
-    std::string get_errc                              ( void ) const { return errc; }
-    std::string get_file                              ( void ) const { return file; }
-    unsigned int get_line                             ( void ) const { return line; }
-    std::string get_func                              ( void ) const { return func; }
-    std::string get_info                              ( void ) const { return info; }
+    virtual std::string get_errc                      ( void );
+    virtual std::string get_file                      ( void );
+    virtual int long get_line                         ( void );
+    virtual std::string get_func                      ( void );
+    virtual std::string get_info                      ( void );
 };
 
 #endif

@@ -16,16 +16,16 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.5.4
-    \date      MAR 2021
+    \version   0.7.6.0
+    \date      JUL 2021
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_sphericalHarmonics.hpp"
 
 //==================================================== Overinclusion protection
-#ifndef __PROSHADE_SPHERES__
-#define __PROSHADE_SPHERES__
+#ifndef PROSHADE_SPHERES
+#define PROSHADE_SPHERES
 
 //==================================================== ProSHADE_internal_spheres Namespace
 /*! \namespace ProSHADE_internal_spheres
@@ -68,8 +68,7 @@ namespace ProSHADE_internal_spheres
         proshade_double* mappedDataRot;               //!< The rotated structure mapped data.
         
     protected:
-        proshade_unsign getMaxCircumference           ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_double maxRange,
-                                                        proshade_single xSize, proshade_single ySize, proshade_single zSize );
+        proshade_unsign getMaxCircumference           ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single maxRange );
         bool getMapPoint                              ( proshade_double* map, proshade_unsign xDimMax, proshade_unsign yDimMax,
                                                         proshade_unsign zDimMax, proshade_signed xPos,
                                                         proshade_signed yPos, proshade_signed zPos, std::vector<proshade_double>* interpVec );
@@ -152,8 +151,7 @@ namespace ProSHADE_internal_spheres
         void computeCornerPositions                   ( void );
         proshade_signed angularDistanceWithBorders    ( proshade_signed origLat, proshade_signed testedLat );
         void getAllAngleDifferences                   ( std::vector< proshade_double >* angDiffs, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
-        void getAllPossibleFolds                      ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry,
-                                                        std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
+        void getAllPossibleFolds                      ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry );
         void getSpheresFormingFold                    ( proshade_unsign foldToTry, std::vector< proshade_unsign >* spheresFormingFold,
                                                         std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double sphereAngleTolerance );
         void getBestIndexForFold                      ( proshade_double* bestPosVal, proshade_double* bestLatInd, proshade_double* bestLonInd, std::vector< proshade_unsign >* spheresFormingFold,
@@ -165,8 +163,8 @@ namespace ProSHADE_internal_spheres
         
     public:
         bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose );
-        void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, proshade_double axisTolerance,
-                                                        std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_unsign verbose );
+        void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs,
+                                                        bool bicubicInterp, proshade_unsign fold, proshade_signed verbose );
         
     public:
         proshade_double getLatFromIndices             ( void );

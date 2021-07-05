@@ -6,7 +6,7 @@
 
 ##########################################################################################
 ################################### Add the library target
-add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS} ${GETOPT_SOURCE}             )
+add_library             ( ${PROJECT_NAME}_LIB SHARED ${OBJS}                              )
 
 ##########################################################################################
 ### Add and link the dependencies
@@ -33,7 +33,8 @@ set_property            (  TARGET ${PROJECT_NAME}_LIB
                            PROPERTY INSTALL_RPATH
                                  "${FFTW_LINK}"
                                  "${SOFT_LINK}"
-                                 "${LAPACK_LINK}" )
+                                 "${LAPACK_LINK}"
+                                 "${MY_INSTALL_LOCATION}/${INSTALL_LIB_DIR}" )
 
 ##########################################################################################
 ################################### Deal with MacOS RPATH

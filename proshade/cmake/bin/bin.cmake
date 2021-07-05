@@ -11,7 +11,7 @@ file                    ( GLOB EXEC_SRC "${CMAKE_SOURCE_DIR}/src/bin/*.cpp"	    
 
 ##########################################################################################
 ################################### Add the executable target
-add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${GETOPT_SOURCE} ${SOURCES}         )
+add_executable          ( ${PROJECT_NAME} ${EXEC_SRC} ${SOURCES}                          )
 
 ##########################################################################################
 ################################### Link the executable
