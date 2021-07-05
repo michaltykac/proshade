@@ -854,9 +854,9 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpace ( proshade_double
     for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { map[iter] = 0.0; }
     
     //================================================ Determine map max's and min's in terms of the hkl system
-    mins[0]                                           = std::floor ( static_cast< proshade_signed > ( this->xDimIndices ) / -2.0f );
-    mins[1]                                           = std::floor ( static_cast< proshade_signed > ( this->yDimIndices ) / -2.0f );
-    mins[2]                                           = std::floor ( static_cast< proshade_signed > ( this->zDimIndices ) / -2.0f );
+    mins[0]                                           = std::floor ( static_cast< proshade_single > ( this->xDimIndices ) / -2.0f );
+    mins[1]                                           = std::floor ( static_cast< proshade_single > ( this->yDimIndices ) / -2.0f );
+    mins[2]                                           = std::floor ( static_cast< proshade_single > ( this->zDimIndices ) / -2.0f );
         
     maxs[0]                                           = -mins[0];
     maxs[1]                                           = -mins[1];
@@ -867,9 +867,9 @@ void ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpace ( proshade_double
     if ( this->zDimIndices % 2 == 0 ) { maxs[2] -= 1.0f; }
     
     //================================================ Rotate about COM instead of map midpoint
-    movs[0]                                           = ( static_cast< proshade_single > ( xCOM ) / xSampRate ) + ( mins[0] - this->xFrom );
-    movs[1]                                           = ( static_cast< proshade_single > ( yCOM ) / ySampRate ) + ( mins[1] - this->yFrom );
-    movs[2]                                           = ( static_cast< proshade_single > ( zCOM ) / zSampRate ) + ( mins[2] - this->zFrom );
+    movs[0]                                           = ( static_cast< proshade_single > ( xCOM ) / xSampRate ) + ( mins[0] - static_cast< proshade_single > ( this->xFrom ) );
+    movs[1]                                           = ( static_cast< proshade_single > ( yCOM ) / ySampRate ) + ( mins[1] - static_cast< proshade_single > ( this->yFrom ) );
+    movs[2]                                           = ( static_cast< proshade_single > ( zCOM ) / zSampRate ) + ( mins[2] - static_cast< proshade_single > ( this->zFrom ) );
     
     //================================================ Get rotation matrix from Euler angles
     ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, axX, axY, axZ, axAng );

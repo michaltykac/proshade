@@ -2946,6 +2946,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     binIndexing                                       = new proshade_signed [xInds * yInds * zInds];
     ProSHADE_internal_misc::checkMemoryAllocation     ( binIndexing, __FILE__, __LINE__, __func__ );
     for ( size_t iter = 0; iter < static_cast< size_t > ( xInds * yInds * zInds ); iter++ ) { binIndexing[iter] = -100; }
+    proshade_single xIndsF = static_cast< proshade_single > ( xInds ), yIndsF = static_cast< proshade_single > ( yInds ), zIndsF = static_cast< proshade_single > ( zInds );
     
     //================================================ Allocate local memory
     proshade_single *mins                             = new proshade_single[3];
@@ -2967,9 +2968,9 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
    *noBin                                             = 0;
     
     //================================================ Determine reciprocal space indexing
-    mins[0]                                           = std::floor ( static_cast< proshade_single > ( xInds ) / -2.0f );
-    mins[1]                                           = std::floor ( static_cast< proshade_single > ( yInds ) / -2.0f );
-    mins[2]                                           = std::floor ( static_cast< proshade_single > ( zInds ) / -2.0f );
+    mins[0]                                           = std::floor ( xIndsF / -2.0f );
+    mins[1]                                           = std::floor ( yIndsF / -2.0f );
+    mins[2]                                           = std::floor ( zIndsF / -2.0f );
         
     maxs[0]                                           = -mins[0];
     maxs[1]                                           = -mins[1];
@@ -2980,9 +2981,9 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     if ( zInds % 2 == 0 ) { mins[2] += 1.0f; }
     
     //================================================ Get minimum resolution based on dims for each dimension
-    resMins[0]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( maxs[0], 0.0f, 0.0f, xInds, yInds, zInds );
-    resMins[1]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, maxs[1], 0.0f, xInds, yInds, zInds );
-    resMins[2]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, maxs[2], xInds, yInds, zInds );
+    resMins[0]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( maxs[0], 0.0f, 0.0f, xIndsF, yIndsF, zIndsF );
+    resMins[1]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, maxs[1], 0.0f, xIndsF, yIndsF, zIndsF );
+    resMins[2]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, maxs[2], xIndsF, yIndsF, zIndsF );
 
     //================================================ Decide which dimension to work with (the one with the lowest resolution)
     resMinLoc[0] = 0; resMinLoc[1] = 0; resMinLoc[2] = 0;
@@ -2994,7 +2995,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     //================================================ Find the bins and corresponding cut-offs
     std::vector< proshade_single > resArray           ( static_cast< size_t > ( maxs[minLoc] - 1 ), 0.0f );
     std::vector< proshade_single > binArray           ( static_cast< size_t > ( maxs[minLoc] - 1 ), 0.0f );
-    for ( proshade_signed dimIt = 0; dimIt < maxs[minLoc] - 1; dimIt++ )
+    for ( proshade_signed dimIt = 0; dimIt < static_cast< proshade_signed > ( maxs[minLoc] - 1 ); dimIt++ )
     {
         //============================================ Prepare steps
         steps[0]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[0] );
@@ -3002,11 +3003,11 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
         steps[2]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[2] );
         
         //============================================ Find resolution
-        resol                                         = ProSHADE_internal_maths::getResolutionOfReflection ( steps[0], steps[1], steps[2], xInds, yInds, zInds );
+        resol                                         = ProSHADE_internal_maths::getResolutionOfReflection ( steps[0], steps[1], steps[2], xIndsF, yIndsF, zIndsF );
         
         //============================================ Assign to arrays
         resArray.at( static_cast< size_t > ( dimIt ) ) = resol;
-        binArray.at( static_cast< size_t > ( dimIt ) ) = dimIt + 2.5f;
+        binArray.at( static_cast< size_t > ( dimIt ) ) = static_cast< proshade_single > ( dimIt ) + 2.5f;
        *noBin                                          = dimIt + 1;
     }
     
@@ -3018,9 +3019,9 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
             for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zInds / 2 ) + 1; zIt++ )
             {
                 //==================================== Deal with reciprocal indices ordering
-                reciX = xIt; if ( reciX > maxs[0] ) { reciX -= static_cast< proshade_signed > ( xInds ); }
-                reciY = yIt; if ( reciY > maxs[1] ) { reciY -= static_cast< proshade_signed > ( yInds ); }
-                reciZ = zIt; if ( reciZ > maxs[2] ) { reciZ -= static_cast< proshade_signed > ( zInds ); }
+                reciX = xIt; if ( reciX > static_cast< proshade_signed > ( maxs[0] ) ) { reciX -= static_cast< proshade_signed > ( xInds ); }
+                reciY = yIt; if ( reciY > static_cast< proshade_signed > ( maxs[1] ) ) { reciY -= static_cast< proshade_signed > ( yInds ); }
+                reciZ = zIt; if ( reciZ > static_cast< proshade_signed > ( maxs[2] ) ) { reciZ -= static_cast< proshade_signed > ( zInds ); }
                 
                 //==================================== For each bin, check if this reflection belongs to it
                 for ( proshade_signed binIt = 0; binIt < (*noBin); binIt++ )
@@ -3134,22 +3135,22 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     //================================================ Compute covariance by bin
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        covarByBin.at(binIt)                          = ( ( binData[binIt][4] + binData[binIt][5] ) / binCounts[binIt]   -
-                                                        ( ( binData[binIt][0]                       / binCounts[binIt]   *
-                                                            binData[binIt][2]                       / binCounts[binIt] ) +
-                                                          ( binData[binIt][1]                       / binCounts[binIt]   *
-                                                            binData[binIt][3]                       / binCounts[binIt] ) ) );
+        covarByBin.at(binIt)                          = ( ( binData[binIt][4] + binData[binIt][5] ) / static_cast< proshade_double > ( binCounts[binIt] )  -
+                                                        ( ( binData[binIt][0]                       / static_cast< proshade_double > ( binCounts[binIt] )   *
+                                                            binData[binIt][2]                       / static_cast< proshade_double > ( binCounts[binIt] ) ) +
+                                                          ( binData[binIt][1]                       / static_cast< proshade_double > ( binCounts[binIt] )   *
+                                                            binData[binIt][3]                       / static_cast< proshade_double > ( binCounts[binIt] ) ) ) );
     }
     
     //================================================ Get FSC by bin
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        binData[binIt][10]                            = ( binData[binIt][6] + binData[binIt][7] ) / binCounts[binIt] -
-                                                        ( std::pow ( binData[binIt][0] / binCounts[binIt], 2.0 ) +
-                                                          std::pow ( binData[binIt][1] / binCounts[binIt], 2.0 ) );
-        binData[binIt][11]                            = ( binData[binIt][8] + binData[binIt][9] ) / binCounts[binIt] -
-                                                        ( std::pow ( binData[binIt][2] / binCounts[binIt], 2.0 ) +
-                                                          std::pow ( binData[binIt][3] / binCounts[binIt], 2.0 ) );
+        binData[binIt][10]                            = ( binData[binIt][6] + binData[binIt][7] ) / static_cast< proshade_double > ( binCounts[binIt] ) -
+                                                        ( std::pow ( binData[binIt][0] / static_cast< proshade_double > ( binCounts[binIt] ), 2.0 ) +
+                                                          std::pow ( binData[binIt][1] / static_cast< proshade_double > ( binCounts[binIt] ), 2.0 ) );
+        binData[binIt][11]                            = ( binData[binIt][8] + binData[binIt][9] ) / static_cast< proshade_double > ( binCounts[binIt] ) -
+                                                        ( std::pow ( binData[binIt][2] / static_cast< proshade_double > ( binCounts[binIt] ), 2.0 ) +
+                                                          std::pow ( binData[binIt][3] / static_cast< proshade_double > ( binCounts[binIt] ), 2.0 ) );
         fscByBin.at(binIt)                            = covarByBin.at(binIt) / ( std::sqrt ( binData[binIt][10] ) * std::sqrt ( binData[binIt][11] ) );
     }
     
@@ -3157,8 +3158,8 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     proshade_double binSizeSum                        = 0.0;
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        fsc                                          += fscByBin.at(binIt) * binCounts[binIt];
-        binSizeSum                                   += binCounts[binIt];
+        fsc                                          += fscByBin.at(binIt) * static_cast< proshade_double > ( binCounts[binIt] );
+        binSizeSum                                   += static_cast< proshade_double > ( binCounts[binIt] );
     }
     fsc                                              /= static_cast< proshade_double > ( binSizeSum );
     

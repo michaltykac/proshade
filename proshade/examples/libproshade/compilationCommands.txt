@@ -33,6 +33,7 @@ cl.exe 	/I "\path\to\proshade\extern\gemmi\include"
 		/I "\path\to\proshade\winLibs\x64\FFTW3" 
 		/I "\path\to\proshade\extern"
 		/I "\path\to\proshade\install\lib" 
+		/I "\path\to\proshade\extern\almostEqual" \
 		/EHsc .\proshadeBinary.cpp 
 		"\path\to\proshade\install\lib\proshade.lib" 
         

@@ -2368,7 +2368,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std:
     if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
     else                    { bestHistPos = 0.0; }
     
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( windowSize * step );
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
     
     //================================================ Done
     return                                            ( threshold );
