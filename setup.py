@@ -143,24 +143,6 @@ class CMakeBuild ( build_ext ):
 
 ##########################################################################################
 ##########################################################################################
-##### Set README.md as long description
-##########################################################################################
-##########################################################################################
-this_directory                                        = os.path.abspath ( os.path.dirname ( __file__ ) )
-with open(os.path.join(this_directory, 'README.md')) as f:
-    long_description                                  = f.read ( )
-
-def package_files(directory):
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            paths.append(os.path.join('..', path, filename))
-    return paths
-
-extra_files                                           = package_files( 'proshade' )
-
-##########################################################################################
-##########################################################################################
 ##### If on Windows, modify path to contain the DLLs
 ##########################################################################################
 ##########################################################################################
@@ -176,7 +158,7 @@ def modifyWindowsPath ():
             from winreg import ( CloseKey, OpenKey, QueryValueEx, SetValueEx, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, KEY_ALL_ACCESS, KEY_READ, REG_EXPAND_SZ, REG_SZ )
         except ImportError as e:
             os.system                                 ( 'pip install pypiwin32' )
-            return 
+            return
         
         def env_keys ( user = True ):
             if user:
@@ -225,7 +207,7 @@ def modifyWindowsPath ():
                 set_env                               ( name, ';'.join ( paths ) )
     
         prepend_env                                   ( 'Path', [ os.path.join( distutils.sysconfig.get_python_lib(), 'proshade', 'winLibs', 'x64', 'DLLs' ) ] )
-
+        
 ##########################################################################################
 ##########################################################################################
 ##### Set required modules based on platform
@@ -240,6 +222,24 @@ if platform.system() == "Windows":
 else:
     setupRequiresVals                                 = ['numpy','setuptools']
     installRequiresVals                               = [ ]
+
+##########################################################################################
+##########################################################################################
+##### Set README.md as long description
+##########################################################################################
+##########################################################################################
+this_directory                                        = os.path.abspath ( os.path.dirname ( __file__ ) )
+with open(os.path.join(this_directory, 'README.md')) as f:
+    long_description                                  = f.read ( )
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join('..', path, filename))
+    return paths
+
+extra_files = package_files('proshade')
 
 
 ##########################################################################################
@@ -279,7 +279,6 @@ try:
         install_requires                              = installRequiresVals,
         packages                                      = ['proshade'],
         package_data                                  = {'' : extra_files },
-        include_package_data                          = True,
         platforms                                     = ['Windows10', 'Linux', 'MacOS'],
         zip_safe                                      = False,
     )

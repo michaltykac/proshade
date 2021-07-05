@@ -404,8 +404,8 @@
  * \image html ProSHADE_3JA7.jpg width=500cm
  *
 *\code{.sh}
- $: ./proshade -S -f ./emd_6324.map -r 8 --reqSym C12
- ProSHADE 0.7.5.4 (MAR 2021):
+ $: ./proshade -S -f ./emd_6324.map -r 8
+ ProSHADE 0.7.6.0 (JUL 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -419,21 +419,31 @@
   ... Preparing spherical harmonics environment.
   ... Starting spherical harmonics decomposition.
   ... Starting self-rotation function computation.
-  ... Starting detection of cyclic point group C12
+  ... Starting C symmetry detection.
+  ... Starting D symmetry detection.
+  ... Starting O symmetry prediction.
+  ... Starting T symmetry prediction.
+  ... Starting I symmetry prediction.
+  ... Starting recommended symmetry decision procedure.
 
- Detected C symmetry with fold 12 .
-   Fold       X           Y          Z           Angle        Height
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.93476
+ Detected C symmetry with fold 12 about point [-0.0308251 , -0.0256403 , 9.75918] away from centre of mass .
+   Fold       X           Y          Z           Angle        Height      Average FSC
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.97321      +0.97187
 
- However, since the selection of the recommended symmetry needs improvement, here is a list of all detected C symmetries:
-   Fold       X           Y          Z           Angle        Height
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.93476
-
- Also, for the same reason, here is a list of all detected D symmetries:
+ To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
+   Fold       X           Y          Z           Angle        Height      Average FSC
+    +2     +1.00000   +0.00000   +0.00000     +3.14159      +0.99605      +0.00728
+    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99571      +0.99764
+    +2     +0.00000   +0.00000   +1.00000     +3.14159      +0.99554      +0.99657
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.97321      +0.97187
+    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.97092      +0.96908
+    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.96468      +0.96148
+... More lines here - removed to keep the documentation succinct
+    +2     -0.67241   +0.52103   +0.52573     +3.14159      +0.44126      +0.00405
 
  ======================
  ProSHADE run complete.
- Time taken: 15 seconds.
+ Time taken: 38 seconds.
  ======================
 *\endcode
  *
@@ -455,7 +465,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.5.4 (MAR 2021):
+ ProSHADE 0.7.6.0 (JUL 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -482,9 +492,9 @@
   ... Starting trace sigma distance computation.
   ... Starting rotation function distance computation.
  Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
- Energy levels distance    : 0.859485
- Trace sigma distance      : 0.950227
- Rotation function distance: 0.741744
+ Energy levels distance    : 0.858501
+ Trace sigma distance      : 0.962286
+ Rotation function distance: 0.624793
   ... Starting to read the structure: ./3IGU_A_dom_1.pdb
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
@@ -499,14 +509,13 @@
   ... Starting trace sigma distance computation.
   ... Starting rotation function distance computation.
  Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
- Energy levels distance    : 0.572315
- Trace sigma distance      : 0.74436
- Rotation function distance: 0.461415
+ Energy levels distance    : 0.580646
+ Trace sigma distance      : 0.755479
+ Rotation function distance: 0.474061
 
  ======================
  ProSHADE run complete.
  Time taken: 1 seconds.
- ======================
  *\endcode
  *
  * \subsection reboxingUsage Re-boxing structures
@@ -529,7 +538,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.5.4 (MAR 2021):
+ ProSHADE 0.7.6.0 (JUL 2021):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -590,7 +599,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.5.4 (MAR 2021):
+ ProSHADE 0.7.6.0 (JUL 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -630,20 +639,17 @@
   ... Centering map onto its COM.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
-  ... Starting sphere mapping procedure.
-  ... Preparing spherical harmonics environment.
-  ... Starting spherical harmonics decomposition.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is:  -16.6     -20     -23.8
- The rotation matrix about origin is                 : -0.872     -0.0785     +0.483
-                                                     : -0.191     -0.854     -0.483
-                                                     : +0.451     -0.514     +0.73
- The rotation centre to overlay translation vector is: +4     +4     -4
+ The rotation centre to origin translation vector is:  -16.6     -21.1     -24.8
+ The rotation matrix about origin is                 : -0.887     +0.202     -0.416
+                                                     : +0.0591     -0.843     -0.534
+                                                     : -0.459     -0.498     +0.736
+ The rotation centre to overlay translation vector is: +26.7     -0.479     -39.2
 
  ======================
  ProSHADE run complete.
- Time taken: 5 seconds.
+ Time taken: 1 seconds.
  ======================
  \endcode
  *
@@ -668,20 +674,41 @@
  *\code{.sh}
  $ clang ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                               -I/path/to/proshade/extern/gemmi/include \
-                              -L/path/to/proshade/install/lib \
-                              -std=c++11 -lproshade -lc++ -lz \
-                              -rpath /path/to/proshade/install/lib \
-                              -o ./proshadeBinary
+                               -I/path/to/proshade/extern \
+                               -I/path/to/proshade/extern/almostEqual \
+                               -L/path/to/proshade/install/lib \
+                               -std=c++11 -lproshade -lc++ -lz \
+                               -rpath /path/to/proshade/install/lib \
+                               -o ./proshadeProject
  \endcode
  *
  * or
  *
  *\code{.sh}
- $ g++ ./proshadeProject.cpp -I/path/to/proshade/extern/soft-2.0/include \
-                             -I/path/to/proshade/extern/gemmi/include \
-                             -L/path/to/proshade/install/lib \
-                             -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
-                             -o ./proshadeProject
+ $ g++ ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
+                            -I/path/to/proshade/extern/gemmi/include \
+                            -I/path/to/proshade/extern \
+                            -I/path/to/proshade/extern/almostEqual \
+                            -L/path/to/proshade/install/lib \
+                            -lproshade -lz -Wl,-rpath,/path/to/proshade/install/lib \
+                            -o ./proshadeProject
+ \endcode
+ *  *
+ * or
+ *
+ *\code{.sh}
+ $ cl.exe     /I "\path\to\proshade\extern\gemmi\include"
+              /I "\path\to\proshade\extern\soft-2.0\include"
+              /I "\path\to\proshade\winLibs\x64\ZLIB"
+              /I "\path\to\proshade\winLibs\x64\FFTW3"
+              /I "\path\to\proshade\extern"
+              /I "\path\to\proshade\install\lib"
+              /I "\path\to\proshade\extern\almostEqual" \
+              /EHsc .\proshadeBinary.cpp
+              "\path\to\proshade\install\lib\proshade.lib"
+ 
+!!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently.
+!!!       To do this, use the "x64 Native Tools Command Prompt for VS2019"
  \endcode
  *
  *\subsection libexamples Examples of ProSHADE library usage
@@ -745,7 +772,7 @@
      ProSHADE_settings* settings                       = new ProSHADE_settings ( task );
 
      //================================================ Create the structure objects
-     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( settings );
+     ProSHADE_internal_data::ProSHADE_data* simpleSym  = new ProSHADE_internal_data::ProSHADE_data ( );
 
      //================================================ Read in the structures
      simpleSym->readInStructure                        ( "./emd_6324.map", 0, settings );
@@ -848,13 +875,14 @@
 
  """ Print results (part II) """
  print                                 ( "Detected symmetry " + str( symType ) + "-" + str( symFold ) + " with axes: " )
- print                                 ( "Fold      x         y         z       Angle     Height" )
+ print                                 ( "Fold      x         y         z       Angle     Height   Avg. FSC" )
  print                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( float ( symAxis[0] ),
                                                                                                       float ( symAxis[1] ),
                                                                                                       float ( symAxis[2] ),
                                                                                                       float ( symAxis[3] ),
                                                                                                       float ( symAxis[4] ),
-                                                                                                      float ( symAxis[5] ) ) )
+                                                                                                      float ( symAxis[5] ),
+                                                                                                      float ( symAxis[6] ) ) )
                                                                                                       
  """ Release memory """
  del rn
@@ -891,8 +919,8 @@
  pSet.setResolution                                   ( 6.0 )
 
  """ Create the structure objects """
- pStruct1                                             = proshade.ProSHADE_data ( pSet )
- pStruct2                                             = proshade.ProSHADE_data ( pSet )
+ pStruct1                                             = proshade.ProSHADE_data ( )
+ pStruct2                                             = proshade.ProSHADE_data ( )
 
  """ Read in the structure """
  pStruct1.readInStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet )
@@ -964,7 +992,7 @@
  pSet.setMapResolutionChange                          ( False )
 
  """ Create the structure objects """
- pStruct                                              = proshade.ProSHADE_data ( pSet )
+ pStruct                                              = proshade.ProSHADE_data ( )
 
  """ Read in the structure """
  pStruct.readInStructure                              ( "./C3.pdb", 0, pSet )
@@ -1010,8 +1038,7 @@
  *
  * \code{.py}
  """ Create ProSHADE_data object from numpy.ndarray """
- pStruct                                              = proshade.ProSHADE_data ( pSet,                  # The settings objectt
-                                                                                 "python_map_test",     # Structure name
+ pStruct                                              = proshade.ProSHADE_data ( "python_map_test",     # Structure name
                                                                                  testMap,               # The density map
                                                                                  xDimAngstroms,         # The size of x-axis in Angstroms
                                                                                  yDimAngstroms,         # The size of y-axis in Angstroms
@@ -1051,8 +1078,7 @@
                                                                             numpy.power ( (yDimIndices/2) - yIt, 2.0 ) +
                                                                             numpy.power ( (zDimIndices/2) - zIt, 2.0 ) ) + 0.01 )
 
- pStruct2                                             = proshade.ProSHADE_data ( pSet,
-                                                                                 "python_map_test",
+ pStruct2                                             = proshade.ProSHADE_data ( "python_map_test",
                                                                                  testMap3D,
                                                                                  xDimAngstroms,
                                                                                  yDimAngstroms,
@@ -1210,8 +1236,8 @@
  pSet.reBoxMap                                        = False
 
  """ Create the two new ProSHADE_data objects """
- pStruct_static                                       = proshade.ProSHADE_data ( pSet )
- pStruct_moving                                       = proshade.ProSHADE_data ( pSet )
+ pStruct_static                                       = proshade.ProSHADE_data ( )
+ pStruct_moving                                       = proshade.ProSHADE_data ( )
 
  """ Read in two structures """
  pStruct_static.readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet )
@@ -1283,8 +1309,8 @@
  pSet.changeMapResolution                             = True
 
  """ Create the structure objects """
- pStruct_static                                       = proshade.ProSHADE_data ( pSet )
- pStruct_moving                                       = proshade.ProSHADE_data ( pSet )
+ pStruct_static                                       = proshade.ProSHADE_data ( )
+ pStruct_moving                                       = proshade.ProSHADE_data ( )
 
  """ Read in the structures with phases """
  pStruct_static.readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # This is a BALBES domain 1BFO_A_dom_1.
@@ -1298,7 +1324,7 @@
  pStruct_moving.computeSphericalHarmonics             ( pSet )
 
  """ Rotate the moving structure by the pre-determined Euler angles of the best rotation map peak """
- pStruct_moving.rotateMapReciprocalSpace              ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
+ pStruct_moving.rotateMapRealSpaceInPlace             ( optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
  \endcode
  *
  * \e Computing \e the \e translation \e function
