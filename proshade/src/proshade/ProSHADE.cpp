@@ -2863,6 +2863,10 @@ std::vector< std::string >                       ProSHADE_run::getSymmetryAxis (
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
+    ssHlp << this->RecomSymAxes.at(axisNo)[6];
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+    
     //================================================ Done
     return                                            ( ret );
     

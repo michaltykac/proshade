@@ -4424,7 +4424,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryA
 
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axisNo The index of the axis to be returned.
-    \param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle and peak height in this order.
+    \param[out] val A vector of strings containing the symmetry axis fold, x, y, z axis element, angle, peak height and averaged FSC in this order.
 */
 std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxis ( ProSHADE_settings* settings, proshade_unsign axisNo )
 {
@@ -4461,6 +4461,10 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
     ssHlp.str                                         ( "" );
     
     ssHlp << settings->detectedSymmetry.at(axisNo)[5];
+    ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
+    ssHlp.str                                         ( "" );
+    
+    ssHlp << settings->detectedSymmetry.at(axisNo)[6];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     

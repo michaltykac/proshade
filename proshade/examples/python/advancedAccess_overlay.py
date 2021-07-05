@@ -21,8 +21,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.5
-#   \date      MAY 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -54,8 +54,8 @@ pSet.reBoxMap                                         = False
 
 ######################################################
 ### Create data objects
-pStruct_static                                        = proshade.ProSHADE_data ( pSet )
-pStruct_moving                                        = proshade.ProSHADE_data ( pSet )
+pStruct_static                                        = proshade.ProSHADE_data ( )
+pStruct_moving                                        = proshade.ProSHADE_data ( )
 
 ######################################################
 ### Read in the structures
@@ -94,8 +94,8 @@ pSet.changeMapResolution                              = True
 
 ######################################################
 ### Create objects
-pStruct_static                                        = proshade.ProSHADE_data ( pSet )
-pStruct_moving                                        = proshade.ProSHADE_data ( pSet )
+pStruct_static                                        = proshade.ProSHADE_data ( )
+pStruct_moving                                        = proshade.ProSHADE_data ( )
 
 ######################################################
 ### Read in the structures
@@ -112,7 +112,7 @@ pStruct_moving.computeSphericalHarmonics              ( pSet )
 
 ######################################################
 ### Rotate the moving structure (the signs with the Euler angles need to be like this!)
-pStruct_moving.rotateMap                              ( pSet, optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
+pStruct_moving.rotateMapRealSpaceInPlace              ( optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
 
 ######################################################
 ### Zero padding for both structures (only really applied to the smaller one, as nothing is added if the dimensions already have the requested size)
@@ -157,12 +157,12 @@ print                                                 ( "Rot. centre to overlay 
 
 ######################################################
 ### Expected output
-#   Optimal Euler angles                :  +5.465    +0.753    +3.894
-#   Optimal Euler rotation matrix       :  -0.863    -0.079    +0.499
-#                                       :  -0.192    -0.863    -0.467
-#                                       :  +0.467    -0.499    +0.730
-#   Rot. centre to origin translation   :  +18.000    +22.000    +24.000
-#   Rot. centre to overlay translation  :  +3.000    +1.000    -5.000
+#   Optimal Euler angles                :  +3.886    +0.765    +5.457
+#   Optimal Euler rotation matrix       :  -0.858    +0.210    -0.469
+#                                       :  +0.068    -0.858    -0.509
+#                                       :  -0.509    -0.469    +0.722
+#   Rot. centre to origin translation   :  +18.500    +22.500    +23.500
+#   Rot. centre to overlay translation  :  +2.000    +3.000    -4.000
 
 
 ######################################################

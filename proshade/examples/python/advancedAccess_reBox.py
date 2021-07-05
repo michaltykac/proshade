@@ -21,8 +21,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.5
-#   \date      MAY 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -76,8 +76,7 @@ for xIt in range( 0, xDimIndices ):
 
 ######################################################
 ### Create the ProSHADE_data object without structure file on drive
-pStruct                                               = proshade.ProSHADE_data ( pSet,
-                                                                                 "python_map_test",
+pStruct                                               = proshade.ProSHADE_data ( "python_map_test",
                                                                                  testMap,
                                                                                  xDimAngstroms,
                                                                                  yDimAngstroms,
@@ -103,7 +102,7 @@ minimalBounds                                         = pStruct.getReBoxBoundari
 
 ######################################################
 ### Create a new structure, which will have the re-boxed boundaries
-reBoxStr                                              = proshade.ProSHADE_data ( pSet )
+reBoxStr                                              = proshade.ProSHADE_data ( )
 
 ######################################################
 ### Fill the new structure with the calling structures map in the boudaries supplied

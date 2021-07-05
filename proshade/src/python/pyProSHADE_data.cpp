@@ -208,21 +208,21 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def                                          ( "getRecommendedSymmetryType", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType, "This function simply returns the detected recommended symmetry type.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryFold", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold, "This function simply returns the detected recommended symmetry fold.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryAxes",
-                                                        [] ( ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
-                                                            float* npVals = new float[static_cast<unsigned int> ( settings->detectedSymmetry.size() * 6 )];
+                                                            float* npVals = new float[static_cast<unsigned int> ( settings->detectedSymmetry.size() * 7 )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
     
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 6; it++ ) { npVals[(iter*6)+it] = static_cast< float > ( settings->detectedSymmetry.at(iter)[it] ); } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 7; it++ ) { npVals[(iter*7)+it] = static_cast< float > ( settings->detectedSymmetry.at(iter)[it] ); } }
     
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleStrRecSym ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
 
                                                             //== Copy the value
-                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( settings->detectedSymmetry.size() ), static_cast<int> ( 6 ) },  // Shape
-                                                                                                                            { 6 * sizeof(float), sizeof(float) },                          // C-stype strides
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( settings->detectedSymmetry.size() ), static_cast<int> ( 7 ) },  // Shape
+                                                                                                                            { 7 * sizeof(float), sizeof(float) },                          // C-stype strides
                                                                                                                             npVals,                                                        // Data
                                                                                                                             pyCapsuleStrRecSym );                                          // Capsule
 
@@ -252,7 +252,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns all symmetry axes as a 2D numpy array." )
         .def                                          ( "getNonCSymmetryAxesIndices",
-                                                        [] ( ProSHADE_settings* settings ) -> pybind11::dict
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::dict
                                                         {
                                                             //== Initialise local variables
                                                             pybind11::dict retDict;
@@ -417,6 +417,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         return ( retArr );
                                                     }, "This function returns a rotation matrix representing the best peak in the rotation map.", pybind11::arg ( "settings" ) )
         .def                                          ( "rotateMapReciprocalSpace", &ProSHADE_internal_data::ProSHADE_data::rotateMapReciprocalSpace, "This function rotates a map based on the given Euler angles.", pybind11::arg ( "settings" ), pybind11::arg ( "eulerAlpha" ), pybind11::arg ( "eulerBeta" ), pybind11::arg ( "eulerGamma" ) )
+        .def                                          ( "rotateMapRealSpaceInPlace", &ProSHADE_internal_data::ProSHADE_data::rotateMapRealSpaceInPlace, "This function rotates a map based on the given Euler angles in real space using interpolation.", pybind11::arg ( "eulerAlpha" ), pybind11::arg ( "eulerBeta" ), pybind11::arg ( "eulerGamma" ) )
         .def                                          ( "zeroPaddToDims", &ProSHADE_internal_data::ProSHADE_data::zeroPaddToDims, "This function changes the size of a structure to fit the supplied new limits.", pybind11::arg ( "xDimMax" ), pybind11::arg ( "yDimMax" ), pybind11::arg ( "zDimMax" ) )
         .def                                          ( "computeTranslationMap", &ProSHADE_internal_data::ProSHADE_data::computeTranslationMap, "This function does the computation of the translation map and saves results internally.", pybind11::arg ( "staticStructure" ) )
         .def                                          ( "getOverlayTranslations",

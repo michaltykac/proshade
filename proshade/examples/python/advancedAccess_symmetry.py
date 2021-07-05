@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.5
-#   \date      MAY 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -36,23 +36,23 @@ import proshade
 
 ######################################################
 ### Create the settings object
-pSet                                                  = proshade.ProSHADE_settings ()
+pSet                                                  = proshade.ProSHADE_settings ( )
 
 ######################################################
 ### Set basic settings values
 pSet.task                                             = proshade.Symmetry
-pSet.setResolution                                    ( 8.0 )
+pSet.setResolution                                    ( 12.0 )
 pSet.setMapResolutionChange                           ( True )
 pSet.setMapCentering                                  ( True )
 pSet.verbose                                          = -1
 
 ######################################################
 ### Create the structure object
-pStruct                                               = proshade.ProSHADE_data ( pSet )
+pStruct                                               = proshade.ProSHADE_data ( )
 
 ######################################################
 ### Read in the structure
-pStruct.readInStructure                               ( "/Users/mysak/BioCEV/proshade/playground/emd_6324.map", 0, pSet ) # This example uses EMD 6324 (PDB 3JA7)
+pStruct.readInStructure                               ( "/Users/mysak/BioCEV/proshade/playground/emd_0116.map.gz", 0, pSet ) # This example uses EMD 0116
 
 ######################################################
 ### Process map
@@ -83,21 +83,22 @@ recSymmetryAxes                                       = pStruct.getRecommendedSy
 ######################################################
 ### Print results
 print                                                 ( "Detected " + str( recSymmetryType ) + "-" + str( recSymmetryFold ) + " symetry." )
-print                                                 ( "Fold              x           y         z       Angle      Height" )
+print                                                 ( "Fold              x           y         z       Angle      Height    Average FSC" )
 for iter in range ( 0, len( recSymmetryAxes ) ):
-     print                                            ( "  %s    \t%+1.3f      %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( recSymmetryAxes[iter][0],
+     print                                            ( "  %s    \t%+1.3f      %+1.3f    %+1.3f    %+1.3f    %+1.4f      %+1.4f" % ( recSymmetryAxes[iter][0],
                                                                                                                          recSymmetryAxes[iter][1],
                                                                                                                          recSymmetryAxes[iter][2],
                                                                                                                          recSymmetryAxes[iter][3],
                                                                                                                          recSymmetryAxes[iter][4],
-                                                                                                                         recSymmetryAxes[iter][5] ) )
+                                                                                                                         recSymmetryAxes[iter][5],
+                                                                                                                         recSymmetryAxes[iter][6] ) )
 
 ######################################################
 ### Expected output
-#   Detected D-12 symetry.
-#   Fold              x           y         z       Angle      Height
-#     12.0        +0.000      +0.000    +1.000    +0.524    +0.9348
-#      2.0        -0.411      +0.911    +0.027    +3.142    +0.5119
+#   Detected D-6 symetry.
+#   Fold              x           y         z       Angle      Height    Average FSC
+#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9696      +0.9760
+#     2.0        +1.000      -0.000    -0.000    -3.142    +0.9898      +0.9997
 
 ######################################################
 ### Get list of all cyclic axes detected
@@ -106,7 +107,7 @@ print                                                 ( "Found a total of " + st
 
 ######################################################
 ### Expected output
-#   Found a total of 21 cyclic point groups.
+#   Found a total of 9 cyclic point groups.
 
 ######################################################
 ### Get indices of which C axes form any detected non-C symmetry
@@ -115,7 +116,7 @@ print                                                 ( "Found a total of " + st
 
 ######################################################
 ### Expected output
-#   Found a total of 20 dihedral point groups.
+#   Found a total of 21 dihedral point groups.
 
 ######################################################
 ### Find internal map COM shift
@@ -124,7 +125,7 @@ print                                                 ( "The internal map has be
 
 ######################################################
 ### Expected output
-#   The internal map has been shifted by -0.023969283 , -0.023967072 , 8.4977665
+#   The internal map has been shifted by -1.861176 , -1.8552165 , -3.575491
 
 ######################################################
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
@@ -143,7 +144,6 @@ print                                                 ( "The internal map has be
 #        The only problem comes when D is to be used, as ProSHADE gives a vector (list) of all combinations (also as vector/list) of cyclic point groups which form the
 #        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
 ######################################################
-
 
 ######################################################
 ### Define isclose() for comparing floats
@@ -166,19 +166,19 @@ for dIt in range ( 0, len ( allNonCAxesIndices['D'] ) ):
            ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][4], recSymmetryAxes[0][4] ) ) and \
            ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][5], recSymmetryAxes[0][5] ) ):
             firstMatch                                = True
-            
+
         if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][1], recSymmetryAxes[1][1] ) ) and \
            ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][2], recSymmetryAxes[1][2] ) ) and \
            ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][3], recSymmetryAxes[1][3] ) ) and \
            ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][4], recSymmetryAxes[1][4] ) ) and \
            ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][5], recSymmetryAxes[1][5] ) ):
             secondMatch                               = True
-            
+
     if (firstMatch and secondMatch) and (len(bestDCombination)==0):
         bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][0] )
         bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][1] )
 
-        
+
 ######################################################
 ### Get the group elements for the best dihedral group
 allGroupElements                                      = pStruct.getAllGroupElements ( pSet, bestDCombination, "D" )
@@ -193,10 +193,10 @@ print                                                 ( "  %+1.3f    %+1.3f    %
 
 ######################################################
 ### Expected output
-#   Found a total of 24 group [2, 18] elements.
+#   Found a total of 12 group [3, 0] elements.
 #   The first non-identity element is:
-#     -0.500    +0.866    +0.000
-#     -0.866    -0.500    +0.000
+#     +0.500    +0.866    +0.000
+#     -0.866    +0.500    +0.000
 #     +0.000    +0.000    +1.000
 
 ######################################################
@@ -206,12 +206,12 @@ gr1Elements                                           = proshade.computeGroupEle
                                                                                                 0,      # Y-axis element of the group rotation axis
                                                                                                 0,      # Z-axis element of the group rotation axis
                                                                                                 4 )     # Fold
-                                                      
+
 gr2Elements                                           = proshade.computeGroupElementsForGroup ( 0,      # X-axis element of the group rotation axis
                                                                                                 1,      # Y-axis element of the group rotation axis
                                                                                                 0,      # Z-axis element of the group rotation axis
                                                                                                 2 )     # Fold
-                                                  
+
 combinedGroupElements                                 = proshade.joinElementsFromDifferentGroups ( gr1Elements, # Elements of the first group
                                                                                                    gr2Elements, # Elements of the second group
                                                                                                    0.0001,      # Matrix tolerance (i.e. if the abs ( trace ( Mat1 * Mat2^(T) ) - 3.0 ) must be below this number for two matrices to be considered identical )

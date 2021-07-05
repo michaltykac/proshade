@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.5.5
-#   \date      MAY 2021
+#   \version   0.7.6.0
+#   \date      JUL 2021
 ######################################################
 ######################################################
 
@@ -41,7 +41,8 @@ ps                                                    = proshade.ProSHADE_settin
 ps.task                                               = proshade.Symmetry
 ps.verbose                                            = -1                      # How verbose should the run be? -1 Means no verbal output at all.
 ps.setResolution                                      ( 8.0 )                   # The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
-ps.addStructure                                       ( "/Users/mysak/BioCEV/proshade/playground/emd_5762.map" ) # A path to the structure to be processed. This example uses EMDB map 5762 (PDB accession code 3J4S)
+ps.addStructure                                       ( "/Users/mysak/BioCEV/proshade/playground/emd_0094.map" ) # A path to the structure to be processed. This example uses EMDB map 0094
+ps.setAppliedMaskFilename                             ( "/Users/mysak/BioCEV/proshade/playground/emd_0094_mask.map" )
 
 ######################################################
 ### Further useful settings
@@ -112,25 +113,25 @@ print                                                 ( "Found a total of " + st
 
 ##############################################
 ### Expected output
-#   Found a total of 2 cyclic symmetries.
+#   Found a total of 37 cyclic symmetries.
 
 ######################################################
 ### Print results
 print                                                 ( "Detected symmetry " + str( symType ) + "-" + str( symFold ) + " with axes: " )
-print                                                 ( "Fold      x         y         z       Angle     Height" )
-print                                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( float ( symAxis[0] ),
-                                                                                                                     float ( symAxis[1] ),
-                                                                                                                     float ( symAxis[2] ),
-                                                                                                                     float ( symAxis[3] ),
-                                                                                                                     float ( symAxis[4] ),
-                                                                                                                     float ( symAxis[5] ) ) )
+print                                                 ( "Fold      x         y         z       Angle     Height    Averaged FSC" )
+print                                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f      %+1.4f" % ( float ( symAxis[0] ),
+                                                                                                                                 float ( symAxis[1] ),
+                                                                                                                                 float ( symAxis[2] ),
+                                                                                                                                 float ( symAxis[3] ),
+                                                                                                                                 float ( symAxis[4] ),
+                                                                                                                                 float ( symAxis[5] ),
+                                                                                                                                 float ( symAxis[6] ) ) )
 
 ######################################################
 ### Expected outuput
-#   Found a total of 2 cyclic symmetries.
 #   Detected symmetry C-4 with axes: 
-#   Fold      x         y         z       Angle     Height
-#     4.0    +0.000    -0.000    +1.000    +1.571    +0.9488
+#   Fold      x         y         z       Angle     Height    Averaged FSC
+#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9780      +0.9781
 
 ######################################################
 ### Find the internal map COM shift
