@@ -2664,7 +2664,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 31.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.60 ) )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2689,7 +2689,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 13.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.70 ) )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2714,7 +2714,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 7.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.80 ) )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );

@@ -121,7 +121,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.80;
+    this->fscThreshold                                = 0.65;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -240,7 +240,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.80;
+    this->fscThreshold                                = 0.65;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
