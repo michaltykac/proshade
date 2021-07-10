@@ -27,7 +27,7 @@ EM00008		Failed to determine the axis order of the input map file. Please report
 EM00009		Cannot read from the map file. The map file mode is not supported.														The map mode must be 0 or 2, otherwise cannot read the map. This error states the map mode is neither supported value.
 EM00015		Requested resolution not set for map re-sampling.																		There is no resolution value set, but map re-sampling to this unset resolution value is required. This error occurs when a task with no resolution requirement is requested on a map data and the map resolution change is set to 'on'. Either supply a resolution value, or do not re-sample the map.
 EM00046		The map axes are not perpendicular. Only P1 cells are supported for now.												ProSHADE currently only supports map cells with perpendicular (90 degrees angled) axes. Your map seems to have differently angled axes and so cannot be processed by this ProSHADE version. This feature is coming in future update!
-EM00065		The supplied map mask has different dimensions than the density map.													Most likely the mask is not the correct mask for this map, as it has different dimensions as the density map. Please review that the supplied map and mask form a pair.
+NO LONGER IN USE !!!	EM00065		The supplied map mask has different dimensions than the density map.													Most likely the mask is not the correct mask for this map, as it has different dimensions as the density map. Please review that the supplied map and mask form a pair.
 
 ============
 PDB READING:

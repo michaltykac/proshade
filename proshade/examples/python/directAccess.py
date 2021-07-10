@@ -217,10 +217,17 @@ zDimAngstroms                                         = zDimIndices * 1.3
 xFrom                                                 = int ( -xDimIndices/2 )
 yFrom                                                 = int ( -yDimIndices/2 )
 zFrom                                                 = int ( -zDimIndices/2 )
-xTo                                                   = int ( (xDimIndices/2)-1 )
-yTo                                                   = int ( (yDimIndices/2)-1 )
-zTo                                                   = int ( (zDimIndices/2)-1 )
+xTo                                                   = int ( (xDimIndices/2) )
+yTo                                                   = int ( (yDimIndices/2) )
+zTo                                                   = int ( (zDimIndices/2) )
 ord                                                   = 0
+
+if xDimIndices % 2 == 0:
+    xTo                                               = xTo - 1
+if yDimIndices % 2 == 0:
+    yTo                                               = yTo - 1
+if zDimIndices % 2 == 0:
+    zTo                                               = zTo - 1
 
 ######################################################
 ### Create example map (this will be a ball in the middle of the map)
