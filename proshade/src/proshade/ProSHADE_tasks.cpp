@@ -385,11 +385,11 @@ void ProSHADE_internal_tasks::MapOverlayTask ( ProSHADE_settings* settings, std:
     //================================================ Create the data objects initially (this time without phase)
     ProSHADE_internal_data::ProSHADE_data* staticStructure = new ProSHADE_internal_data::ProSHADE_data ( );
     ProSHADE_internal_data::ProSHADE_data* movingStructure = new ProSHADE_internal_data::ProSHADE_data ( );
-    
+
     //================================================ First, run without phase and find best rotation angles
     settings->usePhase                                = false;
     ProSHADE_internal_overlay::getOptimalRotation     ( settings, staticStructure, movingStructure, &eulA, &eulB, &eulG );
-    
+
     //================================================ Release memory
     delete staticStructure;
     delete movingStructure;
@@ -444,6 +444,13 @@ void ProSHADE_internal_tasks::checkOverlaySettings ( ProSHADE_settings* settings
     if ( settings->inputFiles.size () != 2 )
     {
         throw ProSHADE_exception ( "There are not enough structures for map overlay\n                    : computation.", "EO00033", __FILE__, __LINE__, __func__, "There needs to be exactly two structures for map overlay\n                    : mode to work; the first structure is the static and the\n                    : second is the moving structure." );
+    }
+    
+    //================================================ If centring is on, turn it off and report warning.
+    if ( settings->moveToCOM )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Map centring was requested, but makes no sense for overlay mode. Turning it off.", "WO00066" );
+        settings->moveToCOM                           = false;
     }
     
     //================================================ Done

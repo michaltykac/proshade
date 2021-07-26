@@ -1159,9 +1159,12 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     \param[in] trsX The translation to be done along X-axis in Angstroms.
     \param[in] trsY The translation to be done along Y-axis in Angstroms.
     \param[in] trsZ The translation to be done along Z-axis in Angstroms.
+    \param[in] rotX The translation to be done along X-axis in Angstroms.
+    \param[in] rotY The translation to be done along Y-axis in Angstroms.
+    \param[in] rotZ The translation to be done along Z-axis in Angstroms.
     \param[in] firstModel Should only the first model, or rather all of them be used?
 */
-void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, bool firstModel )
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double rotX, proshade_double rotY, proshade_double rotZ, bool firstModel )
 {
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
@@ -1176,7 +1179,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
     {        
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, this->originalPdbRotCenX, this->originalPdbRotCenY, this->originalPdbRotCenZ, firstModel );
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, rotX, rotY, rotZ, firstModel );
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
@@ -2902,7 +2905,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
         
         //============================================ Check if both C symmetries are reliable
         for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
@@ -2966,7 +2969,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
         
         //============================================ Find reliable C syms
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
@@ -4648,7 +4651,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2), settings->firstModelOnly );
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2), rotCentre->at(0), rotCentre->at(1), rotCentre->at(2), settings->firstModelOnly );
     }
     
     //================================================ Write out the json file with the results

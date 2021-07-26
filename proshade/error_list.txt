@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00066 ==
+== NEXT FREE MESSAGE NUMBER: 00067 ==
 
 ========
 GENERAL:
@@ -183,6 +183,7 @@ CODE:		Message:																												Comment:
 NO LONGER IN USE !!!	WO00035		The progressive sphere mapping is not yet fully implemented for the map rotation. It has been turned off. 				The progressive sphere mapping was not yet implemented for map re-construction from the progressively mapped spheres. Therefore, it must be turned off for the Overlay task with phases part of the run.
 WO00042		Requested rotation/translation values for Overlay functionality without having successfully computed it. Please 		This warning happens when either the getEulerAngles() or the getTranslation() functions are called, but the results are not available. Most likely another task was selected and these were not computed.
 			check the correct task was used and no other warnings/errors were obtained.
+WO00066		Map centring was requested, but makes no sense for overlay mode. Turning it off.										Since overlay mode centers maps using Patterson and then finds to optimal overlay of the inputs, it makes no sense to center the maps before this.
 
 =======
 PYTHON:
