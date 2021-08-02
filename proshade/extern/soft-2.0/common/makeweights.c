@@ -113,8 +113,7 @@ void makeweights( int bw,
     {
       tmpsum = 0.0 ;
       for ( k = 0 ; k < bw ; k ++ )
-	tmpsum += 1./((double)(2*k+1)) *
-	  sin((double)((2*j+1)*(2*k+1))*fudge);
+  	    tmpsum += 1./((double)(2*k+1)) * sin((double)((2*j+1)*(2*k+1))*fudge );
       tmpsum *= sin((double)(2*j+1)*fudge);
       tmpsum *= 2./((double) bw) ;
       

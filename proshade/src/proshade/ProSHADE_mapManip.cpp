@@ -299,7 +299,7 @@ proshade_double yCom, proshade_double zCom, bool firstModel )
     //================================================ Convert Euler angles to rotation matrix
     proshade_double *rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euG, euB, euA, rotMat );
     
     //================================================ Initialise internal variables
     proshade_double xTmp, yTmp, zTmp;
@@ -692,7 +692,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     gemmi::DensityCalculator<gemmi::IT92<double>, float> dencalc;
     
     dencalc.d_min                                     = static_cast< double > ( requestedResolution );
-    for ( size_t elIt = 0; elIt < present_elems.size(); elIt++ ) { if ( present_elems[elIt] ) { dencalc.addends.set ( static_cast< gemmi::El > ( elIt ), static_cast< float > ( gemmi::cromer_libermann ( static_cast< int > ( elIt ), energy, nullptr ) ) ); } }
+    for ( size_t elIt = 0; elIt < present_elems.size(); elIt++ ) { if ( present_elems[elIt] ) { dencalc.addends.set ( static_cast< gemmi::El > ( elIt ), static_cast< float > ( gemmi::cromer_liberman ( static_cast< int > ( elIt ), energy, nullptr ) ) ); } }
     dencalc.set_grid_cell_and_spacegroup              ( pdbFile );
     
     //================================================ Force P1 spacegroup

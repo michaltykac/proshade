@@ -118,10 +118,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
-    this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.80;
+    this->fscThreshold                                = 0.65;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -237,10 +236,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
-    this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.80;
+    this->fscThreshold                                = 0.65;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -337,11 +335,8 @@ void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
     if ( lhs.AlmostEquals( rhs ) )
     {
         //============================================ If using the old symmetry detection algorithm or distances computation, this will be used on many small peaks with few outliers. Use value of 5.0
-        if (   this->task == Distances )                                                      { this->noIQRsFromMedianNaivePeak = 5.0; }
-        if ( ( this->task == Symmetry  ) && ( !this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = 5.0; }
-        
-        //============================================ If using the new symmetry detection algorithm, this needs to be decreasing with resolution. How much, that is a bit arbitrary...
-        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = static_cast< proshade_double > ( std::max ( 0.0f, 1.0f - ( this->requestedResolution * 0.05f ) ) ); }
+        if (   this->task == Distances )              { this->noIQRsFromMedianNaivePeak = 5.0; }
+        if (   this->task == Symmetry  )              { this->noIQRsFromMedianNaivePeak = static_cast< proshade_double > ( std::max ( 0.0f, 1.0f - ( this->requestedResolution * 0.05f ) ) ); }
     }
     
     //================================================ Done
@@ -1348,24 +1343,6 @@ void                       ProSHADE_settings::setOverlayJsonFile ( std::string f
 {
     //================================================ Set the value
     this->rotTrsJSONFile                              = filename;
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Sets the symmetry detection algorithm type.
- 
-    \param[in] rotFunPeaks Should the original peak detection in rotation function space be used (FALSE), or should the new angle-axis space search be used (DEFAULT - TRUE)?
- */
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
-#else
-void                       ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
-#endif
-{
-    //================================================ Set the value
-    this->usePeakSearchInRotationFunctionSpace        = rotFunPeaks;
     
     //================================================ Done
     return ;
@@ -2411,13 +2388,6 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
                  continue;
              }
-                 
-             //======================================= Forces usage of the old symmetry detection algorithm - DEPRECATED
-             case 'z':
-             {
-                 this->setSymmetryRotFunPeaks         ( false );
-                 continue;
-             }
 
              //======================================= Should the negative density from input files be removed?
              case 'F':
@@ -2694,10 +2664,6 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;
     printf ( "Requested symm.     : %37s\n", strstr.str().c_str() );
-
-    strstr.str(std::string());
-    if ( this->usePeakSearchInRotationFunctionSpace ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Use RF Peaks        : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     if ( this->useBiCubicInterpolationOnPeaks ) { strstr << "TRUE"; } else { strstr << "FALSE"; }

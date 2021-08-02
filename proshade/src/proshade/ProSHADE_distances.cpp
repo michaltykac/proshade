@@ -578,8 +578,6 @@ void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::P
     proshade_double eMatNormFactor                    = std::sqrt ( obj1->getIntegrationWeight() * obj2->getIntegrationWeight() );
     
     //================================================ If this is self-correlation (i.e. obj1 == obj2), then divide normalisation factor by 2 as the weight was applied cumulatively!
-    if ( settings->task == Symmetry ) { eMatNormFactor /= 2.0; }
-    
     for ( proshade_unsign bandIter = 0; bandIter < std::min ( obj1->getMaxBand(), obj2->getMaxBand() ); bandIter++ )
     {
         //============================================ For each combination of m and m' for E matrices
@@ -716,7 +714,7 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
     for ( proshade_signed bandIter = 0; bandIter < static_cast<proshade_signed> ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ); bandIter++ )
     {
         //============================================ Get wigner normalisation factor
-        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * static_cast< proshade_double > ( bandIter ) + 1.0 ) ) ;
+        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * static_cast< proshade_double > ( bandIter ) + 1.0 ) );
         
         //============================================ For each order (m)
         for ( proshade_signed orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
