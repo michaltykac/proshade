@@ -194,16 +194,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings )
                                                         {
                                                             //== Call the appropriate C++ function
-                                                            if ( settings->usePeakSearchInRotationFunctionSpace )
-                                                            {
-                                                                //== Detect point groups in the angle-axis space
-                                                                self.detectSymmetryFromAngleAxisSpace ( settings, &settings->detectedSymmetry, &settings->allDetectedCAxes );
-                                                            }
-                                                            else
-                                                            {
-                                                                //== Detect symmetry using the peak detection in rotation function space
-                                                                self.detectSymmetryInStructure ( settings, &settings->detectedSymmetry, &settings->allDetectedCAxes );
-                                                            }
+                                                            self.detectSymmetryFromAngleAxisSpace ( settings, &settings->detectedSymmetry, &settings->allDetectedCAxes );
                                                         }, "This function runs the symmetry detection algorithms on this structure and saves the results in the settings object.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryType", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType, "This function simply returns the detected recommended symmetry type.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryFold", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold, "This function simply returns the detected recommended symmetry fold.", pybind11::arg ( "settings" ) )

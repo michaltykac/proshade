@@ -716,7 +716,7 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
     for ( proshade_signed bandIter = 0; bandIter < static_cast<proshade_signed> ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ); bandIter++ )
     {
         //============================================ Get wigner normalisation factor
-        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * static_cast< proshade_double > ( bandIter ) + 1.0 ) ) ;
+        wigNorm                                       = 2.0 * M_PI * sqrt ( 2.0 / (2.0 * static_cast< proshade_double > ( bandIter ) + 1.0 ) );
         
         //============================================ For each order (m)
         for ( proshade_signed orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )

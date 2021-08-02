@@ -126,7 +126,6 @@ public:
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
-    bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
@@ -220,7 +219,6 @@ public:
     void __declspec(dllexport) setDetectedSymmetry                            ( proshade_double* sym );
     void __declspec(dllexport) setOverlaySaveFile                             ( std::string filename );
     void __declspec(dllexport) setOverlayJsonFile                             ( std::string filename );
-    void __declspec(dllexport) setSymmetryRotFunPeaks                         ( bool rotFunPeaks );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
     void __declspec(dllexport) setMaxSymmetryFold                             ( proshade_unsign maxFold );
     void __declspec(dllexport) setFSCThreshold                                ( proshade_double fscThr );
@@ -275,7 +273,6 @@ public:
     void setDetectedSymmetry                          ( proshade_double* sym );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
-    void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );
     void setMaxSymmetryFold                           ( proshade_unsign maxFold );
     void setFSCThreshold                              ( proshade_double fscThr );

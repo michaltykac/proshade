@@ -372,12 +372,6 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            each sphere, depending on its size. This is in cotrast to the       " << std::endl;
     std::cout << "            default all spheres same number of bands setting.                   " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --usePeaksInRotFun or -z                        [DEFAULT:        FALSE]     " << std::endl;
-    std::cout << "            Symmetry detection can now be done either using peak detection in   " << std::endl;
-    std::cout << "            rotation function space, or by default by converting rotation func. " << std::endl;
-    std::cout << "            to angle-axis space and finding symmetries there. Using this option " << std::endl;
-    std::cout << "            switches to using peak detection in rotation function space.         " << std::endl;
-    std::cout << "                                                                                " << std::endl;
     std::cout << "    --noEnL or -l                                   [DEFAULT:         TRUE]     " << std::endl;
     std::cout << "            Is the computation of the energy levels descriptor required?        " << std::endl;
     std::cout << "                                                                                " << std::endl;
