@@ -1,4 +1,4 @@
-/*! \file pyProSHADE.cpp
+/*! \file pyProSHADE_distances.cpp
     \brief This file contains the PyBind11 bindings for the ProSHADE_internal_distances namespace.
     
     This file provides the bindings for the ProSHADE_internal_distances namespace functions.

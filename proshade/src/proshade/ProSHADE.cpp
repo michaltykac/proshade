@@ -85,6 +85,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
     
+    //================================================ Settings regarding Fourier weights
+    this->fourierWeightsFileName                      = "";
+    
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
     this->boundsExtraSpace                            = 3.0;
@@ -204,7 +207,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
-    this->detectedSymmetry.clear                      ( );
+    
+    //================================================ Settings regarding Fourier weights
+    this->fourierWeightsFileName                      = "";
     
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
@@ -248,6 +253,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
     this->requestedSymmetryFold                       = 0;
+    this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
@@ -643,6 +649,26 @@ void                       ProSHADE_settings::setAppliedMaskFilename ( std::stri
 {
     //================================================ Set the value
     this->appliedMaskFileName                         = mskFln;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the filename of the mask data that should be applied to the input map.
+ 
+    This function sets the the filename from which mask should be read from.
+ 
+    \param[in] mskFln The filename where the mask should be read from.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setFourierWeightsFilename ( std::string fWgFln )
+#else
+void                       ProSHADE_settings::setFourierWeightsFilename ( std::string fWgFln )
+#endif
+{
+    //================================================ Set the value
+    this->fourierWeightsFileName                      = fWgFln;
     
     //================================================ Done
     return ;
@@ -1931,13 +1957,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "overlayFile",     required_argument,  nullptr, '}' },
         { "overlayJSONFile", required_argument,  nullptr, 'y' },
         { "angUncertain",    required_argument,  nullptr, ';' },
-        { "usePeaksInRotFun",no_argument,        nullptr, 'z' },
+        { "fourierWeights",  required_argument,  nullptr, 'z' },
         { "keepNegDens",     no_argument,        nullptr, 'F' },
         { nullptr,           0,                  nullptr,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2122,6 +2148,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'G':
              {
                  this->setAppliedMaskFilename         ( static_cast<std::string> ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the Fourier weights filename value
+             case 'z':
+             {
+                 this->setFourierWeightsFilename      ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  

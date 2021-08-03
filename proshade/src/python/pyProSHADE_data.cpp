@@ -1,4 +1,4 @@
-/*! \file pyProSHADE.cpp
+/*! \file pyProSHADE_data.cpp
     \brief This file contains the PyBind11 bindings for the ProSHADE_data class.
     
     This file provides the bindings for the ProSHADE_data class members and functions. It also defines several python specific functions (written as C++ lambda functions) which allow direct access
