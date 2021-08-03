@@ -523,6 +523,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     {
         case ProSHADE_internal_io::UNKNOWN:
             throw ProSHADE_exception ( "Unknown file type.", "E000006", __FILE__, __LINE__, __func__, "When attempting to read the file\n                    : " + this->fileName + "\n                    : the file extension was determined as unknown. This could\n                    : mean either that the file does not exist, or that it is\n                    : not one of the supported extensions." );
+            
+        case ProSHADE_internal_io::GEMMI:
+            throw ProSHADE_exception ( "Unknown file type.", "E000006", __FILE__, __LINE__, __func__, "When attempting to read the file\n                    : " + this->fileName + "\n                    : the file extension was determined as unknown. This could\n                    : mean either that the file does not exist, or that it is\n                    : not one of the supported extensions." );
         
         case ProSHADE_internal_io::PDB:
             this->readInPDB                           ( settings );
@@ -533,6 +536,51 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
             break;
     }
     
+    //================================================ This structure is now full
+    this->isEmpty                                     = false;
+    
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully." );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function initialises the basic ProSHADE_data variables and reads in a single structure from Gemmi co-ordinate object.
+ 
+    This function is basically the constructor for the ProSHADE_data class. It reads in a structure from the supplied gemmi::Structure object
+    in the same way a co-ordinate structure would be read from file.
+ 
+    \param[in] gemmiStruct The Gemmi Structure object that should be read in.
+    \param[in] inputO The order of this structure in this run's input.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+ */
+void ProSHADE_internal_data::ProSHADE_data::readInStructure ( gemmi::Structure gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings )
+{
+    //================================================ Report function start
+    std::stringstream ss;
+    ss << "Starting to load the structure from Gemmi object " << inputO;
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str() );
+    
+    //================================================ Check if instance is empty
+    if ( !this->isEmpty )
+    {
+        throw ProSHADE_exception ( "Structure data class not empty.", "E000005", __FILE__, __LINE__, __func__, "Attempted to read in structure into a ProSHADE_data\n                    : object which already does have structure read in\n                    : i.e. " + this->fileName );
+    }
+        
+    //================================================ Save the filename
+    this->fileName                                    = gemmiStruct.name;
+    
+    //================================================ Check what is the input format
+    this->fileType                                    = ProSHADE_internal_io::GEMMI;
+    
+    //================================================ Save input order
+    this->inputOrder                                  = inputO;
+    
+    //================================================ Decide how to proceed
+    this->readInGemmi                                 ( gemmiStruct, settings );
+
     //================================================ This structure is now full
     this->isEmpty                                     = false;
     
@@ -884,31 +932,63 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     //================================================ Open PDB file for reading
     gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
+    //================================================ Once we have Gemmi object, run the Gemmi function
+    this->readInGemmi                                 ( pdbFile, settings );
+    
+    //================================================ Done
+    return;
+    
+}
+
+/*! \brief Function for reading co-ordinate data from Gemmi object.
+ 
+    This function processes the input Gemmi structure into ProSHADE internal map. It starts with ProSHADE optional modifications
+    of the co-ordinates (i.e. setting all B-factors to given value and removing waters). It then proceeds to move the co-ordinates so
+    that their minimal point is at position [20, 20, 20] (this is to make sure map density will be at the centre of the box) and computes
+    the theoretical density map using Gemmi's Cromer & Libermann method. It then moves the map box to the original co-ordinates
+    position.
+ 
+    If map re-sampling is required, then this is done here as well.
+ 
+    Finally, this function sets all the ProSHADE internal values to what other functions expect and terminates.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+ 
+    \warning For multiple models, this function works, but the map is not perfectly fitted to the PDB file.
+ */
+void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmiStruct, ProSHADE_settings* settings )
+{
+    //================================================ Set resolution if need be
+    if ( settings->requestedResolution < 0.0f )
+    {
+        settings->setResolution                       ( 8.0 );
+    }
+    
     //================================================ Change B-factors if need be
     if ( settings->pdbBFactorNewVal >= 0.0 )
     {
-        ProSHADE_internal_mapManip::changePDBBFactors ( &pdbFile, settings->pdbBFactorNewVal, settings->firstModelOnly );
+        ProSHADE_internal_mapManip::changePDBBFactors ( &gemmiStruct, settings->pdbBFactorNewVal, settings->firstModelOnly );
     }
     
     //================================================ Remove waters if required
     if ( settings->removeWaters )
     {
-        ProSHADE_internal_mapManip::removeWaters      ( &pdbFile, settings->firstModelOnly );
+        ProSHADE_internal_mapManip::removeWaters      ( &gemmiStruct, settings->firstModelOnly );
     }
     
     //================================================ Get PDB COM values
     proshade_double xCOMPdb, yCOMPdb, zCOMPdb;
-    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( gemmiStruct, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
     
     //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
-    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::determinePDBRanges    ( gemmiStruct, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
     
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = static_cast< proshade_single > ( 20.0f - xF );
     proshade_single yMov                              = static_cast< proshade_single > ( 20.0f - yF );
     proshade_single zMov                              = static_cast< proshade_single > ( 20.0f - zF );
-    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &gemmiStruct, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
     this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + 40.0f );
@@ -916,7 +996,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + 40.0f );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
-    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::generateMapFromPDB    ( gemmiStruct, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
     
     //================================================ Remove negative values if so required
     if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
@@ -930,7 +1010,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
                                                         this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
     
-    if ( pdbFile.models.size() > 1 )
+    if ( gemmiStruct.models.size() > 1 )
     {
         xMov                                          = static_cast< proshade_single > ( xCOMMap - xCOMPdb );
         yMov                                          = static_cast< proshade_single > ( yCOMMap - yCOMPdb );
@@ -1146,11 +1226,10 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     
 }
 
-/*! \brief This function writes out the PDB formatted file coresponding to the structure so that its COM is at specific position.
+/*! \brief This function writes out the co-ordinates file with ProSHADE type rotation and translation applied.
 
     This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
-    it will proceed to read in the original co-ordinates, rotate and translate them according to the arguments and then write the resulting co-ordinates
-    into a new file.
+    it will proceed to read in the original co-ordinates into gemmi::Structure object and call the gemmi writing out function.
 
     \param[in] fName The filename (including path) to where the output PDB file should be saved.
     \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
@@ -1175,15 +1254,43 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     //================================================ Open PDB file for reading
     gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
+    //================================================ Write out using the gemmi::Structure object
+    this->writeGemmi                                  ( fName, pdbFile, euA, euB, euG, trsX, trsY, trsZ, rotX, rotY, rotZ, firstModel );
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function writes out the gemmi::Structure object with ProSHADE type rotation and translation applied.
+
+    This function takes loaded gemmi::Structure object and applies specific rotation and translations to it. These are intended to be
+    the results of ProSHADE Overlay mode compuations, but could be anything else, as long as the usage is correct. Finally, it writes
+    out a PDB formatted file with the now positions.
+
+    \param[in] fName The filename (including path) to where the output PDB file should be saved.
+    \param[in] gemmiStruct gemmi::Structure object which should be modified and written out.
+    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] trsX The translation to be done along X-axis in Angstroms.
+    \param[in] trsY The translation to be done along Y-axis in Angstroms.
+    \param[in] trsZ The translation to be done along Z-axis in Angstroms.
+    \param[in] rotX The translation to be done along X-axis in Angstroms.
+    \param[in] rotY The translation to be done along Y-axis in Angstroms.
+    \param[in] rotZ The translation to be done along Z-axis in Angstroms.
+    \param[in] firstModel Should only the first model, or rather all of them be used?
+*/
+void ProSHADE_internal_data::ProSHADE_data::writeGemmi ( std::string fName, gemmi::Structure gemmiStruct, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double rotX, proshade_double rotY, proshade_double rotZ, bool firstModel )
+{
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
-    {        
+    {
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, rotX, rotY, rotZ, firstModel );
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &gemmiStruct, euA, euB, euG, rotX, rotY, rotZ, firstModel );
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, trsX, trsY, trsZ, firstModel );
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &gemmiStruct, trsX, trsY, trsZ, firstModel );
 
     //================================================ Write the PDB file
     std::ofstream outCoOrdFile;
@@ -1192,7 +1299,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     if ( outCoOrdFile.is_open() )
     {
         gemmi::PdbWriteOptions opt;
-        write_pdb                                     ( pdbFile, outCoOrdFile, opt );
+        write_pdb                                     ( gemmiStruct, outCoOrdFile, opt );
     }
     else
     {

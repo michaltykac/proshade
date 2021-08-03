@@ -37,7 +37,7 @@
 namespace ProSHADE_internal_io
 {
     //================================================ The InputType data type
-    enum InputType                                    { UNKNOWN, PDB, MAP };
+    enum InputType                                    { UNKNOWN, PDB, MAP, GEMMI };
     
     //================================================ Low level file access functions
     InputType figureDataType                          ( std::string fName );
