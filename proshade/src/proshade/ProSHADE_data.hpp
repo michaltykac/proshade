@@ -144,6 +144,7 @@ namespace ProSHADE_internal_data
         void setPDBMapValues                          ( void );
         void readInMAP                                ( ProSHADE_settings* settings );
         void readInPDB                                ( ProSHADE_settings* settings );
+        void readInGemmi                              ( gemmi::Structure gemmiStruct, ProSHADE_settings* settings );
         void allocateRRPMemory                        ( );
         
     public:
@@ -157,8 +158,12 @@ namespace ProSHADE_internal_data
         
         //============================================ Data I/O functions
         void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings );
+        void readInStructure                          ( gemmi::Structure gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "Created by ProSHADE and written by GEMMI", int mode = 2 );
         void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
+                                                        proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, proshade_double rotX = 0.0,
+                                                        proshade_double rotY = 0.0, proshade_double rotZ = 0.0, bool firstModel = true );
+        void writeGemmi                               ( std::string fName, gemmi::Structure gemmiStruct, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
                                                         proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, proshade_double rotX = 0.0,
                                                         proshade_double rotY = 0.0, proshade_double rotZ = 0.0, bool firstModel = true );
         void writeMask                                ( std::string fName, proshade_double* mask );
