@@ -87,8 +87,90 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                       } ) )
     
         //============================================ Data I/O functions
-        .def                                          ( "readInStructure", static_cast<void (ProSHADE_internal_data::ProSHADE_data::*)(std::string, proshade_unsign, ProSHADE_settings*)> (&ProSHADE_internal_data::ProSHADE_data::readInStructure),    "This function initialises the basic ProSHADE_data variables and reads in a single structure.", pybind11::arg ( "fname" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ) )
         .def                                          ( "readInStructure", static_cast<void (ProSHADE_internal_data::ProSHADE_data::*)(gemmi::Structure, proshade_unsign, ProSHADE_settings*)> (&ProSHADE_internal_data::ProSHADE_data::readInStructure),    "This function initialises the basic ProSHADE_data variables and reads in a single structure from Gemmi co-ordinate object.", pybind11::arg ( "gemmiStruct" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ) )
+    
+        .def                                          ( "readInStructure",
+                                                    [] ( ProSHADE_internal_data::ProSHADE_data &self, std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, pybind11::array_t < proshade_double > maskArr, pybind11::array_t < proshade_double > weightsArr )
+                                                    {
+                                                        //== Sanity check
+                                                        pybind11::buffer_info maskArr_buf = maskArr.request();
+                                                        pybind11::buffer_info weightsArr_buf = weightsArr.request();
+            
+                                                        //== Check for mask
+                                                        if ( ( maskArr_buf.shape.at(0) != 0 ) && ( maskArr_buf.shape.at(1) != 0 ) && ( maskArr_buf.shape.at(2) != 0 ) )
+                                                        {
+                                                            //== Is number of dimensions correct?
+                                                            if ( maskArr_buf.ndim != 3 ) { std::cerr << "!!! ProSHADE PYTHON MODULE ERROR !!! The fourth argument to readInStructure() must be a 3D numpy array or empty and the dimensions must match!" << std::endl; exit ( EXIT_FAILURE ); }
+                                                            
+                                                            //== Mask was given! Create the array
+                                                            proshade_double* mskArr = new proshade_double[maskArr_buf.shape.at(0)*maskArr_buf.shape.at(1)*maskArr_buf.shape.at(2)];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( mskArr, __FILE__, __LINE__, __func__ );
+                                                            
+                                                            //== Copy values
+                                                            proshade_double* arrStart = static_cast< proshade_double* > ( maskArr_buf.ptr );
+                                                            for ( size_t iter = 0; iter < static_cast< size_t > ( maskArr_buf.shape.at(0)*maskArr_buf.shape.at(1)*maskArr_buf.shape.at(2) ); iter++ ) { mskArr[iter] = arrStart[iter]; }
+                                                            
+                                                            //== Check for weights
+                                                            if ( ( weightsArr_buf.shape.at(0) != 0 ) && ( weightsArr_buf.shape.at(1) != 0 ) && ( weightsArr_buf.shape.at(2) != 0 ) )
+                                                            {
+                                                                //== Is number of dimensions correct?
+                                                                if ( weightsArr_buf.ndim != 3 ) { std::cerr << "!!! ProSHADE PYTHON MODULE ERROR !!! The fifth argument to readInStructure() must be a 3D numpy array or empty and the dimensions must match!" << std::endl; exit ( EXIT_FAILURE ); }
+                                                                
+                                                                //== Weights were given! Create array
+                                                                proshade_double* wghArr = new proshade_double[weightsArr_buf.shape.at(0)*weightsArr_buf.shape.at(1)*weightsArr_buf.shape.at(2)];
+                                                                ProSHADE_internal_misc::checkMemoryAllocation ( wghArr, __FILE__, __LINE__, __func__ );
+                                                                
+                                                                //== Copy values
+                                                                proshade_double* arr2Start = static_cast< proshade_double* > ( weightsArr_buf.ptr );
+                                                                for ( size_t iter = 0; iter < static_cast< size_t > ( weightsArr_buf.shape.at(0)*weightsArr_buf.shape.at(1)*weightsArr_buf.shape.at(2) ); iter++ ) { wghArr[iter] = arr2Start[iter]; }
+                                                                
+                                                                //== Call C++ function with both mask and weights
+                                                                self.readInStructure ( fName, inputO, settings, mskArr, static_cast< proshade_unsign > ( maskArr_buf.shape.at(0) ), static_cast< proshade_unsign > ( maskArr_buf.shape.at(1) ), static_cast< proshade_unsign > ( maskArr_buf.shape.at(2) ), wghArr, static_cast< proshade_unsign > ( weightsArr_buf.shape.at(0) ), static_cast< proshade_unsign > ( weightsArr_buf.shape.at(1) ), static_cast< proshade_unsign > ( weightsArr_buf.shape.at(2) ) );
+                                                                
+                                                                //== Release memory
+                                                                delete[] wghArr;
+                                                            }
+                                                            else
+                                                            {
+                                                                //== No weights given. Call C++ function with only mask
+                                                                self.readInStructure ( fName, inputO, settings, mskArr, static_cast< proshade_unsign > ( maskArr_buf.shape.at(0) ), static_cast< proshade_unsign > ( maskArr_buf.shape.at(1) ), static_cast< proshade_unsign > ( maskArr_buf.shape.at(2) ), nullptr, 0, 0, 0 );
+                                                            }
+                                                            
+                                                            //== Release memory
+                                                            delete[] mskArr;
+                                                        }
+                                                        else
+                                                        {
+                                                            //== Mask was empty! Check for weights
+                                                            if ( ( weightsArr_buf.shape.at(0) != 0 ) && ( weightsArr_buf.shape.at(1) != 0 ) && ( weightsArr_buf.shape.at(2) != 0 ) )
+                                                            {
+                                                                //== Is number of dimensions correct?
+                                                                if ( weightsArr_buf.ndim != 3 ) { std::cerr << "!!! ProSHADE PYTHON MODULE ERROR !!! The fifth argument to readInStructure() must be a 3D numpy array or empty and the dimensions must match!" << std::endl; exit ( EXIT_FAILURE ); }
+                                                                
+                                                                //== Weights were given! Create array
+                                                                proshade_double* wghArr = new proshade_double[weightsArr_buf.shape.at(0)*weightsArr_buf.shape.at(1)*weightsArr_buf.shape.at(2)];
+                                                                ProSHADE_internal_misc::checkMemoryAllocation ( wghArr, __FILE__, __LINE__, __func__ );
+                                                                
+                                                                //== Copy values
+                                                                proshade_double* arr2Start = static_cast< proshade_double* > ( weightsArr_buf.ptr );
+                                                                for ( size_t iter = 0; iter < static_cast< size_t > ( weightsArr_buf.shape.at(0)*weightsArr_buf.shape.at(1)*weightsArr_buf.shape.at(2) ); iter++ ) { wghArr[iter] = arr2Start[iter]; }
+                                                                
+                                                                //== Call C++ function with only weights
+                                                                self.readInStructure ( fName, inputO, settings, nullptr, 0, 0, 0, wghArr, static_cast< proshade_unsign > ( weightsArr_buf.shape.at(0) ), static_cast< proshade_unsign > ( weightsArr_buf.shape.at(1) ), static_cast< proshade_unsign > ( weightsArr_buf.shape.at(2) ) );
+                                                                
+                                                                //== Release memory
+                                                                delete[] wghArr;
+                                                            }
+                                                            else
+                                                            {
+                                                                //== No weights either. Call C++ function with no mask and no weights
+                                                                self.readInStructure ( fName, inputO, settings, nullptr, 0, 0, 0, nullptr, 0, 0, 0 );
+                                                            }
+                                                        }
+
+                                                        //== Done
+                                                        return ;
+                                                    }, "This function returns the group elements as rotation matrices of any point group described by the detected axes.", pybind11::arg ( "fName" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ), pybind11::arg( "maskArr" ) = pybind11::array_t < proshade_double > (), pybind11::arg( "weightsArr" ) = pybind11::array_t < proshade_double > () )
         .def                                          ( "writeMap",         &ProSHADE_internal_data::ProSHADE_data::writeMap,           "Function for writing out the internal structure representation in MRC MAP format.",            pybind11::arg ( "fname" ), pybind11::arg ( "title" ) = "Created by ProSHADE and written by GEMMI", pybind11::arg ( "mode" ) = 2 )
         .def                                          ( "writePdb",         &ProSHADE_internal_data::ProSHADE_data::writePdb,           "This function writes out the co-ordinates file with ProSHADE type rotation and translation applied.", pybind11::arg ( "fname" ), pybind11::arg ( "euA" ) = 0.0, pybind11::arg ( "euB" ) = 0.0, pybind11::arg ( "euG" ) = 0.0, pybind11::arg ( "trsX" ) = 0.0, pybind11::arg ( "trsY" ) = 0.0, pybind11::arg ( "trsZ" ) = 0.0, pybind11::arg ( "rotX" ) = 0.0, pybind11::arg ( "rotY" ) = 0.0, pybind11::arg ( "rotZ" ) = 0.0, pybind11::arg ( "firstModel" ) = true )
         .def                                          ( "writeGemmi",       &ProSHADE_internal_data::ProSHADE_data::writeGemmi,         "This function writes out the gemmi::Structure object with ProSHADE type rotation and translation applied.", pybind11::arg ( "fname" ), pybind11::arg ( "gemmiStruct" ), pybind11::arg ( "euA" ) = 0.0, pybind11::arg ( "euB" ) = 0.0, pybind11::arg ( "euG" ) = 0.0, pybind11::arg ( "trsX" ) = 0.0, pybind11::arg ( "trsY" ) = 0.0, pybind11::arg ( "trsZ" ) = 0.0, pybind11::arg ( "rotX" ) = 0.0, pybind11::arg ( "rotY" ) = 0.0, pybind11::arg ( "rotZ" ) = 0.0, pybind11::arg ( "firstModel" ) = true )

@@ -105,7 +105,6 @@ PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::strin
 #include "pyProSHADE.cpp"
 #include "pyProSHADE_data.cpp"
 #include "pyProSHADE_distances.cpp"
-#include "pyProSHADE_io.cpp"
 
 //==================================================== Declare the exported functions
 PYBIND11_MODULE ( proshade, pyProSHADE )
@@ -132,5 +131,4 @@ PYBIND11_MODULE ( proshade, pyProSHADE )
     add_settingsClass                                 ( pyProSHADE );
     add_dataClass                                     ( pyProSHADE );
     add_distancesClass                                ( pyProSHADE );
-    add_IOClass                                       ( pyProSHADE );
 }

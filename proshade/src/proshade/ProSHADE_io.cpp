@@ -286,26 +286,41 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<int8_t> *gemmiMap, prosha
     \param[in] yDimInds The size of y dimension in indices.
     \param[in] zDimInds The size of z dimension in indices.
     \param[in] verbose How much std::out output would you like?
+    \param[in] maskArray An array of mask values (default nullptr) to be used instead of an input file.
+    \param[in] maXInds The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maYInds The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maZInds The size of maskArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose )
+void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
 {
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Reading mask file " << maskFile;
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str() );
     
-    //================================================ Open the mask
-    gemmi::Ccp4<float> mask;
-    mask.read_ccp4                                    ( gemmi::MaybeGzipped ( maskFile.c_str() ) );
-    
-    //================================================ Convert to XYZ and create complete mask, if need be
-    mask.setup                                        ( gemmi::GridSetup::ReorderOnly, 0 );
-    
-    //================================================ Read in the rest of the mask file header
-    proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
-    proshade_single xDS, yDS, zDS, aA, bA, cA;
-    proshade_signed xF, yF, zF, xAO, yAO, zAO;
-    ProSHADE_internal_io::readInMapHeader             ( &mask,
+    //================================================ Are we reading from array or from file?
+    if ( ( maskArray != nullptr ) && ( maXInds != 0 ) && ( maYInds != 0 ) && ( maZInds != 0 ) )
+    {
+        //============================================ Array it is!
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, verbose );
+    }
+    else
+    {
+        //============================================ Check if filename was given
+        if ( maskFile == "" )                         { return; }
+        
+        //============================================ File it is! Open the mask
+        gemmi::Ccp4<float> mask;
+        mask.read_ccp4                                ( gemmi::MaybeGzipped ( maskFile.c_str() ) );
+        
+        //============================================ Convert to XYZ and create complete mask, if need be
+        mask.setup                                    ( gemmi::GridSetup::ReorderOnly, 0 );
+        
+        //============================================ Read in the rest of the mask file header
+        proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
+        proshade_single xDS, yDS, zDS, aA, bA, cA;
+        proshade_signed xF, yF, zF, xAO, yAO, zAO;
+        ProSHADE_internal_io::readInMapHeader         ( &mask,
                                                         &xDI,  &yDI,  &zDI,
                                                         &xDS,  &yDS,  &zDS,
                                                         &aA,   &bA,   &cA,
@@ -314,15 +329,16 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
                                                         &xAOR, &yAOR, &zAOR,
                                                         &xGI,  &yGI,  &zGI );
 
-    //================================================ Save the mask values to ProSHADE variable
-    proshade_double* internalMask                     = nullptr;
-    ProSHADE_internal_io::readInMapData               ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
-    
-    //================================================ Apply mask from array
-    ProSHADE_internal_io::applyMaskFromArray          ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, verbose );
+        //============================================ Save the mask values to ProSHADE variable
+        proshade_double* internalMask                 = nullptr;
+        ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
+        
+        //============================================ Apply mask from array
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, verbose );
 
-    //================================================ Release the memory
-    delete[] internalMask;
+        //============================================ Release the memory
+        delete[] internalMask;
+    }
     
     //================================================ Done
     return ;
@@ -348,6 +364,11 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
  */
 void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose )
 {
+    //================================================ Initialise local variables
+    size_t origVolume                                 = xDimInds * yDimInds * zDimInds;
+    size_t newVolume                                  = xDimIndsMsk * yDimIndsMsk * zDimIndsMsk;
+    proshade_double* maskFinal;
+    
     //================================================ If mask has different number of indices than map, then re-sample mask
     if ( ( xDimIndsMsk != xDimInds ) || ( yDimIndsMsk != yDimInds ) || ( zDimIndsMsk != zDimInds ) )
     {
@@ -489,12 +510,11 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
         fftw_execute                                  ( inverseFoourier );
 
         //============================================ Delete old mask and allocate memory for the new, re-sampled mask
-        delete[] mask;
-        mask                                          = new proshade_double [origVolume];
-        ProSHADE_internal_misc::checkMemoryAllocation ( mask, __FILE__, __LINE__, __func__ );
+        maskFinal                                     = new proshade_double [origVolume];
+        ProSHADE_internal_misc::checkMemoryAllocation ( maskFinal, __FILE__, __LINE__, __func__ );
 
         //======================================== Copy results into a new, properly sampled mask
-        for ( size_t iter = 0; iter < origVolume; iter++ ) { mask[iter] = outMap[iter][0]; }
+        for ( size_t iter = 0; iter < origVolume; iter++ ) { maskFinal[iter] = outMap[iter][0]; }
 
         //======================================== Release remaining memory
         fftw_destroy_plan                         ( planForwardFourier );
@@ -506,10 +526,19 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
         delete[] inMap;
         delete[] outMap;
     }
+    else
+    {
+        maskFinal                                     = new proshade_double [origVolume];
+        ProSHADE_internal_misc::checkMemoryAllocation ( maskFinal, __FILE__, __LINE__, __func__ );
+        for ( size_t iter = 0; iter < origVolume; iter++ ) { maskFinal[iter] = mask[iter]; }
+    }
 
-    //============================================ Apply the mask to the map
-    for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { map[iter] *= mask[iter]; }
+    //================================================ Apply the mask to the map
+    for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { map[iter] *= maskFinal[iter]; }
 
+    //================================================ Release memory
+    delete[] maskFinal;
+    
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully." );
     
@@ -531,26 +560,40 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
     \param[in] yDimInds The size of y dimension in indices.
     \param[in] zDimInds The size of z dimension in indices.
     \param[in] verbose How much std::out output would you like?
+    \param[in] weightsArray An array of weights (default nullptr) to be used instead of input file.
+    \param[in] waXInds The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] waYInds The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] waZInds The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string weightsFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose )
+void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string weightsFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_double* weightsArray, proshade_unsign waXInds, proshade_unsign waYInds, proshade_unsign waZInds )
 {
     //================================================ Report progress
     std::stringstream hlpSS;
-    hlpSS << "Reading Fourier weights file " << weightsFile;
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str() );
     
-    //================================================ Open the weights file
-    gemmi::Ccp4<float> weights;
-    weights.read_ccp4                                 ( gemmi::MaybeGzipped ( weightsFile.c_str() ) );
-    
-    //================================================ Convert to XYZ and create complete weights, if need be
-    weights.setup                                     ( gemmi::GridSetup::ReorderOnly, 0 );
-    
-    //================================================ Read in the rest of the weights file header
-    proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
-    proshade_single xDS, yDS, zDS, aA, bA, cA;
-    proshade_signed xF, yF, zF, xAO, yAO, zAO;
-    ProSHADE_internal_io::readInMapHeader             ( &weights,
+    //================================================ Are we reading from file, or from array?
+    if ( ( weightsArray != nullptr ) && ( waXInds != 0 ) && ( waYInds != 0 ) && ( waZInds != 0 ) )
+    {
+        //============================================ From array it is!
+        ProSHADE_internal_io::applyWeightsFromArray   ( map, xDimInds, yDimInds, zDimInds, weightsArray, waXInds, waYInds, waZInds, verbose );
+    }
+    else
+    {
+        //============================================ Check if weights file was given
+        if ( weightsFile == "" )                      { return; }
+        
+        //============================================ From file it is! Open the weights file
+        gemmi::Ccp4<float> weights;
+        weights.read_ccp4                             ( gemmi::MaybeGzipped ( weightsFile.c_str() ) );
+        
+        //============================================ Convert to XYZ and create complete weights, if need be
+        weights.setup                                 ( gemmi::GridSetup::ReorderOnly, 0 );
+        
+        //============================================ Read in the rest of the weights file header
+        proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
+        proshade_single xDS, yDS, zDS, aA, bA, cA;
+        proshade_signed xF, yF, zF, xAO, yAO, zAO;
+        ProSHADE_internal_io::readInMapHeader         ( &weights,
                                                         &xDI,  &yDI,  &zDI,
                                                         &xDS,  &yDS,  &zDS,
                                                         &aA,   &bA,   &cA,
@@ -559,15 +602,16 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
                                                         &xAOR, &yAOR, &zAOR,
                                                         &xGI,  &yGI,  &zGI );
 
-    //================================================ Save the weights values to local variable
-    proshade_double* internalWeights                  = nullptr;
-    ProSHADE_internal_io::readInMapData               ( &weights, internalWeights, xDI, yDI, zDI, xAOR, yAOR, zAOR );
-    
-    //================================================ Apply weights from array
-    ProSHADE_internal_io::applyWeightsFromArray       ( map, xDimInds, yDimInds, zDimInds, internalWeights, xDI, yDI, zDI, verbose );
+        //============================================ Save the weights values to local variable
+        proshade_double* internalWeights              = nullptr;
+        ProSHADE_internal_io::readInMapData           ( &weights, internalWeights, xDI, yDI, zDI, xAOR, yAOR, zAOR );
+        
+        //============================================ Apply weights from array
+        ProSHADE_internal_io::applyWeightsFromArray   ( map, xDimInds, yDimInds, zDimInds, internalWeights, xDI, yDI, zDI, verbose );
 
-    //================================================ Release the memory
-    delete[] internalWeights;
+        //============================================ Release the memory
+        delete[] internalWeights;
+    }
     
     //================================================ Done
     return ;
@@ -593,12 +637,15 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
  */
 void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& weights, proshade_unsign xDimIndsWgh, proshade_unsign yDimIndsWgh, proshade_unsign zDimIndsWgh, proshade_signed verbose )
 {
+    //================================================ Initialise local variables
+    proshade_double* weightsFinal;
+    size_t origVolume                                 = xDimInds * yDimInds * zDimInds;
+    size_t newVolume                                  = xDimIndsWgh * yDimIndsWgh * zDimIndsWgh;
+    
     //================================================ If weights have different number of indices than map, then re-sample weights in supplied space
     if ( ( xDimIndsWgh != xDimInds ) || ( yDimIndsWgh != yDimInds ) || ( zDimIndsWgh != zDimInds ) )
     {
         //============================================ Initialise variables
-        size_t origVolume                             = xDimInds * yDimInds * zDimInds;
-        size_t newVolume                              = xDimIndsWgh * yDimIndsWgh * zDimIndsWgh;
         fftw_complex* origCoeffs                      = new fftw_complex [newVolume ];
         fftw_complex* origCoeffsHKL                   = new fftw_complex [newVolume ];
         fftw_complex* modifCoeffs                     = new fftw_complex [origVolume];
@@ -619,7 +666,7 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
 
         //============================================ Copy weights to Fourier input array
         for ( size_t iter = 0; iter < newVolume; iter++ ) { inMap[iter][0] = weights[iter]; inMap[iter][1] = 0.0; }
-
+        
         //============================================ Prepare Fourier transform plans
         fftw_plan planForwardFourier                  = fftw_plan_dft_3d ( static_cast< int > ( xDimIndsWgh ), static_cast< int > ( yDimIndsWgh ), static_cast< int > ( zDimIndsWgh ), inMap, origCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
         fftw_plan inverseFoourier                     = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), modifCoeffs, outMap, FFTW_BACKWARD, FFTW_ESTIMATE );
@@ -734,12 +781,11 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
         fftw_execute                                  ( inverseFoourier );
 
         //============================================ Delete old weights and allocate memory for the new, re-sampled weights
-        delete[] weights;
-        weights                                       = new proshade_double [origVolume];
-        ProSHADE_internal_misc::checkMemoryAllocation ( weights, __FILE__, __LINE__, __func__ );
+        weightsFinal                                  = new proshade_double [origVolume];
+        ProSHADE_internal_misc::checkMemoryAllocation ( weightsFinal, __FILE__, __LINE__, __func__ );
 
         //============================================ Copy results into a new, properly sampled weights
-        for ( size_t iter = 0; iter < origVolume; iter++ ) { weights[iter] = outMap[iter][0]; }
+        for ( size_t iter = 0; iter < origVolume; iter++ ) { weightsFinal[iter] = outMap[iter][0]; }
 
         //============================================ Release remaining memory
         fftw_destroy_plan                             ( planForwardFourier );
@@ -751,23 +797,30 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
         delete[] inMap;
         delete[] outMap;
     }
+    else
+    {
+        weightsFinal                                  = new proshade_double [origVolume];
+        ProSHADE_internal_misc::checkMemoryAllocation ( weightsFinal, __FILE__, __LINE__, __func__ );
+        for ( size_t iter = 0; iter < origVolume; iter++ ) { weightsFinal[iter] = weights[iter]; }
+    }
     
     //================================================ Allocate memory for map Fourier transform
-    fftw_complex* inMap                               = new fftw_complex [xDimInds * yDimInds * zDimInds];
-    fftw_complex* outMap                              = new fftw_complex [xDimInds * yDimInds * zDimInds];
+    fftw_complex* inMap                               = new fftw_complex [origVolume];
+    fftw_complex* outMap                              = new fftw_complex [origVolume];
     ProSHADE_internal_misc::checkMemoryAllocation     ( inMap,  __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( outMap, __FILE__, __LINE__, __func__ );
     fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), inMap, outMap, FFTW_FORWARD,  FFTW_ESTIMATE );
     fftw_plan inverseFoourier                         = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), outMap, inMap, FFTW_BACKWARD, FFTW_ESTIMATE );
 
     //================================================ Set data
-    for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { inMap[iter][0] = map[iter]; inMap[iter][1] = 0.0; }
+    for ( size_t iter = 0; iter < static_cast< size_t > ( origVolume ); iter++ ) { inMap[iter][0] = map[iter]; inMap[iter][1] = 0.0; }
     
     //================================================ Convert map to Fourier space
     fftw_execute                                      ( planForwardFourier );
     
     //================================================ Apply the weights to the map in Fourier space
-    for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { outMap[iter][0] *= weights[iter]; outMap[iter][1] *= weights[iter]; }
+    proshade_double normFactor                        = static_cast<proshade_double> ( origVolume );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( origVolume ); iter++ ) { outMap[iter][0] *= weightsFinal[iter] / normFactor; outMap[iter][1] *= weightsFinal[iter] / normFactor; }
     
     //================================================ Convert weighted map from Fourier space
     fftw_execute                                      ( inverseFoourier );
@@ -776,6 +829,7 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { map[iter] = inMap[iter][0]; }
     
     //================================================ Release memory
+    delete[] weightsFinal;
     delete[] inMap;
     delete[] outMap;
     fftw_destroy_plan                                 ( planForwardFourier );

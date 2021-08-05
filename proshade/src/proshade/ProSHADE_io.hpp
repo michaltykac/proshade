@@ -53,11 +53,13 @@ namespace ProSHADE_internal_io
     void readInMapData                                ( gemmi::Ccp4<int8_t> *gemmiMap, proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
                                                         proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder );
     void applyMask                                    ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
-                                                        proshade_signed verbose );
+                                                        proshade_signed verbose, proshade_double* maskArray = nullptr, proshade_unsign maXInds = 0, proshade_unsign maYInds = 0,
+                                                        proshade_unsign maZInds = 0 );
     void applyMaskFromArray                           ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask,
                                                         proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose );
     void applyWeights                                 ( proshade_double*& map, std::string weightsFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds,
-                                                        proshade_signed verbose );
+                                                        proshade_signed verbose, proshade_double* weightsArray = nullptr, proshade_unsign waXInds = 0, proshade_unsign waYInds = 0,
+                                                        proshade_unsign waZInds = 0 );
     void applyWeightsFromArray                        ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& weights,
                                                         proshade_unsign xDimIndsWgh, proshade_unsign yDimIndsWgh, proshade_unsign zDimIndsWgh, proshade_signed verbose );
     void writeOutMapHeader                            ( gemmi::Ccp4<float> *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim,

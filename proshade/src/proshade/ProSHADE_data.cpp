@@ -497,8 +497,16 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
     \param[in] fName The file name of the file which should be loaded.
     \param[in] inputO The order of this structure in this run's input.
     \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] maskArr An array of mask values (default nullptr) to be used instead of an input mask file.
+    \param[in] maskXDim The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maskYDim The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maskZDim The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] weightsArr An array of weights (default nullptr) to be used instead of input file.
+    \param[in] weigXDim The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] weigYDim The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] weigZDim The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Report function start
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting to read the structure: " + fName );
@@ -532,7 +540,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
             break;
         
         case ProSHADE_internal_io::MAP:
-            this->readInMAP                           ( settings );
+            this->readInMAP                           ( settings, maskArr, maskXDim, maskYDim, maskZDim, weightsArr, weigXDim, weigYDim, weigZDim );
             break;
     }
     
@@ -599,8 +607,16 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( gemmi::Structure g
     the Fourier weights are applied, map re-sampling is done and then the final map details are saved for further processing.
  
     \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] maskArr An array of mask values (default nullptr) to be used instead of an input mask file.
+    \param[in] maskXDim The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maskYDim The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maskZDim The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] weightsArr An array of weights (default nullptr) to be used instead of input file.
+    \param[in] weigXDim The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] weigYDim The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] weigZDim The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Open the file
     gemmi::Ccp4<float> map;
@@ -623,10 +639,12 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
         
     //================================================ If mask is supplied and the correct task is used
-    if ( settings->appliedMaskFileName != "" )        { ProSHADE_internal_io::applyMask    ( this->internalMap, settings->appliedMaskFileName,    this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose ); }
+    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+                                                        maskArr, maskXDim, maskYDim, maskZDim );
     
     //================================================ Apply Fourier weights
-    if ( settings->fourierWeightsFileName != "" )     { ProSHADE_internal_io::applyWeights ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose ); }
+    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+                                                        weightsArr, weigXDim, weigYDim, weigZDim );
     
     //================================================ Remove negative values if so required
     if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
