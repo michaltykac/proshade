@@ -399,14 +399,11 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
         fftw_plan inverseFoourier                     = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), modifCoeffs, outMap, FFTW_BACKWARD, FFTW_ESTIMATE );
 
         //============================================ Compute pre and post changes
-        proshade_signed xPre, xPost, yPre, yPost, zPre, zPost;
+        proshade_signed xPre, yPre, zPre;
         xPre                                          = std::abs ( ( static_cast< proshade_signed > ( xDimInds ) - static_cast< proshade_signed > ( xDimIndsMsk ) ) / 2 );
-        xPost                                         = std::abs ( ( static_cast< proshade_signed > ( xDimInds ) - static_cast< proshade_signed > ( xDimIndsMsk ) ) / 2 );
         yPre                                          = std::abs ( ( static_cast< proshade_signed > ( yDimInds ) - static_cast< proshade_signed > ( yDimIndsMsk ) ) / 2 );
-        yPost                                         = std::abs ( ( static_cast< proshade_signed > ( yDimInds ) - static_cast< proshade_signed > ( yDimIndsMsk ) ) / 2 );
         zPre                                          = std::abs ( ( static_cast< proshade_signed > ( zDimInds ) - static_cast< proshade_signed > ( zDimIndsMsk ) ) / 2 );
-        zPost                                         = std::abs ( ( static_cast< proshade_signed > ( zDimInds ) - static_cast< proshade_signed > ( zDimIndsMsk ) ) / 2 );
-
+        
         if ( ( ( static_cast< proshade_signed > ( xDimInds ) - static_cast< proshade_signed > ( xDimIndsMsk ) ) % 2 ) == 1 ) { xPre -= 1; }
         if ( ( ( static_cast< proshade_signed > ( yDimInds ) - static_cast< proshade_signed > ( yDimIndsMsk ) ) % 2 ) == 1 ) { yPre -= 1; }
         if ( ( ( static_cast< proshade_signed > ( zDimInds ) - static_cast< proshade_signed > ( zDimIndsMsk ) ) % 2 ) == 1 ) { zPre -= 1; }
@@ -670,14 +667,11 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
         fftw_plan inverseFoourier                     = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), modifCoeffs, outMap, FFTW_BACKWARD, FFTW_ESTIMATE );
 
         //============================================ Compute pre and post changes
-        proshade_signed xPre, xPost, yPre, yPost, zPre, zPost;
+        proshade_signed xPre, yPre, zPre;
         xPre                                          = std::abs ( ( static_cast< proshade_signed > ( xDimInds ) - static_cast< proshade_signed > ( xDimIndsWgh ) ) / 2 );
-        xPost                                         = std::abs ( ( static_cast< proshade_signed > ( xDimInds ) - static_cast< proshade_signed > ( xDimIndsWgh ) ) / 2 );
         yPre                                          = std::abs ( ( static_cast< proshade_signed > ( yDimInds ) - static_cast< proshade_signed > ( yDimIndsWgh ) ) / 2 );
-        yPost                                         = std::abs ( ( static_cast< proshade_signed > ( yDimInds ) - static_cast< proshade_signed > ( yDimIndsWgh ) ) / 2 );
         zPre                                          = std::abs ( ( static_cast< proshade_signed > ( zDimInds ) - static_cast< proshade_signed > ( zDimIndsWgh ) ) / 2 );
-        zPost                                         = std::abs ( ( static_cast< proshade_signed > ( zDimInds ) - static_cast< proshade_signed > ( zDimIndsWgh ) ) / 2 );
-
+        
         if ( ( ( static_cast< proshade_signed > ( xDimInds ) - static_cast< proshade_signed > ( xDimIndsWgh ) ) % 2 ) == 1 ) { xPre -= 1; }
         if ( ( ( static_cast< proshade_signed > ( yDimInds ) - static_cast< proshade_signed > ( yDimIndsWgh ) ) % 2 ) == 1 ) { yPre -= 1; }
         if ( ( ( static_cast< proshade_signed > ( zDimInds ) - static_cast< proshade_signed > ( zDimIndsWgh ) ) % 2 ) == 1 ) { zPre -= 1; }
