@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.6.0 (JUL 2021)</span>
+   &#160;<span id="projectnumber">0.7.6.1 (AUG 2021)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -109,7 +109,8 @@ Namespaces</h2></td></tr>
 Enumerations</h2></td></tr>
 <tr class="memitem:a80a7305e00c670509c352f2e6c6a7964"><td class="memItemLeft" align="right" valign="top"><a id="a80a7305e00c670509c352f2e6c6a7964"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>InputType</b> { <b>UNKNOWN</b>, 
 <b>PDB</b>, 
-<b>MAP</b>
+<b>MAP</b>, 
+<b>GEMMI</b>
  }</td></tr>
 <tr class="separator:a80a7305e00c670509c352f2e6c6a7964"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -133,6 +134,18 @@ Functions</h2></td></tr>
 <tr class="memitem:a6457a6070e82b0955205ed0a95ea3040"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_pro_s_h_a_d_e__internal__io.html#a6457a6070e82b0955205ed0a95ea3040">ProSHADE_internal_io::readInMapData</a> (gemmi::Ccp4&lt; int8_t &gt; *gemmiMap, proshade_double *&amp;map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder)</td></tr>
 <tr class="memdesc:a6457a6070e82b0955205ed0a95ea3040"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function converts the gemmi Ccp4 object data to ProSHADE mask representation.  <a href="namespace_pro_s_h_a_d_e__internal__io.html#a6457a6070e82b0955205ed0a95ea3040">More...</a><br /></td></tr>
 <tr class="separator:a6457a6070e82b0955205ed0a95ea3040"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5e21f1b3dc18338da35951b248e6e38"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_pro_s_h_a_d_e__internal__io.html#aa5e21f1b3dc18338da35951b248e6e38">ProSHADE_internal_io::applyMask</a> (proshade_double *&amp;map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_double *maskArray=nullptr, proshade_unsign maXInds=0, proshade_unsign maYInds=0, proshade_unsign maZInds=0)</td></tr>
+<tr class="memdesc:aa5e21f1b3dc18338da35951b248e6e38"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function reads and applies the mask to the map.  <a href="namespace_pro_s_h_a_d_e__internal__io.html#aa5e21f1b3dc18338da35951b248e6e38">More...</a><br /></td></tr>
+<tr class="separator:aa5e21f1b3dc18338da35951b248e6e38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a354a3899d17c6c5d4bad042dc00f4554"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_pro_s_h_a_d_e__internal__io.html#a354a3899d17c6c5d4bad042dc00f4554">ProSHADE_internal_io::applyMaskFromArray</a> (proshade_double *&amp;map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double *&amp;mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose)</td></tr>
+<tr class="memdesc:a354a3899d17c6c5d4bad042dc00f4554"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function applies the mask to the map.  <a href="namespace_pro_s_h_a_d_e__internal__io.html#a354a3899d17c6c5d4bad042dc00f4554">More...</a><br /></td></tr>
+<tr class="separator:a354a3899d17c6c5d4bad042dc00f4554"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2047cb9106e44b8de3174e34b9578f80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_pro_s_h_a_d_e__internal__io.html#a2047cb9106e44b8de3174e34b9578f80">ProSHADE_internal_io::applyWeights</a> (proshade_double *&amp;map, std::string weightsFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_double *weightsArray=nullptr, proshade_unsign waXInds=0, proshade_unsign waYInds=0, proshade_unsign waZInds=0)</td></tr>
+<tr class="memdesc:a2047cb9106e44b8de3174e34b9578f80"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function reads and applies the Fourier weights to the map.  <a href="namespace_pro_s_h_a_d_e__internal__io.html#a2047cb9106e44b8de3174e34b9578f80">More...</a><br /></td></tr>
+<tr class="separator:a2047cb9106e44b8de3174e34b9578f80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adae94658a4eec4c994e10d267b00fe4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_pro_s_h_a_d_e__internal__io.html#adae94658a4eec4c994e10d267b00fe4c">ProSHADE_internal_io::applyWeightsFromArray</a> (proshade_double *&amp;map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double *&amp;weights, proshade_unsign xDimIndsWgh, proshade_unsign yDimIndsWgh, proshade_unsign zDimIndsWgh, proshade_signed verbose)</td></tr>
+<tr class="memdesc:adae94658a4eec4c994e10d267b00fe4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function applies the weights to the map.  <a href="namespace_pro_s_h_a_d_e__internal__io.html#adae94658a4eec4c994e10d267b00fe4c">More...</a><br /></td></tr>
+<tr class="separator:adae94658a4eec4c994e10d267b00fe4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e438f3d348e3e065f798031d5a33d09"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_pro_s_h_a_d_e__internal__io.html#a2e438f3d348e3e065f798031d5a33d09">ProSHADE_internal_io::writeOutMapHeader</a> (gemmi::Ccp4&lt; float &gt; *map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_single xDim, proshade_single yDim, proshade_single zDim, proshade_single aAng, proshade_single bAng, proshade_single cAng, proshade_signed xFrom, proshade_signed yFrom, proshade_signed zFrom, proshade_signed xAxOrigin, proshade_signed yAxOrigin, proshade_signed zAxOrigin, proshade_unsign xAxOrder, proshade_unsign yAxOrder, proshade_unsign zAxOrder, proshade_unsign xGridInds, proshade_unsign yGridInds, proshade_unsign zGridInds, std::string title, int mode)</td></tr>
 <tr class="memdesc:a2e438f3d348e3e065f798031d5a33d09"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function parses the CCP4 MAP file header as read in by gemmi.  <a href="namespace_pro_s_h_a_d_e__internal__io.html#a2e438f3d348e3e065f798031d5a33d09">More...</a><br /></td></tr>
 <tr class="separator:a2e438f3d348e3e065f798031d5a33d09"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,8 +162,8 @@ Functions</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>Michal Tykac </dd>
 <dd>
 Garib N. Murshudov </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.7.6.0 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>JUL 2021 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>0.7.6.1 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>AUG 2021 </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="_pro_s_h_a_d_e__io_8hpp_source.html">ProSHADE_io.hpp</a>.</p>
 </div></div><!-- contents -->

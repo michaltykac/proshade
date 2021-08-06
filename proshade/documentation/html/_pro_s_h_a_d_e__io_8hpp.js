@@ -3,8 +3,13 @@ var _pro_s_h_a_d_e__io_8hpp =
     [ "InputType", "_pro_s_h_a_d_e__io_8hpp.html#a80a7305e00c670509c352f2e6c6a7964", [
       [ "UNKNOWN", "_pro_s_h_a_d_e__io_8hpp.html#a80a7305e00c670509c352f2e6c6a7964a931e41099ae6c64ea034b6485a46dfaa", null ],
       [ "PDB", "_pro_s_h_a_d_e__io_8hpp.html#a80a7305e00c670509c352f2e6c6a7964a02c37da7e1f9b2546ac6f8dab137dc25", null ],
-      [ "MAP", "_pro_s_h_a_d_e__io_8hpp.html#a80a7305e00c670509c352f2e6c6a7964a2ebd61b90723c41f6f03a4a1f5791f1e", null ]
+      [ "MAP", "_pro_s_h_a_d_e__io_8hpp.html#a80a7305e00c670509c352f2e6c6a7964a2ebd61b90723c41f6f03a4a1f5791f1e", null ],
+      [ "GEMMI", "_pro_s_h_a_d_e__io_8hpp.html#a80a7305e00c670509c352f2e6c6a7964a5f47bf43e5397417deb998646477b2db", null ]
     ] ],
+    [ "applyMask", "_pro_s_h_a_d_e__io_8hpp.html#aa5e21f1b3dc18338da35951b248e6e38", null ],
+    [ "applyMaskFromArray", "_pro_s_h_a_d_e__io_8hpp.html#a354a3899d17c6c5d4bad042dc00f4554", null ],
+    [ "applyWeights", "_pro_s_h_a_d_e__io_8hpp.html#a2047cb9106e44b8de3174e34b9578f80", null ],
+    [ "applyWeightsFromArray", "_pro_s_h_a_d_e__io_8hpp.html#adae94658a4eec4c994e10d267b00fe4c", null ],
     [ "figureDataType", "_pro_s_h_a_d_e__io_8hpp.html#a63ae2cc7f413d224e5d651ed579e9afb", null ],
     [ "isFileMAP", "_pro_s_h_a_d_e__io_8hpp.html#ae496132c658b22a5abb5d7aaca5e1f56", null ],
     [ "isFilePDB", "_pro_s_h_a_d_e__io_8hpp.html#abc5e6a82b6b44e3666abfc190dc0bc64", null ],

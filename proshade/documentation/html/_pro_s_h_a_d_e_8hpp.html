@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.6.0 (JUL 2021)</span>
+   &#160;<span id="projectnumber">0.7.6.1 (AUG 2021)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -119,8 +119,8 @@ Functions</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>Michal Tykac </dd>
 <dd>
 Garib N. Murshudov </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.7.6.0 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>JUL 2021 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>0.7.6.1 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>AUG 2021 </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="_pro_s_h_a_d_e_8hpp_source.html">ProSHADE.hpp</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -173,34 +173,34 @@ Garib N. Murshudov </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02995">2995</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l02997"></a><span class="lineno"> 2997</span>&#160;{</div>
-<div class="line"><a name="l02998"></a><span class="lineno"> 2998</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
-<div class="line"><a name="l02999"></a><span class="lineno"> 2999</span>&#160;    <span class="keywordflow">if</span> ( run-&gt;<a class="code" href="class_pro_s_h_a_d_e__run.html#a8b9ecd92f8a8c2ad9255dfb6290d13e8">getNoStructures</a>() &lt;= strNo )</div>
-<div class="line"><a name="l03000"></a><span class="lineno"> 3000</span>&#160;    {</div>
-<div class="line"><a name="l03001"></a><span class="lineno"> 3001</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( run-&gt;<a class="code" href="class_pro_s_h_a_d_e__run.html#ad2e8d2a0e5858872bb5670414dc0ea68">getVerbose</a>(), <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WB00041&quot;</span> );</div>
-<div class="line"><a name="l03002"></a><span class="lineno"> 3002</span>&#160;        return ;</div>
-<div class="line"><a name="l03003"></a><span class="lineno"> 3003</span>&#160;    }</div>
-<div class="line"><a name="l03004"></a><span class="lineno"> 3004</span>&#160;    </div>
-<div class="line"><a name="l03005"></a><span class="lineno"> 3005</span>&#160;    <span class="comment">//================================================ Save the data into the output array</span></div>
-<div class="line"><a name="l03006"></a><span class="lineno"> 3006</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( len ); iter++)</div>
-<div class="line"><a name="l03007"></a><span class="lineno"> 3007</span>&#160;    {</div>
-<div class="line"><a name="l03008"></a><span class="lineno"> 3008</span>&#160;        reboxMap[iter]                                = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span> ( run-&gt;<a class="code" href="class_pro_s_h_a_d_e__run.html#a80d94c94c8043c9af2dca3cd08ad33fe">getMapValue</a> ( strNo, iter ) );</div>
-<div class="line"><a name="l03009"></a><span class="lineno"> 3009</span>&#160;    }</div>
-<div class="line"><a name="l03010"></a><span class="lineno"> 3010</span>&#160;    </div>
-<div class="line"><a name="l03011"></a><span class="lineno"> 3011</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l03012"></a><span class="lineno"> 3012</span>&#160;    return ;</div>
-<div class="line"><a name="l03013"></a><span class="lineno"> 3013</span>&#160;    </div>
-<div class="line"><a name="l03014"></a><span class="lineno"> 3014</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html#l02994">2994</a> of file <a class="el" href="_pro_s_h_a_d_e_8cpp_source.html">ProSHADE.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l02996"></a><span class="lineno"> 2996</span>&#160;{</div>
+<div class="line"><a name="l02997"></a><span class="lineno"> 2997</span>&#160;    <span class="comment">//================================================ Sanity checks</span></div>
+<div class="line"><a name="l02998"></a><span class="lineno"> 2998</span>&#160;    <span class="keywordflow">if</span> ( run-&gt;<a class="code" href="class_pro_s_h_a_d_e__run.html#a8b9ecd92f8a8c2ad9255dfb6290d13e8">getNoStructures</a>() &lt;= strNo )</div>
+<div class="line"><a name="l02999"></a><span class="lineno"> 2999</span>&#160;    {</div>
+<div class="line"><a name="l03000"></a><span class="lineno"> 3000</span>&#160;        <a class="code" href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a> ( run-&gt;<a class="code" href="class_pro_s_h_a_d_e__run.html#ad2e8d2a0e5858872bb5670414dc0ea68">getVerbose</a>(), <span class="stringliteral">&quot;!!! ProSHADE WARNING !!! Requested bounds for structure index which does not exist. Returning empty vector.&quot;</span>, <span class="stringliteral">&quot;WB00041&quot;</span> );</div>
+<div class="line"><a name="l03001"></a><span class="lineno"> 3001</span>&#160;        return ;</div>
+<div class="line"><a name="l03002"></a><span class="lineno"> 3002</span>&#160;    }</div>
+<div class="line"><a name="l03003"></a><span class="lineno"> 3003</span>&#160;    </div>
+<div class="line"><a name="l03004"></a><span class="lineno"> 3004</span>&#160;    <span class="comment">//================================================ Save the data into the output array</span></div>
+<div class="line"><a name="l03005"></a><span class="lineno"> 3005</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign iter = 0; iter &lt; static_cast&lt;proshade_unsign&gt; ( len ); iter++)</div>
+<div class="line"><a name="l03006"></a><span class="lineno"> 3006</span>&#160;    {</div>
+<div class="line"><a name="l03007"></a><span class="lineno"> 3007</span>&#160;        reboxMap[iter]                                = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span><span class="keyword">&gt;</span> ( run-&gt;<a class="code" href="class_pro_s_h_a_d_e__run.html#a80d94c94c8043c9af2dca3cd08ad33fe">getMapValue</a> ( strNo, iter ) );</div>
+<div class="line"><a name="l03008"></a><span class="lineno"> 3008</span>&#160;    }</div>
+<div class="line"><a name="l03009"></a><span class="lineno"> 3009</span>&#160;    </div>
+<div class="line"><a name="l03010"></a><span class="lineno"> 3010</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l03011"></a><span class="lineno"> 3011</span>&#160;    return ;</div>
+<div class="line"><a name="l03012"></a><span class="lineno"> 3012</span>&#160;    </div>
+<div class="line"><a name="l03013"></a><span class="lineno"> 3013</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
-<div class="ttc" id="aclass_pro_s_h_a_d_e__run_html_ad2e8d2a0e5858872bb5670414dc0ea68"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html#ad2e8d2a0e5858872bb5670414dc0ea68">ProSHADE_run::getVerbose</a></div><div class="ttdeci">proshade_signed getVerbose(void)</div><div class="ttdoc">This function returns the verbose value.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l02793">ProSHADE.cpp:2793</a></div></div>
+<div class="ttc" id="aclass_pro_s_h_a_d_e__run_html_ad2e8d2a0e5858872bb5670414dc0ea68"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html#ad2e8d2a0e5858872bb5670414dc0ea68">ProSHADE_run::getVerbose</a></div><div class="ttdeci">proshade_signed getVerbose(void)</div><div class="ttdoc">This function returns the verbose value.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l02792">ProSHADE.cpp:2792</a></div></div>
 <div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__messages_html_addbb90f2b4199441f60e241ac850daa2"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__messages.html#addbb90f2b4199441f60e241ac850daa2">ProSHADE_internal_messages::printWarningMessage</a></div><div class="ttdeci">void printWarningMessage(proshade_signed verbose, std::string message, std::string warnCode)</div><div class="ttdoc">General stderr message printing (used for warnings).</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__messages_8cpp_source.html#l00101">ProSHADE_messages.cpp:101</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__run_html_a80d94c94c8043c9af2dca3cd08ad33fe"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html#a80d94c94c8043c9af2dca3cd08ad33fe">ProSHADE_run::getMapValue</a></div><div class="ttdeci">proshade_double getMapValue(proshade_unsign strNo, proshade_unsign mapIndex)</div><div class="ttdoc">This function returns a single, specific structure map value.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l02978">ProSHADE.cpp:2978</a></div></div>
-<div class="ttc" id="aclass_pro_s_h_a_d_e__run_html_a8b9ecd92f8a8c2ad9255dfb6290d13e8"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html#a8b9ecd92f8a8c2ad9255dfb6290d13e8">ProSHADE_run::getNoStructures</a></div><div class="ttdeci">proshade_unsign getNoStructures(void)</div><div class="ttdoc">This function returns the number of structures used.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l02783">ProSHADE.cpp:2783</a></div></div>
+<div class="ttc" id="aclass_pro_s_h_a_d_e__run_html_a80d94c94c8043c9af2dca3cd08ad33fe"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html#a80d94c94c8043c9af2dca3cd08ad33fe">ProSHADE_run::getMapValue</a></div><div class="ttdeci">proshade_double getMapValue(proshade_unsign strNo, proshade_unsign mapIndex)</div><div class="ttdoc">This function returns a single, specific structure map value.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l02977">ProSHADE.cpp:2977</a></div></div>
+<div class="ttc" id="aclass_pro_s_h_a_d_e__run_html_a8b9ecd92f8a8c2ad9255dfb6290d13e8"><div class="ttname"><a href="class_pro_s_h_a_d_e__run.html#a8b9ecd92f8a8c2ad9255dfb6290d13e8">ProSHADE_run::getNoStructures</a></div><div class="ttdeci">proshade_unsign getNoStructures(void)</div><div class="ttdoc">This function returns the number of structures used.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e_8cpp_source.html#l02782">ProSHADE.cpp:2782</a></div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>

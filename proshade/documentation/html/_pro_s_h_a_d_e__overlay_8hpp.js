@@ -4,6 +4,7 @@ var _pro_s_h_a_d_e__overlay_8hpp =
     [ "combineFourierForTranslation", "_pro_s_h_a_d_e__overlay_8hpp.html#a2a0722746f5c10a2ce4805513cb99fe9", null ],
     [ "computeAngularThreshold", "_pro_s_h_a_d_e__overlay_8hpp.html#a78c51dc39b75ffb4731c7219b25e290b", null ],
     [ "computeBeforeAfterZeroCounts", "_pro_s_h_a_d_e__overlay_8hpp.html#a6f02ec45f8f865fe5a7142509f48e41a", null ],
+    [ "computeTranslationsFromPeak", "_pro_s_h_a_d_e__overlay_8hpp.html#aed7eab7c65fccfa0690ef475ae4e2e9e", null ],
     [ "findHighestValueInMap", "_pro_s_h_a_d_e__overlay_8hpp.html#a75e695f0a6b627e6a670c5e379230f4c", null ],
     [ "freeTranslationFunctionMemory", "_pro_s_h_a_d_e__overlay_8hpp.html#a448b6438ea9979e18af75f419f175603", null ],
     [ "getOptimalRotation", "_pro_s_h_a_d_e__overlay_8hpp.html#a92cc970ba9d1e6ab220a0c947ebd5567", null ],

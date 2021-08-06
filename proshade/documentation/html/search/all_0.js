@@ -39,10 +39,14 @@ var searchData=
   ['angulardistancewithborders_36',['angularDistanceWithBorders',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__rot_fun__sphere_peak_group.html#a8edbe0a36f9af831a2160455386863ba',1,'ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup']]],
   ['appliedmaskfilename_37',['appliedMaskFileName',['../class_pro_s_h_a_d_e__settings.html#a670cffe28bbdac027bffd8f5491d4266',1,'ProSHADE_settings']]],
   ['applycondonshortleyphase_38',['applyCondonShortleyPhase',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#aa25c84ea82e4faeb0f41f738a56ca28d',1,'ProSHADE_internal_sphericalHarmonics']]],
-  ['arraymedianandiqr_39',['arrayMedianAndIQR',['../namespace_pro_s_h_a_d_e__internal__maths.html#aa5a356017340781739a3bd66c716cfa5',1,'ProSHADE_internal_maths']]],
-  ['autodeterminebandwidth_40',['autoDetermineBandwidth',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a9592e9df40cf87ee1d1c43d6b3508e1c',1,'ProSHADE_internal_spheres']]],
-  ['autodetermineintegrationorder_41',['autoDetermineIntegrationOrder',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a612cf0a1e92ea1e5f0b9bdb820a4b60e',1,'ProSHADE_internal_spheres']]],
-  ['autodeterminespheredistances_42',['autoDetermineSphereDistances',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a51e14f3a4ce99f8e39497bbce12e28c7',1,'ProSHADE_internal_spheres']]],
-  ['axestogrouptypesanitycheck_43',['axesToGroupTypeSanityCheck',['../_pro_s_h_a_d_e__data_8cpp.html#a188746757d4fe33cc7bca307aa367bc7',1,'ProSHADE_data.cpp']]],
-  ['axiserrtolerance_44',['axisErrTolerance',['../class_pro_s_h_a_d_e__settings.html#a4627b03c4064d3de15efb3ebbf57ed78',1,'ProSHADE_settings']]]
+  ['applymask_39',['applyMask',['../namespace_pro_s_h_a_d_e__internal__io.html#aa5e21f1b3dc18338da35951b248e6e38',1,'ProSHADE_internal_io']]],
+  ['applymaskfromarray_40',['applyMaskFromArray',['../namespace_pro_s_h_a_d_e__internal__io.html#a354a3899d17c6c5d4bad042dc00f4554',1,'ProSHADE_internal_io']]],
+  ['applyweights_41',['applyWeights',['../namespace_pro_s_h_a_d_e__internal__io.html#a2047cb9106e44b8de3174e34b9578f80',1,'ProSHADE_internal_io']]],
+  ['applyweightsfromarray_42',['applyWeightsFromArray',['../namespace_pro_s_h_a_d_e__internal__io.html#adae94658a4eec4c994e10d267b00fe4c',1,'ProSHADE_internal_io']]],
+  ['arraymedianandiqr_43',['arrayMedianAndIQR',['../namespace_pro_s_h_a_d_e__internal__maths.html#aa5a356017340781739a3bd66c716cfa5',1,'ProSHADE_internal_maths']]],
+  ['autodeterminebandwidth_44',['autoDetermineBandwidth',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a9592e9df40cf87ee1d1c43d6b3508e1c',1,'ProSHADE_internal_spheres']]],
+  ['autodetermineintegrationorder_45',['autoDetermineIntegrationOrder',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a612cf0a1e92ea1e5f0b9bdb820a4b60e',1,'ProSHADE_internal_spheres']]],
+  ['autodeterminespheredistances_46',['autoDetermineSphereDistances',['../namespace_pro_s_h_a_d_e__internal__spheres.html#a51e14f3a4ce99f8e39497bbce12e28c7',1,'ProSHADE_internal_spheres']]],
+  ['axestogrouptypesanitycheck_47',['axesToGroupTypeSanityCheck',['../_pro_s_h_a_d_e__data_8cpp.html#a188746757d4fe33cc7bca307aa367bc7',1,'ProSHADE_data.cpp']]],
+  ['axiserrtolerance_48',['axisErrTolerance',['../class_pro_s_h_a_d_e__settings.html#a4627b03c4064d3de15efb3ebbf57ed78',1,'ProSHADE_settings']]]
 ];

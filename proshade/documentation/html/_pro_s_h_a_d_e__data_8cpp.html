@@ -27,7 +27,7 @@
   <td id="projectlogo"><img alt="Logo" src="Logo_small.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">ProSHADE
-   &#160;<span id="projectnumber">0.7.6.0 (JUL 2021)</span>
+   &#160;<span id="projectnumber">0.7.6.1 (AUG 2021)</span>
    </div>
    <div id="projectbrief">Protein Shape Detection</div>
   </td>
@@ -133,8 +133,8 @@ Functions</h2></td></tr>
 <dl class="section author"><dt>Author</dt><dd>Michal Tykac </dd>
 <dd>
 Garib N. Murshudov </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.7.6.0 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>JUL 2021 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>0.7.6.1 </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>AUG 2021 </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -180,20 +180,20 @@ Garib N. Murshudov </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l03044">3044</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l03045"></a><span class="lineno"> 3045</span>&#160;{</div>
-<div class="line"><a name="l03046"></a><span class="lineno"> 3046</span>&#160;    <span class="comment">//================================================ Sanity check</span></div>
-<div class="line"><a name="l03047"></a><span class="lineno"> 3047</span>&#160;    <span class="keywordflow">if</span> ( obtainedAxes != requiredAxes )</div>
-<div class="line"><a name="l03048"></a><span class="lineno"> 3048</span>&#160;    {</div>
-<div class="line"><a name="l03049"></a><span class="lineno"> 3049</span>&#160;        std::stringstream hlpSS;</div>
-<div class="line"><a name="l03050"></a><span class="lineno"> 3050</span>&#160;        hlpSS &lt;&lt; <span class="stringliteral">&quot;The supplied number of axes for group element\n                    : detection ( &gt;&quot;</span> &lt;&lt; obtainedAxes &lt;&lt; <span class="stringliteral">&quot;&lt; ) does not match the group type ( &gt;&quot;</span> &lt;&lt; groupType &lt;&lt; <span class="stringliteral">&quot;&lt; ).&quot;</span>;</div>
-<div class="line"><a name="l03051"></a><span class="lineno"> 3051</span>&#160;        <span class="keywordflow">throw</span> <a class="code" href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a> ( <span class="stringliteral">&quot;Mismatch between supplied number of axes and\n                    : symmetry type.&quot;</span>, <span class="stringliteral">&quot;ES00059&quot;</span>, __FILE__, __LINE__, __func__, hlpSS.str() );</div>
-<div class="line"><a name="l03052"></a><span class="lineno"> 3052</span>&#160;    }</div>
-<div class="line"><a name="l03053"></a><span class="lineno"> 3053</span>&#160;    </div>
-<div class="line"><a name="l03054"></a><span class="lineno"> 3054</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l03055"></a><span class="lineno"> 3055</span>&#160;    return ;</div>
-<div class="line"><a name="l03056"></a><span class="lineno"> 3056</span>&#160;    </div>
-<div class="line"><a name="l03057"></a><span class="lineno"> 3057</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l03013">3013</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l03014"></a><span class="lineno"> 3014</span>&#160;{</div>
+<div class="line"><a name="l03015"></a><span class="lineno"> 3015</span>&#160;    <span class="comment">//================================================ Sanity check</span></div>
+<div class="line"><a name="l03016"></a><span class="lineno"> 3016</span>&#160;    <span class="keywordflow">if</span> ( obtainedAxes != requiredAxes )</div>
+<div class="line"><a name="l03017"></a><span class="lineno"> 3017</span>&#160;    {</div>
+<div class="line"><a name="l03018"></a><span class="lineno"> 3018</span>&#160;        std::stringstream hlpSS;</div>
+<div class="line"><a name="l03019"></a><span class="lineno"> 3019</span>&#160;        hlpSS &lt;&lt; <span class="stringliteral">&quot;The supplied number of axes for group element\n                    : detection ( &gt;&quot;</span> &lt;&lt; obtainedAxes &lt;&lt; <span class="stringliteral">&quot;&lt; ) does not match the group type ( &gt;&quot;</span> &lt;&lt; groupType &lt;&lt; <span class="stringliteral">&quot;&lt; ).&quot;</span>;</div>
+<div class="line"><a name="l03020"></a><span class="lineno"> 3020</span>&#160;        <span class="keywordflow">throw</span> <a class="code" href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a> ( <span class="stringliteral">&quot;Mismatch between supplied number of axes and\n                    : symmetry type.&quot;</span>, <span class="stringliteral">&quot;ES00059&quot;</span>, __FILE__, __LINE__, __func__, hlpSS.str() );</div>
+<div class="line"><a name="l03021"></a><span class="lineno"> 3021</span>&#160;    }</div>
+<div class="line"><a name="l03022"></a><span class="lineno"> 3022</span>&#160;    </div>
+<div class="line"><a name="l03023"></a><span class="lineno"> 3023</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l03024"></a><span class="lineno"> 3024</span>&#160;    return ;</div>
+<div class="line"><a name="l03025"></a><span class="lineno"> 3025</span>&#160;    </div>
+<div class="line"><a name="l03026"></a><span class="lineno"> 3026</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -240,25 +240,25 @@ Garib N. Murshudov </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l03066">3066</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l03067"></a><span class="lineno"> 3067</span>&#160;{</div>
-<div class="line"><a name="l03068"></a><span class="lineno"> 3068</span>&#160;    <span class="comment">//================================================ Initialise variables</span></div>
-<div class="line"><a name="l03069"></a><span class="lineno"> 3069</span>&#160;    <span class="keywordtype">bool</span> elementFound                                 = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l03070"></a><span class="lineno"> 3070</span>&#160;    </div>
-<div class="line"><a name="l03071"></a><span class="lineno"> 3071</span>&#160;    <span class="comment">//================================================ For each existing element</span></div>
-<div class="line"><a name="l03072"></a><span class="lineno"> 3072</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign elIt = 0; elIt &lt; static_cast&lt;proshade_unsign&gt; ( elements-&gt;size() ); elIt++ )</div>
-<div class="line"><a name="l03073"></a><span class="lineno"> 3073</span>&#160;    {</div>
-<div class="line"><a name="l03074"></a><span class="lineno"> 3074</span>&#160;        <span class="keywordflow">if</span> ( <a class="code" href="namespace_pro_s_h_a_d_e__internal__maths.html#a4348a7a36275c9cea20b5c27093c9b7e">ProSHADE_internal_maths::rotationMatrixSimilarity</a> ( &amp;elements-&gt;at(elIt), elem, matrixTolerance ) )</div>
-<div class="line"><a name="l03075"></a><span class="lineno"> 3075</span>&#160;        {</div>
-<div class="line"><a name="l03076"></a><span class="lineno"> 3076</span>&#160;            elementFound                              = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l03077"></a><span class="lineno"> 3077</span>&#160;            <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l03078"></a><span class="lineno"> 3078</span>&#160;        }</div>
-<div class="line"><a name="l03079"></a><span class="lineno"> 3079</span>&#160;    }</div>
-<div class="line"><a name="l03080"></a><span class="lineno"> 3080</span>&#160;    </div>
-<div class="line"><a name="l03081"></a><span class="lineno"> 3081</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l03082"></a><span class="lineno"> 3082</span>&#160;    <span class="keywordflow">return</span>                                            ( elementFound );</div>
-<div class="line"><a name="l03083"></a><span class="lineno"> 3083</span>&#160;    </div>
-<div class="line"><a name="l03084"></a><span class="lineno"> 3084</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l03035">3035</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l03036"></a><span class="lineno"> 3036</span>&#160;{</div>
+<div class="line"><a name="l03037"></a><span class="lineno"> 3037</span>&#160;    <span class="comment">//================================================ Initialise variables</span></div>
+<div class="line"><a name="l03038"></a><span class="lineno"> 3038</span>&#160;    <span class="keywordtype">bool</span> elementFound                                 = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l03039"></a><span class="lineno"> 3039</span>&#160;    </div>
+<div class="line"><a name="l03040"></a><span class="lineno"> 3040</span>&#160;    <span class="comment">//================================================ For each existing element</span></div>
+<div class="line"><a name="l03041"></a><span class="lineno"> 3041</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign elIt = 0; elIt &lt; static_cast&lt;proshade_unsign&gt; ( elements-&gt;size() ); elIt++ )</div>
+<div class="line"><a name="l03042"></a><span class="lineno"> 3042</span>&#160;    {</div>
+<div class="line"><a name="l03043"></a><span class="lineno"> 3043</span>&#160;        <span class="keywordflow">if</span> ( <a class="code" href="namespace_pro_s_h_a_d_e__internal__maths.html#a4348a7a36275c9cea20b5c27093c9b7e">ProSHADE_internal_maths::rotationMatrixSimilarity</a> ( &amp;elements-&gt;at(elIt), elem, matrixTolerance ) )</div>
+<div class="line"><a name="l03044"></a><span class="lineno"> 3044</span>&#160;        {</div>
+<div class="line"><a name="l03045"></a><span class="lineno"> 3045</span>&#160;            elementFound                              = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l03046"></a><span class="lineno"> 3046</span>&#160;            <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l03047"></a><span class="lineno"> 3047</span>&#160;        }</div>
+<div class="line"><a name="l03048"></a><span class="lineno"> 3048</span>&#160;    }</div>
+<div class="line"><a name="l03049"></a><span class="lineno"> 3049</span>&#160;    </div>
+<div class="line"><a name="l03050"></a><span class="lineno"> 3050</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l03051"></a><span class="lineno"> 3051</span>&#160;    <span class="keywordflow">return</span>                                            ( elementFound );</div>
+<div class="line"><a name="l03052"></a><span class="lineno"> 3052</span>&#160;    </div>
+<div class="line"><a name="l03053"></a><span class="lineno"> 3053</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -298,38 +298,38 @@ Garib N. Murshudov </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l03092">3092</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l03093"></a><span class="lineno"> 3093</span>&#160;{</div>
-<div class="line"><a name="l03094"></a><span class="lineno"> 3094</span>&#160;    <span class="comment">//================================================ Initialise variables</span></div>
-<div class="line"><a name="l03095"></a><span class="lineno"> 3095</span>&#160;    <span class="keywordtype">bool</span> isGroup                                      = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l03096"></a><span class="lineno"> 3096</span>&#160;    </div>
-<div class="line"><a name="l03097"></a><span class="lineno"> 3097</span>&#160;    <span class="comment">//================================================ Multiply all group element pairs</span></div>
-<div class="line"><a name="l03098"></a><span class="lineno"> 3098</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign gr1 = 0; gr1 &lt; static_cast&lt;proshade_unsign&gt; ( elements-&gt;size() ); gr1++ )</div>
-<div class="line"><a name="l03099"></a><span class="lineno"> 3099</span>&#160;    {</div>
-<div class="line"><a name="l03100"></a><span class="lineno"> 3100</span>&#160;        <span class="keywordflow">for</span> ( proshade_unsign gr2 = 1; gr2 &lt; static_cast&lt;proshade_unsign&gt; ( elements-&gt;size() ); gr2++ )</div>
-<div class="line"><a name="l03101"></a><span class="lineno"> 3101</span>&#160;        {</div>
-<div class="line"><a name="l03102"></a><span class="lineno"> 3102</span>&#160;            <span class="comment">//======================================== Use unique pairs only</span></div>
-<div class="line"><a name="l03103"></a><span class="lineno"> 3103</span>&#160;            <span class="keywordflow">if</span> ( gr1 &gt;= gr2 ) { <span class="keywordflow">continue</span>; }</div>
-<div class="line"><a name="l03104"></a><span class="lineno"> 3104</span>&#160;            </div>
-<div class="line"><a name="l03105"></a><span class="lineno"> 3105</span>&#160;            <span class="comment">//======================================== Multiply the two rotation matrices</span></div>
-<div class="line"><a name="l03106"></a><span class="lineno"> 3106</span>&#160;            std::vector&lt; proshade_double &gt; product    = <a class="code" href="namespace_pro_s_h_a_d_e__internal__maths.html#a18222a942e5fff8eecd15f1235c609e1">ProSHADE_internal_maths::multiplyGroupElementMatrices</a> ( &amp;elements-&gt;at(gr1), &amp;elements-&gt;at(gr2) );</div>
-<div class="line"><a name="l03107"></a><span class="lineno"> 3107</span>&#160;        </div>
-<div class="line"><a name="l03108"></a><span class="lineno"> 3108</span>&#160;            <span class="comment">//======================================== Check the group already contains the produces as an element</span></div>
-<div class="line"><a name="l03109"></a><span class="lineno"> 3109</span>&#160;            <span class="keywordflow">if</span> ( !<a class="code" href="_pro_s_h_a_d_e__data_8cpp.html#ae56351defa0ee4f5777b61e58150aba4">checkElementAlreadyExists</a> ( elements, &amp;product, matrixTolerance ) )</div>
-<div class="line"><a name="l03110"></a><span class="lineno"> 3110</span>&#160;            {</div>
-<div class="line"><a name="l03111"></a><span class="lineno"> 3111</span>&#160;                isGroup                               = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l03112"></a><span class="lineno"> 3112</span>&#160;                <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l03113"></a><span class="lineno"> 3113</span>&#160;            }</div>
-<div class="line"><a name="l03114"></a><span class="lineno"> 3114</span>&#160;        }</div>
-<div class="line"><a name="l03115"></a><span class="lineno"> 3115</span>&#160;        </div>
-<div class="line"><a name="l03116"></a><span class="lineno"> 3116</span>&#160;        <span class="comment">//============================================ Stop if problem was found</span></div>
-<div class="line"><a name="l03117"></a><span class="lineno"> 3117</span>&#160;        <span class="keywordflow">if</span> ( !isGroup ) { <span class="keywordflow">break</span>; }</div>
-<div class="line"><a name="l03118"></a><span class="lineno"> 3118</span>&#160;    }</div>
-<div class="line"><a name="l03119"></a><span class="lineno"> 3119</span>&#160;    </div>
-<div class="line"><a name="l03120"></a><span class="lineno"> 3120</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l03121"></a><span class="lineno"> 3121</span>&#160;    <span class="keywordflow">return</span>                                            ( isGroup );</div>
-<div class="line"><a name="l03122"></a><span class="lineno"> 3122</span>&#160;    </div>
-<div class="line"><a name="l03123"></a><span class="lineno"> 3123</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l03061">3061</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l03062"></a><span class="lineno"> 3062</span>&#160;{</div>
+<div class="line"><a name="l03063"></a><span class="lineno"> 3063</span>&#160;    <span class="comment">//================================================ Initialise variables</span></div>
+<div class="line"><a name="l03064"></a><span class="lineno"> 3064</span>&#160;    <span class="keywordtype">bool</span> isGroup                                      = <span class="keyword">true</span>;</div>
+<div class="line"><a name="l03065"></a><span class="lineno"> 3065</span>&#160;    </div>
+<div class="line"><a name="l03066"></a><span class="lineno"> 3066</span>&#160;    <span class="comment">//================================================ Multiply all group element pairs</span></div>
+<div class="line"><a name="l03067"></a><span class="lineno"> 3067</span>&#160;    <span class="keywordflow">for</span> ( proshade_unsign gr1 = 0; gr1 &lt; static_cast&lt;proshade_unsign&gt; ( elements-&gt;size() ); gr1++ )</div>
+<div class="line"><a name="l03068"></a><span class="lineno"> 3068</span>&#160;    {</div>
+<div class="line"><a name="l03069"></a><span class="lineno"> 3069</span>&#160;        <span class="keywordflow">for</span> ( proshade_unsign gr2 = 1; gr2 &lt; static_cast&lt;proshade_unsign&gt; ( elements-&gt;size() ); gr2++ )</div>
+<div class="line"><a name="l03070"></a><span class="lineno"> 3070</span>&#160;        {</div>
+<div class="line"><a name="l03071"></a><span class="lineno"> 3071</span>&#160;            <span class="comment">//======================================== Use unique pairs only</span></div>
+<div class="line"><a name="l03072"></a><span class="lineno"> 3072</span>&#160;            <span class="keywordflow">if</span> ( gr1 &gt;= gr2 ) { <span class="keywordflow">continue</span>; }</div>
+<div class="line"><a name="l03073"></a><span class="lineno"> 3073</span>&#160;            </div>
+<div class="line"><a name="l03074"></a><span class="lineno"> 3074</span>&#160;            <span class="comment">//======================================== Multiply the two rotation matrices</span></div>
+<div class="line"><a name="l03075"></a><span class="lineno"> 3075</span>&#160;            std::vector&lt; proshade_double &gt; product    = <a class="code" href="namespace_pro_s_h_a_d_e__internal__maths.html#a18222a942e5fff8eecd15f1235c609e1">ProSHADE_internal_maths::multiplyGroupElementMatrices</a> ( &amp;elements-&gt;at(gr1), &amp;elements-&gt;at(gr2) );</div>
+<div class="line"><a name="l03076"></a><span class="lineno"> 3076</span>&#160;        </div>
+<div class="line"><a name="l03077"></a><span class="lineno"> 3077</span>&#160;            <span class="comment">//======================================== Check the group already contains the produces as an element</span></div>
+<div class="line"><a name="l03078"></a><span class="lineno"> 3078</span>&#160;            <span class="keywordflow">if</span> ( !<a class="code" href="_pro_s_h_a_d_e__data_8cpp.html#ae56351defa0ee4f5777b61e58150aba4">checkElementAlreadyExists</a> ( elements, &amp;product, matrixTolerance ) )</div>
+<div class="line"><a name="l03079"></a><span class="lineno"> 3079</span>&#160;            {</div>
+<div class="line"><a name="l03080"></a><span class="lineno"> 3080</span>&#160;                isGroup                               = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l03081"></a><span class="lineno"> 3081</span>&#160;                <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l03082"></a><span class="lineno"> 3082</span>&#160;            }</div>
+<div class="line"><a name="l03083"></a><span class="lineno"> 3083</span>&#160;        }</div>
+<div class="line"><a name="l03084"></a><span class="lineno"> 3084</span>&#160;        </div>
+<div class="line"><a name="l03085"></a><span class="lineno"> 3085</span>&#160;        <span class="comment">//============================================ Stop if problem was found</span></div>
+<div class="line"><a name="l03086"></a><span class="lineno"> 3086</span>&#160;        <span class="keywordflow">if</span> ( !isGroup ) { <span class="keywordflow">break</span>; }</div>
+<div class="line"><a name="l03087"></a><span class="lineno"> 3087</span>&#160;    }</div>
+<div class="line"><a name="l03088"></a><span class="lineno"> 3088</span>&#160;    </div>
+<div class="line"><a name="l03089"></a><span class="lineno"> 3089</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l03090"></a><span class="lineno"> 3090</span>&#160;    <span class="keywordflow">return</span>                                            ( isGroup );</div>
+<div class="line"><a name="l03091"></a><span class="lineno"> 3091</span>&#160;    </div>
+<div class="line"><a name="l03092"></a><span class="lineno"> 3092</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -369,21 +369,21 @@ Garib N. Murshudov </dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l01914">1914</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l01915"></a><span class="lineno"> 1915</span>&#160;{</div>
-<div class="line"><a name="l01916"></a><span class="lineno"> 1916</span>&#160;    <span class="comment">//================================================ Done</span></div>
-<div class="line"><a name="l01917"></a><span class="lineno"> 1917</span>&#160;    <span class="keywordflow">return</span> ( a[6] &gt; b[6] );</div>
-<div class="line"><a name="l01918"></a><span class="lineno"> 1918</span>&#160; </div>
-<div class="line"><a name="l01919"></a><span class="lineno"> 1919</span>&#160;}</div>
+<p class="definition">Definition at line <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html#l01883">1883</a> of file <a class="el" href="_pro_s_h_a_d_e__data_8cpp_source.html">ProSHADE_data.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l01884"></a><span class="lineno"> 1884</span>&#160;{</div>
+<div class="line"><a name="l01885"></a><span class="lineno"> 1885</span>&#160;    <span class="comment">//================================================ Done</span></div>
+<div class="line"><a name="l01886"></a><span class="lineno"> 1886</span>&#160;    <span class="keywordflow">return</span> ( a[6] &gt; b[6] );</div>
+<div class="line"><a name="l01887"></a><span class="lineno"> 1887</span>&#160; </div>
+<div class="line"><a name="l01888"></a><span class="lineno"> 1888</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div class="ttc" id="aclass_pro_s_h_a_d_e__exception_html"><div class="ttname"><a href="class_pro_s_h_a_d_e__exception.html">ProSHADE_exception</a></div><div class="ttdoc">This class is the representation of ProSHADE exception.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__exceptions_8hpp_source.html#l00036">ProSHADE_exceptions.hpp:37</a></div></div>
-<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__maths_html_a4348a7a36275c9cea20b5c27093c9b7e"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__maths.html#a4348a7a36275c9cea20b5c27093c9b7e">ProSHADE_internal_maths::rotationMatrixSimilarity</a></div><div class="ttdeci">bool rotationMatrixSimilarity(std::vector&lt; proshade_double &gt; *mat1, std::vector&lt; proshade_double &gt; *mat2, proshade_double tolerance=0.1)</div><div class="ttdoc">This function compares the distance between two rotation matrices and decides if they are similar usi...</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__maths_8cpp_source.html#l02299">ProSHADE_maths.cpp:2299</a></div></div>
-<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__maths_html_a18222a942e5fff8eecd15f1235c609e1"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__maths.html#a18222a942e5fff8eecd15f1235c609e1">ProSHADE_internal_maths::multiplyGroupElementMatrices</a></div><div class="ttdeci">std::vector&lt; proshade_double &gt; multiplyGroupElementMatrices(std::vector&lt; proshade_double &gt; *el1, std::vector&lt; proshade_double &gt; *el2)</div><div class="ttdoc">This function computes matrix multiplication using the ProSHADE group element matrix format as input ...</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__maths_8cpp_source.html#l02245">ProSHADE_maths.cpp:2245</a></div></div>
-<div class="ttc" id="a_pro_s_h_a_d_e__data_8cpp_html_ae56351defa0ee4f5777b61e58150aba4"><div class="ttname"><a href="_pro_s_h_a_d_e__data_8cpp.html#ae56351defa0ee4f5777b61e58150aba4">checkElementAlreadyExists</a></div><div class="ttdeci">bool checkElementAlreadyExists(std::vector&lt; std::vector&lt; proshade_double &gt; &gt; *elements, std::vector&lt; proshade_double &gt; *elem, proshade_double matrixTolerance)</div><div class="ttdoc">This function checks if the element list already contains a given matrix.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__data_8cpp_source.html#l03066">ProSHADE_data.cpp:3066</a></div></div>
+<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__maths_html_a4348a7a36275c9cea20b5c27093c9b7e"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__maths.html#a4348a7a36275c9cea20b5c27093c9b7e">ProSHADE_internal_maths::rotationMatrixSimilarity</a></div><div class="ttdeci">bool rotationMatrixSimilarity(std::vector&lt; proshade_double &gt; *mat1, std::vector&lt; proshade_double &gt; *mat2, proshade_double tolerance=0.1)</div><div class="ttdoc">This function compares the distance between two rotation matrices and decides if they are similar usi...</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__maths_8cpp_source.html#l02295">ProSHADE_maths.cpp:2295</a></div></div>
+<div class="ttc" id="anamespace_pro_s_h_a_d_e__internal__maths_html_a18222a942e5fff8eecd15f1235c609e1"><div class="ttname"><a href="namespace_pro_s_h_a_d_e__internal__maths.html#a18222a942e5fff8eecd15f1235c609e1">ProSHADE_internal_maths::multiplyGroupElementMatrices</a></div><div class="ttdeci">std::vector&lt; proshade_double &gt; multiplyGroupElementMatrices(std::vector&lt; proshade_double &gt; *el1, std::vector&lt; proshade_double &gt; *el2)</div><div class="ttdoc">This function computes matrix multiplication using the ProSHADE group element matrix format as input ...</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__maths_8cpp_source.html#l02241">ProSHADE_maths.cpp:2241</a></div></div>
+<div class="ttc" id="a_pro_s_h_a_d_e__data_8cpp_html_ae56351defa0ee4f5777b61e58150aba4"><div class="ttname"><a href="_pro_s_h_a_d_e__data_8cpp.html#ae56351defa0ee4f5777b61e58150aba4">checkElementAlreadyExists</a></div><div class="ttdeci">bool checkElementAlreadyExists(std::vector&lt; std::vector&lt; proshade_double &gt; &gt; *elements, std::vector&lt; proshade_double &gt; *elem, proshade_double matrixTolerance)</div><div class="ttdoc">This function checks if the element list already contains a given matrix.</div><div class="ttdef"><b>Definition:</b> <a href="_pro_s_h_a_d_e__data_8cpp_source.html#l03035">ProSHADE_data.cpp:3035</a></div></div>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
