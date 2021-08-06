@@ -27,6 +27,8 @@
 
 /*! \mainpage ProSHADE Documentation
  *
+ * Protein Shape Description and Symmetry Detection version 0.7.6.1 (AUG 2021)
+ *
  * \section intro Introduction
  *
  * ProSHADE is a C++ language library and an associated tool providing functionalities for working with structural biology molecular structures. The library implements
@@ -38,7 +40,7 @@
  * \section download Obtaining ProSHADE
  *
  * The most recent stable version of ProSHADE is available from the \e master branch of the GitHub repository https://github.com/michaltykac/proshade, from where it can be cloned using the git application or downloaded manually using the interface. More advanced users may be interested
- * in obtaining the \e development or the \e experimental branches, which are available from the same link. The \e experimental branch is where I do all new development and it may or may not be currently compilable and working properly, while the \e development branch should always compile, but is more
+ * in obtaining the \e development or the \e experimental branches, which are available from the same link. The \e experimental branch is where I do all new development and it may or may not be currently compilable and/or working properly, while the \e development branch should always compile, but is more
  * likely to contain bugs and issues as it is the code before proper testing.
  *
  * \section index Index
@@ -91,7 +93,7 @@
  *
  * \section install Installation
  *
- * The installation of the ProSHADE software should be done using the CMake system and the supplied CMakeLists.txt file. The minimual requiered version of CMake is 2.6, however, python modules and single source file
+ * The installation of the ProSHADE software should be done using the CMake system and the supplied CMakeLists.txt file. The minimal requiered version of CMake is 2.6, however, python modules and single source file
  * compilation will not be available unless CMake version 3.4 or higher is used. The CMakeLists.txt file assumes the standard system dependencies are installed in the system folders; for a full list of standard system dependencies,
  * please see the section \ref stdSys.
  *
@@ -102,7 +104,7 @@
  * Moreover, if CMake is used to build ProSHADE directly, then the user may make use of several options that can be used to modify the default behaviour of the installation; these typically drive the installation locations and
  * dependencies paths in the case of non-standard dependency location. Please see the section \b CMake \b options below for details as to how to use these options and what do they do.
  *
- * Please note that while the ProSHADE code is C++ 98 standard compatible, some of the dependencies do require at least partial support for the C++ 11 standard and building python module requires full C++ 11 support.
+ * Please note that while the ProSHADE code is C++ 98 standard compatible, some of the dependencies do require at least partial support for the C++ 11 standard and building python module requires full C++ 11 compliant compiler.
  *
  * \subsection stdSys Standard System Dependencies
  *
@@ -205,9 +207,9 @@
  *
  * \subsection otherDependencies Other dependencies
  *
- * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. The installation of these libraries is automated in the CMake scripts and therefore does not require any user input (these libraries are
+ * ProSHADE also depends on the \e Gemmi and \e SOFT2.0 libraries. The installation of these libraries is automated in the CMake scripts and therefore does not require any user input (\e SOFT2.0 library is
  * supplied with the ProSHADE code and will be installed locally by the ProSHADE CMake installation). Please note that these dependencies do have their own licences (the Mozilla Public License for \e Gemmi
- * and the GPL licence for \e SOFT2.0) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
+ * and the GPL v3 licence for \e SOFT2.0) and therefore this may limit the ProSHADE usage for some users beyond the ProSHADE copyright and licence itself.
  *
  * \subsection winInstall Installing on Windows
  *
@@ -221,7 +223,7 @@
  *
  * \b Installing \b git
  *
- * Git can be installed on Windows by downloading the 64-bit Windows Setup installer from https://git-scm.com/download/win . The installer asks for many options, the only imprtant one for ProSHADE
+ * Git can be installed on Windows by downloading the 64-bit Windows Setup installer from https://git-scm.com/download/win . The installer asks for many options, the only important one for ProSHADE
  * installation is that in the section \e Adjusting \e you \e PATH \e environment it is required that the option \e Use \e Git \e from \e Git \e Bash \e only is \b NOT selected. This makes sure that the
  * git executable is in the system PATH.
  *
@@ -239,7 +241,7 @@
  * Once all of the above dependencies are installed, the ProSHADE python module can now be installed using the pip installation as described in the \ref pipInstall section. Should the user require installation from
  * the Command Prompt, they will need to open the \e Developer \e Command \e Prompt \e for \e VS \e 2019 (or the appropriate version the MS Visual Studio they have installed) and type the following
  * commands (replacing the \path\to\proshade with the appropriate path on their machine to the location where they want ProSHADE codes to be stored). Please note that you may need to run the command prompt
- * as administrator in order to be able to install into the system folders (\e i.e. C:\Program Files). Also, the same CMake options apply as discussed in section \ref installBehaviour:
+ * as an administrator in order to be able to install into the system folders (\e i.e. C:\Program Files). Also, the same CMake options apply as discussed in section \ref installBehaviour:
  *
  \code{.sh}
      cd \path\to\proshade
@@ -256,8 +258,8 @@
  *  Finally, ProSHADE now needs to be able to locate the dependency libraries before it can be run on Windows. The simplest way of allowing for this is the add the ProSHADE libraries folder into the system PATH.
  *  This can be done by opening the \e Control \e Panel and selecting the \e System \e and \e Security option. In the new window, please select the \e System option and in the next window click the \e Advanced
  *  \e system \e settings option on the right-hand side panel. In the next window, please click on the \e Environment \e Variables... button, which will open the  penultimate window. In here, in the \e System \e variables
- *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the  \e New button needs to be clicked, immediately followed by clicking  \e Browse... button
- *  can be clicked. In the file selector screen, please click to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK
+ *  section, please click on the variable named \e Path and then click on the \e Edit... button. This opens the last window, where the  \e New button needs to be clicked, immediately followed by clicking  \e Browse... button.
+ *  In the file selector screen, please navigate to the \path\to\proshade location used in the previous section and then select the following folders: proshade\proshade\winLibs\x64\DLLs and then click on the \e OK
  *  button on all open windows which have one.
  *
  * Once the path is set, you can use ProSHADE from any Command Prompt window (not only the Developer Command Prompt used before), although you will have to close and re-open all currently open command
@@ -314,7 +316,7 @@
  * \b Uninstall \b using \b CMake
  *
  * To remove the installed ProSHADE components, the command \c make \c remove needs to be issued to the makefile originally created by the CMake call. Please note that \c sudo may need to be used if the installation was
- * done into the system folders and your current user does not have admin rights.
+ * done into the system folders and your current user does not have sufficient rights.
  *
  * \subsection pipInstall Installation using pip
  *
@@ -323,14 +325,14 @@
  * \b installed. If any of them is missing, then a cryptic error message will ensue - consider yourself warned.
  *
  \code{.sh}
-    pip install proshade
+    python -m pip install proshade
  \endcode
  *
  * Alternatively, the module can be build and installed using pip directly from the ProSHADE GitHub repository ( https://github.com/michaltykac/proshade ) using the following
  * command. This approach has the advantage that it takes the most current stable version, rather than being dependent on the authors not forgetting to update the PyPi repository.
  *
  \code{.sh}
-    pip install git+https://github.com/michaltykac/proshade
+    python -m pip install git+https://github.com/michaltykac/proshade
  \endcode
  *
  * Again, please note that the pip installation only wraps around the CMake installation and that CMake is still being run by pip in the background. Therefore, the same system dependencies
@@ -404,8 +406,8 @@
  * \image html ProSHADE_3JA7.jpg width=500cm
  *
 *\code{.sh}
- $: ./proshade -S -f ./emd_6324.map -r 8
- ProSHADE 0.7.6.0 (JUL 2021):
+ $: ./proshade -S -f ./emd_6324.map
+ ProSHADE 0.7.6.1 (AUG 2021):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -426,24 +428,25 @@
   ... Starting I symmetry prediction.
   ... Starting recommended symmetry decision procedure.
 
- Detected C symmetry with fold 12 about point [-0.0308251 , -0.0256403 , 9.75918] away from centre of mass .
+ Detected C symmetry with fold 12 about point [-0.20967 , -0.208407 , 9.74166] away from centre of mass .
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.97321      +0.97187
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.95203      +0.94907
 
  To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +2     +1.00000   +0.00000   +0.00000     +3.14159      +0.99605      +0.00728
-    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99571      +0.99764
-    +2     +0.00000   +0.00000   +1.00000     +3.14159      +0.99554      +0.99657
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.97321      +0.97187
-    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.97092      +0.96908
-    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.96468      +0.96148
-... More lines here - removed to keep the documentation succinct
-    +2     -0.67241   +0.52103   +0.52573     +3.14159      +0.44126      +0.00405
+    +2     +1.00000   +0.00000   +0.00000     +3.14159      +0.99425      +0.03548
+    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99386      +0.99884
+    +2     +0.00000   +0.00000   +1.00000     +3.14159      +0.99367      +0.99828
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.95203      +0.94907
+    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.94781      +0.94399
+    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.93624      +0.93008
+ ... [Some lines removed for more succinct documentation]
+    +3     +0.43693   +0.30842   +0.84497     -2.09440      +0.36936      -1.00000
+    +2     +0.00000   +1.00000   +0.00000     +3.14159      -999.90000      +0.03545
 
  ======================
  ProSHADE run complete.
- Time taken: 38 seconds.
+ Time taken: 56 seconds.
  ======================
 *\endcode
  *
@@ -452,7 +455,7 @@
  * The distances computation mode is signalled to the ProSHADE executable by the command line argument \p -D or \p --distances. This mode requires two or more structures to be
  * supplied using the \p -f command line option. At least two structures are mandatory for the ProSHADE tool to proceed. Moreover, the resolution of the structures to which the comparison should be done
  * needs to be supplied using the \p -r option. This resolution does not need to be the real resolution to which the structure(s) were solved, but rather reflects the amount of details which should be taken into
- * accout when comparing shapes. Therefore, higher resolution comparison will focus more on details of the shapes, while lower resolution comparison will focus more on the overall shape ignoring the minor
+ * accout when comparing shapes (as well as the complexity of the computation). Therefore, higher resolution comparison will focus more on details of the shapes, while lower resolution comparison will focus more on the overall shape ignoring the minor
  * details. Please note that the results are calculated only for the first structure against all the remaining structures, \b not for all against all distance matrix.
  *
  * There are a number of useful options for the shape distances computation, please consult the \p --help dialogue for their complete listing.
@@ -465,7 +468,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.6.0 (JUL 2021):
+ ProSHADE 0.7.6.1 (AUG 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -516,6 +519,7 @@
  ======================
  ProSHADE run complete.
  Time taken: 1 seconds.
+ ======================
  *\endcode
  *
  * \subsection reboxingUsage Re-boxing structures
@@ -538,7 +542,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.6.0 (JUL 2021):
+ ProSHADE 0.7.6.1 (AUG 2021):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -573,7 +577,7 @@
  * 1H8N_A_dom_1 structure from the BALBES database, shown in part b) of the same figure. Please note that ProSHADE can fit any allowed input (map or co-ordinates) to any allowed input, it is just this example which uses two PDB files.
  * Part c) of the figure then shows the match obtained by the internal map representation of the moving structure (1H8N_A_dom_1) after rotation and translation with the static structure (1BFO_A_dom_1). Finally, part d) then shows the original
  * static structure (1BFO_A_dom_1) in brown and the rotated and translated version of the moving structure (1H8N_A_dom_1) in blue. Please note that the optimal rotation matrix and translation vector are written into the output when verbosity
- * (\p --verbose) is increased to at least 3, but are better accessed programatically (see the following sections) if you are interested in using these further.
+ * (\p --verbose) is increased to at least 3, but are better accessed programatically (see the following sections) or from the JSON file produced, if you are interested in using these further
  *
  * Regarding the output, ProSHADE outputs the following information which should be sufficient to apply the correct rotation and translation operations to obtain the optimal overlay:
  *
@@ -598,8 +602,8 @@
  * \image html ProSHADE_overlay.jpg width=500cm
  *
  *\code{.sh}
- $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4 -kjc
- ProSHADE 0.7.6.0 (JUL 2021):
+ $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4
+ ProSHADE 0.7.6.1 (AUG 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -607,14 +611,14 @@
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Centering map onto its COM.
+  ... Map centering not requested.
   ... Adding extra 10 angstroms.
   ... Centering map onto its COM.
   ... Phase information removed from the data.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Centering map onto its COM.
+  ... Map centering not requested.
   ... Adding extra 10 angstroms.
   ... Centering map onto its COM.
   ... Phase information removed from the data.
@@ -627,29 +631,30 @@
   ... Starting rotation function computation.
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
   ... Starting to read the structure: ./1H8N_A_dom_1.pdb
+  ... Preparing spherical harmonics environment.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Centering map onto its COM.
+  ... Map centering not requested.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
-  ... Centering map onto its COM.
+  ... Map centering not requested.
   ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is:  -16.6     -21.1     -24.8
- The rotation matrix about origin is                 : -0.887     +0.202     -0.416
-                                                     : +0.0591     -0.843     -0.534
-                                                     : -0.459     -0.498     +0.736
- The rotation centre to overlay translation vector is: +26.7     -0.479     -39.2
+ The rotation centre to origin translation vector is:  -18.5     -22.6     -24.6
+ The rotation matrix about origin is                 : -0.865     +0.203     -0.459
+                                                     : +0.0613     -0.865     -0.498
+                                                     : -0.498     -0.459     +0.736
+ The rotation centre to overlay translation vector is: +4     +2     -6
 
  ======================
  ProSHADE run complete.
- Time taken: 1 seconds.
+ Time taken: 2 seconds.
  ======================
  \endcode
  *
@@ -660,12 +665,14 @@
  *
  * \subsection liblink Linking against the ProSHADE library
  *
- * The ProSHADE library can be linked as any other C++ library, that is by using the \p -lproshade option when calling the compiler (tested on \e clang and \e g++ ) and including the header file (\p ProSHADE.hpp ). However, as the \p ProSHADE.hpp header file includes header files from the dependencies, any
+ * The ProSHADE library can be linked as any other C++ library, that is by using the \p -lproshade option when calling the compiler (tested on \e clang, \e g++ and \e cl.exe ) and including the header file (\p ProSHADE.hpp ). However, as the \p ProSHADE.hpp header file includes header files from the dependencies, any
  * C++ project compiling against the ProSHADE library will need to provide these dependencies paths to the compiler. Moreover, if the ProSHADE library was not installed in the system folders (which are by default in the compiler paths), any project linking against the ProSHADE library will also need to provide the path to the libproshade.a/so/dylib
  * library file and the RPATH to the same location. The following list states all the paths that may be required for a successfull compilation against the ProSHADE library:
  *
  * - \b -I/path/to/proshade/extern/soft-2.0/include This path is required for the SOFT2.0 dependency header file to be located correctly (it is confusingly called fftw_wrapper.h).
  * - \b -I/path/to/proshade/extern/gemmi/include This path is required for the Gemi dependency header file to be located correctly. Note that this folder will not exist unless complete ProSHADE installation make was run at least once.
+ * - \b -I/path/to/proshade/extern This path is required so that the getOpt_port dependency could be located (this dependency is supplied with the ProSHADE code).
+ * - \b -I/path/to/proshade/extern/almostEqual This path is required so that the almostEqual dependency could be located (this dependency is supplied with the ProSHADE code).
  * - \b -L/path/to/proshade/install/lib This is the path the where libproshade.a/so/dylib is installed. If ProSHADE was installed using the CMake -DINSTALL_LOCALLY=FALSE option, then this path may already be available to the compiler and it may not be needed.
  * - \b -Wl, \b -rpath, \b /path/to/proshade/install/lib or \b -rpath \b /path/to/proshade/install/lib This compiler option will be required if the proshade library was not installed into a system folder which is already included in the project's RPATH.
  *
@@ -847,6 +854,7 @@
  * how the symmetry functionality can be run and results retrieved - for examples of other functionalities and for more details, please see the *simpleAccess_...* example files.
  *
  * \code{.py}
+ """ Import numpy """
  import numpy
 
  """ Import ProSHADE (assumes installation through pip) """
@@ -858,8 +866,8 @@
  """ Set up the run """
  ps.task                               = proshade.Symmetry
  ps.verbose                            = -1;
- ps.setResolution                      ( 8.0 );
- ps.addStructure                       ( "/path/to/emd_5762.map" );
+ ps.setResolution                      ( 8.0 )
+ ps.addStructure                       ( "/path/to/emd_5762.map" )
 
  """ Run ProSHADE """
  rn                                    = proshade.ProSHADE_run ( ps )
@@ -876,13 +884,13 @@
  """ Print results (part II) """
  print                                 ( "Detected symmetry " + str( symType ) + "-" + str( symFold ) + " with axes: " )
  print                                 ( "Fold      x         y         z       Angle     Height   Avg. FSC" )
- print                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f" % ( float ( symAxis[0] ),
-                                                                                                      float ( symAxis[1] ),
-                                                                                                      float ( symAxis[2] ),
-                                                                                                      float ( symAxis[3] ),
-                                                                                                      float ( symAxis[4] ),
-                                                                                                      float ( symAxis[5] ),
-                                                                                                      float ( symAxis[6] ) ) )
+ print                                 ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f     %1.3f" % ( float ( symAxis[0] ),
+                                                                                                                float ( symAxis[1] ),
+                                                                                                                float ( symAxis[2] ),
+                                                                                                                float ( symAxis[3] ),
+                                                                                                                float ( symAxis[4] ),
+                                                                                                                float ( symAxis[5] ),
+                                                                                                                float ( symAxis[6] ) ) )
                                                                                                       
  """ Release memory """
  del rn
@@ -923,8 +931,8 @@
  pStruct2                                             = proshade.ProSHADE_data ( )
 
  """ Read in the structure """
- pStruct1.readInStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet )
- pStruct2.readInStructure                             ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet )
+ pStruct1.readInStructure                             ( "/path/to/1BFO_A_dom_1.pdb", 0, pSet )
+ pStruct2.readInStructure                             ( "/path/to/1H8N_A_dom_1.pdb", 1, pSet )
 
  """ Process maps into internal representations """
  pStruct1.processInternalMap                          ( pSet )
@@ -999,6 +1007,32 @@
 
  """ Delete the structure as we will proceed with a different object created later """
  del pStruct
+ \endcode
+ *
+ * It is also possible to supply a mask for any input map as a three-dimensional array directly to the \e readInStructure() function. This possibility may be interesting for cases where custom masks are created by a python
+ * running software/code, as this avoids the need for the mask to be written into a file onto the disk and then read back. Furthermore, if the user should require weighting the input map in Fourier space, a set of weights can
+ * be supplied to the \e readInStructure() function as well; these weights will be applieds in the same order as they are given to the FFTW3 coefficients of the input map, \e i.e. the weights should be supplied in the format:
+ * f_0, ..., f_N/2, f_-N/2+1, ..., f_-1. For more details as to how the mask or weights can be supplied, please see the \e /path/to/proshade/proshade/examples/python/howto_accessInterimResults.py file.
+ *
+ * \e Reading \e co-ordinates \e from \e gemmi
+ *
+ * An alternative way of supplying the structural data to the ProSHADE_data object is to pass it a gemmi::Structure object. Since Gemmi is also a C++ library with PyBind11 python interface, it is possible to pass its objects to
+ * ProSHADE through the shared python interface. This can be useful for users who wish to modify or create gemmi::Structure objects using other codes and then pass these to ProSHADE for further analysis. Please note, that
+ * only co-ordinate data will be parsed from gemmi::Structure objects by ProSHADE. An example follows, but more detailed description can be found in the \e /path/to/proshade/proshade/examples/python/howto_useGemmiObject.py file.
+ *
+ * \code{.py}
+ """ Import gemmi """
+ import gemmi
+
+ """ Read structure into gemmi::Structure object """
+ gStruct                                               = gemmi.read_structure( "5woh.pdb" )
+
+ """ Modify the gemmi::Structure object """
+ ...
+
+ """ Read gemmi::Structure into ProSHADE """
+ pStruct                                               = proshade.ProSHADE_data ( )
+ pStruct.readInStructure                               ( gStruct, 0, pSet )
  \endcode
  *
  * \e Creating \e ProSHADE_data \e object \e from \e map
@@ -1240,8 +1274,8 @@
  pStruct_moving                                       = proshade.ProSHADE_data ( )
 
  """ Read in two structures """
- pStruct_static.readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet )
- pStruct_moving.readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet )
+ pStruct_static.readInStructure                       ( "1BFO_A_dom_1.pdb", 0, pSet )
+ pStruct_moving.readInStructure                       ( "1H8N_A_dom_1.pdb", 1, pSet )
 
  """ Process, map and get spherical harmonics for both structures """
  pStruct_static.processInternalMap                    ( pSet )
@@ -1313,8 +1347,8 @@
  pStruct_moving                                       = proshade.ProSHADE_data ( )
 
  """ Read in the structures with phases """
- pStruct_static.readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # This is a BALBES domain 1BFO_A_dom_1.
- pStruct_moving.readInStructure                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # This is a BALBES domain 1H8N_A_dom_1.
+ pStruct_static.readInStructure                        ( "1BFO_A_dom_1.pdb", 0, pSet ) # This is a BALBES domain 1BFO_A_dom_1.
+ pStruct_moving.readInStructure                        ( "1H8N_A_dom_1.pdb", 1, pSet ) # This is a BALBES domain 1H8N_A_dom_1.
 
  """ Process the structures and get spherical harmonics for moving structure only """
  pStruct_static.processInternalMap                    ( pSet )
@@ -1366,10 +1400,7 @@
  *
  * \code{.py}
  """ Find the optimal translation vectors """
- translationVecs                                      = pStruct_moving.getOverlayTranslations ( pStruct_static,
-                                                                                                optimalRotationAngles[0],
-                                                                                                optimalRotationAngles[1],
-                                                                                                optimalRotationAngles[2] )
+ translationVecs                                       = pStruct_moving.getOverlayTranslations ( pStruct_static  )
  \endcode
  *
  *
@@ -1391,6 +1422,9 @@
                                                         translationVecs["rotCenToOverlay"][0],
                                                         translationVecs["rotCenToOverlay"][1],
                                                         translationVecs["rotCenToOverlay"][2],
+                                                        translationVecs["centreOfRotation"][0],
+                                                        translationVecs["centreOfRotation"][1],
+                                                        translationVecs["centreOfRotation"][2],
                                                         pSet.firstModelOnly )
  \endcode
  *

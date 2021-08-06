@@ -2784,7 +2784,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
         
         //============================================ Find reliable C syms
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
