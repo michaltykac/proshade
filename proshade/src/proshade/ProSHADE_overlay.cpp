@@ -136,11 +136,6 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     
     //================================================ Rotate map
     std::vector< proshade_double > rotCen             = movingStructure->rotateMapRealSpaceInPlace ( eulA, eulB, eulG );
-
-    //================================================ Save rotation centre for co-ordinates
-    movingStructure->originalPdbRotCenX               = rotCen.at(0);
-    movingStructure->originalPdbRotCenY               = rotCen.at(1);
-    movingStructure->originalPdbRotCenZ               = rotCen.at(2);
     
     //================================================ Zero padding for smaller structure
     staticStructure->zeroPaddToDims                   ( std::max ( staticStructure->getXDim(), movingStructure->getXDim() ),
@@ -935,6 +930,11 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     //================================================ Release local memory
     delete[] rMat;
     delete[] map;
+    
+    //================================================ Save rotation centre for co-ordinates
+    this->originalPdbRotCenX                          = ret.at(0);
+    this->originalPdbRotCenY                          = ret.at(1);
+    this->originalPdbRotCenZ                          = ret.at(2);
     
     //================================================ Done
     return                                            ( ret );

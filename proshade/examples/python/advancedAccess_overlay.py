@@ -21,8 +21,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.0
-#   \date      JUL 2021
+#   \version   0.7.6.1
+#   \date      AUG 2021
 ######################################################
 ######################################################
 
@@ -43,7 +43,7 @@ pSet                                                  = proshade.ProSHADE_settin
 ######################################################
 ### Set basic settings values 
 pSet.task                                             = proshade.OverlayMap
-pSet.verbose                                          = 4
+pSet.verbose                                          = -1
 pSet.requestedResolution                              = 2.0
 pSet.usePhase                                         = False
 pSet.changeMapResolution                              = True
@@ -129,10 +129,7 @@ pStruct_moving.computeTranslationMap                  ( pStruct_static )
 
 ######################################################
 ### Find the translation vectors
-translationVecs                                       = pStruct_moving.getOverlayTranslations ( pStruct_static,
-                                                                                                optimalRotationAngles[0],
-                                                                                                optimalRotationAngles[1],
-                                                                                                optimalRotationAngles[2] )
+translationVecs                                       = pStruct_moving.getOverlayTranslations ( pStruct_static )
 
 ######################################################
 ### Print results
@@ -161,8 +158,8 @@ print                                                 ( "Rot. centre to overlay 
 #   Optimal Euler rotation matrix       :  -0.858    +0.210    -0.469
 #                                       :  +0.068    -0.858    -0.509
 #                                       :  -0.509    -0.469    +0.722
-#   Rot. centre to origin translation   :  +18.500    +22.500    +23.500
-#   Rot. centre to overlay translation  :  +2.000    +3.000    -4.000
+#   Rot. centre to origin translation   :  +19.284   +23.307   +24.304
+#   Rot. centre to overlay translation  :  +2.000    +1.000    -5.000
 
 
 ######################################################
@@ -175,6 +172,9 @@ pStruct_moving.writePdb                               ( "/Users/mysak/Desktop/mo
                                                         translationVecs["rotCenToOverlay"][0],
                                                         translationVecs["rotCenToOverlay"][1],
                                                         translationVecs["rotCenToOverlay"][2],
+                                                        translationVecs["centreOfRotation"][0],
+                                                        translationVecs["centreOfRotation"][1],
+                                                        translationVecs["centreOfRotation"][2],
                                                         pSet.firstModelOnly )
 
 ######################################################

@@ -283,7 +283,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def                                          ( "getRecommendedSymmetryType", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType, "This function simply returns the detected recommended symmetry type.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryFold", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold, "This function simply returns the detected recommended symmetry fold.", pybind11::arg ( "settings" ) )
         .def                                          ( "getRecommendedSymmetryAxes",
-                                                        [] ( ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
                                                             float* npVals = new float[static_cast<unsigned int> ( settings->detectedSymmetry.size() * 7 )];
@@ -305,7 +305,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns the recommended symmetry axes as a 2D numpy array." )
         .def                                          ( "getAllCSyms",
-                                                        [] ( ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
                                                             float* npVals = new float[static_cast<unsigned int> ( settings->allDetectedCAxes.size() * 7 )];
@@ -327,7 +327,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns all symmetry axes as a 2D numpy array." )
         .def                                          ( "getNonCSymmetryAxesIndices",
-                                                        [] ( ProSHADE_settings* settings ) -> pybind11::dict
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::dict
                                                         {
                                                             //== Initialise local variables
                                                             pybind11::dict retDict;

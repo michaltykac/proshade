@@ -373,8 +373,6 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
     if ( ( xDimIndsMsk != xDimInds ) || ( yDimIndsMsk != yDimInds ) || ( zDimIndsMsk != zDimInds ) )
     {
         //============================================ Initialise variables
-        size_t origVolume                             = xDimInds * yDimInds * zDimInds;
-        size_t newVolume                              = xDimIndsMsk * yDimIndsMsk * zDimIndsMsk;
         fftw_complex* origCoeffs                      = new fftw_complex [newVolume ];
         fftw_complex* origCoeffsHKL                   = new fftw_complex [newVolume ];
         fftw_complex* modifCoeffs                     = new fftw_complex [origVolume];
