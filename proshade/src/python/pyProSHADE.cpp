@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== Include PyBind11 header
@@ -72,6 +72,8 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "saveMask",                             &ProSHADE_settings::saveMask                            )
         .def_readwrite                                ( "maskFileName",                         &ProSHADE_settings::maskFileName                        )
         .def_readwrite                                ( "appliedMaskFileName",                  &ProSHADE_settings::appliedMaskFileName                 )
+    
+        .def_readwrite                                ( "fourierWeightsFileName",               &ProSHADE_settings::fourierWeightsFileName              )
     
         .def_readwrite                                ( "reBoxMap",                             &ProSHADE_settings::reBoxMap                            )
         .def_readwrite                                ( "boundsExtraSpace",                     &ProSHADE_settings::boundsExtraSpace                    )
@@ -130,7 +132,8 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setMinimumMaskSize",                   &ProSHADE_settings::setMinimumMaskSize,                     "Sets the requested minimum mask size.",                                                                                    pybind11::arg ( "minMS"         ) )
         .def                                          ( "setMaskSaving",                        &ProSHADE_settings::setMaskSaving,                          "Sets whether the mask should be saved.",                                                                                   pybind11::arg ( "savMsk"        ) )
         .def                                          ( "setMaskFilename",                      &ProSHADE_settings::setMaskFilename,                        "Sets where the mask should be saved.",                                                                                     pybind11::arg ( "mskFln"        ) )
-        .def                                          ( "setAppliedMaskFilename",               &ProSHADE_settings::setAppliedMaskFilename,                 "Sets the filename of the mask data that should be applied to the input map.",                                            pybind11::arg ( "mskFln"        ) )
+        .def                                          ( "setAppliedMaskFilename",               &ProSHADE_settings::setAppliedMaskFilename,                 "Sets the filename of the mask data that should be applied to the input map.",                                             pybind11::arg ( "mskFln"        ) )
+        .def                                          ( "setFourierWeightsFilename",            &ProSHADE_settings::setFourierWeightsFilename,              "Sets the filename of the Fourier weights data that should be applied to the input map.",                                  pybind11::arg ( "fWgFln"        ) )
         .def                                          ( "setMapReboxing",                       &ProSHADE_settings::setMapReboxing,                         "Sets whether re-boxing needs to be done in the appropriate variable.",                                                     pybind11::arg ( "reBx"          ) )
         .def                                          ( "setBoundsSpace",                       &ProSHADE_settings::setBoundsSpace,                         "Sets the requested number of angstroms for extra space in re-boxing in the appropriate variable.",                         pybind11::arg ( "boundsExSp"    ) )
         .def                                          ( "setBoundsThreshold",                   &ProSHADE_settings::setBoundsThreshold,                     "Sets the threshold for number of indices difference acceptable to make index sizes same in the appropriate variable.",     pybind11::arg ( "boundsThres"   ) )

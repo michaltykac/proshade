@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -497,8 +497,16 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
     \param[in] fName The file name of the file which should be loaded.
     \param[in] inputO The order of this structure in this run's input.
     \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] maskArr An array of mask values (default nullptr) to be used instead of an input mask file.
+    \param[in] maskXDim The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maskYDim The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maskZDim The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] weightsArr An array of weights (default nullptr) to be used instead of input file.
+    \param[in] weigXDim The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] weigYDim The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] weigZDim The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Report function start
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting to read the structure: " + fName );
@@ -532,7 +540,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
             break;
         
         case ProSHADE_internal_io::MAP:
-            this->readInMAP                           ( settings );
+            this->readInMAP                           ( settings, maskArr, maskXDim, maskYDim, maskZDim, weightsArr, weigXDim, weigYDim, weigZDim );
             break;
     }
     
@@ -595,11 +603,20 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( gemmi::Structure g
 /*! \brief Function for reading map data using gemmi library.
  
     This function reads in the map data using the information from the settings object and saves all the results into the
-    structure calling it.
+    structure calling it. More specifically, the data are parsed from the input file, mask (if any is supplied) is applied here,
+    the Fourier weights are applied, map re-sampling is done and then the final map details are saved for further processing.
  
     \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] maskArr An array of mask values (default nullptr) to be used instead of an input mask file.
+    \param[in] maskXDim The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maskYDim The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maskZDim The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] weightsArr An array of weights (default nullptr) to be used instead of input file.
+    \param[in] weigXDim The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] weigYDim The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] weigZDim The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Open the file
     gemmi::Ccp4<float> map;
@@ -620,205 +637,14 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     
     //================================================ Save the map density to ProSHADE variable
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
-    
+        
     //================================================ If mask is supplied and the correct task is used
-    if ( ( settings->appliedMaskFileName != "" ) && ( ( settings->task == MapManip ) || ( settings->task == Symmetry ) ) )
-    {
-        //================================================ Report progress
-        std::stringstream hlpSS;
-        hlpSS << "Reading mask file " << settings->appliedMaskFileName;
-        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, hlpSS.str() );
-        
-        //============================================ Open the mask
-        gemmi::Ccp4<float> mask;
-        mask.read_ccp4                                ( gemmi::MaybeGzipped ( settings->appliedMaskFileName.c_str() ) );
-        
-        //============================================ Convert to XYZ and create complete mask, if need be
-        mask.setup                                    ( gemmi::GridSetup::ReorderOnly, 0 );
-        
-        //============================================ Read in the rest of the mask file header
-        proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
-        proshade_single xDS, yDS, zDS, aA, bA, cA;
-        proshade_signed xF, yF, zF, xAO, yAO, zAO;
-        ProSHADE_internal_io::readInMapHeader         ( &mask,
-                                                        &xDI,  &yDI,  &zDI,
-                                                        &xDS,  &yDS,  &zDS,
-                                                        &aA,   &bA,   &cA,
-                                                        &xF,   &yF,   &zF,
-                                                        &xAO,  &yAO,  &zAO,
-                                                        &xAOR, &yAOR, &zAOR,
-                                                        &xGI,  &yGI,  &zGI );
-
-        //============================================ Save the mask values to ProSHADE variable
-        proshade_double* internalMask = nullptr;
-        ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
-        
-        //============================================ If mask has different number of indices than map, then re-sample mask
-        if ( ( xDI != this->xDimIndices ) || ( yDI != this->yDimIndices ) || ( zDI != this->zDimIndices ) )
-        {
-            //======================================== Initialise variables
-            fftw_complex* origCoeffs                  = new fftw_complex [xDI * yDI * zDI];
-            fftw_complex* origCoeffsHKL               = new fftw_complex [xDI * yDI * zDI];
-            fftw_complex* modifCoeffs                 = new fftw_complex [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-            fftw_complex* modifCoeffsHKL              = new fftw_complex [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-            fftw_complex* inMap                       = new fftw_complex [xDI * yDI * zDI];
-            fftw_complex* outMap                      = new fftw_complex [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-            
-            //======================================== Check memory allocation
-            ProSHADE_internal_misc::checkMemoryAllocation ( inMap,          __FILE__, __LINE__, __func__ );
-            ProSHADE_internal_misc::checkMemoryAllocation ( outMap,         __FILE__, __LINE__, __func__ );
-            ProSHADE_internal_misc::checkMemoryAllocation ( origCoeffs,     __FILE__, __LINE__, __func__ );
-            ProSHADE_internal_misc::checkMemoryAllocation ( modifCoeffs,    __FILE__, __LINE__, __func__ );
-            ProSHADE_internal_misc::checkMemoryAllocation ( origCoeffsHKL,  __FILE__, __LINE__, __func__ );
-            ProSHADE_internal_misc::checkMemoryAllocation ( modifCoeffsHKL, __FILE__, __LINE__, __func__ );
-            
-            //======================================== Set array to zeroes
-            for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { modifCoeffsHKL[iter][0] = 0.0; modifCoeffsHKL[iter][1] = 0.0; }
-            
-            //======================================== Cope mask to Fourier input array
-            for ( size_t iter = 0; iter < static_cast< size_t > ( xDI * yDI * zDI ); iter++ ) { inMap[iter][0] = internalMask[iter]; inMap[iter][1] = 0.0; }
-            
-            //======================================== Prepare Fourier transform plans
-            fftw_plan planForwardFourier              = fftw_plan_dft_3d ( static_cast< int > ( xDI ), static_cast< int > ( yDI ), static_cast< int > ( zDI ), inMap, origCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
-            fftw_plan inverseFoourier                 = fftw_plan_dft_3d ( static_cast< int > ( this->xDimIndices ), static_cast< int > ( this->yDimIndices ), static_cast< int > ( this->zDimIndices ), modifCoeffs, outMap, FFTW_BACKWARD, FFTW_ESTIMATE );
-            
-            //======================================== Compute pre and post changes
-            proshade_signed xPre, xPost, yPre, yPost, zPre, zPost;
-            xPre                                      = std::abs ( ( static_cast< proshade_signed > ( this->xDimIndices ) - static_cast< proshade_signed > ( xDI ) ) / 2 );
-            xPost                                     = std::abs ( ( static_cast< proshade_signed > ( this->xDimIndices ) - static_cast< proshade_signed > ( xDI ) ) / 2 );
-            yPre                                      = std::abs ( ( static_cast< proshade_signed > ( this->yDimIndices ) - static_cast< proshade_signed > ( yDI ) ) / 2 );
-            yPost                                     = std::abs ( ( static_cast< proshade_signed > ( this->yDimIndices ) - static_cast< proshade_signed > ( yDI ) ) / 2 );
-            zPre                                      = std::abs ( ( static_cast< proshade_signed > ( this->zDimIndices ) - static_cast< proshade_signed > ( zDI ) ) / 2 );
-            zPost                                     = std::abs ( ( static_cast< proshade_signed > ( this->zDimIndices ) - static_cast< proshade_signed > ( zDI ) ) / 2 );
-            
-            if ( ( ( static_cast< proshade_signed > ( this->xDimIndices ) - static_cast< proshade_signed > ( xDI ) ) % 2 ) == 1 ) { xPre -= 1; }
-            if ( ( ( static_cast< proshade_signed > ( this->yDimIndices ) - static_cast< proshade_signed > ( yDI ) ) % 2 ) == 1 ) { yPre -= 1; }
-            if ( ( ( static_cast< proshade_signed > ( this->zDimIndices ) - static_cast< proshade_signed > ( zDI ) ) % 2 ) == 1 ) { zPre -= 1; }
-            
-            //======================================== Run forward Fourier
-            fftw_execute                              ( planForwardFourier );
-            
-            //======================================== Initialise local variables
-            proshade_signed maskMapIndex              = 0;
-            proshade_signed densMapIndex              = 0;
-            proshade_signed xMaskPos, yMaskPos, zMaskPos, xDensPos, yDensPos, zDensPos;
-            proshade_signed maskH, maskK, maskL;
-            
-            //======================================== Convert mask to HKL for re-boxing
-            for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xDI ); xIt++ )
-            {
-                for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yDI ); yIt++ )
-                {
-                    for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zDI ); zIt++ )
-                    {
-                        //============================ Convert to HKL
-                        maskH                         = xIt + static_cast< proshade_signed > ( (xDI+1) / 2 ); if ( maskH >= static_cast< proshade_signed > ( xDI ) ) { maskH -= xDI; }
-                        maskK                         = yIt + static_cast< proshade_signed > ( (yDI+1) / 2 ); if ( maskK >= static_cast< proshade_signed > ( yDI ) ) { maskK -= yDI; }
-                        maskL                         = zIt + static_cast< proshade_signed > ( (zDI+1) / 2 ); if ( maskL >= static_cast< proshade_signed > ( zDI ) ) { maskL -= zDI; }
-                        
-                        //============================ Find the positions
-                        maskMapIndex                  = zIt   + static_cast< proshade_signed > ( zDI ) * ( yIt   + static_cast< proshade_signed > ( yDI ) * xIt   );
-                        densMapIndex                  = maskL + static_cast< proshade_signed > ( zDI ) * ( maskK + static_cast< proshade_signed > ( yDI ) * maskH );
-                        
-                        //============================ Save the values
-                        origCoeffsHKL[densMapIndex][0] = origCoeffs[maskMapIndex][0];
-                        origCoeffsHKL[densMapIndex][1] = origCoeffs[maskMapIndex][1];
-                    }
-                }
-            }
-            
-            //======================================== Rebox
-            for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( this->xDimIndices ); xIt++ )
-            {
-                for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( this->yDimIndices ); yIt++ )
-                {
-                    for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( this->zDimIndices ); zIt++ )
-                    {
-                        //============================ Deal with X
-                        if ( xDI >= this->xDimIndices ) { xMaskPos = xIt + xPre; }
-                        else                            { xMaskPos = xIt - xPre; }
-                        xDensPos                      = xIt;
-                        
-                        //============================ Deal with Y
-                        if ( yDI >= this->yDimIndices ) { yMaskPos = yIt + yPre; }
-                        else                            { yMaskPos = yIt - yPre; }
-                        yDensPos                      = yIt;
-                        
-                        //============================ Deal with Z
-                        if ( zDI >= this->zDimIndices ) { zMaskPos = zIt + zPre; }
-                        else                            { zMaskPos = zIt - zPre; }
-                        zDensPos                      = zIt;
-                        
-                        //============================ Skip if mask value not available (because the modifCoeffsHKL array is zeroed, we do not need to do anything here)
-                        if ( ( xMaskPos < 0 ) || ( xMaskPos >= static_cast< proshade_signed > ( xDI ) ) ) { continue; }
-                        if ( ( yMaskPos < 0 ) || ( yMaskPos >= static_cast< proshade_signed > ( yDI ) ) ) { continue; }
-                        if ( ( zMaskPos < 0 ) || ( zMaskPos >= static_cast< proshade_signed > ( zDI ) ) ) { continue; }
-                        
-                        //============================ Find the positions
-                        maskMapIndex                  = zMaskPos + static_cast< proshade_signed > ( zDI               ) * ( yMaskPos + static_cast< proshade_signed > ( yDI               ) * xMaskPos );
-                        densMapIndex                  = zDensPos + static_cast< proshade_signed > ( this->zDimIndices ) * ( yDensPos + static_cast< proshade_signed > ( this->yDimIndices ) * xDensPos );
-                        
-                        //============================ Copy values
-                        modifCoeffsHKL[densMapIndex][0] = origCoeffsHKL[maskMapIndex][0];
-                        modifCoeffsHKL[densMapIndex][1] = origCoeffsHKL[maskMapIndex][1];
-                    }
-                }
-            }
-            
-            //======================================== Convert mask back to FFTW order
-            for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( this->xDimIndices ); xIt++ )
-            {
-                for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( this->yDimIndices ); yIt++ )
-                {
-                    for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( this->zDimIndices ); zIt++ )
-                    {
-                        //============================ Convert to HKL
-                        maskH                         = xIt + static_cast< proshade_signed > ( (this->xDimIndices) / 2 ); if ( maskH >= static_cast< proshade_signed > ( this->xDimIndices ) ) { maskH -= this->xDimIndices; }
-                        maskK                         = yIt + static_cast< proshade_signed > ( (this->yDimIndices) / 2 ); if ( maskK >= static_cast< proshade_signed > ( this->yDimIndices ) ) { maskK -= this->yDimIndices; }
-                        maskL                         = zIt + static_cast< proshade_signed > ( (this->zDimIndices) / 2 ); if ( maskL >= static_cast< proshade_signed > ( this->zDimIndices ) ) { maskL -= this->zDimIndices; }
-                        
-                        //============================ Find the positions
-                        maskMapIndex                  = zIt   + static_cast< proshade_signed > ( this->zDimIndices ) * ( yIt   + static_cast< proshade_signed > ( this->yDimIndices ) * xIt );
-                        densMapIndex                  = maskL + static_cast< proshade_signed > ( this->zDimIndices ) * ( maskK + static_cast< proshade_signed > ( this->yDimIndices ) * maskH );
-                        
-                        //============================ Save the values
-                        modifCoeffs[densMapIndex][0]  = modifCoeffsHKL[maskMapIndex][0];
-                        modifCoeffs[densMapIndex][1]  = modifCoeffsHKL[maskMapIndex][1];
-                    }
-                }
-            }
-            
-            //======================================== Run inverse Fourier on the modified coefficients
-            fftw_execute                              ( inverseFoourier );
-            
-            //======================================== Delete old mask and allocate memory for the new, re-sampled mask
-            delete[] internalMask;
-            internalMask                              = new proshade_double [this->xDimIndices * this->yDimIndices * this->zDimIndices];
-            ProSHADE_internal_misc::checkMemoryAllocation ( internalMask, __FILE__, __LINE__, __func__ );
-            
-            //======================================== Copy results into a new, properly sampled mask
-            for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { internalMask[iter] = outMap[iter][0]; }
-            
-            //======================================== Release remaining memory
-            fftw_destroy_plan                         ( planForwardFourier );
-            fftw_destroy_plan                         ( inverseFoourier );
-            delete[] origCoeffs;
-            delete[] modifCoeffs;
-            delete[] origCoeffsHKL;
-            delete[] modifCoeffsHKL;
-            delete[] inMap;
-            delete[] outMap;
-        }
-        
-        //============================================ Apply the mask to the map
-        for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { this->internalMap[iter] *= internalMask[iter]; }
-        
-        //============================================ Release the memory
-        delete[] internalMask;
-        
-        //============================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Mask read in and applied successfully." );
-    }
+    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+                                                        maskArr, maskXDim, maskYDim, maskZDim );
+    
+    //================================================ Apply Fourier weights
+    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+                                                        weightsArr, weigXDim, weigYDim, weigZDim );
     
     //================================================ Remove negative values if so required
     if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
@@ -2958,7 +2784,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
         
         //============================================ Find reliable C syms
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )

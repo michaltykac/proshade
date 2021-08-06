@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -43,7 +43,6 @@ int main ( int argc, char **argv )
     
     
     //================================================ Further useful settings
-    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -115,20 +114,12 @@ int main ( int argc, char **argv )
     //================================================ Compute self-rotation function
     simpleSym->computeRotationFunction                ( settings ); // This function computes the self-rotation function for the structure calling it.
     
-    //================================================ Detect the recommended symmetry
+    //================================================ Prepare variables for results
     std::vector< proshade_double* > recomSymAxes;
     std::vector< std::vector< proshade_double > > allCSymAxes;
     
-    if ( settings->usePeakSearchInRotationFunctionSpace )
-    {
-        //============================================ Detect point groups in the angle-axis space
-        simpleSym->detectSymmetryFromAngleAxisSpace   ( settings, &recomSymAxes, &allCSymAxes );
-    }
-    else
-    {
-        //============================================ Detect symmetry using the peak detection in rotation function space
-        simpleSym->detectSymmetryInStructure          ( settings, &recomSymAxes, &allCSymAxes );
-    }
+    //================================================ Detect point groups in the angle-axis space
+    simpleSym->detectSymmetryFromAngleAxisSpace       ( settings, &recomSymAxes, &allCSymAxes );
     
     //================================================ Access symmetry detection results
     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings ); // This is how the recommended symmetry type can be obtained.
@@ -143,8 +134,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: D-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.983466 and averaged FSC of 0.967818
-//  Symmetry axis number 1: Fold 2 XYZ: 1 ; 0 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 0.985993 and averaged FSC of 0.998901
+//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.983466 and averaged FSC of 0.967776
+//  Symmetry axis number 1: Fold 2 XYZ: 1 ; 0 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 0.985993 and averaged FSC of 0.998879
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
@@ -173,20 +164,12 @@ int main ( int argc, char **argv )
     requestSym->computeSphericalHarmonics             ( settings );
     requestSym->computeRotationFunction               ( settings );
     
-    //================================================ Detect the recommended symmetry
+    //================================================ Prepare variables for results
     std::vector< proshade_double* > reqSymAxes;
     allCSymAxes.clear();
     
-    if ( settings->usePeakSearchInRotationFunctionSpace )
-    {
-        //============================================ Detect point groups in the angle-axis space
-        requestSym->detectSymmetryFromAngleAxisSpace  ( settings, &reqSymAxes, &allCSymAxes );
-    }
-    else
-    {
-        //============================================ Detect symmetry using the peak detection in rotation function space
-        requestSym->detectSymmetryInStructure         ( settings, &reqSymAxes, &allCSymAxes );
-    }
+    //================================================ Detect point groups in the angle-axis space
+    requestSym->detectSymmetryFromAngleAxisSpace      ( settings, &reqSymAxes, &allCSymAxes );
     
     //================================================ Save results
     symmetryType                                      = requestSym->getRecommendedSymmetryType ( settings );
@@ -207,9 +190,9 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: D-4 as requested. The axes are:
-//  Symmetry axis number 0: Fold 4 XYZ: 0 ; 0 ; 1 Angle (radians): 1.5708 and axis peak: 0.986754
-//  Symmetry axis number 1: Fold 2 XYZ: -0.596465 ; 0.802192 ; 0.0267738 Angle (radians): 3.14159 and axis peak: 0.640231
+//  Detected symmetry: D-3 as requested. The axes are:
+//  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944 and axis peak: 0.982836
+//  Symmetry axis number 1: Fold 2 XYZ: 1.83697e-16 ; 1 ; -6.12323e-17 Angle (radians): -3.14159 and axis peak: 0.985911
     
     
     //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
@@ -295,5 +278,5 @@ int main ( int argc, char **argv )
     delete settings;
     
     //================================================ DONE
-    return EXIT_SUCCESS;
+    return                                            ( EXIT_SUCCESS );
 }

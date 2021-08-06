@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.0
-#   \date      JUL 2021
+#   \version   0.7.6.1
+#   \date      AUG 2021
 ######################################################
 ######################################################
 
@@ -97,8 +97,8 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ### Expected output
 #   Detected D-6 symetry.
 #   Fold              x           y         z       Angle      Height    Average FSC
-#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9696      +0.9760
-#     2.0        +1.000      -0.000    -0.000    -3.142    +0.9898      +0.9997
+#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9696      +0.9755
+#     2.0        +1.000      -0.000    -0.000    -3.142    +0.9898      +0.9996
 
 ######################################################
 ### Get list of all cyclic axes detected

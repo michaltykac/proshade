@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -235,6 +235,12 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            This option allows supplying a map mask, which will be applied      " << std::endl;
     std::cout << "            before any other processing in the input map. This option is only   " << std::endl;
     std::cout << "            available for the map manipulation and symmetry detection tasks.    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    -z or --fourierWeights                                    [DEFAULT: \"\"]     " << std::endl;
+    std::cout << "            This option allows the user to supply a map file which has values   " << std::endl;
+    std::cout << "            that will be applied to the Fourier transform of the input map. It  " << std::endl;
+    std::cout << "            is expected to be in the same format as standard coefficients order " << std::endl;
+    std::cout << "            of FFTW (version 3) - i.e. f_0, ..., f_N/2, f_-N/2+1, ..., f_-1.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskBlurring                                  [DEFAULT:        350.0]     " << std::endl;
     std::cout << "            The B-factor (temperature factor) increase, which should be         " << std::endl;

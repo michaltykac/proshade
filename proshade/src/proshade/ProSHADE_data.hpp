@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -142,7 +142,9 @@ namespace ProSHADE_internal_data
     protected:
         void figureIndexStartStop                     ( void );
         void setPDBMapValues                          ( void );
-        void readInMAP                                ( ProSHADE_settings* settings );
+        void readInMAP                                ( ProSHADE_settings* settings, proshade_double* maskArr = nullptr, proshade_unsign maskXDim = 0, proshade_unsign maskYDim = 0,
+                                                        proshade_unsign maskZDim = 0, proshade_double* weightsArr = nullptr, proshade_unsign weigXDim = 0, proshade_unsign weigYDim = 0,
+                                                        proshade_unsign weigZDim = 0 );
         void readInPDB                                ( ProSHADE_settings* settings );
         void readInGemmi                              ( gemmi::Structure gemmiStruct, ProSHADE_settings* settings );
         void allocateRRPMemory                        ( );
@@ -157,7 +159,9 @@ namespace ProSHADE_internal_data
        ~ProSHADE_data                                 ( void );
         
         //============================================ Data I/O functions
-        void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings );
+        void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr = nullptr, proshade_unsign maskXDim = 0,
+                                                        proshade_unsign maskYDim = 0, proshade_unsign maskZDim = 0, proshade_double* weightsArr = nullptr, proshade_unsign weigXDim = 0,
+                                                        proshade_unsign weigYDim = 0, proshade_unsign weigZDim = 0 );
         void readInStructure                          ( gemmi::Structure gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "Created by ProSHADE and written by GEMMI", int mode = 2 );
         void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,

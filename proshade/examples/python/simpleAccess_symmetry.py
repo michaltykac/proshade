@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.0
-#   \date      JUL 2021
+#   \version   0.7.6.1
+#   \date      AUG 2021
 ######################################################
 ######################################################
 
@@ -46,7 +46,6 @@ ps.setAppliedMaskFilename                             ( "/Users/mysak/BioCEV/pro
 
 ######################################################
 ### Further useful settings
-ps.setSymmetryRotFunPeaks                             ( True )                  # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                  # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                    # The maximum prime number fold that will be searched for.
 ps.setFSCThreshold                                    ( 0.75 )                  # The threshold for FSC value under which the axis is considered to be likely noise.
@@ -129,9 +128,9 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 
 ######################################################
 ### Expected outuput
-#   Detected symmetry C-4 with axes: 
+#   Detected symmetry C-4 with axes:
 #   Fold      x         y         z       Angle     Height    Averaged FSC
-#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9780      +0.9781
+#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9780      +1.0000
 
 ######################################################
 ### Find the internal map COM shift

@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -84,6 +84,9 @@ public:
     bool saveMask;                                    //!< Should the mask be saved?
     std::string maskFileName;                         //!< The filename to which mask should be saved.
     std::string appliedMaskFileName;                  //!< The filename from which mask data will be read from.
+    
+    //================================================ Settings regarding map weighting
+    std::string fourierWeightsFileName;               //!< The filename from which Fourier weights data will be read from.
     
     //================================================ Settings regarding re-boxing
     bool reBoxMap;                                    //!< This switch decides whether re-boxing is needed.
@@ -186,6 +189,7 @@ public:
     void __declspec(dllexport) setMaskSaving                                  ( bool savMsk );
     void __declspec(dllexport) setMaskFilename                                ( std::string mskFln );
     void __declspec(dllexport) setAppliedMaskFilename                         ( std::string mskFln );
+    void __declspec(dllexport) setFourierWeightsFilename                      ( std::string fWgFln );
     void __declspec(dllexport) setMapReboxing                                 ( bool reBx );
     void __declspec(dllexport) setBoundsSpace                                 ( proshade_single boundsExSp );
     void __declspec(dllexport) setBoundsThreshold                             ( proshade_signed boundsThres );
@@ -240,6 +244,7 @@ public:
     void setMaskSaving                                ( bool savMsk );
     void setMaskFilename                              ( std::string mskFln );
     void setAppliedMaskFilename                       ( std::string mskFln );
+    void setFourierWeightsFilename                    ( std::string fWgFln );
     void setMapReboxing                               ( bool reBx );
     void setBoundsSpace                               ( proshade_single boundsExSp );
     void setBoundsThreshold                           ( proshade_signed boundsThres );

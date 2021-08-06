@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.0
-#   \date      JUL 2021
+#   \version   0.7.6.1
+#   \date      AUG 2021
 ######################################################
 ######################################################
 
@@ -65,7 +65,6 @@ ps.setExtraSpace                                      ( 10.0 )                  
 
 ######################################################
 ### All other (possibly other tasks related) settings
-ps.setSymmetryRotFunPeaks                             ( True )                                                           # Should the new angle-axis space symmetry detection be used?
 ps.setBicubicInterpolationSearch                      ( True )                                                           # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                                                             # The maximum prime number fold that will be searched for.
 ps.setFSCThreshold                                    ( 0.75 )                                                           # The threshold for FSC value under which the axis is considered to be likely noise.
@@ -120,12 +119,12 @@ print                                                 ( "Translation to overlay 
 
 ######################################################
 ### Expected outuput
-#   Optimal rotation Euler angles :  3.8862262      0.74404687      5.4567637
-#   Optimal rotation matrix       : -0.865          0.20303503     -0.4588592
-#                                 :  0.06123119    -0.86493164     -0.49814057
-#                                 : -0.4980218     -0.4589881       0.7357338
-#   Translation to origin         : -17.0    -21.0    -23.0
-#   Translation to overlay        : 4.0    4.0    -4.0
+#   Optimal rotation Euler angles : 3.8862262    0.74404687    5.4567637
+#   Optimal rotation matrix       : -0.865    0.20303503    -0.4588592
+#                                 : 0.06123119    -0.86493164    -0.49814057
+#                                 : -0.4980218    -0.4589881    0.7357338
+#   Translation to origin         : -18.545456    -22.594595    -24.615385
+#   Translation to overlay        : 4.0    2.0    -6.0
 
 ######################################################
 ### Release memory
