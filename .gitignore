@@ -31,3 +31,8 @@
 *.exe
 *.out
 *.app
+
+# Specific script runtime files
+symmetryPredictions/*.png
+symmetryPredictions/*.mrc
+symmetryPredictions/*.txt

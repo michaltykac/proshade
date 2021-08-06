@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -236,6 +236,12 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            before any other processing in the input map. This option is only   " << std::endl;
     std::cout << "            available for the map manipulation and symmetry detection tasks.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -z or --fourierWeights                                    [DEFAULT: \"\"]     " << std::endl;
+    std::cout << "            This option allows the user to supply a map file which has values   " << std::endl;
+    std::cout << "            that will be applied to the Fourier transform of the input map. It  " << std::endl;
+    std::cout << "            is expected to be in the same format as standard coefficients order " << std::endl;
+    std::cout << "            of FFTW (version 3) - i.e. f_0, ..., f_N/2, f_-N/2+1, ..., f_-1.    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskBlurring                                  [DEFAULT:        350.0]     " << std::endl;
     std::cout << "            The B-factor (temperature factor) increase, which should be         " << std::endl;
     std::cout << "            applied to blurr the map for its subsequent masking.                " << std::endl;
@@ -371,12 +377,6 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            In this case, only the optimal number of bands will be used for     " << std::endl;
     std::cout << "            each sphere, depending on its size. This is in cotrast to the       " << std::endl;
     std::cout << "            default all spheres same number of bands setting.                   " << std::endl;
-    std::cout << "                                                                                " << std::endl;
-    std::cout << "    --usePeaksInRotFun or -z                        [DEFAULT:        FALSE]     " << std::endl;
-    std::cout << "            Symmetry detection can now be done either using peak detection in   " << std::endl;
-    std::cout << "            rotation function space, or by default by converting rotation func. " << std::endl;
-    std::cout << "            to angle-axis space and finding symmetries there. Using this option " << std::endl;
-    std::cout << "            switches to using peak detection in rotation function space.         " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --noEnL or -l                                   [DEFAULT:         TRUE]     " << std::endl;
     std::cout << "            Is the computation of the energy levels descriptor required?        " << std::endl;

@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -497,8 +497,16 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
     \param[in] fName The file name of the file which should be loaded.
     \param[in] inputO The order of this structure in this run's input.
     \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] maskArr An array of mask values (default nullptr) to be used instead of an input mask file.
+    \param[in] maskXDim The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maskYDim The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maskZDim The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] weightsArr An array of weights (default nullptr) to be used instead of input file.
+    \param[in] weigXDim The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] weigYDim The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] weigZDim The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Report function start
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting to read the structure: " + fName );
@@ -523,13 +531,16 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     {
         case ProSHADE_internal_io::UNKNOWN:
             throw ProSHADE_exception ( "Unknown file type.", "E000006", __FILE__, __LINE__, __func__, "When attempting to read the file\n                    : " + this->fileName + "\n                    : the file extension was determined as unknown. This could\n                    : mean either that the file does not exist, or that it is\n                    : not one of the supported extensions." );
+            
+        case ProSHADE_internal_io::GEMMI:
+            throw ProSHADE_exception ( "Unknown file type.", "E000006", __FILE__, __LINE__, __func__, "When attempting to read the file\n                    : " + this->fileName + "\n                    : the file extension was determined as unknown. This could\n                    : mean either that the file does not exist, or that it is\n                    : not one of the supported extensions." );
         
         case ProSHADE_internal_io::PDB:
             this->readInPDB                           ( settings );
             break;
         
         case ProSHADE_internal_io::MAP:
-            this->readInMAP                           ( settings );
+            this->readInMAP                           ( settings, maskArr, maskXDim, maskYDim, maskZDim, weightsArr, weigXDim, weigYDim, weigZDim );
             break;
     }
     
@@ -544,14 +555,68 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     
 }
 
+/*! \brief This function initialises the basic ProSHADE_data variables and reads in a single structure from Gemmi co-ordinate object.
+ 
+    This function is basically the constructor for the ProSHADE_data class. It reads in a structure from the supplied gemmi::Structure object
+    in the same way a co-ordinate structure would be read from file.
+ 
+    \param[in] gemmiStruct The Gemmi Structure object that should be read in.
+    \param[in] inputO The order of this structure in this run's input.
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+ */
+void ProSHADE_internal_data::ProSHADE_data::readInStructure ( gemmi::Structure gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings )
+{
+    //================================================ Report function start
+    std::stringstream ss;
+    ss << "Starting to load the structure from Gemmi object " << inputO;
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str() );
+    
+    //================================================ Check if instance is empty
+    if ( !this->isEmpty )
+    {
+        throw ProSHADE_exception ( "Structure data class not empty.", "E000005", __FILE__, __LINE__, __func__, "Attempted to read in structure into a ProSHADE_data\n                    : object which already does have structure read in\n                    : i.e. " + this->fileName );
+    }
+        
+    //================================================ Save the filename
+    this->fileName                                    = gemmiStruct.name;
+    
+    //================================================ Check what is the input format
+    this->fileType                                    = ProSHADE_internal_io::GEMMI;
+    
+    //================================================ Save input order
+    this->inputOrder                                  = inputO;
+    
+    //================================================ Decide how to proceed
+    this->readInGemmi                                 ( gemmiStruct, settings );
+
+    //================================================ This structure is now full
+    this->isEmpty                                     = false;
+    
+    //================================================ Report function completion
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully." );
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Function for reading map data using gemmi library.
  
     This function reads in the map data using the information from the settings object and saves all the results into the
-    structure calling it.
+    structure calling it. More specifically, the data are parsed from the input file, mask (if any is supplied) is applied here,
+    the Fourier weights are applied, map re-sampling is done and then the final map details are saved for further processing.
  
     \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+    \param[in] maskArr An array of mask values (default nullptr) to be used instead of an input mask file.
+    \param[in] maskXDim The size of maskArray x dimension in indices (defaults to 0).
+    \param[in] maskYDim The size of maskArray y dimension in indices (defaults to 0).
+    \param[in] maskZDim The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] weightsArr An array of weights (default nullptr) to be used instead of input file.
+    \param[in] weigXDim The size of weightsArray x dimension in indices (defaults to 0).
+    \param[in] weigYDim The size of weightsArray y dimension in indices (defaults to 0).
+    \param[in] weigZDim The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings )
+void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Open the file
     gemmi::Ccp4<float> map;
@@ -572,54 +637,14 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     
     //================================================ Save the map density to ProSHADE variable
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
-    
+        
     //================================================ If mask is supplied and the correct task is used
-    if ( ( settings->appliedMaskFileName != "" ) && ( ( settings->task == MapManip ) || ( settings->task == Symmetry ) ) )
-    {
-        //================================================ Report progress
-        std::stringstream hlpSS;
-        hlpSS << "Reading mask file " << settings->appliedMaskFileName;
-        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, hlpSS.str() );
-        
-        //============================================ Open the mask
-        gemmi::Ccp4<float> mask;
-        mask.read_ccp4                                ( gemmi::MaybeGzipped ( settings->appliedMaskFileName.c_str() ) );
-        
-        //============================================ Convert to XYZ and create complete mask, if need be
-        mask.setup                                    ( gemmi::GridSetup::ReorderOnly, 0 );
-        
-        //============================================ Read in the rest of the mask file header
-        proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
-        proshade_single xDS, yDS, zDS, aA, bA, cA;
-        proshade_signed xF, yF, zF, xAO, yAO, zAO;
-        ProSHADE_internal_io::readInMapHeader         ( &mask,
-                                                        &xDI,  &yDI,  &zDI,
-                                                        &xDS,  &yDS,  &zDS,
-                                                        &aA,   &bA,   &cA,
-                                                        &xF,   &yF,   &zF,
-                                                        &xAO,  &yAO,  &zAO,
-                                                        &xAOR, &yAOR, &zAOR,
-                                                        &xGI,  &yGI,  &zGI );
-        
-        //============================================ Sanity check
-        if ( ( this->xDimIndices != xDI ) || ( this->yDimIndices != yDI ) || ( this->zDimIndices != zDI ) )
-        {
-            throw ProSHADE_exception                  ( "The supplied map mask has different dimensions than the\n                    : density map.", "EM00065", __FILE__, __LINE__, __func__, "Most likely the mask is not the correct mask for this map,\n                    : as it has different dimensions from the density map.\n                    : Please review that the supplied map and mask form a pair." );
-        }
-        
-        //============================================ Save the mask values to ProSHADE variable
-        proshade_double* internalMask = nullptr;
-        ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
-        
-        //============================================ Apply the mask to the map
-        for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { this->internalMap[iter] *= internalMask[iter]; }
-        
-        //============================================ Release the memory
-        delete[] internalMask;
-        
-        //============================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Mask read in and applied successfully." );
-    }
+    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+                                                        maskArr, maskXDim, maskYDim, maskZDim );
+    
+    //================================================ Apply Fourier weights
+    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+                                                        weightsArr, weigXDim, weigYDim, weigZDim );
     
     //================================================ Remove negative values if so required
     if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
@@ -733,31 +758,63 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     //================================================ Open PDB file for reading
     gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
+    //================================================ Once we have Gemmi object, run the Gemmi function
+    this->readInGemmi                                 ( pdbFile, settings );
+    
+    //================================================ Done
+    return;
+    
+}
+
+/*! \brief Function for reading co-ordinate data from Gemmi object.
+ 
+    This function processes the input Gemmi structure into ProSHADE internal map. It starts with ProSHADE optional modifications
+    of the co-ordinates (i.e. setting all B-factors to given value and removing waters). It then proceeds to move the co-ordinates so
+    that their minimal point is at position [20, 20, 20] (this is to make sure map density will be at the centre of the box) and computes
+    the theoretical density map using Gemmi's Cromer & Libermann method. It then moves the map box to the original co-ordinates
+    position.
+ 
+    If map re-sampling is required, then this is done here as well.
+ 
+    Finally, this function sets all the ProSHADE internal values to what other functions expect and terminates.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for reading in the map.
+ 
+    \warning For multiple models, this function works, but the map is not perfectly fitted to the PDB file.
+ */
+void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmiStruct, ProSHADE_settings* settings )
+{
+    //================================================ Set resolution if need be
+    if ( settings->requestedResolution < 0.0f )
+    {
+        settings->setResolution                       ( 8.0 );
+    }
+    
     //================================================ Change B-factors if need be
     if ( settings->pdbBFactorNewVal >= 0.0 )
     {
-        ProSHADE_internal_mapManip::changePDBBFactors ( &pdbFile, settings->pdbBFactorNewVal, settings->firstModelOnly );
+        ProSHADE_internal_mapManip::changePDBBFactors ( &gemmiStruct, settings->pdbBFactorNewVal, settings->firstModelOnly );
     }
     
     //================================================ Remove waters if required
     if ( settings->removeWaters )
     {
-        ProSHADE_internal_mapManip::removeWaters      ( &pdbFile, settings->firstModelOnly );
+        ProSHADE_internal_mapManip::removeWaters      ( &gemmiStruct, settings->firstModelOnly );
     }
     
     //================================================ Get PDB COM values
     proshade_double xCOMPdb, yCOMPdb, zCOMPdb;
-    ProSHADE_internal_mapManip::findPDBCOMValues      ( pdbFile, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::findPDBCOMValues      ( gemmiStruct, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
     
     //================================================ Find the ranges
     proshade_single xF, xT, yF, yT, zF, zT;
-    ProSHADE_internal_mapManip::determinePDBRanges    ( pdbFile, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::determinePDBRanges    ( gemmiStruct, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
     
     //================================================ Move ranges to have all FROM values 20
     proshade_single xMov                              = static_cast< proshade_single > ( 20.0f - xF );
     proshade_single yMov                              = static_cast< proshade_single > ( 20.0f - yF );
     proshade_single zMov                              = static_cast< proshade_single > ( 20.0f - zF );
-    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &pdbFile, xMov, yMov, zMov, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::movePDBForMapCalc     ( &gemmiStruct, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
     this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + 40.0f );
@@ -765,7 +822,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + 40.0f );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
-    ProSHADE_internal_mapManip::generateMapFromPDB    ( pdbFile, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
+    ProSHADE_internal_mapManip::generateMapFromPDB    ( gemmiStruct, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
     
     //================================================ Remove negative values if so required
     if ( settings->removeNegativeDensity ) { for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { if ( this->internalMap[iter] < 0.0 ) { this->internalMap[iter] = 0.0; } } }
@@ -779,7 +836,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
                                                         this->xDimSize, this->yDimSize, this->zDimSize,
                                                         this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
     
-    if ( pdbFile.models.size() > 1 )
+    if ( gemmiStruct.models.size() > 1 )
     {
         xMov                                          = static_cast< proshade_single > ( xCOMMap - xCOMPdb );
         yMov                                          = static_cast< proshade_single > ( yCOMMap - yCOMPdb );
@@ -995,11 +1052,10 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     
 }
 
-/*! \brief This function writes out the PDB formatted file coresponding to the structure so that its COM is at specific position.
+/*! \brief This function writes out the co-ordinates file with ProSHADE type rotation and translation applied.
 
     This function first checks if this internal structure originated from co-ordinate file (only if co-ordinates are provided can they be written out). If so,
-    it will proceed to read in the original co-ordinates, rotate and translate them according to the arguments and then write the resulting co-ordinates
-    into a new file.
+    it will proceed to read in the original co-ordinates into gemmi::Structure object and call the gemmi writing out function.
 
     \param[in] fName The filename (including path) to where the output PDB file should be saved.
     \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
@@ -1008,9 +1064,12 @@ void ProSHADE_internal_data::ProSHADE_data::writeMap ( std::string fName, std::s
     \param[in] trsX The translation to be done along X-axis in Angstroms.
     \param[in] trsY The translation to be done along Y-axis in Angstroms.
     \param[in] trsZ The translation to be done along Z-axis in Angstroms.
+    \param[in] rotX The translation to be done along X-axis in Angstroms.
+    \param[in] rotY The translation to be done along Y-axis in Angstroms.
+    \param[in] rotZ The translation to be done along Z-axis in Angstroms.
     \param[in] firstModel Should only the first model, or rather all of them be used?
 */
-void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, bool firstModel )
+void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double rotX, proshade_double rotY, proshade_double rotZ, bool firstModel )
 {
     //================================================ Check for co-ordinate origin
     if ( !ProSHADE_internal_io::isFilePDB ( this->fileName ) )
@@ -1021,15 +1080,43 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     //================================================ Open PDB file for reading
     gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
+    //================================================ Write out using the gemmi::Structure object
+    this->writeGemmi                                  ( fName, pdbFile, euA, euB, euG, trsX, trsY, trsZ, rotX, rotY, rotZ, firstModel );
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function writes out the gemmi::Structure object with ProSHADE type rotation and translation applied.
+
+    This function takes loaded gemmi::Structure object and applies specific rotation and translations to it. These are intended to be
+    the results of ProSHADE Overlay mode compuations, but could be anything else, as long as the usage is correct. Finally, it writes
+    out a PDB formatted file with the now positions.
+
+    \param[in] fName The filename (including path) to where the output PDB file should be saved.
+    \param[in] gemmiStruct gemmi::Structure object which should be modified and written out.
+    \param[in] euA The Euler angle alpha by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euB The Euler angle beta by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] euG The Euler angle gamma by which the co-ordinates should be rotated (leave empty if no rotation is required).
+    \param[in] trsX The translation to be done along X-axis in Angstroms.
+    \param[in] trsY The translation to be done along Y-axis in Angstroms.
+    \param[in] trsZ The translation to be done along Z-axis in Angstroms.
+    \param[in] rotX The translation to be done along X-axis in Angstroms.
+    \param[in] rotY The translation to be done along Y-axis in Angstroms.
+    \param[in] rotZ The translation to be done along Z-axis in Angstroms.
+    \param[in] firstModel Should only the first model, or rather all of them be used?
+*/
+void ProSHADE_internal_data::ProSHADE_data::writeGemmi ( std::string fName, gemmi::Structure gemmiStruct, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double trsX, proshade_double trsY, proshade_double trsZ, proshade_double rotX, proshade_double rotY, proshade_double rotZ, bool firstModel )
+{
     //================================================ If the map was rotated, do the same for the co-ordinates, making sure we take into account the rotation centre of the map
     if ( ( euA != 0.0 ) || ( euB != 0.0 ) || ( euG != 0.0 ) )
-    {        
+    {
         //============================================ Rotate the co-ordinates
-        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &pdbFile, euA, euB, euG, this->originalPdbRotCenX, this->originalPdbRotCenY, this->originalPdbRotCenZ, firstModel );
+        ProSHADE_internal_mapManip::rotatePDBCoordinates ( &gemmiStruct, euA, euB, euG, rotX, rotY, rotZ, firstModel );
     }
 
     //================================================ Translate by required translation and the map centering (if applied)
-    ProSHADE_internal_mapManip::translatePDBCoordinates ( &pdbFile, trsX, trsY, trsZ, firstModel );
+    ProSHADE_internal_mapManip::translatePDBCoordinates ( &gemmiStruct, trsX, trsY, trsZ, firstModel );
 
     //================================================ Write the PDB file
     std::ofstream outCoOrdFile;
@@ -1038,7 +1125,7 @@ void ProSHADE_internal_data::ProSHADE_data::writePdb ( std::string fName, prosha
     if ( outCoOrdFile.is_open() )
     {
         gemmi::PdbWriteOptions opt;
-        write_pdb                                     ( pdbFile, outCoOrdFile, opt );
+        write_pdb                                     ( gemmiStruct, outCoOrdFile, opt );
     }
     else
     {
@@ -1783,124 +1870,6 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Spherical harmonics decomposition complete." );
     
     //======================================== Done
-    return ;
-    
-}
-
-/*! \brief This function runs the symmetry detection algorithms on this structure and saves the results in the settings object.
- 
-    This function is the symmetry detection starting point. It decides whether a specific symmetry is being sought after, or whether
-    a general symmetry search is required. Consequently, it calls the appropriate functions and ends up with saving the resulting
-    predictions into the settings object supplied. It also saves all the detected symmetry groups to the settings object for further
-    processing and programmatical access.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
-    \param[in] allCs A vector to which all the detected cyclic symmetries will be saved into.
- */
-void ProSHADE_internal_data::ProSHADE_data::detectSymmetryInStructure ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
-{
-    //================================================ Prepare FSC computation memory and variables
-    fftw_complex *mapData, *origCoeffs, *fCoeffs;
-    fftw_plan planForwardFourier;
-    proshade_double **bindata;
-    proshade_signed *binIndexing, *binCounts, noBins;
-    this->prepareFSCFourierMemory                     ( mapData, origCoeffs, fCoeffs, binIndexing, &noBins, bindata, binCounts, &planForwardFourier );
-    
-    //================================================ Initialise variables
-    std::vector< proshade_double* > CSyms             = this->getCyclicSymmetriesList ( settings );
-    
-    //================================================ Was any particular symmetry requested?
-    if ( settings->requestedSymmetryType == "" )
-    {
-        //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
-        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > OSyms; std::vector< proshade_double* > TSyms;
-        if ( ISyms.size() < 31 ) {  OSyms = this->getOctahedralSymmetriesList ( settings, &CSyms ); if ( OSyms.size() < 13 ) { TSyms = this->getTetrahedralSymmetriesList ( settings, &CSyms ); } }
-        
-        //============================================ Decide on recommended symmetry
-        this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
-    }
-    
-    if ( settings->requestedSymmetryType == "C" )
-    {
-        //============================================ Run only the C symmetry detection and search for requested fold
-        this->saveRequestedSymmetryC                  ( settings, &CSyms, axes );
-    }
-    
-    if ( settings->requestedSymmetryType == "D" )
-    {
-        //============================================ Run only the D symmetry detection and search for requested fold
-        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        this->saveRequestedSymmetryD                  ( settings, &DSyms, axes, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
-    }
-    
-    if ( settings->requestedSymmetryType == "T" )
-    {
-        //============================================ Run only the T symmetry detection and search for requested fold
-        std::vector< proshade_double* > TSyms         = this->getTetrahedralSymmetriesList ( settings, &CSyms );
-        settings->setRecommendedFold                  ( 0 );
-        if ( TSyms.size() == 7 )              { settings->setRecommendedSymmetry ( "T" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( TSyms.size() ); it++ ) { settings->setDetectedSymmetry ( TSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, TSyms.at(it) ); } }
-        else                                  { settings->setRecommendedSymmetry ( "" ); }
-    }
-    
-    if ( settings->requestedSymmetryType == "O" )
-    {
-        //============================================ Run only the O symmetry detection and search for requested fold
-        std::vector< proshade_double* > OSyms         = this->getOctahedralSymmetriesList ( settings, &CSyms );
-        settings->setRecommendedFold                  ( 0 );
-        if ( OSyms.size() == 13 )             { settings->setRecommendedSymmetry ( "O" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( OSyms.size() ); it++ ) { settings->setDetectedSymmetry ( OSyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, OSyms.at(it) ); } }
-        else                                  { settings->setRecommendedSymmetry ( "" ); }
-    }
-    
-    if ( settings->requestedSymmetryType == "I" )
-    {
-        //============================================ Run only the T symmetry detection and search for requested fold
-        std::vector< proshade_double* > ISyms         = this->getIcosahedralSymmetriesList ( settings, &CSyms );
-        settings->setRecommendedFold                  ( 0 );
-        if ( ISyms.size() == 31 )             { settings->setRecommendedSymmetry ( "I" ); for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( ISyms.size() ); it++ ) { settings->setDetectedSymmetry ( ISyms.at(it) ); ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, ISyms.at(it) ); } }
-        else                                  { settings->setRecommendedSymmetry ( "" ); }
-    }
-    
-    if ( ( settings->requestedSymmetryType != "" ) && ( settings->requestedSymmetryType != "C" ) && ( settings->requestedSymmetryType != "D" ) && ( settings->requestedSymmetryType != "T" ) && ( settings->requestedSymmetryType != "O" ) && ( settings->requestedSymmetryType != "I" ) )
-    {
-        throw ProSHADE_exception ( "Requested symmetry supplied, but not recognised.", "ES00032", __FILE__, __LINE__, __func__, "There are only the following value allowed for the\n                    : symmetry type request: \"C\", \"D\", \"T\", \"O\" and \"I\". Any\n                    : other value will result in this error." );
-    }
-    
-    //================================================ Save C symmetries to argument and if different from settings, to the settings as well
-    bool isArgSameAsSettings                          = true;
-    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms.size() ); cIt++ )
-    {
-        std::vector< proshade_double > nextSym;
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[0] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[1] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[2] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[3] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[4] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms.at(cIt)[5] );
-        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
-
-        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
-        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
-
-        nextSym.clear                                 ( );
-    }
-
-    //================================================ Release memory
-    for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( CSyms.size() ); it++ ) { delete[] CSyms.at(it); }
-    
-    //================================================ Release memory after FSC computation
-    delete[] mapData;
-    delete[] origCoeffs;
-    delete[] fCoeffs;
-    fftw_destroy_plan                                 ( planForwardFourier );
-    delete[] binIndexing;
-    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
-    delete[] bindata;
-    delete[] binCounts;
-    
-    //================================================ Done
     return ;
     
 }
@@ -2664,7 +2633,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 31.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.60 ) )
         {
             //======================================== The decision is I
             settings->setRecommendedSymmetry          ( "I" );
@@ -2689,7 +2658,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 13.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.70 ) )
         {
             //======================================== The decision is O
             settings->setRecommendedSymmetry          ( "O" );
@@ -2714,7 +2683,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         fscValAvg                                    /= 7.0;
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-        if ( fscValAvg >= ( settings->fscThreshold * 0.85 ) )
+        if ( fscValAvg >= ( settings->fscThreshold * 0.80 ) )
         {
             //======================================== The decision is T
             settings->setRecommendedSymmetry          ( "T" );
@@ -2751,7 +2720,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
         
         //============================================ Check if both C symmetries are reliable
         for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
@@ -4497,7 +4466,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
     {
         fNameHlp.str("");
         fNameHlp << settings->overlayStructureName << ".pdb";
-        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2), settings->firstModelOnly );
+        this->writePdb                                ( fNameHlp.str(), eulA, eulB, eulG, ultimateTranslation->at(0), ultimateTranslation->at(1), ultimateTranslation->at(2), rotCentre->at(0), rotCentre->at(1), rotCentre->at(2), settings->firstModelOnly );
     }
     
     //================================================ Write out the json file with the results

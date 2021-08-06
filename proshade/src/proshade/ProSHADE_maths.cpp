@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -988,10 +988,6 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
 void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
 {
     //================================================ Convert Euler angles to indices
-//   *x                                                 = ( ( eulerBeta  * 4.0 * static_cast< proshade_double > ( band ) ) - M_PI ) / ( 2.0 * M_PI );
-//   *y                                                 = (   eulerAlpha *       static_cast< proshade_double > ( band ) )          / (       M_PI );
-//   *z                                                 = (   eulerGamma *       static_cast< proshade_double > ( band ) )          / (       M_PI );
-    
     *x                                                = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
     *y                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
     *z                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;

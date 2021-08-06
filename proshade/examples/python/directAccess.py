@@ -34,8 +34,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.0
-#   \date      JUL 2021
+#   \version   0.7.6.1
+#   \date      AUG 2021
 ######################################################
 ######################################################
 
@@ -217,10 +217,19 @@ zDimAngstroms                                         = zDimIndices * 1.3
 xFrom                                                 = int ( -xDimIndices/2 )
 yFrom                                                 = int ( -yDimIndices/2 )
 zFrom                                                 = int ( -zDimIndices/2 )
-xTo                                                   = int ( (xDimIndices/2)-1 )
-yTo                                                   = int ( (yDimIndices/2)-1 )
-zTo                                                   = int ( (zDimIndices/2)-1 )
+xTo                                                   = int ( (xDimIndices/2) )
+yTo                                                   = int ( (yDimIndices/2) )
+zTo                                                   = int ( (zDimIndices/2) )
 ord                                                   = 0
+
+if xDimIndices % 2 == 0:
+    xTo                                               = xTo - 1
+    
+if yDimIndices % 2 == 0:
+    yTo                                               = yTo - 1
+    
+if zDimIndices % 2 == 0:
+    zTo                                               = zTo - 1
 
 ######################################################
 ### Create example map (this will be a ball in the middle of the map)
@@ -600,7 +609,7 @@ eMat                                                  = pStruct.getEMatrix ( )
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (-1.8250502385278819e-90+2.021835473738264e+171j)
+# Expected output: (-1.4038963057081893e-10-9.752376657121444e-11j)
 
 ######################################################
 ### Accessing SO(3) coefficients
@@ -632,7 +641,7 @@ so3Coeffs                                             = pStruct.getSO3Coefficien
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (8.260471434238125e+229-2.2308004950453187e-171j)
+# Expected output: (4.1582312957163175e-10+2.8885778570945857e-10j)
 
 ######################################################
 ### Accessing self-rotation function
@@ -701,7 +710,7 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
      
 # Expected output: Fold      x         y         z       Angle     Height    Average FSC
 # Expected output:   3.0    +0.000    +0.000    +1.000    +2.094    +0.9715      +0.9204
-# Expected output:   2.0    +1.000    -0.000    -0.000    -3.142    +0.9917      +0.9999
+# Expected output:   2.0    +1.000    -0.000    -0.000    -3.142    +0.9917      +0.9998
 
 ######################################################
 ### Get more symmetry results
@@ -888,13 +897,13 @@ eMat                                                  = pStruct_moving.getEMatri
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (1.1100056712020503e+293-5.777467648919506e-245j)
+# Expected output: (-7.672178275141165e-05-0.0006477559934134222j)
 
 so3Coeffs                                             = pStruct_moving.getSO3Coefficients ( )
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (4.2638814585835905e-169-4.521011747037561e-305j)
+# Expected output: (0.00022724393304755975+0.0019186027008175443j)
 
 ######################################################
 ### Acceasing rotation function and etc.
@@ -1085,7 +1094,7 @@ rotMapMax                                             = numpy.where ( translatio
 ### Find maximum value
 print                                                 ( "Translation map maximum is: " + str( translationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Translation map maximum is: (120.65009134832003+3.3038237162330875j)
+### Expected output: Translation map maximum is: (254.24030153888245+8.174469984534494e-15j)
 
 ######################################################
 ### Obtaining the optimal translation
@@ -1112,18 +1121,15 @@ print                                                 ( "Translation map maximum
 ###     to the original position and THEN this vector
 ###     needs to be applied.
 ###
-translationVecs                                       = pStruct_moving.getOverlayTranslations ( pStruct_static,
-                                                                                                optimalRotationAngles[0],
-                                                                                                optimalRotationAngles[1],
-                                                                                                optimalRotationAngles[2] )
+translationVecs                                       = pStruct_moving.getOverlayTranslations ( pStruct_static  )
 
 ### Print the results
 print                                                 ( "The centre of rotation is:                                " + str( -translationVecs["centreOfRotation"][0] ) + " ; " + str( -translationVecs["centreOfRotation"][1] ) + " ; " + str( -translationVecs["centreOfRotation"][2] ) )
 print                                                 ( "The centre of rotation to optimal overlay translation is: " + str( translationVecs["rotCenToOverlay"][0] ) + " ; " + str( translationVecs["rotCenToOverlay"][1] ) + " ; " + str( translationVecs["rotCenToOverlay"][2] ) )
 
 ### Expected output
-#   The centre of rotation is:                                -17.0 ; -21.0 ; -23.0
-#   The centre of rotation to optimal overlay translation is: 2.0 ; 2.0 ; -4.0
+#   The centre of rotation is:                                -18.545455932617188 ; -22.594594955444336 ; -24.615385055541992
+#   The centre of rotation to optimal overlay translation is: 4.0 ; 2.0 ; -6.0
 
 ######################################################
 ### Writing out the final structures
@@ -1150,6 +1156,9 @@ pStruct_moving.writePdb                               ( "/Users/mysak/Desktop/mo
                                                         translationVecs["rotCenToOverlay"][0],
                                                         translationVecs["rotCenToOverlay"][1],
                                                         translationVecs["rotCenToOverlay"][2],
+                                                        translationVecs["centreOfRotation"][0],
+                                                        translationVecs["centreOfRotation"][1],
+                                                        translationVecs["centreOfRotation"][2],
                                                         pSet.firstModelOnly )
 
 ######################################################

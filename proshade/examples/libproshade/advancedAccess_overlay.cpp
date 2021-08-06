@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -54,7 +54,6 @@ int main ( int argc, char **argv )
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -171,7 +170,7 @@ int main ( int argc, char **argv )
     movingStr->computeTranslationMap                  ( staticStr );  // This function computes the translation map for the two structures, assuming they have the same dimensions.
     
     //================================================ Find the optimal translation vector from the translation map
-    std::vector< proshade_double > optimalTranslation = movingStr->getBestTranslationMapPeaksAngstrom ( staticStr, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2) ); // This function finds the best translation from the translation map using peak search algorithm and applies it to the internal map.
+    std::vector< proshade_double > optimalTranslation = movingStr->getBestTranslationMapPeaksAngstrom ( staticStr ); // This function finds the best translation from the translation map using peak search algorithm and applies it to the internal map.
  
     //================================================ Find the translation vectors
     std::vector< proshade_double > rotationCentre;
@@ -184,8 +183,8 @@ int main ( int argc, char **argv )
     std::cout << "Rot. Centre to optimal overlay translation:  " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Rot. Centre to origin translation:           17 ; 21 ; 23
-//  Rot. Centre to optimal overlay translation:  4 ; 4 ; -4
+//  Rot. Centre to origin translation:           18.5455 ; 22.5946 ; 24.6154
+//  Rot. Centre to optimal overlay translation:  4 ; 2 ; -6
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );
@@ -197,5 +196,5 @@ int main ( int argc, char **argv )
     delete settings;
     
     //================================================ DONE
-    return EXIT_SUCCESS;
+    return                                            ( EXIT_SUCCESS );
 }

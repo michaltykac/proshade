@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -42,6 +42,8 @@ namespace ProSHADE_internal_overlay
                                                         ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double* trsX,
                                                         proshade_double* trsY, proshade_double* trsZ, proshade_double eulA, proshade_double eulB,
                                                         proshade_double eulG );
+    void computeTranslationsFromPeak                  ( ProSHADE_internal_data::ProSHADE_data* staticStructure, ProSHADE_internal_data::ProSHADE_data* movingStructure, proshade_double *trsX,
+                                                        proshade_double *trsY, proshade_double *trsZ );
     void computeBeforeAfterZeroCounts                 ( proshade_unsign* addXPre, proshade_unsign* addYPre, proshade_unsign* addZPre, proshade_unsign* addXPost,
                                                         proshade_unsign* addYPost, proshade_unsign* addZPost, proshade_unsign xDim, proshade_unsign yDim,
                                                         proshade_unsign zDim, proshade_unsign xDimIndices, proshade_unsign yDimIndices, proshade_unsign zDimIndices );

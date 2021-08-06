@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -53,7 +53,6 @@ int main ( int argc, char **argv )
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -115,10 +114,10 @@ int main ( int argc, char **argv )
 //  Optimal rotation matrix is       :           -0.865 ; 0.203035 ; -0.458859
 //                                   :           0.0612312 ; -0.864932 ; -0.498141
 //                                   :           -0.498022 ; -0.458988 ; 0.735734
-//  Rot. Centre to origin translation:           -17 ; -21 ; -23
-//  Rot. Centre to optimal overlay translation:  4 ; 4 ; -4
+//  Rot. Centre to origin translation:           -18.5455 ; -22.5946 ; -24.6154
+//  Rot. Centre to optimal overlay translation:  4 ; 2 ; -6
 //  Optimal rotation Euler angles are:           3.88623 ; 0.744047 ; 5.45676
     
     //================================================ DONE
-    return EXIT_SUCCESS;
+    return                                            ( EXIT_SUCCESS );
 }

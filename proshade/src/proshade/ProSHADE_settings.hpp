@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -85,6 +85,9 @@ public:
     std::string maskFileName;                         //!< The filename to which mask should be saved.
     std::string appliedMaskFileName;                  //!< The filename from which mask data will be read from.
     
+    //================================================ Settings regarding map weighting
+    std::string fourierWeightsFileName;               //!< The filename from which Fourier weights data will be read from.
+    
     //================================================ Settings regarding re-boxing
     bool reBoxMap;                                    //!< This switch decides whether re-boxing is needed.
     proshade_single boundsExtraSpace;                 //!< The number of extra angstroms to be added to all re-boxing bounds just for safety.
@@ -126,7 +129,6 @@ public:
     proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
-    bool usePeakSearchInRotationFunctionSpace;        //!< This variable switch decides whether symmetry detection will be done using peak search in rotation function or using the angle-axis sperical space.
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
@@ -187,6 +189,7 @@ public:
     void __declspec(dllexport) setMaskSaving                                  ( bool savMsk );
     void __declspec(dllexport) setMaskFilename                                ( std::string mskFln );
     void __declspec(dllexport) setAppliedMaskFilename                         ( std::string mskFln );
+    void __declspec(dllexport) setFourierWeightsFilename                      ( std::string fWgFln );
     void __declspec(dllexport) setMapReboxing                                 ( bool reBx );
     void __declspec(dllexport) setBoundsSpace                                 ( proshade_single boundsExSp );
     void __declspec(dllexport) setBoundsThreshold                             ( proshade_signed boundsThres );
@@ -220,7 +223,6 @@ public:
     void __declspec(dllexport) setDetectedSymmetry                            ( proshade_double* sym );
     void __declspec(dllexport) setOverlaySaveFile                             ( std::string filename );
     void __declspec(dllexport) setOverlayJsonFile                             ( std::string filename );
-    void __declspec(dllexport) setSymmetryRotFunPeaks                         ( bool rotFunPeaks );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
     void __declspec(dllexport) setMaxSymmetryFold                             ( proshade_unsign maxFold );
     void __declspec(dllexport) setFSCThreshold                                ( proshade_double fscThr );
@@ -242,6 +244,7 @@ public:
     void setMaskSaving                                ( bool savMsk );
     void setMaskFilename                              ( std::string mskFln );
     void setAppliedMaskFilename                       ( std::string mskFln );
+    void setFourierWeightsFilename                    ( std::string fWgFln );
     void setMapReboxing                               ( bool reBx );
     void setBoundsSpace                               ( proshade_single boundsExSp );
     void setBoundsThreshold                           ( proshade_signed boundsThres );
@@ -275,7 +278,6 @@ public:
     void setDetectedSymmetry                          ( proshade_double* sym );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
-    void setSymmetryRotFunPeaks                       ( bool rotFunPeaks );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );
     void setMaxSymmetryFold                           ( proshade_unsign maxFold );
     void setFSCThreshold                              ( proshade_double fscThr );

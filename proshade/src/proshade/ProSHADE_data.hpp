@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -142,8 +142,11 @@ namespace ProSHADE_internal_data
     protected:
         void figureIndexStartStop                     ( void );
         void setPDBMapValues                          ( void );
-        void readInMAP                                ( ProSHADE_settings* settings );
+        void readInMAP                                ( ProSHADE_settings* settings, proshade_double* maskArr = nullptr, proshade_unsign maskXDim = 0, proshade_unsign maskYDim = 0,
+                                                        proshade_unsign maskZDim = 0, proshade_double* weightsArr = nullptr, proshade_unsign weigXDim = 0, proshade_unsign weigYDim = 0,
+                                                        proshade_unsign weigZDim = 0 );
         void readInPDB                                ( ProSHADE_settings* settings );
+        void readInGemmi                              ( gemmi::Structure gemmiStruct, ProSHADE_settings* settings );
         void allocateRRPMemory                        ( );
         
     public:
@@ -156,10 +159,17 @@ namespace ProSHADE_internal_data
        ~ProSHADE_data                                 ( void );
         
         //============================================ Data I/O functions
-        void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings );
+        void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr = nullptr, proshade_unsign maskXDim = 0,
+                                                        proshade_unsign maskYDim = 0, proshade_unsign maskZDim = 0, proshade_double* weightsArr = nullptr, proshade_unsign weigXDim = 0,
+                                                        proshade_unsign weigYDim = 0, proshade_unsign weigZDim = 0 );
+        void readInStructure                          ( gemmi::Structure gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "Created by ProSHADE and written by GEMMI", int mode = 2 );
         void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
-                                                        proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, bool firstModel = true );
+                                                        proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, proshade_double rotX = 0.0,
+                                                        proshade_double rotY = 0.0, proshade_double rotZ = 0.0, bool firstModel = true );
+        void writeGemmi                               ( std::string fName, gemmi::Structure gemmiStruct, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
+                                                        proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, proshade_double rotX = 0.0,
+                                                        proshade_double rotY = 0.0, proshade_double rotZ = 0.0, bool firstModel = true );
         void writeMask                                ( std::string fName, proshade_double* mask );
         
         //============================================ Data processing functions
@@ -207,7 +217,6 @@ namespace ProSHADE_internal_data
         std::vector < std::vector< proshade_double* > > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getPredictedOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getPredictedTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        void detectSymmetryInStructure                ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         std::vector< proshade_double* > getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings );
         std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );
@@ -240,11 +249,11 @@ namespace ProSHADE_internal_data
         //============================================ Map overlay functions
         void getOverlayRotationFunction               ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj2 );
         std::vector< proshade_double > getBestRotationMapPeaksEulerAngles ( ProSHADE_settings* settings );
-        std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure, proshade_double eulA, proshade_double eulB, proshade_double eulG );
+        std::vector< proshade_double > getBestTranslationMapPeaksAngstrom ( ProSHADE_internal_data::ProSHADE_data* staticStructure );
         void zeroPaddToDims                           ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim );
         void rotateMapReciprocalSpace                 ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
-        void rotateMapRealSpace                       ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map );
-        void rotateMapRealSpaceInPlace                ( proshade_double eulA, proshade_double eulB, proshade_double eulG );
+        std::vector< proshade_double > rotateMapRealSpace ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map );
+        std::vector< proshade_double > rotateMapRealSpaceInPlace ( proshade_double eulA, proshade_double eulB, proshade_double eulG );
         void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
         void allocateRotatedSHMemory                  ( void );
         void computeRotatedSH                         ( void );
@@ -252,8 +261,6 @@ namespace ProSHADE_internal_data
         void interpolateMapFromSpheres                ( proshade_double*& densityMapRotated );
         void computeTranslationMap                    ( ProSHADE_internal_data::ProSHADE_data* obj1 );
         void findMapCOM                               ( void );
-        void computePdbRotationCentre                 ( void );
-        void computeOptimalTranslation                ( proshade_double eulA, proshade_double eulB, proshade_double eulG, proshade_single trsX, proshade_single trsY, proshade_single trsZ );
         void writeOutOverlayFiles                     ( ProSHADE_settings* settings, proshade_double eulA, proshade_double eulB, proshade_double eulG, std::vector< proshade_double >* rotCentre,
                                                         std::vector< proshade_double >* ultimateTranslation );
         void reportOverlayResults                     ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,

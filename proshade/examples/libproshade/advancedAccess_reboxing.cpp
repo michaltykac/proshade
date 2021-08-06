@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -57,7 +57,6 @@ int main ( int argc, char **argv )
     settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -152,5 +151,5 @@ int main ( int argc, char **argv )
     delete settings;
     
     //================================================ DONE
-    return EXIT_SUCCESS;
+    return                                            ( EXIT_SUCCESS );
 }

@@ -1,12 +1,11 @@
 ######################################################
 ######################################################
-#   \file advancedAccess_distances.py
-#   \brief This code demonstrates the usage of the ProSHADE tool in the advanced mode for the shape distances mode.
+#   \file howto_useGemmiObject.py
+#   \brief This code demonstrates how gemmi::Structure object can be used to create ProSHADE_data object from python.
 #
-#   This file shows a fast demonstration of how the advanced access interface can be used to compute the
-#   distances between two (or more) structures and how the results can be obtained. This file does not
-#   contain all the explanations and possible settings, for complete documentation, please see the
-#   directAccess.py file instead.
+#   This code demonstrates how gemmi::Structure object (in this case read from file) can be passed to ProSHADE instead
+#   of letting ProSHADE read the data from file. This could be useful if the gemmi::Structure object was modified by the
+#   user between it being read in and passed to ProSHADE. 
 #
 #   Copyright by Michal Tykac and individual contributors. All rights reserved.
 #
@@ -30,65 +29,54 @@ import sys
 import numpy
 
 ######################################################
-### Import ProSHADE from non-system folder (local installation assumed)
-sys.path.append                                       ( "/Users/mysak/BioCEV/proshade/experimental/install/pythonModule" )
+### Import ProSHADE from system folder
 import proshade
 
 ######################################################
+### Import Gemmi
+import gemmi
+
+######################################################
 ### Create the settings object
-pSet                                                  = proshade.ProSHADE_settings ()
+pSet                                                  = proshade.ProSHADE_settings ( proshade.Distances )
 
 ######################################################
-### Set basic settings values 
-pSet.task                                             = proshade.Distances
+### Set basic settings values
+pSet.requestedResolution                              = 2.0
+pSet.changeMapResolution                              = True
 pSet.verbose                                          = -1
-pSet.setResolution                                    ( 6.0 )
 
 ######################################################
-### Create the structure objects
-pStruct1                                              = proshade.ProSHADE_data ( )
-pStruct2                                              = proshade.ProSHADE_data ( )
+### Create Gemmi structure
+gStruct                                               = gemmi.read_structure( "/Users/mysak/BioCEV/proshade/playground/5woh.pdb" )
 
 ######################################################
-### Read in the structures
-pStruct1.readInStructure                              ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb", 0, pSet ) # A BALBES domain 1BFO_A_dom_1
-pStruct2.readInStructure                              ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb", 1, pSet ) # A BALBES domain 1H8N_A_dom_1
+### Read in the map and process it for RF calculation
+pStruct                                               = proshade.ProSHADE_data ( )
+pStruct.readInStructure                               ( gStruct, 0, pSet )
 
 ######################################################
-### Process maps
-pStruct1.processInternalMap                           ( pSet )
-pStruct2.processInternalMap                           ( pSet )
+### Write internal map and PDB to see if all worked fine
+pStruct.writeMap                                      ( "gemmiTest.map" );
+pStruct.writeGemmi                                    ( "gemmiTest.pdb", gStruct )
 
 ######################################################
-### Map to spheres
-pStruct1.mapToSpheres                                 ( pSet )
-pStruct2.mapToSpheres                                 ( pSet )
-
-######################################################
-### Compute spherical harmonics
-pStruct1.computeSphericalHarmonics                    ( pSet )
-pStruct2.computeSphericalHarmonics                    ( pSet )
-
-######################################################
-### Get the distances
-energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct1, pStruct2, pSet )
-traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct1, pStruct2, pSet )
-fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct1, pStruct2, pSet )
-
-######################################################
-### Print results
+### Compute distance to itself to make sure it works
+pStruct.processInternalMap                            ( pSet )
+pStruct.mapToSpheres                                  ( pSet )
+pStruct.computeSphericalHarmonics                     ( pSet )
+energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct, pStruct, pSet )
+traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct, pStruct, pSet )
+fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct, pStruct, pSet )
 print                                                 ( "The energy levels distance is          %+1.3f" % ( energyLevelsDescriptor ) )
 print                                                 ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor ) )
 print                                                 ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
 
 ######################################################
-### Expected output
-#   The energy levels distance is          +0.859
-#   The trace sigma distance is            +0.962
-#   The rotation function distance is      +0.625
+### Release ProSHADE memory
+del gStruct
+del pStruct
+del pSet
 
 ######################################################
-### Release C++ pointers
-del pStruct1
-del pStruct2
-del pSet
+### Done

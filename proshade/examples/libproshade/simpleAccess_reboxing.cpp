@@ -17,8 +17,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
 */
 
 //==================================================== ProSHADE
@@ -60,7 +60,6 @@ int main ( int argc, char **argv )
 
     //================================================ All other (possibly other tasks related) settings
     settings->setExtraSpace                           ( 0.0 );                               // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
-    settings->setSymmetryRotFunPeaks                  ( true );                              // Should the new angle-axis space symmetry detection be used?
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -110,5 +109,5 @@ int main ( int argc, char **argv )
 //  // And of course the reBoxed_0.map file :-)
     
     //================================================ DONE
-    return EXIT_SUCCESS;
+    return                                            ( EXIT_SUCCESS );
 }

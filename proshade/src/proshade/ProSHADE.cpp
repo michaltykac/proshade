@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.0
-    \date      JUL 2021
+    \version   0.7.6.1
+    \date      AUG 2021
  */
 
 //==================================================== ProSHADE
@@ -85,6 +85,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
     
+    //================================================ Settings regarding Fourier weights
+    this->fourierWeightsFileName                      = "";
+    
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
     this->boundsExtraSpace                            = 3.0;
@@ -118,10 +121,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
-    this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.80;
+    this->fscThreshold                                = 0.65;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -205,7 +207,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
-    this->detectedSymmetry.clear                      ( );
+    
+    //================================================ Settings regarding Fourier weights
+    this->fourierWeightsFileName                      = "";
     
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
@@ -237,10 +241,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
-    this->usePeakSearchInRotationFunctionSpace        = true;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.80;
+    this->fscThreshold                                = 0.65;
     this->peakThresholdMin                            = 0.80;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
@@ -250,6 +253,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
     this->requestedSymmetryFold                       = 0;
+    this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
@@ -337,11 +341,8 @@ void ProSHADE_settings::setVariablesLeftOnAuto ( void  )
     if ( lhs.AlmostEquals( rhs ) )
     {
         //============================================ If using the old symmetry detection algorithm or distances computation, this will be used on many small peaks with few outliers. Use value of 5.0
-        if (   this->task == Distances )                                                      { this->noIQRsFromMedianNaivePeak = 5.0; }
-        if ( ( this->task == Symmetry  ) && ( !this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = 5.0; }
-        
-        //============================================ If using the new symmetry detection algorithm, this needs to be decreasing with resolution. How much, that is a bit arbitrary...
-        if ( ( this->task == Symmetry  ) && (  this->usePeakSearchInRotationFunctionSpace ) ) { this->noIQRsFromMedianNaivePeak = static_cast< proshade_double > ( std::max ( 0.0f, 1.0f - ( this->requestedResolution * 0.05f ) ) ); }
+        if (   this->task == Distances )              { this->noIQRsFromMedianNaivePeak = 5.0; }
+        if (   this->task == Symmetry  )              { this->noIQRsFromMedianNaivePeak = static_cast< proshade_double > ( std::max ( 0.0f, 1.0f - ( this->requestedResolution * 0.05f ) ) ); }
     }
     
     //================================================ Done
@@ -648,6 +649,26 @@ void                       ProSHADE_settings::setAppliedMaskFilename ( std::stri
 {
     //================================================ Set the value
     this->appliedMaskFileName                         = mskFln;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the filename of the mask data that should be applied to the input map.
+ 
+    This function sets the the filename from which mask should be read from.
+ 
+    \param[in] mskFln The filename where the mask should be read from.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setFourierWeightsFilename ( std::string fWgFln )
+#else
+void                       ProSHADE_settings::setFourierWeightsFilename ( std::string fWgFln )
+#endif
+{
+    //================================================ Set the value
+    this->fourierWeightsFileName                      = fWgFln;
     
     //================================================ Done
     return ;
@@ -1354,24 +1375,6 @@ void                       ProSHADE_settings::setOverlayJsonFile ( std::string f
     
 }
 
-/*! \brief Sets the symmetry detection algorithm type.
- 
-    \param[in] rotFunPeaks Should the original peak detection in rotation function space be used (FALSE), or should the new angle-axis space search be used (DEFAULT - TRUE)?
- */
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
-#else
-void                       ProSHADE_settings::setSymmetryRotFunPeaks ( bool rotFunPeaks )
-#endif
-{
-    //================================================ Set the value
-    this->usePeakSearchInRotationFunctionSpace        = rotFunPeaks;
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief Sets the bicubic interpolation on peaks.
  
     \param[in] bicubPeaks Should bicubic interpolation be done to search for improved axis in between peak index values (DEFAULT - TRUE)?
@@ -1954,13 +1957,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "overlayFile",     required_argument,  nullptr, '}' },
         { "overlayJSONFile", required_argument,  nullptr, 'y' },
         { "angUncertain",    required_argument,  nullptr, ';' },
-        { "usePeaksInRotFun",no_argument,        nullptr, 'z' },
+        { "fourierWeights",  required_argument,  nullptr, 'z' },
         { "keepNegDens",     no_argument,        nullptr, 'F' },
         { nullptr,           0,                  nullptr,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2145,6 +2148,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'G':
              {
                  this->setAppliedMaskFilename         ( static_cast<std::string> ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the Fourier weights filename value
+             case 'z':
+             {
+                 this->setFourierWeightsFilename      ( static_cast<std::string> ( optarg ) );
                  continue;
              }
                  
@@ -2409,13 +2419,6 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case ';':
              {
                  this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
-                 continue;
-             }
-                 
-             //======================================= Forces usage of the old symmetry detection algorithm - DEPRECATED
-             case 'z':
-             {
-                 this->setSymmetryRotFunPeaks         ( false );
                  continue;
              }
 
@@ -2694,10 +2697,6 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;
     printf ( "Requested symm.     : %37s\n", strstr.str().c_str() );
-
-    strstr.str(std::string());
-    if ( this->usePeakSearchInRotationFunctionSpace ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
-    printf ( "Use RF Peaks        : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     if ( this->useBiCubicInterpolationOnPeaks ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
