@@ -209,6 +209,10 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            internal map representation in order to avoid clashes with          " << std::endl;
     std::cout << "            adjacent cells.                                                     " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -H or --coordExtraSpace                         [DEFAULT:         10.0]     " << std::endl;
+    std::cout << "            The extra space added to any co-ordinates before computing their    " << std::endl;
+    std::cout << "            theoretical density map to make sure no atom is at the boundary.    " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    -i or --integOrder                              [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            The order to which the Gauss-Legendre integration should be         " << std::endl;
     std::cout << "            computed to. For automatic determination use 0.                     " << std::endl;

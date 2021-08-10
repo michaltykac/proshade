@@ -182,6 +182,7 @@ namespace ProSHADE_internal_data
         void centreMapOnCOM                           ( ProSHADE_settings* settings );
         void addExtraSpace                            ( ProSHADE_settings* settings );
         void removePhaseInormation                    ( ProSHADE_settings* settings );
+        void shiftToBoxCentre                         ( ProSHADE_settings* settings );
         void processInternalMap                       ( ProSHADE_settings* settings );
         
         //============================================ Data sphere mapping functions

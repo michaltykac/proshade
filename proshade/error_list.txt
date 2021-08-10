@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00067 ==
+== NEXT FREE MESSAGE NUMBER: 00069 ==
 
 ========
 GENERAL:
@@ -134,6 +134,8 @@ PDB READING:
 
 CODE:		Message:																												Comment:
 WP00055		Found multiple models in co-ordinate file while single is used.															This warning occurs when ProSHADE is run with the default PDB file single model usage, but the input PDB file has multiple models. If you want to use multiple models, please supply ProSHADE with the '-x' option.
+WP00067     Requested specific map box centre and also centre of mass centring. These are mutually 									Self exlpanatory.
+			exclusive - turning COM centring off	
 
 ============
 MAP READING:
@@ -141,6 +143,8 @@ MAP READING:
 
 CODE:		Message:																												Comment:
 WM00049		Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.				This warning results when both -a and -j options are given. If you are not using both, then consider that the Fourier-space re-sampling is default for some tasks.
+WM00068		Requested box centre to be co-ordinate position outside of co-ordinates range. Please re-view the requested box 		The requested map box centre position (given in co-ordinate space) is outside of the map range. This could happen if position is given in non-co-ordinate space, e.g. in map indices space...
+			centre position.
 
 ==========
 RE-BOXING:

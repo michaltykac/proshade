@@ -661,57 +661,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     this->figureIndexStartStop                        ( );
     
     //================================================ If specific resolution is requested, make sure the map has it
-    if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
-    {
-        //============================================ Before re-sampling sampling rate
-        proshade_single xSampRate                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
-        proshade_single ySampRate                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
-        proshade_single zSampRate                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
-        
-        //============================================ Bofore re-sampling first index position
-        proshade_single xStartPosBefore               = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
-        proshade_single yStartPosBefore               = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
-        proshade_single zStartPosBefore               = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
-        
-        //============================================ Find COM before map re-sampling
-        proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
-        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
-        
-        //============================================ Re-sample map
-        this->reSampleMap                             ( settings );
-    
-        //============================================ After re-sampling sampling rate
-        xSampRate                                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
-        ySampRate                                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
-        zSampRate                                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
-        
-        //============================================ After re-sampling first index position
-        proshade_single xStartPosAfter                = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
-        proshade_single yStartPosAfter                = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
-        proshade_single zStartPosAfter                = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
-        
-        //============================================ Translate by change in corners to make the boxes as similarly placed as possible
-        proshade_single xMov                          = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
-        proshade_single yMov                          = static_cast< proshade_single > ( yStartPosAfter - yStartPosBefore );
-        proshade_single zMov                          = static_cast< proshade_single > ( zStartPosAfter - zStartPosBefore );
-        ProSHADE_internal_mapManip::moveMapByIndices  ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
-                                                        &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
-                                                        &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
-        
-        //============================================ Find COM after map re-sampling and corner move
-        proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
-        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
-        
-        //============================================ Match the COMs to get as close position of the re-sampled structure to the original as possible
-        ProSHADE_internal_mapManip::moveMapByFourier  ( this->internalMap,
-                                                        static_cast< proshade_single > ( xMapCOMPreReSampl - xMapCOMPostReSampl ),
-                                                        static_cast< proshade_single > ( yMapCOMPreReSampl - yMapCOMPostReSampl ),
-                                                        static_cast< proshade_single > ( zMapCOMPreReSampl - zMapCOMPostReSampl ),
-                                                        this->xDimSize, this->yDimSize, this->zDimSize,
-                                                        static_cast< proshade_signed > ( this->xDimIndices ),
-                                                        static_cast< proshade_signed > ( this->yDimIndices ),
-                                                        static_cast< proshade_signed > ( this->zDimIndices ) );
-    }
+    this->reSampleMap                                 ( settings );
     
     //================================================ Save the original sizes
     this->xDimSizeOriginal                            = this->xDimSize;
@@ -811,15 +761,15 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     ProSHADE_internal_mapManip::determinePDBRanges    ( gemmiStruct, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
     
     //================================================ Move ranges to have all FROM values 20
-    proshade_single xMov                              = static_cast< proshade_single > ( 20.0f - xF );
-    proshade_single yMov                              = static_cast< proshade_single > ( 20.0f - yF );
-    proshade_single zMov                              = static_cast< proshade_single > ( 20.0f - zF );
+    proshade_single xMov                              = static_cast< proshade_single > ( settings->coOrdsExtraSpace - xF );
+    proshade_single yMov                              = static_cast< proshade_single > ( settings->coOrdsExtraSpace - yF );
+    proshade_single zMov                              = static_cast< proshade_single > ( settings->coOrdsExtraSpace - zF );
     ProSHADE_internal_mapManip::movePDBForMapCalc     ( &gemmiStruct, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
-    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + 40.0f );
-    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + 40.0f );
-    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + 40.0f );
+    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 2.0f * settings->coOrdsExtraSpace ) );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( gemmiStruct, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
@@ -830,19 +780,6 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     //================================================ Set the internal variables to correct values
     this->setPDBMapValues                             ( );
     
-    //================================================ Compute reverse movement based on COMs. If there is more than 1 models, simply moving back the xyzMov is not enough.
-    proshade_double xCOMMap, yCOMMap, zCOMMap;
-    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOMMap, &yCOMMap, &zCOMMap,
-                                                        this->xDimSize, this->yDimSize, this->zDimSize,
-                                                        this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
-    
-    if ( gemmiStruct.models.size() > 1 )
-    {
-        xMov                                          = static_cast< proshade_single > ( xCOMMap - xCOMPdb );
-        yMov                                          = static_cast< proshade_single > ( yCOMMap - yCOMPdb );
-        zMov                                          = static_cast< proshade_single > ( zCOMMap - zCOMPdb );
-    }
-    
     //================================================ Move map back to the original PDB location
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
@@ -852,57 +789,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
                                                         static_cast< proshade_signed > ( this->zDimIndices ) );
     
     //================================================ If specific resolution is requested, make sure the map has it
-    if ( settings->changeMapResolution || settings->changeMapResolutionTriLinear )
-    {
-        //============================================ Before re-sampling sampling rate
-        proshade_single xSampRate                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
-        proshade_single ySampRate                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
-        proshade_single zSampRate                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
-        
-        //============================================ Bofore re-sampling first index position
-        proshade_single xStartPosBefore               = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
-        proshade_single yStartPosBefore               = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
-        proshade_single zStartPosBefore               = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
-        
-        //============================================ Find COM before map re-sampling
-        proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
-        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
-        
-        //============================================ Re-sample map
-        this->reSampleMap                             ( settings );
-    
-        //============================================ After re-sampling sampling rate
-        xSampRate                                     = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
-        ySampRate                                     = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
-        zSampRate                                     = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
-        
-        //============================================ After re-sampling first index position
-        proshade_single xStartPosAfter                = static_cast< proshade_single > ( this->xFrom ) * xSampRate;
-        proshade_single yStartPosAfter                = static_cast< proshade_single > ( this->yFrom ) * ySampRate;
-        proshade_single zStartPosAfter                = static_cast< proshade_single > ( this->zFrom ) * zSampRate;
-        
-        //============================================ Translate by change in corners to make the boxes as similarly placed as possible
-        proshade_single xMovHlp                       = static_cast< proshade_single > ( xStartPosAfter - xStartPosBefore );
-        proshade_single yMovHlp                       = static_cast< proshade_single > ( yStartPosAfter - yStartPosBefore );
-        proshade_single zMovHlp                       = static_cast< proshade_single > ( zStartPosAfter - zStartPosBefore );
-        ProSHADE_internal_mapManip::moveMapByIndices  ( &xMovHlp, &yMovHlp, &zMovHlp, this->xDimSize, this->yDimSize, this->zDimSize,
-                                                        &this->xFrom, &this->xTo, &this->yFrom, &this->yTo, &this->zFrom, &this->zTo,
-                                                        &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
-        
-        //============================================ Find COM after map re-sampling and corner move
-        proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
-        ProSHADE_internal_mapManip::findMAPCOMValues  ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
-        
-        //============================================ Match the COMs to get as close position of the re-sampled structure to the original as possible
-        ProSHADE_internal_mapManip::moveMapByFourier  ( this->internalMap,
-                                                        static_cast< proshade_single > ( xMapCOMPreReSampl - xMapCOMPostReSampl ),
-                                                        static_cast< proshade_single > ( yMapCOMPreReSampl - yMapCOMPostReSampl ),
-                                                        static_cast< proshade_single > ( zMapCOMPreReSampl - zMapCOMPostReSampl ),
-                                                        this->xDimSize, this->yDimSize, this->zDimSize,
-                                                        static_cast< proshade_signed > ( this->xDimIndices ),
-                                                        static_cast< proshade_signed > ( this->yDimIndices ),
-                                                        static_cast< proshade_signed > ( this->zDimIndices ) );
-    }
+    this->reSampleMap                                 ( settings );
     
     //================================================ Save the original sizes
     this->xDimSizeOriginal                            = this->xDimSize;
@@ -1175,6 +1062,72 @@ void ProSHADE_internal_data::ProSHADE_data::writeMask ( std::string fName, prosh
     
     //================================================ Done
     return ;
+    
+}
+
+/*! \brief Function for shifting map so that its centre of box is at required position.
+ 
+    This function takes a real world position and shifts the map so that this position is at the centre of the box. This is very useful if you
+    know which position you want, for example, symmetry to be computed over.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for processing of the map.
+ */
+void ProSHADE_internal_data::ProSHADE_data::shiftToBoxCentre ( ProSHADE_settings* settings )
+{
+    //================================================ Report function start
+    std::stringstream ss;
+    ss << "Moving map box centre to " << settings->boxCentre.at(0) << "; " << settings->boxCentre.at(1) << "; " << settings->boxCentre.at(2) << " .";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str() );
+    
+    //================================================ Figure sampling rates
+    proshade_double xSamplingRate                     = static_cast<proshade_double> ( this->xDimSize ) / static_cast<proshade_double> ( this->xDimIndices );
+    proshade_double ySamplingRate                     = static_cast<proshade_double> ( this->yDimSize ) / static_cast<proshade_double> ( this->yDimIndices );
+    proshade_double zSamplingRate                     = static_cast<proshade_double> ( this->zDimSize ) / static_cast<proshade_double> ( this->zDimIndices );
+    
+    //================================================ Figure the box centre
+    proshade_double startCentreX                      = ( ( ( static_cast<proshade_double> ( this->xTo ) - static_cast<proshade_double> ( this->xFrom ) ) / 2.0 ) * xSamplingRate );
+    proshade_double startCentreY                      = ( ( ( static_cast<proshade_double> ( this->yTo ) - static_cast<proshade_double> ( this->yFrom ) ) / 2.0 ) * ySamplingRate );
+    proshade_double startCentreZ                      = ( ( ( static_cast<proshade_double> ( this->zTo ) - static_cast<proshade_double> ( this->zFrom ) ) / 2.0 ) * zSamplingRate );
+    
+    //================================================ Figure the requested point distance from box start
+    proshade_double boxStartX                         = settings->boxCentre.at(0) - ( static_cast<proshade_double> ( this->xFrom ) * xSamplingRate );
+    proshade_double boxStartY                         = settings->boxCentre.at(1) - ( static_cast<proshade_double> ( this->yFrom ) * ySamplingRate );
+    proshade_double boxStartZ                         = settings->boxCentre.at(2) - ( static_cast<proshade_double> ( this->zFrom ) * zSamplingRate );
+   
+    //================================================ Figure the shift
+    proshade_double xShift                            = startCentreX - boxStartX;
+    proshade_double yShift                            = startCentreY - boxStartY;
+    proshade_double zShift                            = startCentreZ - boxStartZ;
+    
+    //================================================ If requested point outside of map, complain
+    if ( ( ( settings->boxCentre.at(0) < ( static_cast<proshade_double> ( this->xFrom ) * xSamplingRate ) ) ||
+           ( settings->boxCentre.at(0) > ( static_cast<proshade_double> ( this->xFrom ) * xSamplingRate + static_cast<proshade_double> ( this->xDimSize ) ) ) ) ||
+         ( ( settings->boxCentre.at(1) < ( static_cast<proshade_double> ( this->yFrom ) * ySamplingRate ) ) ||
+           ( settings->boxCentre.at(1) > ( static_cast<proshade_double> ( this->yFrom ) * ySamplingRate + static_cast<proshade_double> ( this->yDimSize ) ) ) ) ||
+         ( ( settings->boxCentre.at(2) < ( static_cast<proshade_double> ( this->zFrom ) * zSamplingRate ) ) ||
+           ( settings->boxCentre.at(2) > ( static_cast<proshade_double> ( this->zFrom ) * zSamplingRate + static_cast<proshade_double> ( this->zDimSize ) ) ) ) )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested box centre to be co-ordinate position outside of co-ordinates range. Please re-view the requested box centre position.", "WM00068" );
+    }
+    
+    //================================================ Do the shift
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap,
+                                                        static_cast< proshade_single > ( xShift ),
+                                                        static_cast< proshade_single > ( yShift ),
+                                                        static_cast< proshade_single > ( zShift ),
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        static_cast< proshade_signed > ( this->xDimIndices ),
+                                                        static_cast< proshade_signed > ( this->yDimIndices ),
+                                                        static_cast< proshade_signed > ( this->zDimIndices ) );
+    
+    //================================================ Report function completion
+    std::stringstream ss2;
+    ss2 << "Position " << settings->boxCentre.at(0) << "; " << settings->boxCentre.at(1) << "; " << settings->boxCentre.at(2) << " set at the centre of the map box.";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss2.str() );
+    
+    //================================================ Done
+    return ;
+    
 }
 
 /*! \brief Function for inverting the map to its mirror image.
@@ -1455,6 +1408,10 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     //================================================ Initialise the return variable
     proshade_single* changeVals                       = new proshade_single[6];
     
+    //================================================ Find COM before map re-sampling
+    proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    
     //================================================ Now re-sample the map
     if ( settings->changeMapResolution )
     {
@@ -1489,14 +1446,15 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     this->xDimSize                                    = changeVals[3];
     this->yDimSize                                    = changeVals[4];
     this->zDimSize                                    = changeVals[5];
-
+    
+    //================================================ Find COM after map re-sampling and corner move
+    proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    
     //================================================ Figure how much the new map moved
-    proshade_single xMov                              = -( ( static_cast<proshade_single> ( this->xFrom ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) - changeVals[0] ) ) -
-                                                           ( static_cast<proshade_single> ( this->xFrom ) * ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
-    proshade_single yMov                              = -( ( static_cast<proshade_single> ( this->yFrom ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) - changeVals[1] ) ) -
-                                                           ( static_cast<proshade_single> ( this->yFrom ) * ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) ) );
-    proshade_single zMov                              = -( ( static_cast<proshade_single> ( this->zFrom ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) - changeVals[2] ) ) -
-                                                           ( static_cast<proshade_single> ( this->zFrom ) * ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) ) );
+    proshade_single xMov                              = static_cast< proshade_single > ( xMapCOMPostReSampl - xMapCOMPreReSampl );
+    proshade_single yMov                              = static_cast< proshade_single > ( yMapCOMPostReSampl - yMapCOMPreReSampl );
+    proshade_single zMov                              = static_cast< proshade_single > ( zMapCOMPostReSampl - zMapCOMPreReSampl );
 
     //================================================ Move by indices (this should be sufficient)
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo,
@@ -1686,7 +1644,8 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
  
     This function serves to cluster the map normalisation, map masking, map centering and map extra space addition
     into a single function. This allows for simpler code and does not take any control away, as all the decisions
-    are ultimately driven by the settings.
+    are ultimately driven by the settings. This function also shifts the map so that its centre of box is at the desired
+    position.
  
     This function also does some internal value saving and auto-determination of any parameters that the user did not
     supply. This, however, means, that this function MUST be called for every structure that is to be processed by
@@ -1698,6 +1657,11 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
  */
 void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settings* settings )
 {
+    //================================================ Move given point to box centre
+    
+    if ( !( ( std::isinf ( settings->boxCentre.at(0) ) ) || ( std::isinf ( settings->boxCentre.at(1) ) ) || ( std::isinf ( settings->boxCentre.at(2) ) ) ) ) { this->shiftToBoxCentre ( settings ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map left at original position." ); }
+    
     //================================================ Invert map
     if ( settings->invertMap ) { this->invertMirrorMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion (mirror image) not requested." ); }
@@ -2032,13 +1996,13 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > ISyms;
+        std::vector < std::vector< proshade_double* > > ISymsHlp = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > OSyms         = this->getPredictedOctahedralSymmetriesList ( settings, &CSyms );
         std::vector< proshade_double* > TSyms         = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
         
         //============================================ Find which of the I groups is the correct one
         proshade_double fscMax                        = 0.0;
         size_t fscMaxInd                              = 0;
-        std::vector < std::vector< proshade_double* > > ISymsHlp = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
         
         for ( size_t icoIt = 0; icoIt < ISymsHlp.size(); icoIt++ )
         {
