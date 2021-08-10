@@ -97,9 +97,11 @@ public:
     
     //================================================ Settings regarding COM
     bool moveToCOM;                                   //!< Logical value stating whether the structure should be moved to have its Centre Of Mass (COM) in the middle.
+    std::vector< proshade_double > boxCentre;         //!< If box centre is to be in any other location, this variable will hold the real space location that should be it.
     
     //================================================ Settings regarding extra cell space
     proshade_single addExtraSpace;                    //!< If this value is non-zero, this many angstroms of empty space will be added to the internal map.
+    proshade_single coOrdsExtraSpace;                 //!< This number of Angstroms will be added before and any co-ordinates to make sure there is no atom directly at the edge of the map.
     
     //================================================ Settings regarding shell settings
     bool progressiveSphereMapping;                    //!< If true, each shell will have its own angular resolution dependent on the actual number of map points which are available to it. If false, all shells will have the same settings.
@@ -199,6 +201,8 @@ public:
     void __declspec(dllexport) setMapResolutionChangeTriLinear                ( bool mrChange );
     void __declspec(dllexport) setMapCentering                                ( bool com );
     void __declspec(dllexport) setExtraSpace                                  ( proshade_single exSpace );
+    void __declspec(dllexport) setCoordExtraSpace                             ( proshade_single exSpace );
+    void __declspec(dllexport) setBoxCentering                                ( proshade_double xPos, proshade_double yPos, proshade_double zPos );
     void __declspec(dllexport) setBandwidth                                   ( proshade_unsign band );
     void __declspec(dllexport) setSphereDistances                             ( proshade_single sphDist );
     void __declspec(dllexport) setIntegrationOrder                            ( proshade_unsign intOrd );
@@ -254,6 +258,8 @@ public:
     void setMapResolutionChangeTriLinear              ( bool mrChange );
     void setMapCentering                              ( bool com );
     void setExtraSpace                                ( proshade_single exSpace );
+    void setCoordExtraSpace                           ( proshade_single exSpace );
+    void setBoxCentering                              ( proshade_double xPos, proshade_double yPos, proshade_double zPos );
     void setBandwidth                                 ( proshade_unsign band );
     void setSphereDistances                           ( proshade_single sphDist );
     void setIntegrationOrder                          ( proshade_unsign intOrd );

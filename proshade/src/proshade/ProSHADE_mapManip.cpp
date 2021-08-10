@@ -685,7 +685,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     }
     
     //================================================ Compute the f's
-    double wavelength                                 = 0.1;
+    double wavelength                                 = 10.0;
     double energy                                     = gemmi::hc() / wavelength;
     
     //================================================ Create the density calculator object and fill it in
@@ -763,14 +763,14 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
 {
     //================================================ Compute movement in indices
-    proshade_single xIndMove                          = std::floor ( -(*xMov) / ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) ) ) );
-    proshade_single yIndMove                          = std::floor ( -(*yMov) / ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) ) ) );
-    proshade_single zIndMove                          = std::floor ( -(*zMov) / ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) ) ) );
+    proshade_single xIndMove                          = std::floor ( -(*xMov) / ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) + 1.0f ) ) );
+    proshade_single yIndMove                          = std::floor ( -(*yMov) / ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) + 1.0f ) ) );
+    proshade_single zIndMove                          = std::floor ( -(*zMov) / ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) + 1.0f ) ) );
     
     //================================================ Set the movs to the remainder
-    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) ) ) );
-    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) ) ) );
-    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) ) ) );
+    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) + 1.0f ) ) );
+    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) + 1.0f ) ) );
+    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) + 1.0f ) ) );
     
     //================================================ Move indices by as much
     *xFrom                                           += static_cast< proshade_signed > ( xIndMove );
@@ -1372,6 +1372,15 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     \param[in] yAngs The size of the y dimension of the map in angstroms.
     \param[in] zAngs The size of the z dimension of the map in angstroms.
     \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
+    \param[in] xFrom The initial index of the x dimension of the map.
+    \param[in] xTo The terminal index of the x dimension of the map.
+    \param[in] yFrom The initial index of the y dimension of the map.
+    \param[in] yTo The terminal index of the y dimension of the map.
+    \param[in] zFrom The initial index of the z dimension of the map.
+    \param[in] zTo The terminal index of the z dimension of the map.
+    \param[in] xOrigin The first value of the x axis index.
+    \param[in] yOrigin The first value of the y axis index.
+    \param[in] zOrigin The first value of the z axis index.
  */
 void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
 {
@@ -1468,7 +1477,6 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     corrs[3]                                          = static_cast< proshade_single > ( newXDim ) * static_cast< proshade_single > ( resolution / 2.0f );
     corrs[4]                                          = static_cast< proshade_single > ( newYDim ) * static_cast< proshade_single > ( resolution / 2.0f );
     corrs[5]                                          = static_cast< proshade_single > ( newZDim ) * static_cast< proshade_single > ( resolution / 2.0f );
-
     
     //======================================== Done
     return ;

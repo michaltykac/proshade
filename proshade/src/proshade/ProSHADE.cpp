@@ -97,9 +97,13 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding COM
     this->moveToCOM                                   = false;
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
     
     //================================================ Settings regarding extra cell space
     this->addExtraSpace                               = 10.0;
+    this->coOrdsExtraSpace                            = 10.0;
     
     //================================================ Settings regarding shell settings
     this->progressiveSphereMapping                    = false;
@@ -211,6 +215,11 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = "";
     
+    //================================================ Settings regarding COM
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
     this->boundsExtraSpace                            = 3.0;
@@ -220,6 +229,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     
     //================================================ Settings regarding extra cell space
     this->addExtraSpace                               = 10.0;
+    this->coOrdsExtraSpace                            = 10.0;
     
     //================================================ Settings regarding shell settings
     this->progressiveSphereMapping                    = false;
@@ -838,6 +848,37 @@ void                       ProSHADE_settings::setMapCentering ( bool com )
     
 }
 
+/*! \brief Sets the requested centre of box to be at the real space co-ordinates supplied.
+ 
+    This function sets the real space co-ordinates that should become the centre of the map box.
+ 
+    \param[in] xPos The requested value for the x-axis real-world position of the centre of the map box.
+    \param[in] xPos The requested value for the x-axis real-world position of the centre of the map box.
+    \param[in] xPos The requested value for the x-axis real-world position of the centre of the map box.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setBoxCentering ( proshade_double xPos, proshade_double yPos, proshade_double zPos )
+#else
+void                       ProSHADE_settings::setBoxCentering ( proshade_double xPos, proshade_double yPos, proshade_double zPos )
+#endif
+{
+    //================================================ If COM is on, issue warning!
+    if ( this->moveToCOM )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested specific map box centre and also centre of mass centring. These are mutually exclusive - turning COM centring off.", "WP00067" );
+        this->moveToCOM                               = false;
+    }
+    
+    //================================================ Set the values
+    this->boxCentre.at(0)                             = xPos;
+    this->boxCentre.at(1)                             = yPos;
+    this->boxCentre.at(2)                             = zPos;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the requested map extra space value in the appropriate variable.
  
     This function sets the amount of extra space to be added to internal maps in the appropriate variable.
@@ -852,6 +893,26 @@ void                       ProSHADE_settings::setExtraSpace ( proshade_single ex
 {
     //================================================ Set the value
     this->addExtraSpace                               = exSpace;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the requested co-ordinates extra space value in the appropriate variable.
+ 
+    This function sets the amount of extra space to be added when co-ordinates are converted to map to make sure atoms are not at the boundary the appropriate variable.
+ 
+    \param[in] exSpace The requested amount of extra space.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setCoordExtraSpace ( proshade_single exSpace )
+#else
+void                       ProSHADE_settings::setCoordExtraSpace ( proshade_single exSpace )
+#endif
+{
+    //================================================ Set the value
+    this->coOrdsExtraSpace                            = exSpace;
     
     //================================================ Done
     return ;
@@ -1959,11 +2020,12 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "angUncertain",    required_argument,  nullptr, ';' },
         { "fourierWeights",  required_argument,  nullptr, 'z' },
         { "keepNegDens",     no_argument,        nullptr, 'F' },
+        { "coordExtraSpace", required_argument,  nullptr, 'H' },
         { nullptr,           0,                  nullptr,  0  }
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cd:DE:e:Ff:G:g:hi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2084,6 +2146,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'e':
              {
                  this->setExtraSpace                  ( static_cast<proshade_single> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the co-ordinate extra space value
+             case 'H':
+             {
+                 this->setCoordExtraSpace             ( static_cast<proshade_single> ( atof ( optarg ) ) );
                  continue;
              }
                  
@@ -2627,10 +2696,18 @@ void                       ProSHADE_settings::printSettings ( )
     if ( this->moveToCOM ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Map COM centering   : %37s\n", strstr.str().c_str() );
     
+    strstr.str(std::string());
+    strstr << this->boxCentre.at(0) << " ; " << this->boxCentre.at(1) << " ; " << this->boxCentre.at(2);
+    printf ( "BOX     centering   : %37s\n", strstr.str().c_str() );
+    
     //== Settings regarding extra cell space
     strstr.str(std::string());
     strstr << this->addExtraSpace;
     printf ( "Extra space         : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->coOrdsExtraSpace;
+    printf ( "Extra co-ord space  : %37s\n", strstr.str().c_str() );
     
     //== Settings regarding shell settings
     strstr.str(std::string());

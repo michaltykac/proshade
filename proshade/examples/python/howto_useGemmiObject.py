@@ -42,13 +42,35 @@ pSet                                                  = proshade.ProSHADE_settin
 
 ######################################################
 ### Set basic settings values
-pSet.requestedResolution                              = 2.0
+pSet.requestedResolution                              = 1.0
 pSet.changeMapResolution                              = True
+pSet.moveToCOM                                        = False
 pSet.verbose                                          = -1
 
 ######################################################
 ### Create Gemmi structure
-gStruct                                               = gemmi.read_structure( "/Users/mysak/BioCEV/proshade/playground/5woh.pdb" )
+gStruct                                               = gemmi.read_structure( "/Users/mysak/BioCEV/proshade/xx_Metals/Sandwich_5_3_times10.pdb" )
+
+######################################################
+### Find position of a metal atom (this needs to be
+### improved if used outside of an example)
+metalCoords                                           = numpy.full ( ( 3 ), numpy.inf )
+for model in gStruct:
+    for chain in model:
+        for residue in chain:
+            for atom in residue:
+                if atom.element.is_metal:
+                    metalCoords[0]                    = atom.pos[0]
+                    metalCoords[1]                    = atom.pos[1]
+                    metalCoords[2]                    = atom.pos[2]
+                   
+######################################################
+### Force the metal co-ordinates to be at the centre
+### of the map box.
+###
+### NOTE: This shifts the map so that it no longer
+### overlays with the co-ordinate file in visualisation.
+pSet.setBoxCentering                                  ( metalCoords[0], metalCoords[1], metalCoords[2] )
 
 ######################################################
 ### Read in the map and process it for RF calculation
