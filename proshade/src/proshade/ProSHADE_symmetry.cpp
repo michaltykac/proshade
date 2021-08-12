@@ -3995,6 +3995,8 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
 
 /*! \brief This function finds the rotation function value for all axes supplied in the ret parameter.
  
+    ... THIS NEEDS A REWRITE INCLUDING OPTIMISATION
+ 
     This function supplements the polyhedral symmetry prediction functions, as these functions predict the symmetry axes, but do not
     find their peak heights. This function, then, firstly finds all the individual folds in the symmetry axes set and for each fold computes
     the rotation function sphere mapping. Next, it converts the axes back to the spherical co-ordinates appopriate for the mapped rotation
@@ -4009,6 +4011,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
 {
     //================================================ Initialise variables
     std::vector < proshade_unsign > folds;
+    std::vector < proshade_double > angs;
     bool alreadyFound;
     proshade_double lat, lon;
     proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
@@ -4022,6 +4025,12 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         
         if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, static_cast< proshade_unsign > ( ret->at(iter)[0] ) ); }
     }
+    
+    //================================================ Generate vector of all angles
+//    for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ ) { for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ) ); } }
+//    std::sort                                         ( angs.begin(), angs.end() );
+//    for ( size_t i = 0; i < angs.size(); i++ ) { std::cout << angs.at(i) << " "; }
+//    exit(0);
     
     //================================================ For each fold which needs rotation function mapping
     for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ )

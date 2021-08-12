@@ -295,7 +295,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
 {
     //================================================ Report progress
     std::stringstream hlpSS;
-    hlpSS << "Reading mask file " << maskFile;
+    hlpSS << "Reading mask " << maskFile;
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str() );
     
     //================================================ Are we reading from array or from file?
@@ -307,7 +307,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     else
     {
         //============================================ Check if filename was given
-        if ( maskFile == "" )                         { return; }
+        if ( maskFile == "" )                         { ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "No mask supplied." ); return; }
         
         //============================================ File it is! Open the mask
         gemmi::Ccp4<float> mask;
@@ -564,6 +564,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
 {
     //================================================ Report progress
     std::stringstream hlpSS;
+    hlpSS << "Reading weights " << weightsFile;
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str() );
     
     //================================================ Are we reading from file, or from array?
@@ -575,7 +576,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
     else
     {
         //============================================ Check if weights file was given
-        if ( weightsFile == "" )                      { return; }
+        if ( weightsFile == "" )                      { ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "No mask supplied." ); return; }
         
         //============================================ From file it is! Open the weights file
         gemmi::Ccp4<float> weights;
