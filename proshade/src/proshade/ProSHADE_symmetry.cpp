@@ -72,24 +72,28 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
 {
     //================================================ Initialise variables
     proshade_double ret                               = 0.0;
-    proshade_unsign vecSize                           = static_cast< proshade_unsign > ( inArr.size() );
-    proshade_double* meadianAndIQR                    = new proshade_double[2];
+    proshade_double rmsd                              = 0.0;
+    size_t vecSize                                    = inArr.size();
     
     //================================================ Deal with low number of input cases
-    if ( vecSize == 0 ) { delete[] meadianAndIQR; return ( ret ); }                                                                   // Return 0
-    if ( vecSize <= 4 ) { ret = std::accumulate ( inArr.begin(), inArr.end(), 0.0 ) / static_cast< proshade_double > ( vecSize ); }   // Return mean
+    if ( vecSize == 0 )                               { return ( ret ); }                                                                                                           // Return 0
+    if ( vecSize <= 4 )                               { ret = std::accumulate ( inArr.begin(), inArr.end(), 0.0 ) / static_cast< proshade_double > ( vecSize ); return ( ret ); }   // Return mean
     
     //================================================ Deal with reasonable number in input cases
     else
     {
-        //============================================ Allocate memory for median and IQR computation
-        ProSHADE_internal_misc::checkMemoryAllocation ( meadianAndIQR, __FILE__, __LINE__, __func__ );
+        //============================================ Find mean
+        ret                                           = std::accumulate ( inArr.begin(), inArr.end(), 0.0 ) / static_cast< proshade_double > ( vecSize );
         
-        //============================================ Find median and IQR
-        ProSHADE_internal_maths::vectorMedianAndIQR   ( &inArr, meadianAndIQR );
+        //============================================ Get the RMS distance
+        for ( size_t i = 0; i < vecSize; i++ )
+        {
+            rmsd                                     += std::pow ( ret - inArr.at(i), 2.0 );
+        }
+        rmsd                                          = std::sqrt ( rmsd );
         
         //============================================ Get the threshold
-        ret                                           = meadianAndIQR[0] + ( meadianAndIQR[1] * noIQRsFromMedian );
+        ret                                           = ret + ( noIQRsFromMedian * rmsd );
     }
     
     //================================================ Sanity checks
@@ -97,9 +101,6 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
     {
         ret                                           = *( std::max_element ( inArr.begin(), inArr.end() ) );
     }
-    
-    //================================================ Release memory
-    delete[] meadianAndIQR;
     
     //================================================ Done
     return                                            ( ret );
