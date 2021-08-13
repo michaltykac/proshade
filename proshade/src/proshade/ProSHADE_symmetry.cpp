@@ -3995,13 +3995,11 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
 
 /*! \brief This function finds the rotation function value for all axes supplied in the ret parameter.
  
-    ... THIS NEEDS A REWRITE INCLUDING OPTIMISATION
- 
     This function supplements the polyhedral symmetry prediction functions, as these functions predict the symmetry axes, but do not
     find their peak heights. This function, then, firstly finds all the individual folds in the symmetry axes set and for each fold computes
-    the rotation function sphere mapping. Next, it converts the axes back to the spherical co-ordinates appopriate for the mapped rotation
-    function (the ProSHADE_rotFun_spherePeakGroup class function use lattitude and longitude indices, not values!). Finally, it computes
-    the corresponding rotation function value for each of the predicted axes, saving the results in the ret parameter.
+    the appropriate angles. Next. it computes the sphere mappings of the rotation function for all detected angles and for each symmetry
+    axes, it finds the rotation function average as well as the average for the whole symmetry (i.e. over all axes). Finally, the function attempts
+    to locally optimise the detected symmetry group by searching for slightly rotated axes having higher rotation function average.
  
     \param[in] ret The list of axes for which the heights are to be found.
     \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
@@ -4011,9 +4009,10 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
 {
     //================================================ Initialise variables
     std::vector < proshade_unsign > folds;
-    std::vector < proshade_double > angs;
-    bool alreadyFound;
-    proshade_double lat, lon;
+    std::vector < proshade_double > angs, applicableAngs;
+    bool alreadyFound = false;
+    size_t corAngIt = 0;
+    proshade_double lat = 0.0, lon = 0.0, radRange = 0.0, searchRange = 0.0, axSum = 0.0, curSum = 0.0, maxSum = 0.0, bestLatMod = 0.0, bestLonMod = 0.0, finLatChan = 0.0, finLonChan = 0.0;
     proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
     proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
     
@@ -4027,82 +4026,159 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     }
     
     //================================================ Generate vector of all angles
-//    for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ ) { for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ) ); } }
-//    std::sort                                         ( angs.begin(), angs.end() );
-//    for ( size_t i = 0; i < angs.size(); i++ ) { std::cout << angs.at(i) << " "; }
-//    exit(0);
+    for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ ) { for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ) ); } }
+    std::sort                                         ( angs.begin(), angs.end() );
     
-    //================================================ For each fold which needs rotation function mapping
-    for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ )
+    //================================================ Generate all sphere mapped rotation function
+    dataObj->sphereMappedRotFun.clear();
+    for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
     {
-        //============================================ Make sure we have a clean start
-        dataObj->sphereMappedRotFun.clear();
+        //============================================ Decide the range in which the sphere operates
+        if ( ( angIt == 0 ) && ( angs.size() > 1 ) )  { radRange = ( angs.at(1) - angs.at(0) ) / 2; }
+        else { if ( ( angIt == ( angs.size() - 1 ) ) && ( angs.size() > 1 ) ) { radRange = ( angs.at(angIt) - angs.at(angIt-1) ) / 2; }
+               else { if ( angs.size() > 2 ) { radRange = std::min ( ( angs.at(angIt) - angs.at(angIt-1) ) / 2, ( angs.at(angIt+1) - angs.at(angIt) ) / 2 ); }
+                      else { radRange = 0.5; } } }
         
-        //============================================ Convert rotation function to only the required angle-axis space spheres and find all peaks
-        for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 )
-        {
-            //======================================== Create the angle-axis sphere with correct radius (angle)
-            dataObj->sphereMappedRotFun.emplace_back  ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ),
-                                                                                                                M_PI / static_cast < proshade_double > ( folds.at(foldIt) ),
+        //============================================ Create the sphere
+        dataObj->sphereMappedRotFun.emplace_back      ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angs.at(angIt),
+                                                                                                                radRange,
                                                                                                                 dataObj->maxShellBand * 2,
-                                                                                                                angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ),
-                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+                                                                                                                angs.at(angIt),
+                                                                                                                static_cast<proshade_unsign> ( angIt ) ) );
+
+        //=========================================== Interpolate rotation function onto the sphere
+        dataObj->sphereMappedRotFun.at( static_cast < proshade_unsign > ( angIt ))->interpolateSphereValues ( dataObj->getInvSO3Coeffs ( ) );
+    }
+    
+    //================================================ For each ret axis, compute predicted position
+    for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
+    {
+        //============================================ Convert XYZ to lat and lon INDICES
+        lat                                           = std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit;
+        lon                                           = std::acos ( ret->at(axIt)[3] ) / lonSamlUnit;
+
+        if ( lat < 0.0 )                              { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+        if ( lon < 0.0 )                              { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+
+        //============================================ Generate all angles for this fold
+        applicableAngs.clear                          ( );
+        for ( proshade_double angIt = 1.0; angIt < ret->at(axIt)[0]; angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &applicableAngs, angIt * ( 2.0 * M_PI / ret->at(axIt)[0] ) ); }
+        
+        //============================================ For each shpere with the correct angle, average the peak heights
+        ret->at(axIt)[5]                              = 1.0;
+        for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
+        {
+            //======================================== Find the correct sphere
+            alreadyFound                              = false;
+            for ( size_t aIt = 0; aIt < applicableAngs.size(); aIt++ ) { if ( alreadyFound ) { break; } const FloatingPoint< proshade_double > lhs1 ( angs.at(angIt) ), rhs1 ( applicableAngs.at(aIt) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; corAngIt = angIt; } }
             
-            //=========================================== Interpolate rotation function onto the sphere
-            dataObj->sphereMappedRotFun.at( static_cast < proshade_unsign > ( angIt - 1.0 ))->interpolateSphereValues ( dataObj->getInvSO3Coeffs ( ) );
+            if ( !alreadyFound ) { continue; }
+            
+            //======================================== Get its peak height for the longitude and latitude
+            ret->at(axIt)[5]                         += dataObj->sphereMappedRotFun.at(corAngIt)->getSphereLatLonLinearInterpolationPos ( lat, lon );
         }
         
-        //============================================ For each ret axis with this fold
-        for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
+        //============================================ And average the peak heights over the axis
+        ret->at(axIt)[5]                             /= ret->at(axIt)[0];
+        maxSum                                       += ret->at(axIt)[5];
+    }
+    
+    //================================================ And average the peak heights over all axes
+    maxSum                                           /= static_cast< proshade_double > ( ret->size() );
+    
+    //================================================ Check for improved sum
+    searchRange                                       = 1.0;
+    while ( searchRange > 0.02 )
+    {
+        //============================================ Search close points for improved sum
+        for ( proshade_double latChan = -searchRange; latChan < ( searchRange + ( searchRange / 2 ) ); latChan += searchRange )
         {
-            //======================================== Ignore different folds
-            const FloatingPoint< proshade_double > lhs1 ( ret->at(axIt)[0] ), rhs1 ( static_cast< proshade_double > ( folds.at(foldIt) ) );
-            if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
-            
-            //======================================== Convert XYZ to lat and lon INDICES
-            lat                                       = std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit;
-            lon                                       = std::acos ( ret->at(axIt)[3] ) / lonSamlUnit;
-            
-            if ( lat < 0.0 ) { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
-            if ( lon < 0.0 ) { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
-            
-            lat                                       = std::round ( lat );
-            lon                                       = std::round ( lon );
-            
-            //======================================== Initialise the peak group
-            ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup* grp = nullptr;
-            
-            //======================================== Construct a peak group with entry from each sphere with the axis as the peak
-            for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( dataObj->sphereMappedRotFun.size() ); sphIt++ )
+            for ( proshade_double lonChan = -searchRange; lonChan < ( searchRange + ( searchRange / 2 ) ); lonChan += searchRange )
             {
-                if ( sphIt == 0 )
+                //==================================== Ignore zero
+                if ( ( ( latChan > -searchRange ) && ( latChan < searchRange ) ) && ( ( lonChan > -searchRange ) && ( lonChan < searchRange ) ) ) { continue; }
+                
+                //==================================== Initialise sum
+                curSum                                = 0.0;
+                
+                //==================================== For each ret axis, compute new position
+                for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
                 {
-                    //================================ If first sphere, create the peak group
-                    grp                               = new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( lat, lon, sphIt, dataObj->sphereMappedRotFun.at(sphIt)->getAngularDim() );
+                    //================================ Convert XYZ to lat and lon INDICES
+                    lat                               = ( std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit ) + latChan + finLatChan;
+                    lon                               = ( std::acos ( ret->at(axIt)[3] ) / lonSamlUnit ) + lonChan + finLonChan;
+
+                    if ( lat < 0.0 )                  { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+                    if ( lon < 0.0 )                  { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+                    
+                    //================================ Generate all angles for this fold
+                    applicableAngs.clear              ( );
+                    for ( proshade_double angIt = 1.0; angIt < ret->at(axIt)[0]; angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &applicableAngs, angIt * ( 2.0 * M_PI / ret->at(axIt)[0] ) ); }
+                    
+                    //================================ For each shpere with the correct angle, average the peak heights
+                    axSum                             = 1.0;
+                    for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
+                    {
+                        //============================ Find the correct sphere
+                        alreadyFound                  = false;
+                        for ( size_t aIt = 0; aIt < applicableAngs.size(); aIt++ ) { if ( alreadyFound ) { break; } const FloatingPoint< proshade_double > lhs1 ( angs.at(angIt) ), rhs1 ( applicableAngs.at(aIt) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; corAngIt = angIt; } }
+                        
+                        if ( !alreadyFound ) { continue; }
+                        
+                        //============================ Get its peak height for the longitude and latitude
+                        axSum                        += dataObj->sphereMappedRotFun.at(corAngIt)->getSphereLatLonLinearInterpolationPos ( lat, lon );
+                    }
+                    
+                    //================================ And average the peak heights over the axis
+                    axSum                            /= ret->at(axIt)[0];
+                    curSum                           += axSum;
                 }
-                else
+                
+                //==================================== And average the peak heights over all axes
+                curSum                               /= static_cast< proshade_double > ( ret->size() );
+                
+                //==================================== If improved, save
+                if ( curSum >  maxSum )
                 {
-                    //================================ Add to the existing object
-                    grp->checkIfPeakBelongs           ( lat, lon, sphIt, settings->axisErrTolerance, settings->verbose );
+                    maxSum                            = curSum;
+                    bestLatMod                       += latChan;
+                    bestLonMod                       += lonChan;
                 }
             }
-            
-            //======================================== Find the peak height
-            std::vector < proshade_double* > detectedAxis;
-            grp->findCyclicPointGroupsGivenFold       ( dataObj->sphereMappedRotFun, &detectedAxis, settings->useBiCubicInterpolationOnPeaks, folds.at(foldIt), settings->verbose );
-            
-            //======================================== Save it!
-            if ( detectedAxis.size() > 0 )            { ret->at(axIt)[5] = detectedAxis.at(0)[5]; }
-            else                                      { ret->at(axIt)[5] = 0.0; }
-            
-            //======================================== Release memory
-            for ( proshade_unsign i = 0; i < static_cast < proshade_unsign > ( detectedAxis.size() ); i++ ) { delete detectedAxis.at(i); }
-            delete grp;
         }
+        
+        //============================================ Prepare for next iteration
+        searchRange                                  /= 2.0;
+        finLatChan                                   += bestLatMod;
+        finLonChan                                   += bestLonMod;
+        bestLatMod                                    = 0.0;
+        bestLonMod                                    = 0.0;
+    }
+    
+    //================================================ Apply the optimisation
+    for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
+    {
+        //============================================ Convert XYZ to lat and lon INDICES
+        lat                                           = ( std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit ) + finLatChan;
+        lon                                           = ( std::acos ( ret->at(axIt)[3] ) / lonSamlUnit ) + finLonChan;
+            
+        if ( lat < 0.0 )                              { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+        if ( lon < 0.0 )                              { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+        
+        lat                                          *= latSamlUnit;
+        lon                                          *= lonSamlUnit;
+        
+        //============================================ Change axes
+        ret->at(axIt)[1]                              = 1.0 * std::sin ( lon ) * std::cos ( lat );
+        ret->at(axIt)[2]                              = 1.0 * std::sin ( lon ) * std::sin ( lat );
+        ret->at(axIt)[3]                              = 1.0 * std::cos ( lon );
     }
     
     //================================================ Sort axes by fold
     std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+    
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Peak height detection and rotation optimisation complete." );
     
     //================================================ Done
     return ;
