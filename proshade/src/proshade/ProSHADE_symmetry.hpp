@@ -34,48 +34,6 @@
  */
 namespace ProSHADE_internal_symmetry
 {
-    std::vector< proshade_double* > getPeaksAngleAxisPositions ( std::vector< proshade_double* > allPeaks, proshade_signed verbose );
-    std::vector< proshade_double > findPeaksByHeightBoundaries ( std::vector< proshade_double* > allPeaks, proshade_double smoothing );
-    std::vector< std::vector< proshade_unsign > > findPeaksCSymmetry ( std::vector< proshade_double* >* peaks, proshade_signed verbose,
-                                                                       proshade_unsign band, proshade_double missPeakThres, proshade_double axisErrTolerance,
-                                                                       bool axisErrToleranceDef, ProSHADE_internal_data::ProSHADE_data* dataObj );
-    std::vector< std::vector< proshade_unsign > > groupSameAxes ( std::vector< proshade_double* >& peaks, proshade_double errTolerance );
-    void giveOppositeAxesSameDirection                ( std::vector< proshade_double* > peaks );
-    void printSymmetryPeaks                           ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
-                                                        proshade_signed verbose, proshade_unsign groupNo );
-    bool smallestDistanceBetweenAngles                ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
-                                                        std::vector< proshade_double >* tried, proshade_double* dist );
-    void addZeroPeakToGroups                          ( std::vector< std::vector< proshade_unsign > >& grpsVec,
-                                                        std::vector< proshade_double* >& peaks );
-    bool determineFoldToTry                           ( proshade_double dist, proshade_double* divBasis, proshade_double* divRem,
-                                                        proshade_double peakErr, proshade_double* symmErr,
-                                                        std::vector< proshade_unsign >* angsToTry );
-    void findExpectedPeakRotations                    ( proshade_unsign fold, std::vector< proshade_double >* expAngs );
-    proshade_unsign checkExpectedAgainstFound         ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
-                                                        std::vector< proshade_double >* expAngs, std::vector< proshade_unsign >* matchedAngs,
-                                                        std::vector< proshade_unsign >* missingAngs, proshade_double axisTol );
-    proshade_double checkForMissingPeak               ( ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_double x, proshade_double y,
-                                                        proshade_double z, proshade_double angle, proshade_double heightThres,
-                                                        proshade_double axTol );
-    void saveDetectedCSymmetry                        ( proshade_unsign fold, std::vector< proshade_unsign >* matchedPeaks,
-                                                        std::vector< std::vector< proshade_unsign > >* ret, proshade_signed verbose );
-    bool completeMissingCSymmetry                     ( ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_unsign fold,
-                                                        std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks,
-                                                        std::vector< proshade_unsign >* missingPeaks,
-                                                        std::vector< proshade_double >* expectedAngles,
-                                                        std::vector< proshade_unsign >* matchedPeaks, proshade_double axErrTolerance,
-                                                        proshade_signed verbose );
-    void findSymmetryUsingFold                        ( ProSHADE_internal_data::ProSHADE_data* dataObj, std::vector< proshade_unsign >* angsToTry,
-                                                        std::vector< proshade_unsign >* grp, std::vector< proshade_double* >* peaks,
-                                                        std::vector< std::vector< proshade_unsign > >* ret,
-                                                        std::vector< proshade_unsign >* testedAlready, proshade_double axErrTolerance, bool axErrToleranceDefault,
-                                                        proshade_double missPeakThres, proshade_signed verbose );
-    void printSymmetryGroup                           ( std::vector< proshade_unsign > grp, std::vector< proshade_double* > peaks,
-                                                        proshade_signed verbose );
-    void printSymmetryCompletion                      ( proshade_unsign noSyms, proshade_signed verbose );
-    void saveAllCSymmetries                           ( std::vector< std::vector< proshade_unsign > > detected,
-                                                        std::vector< proshade_double* > peaks, std::vector< proshade_double* >* ret,
-                                                        proshade_double axErr );
     bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos );
     bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos, proshade_double fscVal );
     void saveDSymmetry                                ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList,

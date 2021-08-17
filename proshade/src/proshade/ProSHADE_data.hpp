@@ -210,7 +210,6 @@ namespace ProSHADE_internal_data
         void getImagTranslationFunction               ( double *trsFunImag, int len );
         void getRotMatrixFromRotFunInds               ( proshade_signed aI, proshade_signed bI, proshade_signed gI, double *rotMat, int len );
         int so3CoeffsArrayIndex                       ( proshade_signed order1, proshade_signed order2, proshade_signed band );
-        std::vector< proshade_double* > getCyclicSymmetriesList      ( ProSHADE_settings* settings );
         std::vector< proshade_double* > getDihedralSymmetriesList    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
