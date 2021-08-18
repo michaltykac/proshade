@@ -2908,23 +2908,23 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     this->sphereMappedRotFun.clear();
     
     //================================================ Convert rotation function to only the required angle-axis space spheres and find all peaks
-    for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( fold ); angIt += 1.0 )
+    for ( proshade_double angIt = 1.0; angIt < static_cast < proshade_double > ( fold ); angIt += 1.0 )
     {
         //============================================ Figure the angles to form the symmetry
         soughtAngle                                   = angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( fold ) );
         
         //============================================ Create the angle-axis sphere with correct radius (angle)
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
-                                                                                                                M_PI / static_cast< proshade_double > ( this->maxShellBand ),
+                                                                                                                M_PI / static_cast < proshade_double > ( this->maxShellBand ),
                                                                                                                 this->maxShellBand * 2,
                                                                                                                 soughtAngle,
-                                                                                                                static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+                                                                                                                static_cast < proshade_unsign > ( angIt - 1.0 ) ) );
         
         //=========================================== Interpolate rotation function onto the sphere
-        this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
+        this->sphereMappedRotFun.at(static_cast < size_t > ( angIt - 1.0 ))->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
         
         //============================================ Find all peaks for this sphere
-        this->sphereMappedRotFun.at(static_cast<proshade_unsign> ( angIt - 1.0 ))->findAllPeaks ( static_cast< proshade_signed > ( settings->peakNeighbours ), &allPeakHeights );
+        this->sphereMappedRotFun.at(static_cast < size_t > ( angIt - 1.0 ))->findAllPeaks ( static_cast< proshade_signed > ( settings->peakNeighbours ), &allPeakHeights );
     }
     
     //============================================ Report progress

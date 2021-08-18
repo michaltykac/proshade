@@ -911,6 +911,34 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     
 }
 
+/*! \brief Function for obtaining a copy of all sphere values.
+ 
+    This function gives access to the mapped sphere values.
+ 
+    \param[out] ret A vector of vectors of doubles indexed longitude, latitude containing all sphere mapped  RF values.
+ */
+std::vector< std::vector< proshade_double > > ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getCopyOfValues ( )
+{
+    //================================================ Initialise variables
+    std::vector< std::vector< proshade_double > > ret ( this->angularDim );
+    std::vector< proshade_double > retHlp             ( this->angularDim, 0.0 );
+    
+    //================================================ Fill in the values
+    for ( size_t lonIt = 0; lonIt < this->angularDim; lonIt++ )
+    {
+        for ( size_t latIt = 0; latIt < this->angularDim; latIt++ )
+        {
+            retHlp.at(latIt)                          = this->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latIt ), static_cast< proshade_unsign > ( lonIt ) );
+        }
+        
+        ret.at(lonIt)                                 = retHlp;
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief Function for finding all peaks in the sampling grid.
  
     This function takes the values on the sampling grid and does a naive peak search, saving the peak position into an internal variable.

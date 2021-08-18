@@ -883,4 +883,78 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Done
                                                             return ( retArr );
                                                         }, "This function takes the axis and fold and computes all resulting group elements (as rotation matrices), returning them in numpy.ndarray.", pybind11::arg ( "first" ), pybind11::arg ( "second" ), pybind11::arg ( "matrixTolerance" ), pybind11::arg ( "combine" ) );
+    pyProSHADE.def                                    ( "getRotationFunctionSpheres",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data *dataObj, int fold ) -> pybind11::array_t < proshade_double >
+                                                        {
+        
+                                                            //== Check if rotation function was computed (sanity check)
+                                                            if ( dataObj->getInvSO3Coeffs() == nullptr )
+                                                            {
+                                                                std::cerr << "Function getRotationFunctionSpheres() was called before rotation function was computed. Please compute the rotation function by calling the computeRotationFunction() function first. Returning empty array." << std::endl;
+                                                                return ( pybind11::array_t < proshade_double > () );
+                                                            }
+        
+                                                            //== Check that fold makes sense
+                                                            if ( fold <= 1 )
+                                                            {
+                                                                std::cerr << "The fold for which the rotation function should be mapped is not in the allowed range (i.e. 2+). Returning empty array." << std::endl;
+                                                                return ( pybind11::array_t < proshade_double > () );
+                                                            }
+        
+                                                            //== Compute the sphere mapping
+                                                            std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereMappedRotFun;
+                                                            
+                                                            //== Convert rotation function to only the required angle-axis space spheres and find all peaks
+                                                            proshade_double soughtAngle = 0.0;
+                                                            for ( proshade_double angIt = 1.0; angIt < static_cast < proshade_double > ( fold ); angIt += 1.0 )
+                                                            {
+                                                                //== Figure the angles to form the symmetry
+                                                                soughtAngle = angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( fold ) );
+                                                                
+                                                                //== Create the angle-axis sphere with correct radius (angle)
+                                                                sphereMappedRotFun.emplace_back ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
+                                                                                                                                                          M_PI / static_cast< proshade_double > ( dataObj->getMaxBand() ),
+                                                                                                                                                          dataObj->getMaxBand() * 2,
+                                                                                                                                                          soughtAngle,
+                                                                                                                                                          static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
+                                                                
+                                                                //== Interpolate rotation function onto the sphere
+                                                                sphereMappedRotFun.at( static_cast < size_t > ( angIt - 1.0 ))->interpolateSphereValues ( dataObj->getInvSO3Coeffs ( ) );
+                                                            }
+        
+                                                            //== Save values to pointer
+                                                            proshade_double* npVals = new proshade_double[(dataObj->getMaxBand() * 2) * (dataObj->getMaxBand() * 2) * (fold - 1)];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+        
+                                                            //== Copy value to the pointer
+                                                            std::vector< std::vector < proshade_double > > vls;
+                                                            size_t valIter = 0;
+                                                            for ( size_t sphIt = 0; sphIt < sphereMappedRotFun.size(); sphIt++ )
+                                                            {
+                                                                vls.clear();
+                                                                vls = sphereMappedRotFun.at(sphIt)->getCopyOfValues ();
+                                                                
+                                                                for ( size_t lonIt = 0; lonIt < (dataObj->getMaxBand() * 2); lonIt++ )
+                                                                {
+                                                                    for ( size_t latIt = 0; latIt < (dataObj->getMaxBand() * 2); latIt++ )
+                                                                    {
+                                                                        valIter = latIt + static_cast< size_t > ( dataObj->getMaxBand() * 2 ) * ( lonIt + static_cast< size_t > ( dataObj->getMaxBand() * 2 ) * sphIt );
+                                                                        npVals[valIter] = vls.at(lonIt).at(latIt);
+                                                                    }
+                                                                }
+                                                            }
+        
+                                                            //== Create capsule to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRFMapSph ( npVals, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
+
+                                                            //== Create python readable object with the correct memory access
+                                                            pybind11::array_t < proshade_double > retArr = pybind11::array_t < proshade_double > (
+                                                                { static_cast< int > ( sphereMappedRotFun.size() ), static_cast< int > (dataObj->getMaxBand() * 2), static_cast< int > (dataObj->getMaxBand() * 2) },  // Shape
+                                                                { (dataObj->getMaxBand() * 2) * (dataObj->getMaxBand() * 2) * sizeof(proshade_double), (dataObj->getMaxBand() * 2) * sizeof(proshade_double), sizeof(proshade_double) },                                                                                                                                                         // C-stype strides
+                                                                npVals,                                                                                                                                                // Data
+                                                                pyCapsuleRFMapSph );                                                                                                                                   // Capsule (destructor)
+
+                                                            //== Done
+                                                            return ( retArr );
+                                                        }, "This function allows access to the (self-)rotation function mapping to spheres with the angle being the radius and the longitude/latitude angles being the axis of the rotation for a particular fold (i.e. for all angles required by the fold except for the angle 0)." );
 }

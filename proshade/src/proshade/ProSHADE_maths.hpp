@@ -76,6 +76,7 @@ namespace ProSHADE_internal_spheres
         std::vector<std::pair<proshade_unsign,proshade_unsign>> getPeaks ( void );
         proshade_double getSphereLatLonPosition       ( proshade_unsign lattitude, proshade_unsign longitude );
         proshade_double getSphereLatLonLinearInterpolationPos ( proshade_double lattitude, proshade_double longitude );
+        std::vector< std::vector< proshade_double > > getCopyOfValues ( void );
         
         
     public:
