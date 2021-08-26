@@ -2025,8 +2025,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
                 fscValAvg                            += fscVal;
             }
             
-            //==================================== Get FSC average over all axes
-            fscValAvg                            /= 31.0;
+            //======================================== Get FSC average over all axes
+            fscValAvg                                /= 31.0;
             
             //======================================== Is this the best
             if ( fscValAvg > fscMax )
@@ -2034,6 +2034,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
                 fscMax                                = fscValAvg;
                 fscMaxInd                             = icoIt;
             }
+            
+            if ( settings->fastISearch ) { fscMaxInd = 0; break; }
         }
         
         //============================================ If C3 and C5 are found and have correct angle (must have if they are both in ISym)

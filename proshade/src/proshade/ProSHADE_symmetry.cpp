@@ -1893,6 +1893,8 @@ std::vector < std::vector< proshade_double* > > ProSHADE_internal_data::ProSHADE
         }
     }
     
+    //================================================ Sort by best peak height sum
+    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortISymByPeak );
 
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry prediction complete." );
@@ -2933,7 +2935,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str() );
     
     //================================================ Determine the threshold for significant peaks
-   *peakThres                                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak ) );
+   *peakThres                                         = std::min ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak ) );
     
     //============================================ Report progress
     std::stringstream hlpSS2;

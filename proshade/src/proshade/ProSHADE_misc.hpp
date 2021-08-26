@@ -49,6 +49,7 @@ namespace ProSHADE_internal_misc
             
     bool sortSymHlp                                   ( const proshade_double* a, const proshade_double* b );
     bool sortSymHlpInv                                ( const proshade_double* a, const proshade_double* b );
+    bool sortISymByPeak                               ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b );
     bool sortDSymHlpInv                               ( const proshade_double* a, const proshade_double* b );
     bool sortSymFoldHlp                               ( const proshade_double* a, const proshade_double* b );
     bool sortSymInvFoldHlp                            ( const proshade_double* a, const proshade_double* b );

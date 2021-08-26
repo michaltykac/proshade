@@ -135,6 +135,7 @@ public:
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
     proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
+    bool fastISearch;                                 //!< Should FSC be computed for all possible I matches, or just for the best one according to FR?
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.

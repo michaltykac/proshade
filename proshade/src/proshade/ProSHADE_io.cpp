@@ -576,7 +576,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
     else
     {
         //============================================ Check if weights file was given
-        if ( weightsFile == "" )                      { ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "No mask supplied." ); return; }
+        if ( weightsFile == "" )                      { ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "No weights supplied. Assuming all weights to be 1.0." ); return; }
         
         //============================================ From file it is! Open the weights file
         gemmi::Ccp4<float> weights;
