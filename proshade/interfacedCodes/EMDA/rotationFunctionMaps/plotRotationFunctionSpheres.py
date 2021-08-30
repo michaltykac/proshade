@@ -46,10 +46,10 @@ import proshade
 ###
 ### This is where all the settings are given.
 ###
-structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_6324.map"
-structureFold                                         = 12
+structureFilename                                     = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry/EMD-0114/emd_0114.map.gz"
+structureFold                                         = 3
 structureReSampleMap                                  = True
-computationResolution                                 = 8
+computationResolution                                 = 20
 
 ######################################################
 ### Local functions
@@ -57,10 +57,10 @@ computationResolution                                 = 8
 ###
 ### This is where local functions are defined.
 ###
-def plot3d ( data, shNo ):
+def plot3dIndividually ( data, ncols = 6, stride = 5 ):
     """
-    This function plots a single sphere from the proshade supplied sphere mapped rotation
-    function data.
+    This function plots the rotation function mapped into axis-angle space data as returned by ProSHADE. This
+    particular version plots all spheres separately as individual sub-plots of one large figure.
 
     Parameters
     ----------
@@ -68,8 +68,173 @@ def plot3d ( data, shNo ):
         A square matrix indexed by longitude x latitude positions and containing the mapped
         rotation function values.
         
-    int : shNo
-        The number (index) of the shell being plotted.
+    int : ncols
+        The maximum allowed number of sub-plots in a row
+        
+    int : stride
+        How fine sampled should the spheres surface be?
+
+    Returns
+    -------
+    none
+
+    """
+    ### Import matplotlib
+    from matplotlib import cm
+    import matplotlib.pyplot as plt
+    
+    ### Figure how many rows and columns we need given that we can have up to 6 columns
+    nrows                                             = divmod( data.shape[0], ncols )[0] + 1
+    if data.shape[0] < ncols:
+        ncols                                         = data.shape[0]
+
+    ### Create figure with right aspect ratios
+    fig                                               = plt.figure ( figsize = plt.figaspect ( nrows / ncols ) )
+
+    ### For each sphere, create a sub-plot
+    plotIndex                                         = 0
+    for sphNo in range ( data.shape[0] ):
+
+        ### Initialise local variables
+        n, m                                          = data[plotIndex].shape
+    
+        ### Meshing a unit sphere according to n, m
+        theta                                         = numpy.linspace ( 0,           2 * numpy.pi, num = n )
+        phi                                           = numpy.linspace ( -numpy.pi/2, numpy.pi/2,   num = m )
+        theta, phi                                    = numpy.meshgrid ( theta, phi )
+        
+        ### NOTE: phi angle follows MATLAB convention
+        x, y, z                                       = numpy.cos ( phi ) * numpy.cos ( theta ), numpy.cos ( phi ) * numpy.sin ( theta ), numpy.sin ( phi )
+    
+        # Data normalization - to be done
+        # normalized to min-max: does not give enough contrast in the figure
+        #fmax, fmin                                    = data.max(), data.min()
+        #data                                          = (data - fmin)/(fmax - fmin)
+        #data                                          = data/numpy.mean(data) # normalize to mean for good contrast
+    
+        ### Prepare the projection
+        ax                                            = fig.add_subplot ( nrows, ncols, plotIndex + 1, projection='3d' )
+        ax.set_proj_type                              ( 'ortho' )
+        ax.plot_surface                               ( x, y, z, rstride = stride, cstride = stride, facecolors=cm.Blues ( data[plotIndex] ) )
+        
+        ### Colobar for facecolors
+        mappable                                      = plt.cm.ScalarMappable ( cmap = cm.Blues )
+        mappable.set_array                            ( data[plotIndex] )
+        plt.colorbar                                  ( mappable, fraction = 0.025, pad = 0.04 )
+        
+        ### Prepare the plot/box
+        ax.view_init                                  ( azim = 0.0, elev = 90.0 )
+        ax.set_box_aspect                             ( ( 1, 1, 1 ) )
+        ax.axis                                       ( 'off' )
+        
+        ### Set subtitle
+        ax.set_title                                  ( 'Angle ' + "{:.2f}".format( (plotIndex+1) * ((numpy.pi*2.0)/(data.shape[0]+1)) * ( 180.0 / numpy.pi ) ) + ' deg' )
+        
+        ### Shift iterator
+        plotIndex                                     = plotIndex + 1
+        
+    ### Main title
+    fig.suptitle                                      ( 'Self-rotation function mapped into axis-angle space for all axes with particular angles', fontsize=16 )
+    
+    ### Plot
+    plt.tight_layout                                  ( )
+    plt.show                                          ( )
+    plt.close                                         ( 'all' )
+    
+def plot3dAverage ( data, ncols = 6, stride = 5 ):
+    """
+    This function plots the rotation function mapped into axis-angle space data as returned by ProSHADE. This
+    particular version plots the average for each axis over all the angles appropriate for the required fold.
+
+    Parameters
+    ----------
+    matrix : data
+        A square matrix indexed by longitude x latitude positions and containing the mapped
+        rotation function values.
+        
+    int : ncols
+        The maximum allowed number of sub-plots in a row
+        
+    int : stride
+        How fine sampled should the spheres surface be?
+
+    Returns
+    -------
+    none
+
+    """
+    ### Import matplotlib
+    from matplotlib import cm
+    import matplotlib.pyplot as plt
+    
+    ### Sum the data
+    summedData                                        = numpy.zeros ( [ data.shape[1], data.shape[2] ] )
+    for sphNo in range ( data.shape[0] ):
+        summedData                                   += data[sphNo]
+
+    summedData                                       /= data.shape[0]
+
+    ### Create figure with right aspect ratios
+    fig                                               = plt.figure ( figsize = plt.figaspect ( 1.0 ) )
+
+    ### Initialise local variables
+    n, m                                              = summedData.shape
+    
+    ### Meshing a unit sphere according to n, m
+    theta                                             = numpy.linspace ( 0,           2 * numpy.pi, num = n )
+    phi                                               = numpy.linspace ( -numpy.pi/2, numpy.pi/2,   num = m )
+    theta, phi                                        = numpy.meshgrid ( theta, phi )
+        
+    ### NOTE: phi angle follows MATLAB convention
+    x, y, z                                           = numpy.cos ( phi ) * numpy.cos ( theta ), numpy.cos ( phi ) * numpy.sin ( theta ), numpy.sin ( phi )
+    
+    # Data normalization - to be done
+    # normalized to min-max: does not give enough contrast in the figure
+    #fmax, fmin                                    = data.max(), data.min()
+    #data                                          = (data - fmin)/(fmax - fmin)
+    #data                                          = data/numpy.mean(data) # normalize to mean for good contrast
+    
+    ### Prepare the projection
+    ax                                                = fig.add_subplot ( 1, 1, 1, projection='3d' )
+    ax.set_proj_type                                  ( 'ortho' )
+    ax.plot_surface                                   ( x, y, z, rstride = stride, cstride = stride, facecolors=cm.Blues ( summedData ) )
+        
+    ### Colobar for facecolors
+    mappable                                          = plt.cm.ScalarMappable ( cmap = cm.Blues )
+    mappable.set_array                                ( summedData )
+    plt.colorbar                                      ( mappable, fraction = 0.025, pad = 0.04 )
+        
+    ### Prepare the plot/box
+    ax.view_init                                      ( azim = 0.0, elev = 90.0 )
+    ax.set_box_aspect                                 ( ( 1, 1, 1 ) )
+    ax.axis                                           ( 'off' )
+        
+    ### Set subtitle
+    ax.set_title                                      ( 'Sum over all angles required for this fold' )
+        
+    ### Main title
+    fig.suptitle                                      ( 'Sum of self-rotation function mapped into axis-angle space for all axes', fontsize=16 )
+    
+    ### Plot
+    plt.show                                          ( )
+    plt.close                                         ( 'all' )
+    
+def plot3dOverlay ( data, ncols = 6, stride = 5, alpha = 0.7 ):
+    """
+    This function plots the rotation function mapped into axis-angle space data as returned by ProSHADE. This
+    particular version plots ???
+
+    Parameters
+    ----------
+    matrix : data
+        A square matrix indexed by longitude x latitude positions and containing the mapped
+        rotation function values.
+        
+    int : ncols
+        The maximum allowed number of sub-plots in a row
+        
+    int : stride
+        How fine sampled should the spheres surface be?
 
     Returns
     -------
@@ -80,42 +245,48 @@ def plot3d ( data, shNo ):
     from matplotlib import cm
     import matplotlib.pyplot as plt
 
-    ### Initialise local variables
-    n, m                                              = data.shape
+    ### Create figure with right aspect ratios
+    fig                                               = plt.figure ( figsize = plt.figaspect ( 1.0 ) )
 
-    ### Meshing a unit sphere according to n, m
-    theta                                             = numpy.linspace ( 0,           2 * numpy.pi, num = n )
-    phi                                               = numpy.linspace ( -numpy.pi/2, numpy.pi/2,   num = m )
-    theta, phi                                        = numpy.meshgrid ( theta, phi )
-    
-    ### NOTE: phi angle follows MATLAB convention
-    x, y, z                                           = numpy.cos ( phi ) * numpy.cos ( theta ), numpy.cos ( phi ) * numpy.sin ( theta ), numpy.sin ( phi )
+    ### For each sphere, create a sub-plot
+    plotIndex                                         = 0
+    for sphNo in range ( data.shape[0] ):
 
-    # Data normalization - to be done
-    # normalized to min-max: does not give enough contrast in the figure
-    #fmax, fmin                                        = data.max(), data.min()
-    #data                                              = (data - fmin)/(fmax - fmin)
-    #data                                              = data/numpy.mean(data) # normalize to mean for good contrast
-
-    ### Prepare the projection
-    fig                                               = plt.figure ( figsize = plt.figaspect( 1.0 ) )
-    ax                                                = fig.gca ( projection = '3d' )
-    ax.set_proj_type                                  ( 'ortho' )
-    ax.plot_surface                                   ( x, y, z, rstride = 3, cstride = 3, facecolors=cm.Blues ( data ) )
+        ### Initialise local variables
+        n, m                                          = data[plotIndex].shape
     
-    ### Colobar for facecolors
-    mappable                                          = plt.cm.ScalarMappable ( cmap = cm.Blues )
-    mappable.set_array                                ( data )
-    plt.colorbar                                      ( mappable, fraction = 0.025, pad = 0.04 )
+        ### Meshing a unit sphere according to n, m
+        theta                                         = numpy.linspace ( 0,           2 * numpy.pi, num = n )
+        phi                                           = numpy.linspace ( -numpy.pi/2, numpy.pi/2,   num = m )
+        theta, phi                                    = numpy.meshgrid ( theta, phi )
+        
+        ### NOTE: phi angle follows MATLAB convention
+        x, y, z                                       = numpy.cos ( phi ) * numpy.cos ( theta ), numpy.cos ( phi ) * numpy.sin ( theta ), numpy.sin ( phi )
     
-    ### Prepare the plot/box
-    ax.view_init                                      ( azim = 0.0, elev = 90.0 )
-    ax.set_box_aspect                                 ( ( 1, 1, 1 ) )
-    ax.axis                                           ( 'off' )
-    title                                             = 'ProShade Spherical harmonics: shell-%i' %shNo
-    plt.title                                         ( title )
+        # Data normalization - to be done
+        # normalized to min-max: does not give enough contrast in the figure
+        #fmax, fmin                                    = data.max(), data.min()
+        #data                                          = (data - fmin)/(fmax - fmin)
+        #data                                          = data/numpy.mean(data) # normalize to mean for good contrast
+    
+        ### Prepare the projection
+        ax                                            = fig.add_subplot ( projection='3d' )
+        ax.set_proj_type                              ( 'ortho' )
+        ax.plot_surface                               ( x, y, z, rstride = stride, cstride = stride, facecolors=cm.Blues ( data[plotIndex] ), alpha = alpha )
+        
+        ### Prepare the plot/box
+        ax.view_init                                  ( azim = 0.0, elev = 90.0 )
+        ax.set_box_aspect                             ( ( 1, 1, 1 ) )
+        ax.axis                                       ( 'off' )
+        
+        ### Shift iterator
+        plotIndex                                     = plotIndex + 1
+        
+    ### Main title
+    fig.suptitle                                      ( 'Self-rotation function mapped into axis-angle space for all axes with particular angles overlay', fontsize=16 )
     
     ### Plot
+    plt.tight_layout                                  ( )
     plt.show                                          ( )
     plt.close                                         ( 'all' )
 
@@ -159,10 +330,11 @@ sphereMappedData                                      = proshade.getRotationFunc
 ### Plot the spheres
 ### ==========================================
 ###
-### This is where each sphere is individually plotted.
+### This is where each spheres are plotted.
 ###
-for sphereNo in range ( sphereMappedData.shape[0] ):
-    plot3d                                            ( sphereMappedData[sphereNo,:,:], sphereNo )
+#plot3dIndividually                                    ( sphereMappedData )
+#plot3dAverage                                         ( sphereMappedData )
+plot3dOverlay                                         ( sphereMappedData )
 
 ######################################################
 ### Wait for matplotlib window closure
