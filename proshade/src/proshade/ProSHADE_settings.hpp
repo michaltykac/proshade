@@ -123,6 +123,7 @@ public:
     proshade_double smoothingFactor;                  //!< This factor decides how small the group sizes should be - larger factor means more smaller groups.
     
     //================================================ Settings regarding the symmetry detection
+    bool findSymCentre;                               //!< Should phase-less map be used to determine centre of symmetry?
     proshade_double symMissPeakThres;                 //!< Percentage of peaks that could be missing that would warrant starting the missing peaks search procedure.
     proshade_double axisErrTolerance;                 //!< Allowed error on vector axis in in dot product ( acos ( 1 - axErr ) is the allowed difference in radians ).
     bool axisErrToleranceDefault;
@@ -217,6 +218,7 @@ public:
     void __declspec(dllexport) setPhaseUsage                                  ( bool phaseUsage );
     void __declspec(dllexport) setEnLevShellWeight                            ( proshade_double mPower );
     void __declspec(dllexport) setGroupingSmoothingFactor                     ( proshade_double smFact );
+    void __declspec(dllexport) setSymmetryCentreSearch                        ( bool sCen );
     void __declspec(dllexport) setMissingPeakThreshold                        ( proshade_double mpThres );
     void __declspec(dllexport) setAxisComparisonThreshold                     ( proshade_double axThres );
     void __declspec(dllexport) setAxisComparisonThresholdBehaviour            ( bool behav );
@@ -275,6 +277,7 @@ public:
     void setEnLevShellWeight                          ( proshade_double mPower );
     void setGroupingSmoothingFactor                   ( proshade_double smFact );
     void setMissingPeakThreshold                      ( proshade_double mpThres );
+    void setSymmetryCentreSearch                      ( bool sCen );
     void setAxisComparisonThreshold                   ( proshade_double axThres );
     void setAxisComparisonThresholdBehaviour          ( bool behav );
     void setMinimumPeakForAxis                        ( proshade_double minSP );

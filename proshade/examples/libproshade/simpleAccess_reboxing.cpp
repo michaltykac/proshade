@@ -59,6 +59,7 @@ int main ( int argc, char **argv )
     settings->setAppliedMaskFilename                  ( "" );                                // The filename from which mask data will be read from.
 
     //================================================ All other (possibly other tasks related) settings
+    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
     settings->setExtraSpace                           ( 0.0 );                               // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.

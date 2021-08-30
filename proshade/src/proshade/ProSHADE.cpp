@@ -125,6 +125,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
     this->fscThreshold                                = 0.65;
@@ -252,6 +253,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
     this->fscThreshold                                = 0.65;
@@ -1215,6 +1217,27 @@ void                       ProSHADE_settings::setMissingPeakThreshold ( proshade
     
 }
 
+/*! \brief Sets the symmetry centre search on or off.
+ 
+    This function sets the correct internal variable so that either the search for centre of symmetry using phase-less
+    symmetry detection first is used or not. If this is on, it will take a lot more time...
+ 
+    \param[in] sCen Should the symmetry centre be sought?.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setSymmetryCentreSearch ( bool sCen )
+#else
+void                       ProSHADE_settings::setSymmetryCentreSearch ( bool sCen )
+#endif
+{
+    //================================================ Set the value
+    this->findSymCentre                               = sCen;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the threshold for matching symmetry axes.
  
     When comparing symmetry axes, there needs to be a threshold allowing for some small error comming from the numberical
@@ -1972,6 +1995,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "distances",       no_argument,        nullptr, 'D' },
         { "mapManip",        no_argument,        nullptr, 'M' },
         { "symmetry",        no_argument,        nullptr, 'S' },
+        { "symCentre",       no_argument,        nullptr, 'I' },
         { "overlay",         no_argument,        nullptr, 'O' },
         { "file",            required_argument,  nullptr, 'f' },
         { "forceSpgP1",      no_argument,        nullptr, 'u' },
@@ -2027,7 +2051,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2360,6 +2384,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case '+':
              {
                  this->setPeakNaiveNoIQR              ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the symmetry centre search required value
+             case 'I':
+             {
+                 this->setSymmetryCentreSearch        ( true );
                  continue;
              }
                  
@@ -2729,6 +2760,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->enLevMatrixPowerWeight;
     printf ( "Energy lvl weight   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->findSymCentre ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Symmetry centre     : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     if ( this->computeTraceSigmaDesc ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
