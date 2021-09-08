@@ -257,6 +257,8 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
             for ( proshade_signed zIt = zFrom; zIt <= zTo; zIt++ )
             {
                 arrPos                                = (zIt-zFrom) + ( zTo - zFrom + 1 ) * ( ( yIt - yFrom ) + ( yTo - yFrom + 1 ) * ( xIt - xFrom ) );
+                const FloatingPoint< proshade_double > lhs ( map[arrPos] );
+                if ( !lhs.AlmostEquals ( lhs ) )       { map[arrPos] = 0.0; continue; }
                 
                 if ( map[arrPos] > 0.0 )
                 {

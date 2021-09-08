@@ -33,8 +33,10 @@
 //==================================================== Declare LAPACK functions
 extern "C"
 {
-    // ... The complex matrix singular value decomposition function
-    extern void zgesdd_( char* jobz, int* m, int* n, std::complex<double>* a, int* lda, double* s, std::complex<double>* u, int* ldu, std::complex<double>* vt, int* ldvt, std::complex<double>* work, int* lwork, double* rwork, int* iwork, int* info );
+    // ... The real matrix singular value decomposition function from LAPACK
+    extern void dgesdd_ ( char* jobz, int* m, int* n, double* a, int* lda, double* s, double* u, int* ldu, double* vt, int* ldvt, double* work, int* lwork, double* rwork, int* iwork, int* info );
+    // ... The complex matrix singular value decomposition function from LAPACK
+    extern void zgesdd_ ( char* jobz, int* m, int* n, std::complex<double>* a, int* lda, double* s, std::complex<double>* u, int* ldu, std::complex<double>* vt, int* ldvt, std::complex<double>* work, int* lwork, double* rwork, int* iwork, int* info );
 }
 
 //==================================================== ProSHADE_internal_spheres Namespace
@@ -321,7 +323,7 @@ namespace ProSHADE_internal_maths
                                                         proshade_double* abscissas, proshade_double* weights, proshade_double integralOverRange,
                                                         proshade_double maxSphereDists, proshade_double* retReal, proshade_double* retImag );
     void complexMatrixSVDSigmasOnly                   ( proshade_complex** mat, int dim, double*& singularValues );
-    void complexMatrixSVDUandVOnly                    ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail = true );
+    void realMatrixSVDUandVOnly                       ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail = true );
     void getEulerZXZFromSOFTPosition                  ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha,
                                                         proshade_double* eulerBeta, proshade_double* eulerGamma );
     void getSOFTPositionFromEulerZXZ                  ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma,
@@ -349,6 +351,7 @@ namespace ProSHADE_internal_maths
     proshade_single* compute3x3MatrixVectorMultiplication ( proshade_single* mat, proshade_single x, proshade_single y, proshade_single z );
     proshade_double* compute3x3MatrixInverse          ( proshade_double* mat );
     void transpose3x3MatrixInPlace                    ( proshade_double* mat );
+    proshade_double* build3x3MatrixFromDiag           ( proshade_double* diag );
     proshade_double* findRotMatMatchingVectors        ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
                                                         proshade_double z2 );
     std::vector < proshade_double > findVectorFromTwoVAndTwoD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,

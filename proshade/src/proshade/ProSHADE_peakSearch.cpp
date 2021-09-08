@@ -255,7 +255,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         for ( proshade_unsign i = 0; i < 9; i++ ) { avgMat[i] /= matWeight; }
         
         //============================================  Decompose the average matrix using SVD
-        ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( avgMat, 3, uAndV, false );
+        ProSHADE_internal_maths::realMatrixSVDUandVOnly ( avgMat, 3, uAndV, false );
         const FloatingPoint< proshade_double > lhs ( uAndV[0] ), rhs ( -777.7 );
         if ( lhs.AlmostEquals ( rhs ) )
         {

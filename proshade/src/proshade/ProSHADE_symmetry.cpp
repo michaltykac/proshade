@@ -3034,6 +3034,9 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ ) { for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ) ); } }
     std::sort                                         ( angs.begin(), angs.end() );
     
+    //================================================ Remove redundant angles from the list
+    for ( int angIt = static_cast< int > ( angs.size() - 2 ); angIt >= 0; angIt-- ) { const FloatingPoint< proshade_double > lhs1 ( angs.at(static_cast< size_t > ( angIt ) ) ), rhs1 ( angs.at(static_cast< size_t > ( angIt + 1 ) ) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { angs.erase ( angs.begin() + (angIt+1) ); } }
+    
     //================================================ Generate all sphere mapped rotation function
     dataObj->sphereMappedRotFun.clear();
     for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
@@ -3070,7 +3073,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         for ( proshade_double angIt = 1.0; angIt < ret->at(axIt)[0]; angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &applicableAngs, angIt * ( 2.0 * M_PI / ret->at(axIt)[0] ) ); }
         
         //============================================ For each shpere with the correct angle, average the peak heights
-        ret->at(axIt)[5]                              = 1.0;
+        ret->at(axIt)[5]                              = 0.0;
         for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
         {
             //======================================== Find the correct sphere
@@ -3084,7 +3087,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         }
         
         //============================================ And average the peak heights over the axis
-        ret->at(axIt)[5]                             /= ret->at(axIt)[0];
+        ret->at(axIt)[5]                             /= ( ret->at(axIt)[0] - 1.0 );
         maxSum                                       += ret->at(axIt)[5];
     }
     
@@ -3184,6 +3187,106 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Peak height detection and rotation optimisation complete." );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function takes two axes with almost dihedral angle and optimises their relative positions as well as orientation with respect to the optimal angle and the rotation function.
+ 
+    This function has two parts. Firstly, it makes the assumption that the two axes supplied are almost perpendicular, but that there may be an error. To correct for this, the function will find
+    the vector perpendicular to the plane formed by the two supplied axes and then it will find a vector perpendicular to the plane between this new vector and the axis with higher rotation
+    function value. The resulting new vector is perpendicular to the axis with higher rotation function value and replaces the axis vector with the lower rotation function values (after normalisation).
+ 
+    Secondly, this function supplies the two axes to the findPredictedAxesHeights() function, which does the maximisation of the rotation function values for both supplied axes at the same time.
+    The resulting optimised axes are then returned in place of the inputted axes.
+ 
+    \param[in] ret The list of axes for which the optimisation is to be done.
+    \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
+    \param[in] settings ProSHADE_settings object containing all the settings for this run.
+ */
+void ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( std::vector < std::vector< proshade_double > >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
+{
+    //================================================ Sanity check
+    if ( ret->size() != 2 )
+    {
+        throw ProSHADE_exception ( "Attempted to optimise less than two axes for dihedral\n                    : group.", "ES00070", __FILE__, __LINE__, __func__, "The function for optimisation of dihedral angle of D\n                    : group was called on group with less than two axes. This\n                    : seems like a programming bug and should not happen - \n                    : contact author if you ever see this." );
+    }
+    
+    //================================================ Set the angle to the correct dihedral group position - i.e. 90 deg
+    proshade_double *crossProd, *perpVec, normFactor;
+    size_t higherRFIndex                              = 0;
+    
+    // ... Find vector perperndicular to the plane given by the two axes
+    crossProd                                         = ProSHADE_internal_maths::computeCrossProduct ( &ret->at(0).at(1), &ret->at(0).at(2), &ret->at(0).at(3), &ret->at(1).at(1), &ret->at(1).at(2), &ret->at(1).at(3) );
+    
+    // ... Find a vector perpendicular to the plane between the new vector and the vector with higher rotation function value
+    if ( ret->at(1).at(5) > ret->at(0).at(5) ) { higherRFIndex = 1; }
+    perpVec                                           = ProSHADE_internal_maths::computeCrossProduct ( &ret->at(higherRFIndex).at(1), &ret->at(higherRFIndex).at(2), &ret->at(higherRFIndex).at(3), &crossProd[0], &crossProd[1], &crossProd[2] );
+    
+    // ... Normalise the new vector
+    normFactor                                        = std::sqrt ( pow ( perpVec[0], 2.0 ) + pow ( perpVec[1], 2.0 ) + pow ( perpVec[2], 2.0 ) );
+    perpVec[0] /= normFactor; perpVec[1] /= normFactor; perpVec[2] /= normFactor;
+    
+    // ... Which vector are we to over-write?
+    if ( higherRFIndex == 0 ) { higherRFIndex = 1; }
+    else                      { higherRFIndex = 0; }
+    
+    // ... Set largest axis element to positive
+    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( perpVec[0] ), std::max( std::abs ( perpVec[1] ), std::abs ( perpVec[2] ) ) ) );
+    const FloatingPoint< proshade_double > rhs1 ( std::abs ( perpVec[0] ));
+    const FloatingPoint< proshade_double > rhs2 ( std::abs ( perpVec[1] ) );
+    const FloatingPoint< proshade_double > rhs3 ( std::abs ( perpVec[2] ) );
+    if ( ( lhs1.AlmostEquals ( rhs1 ) && ( perpVec[0] < 0.0 ) ) ||
+         ( lhs1.AlmostEquals ( rhs2 ) && ( perpVec[1] < 0.0 ) ) ||
+         ( lhs1.AlmostEquals ( rhs3 ) && ( perpVec[2] < 0.0 ) ) )
+    {
+        perpVec[0]                                   *= -1.0;
+        perpVec[1]                                   *= -1.0;
+        perpVec[2]                                   *= -1.0;
+    }
+    
+    // ... Over-write the old vector with the better one
+    ret->at(higherRFIndex).at(1) = perpVec[0]; ret->at(higherRFIndex).at(2) = perpVec[1]; ret->at(higherRFIndex).at(3) = perpVec[2];
+    
+    // ... Release memory
+    delete[] perpVec;
+    delete[] crossProd;
+    
+    //================================================ Convert input to pointers
+    std::vector< proshade_double* > convVec;
+    for ( size_t axIt = 0; axIt < 2; axIt++ )
+    {
+        //============================================ Allocate memory
+        proshade_double* axVals                       = new proshade_double[7];
+        ProSHADE_internal_misc::checkMemoryAllocation ( axVals, __FILE__, __LINE__, __func__ );
+        
+        //============================================ Copy values
+        for ( size_t elIt = 0; elIt < 7; elIt++ )
+        {
+            axVals[elIt]                              = ret->at(axIt).at(elIt);
+        }
+        
+        //============================================ Save
+        convVec.push_back                             ( axVals );
+    }
+    
+    //================================================ Run normal optimisation
+    ProSHADE_internal_symmetry::findPredictedAxesHeights ( &convVec, dataObj, settings );
+    
+    //================================================ Convert back and release memory
+    for ( size_t axIt = 0; axIt < 2; axIt++ )
+    {
+        //============================================ Copy values
+        for ( size_t elIt = 0; elIt < 7; elIt++ )
+        {
+            ret->at(axIt).at(elIt)                     = convVec.at(axIt)[elIt];
+        }
+        
+        //============================================ Release memory
+        delete[] convVec.at(axIt);
+    }
     
     //================================================ Done
     return ;

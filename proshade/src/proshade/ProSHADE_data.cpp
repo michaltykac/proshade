@@ -767,9 +767,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     ProSHADE_internal_mapManip::movePDBForMapCalc     ( &gemmiStruct, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
-    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 2.0f * settings->coOrdsExtraSpace ) );
-    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 2.0f * settings->coOrdsExtraSpace ) );
-    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 5.0f * settings->coOrdsExtraSpace ) );
+    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 4.0f * settings->coOrdsExtraSpace ) );
+    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 3.0f * settings->coOrdsExtraSpace ) );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( gemmiStruct, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
@@ -1405,7 +1405,10 @@ void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_se
  */
 void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* settings )
 {
-    //================================================ Initialise the return variable
+    //================================================ Sanity check
+    if ( !settings->changeMapResolution && !settings->changeMapResolutionTriLinear ) { return ; }
+    
+    //================================================ Initialise the internal variable
     proshade_single* changeVals                       = new proshade_single[6];
     
     //================================================ Find COM before map re-sampling
@@ -1455,7 +1458,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     proshade_single xMov                              = static_cast< proshade_single > ( xMapCOMPostReSampl - xMapCOMPreReSampl );
     proshade_single yMov                              = static_cast< proshade_single > ( yMapCOMPostReSampl - yMapCOMPreReSampl );
     proshade_single zMov                              = static_cast< proshade_single > ( zMapCOMPostReSampl - zMapCOMPreReSampl );
-
+    
     //================================================ Move by indices (this should be sufficient)
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo,
                                                         &this->yFrom, &this->yTo, &this->zFrom, &this->zTo, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
@@ -1982,6 +1985,32 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     if ( this->sphereMappedRotFun.size() < 1 )
     {
         throw ProSHADE_exception ( "Rotation function was not converted into angle-axis space.", "ES00062", __FILE__, __LINE__, __func__, "It seems that the convertRotationFunction() function was\n                    : not yet called. Therefore, there are no data to detect the\n                    : symmetry from; please call the convertRotationFunction()\n                    : function before the detectSymmetryFromAngleAxisSpace()\n                    : function." );
+    }
+    
+    //================================================ If only C syms were requested (e.g. rotation centre detection), terminate here!
+    if ( settings->requestedSymmetryType == "onlyC" )
+    {
+        //============================================ Prepare threshold
+        proshade_double bestHistPeakStart             = this->findTopGroupSmooth ( &CSyms, 5, 0.01, 0.03, 9 );
+        
+        //============================================ Find FSCs for C syms
+        for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ )
+        {
+            //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
+            if ( cIt > 20 ) { continue; }
+            
+            //======================================== Check the peak height
+            if ( CSyms.at(cIt)[5]  < bestHistPeakStart ) { continue; }
+            
+            //======================================== Compute FSC
+            this->computeFSC                          ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
+        }
+        
+        //============================================ Save the detected Cs
+        this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
+        
+        //============================================ Done
+        return;
     }
     
     //================================================ Sanity check - was any symmetry requested?

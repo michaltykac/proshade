@@ -114,6 +114,7 @@ namespace ProSHADE_internal_symmetry
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj );
     proshade_double findPredictedSingleAxisHeight     ( proshade_double* axis, proshade_double fold, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
     void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
+    void optimiseDGroupAngleFromAxesHeights           ( std::vector < std::vector< proshade_double > >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
     void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictTetraAxes                             ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );

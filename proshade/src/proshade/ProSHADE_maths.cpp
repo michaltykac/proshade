@@ -868,15 +868,15 @@ void ProSHADE_internal_maths::complexMatrixSVDSigmasOnly ( proshade_complex** ma
     \param[in] uAndV Empty and allocated array of size dim*6 where the U and V matrices will be saved.
     \param[in] fail If true and an error is encountered (typically algorithm not converging), this function will stop the program (useful for distances computations). However, if false, the function will simply return -777 as the first matrix element and not fail.
  */
-void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail )
+void ProSHADE_internal_maths::realMatrixSVDUandVOnly ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail )
 {
     //================================================ Initialise local variables
     char job                                          = 'A';                                   // Save computation of parts of U and V matrices, they are not needed here
     double* singularValues                            = new double[dim];                       // The array of singular values
-    std::complex<double> *rotMatU                     = new std::complex< double > [dim*dim];  // The U matrix space
-    std::complex<double> *rotMatV                     = new std::complex< double > [dim*dim];  // The V^T matrix space
-    std::complex<double> *work                        = new std::complex< double > [static_cast< proshade_unsign >( ( 3 * dim) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 3*dim, using more for performance
-    int workDim                                       = static_cast< int > ( ( 3 * dim ) + pow( dim, 2 ) ); // Formalism stating just that
+    double *rotMatU                                   = new double [dim*dim];                  // The U matrix space
+    double *rotMatV                                   = new double [dim*dim];                  // The V^T matrix space
+    double *work                                      = new double [static_cast< proshade_unsign >( ( 3 * dim ) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 4*dim^2 + 7*dim, using more for performance
+    int workDim                                       = static_cast< int > ( 2 * ( ( 4 * dim * dim ) + ( 7 * dim ) ) ); // Formalism stating just that
     double* rwork                                     = new double[static_cast<proshade_unsign>((5 * dim) + 5 * pow(dim,2))]; // Required by LAPACK
     int* iwork                                        = new int[(8 * dim)];                    // Required by LAPACK
     int returnValue                                   = 0;                                     // This will tell if operation succeeded
@@ -888,18 +888,18 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     ProSHADE_internal_misc::checkMemoryAllocation     ( iwork,          __FILE__, __LINE__, __func__ );
     
     //================================================ Load input data into array in column-major order
-    std::complex<double> *matrixToDecompose           = new std::complex<double>[dim*dim];
+    double *matrixToDecompose                         = new double[dim*dim];
     ProSHADE_internal_misc::checkMemoryAllocation     ( matrixToDecompose, __FILE__, __LINE__, __func__ );
     for ( int rowIt = 0; rowIt < dim; rowIt++ )
     {
         for ( int colIt = 0; colIt < dim; colIt++ )
         {
-            matrixToDecompose[(colIt*dim)+rowIt]      = std::complex<double> ( mat[(rowIt*dim)+colIt], 0.0 );
+            matrixToDecompose[(colIt*dim)+rowIt]      = mat[(rowIt*dim)+colIt];
         }
     }
     
     //================================================ Run LAPACK ZGESDD
-    zgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, rotMatU, &dim, rotMatV, &dim,
+    dgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, rotMatU, &dim, rotMatV, &dim,
                                                         work, &workDim, rwork, iwork, &returnValue );
     
     //================================================ Free memory
@@ -925,7 +925,7 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     {
         for ( proshade_signed colIt = 0; colIt < dim; colIt++ )
         {
-            uAndV[(rowIt*3)+colIt]                    = rotMatU[( rowIt * 3 ) + colIt].real();
+            uAndV[(rowIt*3)+colIt]                    = rotMatU[( rowIt * 3 ) + colIt];
         }
     }
     
@@ -934,7 +934,7 @@ void ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( proshade_double* mat, 
     {
         for ( proshade_signed colIt = 0; colIt < dim; colIt++ )
         {
-            uAndV[(rowIt*3)+colIt+9]                  = rotMatV[( rowIt * 3 ) + colIt].real();
+            uAndV[(rowIt*3)+colIt+9]                  = rotMatV[( rowIt * 3 ) + colIt];
         }
     }
     
@@ -1955,6 +1955,33 @@ void ProSHADE_internal_maths::transpose3x3MatrixInPlace ( proshade_double* mat )
     
 }
 
+/*! \brief Function for building a 3x3 matrix from diagonal (and assuming zero padding).
+ 
+    \param[in] diag Array of 3 values that should form the diagonal.
+    \param[out] ret The matrix having zeroes everywhere except for the diagonal, where the supplied values will be.
+ */
+proshade_double* ProSHADE_internal_maths::build3x3MatrixFromDiag ( proshade_double* diag )
+{
+    //================================================ Allocate memory
+    proshade_double* ret                              = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Build
+    ret[0]                                            = diag[0];
+    ret[1]                                            = 0.0;
+    ret[2]                                            = 0.0;
+    ret[3]                                            = 0.0;
+    ret[4]                                            = diag[1];
+    ret[5]                                            = 0.0;
+    ret[6]                                            = 0.0;
+    ret[7]                                            = 0.0;
+    ret[8]                                            = diag[2];
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief Computation of rotation matrix rotating one vector onto the other.
  
     This function starts by normalising both input vectors to have magnitude of 1.0. Then, it computes the cosine and sine of the angle between the two
@@ -2273,7 +2300,6 @@ std::vector< proshade_double > ProSHADE_internal_maths::multiplyGroupElementMatr
     ProSHADE_internal_misc::addToDoubleVector         ( &ret, ( el1->at(6) * el2->at(2) ) +
                                                               ( el1->at(7) * el2->at(5) ) +
                                                               ( el1->at(8) * el2->at(8) ) );
-    
     
     //================================================ Done
     return                                            ( ret );
