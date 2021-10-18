@@ -3009,17 +3009,22 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     \param[in] ret The list of axes for which the heights are to be found.
     \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
     \param[in] settings ProSHADE_settings object containing all the settings for this run.
+    \param[in] improve Should the axes position be optimised, or is prediction sufficient?
  */
-void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
+void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings, bool improve )
 {
     //================================================ Initialise variables
     std::vector < proshade_unsign > folds;
     std::vector < proshade_double > angs, applicableAngs;
     bool alreadyFound = false;
     size_t corAngIt = 0;
-    proshade_double lat = 0.0, lon = 0.0, radRange = 0.0, searchRange = 0.0, axSum = 0.0, curSum = 0.0, maxSum = 0.0, bestLatMod = 0.0, bestLonMod = 0.0, finLatChan = 0.0, finLonChan = 0.0;
+    proshade_double lat = 0.0, lon = 0.0, radRange = 0.0, searchRangeInDeg = 0.0, axSum = 0.0, curSum = 0.0, maxSum = 0.0, bestXRot = 0.0, bestYRot = 0.0, bestZRot = 0.0, finXRotChan = 0.0, finYRotChan = 0.0, finZRotChan = 0.0;
     proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
     proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
+    
+    std::cout << std::endl;
+    std::cout << "!!! PREDICT INPUT AXES: " << ret->at(0)[0] << " | " << ret->at(0)[1] << " x " << ret->at(0)[2] << " x " << ret->at(0)[3] << " || " << ret->at(0)[5] << std::endl;
+    std::cout << "!!!    AND            : " << ret->at(1)[0] << " | " << ret->at(1)[1] << " x " << ret->at(1)[2] << " x " << ret->at(1)[3] << " || " << ret->at(1)[5] << std::endl << std::endl;
     
     //================================================ Determine all the folds for which rotation function mapping will be required
     for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ret->size() ); iter++ )
@@ -3029,13 +3034,18 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         
         if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, static_cast< proshade_unsign > ( ret->at(iter)[0] ) ); }
     }
+    std::cout << "!!! FOLDS: "; for ( int i = 0; i < folds.size(); i++ ) { std::cout << folds.at(i) << " "; } std::cout << std::endl << std::endl;
     
     //================================================ Generate vector of all angles
     for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ ) { for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ) ); } }
     std::sort                                         ( angs.begin(), angs.end() );
     
+    std::cout << "!!! ANGS: "; for ( int i = 0; i < angs.size(); i++ ) { std::cout << angs.at(i) << " "; } std::cout << std::endl << std::endl;
+    
     //================================================ Remove redundant angles from the list
     for ( int angIt = static_cast< int > ( angs.size() - 2 ); angIt >= 0; angIt-- ) { const FloatingPoint< proshade_double > lhs1 ( angs.at(static_cast< size_t > ( angIt ) ) ), rhs1 ( angs.at(static_cast< size_t > ( angIt + 1 ) ) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { angs.erase ( angs.begin() + (angIt+1) ); } }
+    
+    std::cout << "!!! ANGS: "; for ( int i = 0; i < angs.size(); i++ ) { std::cout << angs.at(i) << " "; } std::cout << std::endl << std::endl;
     
     //================================================ Generate all sphere mapped rotation function
     dataObj->sphereMappedRotFun.clear();
@@ -3057,6 +3067,112 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         //=========================================== Interpolate rotation function onto the sphere
         dataObj->sphereMappedRotFun.at( static_cast < proshade_unsign > ( angIt ))->interpolateSphereValues ( dataObj->getInvSO3Coeffs ( ) );
     }
+    
+    //================================================ Check for improved sum
+    searchRangeInDeg                                  = 360.0 / ( dataObj->getMaxBand() * 2.0 );
+    proshade_double* rotMat, *newAxis;
+    while ( searchRangeInDeg > 0.09 )
+    {
+        //============================================ For change along each dimension
+        for ( proshade_double xChan = -searchRangeInDeg; xChan < ( 1.5 * searchRangeInDeg ); xChan += searchRangeInDeg )
+        {
+            for ( proshade_double yChan = -searchRangeInDeg; yChan < ( 1.5 * searchRangeInDeg ); yChan += searchRangeInDeg )
+            {
+                for ( proshade_double zChan = -searchRangeInDeg; zChan < ( 1.5 * searchRangeInDeg ); zChan += searchRangeInDeg )
+                {
+                    //================================ Initialise local variables
+                    curSum                            = 0.0;
+                    
+                    //================================ Find the rotation matrix of the appropriate rotation
+                    rotMat                            = ProSHADE_internal_maths::build3x3MatrixFromXYZRotations ( xChan + finXRotChan, yChan + finYRotChan, zChan + finZRotChan );
+                    
+                    //================================ For each axis, find new position and its RF value
+                    for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
+                    {
+                        //============================ Find rotated axis
+                        newAxis                       = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( rotMat, ret->at(axIt)[1], ret->at(axIt)[2], ret->at(axIt)[3] );
+                        
+                        //============================ Convert XYZ to lat and lon INDICES
+                        lat                           = ( std::atan2( newAxis[1], newAxis[0] ) / latSamlUnit );
+                        lon                           = ( std::acos ( newAxis[2] ) / lonSamlUnit );
+
+                        if ( lat < 0.0 )                  { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+                        if ( lon < 0.0 )                  { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
+
+                        //============================ Generate all angles for this fold
+                        applicableAngs.clear          ( );
+                        for ( proshade_double angIt = 1.0; angIt < ret->at(axIt)[0]; angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &applicableAngs, angIt * ( 2.0 * M_PI / ret->at(axIt)[0] ) ); }
+
+                        //============================ For each shpere with the correct angle, average the peak heights
+                        axSum                         = 1.0;
+                        for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
+                        {
+                            //======================== Find the correct sphere
+                            alreadyFound              = false;
+                            for ( size_t aIt = 0; aIt < applicableAngs.size(); aIt++ ) { if ( alreadyFound ) { break; } const FloatingPoint< proshade_double > lhs1 ( angs.at(angIt) ), rhs1 ( applicableAngs.at(aIt) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; corAngIt = angIt; } }
+
+                            if ( !alreadyFound ) { continue; }
+
+                            //======================== Get its peak height for the longitude and latitude
+                            axSum                    += dataObj->sphereMappedRotFun.at(corAngIt)->getSphereLatLonLinearInterpolationPos ( lat, lon );
+                        }
+
+                        //============================ And average the peak heights over the axis
+                        axSum                        /= ret->at(axIt)[0];
+                        curSum                       += axSum;
+                        
+                        //============================ Release memory
+                        delete[] newAxis;
+                    }
+                    
+                    //================================ And average the peak heights over all axes
+                    curSum                           /= static_cast< proshade_double > ( ret->size() );
+            
+                    //================================ If improved, save
+                    if ( curSum >  maxSum )
+                    {
+                        maxSum                        = curSum;
+                        bestXRot                      = xChan;
+                        bestYRot                      = yChan;
+                        bestZRot                      = zChan;
+                    }
+                    
+                    //================================ Release memory
+                    delete[] rotMat;
+                    
+                    
+                }
+            }
+        }
+    
+        //============================================ Prepare for next iteration
+        searchRangeInDeg                             /= 2.0;
+        finXRotChan                                  += bestXRot;
+        finYRotChan                                  += bestYRot;
+        finZRotChan                                  += bestZRot;
+        bestXRot                                      = 0.0;
+        bestYRot                                      = 0.0;
+        bestZRot                                      = 0.0;
+    }
+    
+    //================================================ Apply the optimisation
+    rotMat                                            = ProSHADE_internal_maths::build3x3MatrixFromXYZRotations ( finXRotChan, finYRotChan, finZRotChan );
+    for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
+    {
+        //============================================ Find the rotated axis
+        newAxis                                       = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( rotMat, ret->at(axIt)[1], ret->at(axIt)[2], ret->at(axIt)[3] );
+        
+        //============================================ Change axes
+        ret->at(axIt)[1]                              = newAxis[0];
+        ret->at(axIt)[2]                              = newAxis[1];
+        ret->at(axIt)[3]                              = newAxis[2];
+    }
+    
+    //================================================ Release memory
+    delete[] rotMat;
+    
+    std::cout << "!!! PREDICT ???    AXES: " << ret->at(0)[0] << " | " << ret->at(0)[1] << " x " << ret->at(0)[2] << " x " << ret->at(0)[3] << " || " << ret->at(0)[5] << std::endl;
+    std::cout << "!!!    AND             : " << ret->at(1)[0] << " | " << ret->at(1)[1] << " x " << ret->at(1)[2] << " x " << ret->at(1)[3] << " || " << ret->at(1)[5] << std::endl << std::endl;
     
     //================================================ For each ret axis, compute predicted position
     for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
@@ -3091,99 +3207,8 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         maxSum                                       += ret->at(axIt)[5];
     }
     
-    //================================================ And average the peak heights over all axes
-    maxSum                                           /= static_cast< proshade_double > ( ret->size() );
-    
-    //================================================ Check for improved sum
-    searchRange                                       = 1.0;
-    while ( searchRange > 0.02 )
-    {
-        //============================================ Search close points for improved sum
-        for ( proshade_double latChan = -searchRange; latChan < ( searchRange + ( searchRange / 2 ) ); latChan += searchRange )
-        {
-            for ( proshade_double lonChan = -searchRange; lonChan < ( searchRange + ( searchRange / 2 ) ); lonChan += searchRange )
-            {
-                //==================================== Ignore zero
-                if ( ( ( latChan > -searchRange ) && ( latChan < searchRange ) ) && ( ( lonChan > -searchRange ) && ( lonChan < searchRange ) ) ) { continue; }
-                
-                //==================================== Initialise sum
-                curSum                                = 0.0;
-                
-                //==================================== For each ret axis, compute new position
-                for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
-                {
-                    //================================ Convert XYZ to lat and lon INDICES
-                    lat                               = ( std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit ) + latChan + finLatChan;
-                    lon                               = ( std::acos ( ret->at(axIt)[3] ) / lonSamlUnit ) + lonChan + finLonChan;
-
-                    if ( lat < 0.0 )                  { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
-                    if ( lon < 0.0 )                  { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
-                    
-                    //================================ Generate all angles for this fold
-                    applicableAngs.clear              ( );
-                    for ( proshade_double angIt = 1.0; angIt < ret->at(axIt)[0]; angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &applicableAngs, angIt * ( 2.0 * M_PI / ret->at(axIt)[0] ) ); }
-                    
-                    //================================ For each shpere with the correct angle, average the peak heights
-                    axSum                             = 1.0;
-                    for ( size_t angIt = 0; angIt < angs.size(); angIt++ )
-                    {
-                        //============================ Find the correct sphere
-                        alreadyFound                  = false;
-                        for ( size_t aIt = 0; aIt < applicableAngs.size(); aIt++ ) { if ( alreadyFound ) { break; } const FloatingPoint< proshade_double > lhs1 ( angs.at(angIt) ), rhs1 ( applicableAngs.at(aIt) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { alreadyFound = true; corAngIt = angIt; } }
-                        
-                        if ( !alreadyFound ) { continue; }
-                        
-                        //============================ Get its peak height for the longitude and latitude
-                        axSum                        += dataObj->sphereMappedRotFun.at(corAngIt)->getSphereLatLonLinearInterpolationPos ( lat, lon );
-                    }
-                    
-                    //================================ And average the peak heights over the axis
-                    axSum                            /= ret->at(axIt)[0];
-                    curSum                           += axSum;
-                }
-                
-                //==================================== And average the peak heights over all axes
-                curSum                               /= static_cast< proshade_double > ( ret->size() );
-                
-                //==================================== If improved, save
-                if ( curSum >  maxSum )
-                {
-                    maxSum                            = curSum;
-                    bestLatMod                       += latChan;
-                    bestLonMod                       += lonChan;
-                }
-            }
-        }
-        
-        //============================================ Prepare for next iteration
-        searchRange                                  /= 2.0;
-        finLatChan                                   += bestLatMod;
-        finLonChan                                   += bestLonMod;
-        bestLatMod                                    = 0.0;
-        bestLonMod                                    = 0.0;
-    }
-    
-    //================================================ Apply the optimisation
-    for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
-    {
-        //============================================ Convert XYZ to lat and lon INDICES
-        lat                                           = ( std::atan2( ret->at(axIt)[2], ret->at(axIt)[1] ) / latSamlUnit ) + finLatChan;
-        lon                                           = ( std::acos ( ret->at(axIt)[3] ) / lonSamlUnit ) + finLonChan;
-            
-        if ( lat < 0.0 )                              { lat += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
-        if ( lon < 0.0 )                              { lon += ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 ); }
-        
-        lat                                          *= latSamlUnit;
-        lon                                          *= lonSamlUnit;
-        
-        //============================================ Change axes
-        ret->at(axIt)[1]                              = 1.0 * std::sin ( lon ) * std::cos ( lat );
-        ret->at(axIt)[2]                              = 1.0 * std::sin ( lon ) * std::sin ( lat );
-        ret->at(axIt)[3]                              = 1.0 * std::cos ( lon );
-    }
-    
-    //================================================ Sort axes by fold
-    std::sort                                         ( ret->begin(), ret->end(), ProSHADE_internal_misc::sortSymInvFoldHlp );
+    std::cout << "!!! PREDICT OUTPUT AXES: " << ret->at(0)[0] << " | " << ret->at(0)[1] << " x " << ret->at(0)[2] << " x " << ret->at(0)[3] << " || " << ret->at(0)[5] << std::endl;
+    std::cout << "!!!    AND             : " << ret->at(1)[0] << " | " << ret->at(1)[1] << " x " << ret->at(1)[2] << " x " << ret->at(1)[3] << " || " << ret->at(1)[5] << std::endl << std::endl;
     
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Peak height detection and rotation optimisation complete." );
@@ -3287,6 +3312,53 @@ void ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( std::vecto
         //============================================ Release memory
         delete[] convVec.at(axIt);
     }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function takes two axes with almost dihedral angle and optimises their relative positions as well as orientation with respect to the optimal angle and the rotation function.
+ 
+    This function is basically a wrapper to the overloaded function with the same name. It starts with converting the axes list and index vector to a single vactor containing the axes in the correct format
+    and then it proceeds to call the overloaded version of this function to do the actual work. Once it completes, this function saves the results into the original input vector and terminates itself.
+ 
+    \param[in] allCs The list of axes for a subset of which the optimisation is to be done.
+    \param[in] selection A vector of two indices (of the allCs vector) specifying which axes to optimise.
+    \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
+    \param[in] settings ProSHADE_settings object containing all the settings for this run.
+ */
+void ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > selection, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
+{
+    //================================================ Initialise local variables
+    std::vector < std::vector< proshade_double > > ortPair;
+    std::vector< proshade_double > hlpVec;
+    
+    //================================================ Convert the indices and the list into a single vector containing only the axes to be optimised.
+    hlpVec.push_back ( allCs->at(selection.at(0))[0] ); hlpVec.push_back ( allCs->at(selection.at(0))[1] ); hlpVec.push_back ( allCs->at(selection.at(0))[2] );
+    hlpVec.push_back ( allCs->at(selection.at(0))[3] ); hlpVec.push_back ( allCs->at(selection.at(0))[4] ); hlpVec.push_back ( allCs->at(selection.at(0))[5] );
+    hlpVec.push_back ( allCs->at(selection.at(0))[6] );
+    ortPair.push_back ( hlpVec ); hlpVec.clear ( );
+    hlpVec.push_back ( allCs->at(selection.at(1))[0] ); hlpVec.push_back ( allCs->at(selection.at(1))[1] ); hlpVec.push_back ( allCs->at(selection.at(1))[2] );
+    hlpVec.push_back ( allCs->at(selection.at(1))[3] ); hlpVec.push_back ( allCs->at(selection.at(1))[4] ); hlpVec.push_back ( allCs->at(selection.at(1))[5] );
+    hlpVec.push_back ( allCs->at(selection.at(1))[6] );
+    ortPair.push_back ( hlpVec );
+    
+    std::cout << " ??? ??? 1 " << ortPair.at(0)[0] << " | " << ortPair.at(0)[1] << " x " << ortPair.at(0)[2] << " x " << ortPair.at(0)[3] << " || " << ortPair.at(0)[5] << " | " << ortPair.at(0)[6] << std::endl;
+    std::cout << " ??? ??? 1 " << ortPair.at(1)[0] << " | " << ortPair.at(1)[1] << " x " << ortPair.at(1)[2] << " x " << ortPair.at(1)[3] << " || " << ortPair.at(1)[5] << " | " << ortPair.at(1)[6] << std::endl << std::endl;
+    
+    //================================================ Run the optimisation proper
+    optimiseDGroupAngleFromAxesHeights                ( &ortPair, dataObj, settings );
+    
+    std::cout << " ??? ??? 2 " << ortPair.at(0)[0] << " | " << ortPair.at(0)[1] << " x " << ortPair.at(0)[2] << " x " << ortPair.at(0)[3] << " || " << ortPair.at(0)[5] << " | " << ortPair.at(0)[6] << std::endl;
+    std::cout << " ??? ??? 2 " << ortPair.at(1)[0] << " | " << ortPair.at(1)[1] << " x " << ortPair.at(1)[2] << " x " << ortPair.at(1)[3] << " || " << ortPair.at(1)[5] << " | " << ortPair.at(1)[6] << std::endl << std::endl;
+    
+    //================================================ Save the results back to the vector
+    allCs->at(selection.at(0))[1] = ortPair.at(0).at(1); allCs->at(selection.at(0))[2] = ortPair.at(0).at(2); allCs->at(selection.at(0))[3] = ortPair.at(0).at(3);
+    allCs->at(selection.at(0))[5] = ortPair.at(0).at(5); allCs->at(selection.at(0))[6] = ortPair.at(0).at(6);
+    
+    allCs->at(selection.at(1))[1] = ortPair.at(1).at(1); allCs->at(selection.at(1))[2] = ortPair.at(1).at(2); allCs->at(selection.at(1))[3] = ortPair.at(1).at(3);
+    allCs->at(selection.at(1))[5] = ortPair.at(1).at(5); allCs->at(selection.at(1))[6] = ortPair.at(1).at(6);
     
     //================================================ Done
     return ;
@@ -3591,6 +3663,204 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
     delete[] rotModelC2;
     delete   tetAx;
 
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function checks the list of detected axes (presumably from phaseless symmetry detection) and returns the best dihedral (or cyclic, if no dihedral is found) point
+    group, or empty vector if nothing is found.
+ 
+    This function starts by computing a stringent rotation function height threshold and proceeds to search for orthogonal pair of axes with at least this threshold RF value.
+    If more than one pair is found, the pair with the highest sum of RF value and FSC value is chosen and returned, while if no pair is found, a single axis passing the threshold
+    (and with the highest RF + FSC value sum) is returned. If no axis passes, empty vector is returned.
+ 
+    \warning This function is intended to be used internally and specifically with phase-less symmetry detection, but it does not check for these conditions to be met!
+ 
+    \param[in] allCs A list of all detected symmetries in the phase-less map.
+    \param[in] verbose How loud the function should be in the standard output?
+    \param[in] tolerance What is the tolerance on the perpendicularity of two axes in terms of the dot product?
+    \param[out] ret A vector containing a) zero entries if no reliable symmetry axis was found, b) a single symmetry axis index if only a reliable cyclic symmetry axis was found or c)
+                    two axes indices in the case where two perpendicular reliable axes were detected.
+ */
+std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( std::vector < std::vector< proshade_double > >* allCs, proshade_signed verbose, proshade_double tolerance )
+{
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Deciding whether any axis(es) is/are reliable." );
+    
+    for ( int i = 0; i < allCs->size(); i++ ) { std::cout << allCs->at(i).at(0) << " | " << allCs->at(i).at(1) << " x " << allCs->at(i).at(2) << " x " << allCs->at(i).at(3) << " | " << allCs->at(i).at(5) << " | " << allCs->at(i).at(6) << std::endl; }
+    
+    //================================================ Initialise local variables
+    std::vector< proshade_unsign > ret;
+    
+    //================================================ Find the threshold
+    proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 5, 0.01, 0.03, 5 );
+    if ( bestHistPeakStart > 0.9 ) { bestHistPeakStart = 0.9; }
+    
+    //================================================ Are any axes orthogonal
+    proshade_double dotProduct, maxOrtSum = 0.0, curOrtSum = 0.0;
+    proshade_unsign maxOrtAx1 = 0, maxOrtAx2 = 0;
+    for ( size_t relAx1 = 0; relAx1 < allCs->size(); relAx1++ )
+    {
+        //============================================ Consider only reliable axes
+        if ( allCs->at(relAx1)[5] < bestHistPeakStart ) { continue; }
+        
+        for ( size_t relAx2 = 1; relAx2 < allCs->size(); relAx2++ )
+        {
+            //======================================== Ignore same axes
+            if ( relAx1 >= relAx2 ) { continue; }
+            
+            //======================================== Consider only reliable axes
+            if ( allCs->at(relAx2)[5] < bestHistPeakStart ) { continue; }
+
+            //======================================== Are the two axes orthogonal?
+            dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &allCs->at(relAx1)[1], &allCs->at(relAx1)[2],
+                                                                                                     &allCs->at(relAx1)[3], &allCs->at(relAx2)[1],
+                                                                                                     &allCs->at(relAx2)[2], &allCs->at(relAx2)[3] );
+
+            //======================================== If close to zero, these two axes are perpendicular
+            if ( std::abs( dotProduct ) < tolerance )
+            {
+                //==================================== Find sum
+                curOrtSum                             = allCs->at(relAx1)[5] + allCs->at(relAx1)[6] + allCs->at(relAx2)[5] + allCs->at(relAx2)[6];
+
+                //==================================== If best, save it
+                if ( curOrtSum > maxOrtSum )
+                {
+                    maxOrtSum                         = curOrtSum;
+                    maxOrtAx1                         = static_cast< proshade_unsign > ( relAx1 );
+                    maxOrtAx2                         = static_cast< proshade_unsign > ( relAx2 );
+                }
+            }
+        }
+    }
+    
+    //================================================ If any orthogonal pair was found, return it
+    if ( maxOrtAx2 != 0 )
+    {
+        //================================================ Report progress
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found two, orthogonal and reliable axes." );
+        
+        ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx1 );
+        ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx2 );
+        return                                        ( ret );
+    }
+    
+    //================================================ Well, no orthogonal axes. Is there at least one good axis?
+    curOrtSum = 0.0; maxOrtSum = 0.0;
+    for ( size_t relAx1 = 0; relAx1 < allCs->size(); relAx1++ )
+    {
+        //============================================ Consider only reliable axes in terms of RF
+        if ( allCs->at(relAx1)[5] < bestHistPeakStart ) { continue; }
+        
+        //============================================ Consider only reasonable axes in terms of FSC
+        if ( allCs->at(relAx1)[6] < 0.3 ) { continue; }
+        
+        //============================================ Get the sum
+        curOrtSum                                     = allCs->at(relAx1)[5] + allCs->at(relAx1)[6];
+        
+        //============================================ If highest sum, save
+        if ( curOrtSum > maxOrtSum )
+        {
+            maxOrtSum                                 = curOrtSum;
+            maxOrtAx1                                 = static_cast< proshade_unsign > ( relAx1 );
+        }
+    }
+    
+    //================================================ If anything was found, save it
+    if ( maxOrtSum > 0.1 )
+    {
+        //================================================ Report progress
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found single reliable axis." );
+        
+        ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx1 );
+    }
+    else
+    {
+        //================================================ Report progress
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found no reliable axis." );
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function allocates the required memory for the Fourier transforms required to find the centre of the map.
+ 
+    \param[in] xDim The size of the x-axis in indices.
+    \param[in] yDim The size of the y-axis in indices.
+    \param[in] zDim The size of the z-axis in indices.
+    \param[in] origMap Array to which the original map will be saved before Fourier transform computation.
+    \param[in] origCoeffs Array to which the result of the Fourier transform of the original map will be saved into.
+    \param[in] rotMapComplex Array to which the rotated map will be saved before Fourier transform computation.
+    \param[in] rotCoeffs Array to which the result of the Fourier transform of the rotated map will be saved into.
+    \param[in] trFunc Array to which the results of inverse Fourier transform of the conbined coefficients will be saved.
+    \param[in] trFuncCoeffs Array to which the two maps coefficients will be combined into before inverse Fourier transform computation.
+    \param[in] planForwardFourier FFTW3 plan for the original map Fourier transform.
+    \param[in] planForwardFourierRot FFTW3 plat for the rotated map Fourier transform.
+    \param[in] planReverseFourierComb FFTW3 plan for the inverse Fourier transform from the combined coefficients to translation function.
+ */
+void ProSHADE_internal_symmetry::allocateCentreOfMapFourierTransforms ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, fftw_complex *&origMap, fftw_complex *&origCoeffs, fftw_complex *&rotMapComplex, fftw_complex *&rotCoeffs, fftw_complex *&trFunc, fftw_complex *&trFuncCoeffs, fftw_plan *planForwardFourier, fftw_plan *planForwardFourierRot, fftw_plan *planReverseFourierComb )
+{
+    //================================================ Allocate the memory
+    origMap                                           = new fftw_complex [xDim * yDim * zDim];
+    origCoeffs                                        = new fftw_complex [xDim * yDim * zDim];
+    rotMapComplex                                     = new fftw_complex [xDim * yDim * zDim];
+    rotCoeffs                                         = new fftw_complex [xDim * yDim * zDim];
+    trFunc                                            = new fftw_complex [xDim * yDim * zDim];
+    trFuncCoeffs                                      = new fftw_complex [xDim * yDim * zDim];
+    
+    //================================================ Check the memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( origMap,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( origCoeffs,    __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMapComplex, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotCoeffs,     __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( trFunc,        __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( trFuncCoeffs,  __FILE__, __LINE__, __func__ );
+    
+    //================================================
+   *planForwardFourier                                = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), origMap,       origCoeffs, FFTW_FORWARD,   FFTW_ESTIMATE );
+   *planForwardFourierRot                             = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), rotMapComplex, rotCoeffs,  FFTW_FORWARD,   FFTW_ESTIMATE );
+   *planReverseFourierComb                            = fftw_plan_dft_3d ( static_cast< int > ( xDim ), static_cast< int > ( yDim ), static_cast< int > ( zDim ), trFuncCoeffs,  trFunc,     FFTW_BACKWARD,  FFTW_ESTIMATE );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function releases the allocated memory for the Fourier transforms used to find the centre of the map.
+ 
+    \param[in] origMap Array to which the original map will be saved before Fourier transform computation.
+    \param[in] origCoeffs Array to which the result of the Fourier transform of the original map will be saved into.
+    \param[in] rotMapComplex Array to which the rotated map will be saved before Fourier transform computation.
+    \param[in] rotCoeffs Array to which the result of the Fourier transform of the rotated map will be saved into.
+    \param[in] trFunc Array to which the results of inverse Fourier transform of the conbined coefficients will be saved.
+    \param[in] trFuncCoeffs Array to which the two maps coefficients will be combined into before inverse Fourier transform computation.
+    \param[in] planForwardFourier FFTW3 plan for the original map Fourier transform.
+    \param[in] planForwardFourierRot FFTW3 plat for the rotated map Fourier transform.
+    \param[in] planReverseFourierComb FFTW3 plan for the inverse Fourier transform from the combined coefficients to translation function.
+ */
+void ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( fftw_complex *origMap, fftw_complex *origCoeffs, fftw_complex *rotMapComplex, fftw_complex *rotCoeffs, fftw_complex *trFunc, fftw_complex *trFuncCoeffs, fftw_plan planForwardFourier, fftw_plan planForwardFourierRot, fftw_plan planReverseFourierComb )
+{
+    //================================================ Destroy the FFTW3 plans
+    fftw_destroy_plan                                 ( planReverseFourierComb );
+    fftw_destroy_plan                                 ( planForwardFourier );
+    fftw_destroy_plan                                 ( planForwardFourierRot );
+    
+    //================================================ Set pointers to NULL
+    planReverseFourierComb                            = nullptr;
+    planForwardFourier                                = nullptr;
+    planForwardFourierRot                             = nullptr;
+    
+    //================================================ Release the memory
+    delete[] origMap;
+    delete[] origCoeffs;
+    delete[] rotMapComplex;
+    delete[] rotCoeffs;
+    delete[] trFunc;
+    delete[] trFuncCoeffs;
+    
     //================================================ Done
     return ;
     

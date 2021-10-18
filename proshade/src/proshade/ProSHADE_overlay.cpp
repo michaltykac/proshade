@@ -724,6 +724,8 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     proshade_double xCOM, yCOM, zCOM;
     std::vector< proshade_double > ret;
     
+    this->writeMap ( "PRUSER_ORIG.map" );
+    
     //================================================ Store sampling rates
     proshade_single xSampRate                         = this->xDimSize / static_cast< proshade_single > ( this->xTo - this->xFrom );
     proshade_single ySampRate                         = this->yDimSize / static_cast< proshade_single > ( this->yTo - this->yFrom );
@@ -781,6 +783,23 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     
     //================================================ Get rotation matrix from Euler angles
     ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, axX, axY, axZ, axAng );
+    
+
+    
+//    rotMat[0] = -0.230033;  rotMat[1] =  0.0364755; rotMat[2] = 0.972499;
+//    rotMat[3] =  0.0364755; rotMat[4] = -0.998272;  rotMat[5] = 0.04607;
+//    rotMat[6] =  0.972499;  rotMat[7] =  0.04607;   rotMat[8] = 0.228305;
+
+//    rotMat[0] = -0.247047;  rotMat[1] =  0.0328814; rotMat[2] = 0.968445;
+//    rotMat[3] =  0.0328814; rotMat[4] = -0.998564;  rotMat[5] = 0.042292;
+//    rotMat[6] =  0.968445;  rotMat[7] =  0.042292;  rotMat[8] = 0.245611;
+    
+    proshade_double det = ( rotMat[0] * ( ( rotMat[4] * rotMat[8] ) - ( rotMat[5] * rotMat[7] ) ) ) -
+                          ( rotMat[1] * ( ( rotMat[3] * rotMat[8] ) - ( rotMat[5] * rotMat[6] ) ) ) +
+                          ( rotMat[2] * ( ( rotMat[3] * rotMat[7] ) - ( rotMat[4] * rotMat[6] ) ) );
+
+    std::cout << "Rot Mat det: " << det << std::endl;
+    std::cout << "Angle-axis:  " << axAng << " | " << axX << " x " << axY << " x " << axZ << std::endl;
     
     //================================================ For each point
     for ( proshade_single xIt = mins[0]; xIt <= maxs[0]; xIt += 1.0f )
@@ -862,6 +881,13 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
             }
         }
     }
+    
+    proshade_double* hlpMap2 = new proshade_double[this->getXDim() * this->getYDim() * this->getZDim()];
+    for ( int i = 0; i < this->getXDim() * this->getYDim() * this->getZDim(); i++ ) { hlpMap2[i] = this->getInternalMap()[i]; }
+    for ( int i = 0; i < this->getXDim() * this->getYDim() * this->getZDim(); i++ ) { this->getInternalMap()[i] = map[i]; }
+    this->writeMap ( "PRUSER_ROT.map" );
+    for ( int i = 0; i < this->getXDim() * this->getYDim() * this->getZDim(); i++ ) { this->getInternalMap()[i] = hlpMap2[i]; }
+    delete[] hlpMap2;
     
     //================================================ Release memory
     delete[] mins;

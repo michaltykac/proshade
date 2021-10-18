@@ -989,8 +989,67 @@ void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band
 {
     //================================================ Convert Euler angles to indices
     *x                                                = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
-    *y                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
-    *z                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
+    *y                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
+    *z                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
+    
+    if ( *x >= ( 2 * band ) ) { *x -= ( 2 * band ); }
+    if ( *y >= ( 2 * band ) ) { *y -= ( 2 * band ); }
+    if ( *z >= ( 2 * band ) ) { *z -= ( 2 * band ); }
+    
+//    //== Deal with the mess
+//    if ( ( eulerBeta > -0.05 ) && ( eulerBeta < 0.05 ) )
+//    {
+//        proshade_double eA, eB, eG, sum = 0.0, count = 0.0;
+//        for ( proshade_signed itX = 0; itX < (band*2); itX++ )
+//        {
+//            for ( proshade_signed itY = 0; itY < (band*2); itY++ )
+//            {
+//                for ( proshade_signed itZ = 0; itZ < (band*2); itZ++ )
+//                {
+//                    getEulerZXZFromSOFTPosition ( band, itX, itY, itZ, &eA, &eB, &eG );
+//                    if ( ( ( eB > -0.05 ) && ( eB < 0.05 ) ) &&
+//                         ( ( ( ( eA + eG ) * 0.95 ) < ( eulerAlpha + eulerGamma ) ) && ( ( ( eA + eG ) * 1.05 ) > ( eulerAlpha + eulerGamma ) ) ) )
+//                    {
+//                        sum += rotFun[itZ + band * ( itY + band * itX )][0];
+//                        count += 1.0;
+//                    }
+//                }
+//            }
+//        }
+//
+//        int xBottom = static_cast< proshade_signed > ( std::floor ( *x ) ); if ( xBottom < 0 ) { xBottom += band; } if ( xBottom >= static_cast<proshade_signed> ( band ) ) { xBottom -= static_cast<proshade_signed> ( band ); }
+//        int yBottom = static_cast< proshade_signed > ( std::floor ( *y ) ); if ( yBottom < 0 ) { yBottom += band; } if ( yBottom >= static_cast<proshade_signed> ( band ) ) { yBottom -= static_cast<proshade_signed> ( band ); }
+//        int zBottom = static_cast< proshade_signed > ( std::floor ( *z ) ); if ( zBottom < 0 ) { zBottom += band; } if ( zBottom >= static_cast<proshade_signed> ( band ) ) { zBottom -= static_cast<proshade_signed> ( band ); }
+//        std::cout << "ERR: Returned value is " << rotFun[zBottom + band * ( yBottom + band * xBottom )][0] << " while my avg is " << sum / count << std::endl;
+//    }
+//
+//    if ( ( eulerBeta > (M_PI-0.05) ) && ( eulerBeta < (M_PI+0.05) ) )
+//    {
+//        proshade_double eA, eB, eG, sum = 0.0, count = 0.0;
+//        for ( proshade_signed itX = 0; itX < (band*2); itX++ )
+//        {
+//            for ( proshade_signed itY = 0; itY < (band*2); itY++ )
+//            {
+//                for ( proshade_signed itZ = 0; itZ < (band*2); itZ++ )
+//                {
+//                    getEulerZXZFromSOFTPosition ( band, itX, itY, itZ, &eA, &eB, &eG );
+//                    if ( ( ( eB > (M_PI-0.15) ) && ( eB < (M_PI+0.15) ) ) )
+//                    {
+//                        if ( ( ( std::abs( eA - eG ) * 0.95 ) < std::abs( eulerAlpha - eulerGamma ) ) && ( ( std::abs( eA - eG ) * 1.05 ) > std::abs( eulerAlpha - eulerGamma ) ) )
+//                        {
+//                            sum += rotFun[itZ + band * ( itY + band * itX )][0];
+//                            count += 1.0;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        int xBottom = static_cast< proshade_signed > ( std::floor ( *x ) ); if ( xBottom < 0 ) { xBottom += band; } if ( xBottom >= static_cast<proshade_signed> ( band ) ) { xBottom -= static_cast<proshade_signed> ( band ); }
+//        int yBottom = static_cast< proshade_signed > ( std::floor ( *y ) ); if ( yBottom < 0 ) { yBottom += band; } if ( yBottom >= static_cast<proshade_signed> ( band ) ) { yBottom -= static_cast<proshade_signed> ( band ); }
+//        int zBottom = static_cast< proshade_signed > ( std::floor ( *z ) ); if ( zBottom < 0 ) { zBottom += band; } if ( zBottom >= static_cast<proshade_signed> ( band ) ) { zBottom -= static_cast<proshade_signed> ( band ); }
+//        std::cout << "ERR: Returned value is " << rotFun[zBottom + band * ( yBottom + band * xBottom )][0] << " while my avg is " << sum / count << std::endl;
+//    }
     
     //================================================ Done
     return ;
@@ -1006,47 +1065,20 @@ void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band
  */
 void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
 {
-    //================================================ No singularity/glimbal lock present
-    if ( std::abs ( std::cos ( eulerBeta ) ) <= 0.98 )
-    {
-        //============================================ First row
-        matrix[0]                                     =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
-        matrix[1]                                     =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
-        matrix[2]                                     = -sin ( eulerBeta  ) * cos ( eulerGamma );
-      
-        //============================================ Second row
-        matrix[3]                                     = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
-        matrix[4]                                     = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
-        matrix[5]                                     =  sin ( eulerBeta  ) * sin ( eulerGamma );
-      
-        //============================================ Third row
-        matrix[6]                                     =  cos ( eulerAlpha ) * sin ( eulerBeta  );
-        matrix[7]                                     =  sin ( eulerAlpha ) * sin ( eulerBeta  );
-        matrix[8]                                     =  cos ( eulerBeta  );
-    }
-    else
-    {
-        //============================================ Beta is either 0 or pi, making the alpha and gamma dimensions collapse into one (either only alpha+gamma or alpha-gamma are defined). In this case, we use conversion through quatermions.
-        proshade_double qi                            = std::cos ( ( eulerAlpha - eulerGamma ) / 2.0 ) * std::sin ( eulerBeta / 2.0 );
-        proshade_double qj                            = std::sin ( ( eulerAlpha - eulerGamma ) / 2.0 ) * std::sin ( eulerBeta / 2.0 );
-        proshade_double qk                            = std::sin ( ( eulerAlpha + eulerGamma ) / 2.0 ) * std::cos ( eulerBeta / 2.0 );
-        proshade_double qr                            = std::cos ( ( eulerAlpha + eulerGamma ) / 2.0 ) * std::cos ( eulerBeta / 2.0 );
-        
-        //============================================ First row
-        matrix[0]                                     = -1.0 + 2.0 * std::pow ( qi, 2.0 ) + 2.0 * std::pow ( qr, 2.0 );
-        matrix[1]                                     =  2.0 * ( qi * qj - qk * qr );
-        matrix[2]                                     =  2.0 * ( qi * qk + qj * qr );
-      
-        //============================================ Second row
-        matrix[3]                                     =  2.0 * ( qi * qj + qk * qr );
-        matrix[4]                                     = -1.0 + 2.0 * std::pow ( qj, 2.0 ) + 2.0 * std::pow ( qr, 2.0 );
-        matrix[5]                                     =  2.0 * ( qj * qk - qi * qr );
-      
-        //============================================ Third row
-        matrix[6]                                     =  2.0 * ( qi * qk - qj * qr );
-        matrix[7]                                     =  2.0 * ( qj * qk + qi * qr );
-        matrix[8]                                     = -1.0 + 2.0 * std::pow ( qk, 2.0 ) + 2.0 * std::pow ( qr, 2.0 );
-    }
+    //================================================ First row
+    matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
+    
+    //================================================ Second row
+    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
+    
+    //================================================ Third row
+    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[8]                                         =  cos ( eulerBeta  );
     
     //================================================ Done
     return ;
@@ -1062,47 +1094,20 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
  */
 void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
 {
-    //================================================ No singularity/glimbal lock present
-    if ( std::abs ( std::cos ( eulerBeta ) ) <= 0.9999999f )
-    {
-        //============================================ First row
-        matrix[0]                                     =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
-        matrix[1]                                     =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
-        matrix[2]                                     = -sin ( eulerBeta  ) * cos ( eulerGamma );
-      
-        //============================================ Second row
-        matrix[3]                                     = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
-        matrix[4]                                     = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
-        matrix[5]                                     =  sin ( eulerBeta  ) * sin ( eulerGamma );
-      
-        //============================================ Third row
-        matrix[6]                                     =  cos ( eulerAlpha ) * sin ( eulerBeta  );
-        matrix[7]                                     =  sin ( eulerAlpha ) * sin ( eulerBeta  );
-        matrix[8]                                     =  cos ( eulerBeta  );
-    }
-    else
-    {
-        //============================================ Beta is either 0 or pi, making the alpha and gamma dimensions collapse into one (either only alpha+gamma or alpha-gamma are defined). In this case, we use conversion through quatermions.
-        proshade_single qi                            = std::cos ( ( eulerAlpha - eulerGamma ) / 2.0f ) * std::sin ( eulerBeta / 2.0f );
-        proshade_single qj                            = std::sin ( ( eulerAlpha - eulerGamma ) / 2.0f ) * std::sin ( eulerBeta / 2.0f );
-        proshade_single qk                            = std::sin ( ( eulerAlpha + eulerGamma ) / 2.0f ) * std::cos ( eulerBeta / 2.0f );
-        proshade_single qr                            = std::cos ( ( eulerAlpha + eulerGamma ) / 2.0f ) * std::cos ( eulerBeta / 2.0f );
-        
-        //============================================ First row
-        matrix[0]                                     = -1.0f + 2.0f * std::pow ( qi, 2.0f ) + 2.0f * std::pow ( qr, 2.0f );
-        matrix[1]                                     =  2.0f * ( qi * qj - qk * qr );
-        matrix[2]                                     =  2.0f * ( qi * qk + qj * qr );
-      
-        //============================================ Second row
-        matrix[3]                                     =  2.0f * ( qi * qj + qk * qr );
-        matrix[4]                                     = -1.0f + 2.0f * std::pow ( qj, 2.0f ) + 2.0f * std::pow ( qr, 2.0f );
-        matrix[5]                                     =  2.0f * ( qj * qk - qi * qr );
-      
-        //============================================ Third row
-        matrix[6]                                     =  2.0f * ( qi * qk - qj * qr );
-        matrix[7]                                     =  2.0f * ( qj * qk + qi * qr );
-        matrix[8]                                     = -1.0f + 2.0f * std::pow ( qk, 2.0f ) + 2.0f * std::pow ( qr, 2.0f );
-    }
+    //================================================ First row
+    matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[1]                                         =  sin ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) + cos ( eulerAlpha ) * sin ( eulerGamma );
+    matrix[2]                                         = -sin ( eulerBeta  ) * cos ( eulerGamma );
+    
+    //================================================ Second row
+    matrix[3]                                         = -cos ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) - sin ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[4]                                         = -sin ( eulerAlpha ) * cos ( eulerBeta  ) * sin ( eulerGamma ) + cos ( eulerAlpha ) * cos ( eulerGamma );
+    matrix[5]                                         =  sin ( eulerBeta  ) * sin ( eulerGamma );
+    
+    //================================================ Third row
+    matrix[6]                                         =  cos ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[7]                                         =  sin ( eulerAlpha ) * sin ( eulerBeta  );
+    matrix[8]                                         =  cos ( eulerBeta  );
     
     //================================================ Done
     return ;
@@ -1120,153 +1125,171 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_sin
     \param[in] y Pointer to which the y-axis value of the axis vector will be saved.
     \param[in] z Pointer to which the z-axis value of the axis vector will be saved.
     \param[in] ang Pointer to which the angle value will be saved.
+    \param[in] verbose Should the warnings be printed? -1 if not.
  */
- void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang )
+ void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang, proshade_signed verbose )
 {
     //================================================ Initialise
-    proshade_double singAtPiCheck                     = 0.01;
-    proshade_double singAtIdentity                    = 0.05;
+    proshade_double angleTolerance                    = 0.01;
+    proshade_double closeToZero                       = 0.0000001;
     
-    //================================================ Check input for singularities
-    if ( ( std::abs ( rotMat[1] - rotMat[3] ) < singAtPiCheck ) &&
-         ( std::abs ( rotMat[2] - rotMat[6] ) < singAtPiCheck ) &&
-         ( std::abs ( rotMat[5] - rotMat[7] ) < singAtPiCheck ) )
+    //================================================ Find the angle
+   *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat[0] + rotMat[4] + rotMat[8] ) ) - 1.0 ) / 2.0 );
+    
+    //================================================ Any singularity?
+    if ( std::abs ( std::sin ( *ang ) ) < angleTolerance )
     {
-        //============================================ Singularity in input! Check for identity matrix
-        if ( ( std::abs ( rotMat[1] + rotMat[3] ) < singAtIdentity ) &&
-             ( std::abs ( rotMat[2] + rotMat[6] ) < singAtIdentity ) &&
-             ( std::abs ( rotMat[5] + rotMat[7] ) < singAtIdentity ) &&
-             ( std::abs ( rotMat[0] + rotMat[4] + rotMat[8] - 3.0 ) < singAtIdentity ) )
+        //============================================ Initialise local variables
+        char jobLeftEigs                              = 'N';                                   // This tells LAPACK not to compute left eigenvectors.
+        char jobRightEigs                             = 'V';                                   // This tells LAPACK to compute right eigenvectors.
+        int dim                                       = 3;                                     // The order of the matrix
+        double* eigValReal                            = new double[dim];                       // Real parts of the eigenvalues
+        double* eigValImag                            = new double[dim];                       // Imaginary parts of the eigenvalues
+        double* leftEigVectors                        = new double[dim*dim*2];                 // Left eigenvectors containing matrix
+        double* rightEigVectors                       = new double[dim*dim*2];                 // Right eigenvectors containing matrix
+        double* work                                  = new double[10*4*dim];                  // Workspace. 4 * dim should be minimum, but more is better
+        int workSize                                  = 10*4*dim;                              // Saving the work array size for passing.
+        int returnValue                               = 0;                                     // This will tell if operation succeeded
+        
+        //============================================ Check memory allocation
+        ProSHADE_internal_misc::checkMemoryAllocation ( eigValReal,      __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( eigValImag,      __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( leftEigVectors,  __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( rightEigVectors, __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( work,            __FILE__, __LINE__, __func__ );
+        
+        //============================================ Load input data into array in column-major order
+        double* matrixToDecompose                     = new double[dim*dim];
+        ProSHADE_internal_misc::checkMemoryAllocation ( matrixToDecompose, __FILE__, __LINE__, __func__ );
+        for ( int rowIt = 0; rowIt < dim; rowIt++ )
         {
-            //======================================== Identity matrix. Return 0 angle.
-           *x                                         = 1.0;
+            for ( int colIt = 0; colIt < dim; colIt++ )
+            {
+                matrixToDecompose[(colIt*dim)+rowIt]  = static_cast< double > ( rotMat[(rowIt*dim)+colIt] );
+            }
+        }
+        
+        //============================================ Run LAPACK ZGESDD
+        dgeev_                                        ( &jobLeftEigs, &jobRightEigs, &dim, matrixToDecompose, &dim, eigValReal, eigValImag, leftEigVectors, &dim,
+                                                        rightEigVectors, &dim, work, &workSize, &returnValue );
+        
+        //============================================ Check for errors
+        if ( returnValue != 0 )
+        {
+            //======================================== Report error and return zero values
+            ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Eigenval/Eigenvector algorithm did not converge.", "WS00069" );
+           *x                                         = 0.0;
            *y                                         = 0.0;
            *z                                         = 0.0;
-           *ang                                       = 0.0;
+            
+            //======================================== Release memory
+            delete[] eigValReal;
+            delete[] eigValImag;
+            delete[] leftEigVectors;
+            delete[] rightEigVectors;
+            delete[] work;
+            delete[] matrixToDecompose;
             
             //======================================== Done
             return ;
         }
         
-        //============================================ If we got here, this is the 180deg (pi rad) singularity. Find which axis should the rotation be done along
-       *ang                                           = M_PI;
-                
-        proshade_double xx                            = ( rotMat[0] + 1.0 ) / 2.0;
-        proshade_double yy                            = ( rotMat[4] + 1.0 ) / 2.0;
-        proshade_double zz                            = ( rotMat[8] + 1.0 ) / 2.0;
-        proshade_double xy                            = ( rotMat[1] + rotMat[3] ) / 4.0;
-        proshade_double xz                            = ( rotMat[2] + rotMat[6] ) / 4.0;
-        proshade_double yz                            = ( rotMat[5] + rotMat[7] ) / 4.0;
+        //============================================ If values are close to zero, just set them to zero
+        for ( int i = 0; i < 9; i++ ) { if ( std::abs(rightEigVectors[i]) < closeToZero ) { rightEigVectors[i] = 0.0; } }
+        for ( int i = 0; i < 3; i++ ) { if ( std::abs(eigValReal[i]) < closeToZero ) { eigValReal[i] = 0.0; } if ( std::abs(eigValImag[i]) < closeToZero ) { eigValImag[i] = 0.0; } }
         
-        if ( ( xx > yy ) && ( xx > zz ) ) // XX is the largest diagonal
+        //============================================ Find which eigenvalue is close to 1 and has imaginary part close to zero
+        proshade_signed eigIt                         = -1;
+        for ( size_t it = 0; it < 3; it++ )
         {
-            if ( xx < singAtPiCheck ) // and is still 0
+            if ( ( eigValReal[it] > ( 1.0 - closeToZero ) ) && ( eigValReal[it] < ( 1.0 + closeToZero ) ) )
             {
-               *x                                     = 0.0;
-               *y                                     = 1.0 / sqrt(2);
-               *z                                     = 1.0 / sqrt(2);
-            }
-            else
-            {
-               *x                                     =  sqrt ( xx );
-               *y                                     =  xy / sqrt ( xx );
-               *z                                     =  xz / sqrt ( xx );
+                if ( ( eigValImag[it] > ( 0.0 - closeToZero ) ) && ( eigValImag[it] < ( 0.0 + closeToZero ) ) )
+                {
+                    eigIt                             = static_cast< proshade_signed > ( it );
+                    break;
+                }
             }
         }
         
-        else if ( yy > zz ) // YY is the largest diagonal
+        //============================================ Any axis found?
+        if ( eigIt == -1 )
         {
-            if ( yy < singAtPiCheck ) // and is still 0
+            ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Failed to find eigenvalue with value 1 for this rotation matrix. Is this a rotation matrix?", "WS00072" );
+           *x                                         = 0.0;
+           *y                                         = 0.0;
+           *z                                         = 0.0;
+        }
+        else
+        {
+            //======================================== Parse LAPACK eigenvectors matrix
+            int colIt;
+            for( int rowIt = 0; rowIt < dim; rowIt++ )
             {
-               *x                                     =  1.0 / sqrt(2);
-               *y                                     =  0.0;
-               *z                                     =  1.0 / sqrt(2);
-            }
-            else
-            {
-               *y                                     =  sqrt ( yy );
-               *x                                     =  xy / sqrt ( yy );
-               *z                                     =  yz / sqrt ( yy );
+                colIt                                 = 0;
+                while( colIt < dim )
+                {
+                    if( std::abs ( eigValImag[colIt] ) < closeToZero )
+                    {
+                        if ( rowIt == eigIt ) { if ( colIt == 0 ) { *x = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 1 ) { *y = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 2 ) { *z = rightEigVectors[rowIt+colIt*dim]; } }
+                        colIt++;
+                    }
+                    else
+                    {
+// In order to access the            std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " <<  rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+// other eigenvectors, use this:     std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " << -rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+                        colIt                        += 2;
+                    }
+                }
             }
         }
         
-        else // ZZ is the largest diagonal
-        {
-            if ( zz < singAtPiCheck ) // and is still 0
-            {
-               *x                                     = 1.0 / sqrt(2);
-               *y                                     = 1.0 / sqrt(2);
-               *z                                     = 0.0;
-            }
-            else
-            {
-               *z                                     = sqrt ( zz );
-               *x                                     = xz / sqrt ( zz );
-               *y                                     = yz / sqrt ( zz );
-            }
-        }
+        //============================================ Normalise axis length
+        proshade_double normFactor                    = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+       *x                                            /= normFactor;
+       *y                                            /= normFactor;
+       *z                                            /= normFactor;
         
-        //============================================ Make sure largest axis is positive and so is the angle
-        const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
-        const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
-        const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
-        const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
-        if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
-             ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
-             ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
-        {
-            *x                                       *= -1.0;
-            *y                                       *= -1.0;
-            *z                                       *= -1.0;
-            *ang                                     *= -1.0;
-        }
-        if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
-        
-        //============================================ Done
-        return ;
+
+        //============================================ Free memory
+        delete[] eigValReal;
+        delete[] eigValImag;
+        delete[] leftEigVectors;
+        delete[] rightEigVectors;
+        delete[] work;
+        delete[] matrixToDecompose;
     }
-    
-    //================================================ No singularities! Now get angle
-   *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat[0] + rotMat[4] + rotMat[8] ) ) - 1.0 ) / 2.0 );
-    
-    //================================================ Init return values
-   *x                                                 = 1.0;
-   *y                                                 = 0.0;
-   *z                                                 = 0.0;
-    
-    //================================================ Is angle 0? This should not happen, but will
-    if ( std::abs ( *ang ) < singAtPiCheck )
+    else
     {
-       *ang                                           = 0.0;
-        return ;
+       //============================================= Axis
+      *x                                              = rotMat[7] - rotMat[5];
+      *y                                              = rotMat[2] - rotMat[6];
+      *z                                              = rotMat[3] - rotMat[1];
+       
+       proshade_double normFactor                     = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+      *x                                             /= normFactor;
+      *y                                             /= normFactor;
+      *z                                             /= normFactor;
+       
+       //============================================= Make sure largest axis is positive
+       const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
+       const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
+       const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
+       const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
+       if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
+            ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
+            ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
+       {
+           *x                                        *= -1.0;
+           *y                                        *= -1.0;
+           *z                                        *= -1.0;
+           *ang                                      *= -1.0;
+       }
     }
     
-    //================================================ Axis
-   *x                                                 = rotMat[7] - rotMat[5];
-   *y                                                 = rotMat[2] - rotMat[6];
-   *z                                                 = rotMat[3] - rotMat[1];
-    
-    proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
-   *x                                                /= normFactor;
-   *y                                                /= normFactor;
-   *z                                                /= normFactor;
-    
-    //================================================ Make sure largest axis is positive and so is the angle
-    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
-    const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
-    const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
-    const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
-    if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
-         ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
-         ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
-    {
-        *x                                           *= -1.0;
-        *y                                           *= -1.0;
-        *z                                           *= -1.0;
-        *ang                                         *= -1.0;
-    }
+    //================================================ Standardise angle to range 0 to 2pi
     if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
-    
+
     //================================================ Done
     return ;
     
@@ -1283,93 +1306,132 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_sin
     \param[in] y Pointer to which the y-axis value of the axis vector will be saved.
     \param[in] z Pointer to which the z-axis value of the axis vector will be saved.
     \param[in] ang Pointer to which the angle value will be saved.
+    \param[in] verbose Should the warnings be printed? -1 if not.
  */
- void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang )
+ void ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang, proshade_signed verbose )
 {
     //================================================ Initialise
-    proshade_double singAtPiCheck                     = 0.01;
-    proshade_double singAtIdentity                    = 0.05;
+    proshade_double angleTolerance                    = 0.01;
+    proshade_double closeToZero                       = 0.0000001;
     
-    //================================================ Check input for singularities
-    if ( ( std::abs ( rotMat->at(1) - rotMat->at(3) ) < singAtPiCheck ) &&
-         ( std::abs ( rotMat->at(2) - rotMat->at(6) ) < singAtPiCheck ) &&
-         ( std::abs ( rotMat->at(5) - rotMat->at(7) ) < singAtPiCheck ) )
+    //================================================ Find the angle
+   *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat->at(0) + rotMat->at(4) + rotMat->at(8) ) ) - 1.0 ) / 2.0 );
+    
+    //================================================ Any singularity?
+    if ( std::abs ( std::sin ( *ang ) ) < angleTolerance )
     {
-        //============================================ Singularity in input! Check for identity matrix
-        if ( ( std::abs ( rotMat->at(1) + rotMat->at(3) ) < singAtIdentity ) &&
-             ( std::abs ( rotMat->at(2) + rotMat->at(6) ) < singAtIdentity ) &&
-             ( std::abs ( rotMat->at(5) + rotMat->at(7) ) < singAtIdentity ) &&
-             ( std::abs ( rotMat->at(0) + rotMat->at(4) + rotMat->at(8) - 3.0 ) < singAtIdentity ) )
+        //============================================ Initialise local variables
+        char jobLeftEigs                              = 'N';                                   // This tells LAPACK not to compute left eigenvectors.
+        char jobRightEigs                             = 'V';                                   // This tells LAPACK to compute right eigenvectors.
+        int dim                                       = 3;                                     // The order of the matrix
+        double* eigValReal                            = new double[dim];                       // Real parts of the eigenvalues
+        double* eigValImag                            = new double[dim];                       // Imaginary parts of the eigenvalues
+        double* leftEigVectors                        = new double[dim*dim*2];                 // Left eigenvectors containing matrix
+        double* rightEigVectors                       = new double[dim*dim*2];                 // Right eigenvectors containing matrix
+        double* work                                  = new double[10*4*dim];                  // Workspace. 4 * dim should be minimum, but more is better
+        int workSize                                  = 10*4*dim;                              // Saving the work array size for passing.
+        int returnValue                               = 0;                                     // This will tell if operation succeeded
+        
+        //============================================ Check memory allocation
+        ProSHADE_internal_misc::checkMemoryAllocation ( eigValReal,      __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( eigValImag,      __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( leftEigVectors,  __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( rightEigVectors, __FILE__, __LINE__, __func__ );
+        ProSHADE_internal_misc::checkMemoryAllocation ( work,            __FILE__, __LINE__, __func__ );
+        
+        //============================================ Load input data into array in column-major order
+        double* matrixToDecompose                     = new double[dim*dim];
+        ProSHADE_internal_misc::checkMemoryAllocation ( matrixToDecompose, __FILE__, __LINE__, __func__ );
+        for ( int rowIt = 0; rowIt < dim; rowIt++ )
         {
-            //======================================== Identity matrix. Return 0 angle.
-           *x                                         = 1.0;
+            for ( int colIt = 0; colIt < dim; colIt++ )
+            {
+                matrixToDecompose[(colIt*dim)+rowIt]  = static_cast< double > ( rotMat->at( static_cast< size_t > ( ( rowIt * dim ) + colIt ) ) );
+            }
+        }
+        
+        //============================================ Run LAPACK ZGESDD
+        dgeev_                                        ( &jobLeftEigs, &jobRightEigs, &dim, matrixToDecompose, &dim, eigValReal, eigValImag, leftEigVectors, &dim,
+                                                        rightEigVectors, &dim, work, &workSize, &returnValue );
+        
+        //============================================ Check for errors
+        if ( returnValue != 0 )
+        {
+            //======================================== Report error and return zero values
+            ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Eigenval/Eigenvector algorithm did not converge.", "WS00069" );
+           *x                                         = 0.0;
            *y                                         = 0.0;
            *z                                         = 0.0;
-           *ang                                       = 0.0;
+            
+            //======================================== Release memory
+            delete[] eigValReal;
+            delete[] eigValImag;
+            delete[] leftEigVectors;
+            delete[] rightEigVectors;
+            delete[] work;
+            delete[] matrixToDecompose;
             
             //======================================== Done
             return ;
         }
         
-        //============================================ If we got here, this is the 180deg (pi rad) singularity. Find which axis should the rotation be done along
-       *ang                                           = M_PI;
-                
-        proshade_double xx                            = ( rotMat->at(0) + 1.0 ) / 2.0;
-        proshade_double yy                            = ( rotMat->at(4) + 1.0 ) / 2.0;
-        proshade_double zz                            = ( rotMat->at(8) + 1.0 ) / 2.0;
-        proshade_double xy                            = ( rotMat->at(1) + rotMat->at(3) ) / 4.0;
-        proshade_double xz                            = ( rotMat->at(2) + rotMat->at(6) ) / 4.0;
-        proshade_double yz                            = ( rotMat->at(5) + rotMat->at(7) ) / 4.0;
+        //============================================ If values are close to zero, just set them to zero
+        for ( int i = 0; i < 9; i++ ) { if ( std::abs(rightEigVectors[i]) < closeToZero ) { rightEigVectors[i] = 0.0; } }
+        for ( int i = 0; i < 3; i++ ) { if ( std::abs(eigValReal[i]) < closeToZero ) { eigValReal[i] = 0.0; } if ( std::abs(eigValImag[i]) < closeToZero ) { eigValImag[i] = 0.0; } }
         
-        if ( ( xx > yy ) && ( xx > zz ) ) // XX is the largest diagonal
+        //============================================ Find which eigenvalue is close to 1 and has imaginary part close to zero
+        proshade_signed eigIt                         = -1;
+        for ( size_t it = 0; it < 3; it++ )
         {
-            if ( xx < singAtPiCheck ) // and is still 0
+            if ( ( eigValReal[it] > ( 1.0 - closeToZero ) ) && ( eigValReal[it] < ( 1.0 + closeToZero ) ) )
             {
-               *x                                     = 0.0;
-               *y                                     = 1.0 / sqrt(2);
-               *z                                     = 1.0 / sqrt(2);
-            }
-            else
-            {
-               *x                                     =  sqrt ( xx );
-               *y                                     =  xy / sqrt ( xx );
-               *z                                     =  xz / sqrt ( xx );
+                if ( ( eigValImag[it] > ( 0.0 - closeToZero ) ) && ( eigValImag[it] < ( 0.0 + closeToZero ) ) )
+                {
+                    eigIt                             = static_cast< proshade_signed > ( it );
+                    break;
+                }
             }
         }
         
-        else if ( yy > zz ) // YY is the largest diagonal
+        //============================================ Any axis found?
+        if ( eigIt == -1 )
         {
-            if ( yy < singAtPiCheck ) // and is still 0
+            ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! Failed to find eigenvalue with value 1 for this rotation matrix. Is this a rotation matrix?", "WS00072" );
+           *x                                         = 0.0;
+           *y                                         = 0.0;
+           *z                                         = 0.0;
+        }
+        else
+        {
+            //======================================== Parse LAPACK eigenvectors matrix
+            int colIt;
+            for( int rowIt = 0; rowIt < dim; rowIt++ )
             {
-               *x                                     =  1.0 / sqrt(2);
-               *y                                     =  0.0;
-               *z                                     =  1.0 / sqrt(2);
-            }
-            else
-            {
-               *y                                     =  sqrt ( yy );
-               *x                                     =  xy / sqrt ( yy );
-               *z                                     =  yz / sqrt ( yy );
+                colIt                                 = 0;
+                while( colIt < dim )
+                {
+                    if( std::abs ( eigValImag[colIt] ) < closeToZero )
+                    {
+                        if ( rowIt == eigIt ) { if ( colIt == 0 ) { *x = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 1 ) { *y = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 2 ) { *z = rightEigVectors[rowIt+colIt*dim]; } }
+                        colIt++;
+                    }
+                    else
+                    {
+// In order to access the            std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " <<  rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+// other eigenvectors, use this:     std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " << -rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+                        colIt                        += 2;
+                    }
+                }
             }
         }
         
-        else // ZZ is the largest diagonal
-        {
-            if ( zz < singAtPiCheck ) // and is still 0
-            {
-               *x                                     = 1.0 / sqrt(2);
-               *y                                     = 1.0 / sqrt(2);
-               *z                                     = 0.0;
-            }
-            else
-            {
-               *z                                     = sqrt ( zz );
-               *x                                     = xz / sqrt ( zz );
-               *y                                     = yz / sqrt ( zz );
-            }
-        }
+        //============================================ Normalise axis length
+        proshade_double normFactor                    = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+       *x                                            /= normFactor;
+       *y                                            /= normFactor;
+       *z                                            /= normFactor;
         
-        //============================================ Make sure largest axis is positive and so is the angle
+        //============================================= Make sure largest axis is positive
         const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
         const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
         const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
@@ -1383,51 +1445,46 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_sin
             *z                                       *= -1.0;
             *ang                                     *= -1.0;
         }
-        
-        //============================================ Done
-        return ;
+
+        //================================================ Free memory
+        delete[] eigValReal;
+        delete[] eigValImag;
+        delete[] leftEigVectors;
+        delete[] rightEigVectors;
+        delete[] work;
+        delete[] matrixToDecompose;
     }
-    
-    //================================================ No singularities! Now get angle
-   *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat->at(0) + rotMat->at(4) + rotMat->at(8) ) ) - 1.0 ) / 2.0 );
-    
-    //================================================ Init return values
-   *x                                                 = 1.0;
-   *y                                                 = 0.0;
-   *z                                                 = 0.0;
-    
-    //================================================ Is angle 0? This should not happen, but will
-    if ( std::abs ( *ang ) < singAtPiCheck )
+    else
     {
-       *ang                                           = 0.0;
-        return ;
+       //============================================= Axis
+      *x                                              = rotMat->at(7) - rotMat->at(5);
+      *y                                              = rotMat->at(2) - rotMat->at(6);
+      *z                                              = rotMat->at(3) - rotMat->at(1);
+       
+       proshade_double normFactor                     = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
+      *x                                             /= normFactor;
+      *y                                             /= normFactor;
+      *z                                             /= normFactor;
+       
+       //============================================= Make sure largest axis is positive
+       const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
+       const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
+       const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
+       const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
+       if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
+            ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
+            ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
+       {
+           *x                                        *= -1.0;
+           *y                                        *= -1.0;
+           *z                                        *= -1.0;
+           *ang                                      *= -1.0;
+       }
     }
     
-    //================================================ Axis
-   *x                                                 = rotMat->at(7) - rotMat->at(5);
-   *y                                                 = rotMat->at(2) - rotMat->at(6);
-   *z                                                 = rotMat->at(3) - rotMat->at(1);
-    
-    proshade_double normFactor                        = std::sqrt ( pow ( *x, 2.0 ) + pow ( *y, 2.0 ) + pow ( *z, 2.0 ) );
-   *x                                                /= normFactor;
-   *y                                                /= normFactor;
-   *z                                                /= normFactor;
-    
-    //================================================ Make sure largest axis is positive and so is the angle
-    const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( *x ), std::max ( std::abs ( *y ), std::abs ( *z ) ) ) );
-    const FloatingPoint< proshade_double > rhs1 ( std::abs ( *x ) );
-    const FloatingPoint< proshade_double > rhs2 ( std::abs ( *y ) );
-    const FloatingPoint< proshade_double > rhs3 ( std::abs ( *z ) );
-    if ( ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( *x < 0.0 ) ) ||
-         ( ( lhs1.AlmostEquals ( rhs2 ) ) && ( *y < 0.0 ) ) ||
-         ( ( lhs1.AlmostEquals ( rhs3 ) ) && ( *z < 0.0 ) ) )
-    {
-        *x                                           *= -1.0;
-        *y                                           *= -1.0;
-        *z                                           *= -1.0;
-        *ang                                         *= -1.0;
-    }
-    
+    //================================================ Standardise angle to range 0 to 2pi
+    if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
+
     //================================================ Done
     return ;
     
@@ -1982,6 +2039,58 @@ proshade_double* ProSHADE_internal_maths::build3x3MatrixFromDiag ( proshade_doub
     
 }
 
+/*! \brief Function for building a 3x3 rotation matrix from the x, y and z rotations in degrees.
+ 
+    \param[in] xRot The counter-clockwise rotation about the x axis.
+    \param[in] yRot The counter-clockwise rotation about the y axis.
+    \param[in] zRot The counter-clockwise rotation about the z axis.
+    \param[out] ret The rotation matrix in a vector form.
+ */
+proshade_double* ProSHADE_internal_maths::build3x3MatrixFromXYZRotations ( proshade_double xRot, proshade_double yRot, proshade_double zRot )
+{
+    //================================================ Allocate memory
+    proshade_double* ret                              = new proshade_double[9];
+    proshade_double* XRM                              = new proshade_double[9];
+    proshade_double* YRM                              = new proshade_double[9];
+    proshade_double* ZRM                              = new proshade_double[9];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ret, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( XRM, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( YRM, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( ZRM, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Convert to radians
+    proshade_double xRad                              = xRot * (  M_PI / 180.0 );
+    proshade_double yRad                              = yRot * (  M_PI / 180.0 );
+    proshade_double zRad                              = zRot * (  M_PI / 180.0 );
+    
+    //================================================ Build the X, Y and Z rotation matrices
+    XRM[0] =  1.0;               XRM[1] =  0.0;               XRM[2] =  0.0;
+    XRM[3] =  0.0;               XRM[4] =  std::cos ( xRad ); XRM[5] = -std::sin ( xRad );
+    XRM[6] =  0.0;               XRM[7] =  std::sin ( xRad ); XRM[8] =  std::cos ( xRad );
+    
+    YRM[0] =  std::cos ( yRad ); YRM[1] =  0.0;               YRM[2] =  std::sin ( yRad );
+    YRM[3] =  0.0;               YRM[4] =  1.0;               YRM[5] =  0.0;
+    YRM[6] = -std::sin ( yRad ); YRM[7] =  0.0;               YRM[8] =  std::cos ( yRad );
+    
+    ZRM[0] =  std::cos ( zRad ); ZRM[1] = -std::sin ( zRad ); ZRM[2] =  0.0;
+    ZRM[3] =  std::sin ( zRad ); ZRM[4] =  std::cos ( zRad ); ZRM[5] =  0.0;
+    ZRM[6] =  0.0;               ZRM[7] =  0.0;               ZRM[8] =  1.0;
+    
+    //================================================ Multiply in XYZ order
+    proshade_double* tmpMat                           = compute3x3MatrixMultiplication ( XRM,    YRM );
+    ret                                               = compute3x3MatrixMultiplication ( tmpMat, ZRM );
+    
+    //================================================ Release memory
+    delete[] tmpMat;
+    delete[] XRM;
+    delete[] YRM;
+    delete[] ZRM;
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief Computation of rotation matrix rotating one vector onto the other.
  
     This function starts by normalising both input vectors to have magnitude of 1.0. Then, it computes the cosine and sine of the angle between the two
@@ -2051,6 +2160,141 @@ proshade_double* ProSHADE_internal_maths::findRotMatMatchingVectors ( proshade_d
     
     //================================================ Done
     return                                            ( rotMat );
+    
+}
+
+/*! \brief This function computes the Moore-Penrose pseudo-inverse of equation I - input matrix.
+ 
+    This function starts by setting and allocating all variables required for singular value decomposition using LAPACK. It also computes the I - input matrix
+    result and saves it in column-major format (for Fortran). Next, the singular values are computed and checked for positivity, making use of the fact that
+    at least one singular value has to be zero. Finally, the inverse is computed and the resulting matrix is returned.
+ 
+    \warning This function assumes that the input matrix is a rotation matrix. If this assumption does not hold, this function will fail to produce correct results!
+ 
+    \param[in] rMat The rotation matrix to be inverted.
+    \param[in] verbose How loud the function should be.
+    \param[out] pseudoInverseMat The Moore-Penrose pseudo-inverse of the identity matrix - input matrix.
+ */
+proshade_double* ProSHADE_internal_maths::compute3x3MoorePenrosePseudoInverseOfIMinusMat ( std::vector < proshade_double >* rMat, proshade_signed verbose )
+{
+    //================================================ Initialise local variables and allocate the memory
+    int dim                                           = 3;                                     // Number of dimensions
+    char job                                          = 'A';                                   // Save computation of parts of U and V matrices, they are not needed here
+    double *singularValues                            = new double[dim];                       // The array of singular values
+    double *rotMatU                                   = new double [dim*dim];                  // The U matrix space
+    double *rotMatV                                   = new double [dim*dim];                  // The V^T matrix space
+    double *work                                      = new double [static_cast< proshade_unsign >( ( 3 * dim ) + pow( dim, 2 ) * dim)]; // Workspace, minimum required is 4*dim^2 + 7*dim, using more for performance
+    int workDim                                       = static_cast< int > ( 2 * ( ( 4 * dim * dim ) + ( 7 * dim ) ) ); // Formalism stating just that
+    double* rwork                                     = new double[static_cast<proshade_unsign>((5 * dim) + 5 * pow(dim,2))]; // Required by LAPACK
+    int* iwork                                        = new int[(8 * dim)];                    // Required by LAPACK
+    int returnValue                                   = 0;                                     // This will tell if operation succeeded
+    double *matrixToDecompose                         = new double[dim*dim];
+    
+    //================================================ Check the memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( singularValues,    __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMatU,           __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rotMatV,           __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( work,              __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( rwork,             __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( iwork,             __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( matrixToDecompose, __FILE__, __LINE__, __func__ );
+
+    //================================================ Load input data into array in column-major order
+    for ( int rowIt = 0; rowIt < dim; rowIt++ )
+    {
+        for ( int colIt = 0; colIt < dim; colIt++ )
+        {
+            if ( rowIt == colIt ) { matrixToDecompose[(colIt*dim)+rowIt] = 1.0 - rMat->at( static_cast< size_t > ( ( rowIt * dim ) + colIt ) ); }
+            else                  { matrixToDecompose[(colIt*dim)+rowIt] = 0.0 - rMat->at( static_cast< size_t > ( ( rowIt * dim ) + colIt ) ); }
+        }
+    }
+
+    //================================================ Run LAPACK ZGESDD
+    dgesdd_                                           ( &job, &dim, &dim, matrixToDecompose, &dim, singularValues, rotMatU, &dim, rotMatV, &dim,
+                                                        work, &workDim, rwork, iwork, &returnValue );
+    
+    //================================================ Check the convergence
+    if ( returnValue != 0 )
+    {
+        ProSHADE_internal_messages::printWarningMessage ( verbose, "!!! ProSHADE WARNING !!! SVD algorithm did not converge.", "WS00069" );
+    }
+
+    //================================================ Determine positivity
+    bool anyPositive = false;
+    std::vector< bool > positivityTest;
+    for ( proshade_unsign it = 0; it < static_cast< proshade_unsign > ( dim ); it++ )
+    {
+        positivityTest.push_back                      ( singularValues[it] > 0.001 );
+        if ( positivityTest.at(it) )                  { anyPositive = true; }
+    }
+
+    //================================================ Compute according to positivity
+    proshade_double* pseudoInverseMat;
+    if ( anyPositive )
+    {
+        //============================================ Set all non-positive singular values and appropriate matrix rows/columns to zero
+        if ( !positivityTest.at(0) )
+        {
+            singularValues[0]                         = 0.0;
+            rotMatU[0]                                = 0.0;
+            rotMatU[1]                                = 0.0;
+            rotMatU[2]                                = 0.0;
+            rotMatV[0]                                = 0.0;
+            rotMatV[3]                                = 0.0;
+            rotMatV[6]                                = 0.0;
+        }
+        else { singularValues[0] = 1.0 / singularValues[0]; }
+
+        if ( !positivityTest.at(1) )
+        {
+            singularValues[1]                         = 0.0;
+            rotMatU[3]                                = 0.0;
+            rotMatU[4]                                = 0.0;
+            rotMatU[5]                                = 0.0;
+            rotMatV[1]                                = 0.0;
+            rotMatV[4]                                = 0.0;
+            rotMatV[7]                                = 0.0;
+        }
+        else { singularValues[1] = 1.0 / singularValues[1]; }
+
+        //============================================ The last singular value (they are in order) must be zero as Ri is a rotation matrix with at least one eigenvalue 1 and therefore I - Ri must have at least one eigenvalue 0.
+        singularValues[2]                             = 0.0;
+        rotMatU[6]                                    = 0.0;
+        rotMatU[7]                                    = 0.0;
+        rotMatU[8]                                    = 0.0;
+        rotMatV[2]                                    = 0.0;
+        rotMatV[5]                                    = 0.0;
+        rotMatV[8]                                    = 0.0;
+
+        //============================================ All positive values formula
+        proshade_double* diagMat                      = ProSHADE_internal_maths::build3x3MatrixFromDiag ( singularValues );
+        proshade_double* hlpMat                       = ProSHADE_internal_maths::compute3x3MatrixMultiplication ( diagMat, rotMatU );
+        pseudoInverseMat                              = ProSHADE_internal_maths::compute3x3MatrixMultiplication ( rotMatV, hlpMat );
+        
+        //============================================ Release memory
+        delete[] diagMat;
+        delete[] hlpMat;
+    }
+    else
+    {
+        //============================================ No axis in matrix
+        pseudoInverseMat                              = new proshade_double[9];
+        ProSHADE_internal_misc::checkMemoryAllocation ( pseudoInverseMat, __FILE__, __LINE__, __func__ );
+
+        for ( size_t mIt = 0; mIt < 9; mIt++ ) { pseudoInverseMat[mIt] = 0.0; }
+    }
+
+    //================================================ Free memory
+    delete[] work;
+    delete[] rwork;
+    delete[] iwork;
+    delete[] matrixToDecompose;
+    delete[] singularValues;
+    delete[] rotMatU;
+    delete[] rotMatV;
+    
+    //================================================ Done
+    return                                            ( pseudoInverseMat );
     
 }
 
@@ -2765,11 +3009,14 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
     //================================================ Improve, if required
     if ( improve && !ret )
     {
-        CSymList->at(whichImprove)[1]                 = axis[1];
-        CSymList->at(whichImprove)[2]                 = axis[2];
-        CSymList->at(whichImprove)[3]                 = axis[3];
-        CSymList->at(whichImprove)[4]                 = axis[4];
-        CSymList->at(whichImprove)[5]                 = axis[5];
+        if ( axis[5] > CSymList->at(whichImprove)[5] )
+        {
+            CSymList->at(whichImprove)[1]             = axis[1];
+            CSymList->at(whichImprove)[2]             = axis[2];
+            CSymList->at(whichImprove)[3]             = axis[3];
+            CSymList->at(whichImprove)[4]             = axis[4];
+            CSymList->at(whichImprove)[5]             = axis[5];
+        }
     }
     
     //================================================ Done
@@ -3187,5 +3434,166 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     
     //================================================ Done
     return                                            ( fsc );
+    
+}
+
+/*! \brief This function simply finds all the peaks in a 1D data array.
+ 
+    Simple function for detecting all points in the supplied array which have higher value than all surrounding points along the single dimension of the array.
+ 
+    \param[in] data The input array containning (pressumably smoothened) data.
+    \param[out] peaks A vector containing all the peak indices in the  input array.
+ */
+std::vector< proshade_signed > ProSHADE_internal_maths::findPeaks1D ( std::vector< proshade_double > data )
+{
+    //================================================ Initialise local variables
+    std::vector< proshade_signed > ret;
+    
+    //================================================ Peak is simply any position with both neighbours having lower position (with special care for borders)
+    for ( proshade_signed index = 0; index < static_cast< proshade_signed > ( data.size() ); index++ )
+    {
+        //============================================ Starting border?
+        if ( index == 0 )
+        {
+            if ( data.size() > 1 ) { if ( data.at(0) > data.at(1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } }
+            continue;
+        }
+        
+        //============================================ End border?
+        if ( index == static_cast< proshade_signed > ( data.size() - 1 ) )
+        {
+            if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+            continue;
+        }
+        
+        //============================================ Is this a peak?
+        if ( ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) &&
+             ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 1 ) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+        
+        //============================================ Deal with equally sized values
+        if ( index < static_cast< proshade_signed > ( data.size() - 2 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) - 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) + 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 2 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+
+/*! \brief This function finds a subgroup of axes with distinctly higher correlation value.
+ 
+    This function starts by getting a vector of all peak heights detected in all C symmetries detected in the structure. It then proceeds to convert
+    this vector into a histogram, which it then smoothens using Gaussian convolution according to the input parameters. Finally, it searches for
+    peaks in the smoothened histogram function and reports the minimal value that average peak height must be in order for the axis to be
+    considered part of this top group.
+ 
+    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
+    \param[in] step The granulosity of the interval <0,1> using which the search should be done.
+    \param[in] sigma The variance of the Gaussian used to smoothen the peak height histogram.
+    \param[in] windowSize The width of the window over which smoothening is done.
+    \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
+ */
+proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize )
+{
+    //================================================ Initialise local variables
+    proshade_double threshold                         = 0.0;
+    proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
+    std::vector< std::pair < proshade_double, proshade_unsign > > vals;
+    std::vector< proshade_double > hist               ( static_cast< unsigned long int > ( totSize ), 0.0 );
+    proshade_unsign histPos                           = 0;
+    
+    //================================================ Make sure window size is odd
+    if ( windowSize % 2 == 0 )                        { windowSize += 1; }
+    
+    //================================================ Get vector of pairs of peak heights and indices in CSym array
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); }
+    
+    //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
+    for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
+    {
+        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( vals.size() ); symIt++ )
+        {
+            //======================================== Is this height in the range?
+            if ( ( vals.at(symIt).first > it ) && ( vals.at(symIt).first <= ( it + step ) ) ) { hist.at(histPos) += 1.0; }
+        }
+        
+        //============================================ Update counter and continue
+        histPos                                      += 1;
+    }
+    
+    //================================================ Smoothen the distribution
+    std::vector< proshade_double > smoothened         = ProSHADE_internal_maths::smoothen1D ( step, windowSize, sigma, hist );
+    
+    //================================================ Find peaks in smoothened data
+    std::vector< proshade_signed > peaks              = ProSHADE_internal_maths::findPeaks1D ( smoothened );
+    
+    //================================================ Take best peaks surroundings and produce a new set of "high" axes
+    proshade_signed bestHistPos;
+    if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
+    else                    { bestHistPos = 0.0; }
+    
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
+    
+    //================================================ Done
+    return                                            ( threshold );
+    
+}
+
+/*! \brief This function finds a subgroup of axes with distinctly higher correlation value.
+ 
+    This function starts by getting a vector of all peak heights detected in all C symmetries detected in the structure. It then proceeds to convert
+    this vector into a histogram, which it then smoothens using Gaussian convolution according to the input parameters. Finally, it searches for
+    peaks in the smoothened histogram function and reports the minimal value that average peak height must be in order for the axis to be
+    considered part of this top group.
+ 
+    \param[in] CSym A vector of vectors of doubles, each array being a single Cyclic symmetry entry.
+    \param[in] step The granulosity of the interval <0,1> using which the search should be done.
+    \param[in] sigma The variance of the Gaussian used to smoothen the peak height histogram.
+    \param[in] windowSize The width of the window over which smoothening is done.
+    \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
+ */
+proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize )
+{
+    //================================================ Initialise local variables
+    proshade_double threshold                         = 0.0;
+    proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
+    std::vector< std::pair < proshade_double, proshade_unsign > > vals;
+    std::vector< proshade_double > hist               ( static_cast< unsigned long int > ( totSize ), 0.0 );
+    proshade_unsign histPos                           = 0;
+    
+    //================================================ Make sure window size is odd
+    if ( windowSize % 2 == 0 )                        { windowSize += 1; }
+    
+    //================================================ Get vector of pairs of peak heights and indices in CSym array
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt).at(peakPos), symIt ) ); }
+    
+    //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
+    for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
+    {
+        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( vals.size() ); symIt++ )
+        {
+            //======================================== Is this height in the range?
+            if ( ( vals.at(symIt).first > it ) && ( vals.at(symIt).first <= ( it + step ) ) ) { hist.at(histPos) += 1.0; }
+        }
+        
+        //============================================ Update counter and continue
+        histPos                                      += 1;
+    }
+    
+    //================================================ Smoothen the distribution
+    std::vector< proshade_double > smoothened         = ProSHADE_internal_maths::smoothen1D ( step, windowSize, sigma, hist );
+    
+    //================================================ Find peaks in smoothened data
+    std::vector< proshade_signed > peaks              = ProSHADE_internal_maths::findPeaks1D ( smoothened );
+    
+    //================================================ Take best peaks surroundings and produce a new set of "high" axes
+    proshade_signed bestHistPos;
+    if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
+    else                    { bestHistPos = 0.0; }
+    
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
+    
+    //================================================ Done
+    return                                            ( threshold );
     
 }

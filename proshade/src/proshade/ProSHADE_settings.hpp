@@ -138,6 +138,9 @@ public:
     proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
     bool fastISearch;                                 //!< Should FSC be computed for all possible I matches, or just for the best one according to FR?
     
+    //================================================ Settings regarding centre of map
+    std::vector < proshade_double > centrePosition;   //!< The position of the centre of the map in "real space" co-ordinates.
+    
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
     std::string rotTrsJSONFile;                       //!< The filename to which the rotation and translation operations are to be saved into.
@@ -168,10 +171,12 @@ public:
     //================================================ Constructors / Destructors
 #if defined ( _WIN64 ) || defined ( _WIN32 )
     __declspec(dllexport)  ProSHADE_settings          ( );
+    __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_settings* settings );
     __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_Task task );
     __declspec(dllexport) ~ProSHADE_settings          ( );
 #else
     ProSHADE_settings                                 ( void );
+    ProSHADE_settings                                 ( ProSHADE_settings* settings );
     ProSHADE_settings                                 ( ProSHADE_Task task );
    ~ProSHADE_settings                                 ( void );
 #endif

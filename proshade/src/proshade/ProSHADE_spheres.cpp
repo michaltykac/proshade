@@ -762,8 +762,8 @@ std::vector<std::pair<proshade_unsign,proshade_unsign>> ProSHADE_internal_sphere
 void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues ( proshade_complex* rotFun )
 {
     //================================================ Initialise variables
-    proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->angularDim );
-    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->angularDim );
+    proshade_double lonSampling                       = ( M_PI       ) / static_cast< proshade_double > ( this->angularDim );
+    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast< proshade_double > ( this->angularDim );
     
     proshade_double lat, lon, cX, cY, cZ, c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1, xRelative, yRelative, zRelative, eulerAlpha, eulerBeta, eulerGamma, mapX, mapY, mapZ;
     proshade_signed xBottom, xTop, yBottom, yTop, zBottom, zTop, mapIndex;
@@ -1415,6 +1415,8 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     proshade_double* detectedSymmetry                 = new proshade_double[7];
     ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
     
+    std::cout << " ### This peaks best LAT is: " << bestLatInd << " out of " << this->dimension << ", i.e. " << bestLatInd * this->latSampling << " AND best LON is: " << bestLonInd << " out of " << this->dimension << ", i.e. " << bestLonInd * this->lonSampling << std::endl;
+    
     detectedSymmetry[0]                               = static_cast<proshade_double> ( fold );
     detectedSymmetry[1]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::cos ( bestLatInd * this->latSampling );
     detectedSymmetry[2]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
@@ -1422,6 +1424,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
     detectedSymmetry[6]                               = -1.0;
+    std::cout << " ### ### " << detectedSymmetry[1] << " x " << detectedSymmetry[2] << " x " << detectedSymmetry[3] << std::endl;
     
     //================================================ Make sure max is positive
     const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) );

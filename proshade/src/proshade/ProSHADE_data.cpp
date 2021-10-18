@@ -1556,9 +1556,9 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1,  hlpSS.str() );
     
     //================================================ Figure how much indices need to change
-    proshade_unsign xAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) );
-    proshade_unsign yAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) );
-    proshade_unsign zAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) );
+    proshade_unsign xAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
+    proshade_unsign yAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / ( this->yDimSize / static_cast<proshade_single> ( this->yDimIndices ) ) ) );
+    proshade_unsign zAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / ( this->zDimSize / static_cast<proshade_single> ( this->zDimIndices ) ) ) );
     
     //================================================ Update internal data variables
     this->xDimSize                                   += 2 * static_cast<proshade_single> ( xAddIndices ) * this->xDimSize / static_cast<proshade_single> ( this->xDimIndices );
@@ -1661,7 +1661,6 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
 void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settings* settings )
 {
     //================================================ Move given point to box centre
-    
     if ( !( ( std::isinf ( settings->boxCentre.at(0) ) ) || ( std::isinf ( settings->boxCentre.at(1) ) ) || ( std::isinf ( settings->boxCentre.at(2) ) ) ) ) { this->shiftToBoxCentre ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map left at original position." ); }
     
@@ -1872,7 +1871,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     //================================================ Modify axis tolerance and matrix tolerance by sampling, if required by user
     if ( settings->axisErrToleranceDefault )
     {
-        settings->axisErrTolerance                    = std::min ( std::max ( 0.01, ( 2.0 * M_PI ) / static_cast< proshade_double > ( this->maxShellBand ) ), 0.05 );
+        settings->axisErrTolerance                    = std::min ( std::max ( 0.01, ( ( 2.0 * M_PI ) / static_cast< proshade_double > ( this->maxShellBand ) ) / 2.0 ), 0.05 );
     }
     
     //================================================ Prepare FSC computation memory and variables
@@ -1968,11 +1967,13 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     for ( size_t iter = 0; iter < CSyms.size(); iter++ ) { if ( ProSHADE_internal_maths::isAxisUnique ( &CSyms, 0.0, 1.0, 0.0, 2.0, 0.1 ) ) { possible010PIIssue = true; } }
     if ( possible010PIIssue )
     {
-        proshade_double* addAxis                  = new proshade_double[7];
+        proshade_double* addAxis                      = new proshade_double[7];
         addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -1.0;
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &CSyms, addAxis );
         delete[] addAxis;
     }
+    
+    for ( size_t it = 0; it < CSyms.size(); it++ ) { if ( CSyms.at(it)[0] == 5.0 ) { if ( CSyms.at(it)[5] > 0.8 ) { std::cout << "@3.5@ Found C5 with height over 0.9 on position " << it << std::endl; } } }
     
     for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { const FloatingPoint< proshade_double > lhs ( CSyms.at(cIt)[5] ), rhs ( -999.9 ); if ( lhs.AlmostEquals ( rhs ) ) { this->computeFSC ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts ); } }
     
@@ -1987,25 +1988,29 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         throw ProSHADE_exception ( "Rotation function was not converted into angle-axis space.", "ES00062", __FILE__, __LINE__, __func__, "It seems that the convertRotationFunction() function was\n                    : not yet called. Therefore, there are no data to detect the\n                    : symmetry from; please call the convertRotationFunction()\n                    : function before the detectSymmetryFromAngleAxisSpace()\n                    : function." );
     }
     
+    for ( size_t it = 0; it < CSyms.size(); it++ ) { if ( CSyms.at(it)[0] == 5.0 ) { if ( CSyms.at(it)[5] > 0.9 ) { std::cout << "@4@ Found C5 with height over 0.9 on position " << it << std::endl; } } }
+    
     //================================================ If only C syms were requested (e.g. rotation centre detection), terminate here!
     if ( settings->requestedSymmetryType == "onlyC" )
     {
         //============================================ Prepare threshold
-        proshade_double bestHistPeakStart             = this->findTopGroupSmooth ( &CSyms, 5, 0.01, 0.03, 9 );
+        proshade_double bestHistPeakStart             = ProSHADE_internal_maths::findTopGroupSmooth ( &CSyms, 5, 0.01, 0.03, 9 );
         
         //============================================ Find FSCs for C syms
         for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ )
         {
-            //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
-            if ( cIt > 20 ) { continue; }
-            
             //======================================== Check the peak height
             if ( CSyms.at(cIt)[5]  < bestHistPeakStart ) { continue; }
+            
+            //======================================== Stop at some point - it is unlikely the true axis would be this far.
+            if ( cIt > 15 ) { break; }
             
             //======================================== Compute FSC
             this->computeFSC                          ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts );
         }
         
+        for ( size_t it = 0; it < CSyms.size(); it++ ) { if ( CSyms.at(it)[0] == 5.0 ) { if ( CSyms.at(it)[5] > 0.9 ) { std::cout << "@5@ Found C5 with height over 0.9 and FSC " << CSyms.at(it)[6] << " on position " << it << std::endl; std::cout << " ... " << CSyms.at(it)[0] << " | " << CSyms.at(it)[1] << " x " << CSyms.at(it)[2] << " x " << CSyms.at(it)[3] << " | " << CSyms.at(it)[5] << std::endl; } } }
+
         //============================================ Save the detected Cs
         this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
         
@@ -2251,7 +2256,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
 {
     //================================================ Initialise variables
     bool isArgSameAsSettings                          = true;
-    
+    std::cout << " ??? --- " << CSyms->size() << std::endl;
     //================================================ For each detected point group
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms->size() ); cIt++ )
     {
@@ -2265,11 +2270,11 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
         ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[5] );
         ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[6] );
         ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
-
+        
         //============================================ Copy the vector to output variable and if different, then also to settings object
         if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
         if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
-
+        
         //============================================ Release memory
         nextSym.clear                                 ( );
         delete[] CSyms->at(cIt);
@@ -2277,65 +2282,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
     
     //================================================ Done
     return ;
-    
-}
-
-/*! \brief This function finds the distinct group of axes with highest peak heights.
- 
-    This function starts by getting a vector of all peak heights detected in all C symmetries detected in the structure. It then proceeds to convert
-    this vector into a histogram, which it then smoothens using Gaussian convolution according to the input parameters. Finally, it searches for
-    peaks in the smoothened histogram function and reports the minimal value that average peak height must be in order for the axis to be
-    considered part of this top group.
- 
-    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
-    \param[in] step The granulosity of the interval <0,1> using which the search should be done.
-    \param[in] sigma The variance of the Gaussian used to smoothen the peak height histogram.
-    \param[in] windowSize The width of the window over which smoothening is done.
-    \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
- */
-proshade_double ProSHADE_internal_data::ProSHADE_data::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize )
-{
-    //================================================ Initialise local variables
-    proshade_double threshold                         = 0.0;
-    proshade_signed totSize                           = static_cast< proshade_signed > ( ( 1.0 / step ) + 1 );
-    std::vector< std::pair < proshade_double, proshade_unsign > > vals;
-    std::vector< proshade_double > hist               ( static_cast< unsigned long int > ( totSize ), 0.0 );
-    proshade_unsign histPos                           = 0;
-    
-    //================================================ Make sure window size is odd
-    if ( windowSize % 2 == 0 )                        { windowSize += 1; }
-    
-    //================================================ Get vector of pairs of peak heights and indices in CSym array
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); }
-    
-    //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
-    for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
-    {
-        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( vals.size() ); symIt++ )
-        {
-            //======================================== Is this height in the range?
-            if ( ( vals.at(symIt).first > it ) && ( vals.at(symIt).first <= ( it + step ) ) ) { hist.at(histPos) += 1.0; }
-        }
-        
-        //============================================ Update counter and continue
-        histPos                                      += 1;
-    }
-    
-    //================================================ Smoothen the distribution
-    std::vector< proshade_double > smoothened         = ProSHADE_internal_maths::smoothen1D ( step, windowSize, sigma, hist );
-    
-    //================================================ Find peaks in smoothened data
-    std::vector< proshade_signed > peaks              = ProSHADE_internal_peakSearch::findPeaks1D ( smoothened );
-    
-    //================================================ Take best peaks surroundings and produce a new set of "high" axes
-    proshade_signed bestHistPos;
-    if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
-    else                    { bestHistPos = 0.0; }
-    
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
-    
-    //================================================ Done
-    return                                            ( threshold );
     
 }
 
@@ -2605,7 +2551,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_double step                              = 0.01;
     proshade_double sigma                             = 0.03;
     proshade_signed windowSize                        = 9;
-    proshade_double bestHistPeakStart                 = this->findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
+    proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
     if ( bestHistPeakStart > settings->peakThresholdMin ) { bestHistPeakStart = settings->peakThresholdMin; }
     
     //================================================ Report progress
@@ -2715,7 +2661,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
         
         //============================================ Check if both C symmetries are reliable
         for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
@@ -2769,7 +2715,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
         {
             //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
-            if ( cIt > 20 ) { continue; }
+            if ( cIt > 15 ) { break; }
             
             //======================================== Check the peak height
             if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
@@ -2779,7 +2725,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = this->findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
         
         //============================================ Find reliable C syms
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
@@ -3144,15 +3090,8 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
 
 /*! \brief This function returns the group elements as rotation matrices of any defined point group.
  
-    This function generates a list of all point group elements for any group defined by a set of cyclic point groups. The set is supplied using the second
-    parameter, where these need to be detected by ProSHADE first and then their index in the ProSHADE cyclic group detected list can be given here.
-    
-    This function can generate appropriate elementes for all ProSHADE supported point group types (i.e. C, D, T, O and I) as well as for any supplied set
-    of cyclic point groups (use the groupType value of "X").
- 
-    Please note that the final set of point group elements will be checked for being a point group, i.e. for the fact that a product of any two members will
-    be another already present member. If this condition is not met, error will be thrown. This poses some isses when the point group axes are slightly off,
-    as this can lead to the point group check failing...
+    This function is essentially a wrapper for the overloaded version of this function. The purpose of this function is allow getting point group elements for axes
+    detected in a particular structure.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axesList A vector of ints specifying which C axes from the full list are members of the group.
@@ -3161,6 +3100,34 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     \param[out] val A vector containing a vector of 9 doubles (rotation matrix) for each group element for the requested group.
  */
 std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType, proshade_double matrixTolerance )
+{
+    //================================================ Initialise variables
+    std::vector<std::vector< proshade_double > > ret  = this->getAllGroupElements ( &settings->allDetectedCAxes, axesList, groupType, matrixTolerance );
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function returns the group elements as rotation matrices of any defined point group.
+ 
+    This function generates a list of all point group elements for any group defined by a set of cyclic point groups. The set is supplied using the first
+    parameter for a larger set and the second parameter for specifying a subset of the first parameter set.
+ 
+    This function can generate appropriate elementes for all ProSHADE supported point group types (i.e. C, D, T, O and I) as well as for any supplied set
+    of cyclic point groups (use the groupType value of "X").
+
+    Please note that the final set of point group elements will be checked for being a point group, i.e. for the fact that a product of any two members will
+    be another already present member. If this condition is not met, error will be thrown. This poses some issues when the point group axes are slightly off,
+    as this can lead to the point group check failing...
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
+    \param[in] axesList A vector of ints specifying which C axes from the full list are members of the group.
+    \param[in] groupType An optional string specifying for which symmetry type the group elements are to be computed. Leave empty if you want to use the supplied axes without any questions being asked.
+    \param[in] matrixTolerance The maximum allowed trace difference for two matrices to still be considered the same.
+    \param[out] val A vector containing a vector of 9 doubles (rotation matrix) for each group element for the requested group.
+ */
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > axesList, std::string groupType, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
     std::vector<std::vector< proshade_double > > ret;
@@ -3172,10 +3139,10 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         axesToGroupTypeSanityCheck                    ( 1, static_cast< proshade_unsign > ( axesList.size() ), groupType );
         
         //============================================ Generate elements
-        ret                                           = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(0)).at(1),
-                                                                                       settings->allDetectedCAxes.at(axesList.at(0)).at(2),
-                                                                                       settings->allDetectedCAxes.at(axesList.at(0)).at(3),
-                                                                                       static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(0)).at(0) ) );
+        ret                                           = computeGroupElementsForGroup ( allCs->at(axesList.at(0)).at(1),
+                                                                                       allCs->at(axesList.at(0)).at(2),
+                                                                                       allCs->at(axesList.at(0)).at(3),
+                                                                                       static_cast< proshade_signed > ( allCs->at(axesList.at(0)).at(0) ) );
 
         //============================================ Check the element to form a group
         if ( checkElementsFormGroup ( &ret, matrixTolerance ) ) { return ( ret ); }
@@ -3190,14 +3157,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         axesToGroupTypeSanityCheck                    ( 2, static_cast<proshade_unsign> ( axesList.size() ), groupType );
         
         //============================================ Generate elements for both axes
-        std::vector<std::vector< proshade_double > > first  = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(0)).at(1),
-                                                                                             settings->allDetectedCAxes.at(axesList.at(0)).at(2),
-                                                                                             settings->allDetectedCAxes.at(axesList.at(0)).at(3),
-                                                                                             static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(0)).at(0) ) );
-        std::vector<std::vector< proshade_double > > second = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(1)).at(1),
-                                                                                             settings->allDetectedCAxes.at(axesList.at(1)).at(2),
-                                                                                             settings->allDetectedCAxes.at(axesList.at(1)).at(3),
-                                                                                             static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(1)).at(0) ) );
+        std::vector<std::vector< proshade_double > > first  = computeGroupElementsForGroup ( allCs->at(axesList.at(0)).at(1),
+                                                                                             allCs->at(axesList.at(0)).at(2),
+                                                                                             allCs->at(axesList.at(0)).at(3),
+                                                                                             static_cast< proshade_signed > ( allCs->at(axesList.at(0)).at(0) ) );
+        std::vector<std::vector< proshade_double > > second = computeGroupElementsForGroup ( allCs->at(axesList.at(1)).at(1),
+                                                                                             allCs->at(axesList.at(1)).at(2),
+                                                                                             allCs->at(axesList.at(1)).at(3),
+                                                                                             static_cast< proshade_signed > ( allCs->at(axesList.at(1)).at(0) ) );
         
         //============================================ Join the element lists
         ret                                           = joinElementsFromDifferentGroups ( &first, &second, matrixTolerance, true );
@@ -3218,14 +3185,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 3.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 3.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
                 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3236,14 +3203,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 2.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 2.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
                 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3266,14 +3233,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 4.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 4.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3284,14 +3251,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 3.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 3.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3302,14 +3269,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 2.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 2.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3332,14 +3299,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C5 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 5.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 5.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3350,14 +3317,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 3.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 3.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3368,14 +3335,14 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== If this is a C3 axis
-            const FloatingPoint< proshade_double > lhs1 ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ), rhs1 ( 2.0 );
+            const FloatingPoint< proshade_double > lhs1 ( allCs->at(axesList.at(grIt)).at(0) ), rhs1 ( 2.0 );
             if ( lhs1.AlmostEquals ( rhs1 ) )
             {
                 //==================================== Generate the elements
-                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                                  settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                                  static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+                std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                                  allCs->at(axesList.at(grIt)).at(2),
+                                                                                                  allCs->at(axesList.at(grIt)).at(3),
+                                                                                                  static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
 
                 //==================================== Join the elements to any already found
                 ret                                   = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, false );
@@ -3395,10 +3362,10 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
         for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( axesList.size() ); grIt++ )
         {
             //======================================== Compute group elements
-            std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(1),
-                                                                                              settings->allDetectedCAxes.at(axesList.at(grIt)).at(2),
-                                                                                              settings->allDetectedCAxes.at(axesList.at(grIt)).at(3),
-                                                                                              static_cast< proshade_signed > ( settings->allDetectedCAxes.at(axesList.at(grIt)).at(0) ) );
+            std::vector<std::vector< proshade_double > > els = computeGroupElementsForGroup ( allCs->at(axesList.at(grIt)).at(1),
+                                                                                              allCs->at(axesList.at(grIt)).at(2),
+                                                                                              allCs->at(axesList.at(grIt)).at(3),
+                                                                                              static_cast< proshade_signed > ( allCs->at(axesList.at(grIt)).at(0) ) );
             
             //======================================== Join the elements to any already found
             ret                                       = joinElementsFromDifferentGroups ( &els, &ret, matrixTolerance, true );
@@ -3640,7 +3607,7 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
 void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_settings* settings )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Centering map onto its COM." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Removing phase from the map." );
     
     //================================================ Copy map for processing
     fftw_complex* mapCoeffs                           = new fftw_complex[this->xDimIndices * this->yDimIndices * this->zDimIndices];
@@ -3650,7 +3617,7 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
     ProSHADE_internal_misc::checkMemoryAllocation     ( mapCoeffs, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( pattersonMap, __FILE__, __LINE__, __func__ );
     
-    //================================================ Copy data to mask
+    //================================================ Copy data to map
     for ( proshade_unsign iter = 0; iter < (this->xDimIndices * this->yDimIndices * this->zDimIndices); iter++ )
     {
         pattersonMap[iter][0]                         = this->internalMap[iter];
@@ -3702,6 +3669,15 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
     //================================================ Delete FFTW plans
     fftw_destroy_plan                                 ( forward );
     fftw_destroy_plan                                 ( inverse );
+    
+    //================================================ Change settings to reflect Patterson map
+    if ( !settings->usePhase )
+    {
+        this->xDimSize                               *= 2.0;
+        this->yDimSize                               *= 2.0;
+        this->zDimSize                               *= 2.0;
+        settings->setResolution                       ( settings->requestedResolution * 2.0 );
+    }
     
     //================================================ Report function completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Phase information removed." );

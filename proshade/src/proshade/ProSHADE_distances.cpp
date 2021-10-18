@@ -884,6 +884,8 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Inverse SO(3) Fourier transform computed." );
     
+    
+    
     //================================================ Done
     return ;
     
@@ -903,7 +905,7 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
     \param[in] settings A pointer to settings class containing all the information required for the task.
     \param[out] ret The final normalised value of the rotation function descriptor for the two objects.
  */
-proshade_double ProSHADE_internal_distances::computeRotationunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
+proshade_double ProSHADE_internal_distances::computeRotationFunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report starting the task
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting rotation function distance computation." );

@@ -97,9 +97,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding COM
     this->moveToCOM                                   = false;
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding extra cell space
     this->addExtraSpace                               = 10.0;
@@ -141,6 +141,11 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->requestedSymmetryFold                       = 0;
     this->detectedSymmetry.clear                      ( );
     
+    //================================================ Settings regarding centre of map
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
     this->rotTrsJSONFile                              = "movedStructureOperations.json";
@@ -150,6 +155,145 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Done
     
+}
+
+/*! \brief Copy contructor for the ProSHADE_settings class.
+ 
+    This is the constructor used to create a copy of supplied ProSHADE_settings object.
+ 
+    \param[in] settings The ProSHADE_settings object that should be copied from.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* settings )
+#else
+                      ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* settings )
+#endif
+{
+    //================================================ Settings regarding the task at hand
+    this->task                                        = settings->task;
+    
+    //================================================ Settings regarding input files
+    for ( size_t fIt = 0; fIt < settings->inputFiles.size(); fIt++ ) { this->inputFiles.push_back ( settings->inputFiles.at(fIt) ); }
+    this->forceP1                                     = settings->forceP1;
+    this->removeWaters                                = settings->removeWaters;
+    this->firstModelOnly                              = settings->firstModelOnly;
+    this->removeNegativeDensity                       = settings->removeNegativeDensity;
+    
+    //================================================ Settings regarding the resolution of calculations
+    this->requestedResolution                         = settings->requestedResolution;
+    this->changeMapResolution                         = settings->changeMapResolution;
+    this->changeMapResolutionTriLinear                = settings->changeMapResolutionTriLinear;
+    
+    //================================================ Settings regarding the PDB B-factor change
+    this->pdbBFactorNewVal                            = settings->pdbBFactorNewVal;
+    
+    //================================================ Settings regarding the bandwidth of calculations
+    this->maxBandwidth                                = settings->maxBandwidth;
+    this->rotationUncertainty                         = settings->rotationUncertainty;
+    
+    //================================================ Settings regarding the phase
+    this->usePhase                                    = settings->usePhase;
+    
+    //================================================ Settings regarding the spheres
+    this->maxSphereDists                              = settings->maxSphereDists;
+    
+    //================================================ Settings regarding the Gauss-Legendre integration
+    this->integOrder                                  = settings->integOrder;
+    this->taylorSeriesCap                             = settings->taylorSeriesCap;
+    
+    //================================================ Settings regarding map normalisation
+    this->normaliseMap                                = settings->normaliseMap;
+    
+    //================================================ Settings regarding map inversion
+    this->invertMap                                   = settings->invertMap;
+    
+    //================================================ Settings regarding map masking
+    this->blurFactor                                  = settings->blurFactor;
+    this->maskingThresholdIQRs                        = settings->maskingThresholdIQRs;
+    this->maskMap                                     = settings->maskMap;
+    this->useCorrelationMasking                       = settings->useCorrelationMasking;
+    this->halfMapKernel                               = settings->halfMapKernel;
+    this->correlationKernel                           = settings->correlationKernel;
+    this->saveMask                                    = settings->saveMask;
+    this->maskFileName                                = settings->maskFileName;
+    this->appliedMaskFileName                         = settings->appliedMaskFileName;
+    
+    //================================================ Settings regarding Fourier weights
+    this->fourierWeightsFileName                      = settings->fourierWeightsFileName;
+    
+    //================================================ Settings regarding re-boxing
+    this->reBoxMap                                    = settings->reBoxMap;
+    this->boundsExtraSpace                            = settings->boundsExtraSpace;
+    this->boundsSimilarityThreshold                   = settings->boundsSimilarityThreshold;
+    this->useSameBounds                               = settings->useSameBounds;
+    this->forceBounds                                 = new proshade_signed [6];
+    for ( size_t fbIt = 0; fbIt < 6; fbIt++ ) { this->forceBounds[fbIt] = settings->forceBounds[fbIt]; }
+    
+    //================================================ Settings regarding COM
+    this->moveToCOM                                   = settings->moveToCOM;
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, settings->boxCentre.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, settings->boxCentre.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, settings->boxCentre.at(2) );
+    
+    //================================================ Settings regarding extra cell space
+    this->addExtraSpace                               = settings->addExtraSpace;
+    this->coOrdsExtraSpace                            = settings->coOrdsExtraSpace;
+    
+    //================================================ Settings regarding shell settings
+    this->progressiveSphereMapping                    = settings->progressiveSphereMapping;
+    
+    //================================================ Settings regarding output file name
+    this->outName                                     = settings->outName;
+    
+    //================================================ Settings regarding distances computation
+    this->computeEnergyLevelsDesc                     = settings->computeEnergyLevelsDesc;
+    this->computeTraceSigmaDesc                       = settings->computeTraceSigmaDesc;
+    this->computeRotationFuncDesc                     = settings->computeRotationFuncDesc;
+    this->enLevMatrixPowerWeight                      = settings->enLevMatrixPowerWeight;
+    
+    //================================================ Settings regarding peak searching
+    this->peakNeighbours                              = settings->peakNeighbours;
+    this->noIQRsFromMedianNaivePeak                   = settings->noIQRsFromMedianNaivePeak;
+    
+    //================================================ Settings regarding 1D grouping
+    this->smoothingFactor                             = settings->smoothingFactor;
+    
+    //================================================ Settings regarding the symmetry detection
+    this->findSymCentre                               = settings->findSymCentre;
+    this->useBiCubicInterpolationOnPeaks              = settings->useBiCubicInterpolationOnPeaks;
+    this->maxSymmetryFold                             = settings->maxSymmetryFold;
+    this->fscThreshold                                = settings->fscThreshold;
+    this->peakThresholdMin                            = settings->peakThresholdMin;
+    this->fastISearch                                 = settings->fastISearch;
+    this->symMissPeakThres                            = settings->symMissPeakThres;
+    this->axisErrTolerance                            = settings->axisErrTolerance;
+    this->axisErrToleranceDefault                     = settings->axisErrToleranceDefault;
+    this->minSymPeak                                  = settings->minSymPeak;
+    this->recommendedSymmetryType                     = settings->recommendedSymmetryType;
+    this->recommendedSymmetryFold                     = settings->recommendedSymmetryFold;
+    this->requestedSymmetryType                       = settings->requestedSymmetryType;
+    this->requestedSymmetryFold                       = settings->requestedSymmetryFold;
+    
+    
+    this->detectedSymmetry.clear                      ( );
+    for ( size_t dsIt = 0; dsIt < settings->detectedSymmetry.size(); dsIt++ )
+    {
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, settings->detectedSymmetry.at(dsIt) );
+    }
+    
+    //================================================ Settings regarding centre of map
+    this->centrePosition.clear                        ( );
+    for ( size_t cpIt = 0; cpIt < settings->centrePosition.size(); cpIt++ )
+    {
+        ProSHADE_internal_misc::addToDoubleVector     ( &this->centrePosition, settings->centrePosition.at(cpIt) );
+    }
+    
+    //================================================ Settings regarding the structure overlay
+    this->overlayStructureName                        = settings->overlayStructureName;
+    this->rotTrsJSONFile                              = settings->rotTrsJSONFile;
+    
+    //================================================ Settings regarding verbosity of the program
+    this->verbose                                     = settings->verbose;
 }
 
 /*! \brief Contructor for the ProSHADE_settings class for particular task.
@@ -218,9 +362,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->fourierWeightsFileName                      = "";
     
     //================================================ Settings regarding COM
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
@@ -268,6 +412,11 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->requestedSymmetryType                       = "";
     this->requestedSymmetryFold                       = 0;
     this->detectedSymmetry.clear                      ( );
+    
+    //================================================ Settings regarding centre of map
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
