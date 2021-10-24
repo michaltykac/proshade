@@ -989,8 +989,8 @@ void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band
 {
     //================================================ Convert Euler angles to indices
     *x                                                = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
-    *y                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
-    *z                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
+    *y                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
+    *z                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
     
     if ( *x >= ( 2 * band ) ) { *x -= ( 2 * band ); }
     if ( *y >= ( 2 * band ) ) { *y -= ( 2 * band ); }
@@ -1231,13 +1231,15 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_sin
                 {
                     if( std::abs ( eigValImag[colIt] ) < closeToZero )
                     {
-                        if ( rowIt == eigIt ) { if ( colIt == 0 ) { *x = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 1 ) { *y = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 2 ) { *z = rightEigVectors[rowIt+colIt*dim]; } }
+                        if ( colIt == eigIt ) { if ( rowIt == 0 ) { *x = rightEigVectors[rowIt+colIt*dim]; } if ( rowIt == 1 ) { *y = rightEigVectors[rowIt+colIt*dim]; } if ( rowIt == 2 ) { *z = rightEigVectors[rowIt+colIt*dim]; } }
                         colIt++;
                     }
                     else
                     {
-// In order to access the            std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " <<  rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
-// other eigenvectors, use this:     std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " << -rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+// In order to access the
+//                        std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " <<  rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+// other eigenvectors, use this:
+//                        std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " << -rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
                         colIt                        += 2;
                     }
                 }
@@ -1412,13 +1414,15 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_sin
                 {
                     if( std::abs ( eigValImag[colIt] ) < closeToZero )
                     {
-                        if ( rowIt == eigIt ) { if ( colIt == 0 ) { *x = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 1 ) { *y = rightEigVectors[rowIt+colIt*dim]; } if ( colIt == 2 ) { *z = rightEigVectors[rowIt+colIt*dim]; } }
+                        if ( colIt == eigIt ) { if ( rowIt == 0 ) { *x = rightEigVectors[rowIt+colIt*dim]; } if ( rowIt == 1 ) { *y = rightEigVectors[rowIt+colIt*dim]; } if ( rowIt == 2 ) { *z = rightEigVectors[rowIt+colIt*dim]; } }
                         colIt++;
                     }
                     else
                     {
-// In order to access the            std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " <<  rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
-// other eigenvectors, use this:     std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " << -rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+// In order to access the
+//                        std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " <<  rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
+// other eigenvectors, use this:
+//                        std::cout << " ( " << rightEigVectors[rowIt+colIt*dim] << " + " << -rightEigVectors[rowIt+(colIt+1)*dim] << " i )";
                         colIt                        += 2;
                     }
                 }
@@ -2257,14 +2261,17 @@ proshade_double* ProSHADE_internal_maths::compute3x3MoorePenrosePseudoInverseOfI
         }
         else { singularValues[1] = 1.0 / singularValues[1]; }
 
-        //============================================ The last singular value (they are in order) must be zero as Ri is a rotation matrix with at least one eigenvalue 1 and therefore I - Ri must have at least one eigenvalue 0.
-        singularValues[2]                             = 0.0;
-        rotMatU[6]                                    = 0.0;
-        rotMatU[7]                                    = 0.0;
-        rotMatU[8]                                    = 0.0;
-        rotMatV[2]                                    = 0.0;
-        rotMatV[5]                                    = 0.0;
-        rotMatV[8]                                    = 0.0;
+        if ( !positivityTest.at(2) )
+        {
+            singularValues[2]                         = 0.0;
+            rotMatU[6]                                = 0.0;
+            rotMatU[7]                                = 0.0;
+            rotMatU[8]                                = 0.0;
+            rotMatV[2]                                = 0.0;
+            rotMatV[5]                                = 0.0;
+            rotMatV[8]                                = 0.0;
+        }
+        else { singularValues[2] = 1.0 / singularValues[2]; }
 
         //============================================ All positive values formula
         proshade_double* diagMat                      = ProSHADE_internal_maths::build3x3MatrixFromDiag ( singularValues );
@@ -3364,6 +3371,10 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     std::vector< proshade_double > covarByBin         ( static_cast< size_t > ( noBins ), 0.0 );
     std::vector< proshade_double > fscByBin           ( static_cast< size_t > ( noBins ), 0.0 );
     
+    //================================================ Clean FSC computation memory
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { binData[binIt][valIt] = 0.0; } }
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
+    
     //================================================ Compute bin sums
     for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xInds ); xIt++ )
     {
@@ -3396,14 +3407,16 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
                 binData[indx][9]                     += std::pow ( imagRot,  2.0 );
                 
                 //==================================== Update bin counts
-                binCounts[indx]                  += 1;
+                binCounts[indx]                      += 1;
             }
         }
     }
     
     //================================================ Compute covariance by bin
+    std::cout << "There are " << noBins << " bins." << std::endl;
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
+        std::cout << "Bin: " << binIt << " has " << binCounts[binIt] << " values." << std::endl;
         covarByBin.at(binIt)                          = ( ( binData[binIt][4] + binData[binIt][5] ) / static_cast< proshade_double > ( binCounts[binIt] )  -
                                                         ( ( binData[binIt][0]                       / static_cast< proshade_double > ( binCounts[binIt] )   *
                                                             binData[binIt][2]                       / static_cast< proshade_double > ( binCounts[binIt] ) ) +

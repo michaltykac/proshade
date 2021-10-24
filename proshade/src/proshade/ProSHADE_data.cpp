@@ -2395,10 +2395,6 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
         for ( size_t iter = 0; iter < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ ) { mapData[iter][0] = rotMap[iter]; mapData[iter][1] = 0.0; }
         fftw_execute                                  ( *planForwardFourier );
         
-        //============================================ Clean FSC computation memory
-        for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { bindata[binIt][valIt] = 0.0; } }
-        for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
-        
         //============================================ Compute FSC
         averageFSC                                   += ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts );
         
@@ -3161,10 +3157,40 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                                                                                              allCs->at(axesList.at(0)).at(2),
                                                                                              allCs->at(axesList.at(0)).at(3),
                                                                                              static_cast< proshade_signed > ( allCs->at(axesList.at(0)).at(0) ) );
+        
+        std::cout << "!!! Group: " << allCs->at(axesList.at(0)).at(1) << " x " << allCs->at(axesList.at(0)).at(2) << " x " << allCs->at(axesList.at(0)).at(3) << " || " << allCs->at(axesList.at(0)).at(0) << std::endl;
+        std::cout << "!!! Elems: " << first.at(0).at(0) << " | " << first.at(0).at(1) << " | " << first.at(0).at(2) << std::endl;
+        std::cout << "!!!  ... : " << first.at(0).at(3) << " | " << first.at(0).at(4) << " | " << first.at(0).at(5) << std::endl;
+        std::cout << "!!!  ... : " << first.at(0).at(6) << " | " << first.at(0).at(7) << " | " << first.at(0).at(8) << std::endl;
+        std::cout << std::endl;
+        
+        std::cout << "!!! Elems: " << first.at(1).at(0) << " | " << first.at(1).at(1) << " | " << first.at(1).at(2) << std::endl;
+        std::cout << "!!!  ... : " << first.at(1).at(3) << " | " << first.at(1).at(4) << " | " << first.at(1).at(5) << std::endl;
+        std::cout << "!!!  ... : " << first.at(1).at(6) << " | " << first.at(1).at(7) << " | " << first.at(1).at(8) << std::endl;
+        std::cout << std::endl;
+        
         std::vector<std::vector< proshade_double > > second = computeGroupElementsForGroup ( allCs->at(axesList.at(1)).at(1),
                                                                                              allCs->at(axesList.at(1)).at(2),
                                                                                              allCs->at(axesList.at(1)).at(3),
                                                                                              static_cast< proshade_signed > ( allCs->at(axesList.at(1)).at(0) ) );
+        
+        std::cout << "!!! Group: " << allCs->at(axesList.at(1)).at(1) << " x " << allCs->at(axesList.at(1)).at(2) << " x " << allCs->at(axesList.at(1)).at(3) << " || " << allCs->at(axesList.at(1)).at(0) << std::endl;
+        std::cout << "!!! Elems: " << second.at(0).at(0) << " | " << second.at(0).at(1) << " | " << second.at(0).at(2) << std::endl;
+        std::cout << "!!!  ... : " << second.at(0).at(3) << " | " << second.at(0).at(4) << " | " << second.at(0).at(5) << std::endl;
+        std::cout << "!!!  ... : " << second.at(0).at(6) << " | " << second.at(0).at(7) << " | " << second.at(0).at(8) << std::endl;
+        std::cout << std::endl;
+        std::cout << "!!! Elems: " << second.at(1).at(0) << " | " << second.at(1).at(1) << " | " << second.at(1).at(2) << std::endl;
+        std::cout << "!!!  ... : " << second.at(1).at(3) << " | " << second.at(1).at(4) << " | " << second.at(1).at(5) << std::endl;
+        std::cout << "!!!  ... : " << second.at(1).at(6) << " | " << second.at(1).at(7) << " | " << second.at(1).at(8) << std::endl;
+        std::cout << std::endl;
+        std::cout << "!!! Elems: " << second.at(2).at(0) << " | " << second.at(2).at(1) << " | " << second.at(2).at(2) << std::endl;
+        std::cout << "!!!  ... : " << second.at(2).at(3) << " | " << second.at(2).at(4) << " | " << second.at(2).at(5) << std::endl;
+        std::cout << "!!!  ... : " << second.at(2).at(6) << " | " << second.at(2).at(7) << " | " << second.at(2).at(8) << std::endl;
+        std::cout << std::endl;
+        std::cout << "!!! Elems: " << second.at(3).at(0) << " | " << second.at(3).at(1) << " | " << second.at(3).at(2) << std::endl;
+        std::cout << "!!!  ... : " << second.at(3).at(3) << " | " << second.at(3).at(4) << " | " << second.at(3).at(5) << std::endl;
+        std::cout << "!!!  ... : " << second.at(3).at(6) << " | " << second.at(3).at(7) << " | " << second.at(3).at(8) << std::endl;
+        std::cout << std::endl;
         
         //============================================ Join the element lists
         ret                                           = joinElementsFromDifferentGroups ( &first, &second, matrixTolerance, true );
