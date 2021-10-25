@@ -226,22 +226,22 @@ namespace ProSHADE_internal_data
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
         void prepareFSCFourierMemory                  ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs, proshade_signed*& binIndexing,
-                                                        proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier );
+                                                        proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier, proshade_double*& fscByBin );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,
                                                         fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins,
-                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts );
+                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
                                                         fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
-                                                        proshade_signed*& binCounts );
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
                                                         fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
-                                                        proshade_double** bindata, proshade_signed* binCounts );
+                                                        proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
                                                         fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
-                                                        proshade_double** bindata, proshade_signed* binCounts );
+                                                        proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );

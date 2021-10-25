@@ -3363,13 +3363,12 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     \param[in] binCounts Array of counts for each bin. It needs to be pre-allocated and have dimension of noBins. This array is modified by the function in case the caller would like access to these.
     \param[out] fsc The Fourier Shell Correlation between the two supplied Fourier coefficient maps.
  */
-proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts )
+proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin )
 {
     //================================================ Initialise local variables
     proshade_double realOrig, realRot, imagOrig, imagRot, fsc = 0.0;;
     proshade_signed indx, arrPos;
     std::vector< proshade_double > covarByBin         ( static_cast< size_t > ( noBins ), 0.0 );
-    std::vector< proshade_double > fscByBin           ( static_cast< size_t > ( noBins ), 0.0 );
     
     //================================================ Clean FSC computation memory
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { for ( size_t valIt = 0; valIt < 12; valIt++ ) { binData[binIt][valIt] = 0.0; } }
@@ -3433,14 +3432,14 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
         binData[binIt][11]                            = ( binData[binIt][8] + binData[binIt][9] ) / static_cast< proshade_double > ( binCounts[binIt] ) -
                                                         ( std::pow ( binData[binIt][2] / static_cast< proshade_double > ( binCounts[binIt] ), 2.0 ) +
                                                           std::pow ( binData[binIt][3] / static_cast< proshade_double > ( binCounts[binIt] ), 2.0 ) );
-        fscByBin.at(binIt)                            = covarByBin.at(binIt) / ( std::sqrt ( binData[binIt][10] ) * std::sqrt ( binData[binIt][11] ) );
+        fscByBin[binIt]                               = covarByBin.at(binIt) / ( std::sqrt ( binData[binIt][10] ) * std::sqrt ( binData[binIt][11] ) );
     }
     
     //================================================ Get average FSC over all bins
     proshade_double binSizeSum                        = 0.0;
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        fsc                                          += fscByBin.at(binIt) * static_cast< proshade_double > ( binCounts[binIt] );
+        fsc                                          += fscByBin[binIt] * static_cast< proshade_double > ( binCounts[binIt] );
         binSizeSum                                   += static_cast< proshade_double > ( binCounts[binIt] );
     }
     fsc                                              /= static_cast< proshade_double > ( binSizeSum );

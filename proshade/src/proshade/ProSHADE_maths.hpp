@@ -387,7 +387,7 @@ namespace ProSHADE_internal_maths
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );
     void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed* noBin, proshade_signed*& binIndexing );
     proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds,
-                                                        proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts );
+                                                        proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin );
     std::vector< proshade_signed > findPeaks1D        ( std::vector< proshade_double > data );
     proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
     proshade_double findTopGroupSmooth                ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );

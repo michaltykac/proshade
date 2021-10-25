@@ -466,9 +466,9 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     //================================================ Prepare FSC computation memory and variables
     fftw_complex *FSCmapData, *FSCorigCoeffs, *FSCfCoeffs;
     fftw_plan FSCplanForwardFourier;
-    proshade_double **binDataFSC;
+    proshade_double **binDataFSC, *fscByBin;
     proshade_signed *binIndexing, *binCounts, noBins;
-    symStr->prepareFSCFourierMemory                   ( FSCmapData, FSCorigCoeffs, FSCfCoeffs, binIndexing, &noBins, binDataFSC, binCounts, &FSCplanForwardFourier );
+    symStr->prepareFSCFourierMemory                   ( FSCmapData, FSCorigCoeffs, FSCfCoeffs, binIndexing, &noBins, binDataFSC, binCounts, &FSCplanForwardFourier, fscByBin );
     std::cout << "??? " << binIndexing[0] << " x " << binIndexing[10] << " x " << binIndexing[110] << " x " << binIndexing[1110] << " x " << binIndexing[3310] << " x " << binIndexing[7770] << std::endl;
     
     //================================================ For each point group element:
@@ -533,11 +533,6 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         //============================================ Translation function optimisation
         std::cout << " ### Found best translation to be " << trsX << ", " << trsY << ", " << trsZ << " with peak " << mapPeak << std::endl;
         
-        //== Move map using current translation
-        proshade_double* trsMap                       = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-        ProSHADE_internal_misc::checkMemoryAllocation ( trsMap, __FILE__, __LINE__, __func__ );
-        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { trsMap[i] = symStr->getInternalMap()[i]; }
-        
         //== !!!! Optimise rotated map translation function
         proshade_unsign nCycles = 1;
         
@@ -558,27 +553,63 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         for ( proshade_unsign cIt = 0; cIt < nCycles; cIt++ )
         {
             // Translate map by last translation
-            ProSHADE_internal_mapManip::moveMapByFourier ( trsMap, trsX, trsY, trsZ,
+            ProSHADE_internal_mapManip::moveMapByFourier ( rotMap, trsX, trsY, trsZ,
                                                            symStr->getXDimSize(), symStr->getYDimSize(), symStr->getZDimSize(),
                                                            static_cast< proshade_signed > ( symStr->getXDim() ), static_cast< proshade_signed > ( symStr->getYDim() ),
                                                            static_cast< proshade_signed > ( symStr->getZDim() ) );
             
             // Convert translated map to Fourier
-            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { FSCmapData[i][0] = trsMap[i]; FSCmapData[i][1] = 0.0; }
+            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { FSCmapData[i][0] = rotMap[i]; FSCmapData[i][1] = 0.0; }
             fftw_execute                              ( FSCplanForwardFourier );
             
             // Find current FSC between moved and static
-            proshade_double fsc                       = ProSHADE_internal_maths::computeFSC ( origCoeffs, FSCfCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), noBins, binIndexing, binDataFSC, binCounts );
-            
+            proshade_double fsc                       = ProSHADE_internal_maths::computeFSC ( origCoeffs, FSCfCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), noBins, binIndexing, binDataFSC, binCounts, fscByBin );
             std::cout << " ??? FSC: " << fsc << std::endl;
             
-            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = trsMap[i]; }
-            symStr->writeMap ( "trsRotMapTEST.map" );
             
-            exit(0);
+            // find grid weights
+            proshade_double* gWeights1                = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+            proshade_double* gWeights2                = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+            ProSHADE_internal_misc::checkMemoryAllocation     ( gWeights1, __FILE__, __LINE__, __func__ );
+            ProSHADE_internal_misc::checkMemoryAllocation     ( gWeights2, __FILE__, __LINE__, __func__ );
+            for ( size_t iter = 0; iter < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); iter++ ) { gWeights1[iter] = 0.0; gWeights2[iter] = 0.0; }
             
+            proshade_signed indx, arrPos;
+            {
+                
+                
+                
+//                // For each index
+//                for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( symStr->getXDim() ); xIt++ )
+//                {
+//                    for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( symStr->getYDim() ); yIt++ )
+//                    {
+//                        for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( ( symStr->getZDim() / 2 ) + 1 ); zIt++ )
+//                        {
+//                            // Find array position and index
+//                            arrPos           = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
+//                            indx             = binIndexing[ static_cast< size_t > ( arrPos ) ];
+//
+//                            if ( ( indx < 0 ) || ( indx > noBins ) ) { continue; }
+//
+//
+//
+//
+//                        }
+//                    }
+//                }
+            }
+            
+            // Release grid weights
+            delete[] gWeights1;
+            delete[] gWeights2;
         }
 
+        // delme
+        std::stringstream hlpSQ;
+        hlpSQ << "trsRotMap" << grEl << ".map";
+        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = rotMap[i]; }
+        symStr->writeMap ( hlpSQ.str() );
         
         //============================================ Compute the Moore-Penrose pseudo inverse of I-Ri
         proshade_double* invMat                       = ProSHADE_internal_maths::compute3x3MoorePenrosePseudoInverseOfIMinusMat ( &( symElems.at(grEl) ), settings->verbose );
@@ -593,7 +624,6 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         delete[] rotMap;
         delete[] invMat;
         delete[] rotCen;
-        delete[] trsMap;
     }
     
     //== Release optimisation memory
@@ -613,6 +643,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] binDataFSC[binIt]; }
     delete[] binDataFSC;
     delete[] binCounts;
+    delete[] fscByBin;
     
     //================================================ Done
     return ;

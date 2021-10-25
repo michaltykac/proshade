@@ -823,6 +823,8 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     proshade_double hlpArrReal;
     proshade_double hlpArrImag;
     
+    std::cout << "#$#$#$#$$$ Moving by: " << xMov << " x " << yMov << " x " << zMov << std::endl;
+    
     //================================================ Create Fourier map variable
     fftw_complex *fCoeffs                             = new fftw_complex [xDim * yDim * zDim];
     fftw_complex *translatedMap                       = new fftw_complex [xDim * yDim * zDim];
