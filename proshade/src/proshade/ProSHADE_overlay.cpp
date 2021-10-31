@@ -156,7 +156,7 @@ void ProSHADE_internal_overlay::getOptimalTranslation ( ProSHADE_settings* setti
     proshade_unsign xDimS                             = staticStructure->getXDim();
     proshade_unsign yDimS                             = staticStructure->getYDim();
     proshade_unsign zDimS                             = staticStructure->getZDim();
-    ProSHADE_internal_overlay::findHighestValueInMap  ( movingStructure->getTranslationFnPointer(), xDimS, yDimS, zDimS, trsX, trsY, trsZ, &mapPeak );
+    ProSHADE_internal_maths::findHighestValueInMap  ( movingStructure->getTranslationFnPointer(), xDimS, yDimS, zDimS, trsX, trsY, trsZ, &mapPeak );
     
     //================================================ Dont translate over half
     if ( *trsX > ( static_cast< proshade_double > ( xDimS ) / 2.0 ) ) { *trsX = *trsX - static_cast< proshade_double > ( xDimS ); }
@@ -256,7 +256,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestTra
     proshade_unsign yDimS                             = staticStructure->getYDim();
     proshade_unsign zDimS                             = staticStructure->getZDim();
     proshade_double trsX = 0.0, trsY = 0.0, trsZ = 0.0;
-    ProSHADE_internal_overlay::findHighestValueInMap  ( this->getTranslationFnPointer(),
+    ProSHADE_internal_maths::findHighestValueInMap    ( this->getTranslationFnPointer(),
                                                         xDimS,
                                                         yDimS,
                                                         zDimS,
@@ -338,7 +338,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeTranslationMap ( ProSHADE_int
     fftw_execute                                      ( forwardFourierObj2 );
     
     //================================================ Combine Fourier coeffs and invert
-    ProSHADE_internal_overlay::combineFourierForTranslation ( tmpOut1, tmpOut2, resOut, staticStructure->getXDim(), staticStructure->getYDim(), staticStructure->getZDim() );
+    ProSHADE_internal_maths::combineFourierForTranslation ( tmpOut1, tmpOut2, resOut, staticStructure->getXDim(), staticStructure->getYDim(), staticStructure->getZDim() );
     fftw_execute                                      ( inverseFourierCombo );
     
     //================================================ Free memory
@@ -416,92 +416,6 @@ void ProSHADE_internal_overlay::freeTranslationFunctionMemory ( fftw_complex*& t
     delete[] resOut;
     
     //======================================== Done
-    return ;
-    
-}
-
-/*! \brief This function combines Fourier coefficients of two structures in a way, so that inverse Fourier of the combination will be the translation function.
- 
-    \param[in] tmpOut1 Array holding the static structure Fourier outputs.
-    \param[in] tmpOut2 Array holding the moving structure Fourier outputs.
-    \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
-    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
-    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
-    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
- */
-void ProSHADE_internal_overlay::combineFourierForTranslation ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD )
-{
-    //================================================ Initialise local variables
-    double normFactor                                 = static_cast<double> ( xD * yD * zD );
-    proshade_signed arrPos;
-    
-    //================================================ Combine the coefficients
-    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xD ); xIt++ )
-    {
-        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yD ); yIt++ )
-        {
-            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zD ); zIt++ )
-            {
-                //==================================== Find indices
-                arrPos                                = zIt   + static_cast< proshade_signed > ( zD ) * ( yIt   + static_cast< proshade_signed > ( yD ) * xIt );
-                
-                //==================================== Combine
-                ProSHADE_internal_maths::complexMultiplicationConjug ( &tmpOut1[arrPos][0],
-                                                                       &tmpOut1[arrPos][1],
-                                                                       &tmpOut2[arrPos][0],
-                                                                       &tmpOut2[arrPos][1],
-                                                                       &resOut[arrPos][0],
-                                                                       &resOut[arrPos][1] );
-                
-                //==================================== Save
-                resOut[arrPos][0]                    /= normFactor;
-                resOut[arrPos][1]                    /= normFactor;
-            }
-        }
-    }
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function simply finds the highest value in fftw_complex map and returns its position and value.
- 
-    \param[in] resIn Array holding the translation function values.
-    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
-    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
-    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
-    \param[in] trsX Variable to which the X axis translation function peak position will be saved to.
-    \param[in] trsY Variable to which the Y axis translation function peak position will be saved to.
-    \param[in] trsZ Variable to which the Z axis translation function peak position will be saved to.
-    \param[in] mapPeak Variable to which the height of the translation function peak will be saved to.
- */
-void ProSHADE_internal_overlay::findHighestValueInMap ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak )
-{
-    //================================================ Initialise variables
-    proshade_signed arrPos;
-   *mapPeak                                           = 0.0;
-    
-    //================================================ Search the map
-    for ( proshade_signed uIt = 0; uIt < static_cast<proshade_signed> ( xD ); uIt++ )
-    {
-        for ( proshade_signed vIt = 0; vIt < static_cast<proshade_signed> ( yD ); vIt++ )
-        {
-            for ( proshade_signed wIt = 0; wIt < static_cast<proshade_signed> ( zD ); wIt++ )
-            {
-                arrPos                                = wIt + static_cast< proshade_signed > ( zD ) * ( vIt + static_cast< proshade_signed > ( yD ) * uIt );
-                if ( resIn[arrPos][0] > *mapPeak )
-                {
-                   *mapPeak                           = resIn[arrPos][0];
-                   *trsX                              = static_cast< proshade_double > ( uIt );
-                   *trsY                              = static_cast< proshade_double > ( vIt );
-                   *trsZ                              = static_cast< proshade_double > ( wIt );
-                }
-            }
-        }
-    }
-    
-    //================================================ Done
     return ;
     
 }

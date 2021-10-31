@@ -3865,3 +3865,92 @@ void ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( fftw_comp
     return ;
     
 }
+
+/*! \brief This function ...
+ 
+    \param[in] symStr A ProSHADE_data structure containing the structure for which the line on which the centre of rotation lies is to be found.
+    \param[in] symElems Vector of vectors containing at least two symmetry elements (rotaiton matrices) which are not identity.
+    \param[in] origCoeffs The Fourier coefficients of the original (non-rotated) map.
+    \param[in] rotMapComplex Array to which the rotated map will be saved and from which the Fourier transform plan (planForwardFourierRot) is prepared.
+    \param[in] rotCoeffs Array to which the result of the Fourier transform of the rotated map will be saved into by the supplied plan (planForwardFourierRot).
+    \param[in] planForwardFourierRot FFTW3 plan for forward Fourier transform from rotMapComplex to rotCoeffs.
+    \param[in] trFuncCoeffs The array to which the combined Fourier coefficients for translation function will be saved into and also for which the inverse Fourier transform plan (planReverseFourierComb) is prepared for.
+    \param[in] trFunc The array to which the translation function will be saved into by the reverse Fourier transform planned by the plan (planReverseFourierComb).
+    \param[in] planReverseFourierComb FFTW3 plan for reverse Fourier transform from the combined coefficients (trFuncCoeffs) to the translation function array (trFunc).
+    \param[in] verbose How loud the function should be?
+    \param[out] lineAxis A vector containing two points X1Y1Z1 = [0][1][2] and X2Y2Z2 = [3][4][5] on the line on which the rotation centre is for the supplied two rotations.
+*/
+std::vector< proshade_double > ProSHADE_internal_symmetry::findCentreOfRotationAxis ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector< std::vector < proshade_double > > symElems, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose )
+{
+    //================================================ Initialise local variables
+    proshade_double axX, axY, axZ, axAng, mapPeak, trsX, trsY, trsZ;
+    std::vector< proshade_double > lineAxis;
+    
+    //================================================ For the first two elements
+    for ( size_t grEl = 0; grEl < 2; grEl++ )
+    {        
+        std::cout << std::endl;
+        std::cout << symElems.at(grEl).at(0) << ", " << symElems.at(grEl).at(1) << ", " << symElems.at(grEl).at(2) << std::endl;
+        std::cout << symElems.at(grEl).at(3) << ", " << symElems.at(grEl).at(4) << ", " << symElems.at(grEl).at(5) << std::endl;
+        std::cout << symElems.at(grEl).at(6) << ", " << symElems.at(grEl).at(7) << ", " << symElems.at(grEl).at(8) << std::endl;
+        std::cout << std::endl;
+        
+
+        //============================================ Rotate the map by the rotation matrix
+        proshade_double *rotMap;
+        ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &( symElems.at(grEl) ), &axX, &axY, &axZ, &axAng );
+        symStr->rotateMapRealSpace                    ( axX, axY, axZ, axAng, rotMap );
+        
+        //============================================ Convert rotated map to Fourier space
+        for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { rotMapComplex[it][0] = rotMap[it]; rotMapComplex[it][1] = 0.0; }
+        fftw_execute                                  ( planForwardFourierRot );
+
+        //============================================ Combine coeffs for translation function
+        ProSHADE_internal_maths::combineFourierForTranslation ( origCoeffs, rotCoeffs, trFuncCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+
+        //============================================ Compute translation function
+        fftw_execute                                  ( planReverseFourierComb );
+
+        //============================================ Find peak
+        mapPeak                                       = 0.0;
+        ProSHADE_internal_maths::findHighestValueInMap  ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
+        
+        //============================================ Convert to Angstroms
+        trsX                                         *= ( symStr->getXDimSize() / symStr->getXDim() );
+        trsY                                         *= ( symStr->getYDimSize() / symStr->getYDim() );
+        trsZ                                         *= ( symStr->getZDimSize() / symStr->getZDim() );
+        
+        //============================================ Do not translate over half
+        if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }
+        if ( trsY > ( static_cast< proshade_double > ( symStr->getYDimSize() ) / 2.0 ) ) { trsY = trsY - static_cast< proshade_double > ( symStr->getYDimSize() ); }
+        if ( trsZ > ( static_cast< proshade_double > ( symStr->getZDimSize() ) / 2.0 ) ) { trsZ = trsZ - static_cast< proshade_double > ( symStr->getZDimSize() ); }
+
+        //============================================ Compute the Moore-Penrose pseudo inverse of I-Ri
+        proshade_double* invMat                       = ProSHADE_internal_maths::compute3x3MoorePenrosePseudoInverseOfIMinusMat ( &( symElems.at(grEl) ), verbose );
+        
+        //============================================ Multiply translation with the inverted I - Ri to get centre of rotation
+        proshade_double* rotCen                       = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( invMat, trsX, trsY, trsZ );
+
+        //============================================ Save line point
+        ProSHADE_internal_misc::addToDoubleVector     ( &lineAxis, rotCen[0] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &lineAxis, rotCen[1] );
+        ProSHADE_internal_misc::addToDoubleVector     ( &lineAxis, rotCen[2] );
+        
+        //============================================ Release memory
+        delete[] rotMap;
+        delete[] invMat;
+        delete[] rotCen;
+    }
+    
+    //================================================ Sanity check
+    if ( lineAxis.size() != 6 )
+    {
+        std::cerr << "!!! PRUSER !!!" << std::endl;
+    }
+    
+    std::cout << "Found a symmetry axis given by points " << lineAxis.at(0) << " x " << lineAxis.at(1) << " x " << lineAxis.at(2) << " and " << lineAxis.at(3) << " x " << lineAxis.at(4) << " x " << lineAxis.at(5) << std::endl;
+    
+    //================================================ Done
+    return                                            ( lineAxis );
+    
+}

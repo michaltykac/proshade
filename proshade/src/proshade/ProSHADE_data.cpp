@@ -2295,6 +2295,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
     \param[in] noBins The number of bins will be stored in this variable.
     \param[in] bindata An array to store the bin sums and other FSC computation temporary results.
     \param[in] binCounts An array that will be used to store the number of reflactions in each bin.
+    \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
  */
 void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs, proshade_signed*& binIndexing, proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier, proshade_double*& fscByBin )
 {
@@ -2534,6 +2535,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
     \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
  */
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, fftw_complex* mapData, fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing, proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin )
 {

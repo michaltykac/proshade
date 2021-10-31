@@ -388,9 +388,18 @@ namespace ProSHADE_internal_maths
     void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed* noBin, proshade_signed*& binIndexing );
     proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds,
                                                         proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin );
+    void computeFSCWeightByBin                        ( proshade_double*& weights1, proshade_double*& weights2, proshade_signed* binIndexing, proshade_double* fscByBin, proshade_signed noBins,
+                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+    proshade_double computeTheFValue                  ( proshade_complex* fCoeffs, proshade_double* weights, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+    void computeTrFunDerivatives                      ( proshade_complex* fCoeffs, proshade_double* weights1, proshade_double* weights2, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim,
+                                                        proshade_double*& firstDers, proshade_double*& secondDers );
+    proshade_double* computeTrFunStep                 ( proshade_double* firstDers, proshade_double* secondDers );
     std::vector< proshade_signed > findPeaks1D        ( std::vector< proshade_double > data );
     proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
     proshade_double findTopGroupSmooth                ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
+    void combineFourierForTranslation                 ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD );
+    void findHighestValueInMap                        ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX,
+                                                        proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak );
 }
 
 #endif

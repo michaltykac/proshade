@@ -126,6 +126,9 @@ namespace ProSHADE_internal_symmetry
                                                         fftw_plan *planReverseFourierComb );
     void releaseCentreOfMapFourierTransforms          ( fftw_complex *origMap, fftw_complex *origCoeffs, fftw_complex *rotMapComplex, fftw_complex *rotCoeffs, fftw_complex *trFunc, fftw_complex *trFuncCoeffs,
                                                         fftw_plan planForwardFourier, fftw_plan planForwardFourierRot, fftw_plan planReverseFourierComb );
+std::vector< proshade_double > findCentreOfRotationAxis ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector< std::vector < proshade_double > > symElems1, fftw_complex *origCoeffs,
+                                                          fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc,
+                                                          fftw_plan planReverseFourierComb, proshade_signed verbose );
 }
 
 #endif

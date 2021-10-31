@@ -419,22 +419,11 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     std::vector< std::vector < proshade_double > > symElems;
     if ( relSym.size() == 2 )
     {
-        std::cout << "Decided that the reliable axes are: " << allCs->at(relSym.at(0))[0] << " | " << allCs->at(relSym.at(0))[1] << " x " << allCs->at(relSym.at(0))[2] << " x " << allCs->at(relSym.at(0))[3] << " || " << allCs->at(relSym.at(0))[5] << " || " << allCs->at(relSym.at(0))[6] << std::endl;
-        std::cout << "   and                            : " << allCs->at(relSym.at(1))[0] << " | " << allCs->at(relSym.at(1))[1] << " x " << allCs->at(relSym.at(1))[2] << " x " << allCs->at(relSym.at(1))[3] << " || " << allCs->at(relSym.at(1))[5] << " || " << allCs->at(relSym.at(1))[6] << std::endl;
-        
         //============================================ Optimise the orthogonal pair
         ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( allCs, relSym, symStr, tmpSettings );
 
-        std::cout << "Inproved axes are: " << allCs->at(relSym.at(0))[0] << " | " << allCs->at(relSym.at(0))[1] << " x " << allCs->at(relSym.at(0))[2] << " x " << allCs->at(relSym.at(0))[3] << " || " << allCs->at(relSym.at(0))[5] << " || " << allCs->at(relSym.at(0))[6] << std::endl;
-        std::cout << "   and           : " << allCs->at(relSym.at(1))[0] << " | " << allCs->at(relSym.at(1))[1] << " x " << allCs->at(relSym.at(1))[2] << " x " << allCs->at(relSym.at(1))[3] << " || " << allCs->at(relSym.at(1))[5] << " || " << allCs->at(relSym.at(1))[6] << std::endl;
-        
         //============================================ Generate the symmetry elements for the detected axes
         symElems                                      = symStr->getAllGroupElements ( allCs, relSym, "D", tmpSettings->axisErrTolerance );
-        
-        std::cout << "Found total of " << symElems.size() << " elements, the first being:" << std::endl;
-        std::cout << symElems.at(0).at(0) << " | " << symElems.at(0).at(1) << " | " << symElems.at(0).at(2) << std::endl;
-        std::cout << symElems.at(0).at(3) << " | " << symElems.at(0).at(4) << " | " << symElems.at(0).at(5) << std::endl;
-        std::cout << symElems.at(0).at(6) << " | " << symElems.at(0).at(7) << " | " << symElems.at(0).at(8) << std::endl;
     }
     else
     {
@@ -463,168 +452,265 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptCoeffs, __FILE__, __LINE__, __func__ );
     fftw_plan planForwardOptimisation                 = fftw_plan_dft_3d ( static_cast< int > ( symStr->getXDim() ), static_cast< int > ( symStr->getYDim() ), static_cast< int > ( symStr->getZDim() ), trsOptMap,       trsOptCoeffs, FFTW_FORWARD,   FFTW_ESTIMATE );
     
-    //================================================ Prepare FSC computation memory and variables
+    //== Prepare FSC computation memory and variables
     fftw_complex *FSCmapData, *FSCorigCoeffs, *FSCfCoeffs;
     fftw_plan FSCplanForwardFourier;
     proshade_double **binDataFSC, *fscByBin;
     proshade_signed *binIndexing, *binCounts, noBins;
     symStr->prepareFSCFourierMemory                   ( FSCmapData, FSCorigCoeffs, FSCfCoeffs, binIndexing, &noBins, binDataFSC, binCounts, &FSCplanForwardFourier, fscByBin );
-    std::cout << "??? " << binIndexing[0] << " x " << binIndexing[10] << " x " << binIndexing[110] << " x " << binIndexing[1110] << " x " << binIndexing[3310] << " x " << binIndexing[7770] << std::endl;
     
-    //================================================ For each point group element:
-    proshade_double axX, axY, axZ, axAng, mapPeak, trsX, trsY, trsZ;
-    for ( size_t grEl = 0; grEl < symElems.size(); grEl++ )
+    std::vector< proshade_double > identityMat        ( 9, 0.0 ); identityMat.at(0) = 1.0; identityMat.at(4) = 1.0; identityMat.at(8) = 1.0;
+    std::vector< std::vector< proshade_double > > pointsOnLines;
+    for ( size_t gEl1 = 0; gEl1 < symElems.size(); gEl1++ )
     {
-        //============================================ If identity element, skip
-        const FloatingPoint< proshade_double > lhs1 ( symElems.at(grEl).at(0) + symElems.at(grEl).at(4) + symElems.at(grEl).at(8) );
-        const FloatingPoint< proshade_double > lhs2 ( symElems.at(grEl).at(1) + symElems.at(grEl).at(2) + symElems.at(grEl).at(3) + symElems.at(grEl).at(5) + symElems.at(grEl).at(6) + symElems.at(grEl).at(7) );
-        const FloatingPoint< proshade_double > rhs1 ( 3.0 );
-        const FloatingPoint< proshade_double > rhs2 ( 0.0 );
-        if ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( lhs2.AlmostEquals ( rhs2 ) ) )
+        //============================================ Ignore identity element
+        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &symElems.at(gEl1), &identityMat, 0.01 ) ) { continue; }
+        
+        for ( size_t gEl2 = 0; gEl2 < symElems.size(); gEl2++ )
         {
-            continue;
+            //======================================== Unique combinations only
+            if ( gEl2 <= gEl1 ) { continue; }
+            
+            //======================================== Ignore identity element
+            if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &symElems.at(gEl2), &identityMat, 0.01 ) ) { continue; }
+            
+            //======================================== Create new elements list containing this pair only
+            std::vector< std::vector < proshade_double > > symElemPair;
+            std::vector < proshade_double > hlpVec    ( 9, 0.0 );
+            for ( size_t iter = 0; iter < 9; iter++ ) { hlpVec.at(iter) = symElems.at(gEl1).at(iter); }
+            ProSHADE_internal_misc::addToDoubleVectorVector ( &symElemPair, hlpVec );
+            for ( size_t iter = 0; iter < 9; iter++ ) { hlpVec.at(iter) = symElems.at(gEl2).at(iter); }
+            ProSHADE_internal_misc::addToDoubleVectorVector ( &symElemPair, hlpVec );
+            
+            //======================================== Find the rotation axis between these two elements
+            ProSHADE_internal_misc::addToDoubleVectorVector ( &pointsOnLines, ProSHADE_internal_symmetry::findCentreOfRotationAxis ( symStr, symElemPair, origCoeffs, rotMapComplex, rotCoeffs, planForwardFourierRot, trFuncCoeffs, trFunc, planReverseFourierComb, settings->verbose ) );
         }
-        
-        std::cout << std::endl;
-        std::cout << symElems.at(grEl).at(0) << ", " << symElems.at(grEl).at(1) << ", " << symElems.at(grEl).at(2) << std::endl;
-        std::cout << symElems.at(grEl).at(3) << ", " << symElems.at(grEl).at(4) << ", " << symElems.at(grEl).at(5) << std::endl;
-        std::cout << symElems.at(grEl).at(6) << ", " << symElems.at(grEl).at(7) << ", " << symElems.at(grEl).at(8) << std::endl;
-        std::cout << std::endl;
-        
-
-        //============================================ Rotate the map by the rotation matrix
-        proshade_double *rotMap;
-        ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &( symElems.at(grEl) ), &axX, &axY, &axZ, &axAng );
-        symStr->rotateMapRealSpace                    ( axX, axY, axZ, axAng, rotMap );
-        
-        std::stringstream hh2;
-        hh2 << "rotMap" << grEl << ".map";
-        proshade_double* hlpMap2 = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { hlpMap2[i] = symStr->getInternalMap()[i]; }
-        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = rotMap[i]; }
-        symStr->writeMap ( hh2.str() );
-        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = hlpMap2[i]; }
-        delete[] hlpMap2;
-         
-        //============================================ Convert rotated map to Fourier space
-        for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { rotMapComplex[it][0] = rotMap[it]; rotMapComplex[it][1] = 0.0; }
-        fftw_execute                          ( planForwardFourierRot );
-
-        //============================================ Combine coeffs for translation function
-        ProSHADE_internal_overlay::combineFourierForTranslation ( origCoeffs, rotCoeffs, trFuncCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
-
-        //============================================ Compute translation function
-        fftw_execute                                  ( planReverseFourierComb );
-
-        //============================================ Find peak
-        mapPeak                                       = 0.0;
-        ProSHADE_internal_overlay::findHighestValueInMap  ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
-        
-        //============================================ Convert to Angstroms
-        trsX *= ( symStr->getXDimSize() / symStr->getXDim() );
-        trsY *= ( symStr->getYDimSize() / symStr->getYDim() );
-        trsZ *= ( symStr->getZDimSize() / symStr->getZDim() );
-        
-        //============================================ Do not translate over half
-        if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }
-        if ( trsY > ( static_cast< proshade_double > ( symStr->getYDimSize() ) / 2.0 ) ) { trsY = trsY - static_cast< proshade_double > ( symStr->getYDimSize() ); }
-        if ( trsZ > ( static_cast< proshade_double > ( symStr->getZDimSize() ) / 2.0 ) ) { trsZ = trsZ - static_cast< proshade_double > ( symStr->getZDimSize() ); }
-        
-        //============================================ Translation function optimisation
-        std::cout << " ### Found best translation to be " << trsX << ", " << trsY << ", " << trsZ << " with peak " << mapPeak << std::endl;
-        
-        //== !!!! Optimise rotated map translation function
-        proshade_unsign nCycles = 1;
-        
-        // Create map copy for manipulation
-        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { trsOptMap[i][0] = rotMap[i]; trsOptMap[i][1] = 0.0; }
-        
-        // Initialise minimisation
-        std::vector< proshade_double > translation    = std::vector< proshade_double > ( 3, 0.0 );
-        std::vector< proshade_double > translation_tot= std::vector< proshade_double > ( 3, 0.0 );
-        std::vector< proshade_double > translation_ang= std::vector< proshade_double > ( 3, 0.0 );
-        
-        translation_ang.at(0)                         = translation.at(0) * ( symStr->getXDimSize() / symStr->getXDim() );
-        translation_ang.at(1)                         = translation.at(1) * ( symStr->getYDimSize() / symStr->getYDim() );
-        translation_ang.at(2)                         = translation.at(2) * ( symStr->getZDimSize() / symStr->getZDim() );
-        proshade_double translationLength             = std::sqrt ( pow( translation_ang.at(0), 2.0 ) + pow( translation_ang.at(1), 2.0 ) + pow( translation_ang.at(2), 2.0 ) );
- 
-        // Minimise
-        for ( proshade_unsign cIt = 0; cIt < nCycles; cIt++ )
-        {
-            // Translate map by last translation
-            ProSHADE_internal_mapManip::moveMapByFourier ( rotMap, trsX, trsY, trsZ,
-                                                           symStr->getXDimSize(), symStr->getYDimSize(), symStr->getZDimSize(),
-                                                           static_cast< proshade_signed > ( symStr->getXDim() ), static_cast< proshade_signed > ( symStr->getYDim() ),
-                                                           static_cast< proshade_signed > ( symStr->getZDim() ) );
-            
-            // Convert translated map to Fourier
-            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { FSCmapData[i][0] = rotMap[i]; FSCmapData[i][1] = 0.0; }
-            fftw_execute                              ( FSCplanForwardFourier );
-            
-            // Find current FSC between moved and static
-            proshade_double fsc                       = ProSHADE_internal_maths::computeFSC ( origCoeffs, FSCfCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), noBins, binIndexing, binDataFSC, binCounts, fscByBin );
-            std::cout << " ??? FSC: " << fsc << std::endl;
-            
-            
-            // find grid weights
-            proshade_double* gWeights1                = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-            proshade_double* gWeights2                = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-            ProSHADE_internal_misc::checkMemoryAllocation     ( gWeights1, __FILE__, __LINE__, __func__ );
-            ProSHADE_internal_misc::checkMemoryAllocation     ( gWeights2, __FILE__, __LINE__, __func__ );
-            for ( size_t iter = 0; iter < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); iter++ ) { gWeights1[iter] = 0.0; gWeights2[iter] = 0.0; }
-            
-            proshade_signed indx, arrPos;
-            {
-                
-                
-                
-//                // For each index
-//                for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( symStr->getXDim() ); xIt++ )
-//                {
-//                    for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( symStr->getYDim() ); yIt++ )
-//                    {
-//                        for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( ( symStr->getZDim() / 2 ) + 1 ); zIt++ )
-//                        {
-//                            // Find array position and index
-//                            arrPos           = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
-//                            indx             = binIndexing[ static_cast< size_t > ( arrPos ) ];
-//
-//                            if ( ( indx < 0 ) || ( indx > noBins ) ) { continue; }
-//
-//
-//
-//
-//                        }
-//                    }
-//                }
-            }
-            
-            // Release grid weights
-            delete[] gWeights1;
-            delete[] gWeights2;
-        }
-
-        // delme
-        std::stringstream hlpSQ;
-        hlpSQ << "trsRotMap" << grEl << ".map";
-        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = rotMap[i]; }
-        symStr->writeMap ( hlpSQ.str() );
-        
-        //============================================ Compute the Moore-Penrose pseudo inverse of I-Ri
-        proshade_double* invMat                       = ProSHADE_internal_maths::compute3x3MoorePenrosePseudoInverseOfIMinusMat ( &( symElems.at(grEl) ), settings->verbose );
-        
-        //============================================ Multiply translation with the inverted I - Ri to get centre of rotation
-        proshade_double* rotCen                       = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( invMat, trsX, trsY, trsZ );
-
-
-        std::cout << " ### Centre of rotation according to this group element is: " << rotCen[0] << " x " << rotCen[1] << " x " << rotCen[2] << std::endl;
-        
-        //============================================ Release the rotated map
-        delete[] rotMap;
-        delete[] invMat;
-        delete[] rotCen;
     }
+    
+    for ( size_t lIt1 = 0; lIt1 < pointsOnLines.size(); lIt1++ )
+    {
+        for ( size_t lIt2 = 0; lIt2 < pointsOnLines.size(); lIt2++ )
+        {
+            //======================================== Unique combinations only
+            if ( lIt1 <= lIt2 ) { continue; }
+            
+            //======================================== Find intercept
+            
+            // Find slopes
+            proshade_double* slope1 = new proshade_double[3];
+            proshade_double* slope2 = new proshade_double[3];
+            
+            slope1[0] = pointsOnLines.at(lIt1).at(3) - pointsOnLines.at(lIt1).at(0);
+            slope1[1] = pointsOnLines.at(lIt1).at(4) - pointsOnLines.at(lIt1).at(1);
+            slope1[2] = pointsOnLines.at(lIt1).at(5) - pointsOnLines.at(lIt1).at(2);
+            
+            slope2[0] = pointsOnLines.at(lIt2).at(3) - pointsOnLines.at(lIt2).at(0);
+            slope2[1] = pointsOnLines.at(lIt2).at(4) - pointsOnLines.at(lIt2).at(1);
+            slope2[2] = pointsOnLines.at(lIt2).at(5) - pointsOnLines.at(lIt2).at(2);
+            
+            // Find vector product of slopes
+            proshade_double* slopeProd = new proshade_double[3];
+            
+            
+            
+            delete[] slope1;
+            delete[] slope2;
+            delete[] slopeProd;
+        }
+    }
+    
+    
+    
+//    //================================================ For each point group element:
+//    proshade_double axX, axY, axZ, axAng, mapPeak, trsX, trsY, trsZ;
+//    std::vector< proshade_double > firstAxis          ( 6, 0.0 );
+//    for ( size_t grEl = 0; grEl < 2; grEl++ )
+//    {
+//        //============================================ If identity element, skip
+//        const FloatingPoint< proshade_double > lhs1 ( symElems1.at(grEl).at(0) + symElems1.at(grEl).at(4) + symElems1.at(grEl).at(8) );
+//        const FloatingPoint< proshade_double > lhs2 ( symElems1.at(grEl).at(1) + symElems1.at(grEl).at(2) + symElems1.at(grEl).at(3) + symElems1.at(grEl).at(5) + symElems1.at(grEl).at(6) + symElems1.at(grEl).at(7) );
+//        const FloatingPoint< proshade_double > rhs1 ( 3.0 );
+//        const FloatingPoint< proshade_double > rhs2 ( 0.0 );
+//        if ( ( lhs1.AlmostEquals ( rhs1 ) ) && ( lhs2.AlmostEquals ( rhs2 ) ) )
+//        {
+//            continue;
+//        }
+//
+//        std::cout << std::endl;
+//        std::cout << symElems1.at(grEl).at(0) << ", " << symElems1.at(grEl).at(1) << ", " << symElems1.at(grEl).at(2) << std::endl;
+//        std::cout << symElems1.at(grEl).at(3) << ", " << symElems1.at(grEl).at(4) << ", " << symElems1.at(grEl).at(5) << std::endl;
+//        std::cout << symElems1.at(grEl).at(6) << ", " << symElems1.at(grEl).at(7) << ", " << symElems1.at(grEl).at(8) << std::endl;
+//        std::cout << std::endl;
+//
+//
+//        //============================================ Rotate the map by the rotation matrix
+//        proshade_double *rotMap;
+//        ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &( symElems1.at(grEl) ), &axX, &axY, &axZ, &axAng );
+//        symStr->rotateMapRealSpace                    ( axX, axY, axZ, axAng, rotMap );
+        
+//        std::stringstream hh2;
+//        hh2 << "rotMap" << grEl << ".map";
+//        proshade_double* hlpMap2 = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+//        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { hlpMap2[i] = symStr->getInternalMap()[i]; }
+//        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = rotMap[i]; }
+//        symStr->writeMap ( hh2.str() );
+//        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = hlpMap2[i]; }
+//        delete[] hlpMap2;
+         
+//        //============================================ Convert rotated map to Fourier space
+//        for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { rotMapComplex[it][0] = rotMap[it]; rotMapComplex[it][1] = 0.0; }
+//        fftw_execute                          ( planForwardFourierRot );
+//
+//        //============================================ Combine coeffs for translation function
+//        ProSHADE_internal_maths::combineFourierForTranslation ( origCoeffs, rotCoeffs, trFuncCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+//
+//        //============================================ Compute translation function
+//        fftw_execute                                  ( planReverseFourierComb );
+//
+//        //============================================ Find peak
+//        mapPeak                                       = 0.0;
+//        ProSHADE_internal_maths::findHighestValueInMap  ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
+//
+//        //============================================ Convert to Angstroms
+//        trsX *= ( symStr->getXDimSize() / symStr->getXDim() );
+//        trsY *= ( symStr->getYDimSize() / symStr->getYDim() );
+//        trsZ *= ( symStr->getZDimSize() / symStr->getZDim() );
+//
+//        //============================================ Do not translate over half
+//        if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }
+//        if ( trsY > ( static_cast< proshade_double > ( symStr->getYDimSize() ) / 2.0 ) ) { trsY = trsY - static_cast< proshade_double > ( symStr->getYDimSize() ); }
+//        if ( trsZ > ( static_cast< proshade_double > ( symStr->getZDimSize() ) / 2.0 ) ) { trsZ = trsZ - static_cast< proshade_double > ( symStr->getZDimSize() ); }
+//
+//        //============================================ Translation function optimisation
+//        std::cout << " ### Found best translation to be " << trsX << ", " << trsY << ", " << trsZ << " with peak " << mapPeak << std::endl;
+//
+//        // Copy starting map to complex for Fourier and compute it
+//        for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { FSCmapData[it][0] = rotMap[it]; FSCmapData[it][1] = 0.0; }
+//        fftw_execute                                  ( FSCplanForwardFourier );
+//
+//        //== !!!! Optimise rotated map translation function
+//        proshade_unsign nCycles = 1;
+//
+//        // Initialise minimisation
+//        std::vector< proshade_double > translation_inds     = std::vector< proshade_double > ( 3, 0.0 );
+//        std::vector< proshade_double > translation_inds_tot = std::vector< proshade_double > ( 3, 0.0 );
+//        std::vector< proshade_double > translation_angs     = std::vector< proshade_double > ( 3, 0.0 );
+//
+//        translation_inds_tot.at(0)                    = trsX / ( symStr->getXDimSize() / symStr->getXDim() );
+//        translation_inds_tot.at(1)                    = trsY / ( symStr->getYDimSize() / symStr->getYDim() );
+//        translation_inds_tot.at(2)                    = trsZ / ( symStr->getZDimSize() / symStr->getZDim() );
+//
+//        translation_inds.at(0)                        = translation_inds_tot.at(0);
+//        translation_inds.at(1)                        = translation_inds_tot.at(1);
+//        translation_inds.at(2)                        = translation_inds_tot.at(2);
+//
+//        translation_angs.at(0)                        = translation_inds.at(0) * ( symStr->getXDimSize() / symStr->getXDim() );
+//        translation_angs.at(1)                        = translation_inds.at(1) * ( symStr->getYDimSize() / symStr->getYDim() );
+//        translation_angs.at(2)                        = translation_inds.at(2) * ( symStr->getZDimSize() / symStr->getZDim() );
+//        proshade_double translationLength             = std::sqrt ( pow( translation_angs.at(0), 2.0 ) + pow( translation_angs.at(1), 2.0 ) + pow( translation_angs.at(2), 2.0 ) );
+//
+//
+//        proshade_double fVal = 0.0;
+//        proshade_double fscTolerance = 0.999;
+//        // Minimise
+//        for ( proshade_unsign cIt = 0; cIt < nCycles; cIt++ )
+//        {
+//            // Find current FSC between moved and static
+//            proshade_double fsc                       = ProSHADE_internal_maths::computeFSC ( origCoeffs, FSCfCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), noBins, binIndexing, binDataFSC, binCounts, fscByBin );
+//            std::cout << " ??? FSC: " << fsc << std::endl;
+//
+//            // If close enough, we are done
+//            if ( fsc > fscTolerance ) { continue; }
+//
+//            // Compute weights
+//            proshade_double *gWeights1, *gWeights2;
+//            ProSHADE_internal_maths::computeFSCWeightByBin ( gWeights1, gWeights2, binIndexing, fscByBin, noBins, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+            
+            // Translate map by last translation
+//            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { gWeights1[i] = 1.0; }
+//            ProSHADE_internal_mapManip::moveMapByFourierInReci ( FSCfCoeffs, gWeights1, translation_angs.at(0), translation_angs.at(1), translation_angs.at(2),
+//                                                                 symStr->getXDimSize(), symStr->getYDimSize(), symStr->getZDimSize(),
+//                                                                 static_cast< proshade_signed > ( symStr->getXDim() ), static_cast< proshade_signed > ( symStr->getYDim() ),
+//                                                                 static_cast< proshade_signed > ( symStr->getZDim() ) );
+//
+//            // Compute the F value
+//            fVal                                      = ProSHADE_internal_maths::computeTheFValue ( FSCfCoeffs, gWeights1, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+//            std::cout << " ??? F: " << fVal << std::endl;
+//
+//            // Find derivatives
+//            proshade_double *fDers, *sDers;
+//            ProSHADE_internal_maths::computeTrFunDerivatives ( FSCfCoeffs, gWeights1, gWeights2, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), fDers, sDers );
+//            std::cout << "First derivatives: " << fDers[0] << " x " << fDers[1] << " x " << fDers[2] << std::endl << std::endl;
+//            std::cout << "Second derivats:   " << sDers[0] << " x " << sDers[1] << " x " << sDers[2] << std::endl;
+//            std::cout << " ...           :   " << sDers[3] << " x " << sDers[4] << " x " << sDers[5] << std::endl;
+//            std::cout << " ...           :   " << sDers[6] << " x " << sDers[7] << " x " << sDers[8] << std::endl << std::endl;
+//
+//            // Find step sizes
+//            proshade_double* step                     = ProSHADE_internal_maths::computeTrFunStep ( fDers, sDers );
+//            std::cout << "Step sizes: " << step[0] << " x " << step[1] << " x " << step[2] << std::endl << std::endl;
+//
+            // Find step magnitude
+//            proshade_double xMagnit = 0.5, yMagnit = 0.5, zMagnit = 0.5;
+//            while ( true )
+//            {
+//                // Compute weights
+//                proshade_double *locWeights1, *locWeights2;
+//                ProSHADE_internal_maths::computeFSCWeightByBin ( locWeights1, locWeights2, binIndexing, fscByBin, noBins, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+//
+//                // Translate map by last translation
+//                ProSHADE_internal_mapManip::moveMapByFourierInReci ( FSCfCoeffs, gWeights1, trsX, trsY, trsZ,
+//                                                                     symStr->getXDimSize(), symStr->getYDimSize(), symStr->getZDimSize(),
+//                                                                     static_cast< proshade_signed > ( symStr->getXDim() ), static_cast< proshade_signed > ( symStr->getYDim() ),
+//                                                                     static_cast< proshade_signed > ( symStr->getZDim() ) );
+//
+//                // Compute the F value
+//                fVal                                      = ProSHADE_internal_maths::computeTheFValue ( FSCfCoeffs, gWeights1, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+//
+//                // Release grid weights
+//                delete[] locWeights1;
+//                delete[] locWeights2;
+//            }
+            
+//            fftw_plan pl = fftw_plan_dft_3d ( static_cast< int > ( symStr->xDimIndices ), static_cast< int > ( symStr->yDimIndices ), static_cast< int > ( symStr->zDimIndices ), FSCfCoeffs, FSCmapData, FFTW_BACKWARD,  FFTW_ESTIMATE );
+//            fftw_execute ( pl );
+//
+//            std::stringstream hlpSQ;
+//            hlpSQ << "trsRotMap" << grEl << "_" << cIt << ".map";
+//            proshade_double* hlpMap = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+//            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { hlpMap[i] = symStr->getInternalMap()[i]; }
+//            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = FSCmapData[i][0]; }
+//            symStr->writeMap ( hlpSQ.str() );
+//            for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = hlpMap[i]; }
+//            delete[] hlpMap;
+//            fftw_destroy_plan ( pl );
+//
+//            // Release grid weights
+//            delete[] gWeights1;
+//            delete[] gWeights2;
+//
+//            // Release derivatives
+//            delete[] fDers;
+//            delete[] sDers;
+//            delete[] step;
+//        }
+
+//        // delme
+        
+//        // Translate map by starting translation
+//        ProSHADE_internal_mapManip::moveMapByFourier  ( rotMap, trsX, trsY, trsZ,
+//                                                        symStr->getXDimSize(), symStr->getYDimSize(), symStr->getZDimSize(),
+//                                                        static_cast< proshade_signed > ( symStr->getXDim() ), static_cast< proshade_signed > ( symStr->getYDim() ),
+//                                                        static_cast< proshade_signed > ( symStr->getZDim() ) );
+//        std::stringstream hlpSQ;
+//        hlpSQ << "trsRotMap" << grEl << ".map";
+//        proshade_double* hlpMap = new proshade_double[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+//        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { hlpMap[i] = symStr->getInternalMap()[i]; }
+//        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = rotMap[i]; }
+//        symStr->writeMap ( hlpSQ.str() );
+//        for ( int i = 0; i < symStr->getXDim() * symStr->getYDim() * symStr->getZDim(); i++ ) { symStr->getInternalMap()[i] = hlpMap[i]; }
+//        delete[] hlpMap;
+//
+//    }
     
     //== Release optimisation memory
     delete[] trsOptMap;

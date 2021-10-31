@@ -60,6 +60,8 @@ namespace ProSHADE_internal_mapManip
                                                         proshade_signed* zOrigin );
     void moveMapByFourier                             ( proshade_double*& map, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs,
                                                         proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+    void moveMapByFourierInReci                       ( proshade_complex*& coeffs, proshade_double*& weights, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs,
+                                                        proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
     void blurSharpenMap                               ( proshade_double*& map, proshade_double*& maskedMap, proshade_unsign xDimS, proshade_unsign yDimS,
                                                         proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single blurringFactor );
     void getMaskFromBlurr                             ( proshade_double*& blurMap, proshade_double*& outMap, proshade_unsign xDimS, proshade_unsign yDimS,

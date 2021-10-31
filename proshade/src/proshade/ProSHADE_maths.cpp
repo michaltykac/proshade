@@ -3361,6 +3361,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     \param[in] binIndexing The map of bin belonging for each reflection.
     \param[in] binData Array of arrays for holding temporary results of the FSC computation. It needs to have been already allocated and have dimensions of noBins x 12. This array is modified by the function in case the caller would like access to these.
     \param[in] binCounts Array of counts for each bin. It needs to be pre-allocated and have dimension of noBins. This array is modified by the function in case the caller would like access to these.
+    \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
     \param[out] fsc The Fourier Shell Correlation between the two supplied Fourier coefficient maps.
  */
 proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin )
@@ -3412,10 +3413,8 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     }
     
     //================================================ Compute covariance by bin
-    std::cout << "There are " << noBins << " bins." << std::endl;
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        std::cout << "Bin: " << binIt << " has " << binCounts[binIt] << " values." << std::endl;
         covarByBin.at(binIt)                          = ( ( binData[binIt][4] + binData[binIt][5] ) / static_cast< proshade_double > ( binCounts[binIt] )  -
                                                         ( ( binData[binIt][0]                       / static_cast< proshade_double > ( binCounts[binIt] )   *
                                                             binData[binIt][2]                       / static_cast< proshade_double > ( binCounts[binIt] ) ) +
@@ -3446,6 +3445,261 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     
     //================================================ Done
     return                                            ( fsc );
+    
+}
+
+/*! \brief This function computes the weights for each reflection using its bin belonging.
+ 
+    This function computes the weights for tralsation optimisation - the bin FSC for each reflection according to its bin belonging for weights1 and
+    the square of this value for weights2. Note that weights1 and weights2 are allocated within the function, but since they are the output, the caller
+    is expected to delete them after usage.
+ 
+    \param[in] weights1 A pointer to which the FSC by bin weights will be saved into.
+    \param[in] weights1 A pointer to which the squared FSC by bin weights will be saved into.
+    \param[in] binIndexing The map of bin belonging for each reflection.
+    \param[in] fscByBin This array holds FSC values for each bin and is produced by the computeFSC() function.
+    \param[in] noBin Number of bins.
+    \param[in] xDim The size of the x-dimension of the map in indices.
+    \param[in] yDim The size of the y-dimension of the map in indices.
+    \param[in] zDim The size of the z-dimension of the map in indices.
+ */
+void ProSHADE_internal_maths::computeFSCWeightByBin ( proshade_double*& weights1, proshade_double*& weights2, proshade_signed* binIndexing, proshade_double* fscByBin, proshade_signed noBins, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+{
+    //================================================ Initialise local variables
+    proshade_signed indx, arrPos, reciX, reciY, reciZ;
+    
+    //================================================ Allocate memmory
+    weights1                                          = new proshade_double[xDim * yDim * zDim];
+    weights2                                          = new proshade_double[xDim * yDim * zDim];
+    proshade_single *mins                             = new proshade_single[3];
+    proshade_single *maxs                             = new proshade_single[3];
+    
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( weights1, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( weights2, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mins,     __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( maxs,     __FILE__, __LINE__, __func__ );
+    
+    //================================================ Assign values to the memory
+    for ( size_t iter = 0; iter < static_cast< size_t > ( xDim * yDim * zDim ); iter++ ) { weights1[iter] = -100.0; weights2[iter] = -100.0; }
+    
+    //================================================ Determine reciprocal space indexing ranges
+    mins[0]                                           = std::floor ( static_cast< proshade_single > ( xDim ) / -2.0f );
+    mins[1]                                           = std::floor ( static_cast< proshade_single > ( yDim ) / -2.0f );
+    mins[2]                                           = std::floor ( static_cast< proshade_single > ( zDim ) / -2.0f );
+        
+    maxs[0]                                           = -mins[0];
+    maxs[1]                                           = -mins[1];
+    maxs[2]                                           = -mins[2];
+    
+    if ( xDim % 2 == 0 )                              { mins[0] += 1.0f; }
+    if ( yDim % 2 == 0 )                              { mins[1] += 1.0f; }
+    if ( zDim % 2 == 0 )                              { mins[2] += 1.0f; }
+    
+    //================================================ For each reflection
+    for ( proshade_signed xIt = 0; xIt < xDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < ( ( zDim / 2 ) + 1 ); zIt++ )
+            {
+                //==================================== Deal with reciprocal indices ordering
+                reciX = xIt; if ( reciX > static_cast< proshade_signed > ( maxs[0] ) ) { reciX -= static_cast< proshade_signed > ( xDim ); }
+                reciY = yIt; if ( reciY > static_cast< proshade_signed > ( maxs[1] ) ) { reciY -= static_cast< proshade_signed > ( yDim ); }
+                reciZ = zIt; if ( reciZ > static_cast< proshade_signed > ( maxs[2] ) ) { reciZ -= static_cast< proshade_signed > ( zDim ); }
+                
+                //==================================== Find array position and bin index
+                arrPos                                = zIt + zDim * ( yIt + yDim * xIt );
+                indx                                  = binIndexing[ static_cast< size_t > ( arrPos ) ];
+
+                //==================================== Ignore unassigned bin reflections
+                if ( ( indx < 0 ) || ( indx > noBins ) ) { continue; }
+
+                //==================================== Set weights using the bin FSC
+                weights1[arrPos]                      = fscByBin[indx];
+                weights2[arrPos]                      = std::pow ( fscByBin[indx], 2.0 );
+                
+                //==================================== If one of the uneven ends, do not use Friedel's Law
+                if ( reciX == static_cast< proshade_signed > ( mins[0] ) || -reciX == static_cast< proshade_signed > ( mins[0] ) ) { break; }
+                if ( reciY == static_cast< proshade_signed > ( mins[1] ) || -reciY == static_cast< proshade_signed > ( mins[1] ) ) { break; }
+                if ( reciZ == static_cast< proshade_signed > ( mins[2] ) || -reciZ == static_cast< proshade_signed > ( mins[2] ) ) { break; }
+                
+                //==================================== Use Friedel's Law to find the second index (this is why we can use zDim / 2)
+                reciX *= -1; if ( reciX < 0 ) { reciX += xDim; }
+                reciY *= -1; if ( reciY < 0 ) { reciY += yDim; }
+                reciZ *= -1; if ( reciZ < 0 ) { reciZ += zDim; }
+
+                //==================================== Apply Friedel's Law
+                arrPos                                = reciZ + zDim * ( reciY + yDim * reciX );
+                weights1[arrPos]                      = fscByBin[indx];
+                weights2[arrPos]                      = std::pow ( fscByBin[indx], 2.0 );
+            }
+        }
+    }
+    
+    //================================================ Release memory
+    delete[] mins;
+    delete[] maxs;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes the real part of the sum of all coefficients except where the weight is less than -2.
+ 
+    \param[in] fCoeffs The Fourier coefficients to be moved.
+    \param[in] weights The weights to be applied to the shift.
+    \param[in] xDim The size of the x-dimension of the map in indices.
+    \param[in] yDim The size of the y-dimension of the map in indices.
+    \param[in] zDim The size of the z-dimension of the map in indices.
+    \param[out] sum The F value.
+ */
+proshade_double ProSHADE_internal_maths::computeTheFValue ( proshade_complex* fCoeffs, proshade_double* weights, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+{
+    //================================================ Initialise local variables
+    proshade_double sum                               = 0.0;
+    proshade_signed arrPos;
+    
+    //================================================ For each reflection
+    for ( proshade_signed xIt = 0; xIt < xDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < ( ( zDim / 2 ) + 1 ); zIt++ )
+            {
+                //==================================== Find array position and bin index
+                arrPos                                = zIt + zDim * ( yIt + yDim * xIt );
+                
+                //==================================== Sum real parts if weight exists
+                if ( weights[arrPos] > -2.0 ) { sum += fCoeffs[arrPos][0]; }
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( sum );
+    
+}
+
+/*! \brief This function computes the first and second derivatives of the translation function at coefficient [0,0,0].
+ 
+    \param[in] fCoeffs The Fourier coefficients to be used.
+    \param[in] weights1 The weights to be applied to the computation of the first derivatives (given by function computeFSCWeightByBin() ).
+    \param[in] weights2 The weights to be applied to the computation of the second derivatives (given by function computeFSCWeightByBin() ).
+    \param[in] xDim The size of the x-dimension of the map in indices.
+    \param[in] yDim The size of the y-dimension of the map in indices.
+    \param[in] zDim The size of the z-dimension of the map in indices.
+    \param[in] firstDers Pointer to array where the first derivatives (array of 3) will be stored. This function will allocate the memory, but the caller will have to delete it.
+    \param[in] secondDers Pointer to array where the second derivatives (array of 9) will be stored. This function will allocate the memory, but the caller will have to delete it.
+ */
+void ProSHADE_internal_maths::computeTrFunDerivatives ( proshade_complex* fCoeffs, proshade_double* weights1, proshade_double* weights2, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_double*& firstDers, proshade_double*& secondDers )
+{
+    //================================================ Allocate memmory
+    firstDers                                         = new proshade_double[3];
+    secondDers                                        = new proshade_double[9];
+    proshade_single *mins                             = new proshade_single[3];
+    proshade_single *maxs                             = new proshade_single[3];
+    
+    //================================================ Check memory allocation
+    ProSHADE_internal_misc::checkMemoryAllocation     ( firstDers,  __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( secondDers, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( mins,       __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( maxs,       __FILE__, __LINE__, __func__ );
+    
+    //================================================ Initialise variables
+    std::complex< proshade_double > piConstFirst      ( 2.0 * M_PI, 1.0 );
+    proshade_double piConstSecond                     = std::pow ( 2.0 * M_PI, 2.0 );
+    for ( size_t iter = 0; iter < 3; iter++ ) { firstDers[iter]  = 0.0; }
+    for ( size_t iter = 0; iter < 9; iter++ ) { secondDers[iter] = 0.0; }
+    proshade_signed reciX, reciY, reciZ, arrPos;
+    
+    //================================================ Determine reciprocal space indexing ranges
+    mins[0]                                           = std::floor ( static_cast< proshade_single > ( xDim ) / -2.0f );
+    mins[1]                                           = std::floor ( static_cast< proshade_single > ( yDim ) / -2.0f );
+    mins[2]                                           = std::floor ( static_cast< proshade_single > ( zDim ) / -2.0f );
+        
+    maxs[0]                                           = -mins[0];
+    maxs[1]                                           = -mins[1];
+    maxs[2]                                           = -mins[2];
+    
+    if ( xDim % 2 == 0 )                              { mins[0] += 1.0f; }
+    if ( yDim % 2 == 0 )                              { mins[1] += 1.0f; }
+    if ( zDim % 2 == 0 )                              { mins[2] += 1.0f; }
+    
+    //================================================ For each reflection
+    for ( proshade_signed xIt = 0; xIt < xDim; xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < ( ( zDim / 2 ) + 1 ); zIt++ )
+            {
+                //==================================== Deal with reciprocal indices ordering
+                reciX = xIt; if ( reciX > static_cast< proshade_signed > ( maxs[0] ) ) { reciX -= static_cast< proshade_signed > ( xDim ); }
+                reciY = yIt; if ( reciY > static_cast< proshade_signed > ( maxs[1] ) ) { reciY -= static_cast< proshade_signed > ( yDim ); }
+                reciZ = zIt; if ( reciZ > static_cast< proshade_signed > ( maxs[2] ) ) { reciZ -= static_cast< proshade_signed > ( zDim ); }
+                
+                //==================================== Find array position and bin index
+                arrPos                                = zIt + zDim * ( yIt + yDim * xIt );
+                
+                //==================================== Ignore if outside of weights
+                if ( weights1[arrPos] < -2.0 ) { continue; }
+                
+                //==================================== Add to the first derivatives sum
+                firstDers[0] += ( weights1[arrPos] * fCoeffs[arrPos][0] * std::conj( fCoeffs[arrPos][1] * piConstFirst * static_cast< proshade_double > ( reciX ) ) ).real();
+                firstDers[1] += ( weights1[arrPos] * fCoeffs[arrPos][0] * std::conj( fCoeffs[arrPos][1] * piConstFirst * static_cast< proshade_double > ( reciY ) ) ).real();
+                firstDers[2] += ( weights1[arrPos] * fCoeffs[arrPos][0] * std::conj( fCoeffs[arrPos][1] * piConstFirst * static_cast< proshade_double > ( reciZ ) ) ).real();
+                
+                //==================================== Add to the second derivatives sum
+                secondDers[0]                        += weights2[arrPos] * reciX * reciX;
+                secondDers[1]                        += weights2[arrPos] * reciX * reciY;
+                secondDers[2]                        += weights2[arrPos] * reciX * reciZ;
+                secondDers[4]                        += weights2[arrPos] * reciY * reciY;
+                secondDers[5]                        += weights2[arrPos] * reciY * reciZ;
+                secondDers[8]                        += weights2[arrPos] * reciZ * reciZ;
+            }
+        }
+    }
+    
+    //================================================ Complete second darivatives matrix
+    secondDers[3]                                     = secondDers[1];
+    secondDers[6]                                     = secondDers[2];
+    secondDers[7]                                     = secondDers[5];
+    for ( size_t iter = 0; iter < 9; iter++ ) { secondDers[iter] *= -piConstSecond; }
+    
+    //================================================ Release memory
+    delete[] mins;
+    delete[] maxs;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function computes the step sizes for translation function optimisation from the first and second derivatives.
+ 
+    \param[in] firstDers Pointer to array where the first derivatives are stored (as computed by computeTrFunDerivatives() ).
+    \param[in] secondDers Pointer to array where the second derivatives are stored (as computed by computeTrFunDerivatives() ).
+    \param[out] stepArr An array holding the step sizes along the three dimensions. It is allocated here, but the caller is required to delete the pointer.
+ */
+proshade_double* ProSHADE_internal_maths::computeTrFunStep ( proshade_double* firstDers, proshade_double* secondDers )
+{
+    //================================================ Change format of second derivatives and add I matrix (the inversion function will subtract it)
+    std::vector < proshade_double > tmpMap            ( 9, 0.0 );
+    for ( size_t iter = 0; iter < 9; iter++ ) { tmpMap.at(iter) = secondDers[iter]; }
+    tmpMap.at(0) += 1.0; tmpMap.at(4) += 1.0; tmpMap.at(8) += 1.0;
+    
+    //================================================ Compute matrix inversion for the second derivatives matrix
+    proshade_double* secondInv                        = compute3x3MoorePenrosePseudoInverseOfIMinusMat ( &tmpMap, -1 );
+    
+    //================================================ Compute dot product between the inverted matrix and the first derivatives vector
+    proshade_double* stepArr                          = compute3x3MatrixVectorMultiplication ( secondInv, -firstDers[0], -firstDers[1], -firstDers[2] );
+    
+    //================================================ Release memory
+    delete[] secondInv;
+    
+    //================================================ Done
+    return                                            ( stepArr );
     
 }
 
@@ -3607,5 +3861,91 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     
     //================================================ Done
     return                                            ( threshold );
+    
+}
+
+/*! \brief This function combines Fourier coefficients of two structures in a way, so that inverse Fourier of the combination will be the translation function.
+ 
+    \param[in] tmpOut1 Array holding the static structure Fourier outputs.
+    \param[in] tmpOut2 Array holding the moving structure Fourier outputs.
+    \param[in] resOut Array to hold the combined Fourier coefficients of both structures.
+    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
+ */
+void ProSHADE_internal_maths::combineFourierForTranslation ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD )
+{
+    //================================================ Initialise local variables
+    double normFactor                                 = static_cast<double> ( xD * yD * zD );
+    proshade_signed arrPos;
+    
+    //================================================ Combine the coefficients
+    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xD ); xIt++ )
+    {
+        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yD ); yIt++ )
+        {
+            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zD ); zIt++ )
+            {
+                //==================================== Find indices
+                arrPos                                = zIt   + static_cast< proshade_signed > ( zD ) * ( yIt   + static_cast< proshade_signed > ( yD ) * xIt );
+                
+                //==================================== Combine
+                ProSHADE_internal_maths::complexMultiplicationConjug ( &tmpOut1[arrPos][0],
+                                                                       &tmpOut1[arrPos][1],
+                                                                       &tmpOut2[arrPos][0],
+                                                                       &tmpOut2[arrPos][1],
+                                                                       &resOut[arrPos][0],
+                                                                       &resOut[arrPos][1] );
+                
+                //==================================== Save
+                resOut[arrPos][0]                    /= normFactor;
+                resOut[arrPos][1]                    /= normFactor;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function simply finds the highest value in fftw_complex map and returns its position and value.
+ 
+    \param[in] resIn Array holding the translation function values.
+    \param[in] xD The dimension of the X axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] yD The dimension of the Y axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] zD The dimension of the Z axis of the structures (assumes both structures have the same sizes and sampling).
+    \param[in] trsX Variable to which the X axis translation function peak position will be saved to.
+    \param[in] trsY Variable to which the Y axis translation function peak position will be saved to.
+    \param[in] trsZ Variable to which the Z axis translation function peak position will be saved to.
+    \param[in] mapPeak Variable to which the height of the translation function peak will be saved to.
+ */
+void ProSHADE_internal_maths::findHighestValueInMap ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX, proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak )
+{
+    //================================================ Initialise variables
+    proshade_signed arrPos;
+   *mapPeak                                           = 0.0;
+    
+    //================================================ Search the map
+    for ( proshade_signed uIt = 0; uIt < static_cast<proshade_signed> ( xD ); uIt++ )
+    {
+        for ( proshade_signed vIt = 0; vIt < static_cast<proshade_signed> ( yD ); vIt++ )
+        {
+            for ( proshade_signed wIt = 0; wIt < static_cast<proshade_signed> ( zD ); wIt++ )
+            {
+                arrPos                                = wIt + static_cast< proshade_signed > ( zD ) * ( vIt + static_cast< proshade_signed > ( yD ) * uIt );
+                if ( resIn[arrPos][0] > *mapPeak )
+                {
+                   *mapPeak                           = resIn[arrPos][0];
+                   *trsX                              = static_cast< proshade_double > ( uIt );
+                   *trsY                              = static_cast< proshade_double > ( vIt );
+                   *trsZ                              = static_cast< proshade_double > ( wIt );
+                }
+            }
+        }
+    }
+    
+    //================================================ Done
+    return ;
     
 }
