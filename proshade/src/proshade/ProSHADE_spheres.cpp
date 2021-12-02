@@ -1157,9 +1157,10 @@ proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angu
     \param[in] sphPos The sphere number of the peak.
     \param[in] cosTol The tolerance for cosine distance similarity to consider the two vectors similar.
     \param[in] verbose How verbose should the run be? Use -1 if you do not want any standard output output.
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[out] res Boolean value signifying if the peak was added.
  */
-bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose )
+bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Initialise local variables
     bool peakAdded                                    = false;
@@ -1182,7 +1183,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
     {
         //============================================ Report progress
         hlpSS << "Peak group dimensions changed from LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " to ";
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS2.str() );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS2.str(), messageShift );
         
         //============================================ Initialise local variables
         proshade_signed largerCorner, smallerCorner;
@@ -1300,7 +1301,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         //============================================ Compute corner vectors
         this->computeCornerPositions                  ( );
         hlpSS << "LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " ( peak position LAT " << lat << " LON " << lon << " )";
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 7, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 7, hlpSS.str(), messageShift );
         
         //============================================ If new sphere, add it to the list
         bool isSphereNew                              = true;
@@ -1386,8 +1387,9 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
     \param[in] fold The fold for which we are searching for cyclic point groups.
     \param[in] verbose The verbosity of the run.
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Check that this peak group has all the angles
     if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
@@ -1415,16 +1417,13 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     proshade_double* detectedSymmetry                 = new proshade_double[7];
     ProSHADE_internal_misc::checkMemoryAllocation ( detectedSymmetry, __FILE__, __LINE__, __func__ );
     
-    std::cout << " ### This peaks best LAT is: " << bestLatInd << " out of " << this->dimension << ", i.e. " << bestLatInd * this->latSampling << " AND best LON is: " << bestLonInd << " out of " << this->dimension << ", i.e. " << bestLonInd * this->lonSampling << std::endl;
-    
     detectedSymmetry[0]                               = static_cast<proshade_double> ( fold );
     detectedSymmetry[1]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::cos ( bestLatInd * this->latSampling );
     detectedSymmetry[2]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
-    detectedSymmetry[6]                               = -1.0;
-    std::cout << " ### ### " << detectedSymmetry[1] << " x " << detectedSymmetry[2] << " x " << detectedSymmetry[3] << std::endl;
+    detectedSymmetry[6]                               = -std::numeric_limits < proshade_double >::infinity();
     
     //================================================ Make sure max is positive
     const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) );
@@ -1453,7 +1452,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Detected group with fold " << detectedSymmetry[0] << " along axis " << detectedSymmetry[1] << " ; " << detectedSymmetry[2] << " ; " << detectedSymmetry[3] << " and with peak height " << detectedSymmetry[5];
-    ProSHADE_internal_messages::printProgressMessage ( verbose, 4, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage ( verbose, 4, hlpSS.str(), messageShift );
     
     //================================================ Done
     return ;

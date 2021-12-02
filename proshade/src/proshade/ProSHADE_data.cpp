@@ -509,7 +509,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
 void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr, proshade_unsign maskXDim, proshade_unsign maskYDim, proshade_unsign maskZDim, proshade_double* weightsArr, proshade_unsign weigXDim, proshade_unsign weigYDim, proshade_unsign weigZDim )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting to read the structure: " + fName );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting to read the structure: " + fName, settings->messageShift );
     
     //================================================ Check if instance is empty
     if ( !this->isEmpty )
@@ -548,7 +548,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( std::string fName,
     this->isEmpty                                     = false;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -569,7 +569,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( gemmi::Structure g
     //================================================ Report function start
     std::stringstream ss;
     ss << "Starting to load the structure from Gemmi object " << inputO;
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str(), settings->messageShift );
     
     //================================================ Check if instance is empty
     if ( !this->isEmpty )
@@ -593,7 +593,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInStructure ( gemmi::Structure g
     this->isEmpty                                     = false;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Structure read in successfully.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -639,11 +639,11 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
         
     //================================================ If mask is supplied and the correct task is used
-    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift,
                                                         maskArr, maskXDim, maskYDim, maskZDim );
     
     //================================================ Apply Fourier weights
-    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose,
+    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift,
                                                         weightsArr, weigXDim, weigYDim, weigZDim );
     
     //================================================ Remove negative values if so required
@@ -1077,7 +1077,7 @@ void ProSHADE_internal_data::ProSHADE_data::shiftToBoxCentre ( ProSHADE_settings
     //================================================ Report function start
     std::stringstream ss;
     ss << "Moving map box centre to " << settings->boxCentre.at(0) << "; " << settings->boxCentre.at(1) << "; " << settings->boxCentre.at(2) << " .";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str(), settings->messageShift );
     
     //================================================ Figure sampling rates
     proshade_double xSamplingRate                     = static_cast<proshade_double> ( this->xDimSize ) / static_cast<proshade_double> ( this->xDimIndices );
@@ -1123,7 +1123,41 @@ void ProSHADE_internal_data::ProSHADE_data::shiftToBoxCentre ( ProSHADE_settings
     //================================================ Report function completion
     std::stringstream ss2;
     ss2 << "Position " << settings->boxCentre.at(0) << "; " << settings->boxCentre.at(1) << "; " << settings->boxCentre.at(2) << " set at the centre of the map box.";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss2.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss2.str(), settings->messageShift );
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function for shifting map so that its rotation centre is at the centre of the box.
+ 
+    This function takes the distance between the detected optimal centre of rotation (as detected by the specialised task) and the centre of the
+    map and proceeds to shift the map so that these two positions would be the same.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for processing of the map.
+ */
+void ProSHADE_internal_data::ProSHADE_data::shiftToRotationCentre ( ProSHADE_settings* settings )
+{
+    //================================================ Report function start
+    std::stringstream ss;
+    ss << "Shifting map rotation centre ( " << settings->centrePosition.at(0) << "; " << settings->centrePosition.at(1) << "; " << settings->centrePosition.at(2) << " ) to the centre of the box.";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, ss.str(), settings->messageShift );
+    
+    //================================================ Do the shift
+    ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap,
+                                                        static_cast< proshade_single > ( -settings->centrePosition.at(0) ),
+                                                        static_cast< proshade_single > ( -settings->centrePosition.at(1) ),
+                                                        static_cast< proshade_single > ( -settings->centrePosition.at(2) ),
+                                                        this->xDimSize, this->yDimSize, this->zDimSize,
+                                                        static_cast< proshade_signed > ( this->xDimIndices ),
+                                                        static_cast< proshade_signed > ( this->yDimIndices ),
+                                                        static_cast< proshade_signed > ( this->zDimIndices ) );
+    
+    //================================================ Report function completion
+    std::stringstream ss2;
+    ss2 << "Map shifted by " << settings->centrePosition.at(0) << "; " << settings->centrePosition.at(1) << "; " << settings->centrePosition.at(2) << " A.";
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss2.str(), settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1141,7 +1175,7 @@ void ProSHADE_internal_data::ProSHADE_data::shiftToBoxCentre ( ProSHADE_settings
 void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings* settings )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Map inversion." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Map inversion.", settings->messageShift );
     
     //================================================ Initialise variables
     proshade_signed arrayPos, invPos;
@@ -1177,7 +1211,7 @@ void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings*
     delete[] hlpMap;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map inversion completed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map inversion completed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1195,7 +1229,7 @@ void ProSHADE_internal_data::ProSHADE_data::invertMirrorMap ( ProSHADE_settings*
 void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* settings )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Map normalisation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Map normalisation.", settings->messageShift );
     
     //================================================ Initialise vector of map values
     std::vector<proshade_double> mapVals              ( this->xDimIndices * this->yDimIndices * this->zDimIndices, 0.0 );
@@ -1223,7 +1257,7 @@ void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* se
     delete[] meanSD;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map normalisation completed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map normalisation completed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1242,7 +1276,7 @@ void ProSHADE_internal_data::ProSHADE_data::normaliseMap ( ProSHADE_settings* se
 void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* settings )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Computing mask." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Computing mask.", settings->messageShift );
     
     //================================================ Initialise the blurred map
     proshade_double* blurredMap                       = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
@@ -1262,7 +1296,7 @@ void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* setting
     delete[] blurredMap;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Mask computed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Mask computed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1282,7 +1316,7 @@ void ProSHADE_internal_data::ProSHADE_data::maskMap ( ProSHADE_settings* setting
 void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settings* settings, proshade_signed*& ret )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Finding new boundaries." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Finding new boundaries.", settings->messageShift );
     
     //================================================ If same bounds as first one are required, test if possible and return these instead
     if ( settings->useSameBounds && ( this->inputOrder != 0 ) )
@@ -1309,7 +1343,7 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
         //============================================ Report function results
         std::stringstream ssHlp;
         ssHlp << "New boundaries are: " << ret[1] - ret[0] + 1 << " x " << ret[3] - ret[2] + 1 << " x " << ret[5] - ret[4] + 1;
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, ssHlp.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, ssHlp.str(), settings->messageShift );
         
         //============================================ If need be, save boundaries to be used for all other structure
         if ( settings->useSameBounds && ( this->inputOrder == 0 ) )
@@ -1319,7 +1353,7 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
     }
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New boundaries determined." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New boundaries determined.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1340,7 +1374,7 @@ void ProSHADE_internal_data::ProSHADE_data::getReBoxBoundaries ( ProSHADE_settin
 void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_settings* settings, ProSHADE_data*& newStr, proshade_signed* newBounds )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Creating new structure according to the new  bounds." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Creating new structure according to the new  bounds.", settings->messageShift );
     
     //================================================ Fill in basic info
     newStr->fileName                                  = "N/A";
@@ -1389,7 +1423,7 @@ void ProSHADE_internal_data::ProSHADE_data::createNewMapFromBounds ( ProSHADE_se
                                                         this->xDimIndices, this->yDimIndices, this->zDimIndices, newStr->internalMap, this->internalMap );
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New structure created." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "New structure created.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1486,7 +1520,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
 void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* settings )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Centering map onto its COM." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Centering map onto its COM.", settings->messageShift );
     
     //================================================ Initialise local variables
     proshade_double xCOM                              = 0.0;
@@ -1533,7 +1567,7 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
     this->mapCOMProcessChangeZ                       -= zDist;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map centered." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Map centered.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1553,7 +1587,7 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
     //================================================ Report function start
     std::stringstream hlpSS;
     hlpSS << "Adding extra " << settings->addExtraSpace << " angstroms.";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1,  hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1,  hlpSS.str(), settings->messageShift );
     
     //================================================ Figure how much indices need to change
     proshade_unsign xAddIndices                       = static_cast< proshade_unsign > ( ProSHADE_internal_mapManip::myRound ( settings->addExtraSpace / ( this->xDimSize / static_cast<proshade_single> ( this->xDimIndices ) ) ) );
@@ -1636,7 +1670,7 @@ void ProSHADE_internal_data::ProSHADE_data::addExtraSpace ( ProSHADE_settings* s
     delete[] newMap;
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Extra space added." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Extra space added.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1662,31 +1696,35 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
 {
     //================================================ Move given point to box centre
     if ( !( ( std::isinf ( settings->boxCentre.at(0) ) ) || ( std::isinf ( settings->boxCentre.at(1) ) ) || ( std::isinf ( settings->boxCentre.at(2) ) ) ) ) { this->shiftToBoxCentre ( settings ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map left at original position." ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map left at original position.", settings->messageShift ); }
+    
+    //================================================ Shift map to centre of rotation if so required
+    if ( !( ( std::isinf ( settings->centrePosition.at(0) ) ) || ( std::isinf ( settings->centrePosition.at(1) ) ) || ( std::isinf ( settings->centrePosition.at(2) ) ) ) ) { this->shiftToRotationCentre ( settings ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map rotation centre not shifted.", settings->messageShift ); }
     
     //================================================ Invert map
     if ( settings->invertMap ) { this->invertMirrorMap ( settings ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion (mirror image) not requested." ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion (mirror image) not requested.", settings->messageShift ); }
  
     //================================================ Normalise map
     if ( settings->normaliseMap ) { this->normaliseMap ( settings ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested." ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested.", settings->messageShift ); }
 
     //================================================ Compute mask
     if ( settings->maskMap ) { this->maskMap ( settings ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested." ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested.", settings->messageShift ); }
 
     //================================================ Centre map
     if ( settings->moveToCOM ) { this->centreMapOnCOM ( settings ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested." ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested.", settings->messageShift ); }
+    
+    //================================================ Remove phase, if required
+    if ( !settings->usePhase ) { this->removePhaseInormation ( settings ); ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information removed from the data.", settings->messageShift ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information retained in the data.", settings->messageShift ); }
     
     //================================================ Add extra space
     if ( settings->addExtraSpace != 0.0f ) { this->addExtraSpace ( settings ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Extra space not requested." ); }
-    
-    //================================================ Remove phase, if required
-    if ( !settings->usePhase ) { this->removePhaseInormation ( settings ); ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information removed from the data." ); }
-    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Phase information retained in the data." ); }
+    else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Extra space not requested.", settings->messageShift ); }
     
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
@@ -1714,7 +1752,7 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
         hlpSS << "The sphere distances were determined as " << this->spherePos.at(0);
         for ( proshade_unsign iter = 1; iter < static_cast<proshade_unsign> ( this->spherePos.size() ); iter++ ) { hlpSS << "; " << this->spherePos.at(iter); }
         hlpSS << " Angstroms.";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
         return ;
     }
     
@@ -1743,7 +1781,7 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
     hlpSS << "The sphere distances were determined as " << this->spherePos.at(0);
     for ( proshade_unsign iter = 1; iter < static_cast<proshade_unsign> ( this->spherePos.size() ); iter++ ) { hlpSS << "; " << this->spherePos.at(iter); }
     hlpSS << " Angstroms.";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1765,16 +1803,16 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
 void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting sphere mapping procedure." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting sphere mapping procedure.", settings->messageShift );
     
     //================================================ Determine spherical harmonics variables
     settings->determineAllSHValues                    ( this->xDimIndices, this->yDimIndices,
                                                         this->xDimSize,    this->yDimSize,    this->zDimSize );
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere settings determined." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere settings determined.", settings->messageShift );
     
     //================================================ Find number of spheres supported
     this->getSpherePositions                          ( settings );
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Sphere positions obtained." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Sphere positions obtained.", settings->messageShift );
     
     //================================================ Create sphere objects and map the density
     this->spheres                                     = new ProSHADE_internal_spheres::ProSHADE_sphere* [ this->noSpheres ];
@@ -1782,7 +1820,7 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
     {
         std::stringstream ss;
         ss << "Now mapping sphere " << iter << " .";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss.str(), settings->messageShift );
         
         this->spheres[iter]                           = new ProSHADE_internal_spheres::ProSHADE_sphere ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
                                                                                                          this->xDimSize, this->yDimSize, this->zDimSize, iter,
@@ -1791,7 +1829,7 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
     }
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere mapping procedure completed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Sphere mapping procedure completed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1809,7 +1847,7 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
 void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting spherical harmonics decomposition." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting spherical harmonics decomposition.", settings->messageShift );
     
     //================================================ Initialise memory
     this->sphericalHarmonics                          = new proshade_complex* [this->noSpheres];
@@ -1826,14 +1864,14 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
         //============================================ Report progress
         std::stringstream ss;
         ss << "Now decomposing sphere " << iter << ". " << "( Band is: " << this->spheres[iter]->getLocalBandwidth() << ").";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss.str(), settings->messageShift );
         
         //============================================ Compute
         ProSHADE_internal_sphericalHarmonics::computeSphericalHarmonics ( this->spheres[iter]->getLocalBandwidth(), this->spheres[iter]->getMappedData(), this->sphericalHarmonics[iter] );
     }
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Spherical harmonics decomposition complete." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Spherical harmonics decomposition complete.", settings->messageShift );
     
     //======================================== Done
     return ;
@@ -1887,7 +1925,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         //============================================ Report progress
         std::stringstream hlpSS;
         hlpSS << "Starting detection of cyclic point group C" << settings->requestedSymmetryFold;
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, hlpSS.str(), settings->messageShift );
         
         //============================================ Do simplified search only in the applicable data
         proshade_double symThres                      = 0.0;
@@ -1899,7 +1937,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         if ( possible010PIIssue )
         {
             proshade_double* addAxis                  = new proshade_double[7];
-            addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -1.0;
+            addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -std::numeric_limits < proshade_double >::infinity();
             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &CSyms, addAxis );
             delete[] addAxis;
         }
@@ -1958,7 +1996,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting C symmetry detection." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting C symmetry detection.", settings->messageShift );
 
     //================================================ Initialise variables
     std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
@@ -1969,19 +2007,17 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     if ( possible010PIIssue )
     {
         proshade_double* addAxis                      = new proshade_double[7];
-        addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -1.0;
+        addAxis[0] = 2.0; addAxis[1] = 0.0; addAxis[2] = 1.0; addAxis[3] = 0.0; addAxis[4] = M_PI; addAxis[5] = -999.9; addAxis[6] = -std::numeric_limits < proshade_double >::infinity();
         ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &CSyms, addAxis );
         delete[] addAxis;
     }
-    
-    for ( size_t it = 0; it < CSyms.size(); it++ ) { if ( CSyms.at(it)[0] == 5.0 ) { if ( CSyms.at(it)[5] > 0.8 ) { std::cout << "@3.5@ Found C5 with height over 0.9 on position " << it << std::endl; } } }
     
     for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { const FloatingPoint< proshade_double > lhs ( CSyms.at(cIt)[5] ), rhs ( -999.9 ); if ( lhs.AlmostEquals ( rhs ) ) { this->computeFSC ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } }
     
     //================================================ Report progress
     std::stringstream ss;
     ss << "Detected " << CSyms.size() << " C symmetries.";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str(), settings->messageShift );
     
     //================================================ Sanity check - was the rotation function mapped properly?
     if ( this->sphereMappedRotFun.size() < 1 )
@@ -1989,13 +2025,12 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         throw ProSHADE_exception ( "Rotation function was not converted into angle-axis space.", "ES00062", __FILE__, __LINE__, __func__, "It seems that the convertRotationFunction() function was\n                    : not yet called. Therefore, there are no data to detect the\n                    : symmetry from; please call the convertRotationFunction()\n                    : function before the detectSymmetryFromAngleAxisSpace()\n                    : function." );
     }
     
-    for ( size_t it = 0; it < CSyms.size(); it++ ) { if ( CSyms.at(it)[0] == 5.0 ) { if ( CSyms.at(it)[5] > 0.9 ) { std::cout << "@4@ Found C5 with height over 0.9 on position " << it << std::endl; } } }
-    
     //================================================ If only C syms were requested (e.g. rotation centre detection), terminate here!
     if ( settings->requestedSymmetryType == "onlyC" )
     {
         //============================================ Prepare threshold
         proshade_double bestHistPeakStart             = ProSHADE_internal_maths::findTopGroupSmooth ( &CSyms, 5, 0.01, 0.03, 9 );
+        if ( bestHistPeakStart > settings->peakThresholdMin ) { bestHistPeakStart = settings->peakThresholdMin; }
         
         //============================================ Find FSCs for C syms
         for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ )
@@ -2009,8 +2044,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             //======================================== Compute FSC
             this->computeFSC                          ( settings, &CSyms, cIt, mapData, fCoeffs, origCoeffs, &planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin );
         }
-        
-        for ( size_t it = 0; it < CSyms.size(); it++ ) { if ( CSyms.at(it)[0] == 5.0 ) { if ( CSyms.at(it)[5] > 0.9 ) { std::cout << "@5@ Found C5 with height over 0.9 and FSC " << CSyms.at(it)[6] << " on position " << it << std::endl; std::cout << " ... " << CSyms.at(it)[0] << " | " << CSyms.at(it)[1] << " x " << CSyms.at(it)[2] << " x " << CSyms.at(it)[3] << " | " << CSyms.at(it)[5] << std::endl; } } }
 
         //============================================ Save the detected Cs
         this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
@@ -2257,7 +2290,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
 {
     //================================================ Initialise variables
     bool isArgSameAsSettings                          = true;
-    std::cout << " ??? --- " << CSyms->size() << std::endl;
+    
     //================================================ For each detected point group
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms->size() ); cIt++ )
     {
@@ -2378,13 +2411,12 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     }
     
     //================================================ Ignore if already computed
-    const FloatingPoint< proshade_double > lhs1 ( CSym->at(symIndex)[6] ), rhs1 ( -1.0 );
-    if ( !lhs1.AlmostEquals ( rhs1 ) ) { return ( CSym->at(symIndex)[6] ); }
+    if ( CSym->at(symIndex)[6] > -2.0 ) { return ( CSym->at(symIndex)[6] ); }
     
     //================================================ Report progress
     std::stringstream ss2;
     ss2 << "Computing FSC for symmetry C" << CSym->at(symIndex)[0] << " ( " << CSym->at(symIndex)[1] << " ; " << CSym->at(symIndex)[2] << " ; " << CSym->at(symIndex)[3] << " ) with peak height " << CSym->at(symIndex)[5];
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss2.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss2.str(), settings->messageShift );
     
     //================================================ Initialise local variables
     proshade_double *rotMap;
@@ -2401,6 +2433,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
         fftw_execute                                  ( *planForwardFourier );
         
         //============================================ Compute FSC
+        std::cout << " #" << rotIter << " : " << ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts, fscByBin ) << std::endl;
         averageFSC                                   += ProSHADE_internal_maths::computeFSC ( origCoeffs, fCoeffs, this->xDimIndices, this->yDimIndices, this->zDimIndices, noBins, binIndexing, bindata, binCounts, fscByBin );
         
         //============================================ Release memory
@@ -2409,6 +2442,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     
     //================================================ Convert sum to average
     averageFSC                                       /= ( CSym->at(symIndex)[0] - 1.0 );
+    std::cout << "AVG FSC: " << averageFSC << std::endl;
     
     //================================================ Save result to the axis
     CSym->at(symIndex)[6]                             = averageFSC;
@@ -2416,7 +2450,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     //================================================ Report progress
     std::stringstream ss3;
     ss3 << "FSC value is " << averageFSC << " .";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 5, ss3.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 5, ss3.str(), settings->messageShift );
     
     //================================================ Done
     return                                            ( averageFSC );
@@ -2453,13 +2487,12 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
 proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin )
 {
     //================================================ Ignore if already computed
-    const FloatingPoint< proshade_double > lhs1 ( sym[6] ), rhs1 ( -1.0 );
-    if ( !lhs1.AlmostEquals ( rhs1 ) ) { return ( sym[6] ); }
+    if ( sym[6] > -2.0 ) { return ( sym[6] ); }
     
     //================================================ Report progress
     std::stringstream ss2;
     ss2 << "Computing FSC for symmetry C" << sym[0] << " ( " << sym[1] << " ; " << sym[2] << " ; " << sym[3] << " ) with peak height " << sym[5];
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss2.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, ss2.str(), settings->messageShift );
     
     //================================================ Initialise local variables
     proshade_double *rotMap;
@@ -2495,7 +2528,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     //================================================ Report progress
     std::stringstream ss3;
     ss3 << "FSC value is " << averageFSC << " .";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 5, ss3.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 5, ss3.str(), settings->messageShift );
     
     //================================================ Done
     return                                            ( averageFSC );
@@ -2540,7 +2573,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
 void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, fftw_complex* mapData, fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing, proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting recommended symmetry decision procedure." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting recommended symmetry decision procedure.", settings->messageShift );
     
     //================================================ If no C symmetries, nothing to save...
     if ( CSym->size() == 0 )
@@ -2561,8 +2594,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     proshade_unsign noPassed = 0; for ( size_t cIt = 0; cIt < CSym->size(); cIt++ ) { if ( CSym->at(cIt)[5] > bestHistPeakStart ) { noPassed += 1; } }
     std::stringstream ss;
     ss << "Smoothening has resolved in " << noPassed << " C symmetries.";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str() );
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Starting FSC computation to confirm the C symmetries existence." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str(), settings->messageShift );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Starting FSC computation to confirm the C symmetries existence.", settings->messageShift );
 
     //================================================ Decide if I is the answer
     bool alreadyDecided                               = false;
@@ -3165,39 +3198,10 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_da
                                                                                              allCs->at(axesList.at(0)).at(3),
                                                                                              static_cast< proshade_signed > ( allCs->at(axesList.at(0)).at(0) ) );
         
-        std::cout << "!!! Group: " << allCs->at(axesList.at(0)).at(1) << " x " << allCs->at(axesList.at(0)).at(2) << " x " << allCs->at(axesList.at(0)).at(3) << " || " << allCs->at(axesList.at(0)).at(0) << std::endl;
-        std::cout << "!!! Elems: " << first.at(0).at(0) << " | " << first.at(0).at(1) << " | " << first.at(0).at(2) << std::endl;
-        std::cout << "!!!  ... : " << first.at(0).at(3) << " | " << first.at(0).at(4) << " | " << first.at(0).at(5) << std::endl;
-        std::cout << "!!!  ... : " << first.at(0).at(6) << " | " << first.at(0).at(7) << " | " << first.at(0).at(8) << std::endl;
-        std::cout << std::endl;
-        
-        std::cout << "!!! Elems: " << first.at(1).at(0) << " | " << first.at(1).at(1) << " | " << first.at(1).at(2) << std::endl;
-        std::cout << "!!!  ... : " << first.at(1).at(3) << " | " << first.at(1).at(4) << " | " << first.at(1).at(5) << std::endl;
-        std::cout << "!!!  ... : " << first.at(1).at(6) << " | " << first.at(1).at(7) << " | " << first.at(1).at(8) << std::endl;
-        std::cout << std::endl;
-        
         std::vector<std::vector< proshade_double > > second = computeGroupElementsForGroup ( allCs->at(axesList.at(1)).at(1),
                                                                                              allCs->at(axesList.at(1)).at(2),
                                                                                              allCs->at(axesList.at(1)).at(3),
                                                                                              static_cast< proshade_signed > ( allCs->at(axesList.at(1)).at(0) ) );
-        
-        std::cout << "!!! Group: " << allCs->at(axesList.at(1)).at(1) << " x " << allCs->at(axesList.at(1)).at(2) << " x " << allCs->at(axesList.at(1)).at(3) << " || " << allCs->at(axesList.at(1)).at(0) << std::endl;
-        std::cout << "!!! Elems: " << second.at(0).at(0) << " | " << second.at(0).at(1) << " | " << second.at(0).at(2) << std::endl;
-        std::cout << "!!!  ... : " << second.at(0).at(3) << " | " << second.at(0).at(4) << " | " << second.at(0).at(5) << std::endl;
-        std::cout << "!!!  ... : " << second.at(0).at(6) << " | " << second.at(0).at(7) << " | " << second.at(0).at(8) << std::endl;
-        std::cout << std::endl;
-        std::cout << "!!! Elems: " << second.at(1).at(0) << " | " << second.at(1).at(1) << " | " << second.at(1).at(2) << std::endl;
-        std::cout << "!!!  ... : " << second.at(1).at(3) << " | " << second.at(1).at(4) << " | " << second.at(1).at(5) << std::endl;
-        std::cout << "!!!  ... : " << second.at(1).at(6) << " | " << second.at(1).at(7) << " | " << second.at(1).at(8) << std::endl;
-        std::cout << std::endl;
-        std::cout << "!!! Elems: " << second.at(2).at(0) << " | " << second.at(2).at(1) << " | " << second.at(2).at(2) << std::endl;
-        std::cout << "!!!  ... : " << second.at(2).at(3) << " | " << second.at(2).at(4) << " | " << second.at(2).at(5) << std::endl;
-        std::cout << "!!!  ... : " << second.at(2).at(6) << " | " << second.at(2).at(7) << " | " << second.at(2).at(8) << std::endl;
-        std::cout << std::endl;
-        std::cout << "!!! Elems: " << second.at(3).at(0) << " | " << second.at(3).at(1) << " | " << second.at(3).at(2) << std::endl;
-        std::cout << "!!!  ... : " << second.at(3).at(3) << " | " << second.at(3).at(4) << " | " << second.at(3).at(5) << std::endl;
-        std::cout << "!!!  ... : " << second.at(3).at(6) << " | " << second.at(3).at(7) << " | " << second.at(3).at(8) << std::endl;
-        std::cout << std::endl;
         
         //============================================ Join the element lists
         ret                                           = joinElementsFromDifferentGroups ( &first, &second, matrixTolerance, true );
@@ -3464,44 +3468,44 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     //================================================ Improve this!
     if ( settings->recommendedSymmetryType == "" )
     {
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!" );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!", settings->messageShift );
     }
     else
     {
         std::stringstream ssHlp;
         std::vector< proshade_double > comMove        = this->getMapCOMProcessChange ( );
         ssHlp << std::endl << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " about point [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "] away from centre of mass .";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         
         if ( settings->detectedSymmetry.size() > 0 )
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); symIt++ )
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->detectedSymmetry.at(symIt)[0] << std::setprecision(5) << "     " << settings->detectedSymmetry.at(symIt)[1] << "   " << settings->detectedSymmetry.at(symIt)[2] << "   " << settings->detectedSymmetry.at(symIt)[3] << "     " << settings->detectedSymmetry.at(symIt)[4] << "      " << settings->detectedSymmetry.at(symIt)[5] << "      " << settings->detectedSymmetry.at(symIt)[6];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
         
         std::stringstream hlpSS3;
         ssHlp.clear(); ssHlp.str ( "" );
         hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str(), settings->messageShift );
         
         if ( settings->allDetectedCAxes.size() > 0 )
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
         for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5] << "      " << settings->allDetectedCAxes.at(symIt)[6];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
         
     }
@@ -3640,7 +3644,7 @@ bool ProSHADE_internal_data::ProSHADE_data::shellBandExists ( proshade_unsign sh
 void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_settings* settings )
 {
     //================================================ Report function start
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Removing phase from the map." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Removing phase from the map.", settings->messageShift );
     
     //================================================ Copy map for processing
     fftw_complex* mapCoeffs                           = new fftw_complex[this->xDimIndices * this->yDimIndices * this->zDimIndices];
@@ -3713,7 +3717,7 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
     }
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Phase information removed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Phase information removed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -4495,11 +4499,11 @@ void ProSHADE_internal_data::ProSHADE_data::writeOutOverlayFiles ( ProSHADE_sett
 void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles, std::vector < proshade_double >* finalTranslation )
 {
     //================================================ Empty line
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "" );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, "", settings->messageShift );
     
     //================================================ Write out rotation centre translation results
     std::stringstream rotCen; rotCen << std::setprecision (3) << std::showpos << "The rotation centre to origin translation vector is:  " << -rotationCentre->at(0) << "     " << -rotationCentre->at(1) << "     " << -rotationCentre->at(2);
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotCen.str(), settings->messageShift );
     
     //================================================ Write out rotation matrix about origin
     proshade_double* rotMat                           = new proshade_double[9];
@@ -4510,13 +4514,13 @@ void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_sett
     rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                 : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;
     rotMatSS << std::setprecision (3) << std::showpos << "                                                    : " << rotMat[3] << "     " << rotMat[4] << "     " << rotMat[5] << std::endl;
     rotMatSS << std::setprecision (3) << std::showpos << "                                                    : " << rotMat[6] << "     " << rotMat[7] << "     " << rotMat[8];
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotMatSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, rotMatSS.str(), settings->messageShift );
     
     delete[] rotMat;
     
     //================================================ Write out origin to overlay translation results
     std::stringstream finTrs; finTrs << std::setprecision (3) << std::showpos << "The rotation centre to overlay translation vector is: " << finalTranslation->at(0) << "     " << finalTranslation->at(1) << "     " << finalTranslation->at(2);
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, finTrs.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 0, finTrs.str(), settings->messageShift );
     
     //================================================ Done
     return ;

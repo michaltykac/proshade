@@ -348,6 +348,8 @@ namespace ProSHADE_internal_maths
                                                         proshade_double z2 );
     proshade_double* computeCrossProduct              ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2,
                                                         proshade_double* z2 );
+    proshade_double* computeCrossProduct              ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
+                                                        proshade_double z2 );
     proshade_double* compute3x3MatrixMultiplication   ( proshade_double* mat1, proshade_double* mat2 );
     proshade_double* compute3x3MatrixVectorMultiplication ( proshade_double* mat, proshade_double x, proshade_double y, proshade_double z );
     proshade_single* compute3x3MatrixVectorMultiplication ( proshade_single* mat, proshade_single x, proshade_single y, proshade_single z );
@@ -395,8 +397,9 @@ namespace ProSHADE_internal_maths
                                                         proshade_double*& firstDers, proshade_double*& secondDers );
     proshade_double* computeTrFunStep                 ( proshade_double* firstDers, proshade_double* secondDers );
     std::vector< proshade_signed > findPeaks1D        ( std::vector< proshade_double > data );
-    proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
-    proshade_double findTopGroupSmooth                ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
+    proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize, proshade_double maxLim = 0.9 );
+    proshade_double findTopGroupSmooth                ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize,
+                                                        proshade_double maxLim = 0.9 );
     void combineFourierForTranslation                 ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD );
     void findHighestValueInMap                        ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX,
                                                         proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak );

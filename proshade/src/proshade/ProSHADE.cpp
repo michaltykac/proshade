@@ -152,6 +152,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
+    this->messageShift                                = 0;
     
     //================================================ Done
     
@@ -294,6 +295,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = settings->verbose;
+    this->messageShift                                = settings->messageShift;
 }
 
 /*! \brief Contructor for the ProSHADE_settings class for particular task.
@@ -424,6 +426,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
+    this->messageShift                                = 0;
     
     //================================================ Task specific settings
     switch ( this->task )
@@ -1715,7 +1718,7 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
     {
         std::stringstream hlpSS;
         hlpSS << "The bandwidth was determined as: " << this->maxBandwidth;
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
         return ;
     }
     
@@ -1725,7 +1728,7 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined as: " << this->maxBandwidth;
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1755,7 +1758,7 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined from uncertainty " << uncertainty << " degrees as: " << this->maxBandwidth;
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1778,7 +1781,7 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
     {
         std::stringstream hlpSS;
         hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
         return ;
     }
     
@@ -1788,7 +1791,7 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1810,7 +1813,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     {
         std::stringstream hlpSS;
         hlpSS << "The integration order was determined as " << this->integOrder;
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
         return ;
     }
     
@@ -1820,7 +1823,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The integration order was determined as " << this->integOrder;
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1850,7 +1853,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
 void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_single xDimAngs, proshade_single yDimAngs, proshade_single zDimAngs )
 {
     //================================================ Print progress message
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment.", this->messageShift );
     
     //================================================ Modify dims by resolution
     proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
@@ -1882,7 +1885,7 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     this->determineIntegrationOrder                   ( maxDiag );
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared." );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared.", this->messageShift );
     
     //================================================ Done
     return ;

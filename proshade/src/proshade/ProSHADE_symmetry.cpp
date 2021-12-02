@@ -41,7 +41,7 @@ std::pair< proshade_unsign, proshade_unsign > findBestTetraDihedralPair   ( std:
 void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function computation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function computation.", settings->messageShift );
     
     //================================================ Compute un-weighted E matrices and their weights
     ProSHADE_internal_distances::computeEMatrices     ( this, this, settings );
@@ -56,7 +56,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_s
     ProSHADE_internal_distances::computeInverseSOFTTransform ( this, this, settings );
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function obtained." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function obtained.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -121,7 +121,7 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
 void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function conversion to angle-axis representation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function conversion to angle-axis representation.", settings->messageShift );
     
     //================================================ Initialise variables
     proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->maxShellBand ) * 2.0;
@@ -143,15 +143,15 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
         //============================================ Report progress
         std::stringstream hlpSS;
         hlpSS << "Interpolating sphere " << shIt << " ( radius: " << this->sphereMappedRotFun.at(shIt)->getRadius() << " ).";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
         
         //============================================ Interpolate onto spheres
         this->sphereMappedRotFun.at(shIt)->interpolateSphereValues ( this->getInvSO3Coeffs ( ) );
     }
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function converted to spherical angle-axis space." );
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Started peak detection on the angle-axis spheres." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function converted to spherical angle-axis space.", settings->messageShift );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Started peak detection on the angle-axis spheres.", settings->messageShift );
     
     //================================================ Find all peaks in the sphere grids
     for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
@@ -162,7 +162,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Detected " << allPeakHeights.size() << " peaks with any height.";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
     
     //================================================ Compute threshold for small peaks
     proshade_double peakThres                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak ) );
@@ -170,7 +170,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     //================================================ Report progress
     std::stringstream hlpSS2;
     hlpSS2 << "From these peaks, decided the threshold will be " << peakThres << " peak height.";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS2.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS2.str(), settings->messageShift );
 
     //================================================ Remove too small peaks
     for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
@@ -179,7 +179,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     }
 
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "Peaks detected for all spheres." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, "Peaks detected for all spheres.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -306,7 +306,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
     proshade_double dotProduct;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting D symmetry detection." );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting D symmetry detection.", settings->messageShift );
     
     //================================================If not enough axes, just end here
     if ( CSymList->size() < 2 ) { return ( ret ); }
@@ -362,7 +362,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getDihedr
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Detected " << ret.size() << " D symmetries.";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, hlpSS.str(), settings->messageShift );
     
     //================================================ Done
     return                                            ( ret );
@@ -425,16 +425,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
     std::vector< proshade_double* > ret;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting T symmetry detection." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting T symmetry detection.", settings->messageShift );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
     if ( ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findTetra4C3s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findTetra4C3s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 4 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findTetra3C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         else
         {
@@ -467,7 +467,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getTetrah
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "T symmetry detection complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "T symmetry detection complete.", settings->messageShift );
     
     //================================================ Done
     return                                            ( ret );
@@ -532,10 +532,11 @@ bool ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( std::vector< prosha
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
     \param[in] ret The vector .
     \param[in] axErr The error tolerance on angle matching.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3PossibilitiesHlp;
@@ -543,7 +544,7 @@ void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >
     bool groupMatched;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage ( verbose, 2, "Starting detection of four C3 axes." );
+    ProSHADE_internal_messages::printProgressMessage ( verbose, 2, "Starting detection of four C3 axes.", messageShift );
     
     //================================================ For all symmetries in the C symmetries list
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
@@ -578,7 +579,7 @@ void ProSHADE_internal_symmetry::findTetra4C3s ( std::vector< proshade_double* >
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( C3Possibilities.at(maxGrp).size() ); it++ ) { ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C3Possibilities.at(maxGrp).at(it)) ); }
         
         //============================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of four C3 axes successfull." );
+        ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of four C3 axes successfull.", messageShift );
         
         //============================================ Done
         return ;
@@ -1005,7 +1006,7 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
             }
             
             //======================================== Does the solution fit the whole group?
-            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2); symHlp[6] = -1.0;
+            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2); symHlp[6] = -std::numeric_limits < proshade_double >::infinity();
             if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, true ) )
             {
                 //==================================== Find the height for the axis
@@ -1038,7 +1039,7 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
             }
             
             //======================================== Does the solution fit the whole group?
-            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2); symHlp[6] = -1.0;
+            symHlp[1] = solVec.at(0); symHlp[2] = solVec.at(1); symHlp[3] = solVec.at(2); symHlp[6] = -std::numeric_limits < proshade_double >::infinity();
             if ( ProSHADE_internal_symmetry::testGroupAgainstSymmetry ( CSymList, grp, symHlp, axErr, angle, true ) )
             {
                 //==================================== Find the height for the axis
@@ -1069,9 +1070,10 @@ void ProSHADE_internal_symmetry::searchMissingSymmetrySpace ( ProSHADE_internal_
     \param[in] ret The vector .
     \param[in] axErr The error tolerance on angle matching.
     \param[in] verobse How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C3s, prospectiveC2s, C2PossibilitiesHlp;
@@ -1081,7 +1083,7 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
     for ( proshade_unsign iter = 0; iter < 4; iter++ ) { ProSHADE_internal_misc::addToUnsignVector ( &C3s, iter ); }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of three C2 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of three C2 axes.", messageShift );
     
     //================================================ For each C3
     for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( ret->size() ); rIt++ )
@@ -1129,7 +1131,7 @@ void ProSHADE_internal_symmetry::findTetra3C2s ( std::vector< proshade_double* >
             for ( proshade_unsign it = 0; it < 3; it++ ) { ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C2Possibilities.at(0).at(it)) ); }
             
             //======================================== Report progress
-            ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of three C2 axes successfull." );
+            ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of three C2 axes successfull.", messageShift );
             
             //======================================== Done
             return ;
@@ -1205,19 +1207,19 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
     std::vector< proshade_double* > ret;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry detection." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry detection.", settings->messageShift );
     
     //================================================ Are the basic requirements for tetrahedral symmetry met?
     if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findOcta3C4s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findOcta3C4s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 3 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findOcta4C3s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findOcta4C3s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 7 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         
-        ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findOcta6C2s ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 13 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         else
         {
@@ -1250,7 +1252,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getOctahe
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "O symmetry detection complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "O symmetry detection complete.", settings->messageShift );
     
     //================================================ Done
     return                                            ( ret );
@@ -1322,9 +1324,11 @@ bool ProSHADE_internal_symmetry::detectOctahedralSymmetry ( std::vector< proshad
     \param[in] ret The vector containing all axes required for the octahedral symmetry detected so far.
     \param[in] axErr The error tolerance on angle matching.
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
+    \param[in] minPeakHeight The threshold for peak height.
  */
-void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4PossibilitiesHlp;
@@ -1332,7 +1336,7 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
     bool groupMatched;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of three C4 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of three C4 axes.", messageShift );
     
     //================================================ For all symmetries in the C symmetries list
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
@@ -1364,7 +1368,7 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( C4Possibilities.at(maxGrp).size() ); it++ ) { ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C4Possibilities.at(maxGrp).at(it)) ); }
         
         //============================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of three C4 axes successfull." );
+        ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of three C4 axes successfull.", messageShift );
         
         //============================================ Done
         return ;
@@ -1386,11 +1390,12 @@ void ProSHADE_internal_symmetry::findOcta3C4s ( std::vector< proshade_double* >*
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
     \param[in] ret The vector .
     \param[in] axErr The error tolerance on angle matching.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
     \param[in] TetraSymList A vector containing the already detected tetrahedral symmetries - this is to avoid the same search for four C3 symmetry axes.
  */
-void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C4s, prospectiveC3s, C3PossibilitiesHlp;
@@ -1400,7 +1405,7 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
     for ( proshade_unsign iter = 0; iter < 3; iter++ ) { ProSHADE_internal_misc::addToUnsignVector ( &C4s, iter ); }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of four C3 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of four C3 axes.", messageShift );
     
     //================================================ For each C4
     for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( ret->size() ); rIt++ )
@@ -1446,7 +1451,7 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
             for ( proshade_unsign it = 0; it < 4; it++ ) { ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C3Possibilities.at(0).at(it)) ); }
 
             //======================================== Report progress
-            ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of four C3 axes successfull." );
+            ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of four C3 axes successfull.", messageShift );
 
             //======================================== Done
             return ;
@@ -1469,10 +1474,11 @@ void ProSHADE_internal_symmetry::findOcta4C3s ( std::vector< proshade_double* >*
     \param[in] CSymList A vector containing the already detected Cyclic symmetries.
     \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
     \param[in] axErr The error tolerance on angle matching.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
  */
-void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC2s, retGrp;
@@ -1480,7 +1486,7 @@ void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >*
     proshade_unsign noPerpendicular, noSqrtTwo;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of six C2 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of six C2 axes.", messageShift );
     
     //================================================ For each C2
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
@@ -1525,7 +1531,7 @@ void ProSHADE_internal_symmetry::findOcta6C2s ( std::vector< proshade_double* >*
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Detection of six C2 axes successfull." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Detection of six C2 axes successfull.", messageShift );
     
     //================================================ Done
     return ;
@@ -1708,7 +1714,7 @@ proshade_signed ProSHADE_internal_symmetry::addAxisUnlessSame ( proshade_unsign 
     symHlp[3]                                         = axZ;
     symHlp[4]                                         = 2.0 * M_PI / symHlp[0];
     symHlp[5]                                         = axHeight;
-    symHlp[6]                                         = -1.0;
+    symHlp[6]                                         = -std::numeric_limits < proshade_double >::infinity();
     
     //================================================ If it is not the same as already saved axes
     if ( !ProSHADE_internal_symmetry::isSymmetrySame ( prosp, symHlp, axErr, &ret ) )
@@ -1805,19 +1811,19 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
     std::vector< proshade_double* > ret;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry detection." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry detection.", settings->messageShift );
     
     //================================================ Are the basic requirements for icosahedral symmetry met?
     if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
     {
         //============================================ Search for all the symmetry axes
-        ProSHADE_internal_symmetry::findIcos6C5s      ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findIcos6C5s      ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 6 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
 
-        ProSHADE_internal_symmetry::findIcos10C3s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findIcos10C3s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 16 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
 
-        ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->minSymPeak );
+        ProSHADE_internal_symmetry::findIcos15C2s     ( CSymList, &ret, settings->axisErrTolerance, this, settings->verbose, settings->messageShift, settings->minSymPeak );
         if ( ret.size() != 31 ) { ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Failed to detect some of the polyhedral symmetries, while detecting the correct dihedral angles.", "WS00031" ); return ( ret ); }
         else
         {
@@ -1850,7 +1856,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getIcosah
     }
 
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry detection complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry detection complete.", settings->messageShift );
 
     //================================================ Done
     return                                            ( ret );
@@ -1877,7 +1883,7 @@ std::vector < std::vector< proshade_double* > > ProSHADE_internal_data::ProSHADE
     std::vector< std::vector< proshade_double* > > ret;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry prediction." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting I symmetry prediction.", settings->messageShift );
     
     //================================================ Are the basic requirements for icosahedral symmetry met?
     if ( ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
@@ -1897,7 +1903,7 @@ std::vector < std::vector< proshade_double* > > ProSHADE_internal_data::ProSHADE
     std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortISymByPeak );
 
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry prediction complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "I symmetry prediction complete.", settings->messageShift );
 
     //================================================ Done
     return                                            ( ret );
@@ -1924,7 +1930,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     std::vector< proshade_double* > ret;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry prediction." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting O symmetry prediction.", settings->messageShift );
     
     //================================================ Are the basic requirements for icosahedral symmetry met?
     if ( ProSHADE_internal_symmetry::detectOctahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
@@ -1944,7 +1950,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "O symmetry prediction complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "O symmetry prediction complete.", settings->messageShift );
 
     //================================================ Done
     return                                            ( ret );
@@ -2020,9 +2026,10 @@ bool ProSHADE_internal_symmetry::detectIcosahedralSymmetry ( std::vector< prosha
     \param[in] ret The vector .
     \param[in] axErr The error tolerance on angle matching.
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > C5PossibilitiesHlp;
@@ -2030,7 +2037,7 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
     bool groupMatched;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of six C5 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of six C5 axes.", messageShift );
 
     //================================================ For all symmetries in the C symmetries list
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
@@ -2063,7 +2070,7 @@ void ProSHADE_internal_symmetry::findIcos6C5s ( std::vector< proshade_double* >*
         for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( C5Possibilities.at(maxGrp).size() ); it++ ) { ProSHADE_internal_misc::addToDblPtrVector ( ret, CSymList->at(C5Possibilities.at(maxGrp).at(it)) ); }
 
         //============================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of six C5 axes successfull." );
+        ProSHADE_internal_messages::printProgressMessage ( verbose, 3, "Detection of six C5 axes successfull.", messageShift );
 
         //============================================ Done
         return ;
@@ -2227,7 +2234,7 @@ void ProSHADE_internal_symmetry::predictIcosAxes ( std::vector< proshade_double*
             axis[3]                                   = rotAxis[2];
             axis[4]                                   = ( 2.0 * M_PI ) / axis[0];
             axis[5]                                   = 0.0;
-            axis[6]                                   = -1.0;
+            axis[6]                                   = -std::numeric_limits < proshade_double >::infinity();
 
             //======================================== Save axis to ret
             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &hlpAxes, axis );
@@ -2406,7 +2413,7 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
         axis[3]                                       = rotAxis[2];
         axis[4]                                       = ( 2.0 * M_PI ) / axis[0];
         axis[5]                                       = 0.0;
-        axis[6]                                       = -1.0;
+        axis[6]                                       = -std::numeric_limits < proshade_double >::infinity();
         
         //============================================ Save axis to ret
         ProSHADE_internal_misc::addToDblPtrVector     ( ret, axis );
@@ -2438,9 +2445,10 @@ void ProSHADE_internal_symmetry::predictOctaAxes ( std::vector< proshade_double*
     \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
     \param[in] axErr The error tolerance on angle matching.
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC3s, retGrp;
@@ -2448,7 +2456,7 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
     proshade_unsign noClose, noAway;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of ten C3 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of ten C3 axes.", messageShift );
 
     //================================================ For each C3
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
@@ -2492,7 +2500,7 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
     }
 
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Detection of ten C3 axes successfull." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Detection of ten C3 axes successfull.", messageShift );
     
     //================================================ Done
     return ;
@@ -2510,9 +2518,10 @@ void ProSHADE_internal_symmetry::findIcos10C3s ( std::vector< proshade_double* >
     \param[in] ret The vector containing the already detected axes to which newly detected axes (if any) will be added.
     \param[in] axErr The error tolerance on angle matching.
     \param[in] minPeakHeight The minimum average peak height for axis to be considered.
-    \param[in] verobse How loud the announcments should be?
+    \param[in] verbose How loud the announcments should be?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_double minPeakHeight )
+void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj, proshade_signed verbose, proshade_signed messageShift, proshade_double minPeakHeight )
 {
     //================================================ Initialise variables
     std::vector< proshade_unsign > prospectiveC2s, retGrp;
@@ -2520,7 +2529,7 @@ void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >
     proshade_unsign noClose, noMidway, noAway;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of fifteen C2 axes." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Starting detection of fifteen C2 axes.", messageShift );
 
     //================================================ For each C2
     for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSymList->size() ); cIt++ )
@@ -2566,7 +2575,7 @@ void ProSHADE_internal_symmetry::findIcos15C2s ( std::vector< proshade_double* >
     }
 
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Detection of fifteen C2 axes successfull." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Detection of fifteen C2 axes successfull.", messageShift );
     
     //================================================ Done
     return ;
@@ -2774,7 +2783,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         //============================================ Report progress
         std::stringstream hlpSS;
         hlpSS << "Searching for prime fold symmetry C" << primes.at(prIt) << ".";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
         
         //============================================ Get all symmetries for this prime fold
         std::vector< proshade_double* > prSyms        = this->findRequestedCSymmetryFromAngleAxis ( settings, primes.at(prIt), &symThres );
@@ -2824,7 +2833,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 //==================================== Report progress
                 std::stringstream hlpSS2;
                 hlpSS2 << "Searching for fold combination of detected folds " << ret.at(axIt1)[0] << " and " << ret.at(axIt2)[0] << ", i.e. C" << foldToTest << ".";
-                ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS2.str() );
+                ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS2.str(), settings->messageShift );
                 
                 //==================================== Get all symmetries for this fold
                 std::vector< proshade_double* > prSyms = this->findRequestedCSymmetryFromAngleAxis ( settings, foldToTest, &symThres );
@@ -2932,7 +2941,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     //============================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Found a total of " << std::pow ( static_cast< proshade_double > ( this->maxShellBand ) * 2.0 * ( static_cast< proshade_double > ( fold ) - 1.0 ), 2.0 ) - static_cast< proshade_double > ( allPeakHeights.size() ) << " non-peaks for thresholding.";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str(), settings->messageShift );
     
     //================================================ Determine the threshold for significant peaks
    *peakThres                                         = std::min ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak ) );
@@ -2940,7 +2949,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     //============================================ Report progress
     std::stringstream hlpSS2;
     hlpSS2 << "Determined peak threshold " << *peakThres << ".";
-    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS2.str() );
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS2.str(), settings->messageShift );
     
     //================================================ Remove small peaks
     for ( proshade_unsign shIt = 0; shIt < static_cast<proshade_unsign> ( this->sphereMappedRotFun.size() ); shIt++ )
@@ -2960,7 +2969,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
             {
                 if ( peakGroups.at(pkGrpIt)->checkIfPeakBelongs ( static_cast< proshade_double > ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).first  ),
                                                                   static_cast< proshade_double > ( this->sphereMappedRotFun.at(sphIt)->getPeaks().at(pkIt).second ),
-                                                                  sphIt, settings->axisErrTolerance, settings->verbose ) ) { newPeak = false; break; }
+                                                                  sphIt, settings->axisErrTolerance, settings->verbose, settings->messageShift ) ) { newPeak = false; break; }
             }
             
             //======================================== If already added, go to next one
@@ -2981,10 +2990,10 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         std::stringstream hlpSS3;
         hlpSS3 << "Now considering group with LAT " << peakGroups.at(grIt)->getLatFromIndices() << " - " << peakGroups.at(grIt)->getLatToIndices() << " and LON " << peakGroups.at(grIt)->getLonFromIndices() << " - " << peakGroups.at(grIt)->getLonToIndices() << " spanning spheres ";
         for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( peakGroups.at(grIt)->getSpherePositions().size() ); sphIt++ ) { hlpSS3 << peakGroups.at(grIt)->getSpherePositions().at(sphIt) << " ; "; }
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 5, hlpSS3.str() );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 5, hlpSS3.str(), settings->messageShift );
         
         //============================================ Find point groups in the peak group
-        peakGroups.at(grIt)->findCyclicPointGroupsGivenFold ( this->sphereMappedRotFun, &ret, settings->useBiCubicInterpolationOnPeaks, fold, settings->verbose );
+        peakGroups.at(grIt)->findCyclicPointGroupsGivenFold ( this->sphereMappedRotFun, &ret, settings->useBiCubicInterpolationOnPeaks, fold, settings->verbose, settings->messageShift );
 
         //============================================ Release the memory
         delete peakGroups.at(grIt);
@@ -3022,10 +3031,6 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     proshade_double latSamlUnit                       = ( 2.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
     proshade_double lonSamlUnit                       = ( 1.0 * M_PI ) / ( static_cast< proshade_double > ( dataObj->maxShellBand ) * 2.0 );
     
-    std::cout << std::endl;
-    std::cout << "!!! PREDICT INPUT AXES: " << ret->at(0)[0] << " | " << ret->at(0)[1] << " x " << ret->at(0)[2] << " x " << ret->at(0)[3] << " || " << ret->at(0)[5] << std::endl;
-    std::cout << "!!!    AND            : " << ret->at(1)[0] << " | " << ret->at(1)[1] << " x " << ret->at(1)[2] << " x " << ret->at(1)[3] << " || " << ret->at(1)[5] << std::endl << std::endl;
-    
     //================================================ Determine all the folds for which rotation function mapping will be required
     for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( ret->size() ); iter++ )
     {
@@ -3034,18 +3039,13 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         
         if ( !alreadyFound ) { ProSHADE_internal_misc::addToUnsignVector ( &folds, static_cast< proshade_unsign > ( ret->at(iter)[0] ) ); }
     }
-    std::cout << "!!! FOLDS: "; for ( int i = 0; i < folds.size(); i++ ) { std::cout << folds.at(i) << " "; } std::cout << std::endl << std::endl;
     
     //================================================ Generate vector of all angles
     for ( proshade_unsign foldIt = 0; foldIt < static_cast < proshade_unsign > ( folds.size() ); foldIt++ ) { for ( proshade_double angIt = 1.0; angIt < static_cast<proshade_double> ( folds.at(foldIt) ); angIt += 1.0 ) { ProSHADE_internal_misc::addToDoubleVector ( &angs, angIt * ( 2.0 * M_PI / static_cast<proshade_double> ( folds.at(foldIt) ) ) ); } }
     std::sort                                         ( angs.begin(), angs.end() );
     
-    std::cout << "!!! ANGS: "; for ( int i = 0; i < angs.size(); i++ ) { std::cout << angs.at(i) << " "; } std::cout << std::endl << std::endl;
-    
     //================================================ Remove redundant angles from the list
     for ( int angIt = static_cast< int > ( angs.size() - 2 ); angIt >= 0; angIt-- ) { const FloatingPoint< proshade_double > lhs1 ( angs.at(static_cast< size_t > ( angIt ) ) ), rhs1 ( angs.at(static_cast< size_t > ( angIt + 1 ) ) ); if ( lhs1.AlmostEquals ( rhs1 ) ) { angs.erase ( angs.begin() + (angIt+1) ); } }
-    
-    std::cout << "!!! ANGS: "; for ( int i = 0; i < angs.size(); i++ ) { std::cout << angs.at(i) << " "; } std::cout << std::endl << std::endl;
     
     //================================================ Generate all sphere mapped rotation function
     dataObj->sphereMappedRotFun.clear();
@@ -3171,9 +3171,6 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     //================================================ Release memory
     delete[] rotMat;
     
-    std::cout << "!!! PREDICT ???    AXES: " << ret->at(0)[0] << " | " << ret->at(0)[1] << " x " << ret->at(0)[2] << " x " << ret->at(0)[3] << " || " << ret->at(0)[5] << std::endl;
-    std::cout << "!!!    AND             : " << ret->at(1)[0] << " | " << ret->at(1)[1] << " x " << ret->at(1)[2] << " x " << ret->at(1)[3] << " || " << ret->at(1)[5] << std::endl << std::endl;
-    
     //================================================ For each ret axis, compute predicted position
     for ( proshade_unsign axIt = 0; axIt < static_cast< proshade_unsign > ( ret->size() ); axIt++ )
     {
@@ -3207,11 +3204,8 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         maxSum                                       += ret->at(axIt)[5];
     }
     
-    std::cout << "!!! PREDICT OUTPUT AXES: " << ret->at(0)[0] << " | " << ret->at(0)[1] << " x " << ret->at(0)[2] << " x " << ret->at(0)[3] << " || " << ret->at(0)[5] << std::endl;
-    std::cout << "!!!    AND             : " << ret->at(1)[0] << " | " << ret->at(1)[1] << " x " << ret->at(1)[2] << " x " << ret->at(1)[3] << " || " << ret->at(1)[5] << std::endl << std::endl;
-    
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Peak height detection and rotation optimisation complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Peak height detection and rotation optimisation complete.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -3344,14 +3338,8 @@ void ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( std::vecto
     hlpVec.push_back ( allCs->at(selection.at(1))[6] );
     ortPair.push_back ( hlpVec );
     
-    std::cout << " ??? ??? 1 " << ortPair.at(0)[0] << " | " << ortPair.at(0)[1] << " x " << ortPair.at(0)[2] << " x " << ortPair.at(0)[3] << " || " << ortPair.at(0)[5] << " | " << ortPair.at(0)[6] << std::endl;
-    std::cout << " ??? ??? 1 " << ortPair.at(1)[0] << " | " << ortPair.at(1)[1] << " x " << ortPair.at(1)[2] << " x " << ortPair.at(1)[3] << " || " << ortPair.at(1)[5] << " | " << ortPair.at(1)[6] << std::endl << std::endl;
-    
     //================================================ Run the optimisation proper
     optimiseDGroupAngleFromAxesHeights                ( &ortPair, dataObj, settings );
-    
-    std::cout << " ??? ??? 2 " << ortPair.at(0)[0] << " | " << ortPair.at(0)[1] << " x " << ortPair.at(0)[2] << " x " << ortPair.at(0)[3] << " || " << ortPair.at(0)[5] << " | " << ortPair.at(0)[6] << std::endl;
-    std::cout << " ??? ??? 2 " << ortPair.at(1)[0] << " | " << ortPair.at(1)[1] << " x " << ortPair.at(1)[2] << " x " << ortPair.at(1)[3] << " || " << ortPair.at(1)[5] << " | " << ortPair.at(1)[6] << std::endl << std::endl;
     
     //================================================ Save the results back to the vector
     allCs->at(selection.at(0))[1] = ortPair.at(0).at(1); allCs->at(selection.at(0))[2] = ortPair.at(0).at(2); allCs->at(selection.at(0))[3] = ortPair.at(0).at(3);
@@ -3426,13 +3414,13 @@ proshade_double ProSHADE_internal_symmetry::findPredictedSingleAxisHeight ( pros
         else
         {
             //======================================== Add to the existing object
-            grp->checkIfPeakBelongs                   ( lat, lon, sphIt, settings->axisErrTolerance, settings->verbose );
+            grp->checkIfPeakBelongs                   ( lat, lon, sphIt, settings->axisErrTolerance, settings->verbose, settings->messageShift );
         }
     }
     
     //================================================ Find the peak height
     std::vector < proshade_double* > detectedAxis;
-    grp->findCyclicPointGroupsGivenFold               ( dataObj->sphereMappedRotFun, &detectedAxis, settings->useBiCubicInterpolationOnPeaks, static_cast< proshade_unsign > ( fold ), settings->verbose );
+    grp->findCyclicPointGroupsGivenFold               ( dataObj->sphereMappedRotFun, &detectedAxis, settings->useBiCubicInterpolationOnPeaks, static_cast< proshade_unsign > ( fold ), settings->verbose, settings->messageShift );
     
     //================================================ Save it!
     if ( detectedAxis.size() > 0 )                    { height = detectedAxis.at(0)[5]; }
@@ -3521,7 +3509,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     std::vector< proshade_double* > ret;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting T symmetry prediction." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting T symmetry prediction.", settings->messageShift );
     
     //================================================ Are the basic requirements for icosahedral symmetry met?
     if ( ProSHADE_internal_symmetry::detectTetrahedralSymmetry ( CSymList, settings->axisErrTolerance, settings->minSymPeak ) )
@@ -3541,7 +3529,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getPredic
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "T symmetry prediction complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "T symmetry prediction complete.", settings->messageShift );
 
     //================================================ Done
     return                                            ( ret );
@@ -3647,7 +3635,7 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
         axis[3]                                       = rotAxis[2];
         axis[4]                                       = ( 2.0 * M_PI ) / axis[0];
         axis[5]                                       = 0.0;
-        axis[6]                                       = -1.0;
+        axis[6]                                       = -std::numeric_limits < proshade_double >::infinity();
 
         //============================================ Save axis to ret
         ProSHADE_internal_misc::addToDblPtrVector     ( ret, axis );
@@ -3679,14 +3667,15 @@ void ProSHADE_internal_symmetry::predictTetraAxes ( std::vector< proshade_double
  
     \param[in] allCs A list of all detected symmetries in the phase-less map.
     \param[in] verbose How loud the function should be in the standard output?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] tolerance What is the tolerance on the perpendicularity of two axes in terms of the dot product?
     \param[out] ret A vector containing a) zero entries if no reliable symmetry axis was found, b) a single symmetry axis index if only a reliable cyclic symmetry axis was found or c)
                     two axes indices in the case where two perpendicular reliable axes were detected.
  */
-std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( std::vector < std::vector< proshade_double > >* allCs, proshade_signed verbose, proshade_double tolerance )
+std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( std::vector < std::vector< proshade_double > >* allCs, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Deciding whether any axis(es) is/are reliable." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, "Deciding whether any axis(es) is/are reliable.", messageShift );
     
     for ( int i = 0; i < allCs->size(); i++ ) { std::cout << allCs->at(i).at(0) << " | " << allCs->at(i).at(1) << " x " << allCs->at(i).at(2) << " x " << allCs->at(i).at(3) << " | " << allCs->at(i).at(5) << " | " << allCs->at(i).at(6) << std::endl; }
     
@@ -3717,7 +3706,7 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
             dotProduct                                = ProSHADE_internal_maths::computeDotProduct ( &allCs->at(relAx1)[1], &allCs->at(relAx1)[2],
                                                                                                      &allCs->at(relAx1)[3], &allCs->at(relAx2)[1],
                                                                                                      &allCs->at(relAx2)[2], &allCs->at(relAx2)[3] );
-
+            
             //======================================== If close to zero, these two axes are perpendicular
             if ( std::abs( dotProduct ) < tolerance )
             {
@@ -3739,7 +3728,7 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     if ( maxOrtAx2 != 0 )
     {
         //================================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found two, orthogonal and reliable axes." );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found two, orthogonal and reliable axes.", messageShift );
         
         ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx1 );
         ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx2 );
@@ -3770,15 +3759,15 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     //================================================ If anything was found, save it
     if ( maxOrtSum > 0.1 )
     {
-        //================================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found single reliable axis." );
+        //============================================ Report progress
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found single reliable axis.", messageShift );
         
         ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx1 );
     }
     else
     {
         //================================================ Report progress
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found no reliable axis." );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found no reliable axis.", messageShift );
     }
     
     //================================================ Done
@@ -3866,10 +3855,10 @@ void ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( fftw_comp
     
 }
 
-/*! \brief This function ...
+/*! \brief This function takes a single rotation matrix and procceds to compute the optimal translation between the original map and a map rotated by the supplied rotation matrix.
  
     \param[in] symStr A ProSHADE_data structure containing the structure for which the line on which the centre of rotation lies is to be found.
-    \param[in] symElems Vector of vectors containing at least two symmetry elements (rotaiton matrices) which are not identity.
+    \param[in] symElems Vector containing single symmetry element (rotaiton matrix) which is not identity.
     \param[in] origCoeffs The Fourier coefficients of the original (non-rotated) map.
     \param[in] rotMapComplex Array to which the rotated map will be saved and from which the Fourier transform plan (planForwardFourierRot) is prepared.
     \param[in] rotCoeffs Array to which the result of the Fourier transform of the rotated map will be saved into by the supplied plan (planForwardFourierRot).
@@ -3878,79 +3867,107 @@ void ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( fftw_comp
     \param[in] trFunc The array to which the translation function will be saved into by the reverse Fourier transform planned by the plan (planReverseFourierComb).
     \param[in] planReverseFourierComb FFTW3 plan for reverse Fourier transform from the combined coefficients (trFuncCoeffs) to the translation function array (trFunc).
     \param[in] verbose How loud the function should be?
-    \param[out] lineAxis A vector containing two points X1Y1Z1 = [0][1][2] and X2Y2Z2 = [3][4][5] on the line on which the rotation centre is for the supplied two rotations.
+    \param[out] trsVec A vector containing the optimal translation between the original and the rotated maps in Angstroms.
 */
-std::vector< proshade_double > ProSHADE_internal_symmetry::findCentreOfRotationAxis ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector< std::vector < proshade_double > > symElems, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose )
+std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetweenRotatedAndOriginalMap ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < proshade_double > symElem, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose )
 {
     //================================================ Initialise local variables
     proshade_double axX, axY, axZ, axAng, mapPeak, trsX, trsY, trsZ;
-    std::vector< proshade_double > lineAxis;
+    std::vector< proshade_double > trsVec;
     
-    //================================================ For the first two elements
-    for ( size_t grEl = 0; grEl < 2; grEl++ )
-    {        
-        std::cout << std::endl;
-        std::cout << symElems.at(grEl).at(0) << ", " << symElems.at(grEl).at(1) << ", " << symElems.at(grEl).at(2) << std::endl;
-        std::cout << symElems.at(grEl).at(3) << ", " << symElems.at(grEl).at(4) << ", " << symElems.at(grEl).at(5) << std::endl;
-        std::cout << symElems.at(grEl).at(6) << ", " << symElems.at(grEl).at(7) << ", " << symElems.at(grEl).at(8) << std::endl;
-        std::cout << std::endl;
-        
-
-        //============================================ Rotate the map by the rotation matrix
-        proshade_double *rotMap;
-        ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &( symElems.at(grEl) ), &axX, &axY, &axZ, &axAng );
-        symStr->rotateMapRealSpace                    ( axX, axY, axZ, axAng, rotMap );
-        
-        //============================================ Convert rotated map to Fourier space
-        for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { rotMapComplex[it][0] = rotMap[it]; rotMapComplex[it][1] = 0.0; }
-        fftw_execute                                  ( planForwardFourierRot );
-
-        //============================================ Combine coeffs for translation function
-        ProSHADE_internal_maths::combineFourierForTranslation ( origCoeffs, rotCoeffs, trFuncCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
-
-        //============================================ Compute translation function
-        fftw_execute                                  ( planReverseFourierComb );
-
-        //============================================ Find peak
-        mapPeak                                       = 0.0;
-        ProSHADE_internal_maths::findHighestValueInMap  ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
-        
-        //============================================ Convert to Angstroms
-        trsX                                         *= ( symStr->getXDimSize() / symStr->getXDim() );
-        trsY                                         *= ( symStr->getYDimSize() / symStr->getYDim() );
-        trsZ                                         *= ( symStr->getZDimSize() / symStr->getZDim() );
-        
-        //============================================ Do not translate over half
-        if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }
-        if ( trsY > ( static_cast< proshade_double > ( symStr->getYDimSize() ) / 2.0 ) ) { trsY = trsY - static_cast< proshade_double > ( symStr->getYDimSize() ); }
-        if ( trsZ > ( static_cast< proshade_double > ( symStr->getZDimSize() ) / 2.0 ) ) { trsZ = trsZ - static_cast< proshade_double > ( symStr->getZDimSize() ); }
-
-        //============================================ Compute the Moore-Penrose pseudo inverse of I-Ri
-        proshade_double* invMat                       = ProSHADE_internal_maths::compute3x3MoorePenrosePseudoInverseOfIMinusMat ( &( symElems.at(grEl) ), verbose );
-        
-        //============================================ Multiply translation with the inverted I - Ri to get centre of rotation
-        proshade_double* rotCen                       = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( invMat, trsX, trsY, trsZ );
-
-        //============================================ Save line point
-        ProSHADE_internal_misc::addToDoubleVector     ( &lineAxis, rotCen[0] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &lineAxis, rotCen[1] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &lineAxis, rotCen[2] );
-        
-        //============================================ Release memory
-        delete[] rotMap;
-        delete[] invMat;
-        delete[] rotCen;
-    }
+    //=============================================== Rotate the map by the rotation matrix
+    proshade_double *rotMap;
+    ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( &symElem, &axX, &axY, &axZ, &axAng );
+    symStr->rotateMapRealSpace                        ( axX, axY, axZ, axAng, rotMap );
     
-    //================================================ Sanity check
-    if ( lineAxis.size() != 6 )
+    //================================================ Convert rotated map to Fourier space
+    for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { rotMapComplex[it][0] = rotMap[it]; rotMapComplex[it][1] = 0.0; }
+    fftw_execute                                      ( planForwardFourierRot );
+
+    //================================================ Combine coeffs for translation function
+    ProSHADE_internal_maths::combineFourierForTranslation ( origCoeffs, rotCoeffs, trFuncCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
+
+    //================================================ Compute translation function
+    fftw_execute                                      ( planReverseFourierComb );
+
+    //================================================ Find peak
+    mapPeak                                           = 0.0;
+    ProSHADE_internal_maths::findHighestValueInMap    ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
+    
+    //================================================ Convert to Angstroms
+    trsX                                             *= ( symStr->getXDimSize() / symStr->getXDim() );
+    trsY                                             *= ( symStr->getYDimSize() / symStr->getYDim() );
+    trsZ                                             *= ( symStr->getZDimSize() / symStr->getZDim() );
+    
+    //================================================ Do not translate over half
+    if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }
+    if ( trsY > ( static_cast< proshade_double > ( symStr->getYDimSize() ) / 2.0 ) ) { trsY = trsY - static_cast< proshade_double > ( symStr->getYDimSize() ); }
+    if ( trsZ > ( static_cast< proshade_double > ( symStr->getZDimSize() ) / 2.0 ) ) { trsZ = trsZ - static_cast< proshade_double > ( symStr->getZDimSize() ); }
+
+    //================================================ Save line point
+    ProSHADE_internal_misc::addToDoubleVector         ( &trsVec, trsX );
+    ProSHADE_internal_misc::addToDoubleVector         ( &trsVec, trsY );
+    ProSHADE_internal_misc::addToDoubleVector         ( &trsVec, trsZ );
+    
+    //================================================ Release memory
+    delete[] rotMap;
+
+    //================================================ Done
+    return                                            ( trsVec );
+    
+}
+
+/*! \brief This function computes the average of optimal translations for a cyclic point group.
+ 
+    This function takes a single cyclic point group elements and proceeds to compute all optimal translations between the original map and map
+    rotated by each point group element. The sum of these translations divided by the number of the point group elements (including the identity
+    element) then gives a point that must lie on the symmetry axis.
+ 
+    \param[in] symStr A ProSHADE_data structure containing the structure for which the line on which the centre of rotation lies is to be found.
+    \param[in] symElems Vector containing single symmetry element (rotaiton matrix) which is not identity.
+    \param[in] origCoeffs The Fourier coefficients of the original (non-rotated) map.
+    \param[in] rotMapComplex Array to which the rotated map will be saved and from which the Fourier transform plan (planForwardFourierRot) is prepared.
+    \param[in] rotCoeffs Array to which the result of the Fourier transform of the rotated map will be saved into by the supplied plan (planForwardFourierRot).
+    \param[in] planForwardFourierRot FFTW3 plan for forward Fourier transform from rotMapComplex to rotCoeffs.
+    \param[in] trFuncCoeffs The array to which the combined Fourier coefficients for translation function will be saved into and also for which the inverse Fourier transform plan (planReverseFourierComb) is prepared for.
+    \param[in] trFunc The array to which the translation function will be saved into by the reverse Fourier transform planned by the plan (planReverseFourierComb).
+    \param[in] planReverseFourierComb FFTW3 plan for reverse Fourier transform from the combined coefficients (trFuncCoeffs) to the translation function array (trFunc).
+    \param[in] verbose How loud the function should be?
+    \param[out] pointOnLine A vector specifying a point that lies on the symmetry axis (given by the averaged sum of the translations of the rotated maps).
+*/
+std::vector< proshade_double > ProSHADE_internal_symmetry::findPointFromTranslations ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < std::vector < proshade_double > > symElems, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose )
+{
+    //================================================ Initialise local variables
+    std::vector< proshade_double > pointOnLine        ( 3, 0.0 );
+    std::vector< proshade_double > identityMat        ( 9, 0.0 ); identityMat.at(0) = 1.0; identityMat.at(4) = 1.0; identityMat.at(8) = 1.0;
+    
+    //================================================ For each symmetry element in this cyclic group
+    for ( size_t gEl = 0; gEl < symElems.size(); gEl++ )
     {
-        std::cerr << "!!! PRUSER !!!" << std::endl;
+        //============================================ Ignore identity element
+        if ( ProSHADE_internal_maths::rotationMatrixSimilarity ( &symElems.at(gEl), &identityMat, 0.01 ) ) { continue; }
+        
+        //============================================ Find translation difference between rotated and original map
+        std::vector< proshade_double > trsCenHlp      = ProSHADE_internal_symmetry::findTranslationBetweenRotatedAndOriginalMap ( symStr,
+                                                                                                                                  symElems.at(gEl),
+                                                                                                                                  origCoeffs, rotMapComplex,
+                                                                                                                                  rotCoeffs, planForwardFourierRot,
+                                                                                                                                  trFuncCoeffs, trFunc,
+                                                                                                                                  planReverseFourierComb,
+                                                                                                                                  verbose );
+        
+        //============================================ Sum translations over the whole axis
+        pointOnLine.at(0)                            += trsCenHlp.at(0);
+        pointOnLine.at(1)                            += trsCenHlp.at(1);
+        pointOnLine.at(2)                            += trsCenHlp.at(2);
     }
     
-    std::cout << "Found a symmetry axis given by points " << lineAxis.at(0) << " x " << lineAxis.at(1) << " x " << lineAxis.at(2) << " and " << lineAxis.at(3) << " x " << lineAxis.at(4) << " x " << lineAxis.at(5) << std::endl;
+    //================================================ Average over all symmetry elements (including the identity one)
+    pointOnLine.at(0)                                /= static_cast< proshade_double > ( symElems.size() );
+    pointOnLine.at(1)                                /= static_cast< proshade_double > ( symElems.size() );
+    pointOnLine.at(2)                                /= static_cast< proshade_double > ( symElems.size() );
     
     //================================================ Done
-    return                                            ( lineAxis );
+    return                                            ( pointOnLine );
     
 }

@@ -197,6 +197,8 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def                                          ( "centreMapOnCOM",        &ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM,        "This function shits the map so that its COM is in the centre of the map.", pybind11::arg ( "settings" ) )
         .def                                          ( "addExtraSpace",         &ProSHADE_internal_data::ProSHADE_data::addExtraSpace,         "This function increases the size of the map so that it can add empty space around it.", pybind11::arg ( "settings" ) )
         .def                                          ( "removePhaseInormation", &ProSHADE_internal_data::ProSHADE_data::removePhaseInormation, "This function removes phase from the map, effectively converting it to Patterson map.", pybind11::arg ( "settings" ) )
+        .def                                          ( "shiftToBoxCentre"     , &ProSHADE_internal_data::ProSHADE_data::shiftToBoxCentre,      "This function shifts the internal map so that its centre of the box is at required position.", pybind11::arg ( "settings" ) )
+        .def                                          ( "shiftToRotationCentre", &ProSHADE_internal_data::ProSHADE_data::shiftToRotationCentre, "This function shifts the internal map so that its rotation centre is at the centre of the box.", pybind11::arg ( "settings" ) )
         .def                                          ( "getReBoxBoundaries",
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self,ProSHADE_settings* settings ) -> pybind11::array_t < proshade_signed >
                                                         {

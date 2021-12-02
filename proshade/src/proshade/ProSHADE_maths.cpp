@@ -1879,6 +1879,32 @@ proshade_double* ProSHADE_internal_maths::computeCrossProduct ( proshade_double*
     
 }
 
+/*! \brief Simple 3D vector cross product computation.
+ 
+    \param[in] x1 The x-axis element of the first vector.
+    \param[in] y1 The y-axis element of the first vector.
+    \param[in] z1 The z-axis element of the first vector.
+    \param[in] x2 The x-axis element of the second vector.
+    \param[in] y2 The y-axis element of the second vector.
+    \param[in] z2 The z-axis element of the second vector.
+    \param[out] crossProd The vector representing the cross product of the two input vectors.
+ */
+proshade_double* ProSHADE_internal_maths::computeCrossProduct ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2, proshade_double z2 )
+{
+    //================================================ Allocate memory
+    proshade_double* crossProd                        = new proshade_double[3];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( crossProd, __FILE__, __LINE__, __func__ );
+    
+    //================================================ Compute
+    crossProd[0]                                      = ( y1 * z2 ) - ( z1 * y2 );
+    crossProd[1]                                      = ( z1 * x2 ) - ( x1 * z2 );
+    crossProd[2]                                      = ( x1 * y2 ) - ( y1 * x2 );
+    
+    //================================================ Done
+    return                                            ( crossProd );
+    
+}
+
 /*! \brief Function for computing a 3x3 matrix multiplication.
  
     \param[in] mat1 The matrix to multiply mat2.
@@ -3757,9 +3783,10 @@ std::vector< proshade_signed > ProSHADE_internal_maths::findPeaks1D ( std::vecto
     \param[in] step The granulosity of the interval <0,1> using which the search should be done.
     \param[in] sigma The variance of the Gaussian used to smoothen the peak height histogram.
     \param[in] windowSize The width of the window over which smoothening is done.
+    \param[in] maxLim The maximum value that can be reached - this is to step a single extremely high peak overshadowing very good peaks.
     \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
  */
-proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize )
+proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize, proshade_double maxLim )
 {
     //================================================ Initialise local variables
     proshade_double threshold                         = 0.0;
@@ -3773,6 +3800,9 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); }
+    
+    //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
+    for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
     
     //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
     for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
@@ -3816,9 +3846,10 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     \param[in] step The granulosity of the interval <0,1> using which the search should be done.
     \param[in] sigma The variance of the Gaussian used to smoothen the peak height histogram.
     \param[in] windowSize The width of the window over which smoothening is done.
+    \param[in] maxLim The maximum value that can be reached - this is to step a single extremely high peak overshadowing very good peaks.
     \param[out] threshold The minimum peak height that an axis needs to have to be considered a member of the distinct top group.
  */
-proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize )
+proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize, proshade_double maxLim )
 {
     //================================================ Initialise local variables
     proshade_double threshold                         = 0.0;
@@ -3832,6 +3863,10 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
     for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt).at(peakPos), symIt ) ); }
+    
+    //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
+    for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
+    
     
     //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
     for ( proshade_double it = 0.0; it <= 1.0; it = it + step )

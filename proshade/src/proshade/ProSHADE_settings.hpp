@@ -147,6 +147,7 @@ public:
     
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
+    proshade_signed messageShift;                     //!< This value allows shifting the messages to create more readable log for sub-processes.
         
 public:
     //================================================ Symmetry results holding values. This is required for Python being able to access the results without having the ProSHADE_run object.

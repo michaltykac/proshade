@@ -286,12 +286,13 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<int8_t> *gemmiMap, prosha
     \param[in] yDimInds The size of y dimension in indices.
     \param[in] zDimInds The size of z dimension in indices.
     \param[in] verbose How much std::out output would you like?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] maskArray An array of mask values (default nullptr) to be used instead of an input file.
     \param[in] maXInds The size of maskArray x dimension in indices (defaults to 0).
     \param[in] maYInds The size of maskArray y dimension in indices (defaults to 0).
     \param[in] maZInds The size of maskArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
+void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_signed messageShift, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
 {
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -302,7 +303,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     if ( ( maskArray != nullptr ) && ( maXInds != 0 ) && ( maYInds != 0 ) && ( maZInds != 0 ) )
     {
         //============================================ Array it is!
-        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, verbose );
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, verbose, messageShift );
     }
     else
     {
@@ -334,7 +335,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
         ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
         
         //============================================ Apply mask from array
-        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, verbose );
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, verbose, messageShift );
 
         //============================================ Release the memory
         delete[] internalMask;
@@ -361,8 +362,9 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     \param[in] yDimIndsMsk The size of the mask y dimension in indices.
     \param[in] zDimIndsMsk The size of the mask z dimension in indices.
     \param[in] verbose How much std::out output would you like?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose )
+void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Initialise local variables
     size_t origVolume                                 = xDimInds * yDimInds * zDimInds;
@@ -535,7 +537,7 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
     delete[] maskFinal;
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully.", messageShift );
     
     //================================================ Done
     return ;
@@ -555,12 +557,13 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
     \param[in] yDimInds The size of y dimension in indices.
     \param[in] zDimInds The size of z dimension in indices.
     \param[in] verbose How much std::out output would you like?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[in] weightsArray An array of weights (default nullptr) to be used instead of input file.
     \param[in] waXInds The size of weightsArray x dimension in indices (defaults to 0).
     \param[in] waYInds The size of weightsArray y dimension in indices (defaults to 0).
     \param[in] waZInds The size of weightsArray z dimension in indices (defaults to 0).
  */
-void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string weightsFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_double* weightsArray, proshade_unsign waXInds, proshade_unsign waYInds, proshade_unsign waZInds )
+void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string weightsFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_signed messageShift, proshade_double* weightsArray, proshade_unsign waXInds, proshade_unsign waYInds, proshade_unsign waZInds )
 {
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -571,12 +574,12 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
     if ( ( weightsArray != nullptr ) && ( waXInds != 0 ) && ( waYInds != 0 ) && ( waZInds != 0 ) )
     {
         //============================================ From array it is!
-        ProSHADE_internal_io::applyWeightsFromArray   ( map, xDimInds, yDimInds, zDimInds, weightsArray, waXInds, waYInds, waZInds, verbose );
+        ProSHADE_internal_io::applyWeightsFromArray   ( map, xDimInds, yDimInds, zDimInds, weightsArray, waXInds, waYInds, waZInds, verbose, messageShift );
     }
     else
     {
         //============================================ Check if weights file was given
-        if ( weightsFile == "" )                      { ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "No weights supplied. Assuming all weights to be 1.0." ); return; }
+        if ( weightsFile == "" )                      { ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "No weights supplied. Assuming all weights to be 1.0.", messageShift ); return; }
         
         //============================================ From file it is! Open the weights file
         gemmi::Ccp4<float> weights;
@@ -603,7 +606,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
         ProSHADE_internal_io::readInMapData           ( &weights, internalWeights, xDI, yDI, zDI, xAOR, yAOR, zAOR );
         
         //============================================ Apply weights from array
-        ProSHADE_internal_io::applyWeightsFromArray   ( map, xDimInds, yDimInds, zDimInds, internalWeights, xDI, yDI, zDI, verbose );
+        ProSHADE_internal_io::applyWeightsFromArray   ( map, xDimInds, yDimInds, zDimInds, internalWeights, xDI, yDI, zDI, verbose, messageShift );
 
         //============================================ Release the memory
         delete[] internalWeights;
@@ -630,8 +633,9 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
     \param[in] yDimIndsWgh The size of the weights y dimension in indices.
     \param[in] zDimIndsWgh The size of the weights z dimension in indices.
     \param[in] verbose How much std::out output would you like?
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& weights, proshade_unsign xDimIndsWgh, proshade_unsign yDimIndsWgh, proshade_unsign zDimIndsWgh, proshade_signed verbose )
+void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& weights, proshade_unsign xDimIndsWgh, proshade_unsign yDimIndsWgh, proshade_unsign zDimIndsWgh, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Initialise local variables
     proshade_double* weightsFinal;
@@ -829,7 +833,7 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     fftw_destroy_plan                                 ( inverseFoourier );
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully." );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully.", messageShift );
     
     //================================================ Done
     return ;

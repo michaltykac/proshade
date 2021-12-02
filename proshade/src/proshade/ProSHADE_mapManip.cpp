@@ -934,7 +934,7 @@ void ProSHADE_internal_mapManip::moveMapByFourierInReci ( proshade_complex*& coe
                 real                                  = coeffs[arrayPos][0];
                 imag                                  = coeffs[arrayPos][1];
                 
-                //==================================== Change the B-factors, if required
+                //==================================== Convert 0-max indices to HKL
                 if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
                 if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
                 if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
@@ -948,7 +948,7 @@ void ProSHADE_internal_mapManip::moveMapByFourierInReci ( proshade_complex*& coe
                 trCoeffImag                           = sin ( exponent );
                 ProSHADE_internal_maths::complexMultiplication ( &real, &imag, &trCoeffReal, &trCoeffImag, &hlpArrReal, &hlpArrImag );
                 
-                //==================================== Save the mask data
+                //==================================== Save the translated coefficient value and apply weights
                 coeffs[arrayPos][0]                   = ( hlpArrReal / normFactor ) * wght[arrayPos];
                 coeffs[arrayPos][1]                   = ( hlpArrImag / normFactor ) * wght[arrayPos];
             }

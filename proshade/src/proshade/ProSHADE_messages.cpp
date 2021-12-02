@@ -66,8 +66,9 @@ void ProSHADE_internal_messages::printTerminateMessage ( proshade_signed verbose
     \param[in] verbose Int value stating how loud the user requested the ProSHADE run to be.
     \param[in] messageLevel Int value stating how important the message is.
     \param[in] message String of the actual message to be displayed.
+    \param[in] messageShift How much should  the message be shifted (i.e. if this a sub-process of larger task, set this to 1 instead of 0).
  */
-void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose, proshade_signed messageLevel, std::string message )
+void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose, proshade_signed messageLevel, std::string message, proshade_signed messageShift )
 {
     if ( verbose >= messageLevel )
     {
@@ -76,7 +77,7 @@ void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose,
             std::cout << " ";
         }
         
-        for ( proshade_signed iter = 0; iter < messageLevel; iter++ )
+        for ( proshade_signed iter = 0; iter < ( messageLevel + messageShift ); iter++ )
         {
             std::cout << "... ";
         }
