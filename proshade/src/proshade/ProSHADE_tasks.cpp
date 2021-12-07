@@ -325,6 +325,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         
         //============================================ Internal data processing  (COM, norm, mask, extra space)
         symmetryStructure->processInternalMap         ( settings );
+        symmetryStructure->writeMap ( "testMe_masked.map" );
         
         //============================================ Map to sphere
         symmetryStructure->mapToSpheres               ( settings );
@@ -397,7 +398,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         return                                        ;
     }
     
-    //================================================ Found something! Do we have two perpendicular axes?
+    //================================================ Optimise the orthogonal pair, if there is one
     if ( relSym.size() == 2 )
     {
         //============================================ Optimise the orthogonal pair
@@ -468,7 +469,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         
         //== Compute alphas
         proshade_double* v3 = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
-                                                                              allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3] );
+                                                                             allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3] );
         
         proshade_double* v41 = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
                                                                               v3[0], v3[1], v3[2] );

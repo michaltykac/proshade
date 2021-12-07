@@ -3684,6 +3684,8 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     
     //================================================ Find the threshold
     proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 5, 0.01, 0.03, 5 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.01, 0.005, 5, 0.94 );
+    std::cout << "Peak threshold: " << bestHistPeakStart << std::endl << "FSC Threshold: " << bestFSCPeakStart << std::endl;
     if ( bestHistPeakStart > 0.9 ) { bestHistPeakStart = 0.9; }
     
     //================================================ Are any axes orthogonal
@@ -3693,6 +3695,7 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     {
         //============================================ Consider only reliable axes
         if ( allCs->at(relAx1)[5] < bestHistPeakStart ) { continue; }
+        if ( allCs->at(relAx1)[6] < bestFSCPeakStart  ) { continue; }
         
         for ( size_t relAx2 = 1; relAx2 < allCs->size(); relAx2++ )
         {
@@ -3729,6 +3732,11 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     {
         //================================================ Report progress
         ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found two, orthogonal and reliable axes.", messageShift );
+        std::cout << allCs->at(maxOrtAx1)[0] << " | " << allCs->at(maxOrtAx1)[1] << " x " << allCs->at(maxOrtAx1)[2] << " x " << allCs->at(maxOrtAx1)[3] << " || " << allCs->at(maxOrtAx1)[5] << " || " << allCs->at(maxOrtAx1)[6] << std::endl;
+        std::cout << allCs->at(maxOrtAx2)[0] << " | " << allCs->at(maxOrtAx2)[1] << " x " << allCs->at(maxOrtAx2)[2] << " x " << allCs->at(maxOrtAx2)[3] << " || " << allCs->at(maxOrtAx2)[5] << " || " << allCs->at(maxOrtAx2)[6] << std::endl;
+        
+        
+        exit(0); // REMOVE ALSO THE ONE AT THE END OF THE FUNCTION!
         
         ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx1 );
         ProSHADE_internal_misc::addToUnsignVector     ( &ret, maxOrtAx2 );
@@ -3769,7 +3777,7 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
         //================================================ Report progress
         ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Found no reliable axis.", messageShift );
     }
-    
+    exit(0);
     //================================================ Done
     return                                            ( ret );
     

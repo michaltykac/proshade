@@ -306,7 +306,7 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --fscThres or -C                               [DEFAULT:          0.75]     " << std::endl;
+    std::cout << "    --fscThres or -C                               [DEFAULT:          0.33]     " << std::endl;
     std::cout << "            The Fourier Shell Correlation value the axes need to achieve in     " << std::endl;
     std::cout << "            order to be considered \"real\" by the symmetry detection algorithm.  " << std::endl;
     std::cout << "                                                                                " << std::endl;

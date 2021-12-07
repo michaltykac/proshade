@@ -988,68 +988,22 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
 void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
 {
     //================================================ Convert Euler angles to indices
-    *x                                                = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
-    *y                                                = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
-    *z                                                = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
+   *x                                                 = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
+   *y                                                 = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
+   *z                                                 = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
     
-    if ( *x >= ( 2 * band ) ) { *x -= ( 2 * band ); }
-    if ( *y >= ( 2 * band ) ) { *y -= ( 2 * band ); }
-    if ( *z >= ( 2 * band ) ) { *z -= ( 2 * band ); }
+    //================================================ Deal with singularities
+    if ( eulerBeta > ( M_PI - 0.05 ) )
+    {
+        //============================================ Rotation is 180 deg
+       *z                                             = ( ( eulerAlpha - eulerGamma ) * static_cast<proshade_double> ( band ) ) / M_PI;
+       *y                                             = 0;
+    }
     
-//    //== Deal with the mess
-//    if ( ( eulerBeta > -0.05 ) && ( eulerBeta < 0.05 ) )
-//    {
-//        proshade_double eA, eB, eG, sum = 0.0, count = 0.0;
-//        for ( proshade_signed itX = 0; itX < (band*2); itX++ )
-//        {
-//            for ( proshade_signed itY = 0; itY < (band*2); itY++ )
-//            {
-//                for ( proshade_signed itZ = 0; itZ < (band*2); itZ++ )
-//                {
-//                    getEulerZXZFromSOFTPosition ( band, itX, itY, itZ, &eA, &eB, &eG );
-//                    if ( ( ( eB > -0.05 ) && ( eB < 0.05 ) ) &&
-//                         ( ( ( ( eA + eG ) * 0.95 ) < ( eulerAlpha + eulerGamma ) ) && ( ( ( eA + eG ) * 1.05 ) > ( eulerAlpha + eulerGamma ) ) ) )
-//                    {
-//                        sum += rotFun[itZ + band * ( itY + band * itX )][0];
-//                        count += 1.0;
-//                    }
-//                }
-//            }
-//        }
-//
-//        int xBottom = static_cast< proshade_signed > ( std::floor ( *x ) ); if ( xBottom < 0 ) { xBottom += band; } if ( xBottom >= static_cast<proshade_signed> ( band ) ) { xBottom -= static_cast<proshade_signed> ( band ); }
-//        int yBottom = static_cast< proshade_signed > ( std::floor ( *y ) ); if ( yBottom < 0 ) { yBottom += band; } if ( yBottom >= static_cast<proshade_signed> ( band ) ) { yBottom -= static_cast<proshade_signed> ( band ); }
-//        int zBottom = static_cast< proshade_signed > ( std::floor ( *z ) ); if ( zBottom < 0 ) { zBottom += band; } if ( zBottom >= static_cast<proshade_signed> ( band ) ) { zBottom -= static_cast<proshade_signed> ( band ); }
-//        std::cout << "ERR: Returned value is " << rotFun[zBottom + band * ( yBottom + band * xBottom )][0] << " while my avg is " << sum / count << std::endl;
-//    }
-//
-//    if ( ( eulerBeta > (M_PI-0.05) ) && ( eulerBeta < (M_PI+0.05) ) )
-//    {
-//        proshade_double eA, eB, eG, sum = 0.0, count = 0.0;
-//        for ( proshade_signed itX = 0; itX < (band*2); itX++ )
-//        {
-//            for ( proshade_signed itY = 0; itY < (band*2); itY++ )
-//            {
-//                for ( proshade_signed itZ = 0; itZ < (band*2); itZ++ )
-//                {
-//                    getEulerZXZFromSOFTPosition ( band, itX, itY, itZ, &eA, &eB, &eG );
-//                    if ( ( ( eB > (M_PI-0.15) ) && ( eB < (M_PI+0.15) ) ) )
-//                    {
-//                        if ( ( ( std::abs( eA - eG ) * 0.95 ) < std::abs( eulerAlpha - eulerGamma ) ) && ( ( std::abs( eA - eG ) * 1.05 ) > std::abs( eulerAlpha - eulerGamma ) ) )
-//                        {
-//                            sum += rotFun[itZ + band * ( itY + band * itX )][0];
-//                            count += 1.0;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        int xBottom = static_cast< proshade_signed > ( std::floor ( *x ) ); if ( xBottom < 0 ) { xBottom += band; } if ( xBottom >= static_cast<proshade_signed> ( band ) ) { xBottom -= static_cast<proshade_signed> ( band ); }
-//        int yBottom = static_cast< proshade_signed > ( std::floor ( *y ) ); if ( yBottom < 0 ) { yBottom += band; } if ( yBottom >= static_cast<proshade_signed> ( band ) ) { yBottom -= static_cast<proshade_signed> ( band ); }
-//        int zBottom = static_cast< proshade_signed > ( std::floor ( *z ) ); if ( zBottom < 0 ) { zBottom += band; } if ( zBottom >= static_cast<proshade_signed> ( band ) ) { zBottom -= static_cast<proshade_signed> ( band ); }
-//        std::cout << "ERR: Returned value is " << rotFun[zBottom + band * ( yBottom + band * xBottom )][0] << " while my avg is " << sum / count << std::endl;
-//    }
+    //================================================ Keep value within boundaries, but do not repeat over them!
+    if ( *x >= ( 2 * band ) ) { *x = ( 2 * band ) - 1; }
+    if ( *y >= ( 2 * band ) ) { *y = ( 2 * band ) - 1; }
+    if ( *z >= ( 2 * band ) ) { *z = ( 2 * band ) - 1; }
     
     //================================================ Done
     return ;
@@ -1608,7 +1562,7 @@ void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_single* 
 void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
     //================================================ Convert to Eulers
-    if ( std::abs( rotMat[8] ) <= 0.99999 )
+    if ( std::abs( rotMat[8] ) < 0.99999 )
     {
         //============================================ This case occurs when there is no singularity in the rotation matrix (i.e. it does not have 0 or 180 degrees angle)
        *eA                                            = std::atan2 ( rotMat[7],  rotMat[6] );
@@ -3828,7 +3782,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
     else                    { bestHistPos = 0.0; }
     
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize - 1 ) * step );
     
     //================================================ Done
     return                                            ( threshold );
