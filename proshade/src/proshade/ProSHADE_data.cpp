@@ -2629,7 +2629,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     //================================================ If we are using phaseless detection, different threshold needs to be used due to large number of false positives
     proshade_double newThres                          = settings->fscThreshold;
     if ( !settings->usePhase )
-    {
+    { 
         proshade_double phaselessStep                 = 0.01;
         proshade_double phaselessSigma                = 0.005;
         proshade_double phaselessWSize                = 5;

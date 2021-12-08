@@ -437,7 +437,42 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     //== If only C was found
     if ( relSym.size() == 1 )
     {
-        std::cout << "To be completed ... " << std::endl;
+        //== Initialise local variables
+        symStr->writeMap ( "testC5.map" );
+        proshade_double xMapCOM = 0.0, yMapCOM = 0.0, zMapCOM = 0.0;
+        std::vector< proshade_unsign > axLst;
+        std::vector< std::vector< proshade_double > > symElems;
+        
+        //== Find the point
+        ProSHADE_internal_misc::addToUnsignVector     ( &axLst, static_cast< proshade_unsign > ( relSym.at(0) ) );
+        symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
+        std::vector< proshade_double > pointPos       = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
+                                                                                                                symElems,
+                                                                                                                origCoeffs, rotMapComplex,
+                                                                                                                rotCoeffs, planForwardFourierRot,
+                                                                                                                trFuncCoeffs, trFunc,
+                                                                                                                planReverseFourierComb,
+                                                                                                                settings->verbose );
+        
+        //============================================ Find COM before map re-sampling
+        ProSHADE_internal_mapManip::findMAPCOMValues  ( symStr->internalMap, &xMapCOM, &yMapCOM, &zMapCOM, symStr->xDimSize, symStr->yDimSize, symStr->zDimSize, symStr->xFrom, symStr->xTo, symStr->yFrom, symStr->yTo, symStr->zFrom, symStr->zTo );
+        
+        proshade_double xBoxCentre                    = ( ( symStr->xTo - symStr->xFrom ) / 2 ) + symStr->xFrom;
+        proshade_double yBoxCentre                    = ( ( symStr->yTo - symStr->yFrom ) / 2 ) + symStr->yFrom;
+        proshade_double zBoxCentre                    = ( ( symStr->zTo - symStr->zFrom ) / 2 ) + symStr->zFrom;
+        
+        proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / ( symStr->xDimSize / symStr->xDimIndices ) );
+        proshade_double yCOMFromBoxCen                = yBoxCentre - ( yMapCOM / ( symStr->yDimSize / symStr->yDimIndices ) );
+        proshade_double zCOMFromBoxCen                = zBoxCentre - ( zMapCOM / ( symStr->zDimSize / symStr->zDimIndices ) );
+        
+        //== Determine point closest to COM
+        proshade_double alpha1 = ProSHADE_internal_maths::computeDotProduct ( pointPos.at(0) - xCOMFromBoxCen, pointPos.at(1) - yCOMFromBoxCen, pointPos.at(2) - zCOMFromBoxCen, allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3] ) / ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3], allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3] );
+        
+        settings->centrePosition.at(0)                = pointPos.at(0) + ( alpha1 * allCs->at(relSym.at(0))[1] );
+        settings->centrePosition.at(1)                = pointPos.at(1) + ( alpha1 * allCs->at(relSym.at(0))[2] );
+        settings->centrePosition.at(2)                = pointPos.at(2) + ( alpha1 * allCs->at(relSym.at(0))[3] );
+
+        std::cout << "Final point is: " << settings->centrePosition.at(0) << " x " << settings->centrePosition.at(1) << " x " << settings->centrePosition.at(2) << std::endl;
     }
     //== If D was found
     else
