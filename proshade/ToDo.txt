@@ -2,6 +2,8 @@ To Do:
 
 Testing:
 * Look into the limits of structure overlay
+* Make the Wigner D matrices accessible from python as well as their computation for various alpha, beta and gamma values
+* Finish the translation function optimisation
 
 Development
 * Timing - are band and integration order correctly determined?

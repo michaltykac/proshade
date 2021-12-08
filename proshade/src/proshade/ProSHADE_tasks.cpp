@@ -325,7 +325,6 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         
         //============================================ Internal data processing  (COM, norm, mask, extra space)
         symmetryStructure->processInternalMap         ( settings );
-        symmetryStructure->writeMap ( "testMe_masked.map" );
         
         //============================================ Map to sphere
         symmetryStructure->mapToSpheres               ( settings );
@@ -356,7 +355,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
     
 }
 
-/*! \brief The task for finding the structure centre based on phase-less symmetry..
+/*! \brief The task for finding the structure centre based on phase-less symmetry detection.
  
     This function is called to compute the symmetry of the phase-less map so that (in case there is any) it could then find the centre of
     rotation and thus the centre of the structure.
@@ -420,30 +419,29 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { origMap[it][0] = symStr->getMapValue( it ); origMap[it][1] = 0.0; }
     fftw_execute                                      ( planForwardFourier );
     
-    //== Allocate Fourier coefficients array for the translation optimisation
-    proshade_complex* trsOptMap                       = new proshade_complex[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-    proshade_complex* trsOptCoeffs                    = new proshade_complex[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptMap,    __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptCoeffs, __FILE__, __LINE__, __func__ );
-    fftw_plan planForwardOptimisation                 = fftw_plan_dft_3d ( static_cast< int > ( symStr->getXDim() ), static_cast< int > ( symStr->getYDim() ), static_cast< int > ( symStr->getZDim() ), trsOptMap,       trsOptCoeffs, FFTW_FORWARD,   FFTW_ESTIMATE );
+//    //== Allocate Fourier coefficients array for the translation optimisation
+//    proshade_complex* trsOptMap                       = new proshade_complex[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+//    proshade_complex* trsOptCoeffs                    = new proshade_complex[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
+//    ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptMap,    __FILE__, __LINE__, __func__ );
+//    ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptCoeffs, __FILE__, __LINE__, __func__ );
+//    fftw_plan planForwardOptimisation                 = fftw_plan_dft_3d ( static_cast< int > ( symStr->getXDim() ), static_cast< int > ( symStr->getYDim() ), static_cast< int > ( symStr->getZDim() ), trsOptMap,       trsOptCoeffs, FFTW_FORWARD,   FFTW_ESTIMATE );
     
     //== Prepare FSC computation memory and variables
-    fftw_complex *FSCmapData, *FSCorigCoeffs, *FSCfCoeffs;
-    fftw_plan FSCplanForwardFourier;
-    proshade_double **binDataFSC, *fscByBin;
-    proshade_signed *binIndexing, *binCounts, noBins;
-    symStr->prepareFSCFourierMemory                   ( FSCmapData, FSCorigCoeffs, FSCfCoeffs, binIndexing, &noBins, binDataFSC, binCounts, &FSCplanForwardFourier, fscByBin );
+//    fftw_complex *FSCmapData, *FSCorigCoeffs, *FSCfCoeffs;
+//    fftw_plan FSCplanForwardFourier;
+//    proshade_double **binDataFSC, *fscByBin;
+//    proshade_signed *binIndexing, *binCounts, noBins;
+//    symStr->prepareFSCFourierMemory                   ( FSCmapData, FSCorigCoeffs, FSCfCoeffs, binIndexing, &noBins, binDataFSC, binCounts, &FSCplanForwardFourier, fscByBin );
     
-    //== If only C was found
+    //================================================ If single C was found
     if ( relSym.size() == 1 )
     {
-        //== Initialise local variables
-        symStr->writeMap ( "testC5.map" );
+        //============================================ Initialise local variables
         proshade_double xMapCOM = 0.0, yMapCOM = 0.0, zMapCOM = 0.0;
         std::vector< proshade_unsign > axLst;
         std::vector< std::vector< proshade_double > > symElems;
         
-        //== Find the point
+        //============================================ Find the point
         ProSHADE_internal_misc::addToUnsignVector     ( &axLst, static_cast< proshade_unsign > ( relSym.at(0) ) );
         symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
         std::vector< proshade_double > pointPos       = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
@@ -454,33 +452,46 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 planReverseFourierComb,
                                                                                                                 settings->verbose );
         
-        //============================================ Find COM before map re-sampling
+        //============================================ Find COM in Angstroms in visualisation space
         ProSHADE_internal_mapManip::findMAPCOMValues  ( symStr->internalMap, &xMapCOM, &yMapCOM, &zMapCOM, symStr->xDimSize, symStr->yDimSize, symStr->zDimSize, symStr->xFrom, symStr->xTo, symStr->yFrom, symStr->yTo, symStr->zFrom, symStr->zTo );
         
+        //============================================ Determine box centre in indices
         proshade_double xBoxCentre                    = ( ( symStr->xTo - symStr->xFrom ) / 2 ) + symStr->xFrom;
         proshade_double yBoxCentre                    = ( ( symStr->yTo - symStr->yFrom ) / 2 ) + symStr->yFrom;
         proshade_double zBoxCentre                    = ( ( symStr->zTo - symStr->zFrom ) / 2 ) + symStr->zFrom;
         
+        //============================================ Determine distance from COM in indices to box centre in indices
         proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / ( symStr->xDimSize / symStr->xDimIndices ) );
         proshade_double yCOMFromBoxCen                = yBoxCentre - ( yMapCOM / ( symStr->yDimSize / symStr->yDimIndices ) );
         proshade_double zCOMFromBoxCen                = zBoxCentre - ( zMapCOM / ( symStr->zDimSize / symStr->zDimIndices ) );
         
-        //== Determine point closest to COM
-        proshade_double alpha1 = ProSHADE_internal_maths::computeDotProduct ( pointPos.at(0) - xCOMFromBoxCen, pointPos.at(1) - yCOMFromBoxCen, pointPos.at(2) - zCOMFromBoxCen, allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3] ) / ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3], allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3] );
+        //============================================ Determine the coefficient of mapping of the COM point to the line
+        proshade_double alpha1                        = ProSHADE_internal_maths::computeDotProduct ( pointPos.at(0) - xCOMFromBoxCen,
+                                                                                                     pointPos.at(1) - yCOMFromBoxCen,
+                                                                                                     pointPos.at(2) - zCOMFromBoxCen,
+                                                                                                     allCs->at(relSym.at(0))[1],
+                                                                                                     allCs->at(relSym.at(0))[2],
+                                                                                                     allCs->at(relSym.at(0))[3] ) /
+                                                        ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1],
+                                                                                                     allCs->at(relSym.at(0))[2],
+                                                                                                     allCs->at(relSym.at(0))[3],
+                                                                                                     allCs->at(relSym.at(0))[1],
+                                                                                                     allCs->at(relSym.at(0))[2],
+                                                                                                     allCs->at(relSym.at(0))[3] );
         
+        //============================================ Determine point on the axis closest to COM
         settings->centrePosition.at(0)                = pointPos.at(0) + ( alpha1 * allCs->at(relSym.at(0))[1] );
         settings->centrePosition.at(1)                = pointPos.at(1) + ( alpha1 * allCs->at(relSym.at(0))[2] );
         settings->centrePosition.at(2)                = pointPos.at(2) + ( alpha1 * allCs->at(relSym.at(0))[3] );
-
-        std::cout << "Final point is: " << settings->centrePosition.at(0) << " x " << settings->centrePosition.at(1) << " x " << settings->centrePosition.at(2) << std::endl;
     }
-    //== If D was found
+    //================================================ If D was found
     else
     {
+        //============================================ Initialise local variables
         std::vector< proshade_unsign > axLst;
         std::vector< std::vector< proshade_double > > symElems;
         
-        //== First point
+        //============================================ Find the first point
         ProSHADE_internal_misc::addToUnsignVector     ( &axLst, static_cast< proshade_unsign > ( relSym.at(0) ) );
         symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
         std::vector< proshade_double > point1Pos      = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
@@ -491,7 +502,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 planReverseFourierComb,
                                                                                                                 settings->verbose );
         
-        //== Second point
+        //============================================ Find the second point
         axLst.at(0)                                   = static_cast< proshade_unsign > ( relSym.at(1) );
         symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
         std::vector< proshade_double > point2Pos      = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
@@ -502,49 +513,60 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 planReverseFourierComb,
                                                                                                                 settings->verbose );
         
-        //== Compute alphas
-        proshade_double* v3 = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
-                                                                             allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3] );
+        //============================================ Compute the tangents
+        proshade_double* tangentToAxes                = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
+                                                                                                       allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3] );
         
-        proshade_double* v41 = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
-                                                                              v3[0], v3[1], v3[2] );
+        proshade_double* correctedSecondAxis          = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
+                                                                                                       tangentToAxes[0], tangentToAxes[1], tangentToAxes[2] );
         
-        proshade_double* v42 = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3],
-                                                                              v3[0], v3[1], v3[2] );
+        proshade_double* correctedFirstAxis           = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3],
+                                                                                                       tangentToAxes[0], tangentToAxes[1], tangentToAxes[2] );
         
-        proshade_double alpha1 = ProSHADE_internal_maths::computeDotProduct ( point2Pos.at(0) - point1Pos.at(0), point2Pos.at(1) - point1Pos.at(1), point2Pos.at(2) - point1Pos.at(2), v42[0], v42[1], v42[2] ) /
-                                 ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3], v42[0], v42[1], v42[2] );
-        proshade_double alpha2 = ProSHADE_internal_maths::computeDotProduct ( point1Pos.at(0) - point2Pos.at(0), point1Pos.at(1) - point2Pos.at(1), point1Pos.at(2) - point2Pos.at(2), v41[0], v41[1], v41[2] ) /
-                                 ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3], v41[0], v41[1], v41[2] );
+        //============================================ Compute mappings
+        proshade_double alpha1                        = ProSHADE_internal_maths::computeDotProduct ( point2Pos.at(0) - point1Pos.at(0),
+                                                                                                     point2Pos.at(1) - point1Pos.at(1),
+                                                                                                     point2Pos.at(2) - point1Pos.at(2),
+                                                                                                     correctedFirstAxis[0], correctedFirstAxis[1], correctedFirstAxis[2] ) /
+                                                        ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
+                                                                                                     correctedFirstAxis[0], correctedFirstAxis[1], correctedFirstAxis[2] );
+        proshade_double alpha2                        = ProSHADE_internal_maths::computeDotProduct ( point1Pos.at(0) - point2Pos.at(0),
+                                                                                                     point1Pos.at(1) - point2Pos.at(1),
+                                                                                                     point1Pos.at(2) - point2Pos.at(2),
+                                                                                                     correctedSecondAxis[0], correctedSecondAxis[1], correctedSecondAxis[2] ) /
+                                                        ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3],
+                                                                                                     correctedSecondAxis[0], correctedSecondAxis[1], correctedSecondAxis[2] );
         
+        //============================================ Find the intersect point (averaged)
         settings->centrePosition.at(0)                = ( ( point1Pos.at(0) + ( alpha1 * allCs->at(relSym.at(0))[1] ) ) + ( point2Pos.at(0) + ( alpha2 * allCs->at(relSym.at(1))[1] ) ) ) / 2.0;
         settings->centrePosition.at(1)                = ( ( point1Pos.at(1) + ( alpha1 * allCs->at(relSym.at(0))[2] ) ) + ( point2Pos.at(1) + ( alpha2 * allCs->at(relSym.at(1))[2] ) ) ) / 2.0;
         settings->centrePosition.at(2)                = ( ( point1Pos.at(2) + ( alpha1 * allCs->at(relSym.at(0))[3] ) ) + ( point2Pos.at(2) + ( alpha2 * allCs->at(relSym.at(1))[3] ) ) ) / 2.0;
         
-        delete[] v3;
-        delete[] v41;
-        delete[] v42;
+        //============================================ Release memory
+        delete[] tangentToAxes;
+        delete[] correctedSecondAxis;
+        delete[] correctedFirstAxis;
         
     }
-    
-    //== Release optimisation memory
-    delete[] trsOptMap;
-    delete[] trsOptCoeffs;
-    fftw_destroy_plan                                 ( planForwardOptimisation );
     
     //================================================ Release the Fourier transforms related memory
     ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( origMap, origCoeffs, rotMapComplex, rotCoeffs, trFunc, trFuncCoeffs, planForwardFourier, planForwardFourierRot, planReverseFourierComb );
     
+    //== Release optimisation memory
+//    delete[] trsOptMap;
+//    delete[] trsOptCoeffs;
+//    fftw_destroy_plan                                 ( planForwardOptimisation );
+    
     //================================================ Release memory after FSC computation
-    delete[] FSCmapData;
-    delete[] FSCorigCoeffs;
-    delete[] FSCfCoeffs;
-    fftw_destroy_plan                                 ( FSCplanForwardFourier );
-    delete[] binIndexing;
-    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] binDataFSC[binIt]; }
-    delete[] binDataFSC;
-    delete[] binCounts;
-    delete[] fscByBin;
+//    delete[] FSCmapData;
+//    delete[] FSCorigCoeffs;
+//    delete[] FSCfCoeffs;
+//    fftw_destroy_plan                                 ( FSCplanForwardFourier );
+//    delete[] binIndexing;
+//    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] binDataFSC[binIt]; }
+//    delete[] binDataFSC;
+//    delete[] binCounts;
+//    delete[] fscByBin;
     
     //================================================ Done
     return ;
