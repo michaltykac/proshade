@@ -3018,9 +3018,8 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     \param[in] ret The list of axes for which the heights are to be found.
     \param[in] dataObj The structure object with computed rotation function in which the peaks are to be found.
     \param[in] settings ProSHADE_settings object containing all the settings for this run.
-    \param[in] improve Should the axes position be optimised, or is prediction sufficient?
  */
-void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings, bool improve )
+void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
 {
     //================================================ Initialise variables
     std::vector < proshade_unsign > folds;
@@ -3865,10 +3864,9 @@ void ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( fftw_comp
     \param[in] trFuncCoeffs The array to which the combined Fourier coefficients for translation function will be saved into and also for which the inverse Fourier transform plan (planReverseFourierComb) is prepared for.
     \param[in] trFunc The array to which the translation function will be saved into by the reverse Fourier transform planned by the plan (planReverseFourierComb).
     \param[in] planReverseFourierComb FFTW3 plan for reverse Fourier transform from the combined coefficients (trFuncCoeffs) to the translation function array (trFunc).
-    \param[in] verbose How loud the function should be?
     \param[out] trsVec A vector containing the optimal translation between the original and the rotated maps in Angstroms.
 */
-std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetweenRotatedAndOriginalMap ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < proshade_double > symElem, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose )
+std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetweenRotatedAndOriginalMap ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < proshade_double > symElem, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb )
 {
     //================================================ Initialise local variables
     proshade_double axX, axY, axZ, axAng, mapPeak, trsX, trsY, trsZ;
@@ -3894,9 +3892,9 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetwee
     ProSHADE_internal_maths::findHighestValueInMap    ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
     
     //================================================ Convert to Angstroms
-    trsX                                             *= ( symStr->getXDimSize() / symStr->getXDim() );
-    trsY                                             *= ( symStr->getYDimSize() / symStr->getYDim() );
-    trsZ                                             *= ( symStr->getZDimSize() / symStr->getZDim() );
+    trsX                                             *= static_cast< proshade_double > ( symStr->getXDimSize() / symStr->getXDim() );
+    trsY                                             *= static_cast< proshade_double > ( symStr->getYDimSize() / symStr->getYDim() );
+    trsZ                                             *= static_cast< proshade_double > ( symStr->getZDimSize() / symStr->getZDim() );
     
     //================================================ Do not translate over half
     if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }
@@ -3934,7 +3932,7 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetwee
     \param[in] verbose How loud the function should be?
     \param[out] pointOnLine A vector specifying a point that lies on the symmetry axis (given by the averaged sum of the translations of the rotated maps).
 */
-std::vector< proshade_double > ProSHADE_internal_symmetry::findPointFromTranslations ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < std::vector < proshade_double > > symElems, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose )
+std::vector< proshade_double > ProSHADE_internal_symmetry::findPointFromTranslations ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < std::vector < proshade_double > > symElems, fftw_complex *origCoeffs, fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs, fftw_complex* trFunc, fftw_plan planReverseFourierComb )
 {
     //================================================ Initialise local variables
     std::vector< proshade_double > pointOnLine        ( 3, 0.0 );
@@ -3952,8 +3950,7 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findPointFromTranslat
                                                                                                                                   origCoeffs, rotMapComplex,
                                                                                                                                   rotCoeffs, planForwardFourierRot,
                                                                                                                                   trFuncCoeffs, trFunc,
-                                                                                                                                  planReverseFourierComb,
-                                                                                                                                  verbose );
+                                                                                                                                  planReverseFourierComb );
         
         //============================================ Sum translations over the whole axis
         pointOnLine.at(0)                            += trsCenHlp.at(0);

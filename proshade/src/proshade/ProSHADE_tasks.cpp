@@ -372,7 +372,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     tmpSettings->usePhase                             = false;
     tmpSettings->requestedSymmetryType                = "onlyC";
     tmpSettings->moveToCOM                            = false;
-    tmpSettings->addExtraSpace                        = tmpSettings->addExtraSpace * 5.0;
+    tmpSettings->addExtraSpace                        = tmpSettings->addExtraSpace * 5.0f;
     settings->moveToCOM                               = false;
     
     //================================================ Read in the structure and find all symmetries without using phase information
@@ -449,8 +449,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 origCoeffs, rotMapComplex,
                                                                                                                 rotCoeffs, planForwardFourierRot,
                                                                                                                 trFuncCoeffs, trFunc,
-                                                                                                                planReverseFourierComb,
-                                                                                                                settings->verbose );
+                                                                                                                planReverseFourierComb );
         
         //============================================ Find COM in Angstroms in visualisation space
         ProSHADE_internal_mapManip::findMAPCOMValues  ( symStr->internalMap, &xMapCOM, &yMapCOM, &zMapCOM, symStr->xDimSize, symStr->yDimSize, symStr->zDimSize, symStr->xFrom, symStr->xTo, symStr->yFrom, symStr->yTo, symStr->zFrom, symStr->zTo );
@@ -461,9 +460,9 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         proshade_double zBoxCentre                    = ( ( symStr->zTo - symStr->zFrom ) / 2 ) + symStr->zFrom;
         
         //============================================ Determine distance from COM in indices to box centre in indices
-        proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / ( symStr->xDimSize / symStr->xDimIndices ) );
-        proshade_double yCOMFromBoxCen                = yBoxCentre - ( yMapCOM / ( symStr->yDimSize / symStr->yDimIndices ) );
-        proshade_double zCOMFromBoxCen                = zBoxCentre - ( zMapCOM / ( symStr->zDimSize / symStr->zDimIndices ) );
+        proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / static_cast< proshade_double > ( symStr->xDimSize / symStr->xDimIndices ) );
+        proshade_double yCOMFromBoxCen                = yBoxCentre - ( yMapCOM / static_cast< proshade_double > ( symStr->yDimSize / symStr->yDimIndices ) );
+        proshade_double zCOMFromBoxCen                = zBoxCentre - ( zMapCOM / static_cast< proshade_double > ( symStr->zDimSize / symStr->zDimIndices ) );
         
         //============================================ Determine the coefficient of mapping of the COM point to the line
         proshade_double alpha1                        = ProSHADE_internal_maths::computeDotProduct ( pointPos.at(0) - xCOMFromBoxCen,
@@ -499,8 +498,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 origCoeffs, rotMapComplex,
                                                                                                                 rotCoeffs, planForwardFourierRot,
                                                                                                                 trFuncCoeffs, trFunc,
-                                                                                                                planReverseFourierComb,
-                                                                                                                settings->verbose );
+                                                                                                                planReverseFourierComb );
         
         //============================================ Find the second point
         axLst.at(0)                                   = static_cast< proshade_unsign > ( relSym.at(1) );
@@ -510,8 +508,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 origCoeffs, rotMapComplex,
                                                                                                                 rotCoeffs, planForwardFourierRot,
                                                                                                                 trFuncCoeffs, trFunc,
-                                                                                                                planReverseFourierComb,
-                                                                                                                settings->verbose );
+                                                                                                                planReverseFourierComb );
         
         //============================================ Compute the tangents
         proshade_double* tangentToAxes                = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],

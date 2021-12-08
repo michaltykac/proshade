@@ -2632,7 +2632,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     { 
         proshade_double phaselessStep                 = 0.01;
         proshade_double phaselessSigma                = 0.005;
-        proshade_double phaselessWSize                = 5;
+        proshade_signed phaselessWSize                = 5;
         newThres =                                    ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, phaselessStep, phaselessSigma, phaselessWSize, 0.94 );
     }
     
@@ -3723,10 +3723,10 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
     //================================================ Change settings to reflect Patterson map
     if ( !settings->usePhase )
     {
-        this->xDimSize                               *= 2.0;
-        this->yDimSize                               *= 2.0;
-        this->zDimSize                               *= 2.0;
-        settings->setResolution                       ( settings->requestedResolution * 2.0 );
+        this->xDimSize                               *= 2.0f;
+        this->yDimSize                               *= 2.0f;
+        this->zDimSize                               *= 2.0f;
+        settings->setResolution                       ( settings->requestedResolution * 2.0f );
     }
     
     //================================================ Report function completion
