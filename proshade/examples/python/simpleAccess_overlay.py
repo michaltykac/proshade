@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -42,7 +42,7 @@ ps                                                    = proshade.ProSHADE_settin
 ### Set up the run
 ps.task                                               = proshade.OverlayMap
 ps.verbose                                            = -1                                                               # How verbose should the run be? -1 Means no verbal output at all.
-ps.setResolution                                      ( 4.0 )                                                            # The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
+ps.setResolution                                      ( 2.0 )                                                            # The resolution to which the calculations will be done. NOTE: Not necessarily the resolution of the structure!
 ps.addStructure                                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/bf/1BFO_A_dom_1.pdb" ) # A path to the structure to be processed. This is a BALBES domain 1BFO_A_dom_1.
 ps.addStructure                                       ( "/Users/mysak/LMB/1_ProteinDomains/0_DOMS/h8/1H8N_A_dom_1.pdb" ) # A path to the structure to be processed. This is a BALBES domain 1H8N_A_dom_1.
 
@@ -120,12 +120,12 @@ print                                                 ( "Translation to overlay 
 
 ######################################################
 ### Expected outuput
-#   Optimal rotation Euler angles : 3.8862262    0.74404687    5.4567637
-#   Optimal rotation matrix       : -0.865    0.20303503    -0.4588592
-#                                 : 0.06123119    -0.86493164    -0.49814057
-#                                 : -0.4980218    -0.4589881    0.7357338
-#   Translation to origin         : -18.545456    -22.594595    -24.615385
-#   Translation to overlay        : 4.0    2.0    -6.0
+#   Optimal rotation Euler angles : 3.889921    0.74798244    5.4605694
+#   Optimal rotation matrix       : -0.8641611    0.19778189    -0.46271798
+#                                 : 0.06915548    -0.8641217    -0.49850905
+#                                 : -0.49844068    -0.4627916    0.7330626
+#   Translation to origin         : -33.28    -29.119999    -25.043478
+#   Translation to overlay        : -24.0    -12.0    -4.0
 
 ######################################################
 ### Release memory

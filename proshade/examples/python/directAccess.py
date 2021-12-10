@@ -34,8 +34,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -402,7 +402,7 @@ pStruct.processInternalMap                            ( pSet )
 minimalBounds                                         = pStruct.getReBoxBoundaries ( pSet )
 
 print                                                 ( minimalBounds )
-# Expected output: [ -2 101  -2 121  -2  61]
+# Expected output: [  6 109   6 129   6  69]
 
 ######################################################
 ### Create new structure to hold the new map
@@ -495,7 +495,7 @@ band  =  4
 order = -2
 Shell3Band4OrderMin2Value                             = sphericalHarmonics[shell][pStruct.findSHIndex(shell, band, order)]
 print                                                 ( Shell3Band4OrderMin2Value )
-# Expected output: (6.14458814506355e-05+0.0004590262686200936j)
+# Expected output: (6.14462905753556e-05+0.0004590295017376565j)
 
 ######################################################
 ### Computing distances between two structures
@@ -520,16 +520,16 @@ pStruct2.mapToSpheres                                 ( pSet )
 pStruct2.computeSphericalHarmonics                    ( pSet )
 
 ### Get the three descriptors
-energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct, pStruct2, pSet )
-traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct, pStruct2, pSet )
-fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct, pStruct2, pSet )
+energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor     ( pStruct, pStruct2, pSet )
+traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor       ( pStruct, pStruct2, pSet )
+fullRotationFunctionDescriptor                        = proshade.computeRotationFunctionDescriptor ( pStruct, pStruct2, pSet )
 
 print                                                 ( energyLevelsDescriptor )
-# Expected output: 0.08568533460268563
+# Expected output: 0.08404706339177564
 print                                                 ( traceSigmaDescriptor )
-# Expected output: 0.25720666223665467
+# Expected output: 0.2703318898591193
 print                                                 ( fullRotationFunctionDescriptor )
-# Expected output: 0.22882324125854805
+# Expected output: 0.24178888432250034
 
 ######################################################
 ### Delete the C++ pointers
@@ -609,7 +609,7 @@ eMat                                                  = pStruct.getEMatrix ( )
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (-1.4038963057081893e-10-9.752376657121444e-11j)
+# Expected output: (2.0623081672724683e-11-2.388437874366713e-12j)
 
 ######################################################
 ### Accessing SO(3) coefficients
@@ -641,7 +641,7 @@ so3Coeffs                                             = pStruct.getSO3Coefficien
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (4.1582312957163175e-10+2.8885778570945857e-10j)
+# Expected output: (-6.108395846399666e-11+7.07436658725007e-12j)
 
 ######################################################
 ### Accessing self-rotation function
@@ -666,15 +666,15 @@ rotMapMax                                             = numpy.where ( selfRotati
 ### Find maximum value
 print                                                 ( "Rotation map maximum is: " + str( selfRotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Rotation map maximum is: (0.9959282169027053+1.3252086812770723e-17j)
+### Expected output: Rotation map maximum is: (0.9960890372115769-4.244188357793958e-18j)
 
 ### Find rotation matrix for the maximum
 rotMatMaxVal                                          = pStruct.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
 print                                                 ( rotMatMaxVal )
 
-# Expected output: [[ 1.00000000e+00  1.13310778e-15 -0.00000000e+00]
-# Expected output:  [-1.13310778e-15  1.00000000e+00  0.00000000e+00]
-# Expected output:  [ 0.00000000e+00  0.00000000e+00  1.00000000e+00]]
+# Expected output: [[ 1.00000000e+00 -2.46330734e-16 -0.00000000e+00]
+# Expected output:  [ 2.46330734e-16  1.00000000e+00  0.00000000e+00]
+# Expected output:  [ 0.00000000e+00 -0.00000000e+00  1.00000000e+00]]
 
 ######################################################
 ### Run symmetry detection
@@ -709,8 +709,8 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
      print                                            ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f      %+1.4f" % ( recSymmetryAxes[iter][0], recSymmetryAxes[iter][1], recSymmetryAxes[iter][2], recSymmetryAxes[iter][3], recSymmetryAxes[iter][4], recSymmetryAxes[iter][5], recSymmetryAxes[iter][6] ) )
      
 # Expected output: Fold      x         y         z       Angle     Height    Average FSC
-# Expected output:   3.0    +0.000    +0.000    +1.000    +2.094    +0.9715      +0.9204
-# Expected output:   2.0    +1.000    -0.000    -0.000    -3.142    +0.9917      +0.9998
+# Expected output:   3.0    +0.000    +0.000    +1.000    +2.094    +0.9726      +0.9206
+# Expected output:   2.0    +1.000    +0.000    +0.000    +3.142    +0.9920      +1.0000
 
 ######################################################
 ### Get more symmetry results
@@ -897,13 +897,13 @@ eMat                                                  = pStruct_moving.getEMatri
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (-7.672178275141165e-05-0.0006477559934134222j)
+# Expected output: (-0.00011146063742513426-0.0007921520472189464j)
 
 so3Coeffs                                             = pStruct_moving.getSO3Coefficients ( )
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (0.00022724393304755975+0.0019186027008175443j)
+# Expected output: (0.00033013770952825656+0.002346292543344185j)
 
 ######################################################
 ### Acceasing rotation function and etc.
@@ -930,15 +930,15 @@ rotMapMax                                             = numpy.where ( rotationFu
 ### Find maximum value
 print                                                 ( "Rotation map maximum is: " + str( rotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Rotation map maximum is: (0.9727930057708601-3.5787318504192495e-18j)
+### Expected output: Rotation map maximum is: (0.9759933345505016+2.2187624196227762e-18j)
 
 ### Find rotation matrix for the maximum
 rotMatMaxVal                                          = pStruct_moving.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
 print                                                 ( rotMatMaxVal )
 
-# Expected output: [[-0.86489777  0.20380552 -0.45871033]
-# Expected output:  [ 0.06047057 -0.86489777 -0.49829225]
-# Expected output:  [-0.49829225 -0.45871033  0.73572391]]
+# Expected output: [[-0.89525502  0.12088215 -0.42884258]
+# Expected output:  [ 0.12088215 -0.86049456 -0.49491072]
+# Expected output:  [-0.42884258 -0.49491072  0.75574957]]
 
 ######################################################
 ### Finding optimal rotation
@@ -956,9 +956,9 @@ optimalRotationAngles                                 = pStruct_moving.getBestRo
 optimalRotationMatrix                                 = pStruct_moving.getBestRotationMapPeaksRotationMatrix ( pSet )
 
 print ( optimalRotationMatrix )
-# Expected output: [[-0.86500001  0.20303502 -0.4588592 ]
-# Expected output:  [ 0.06123119 -0.86493162 -0.49814058]
-# Expected output:  [-0.49802181 -0.4589881   0.73573378]]
+# Expected output: [[-0.89520547  0.12219024 -0.42857521]
+# Expected output:  [ 0.11951459 -0.86062674 -0.495013  ]
+# Expected output:  [-0.42932905 -0.49435933  0.75583425]]
 
 ######################################################
 ### Delete the phase-less data
@@ -1094,7 +1094,7 @@ rotMapMax                                             = numpy.where ( translatio
 ### Find maximum value
 print                                                 ( "Translation map maximum is: " + str( translationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Translation map maximum is: (254.24030153888245+8.174469984534494e-15j)
+### Expected output: Translation map maximum is: (2.651994416765846+0j)
 
 ######################################################
 ### Obtaining the optimal translation
@@ -1128,8 +1128,8 @@ print                                                 ( "The centre of rotation 
 print                                                 ( "The centre of rotation to optimal overlay translation is: " + str( translationVecs["rotCenToOverlay"][0] ) + " ; " + str( translationVecs["rotCenToOverlay"][1] ) + " ; " + str( translationVecs["rotCenToOverlay"][2] ) )
 
 ### Expected output
-#   The centre of rotation is:                                -18.545455932617188 ; -22.594594955444336 ; -24.615385055541992
-#   The centre of rotation to optimal overlay translation is: 4.0 ; 2.0 ; -6.0
+#   The centre of rotation is:                                -26.181819915771484 ; -26.181819915771484 ; -26.181819915771484
+#   The centre of rotation to optimal overlay translation is: -8.0 ; -0.0 ; -8.0
 
 ######################################################
 ### Writing out the final structures

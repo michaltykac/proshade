@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -71,9 +71,9 @@ pStruct2.computeSphericalHarmonics                    ( pSet )
 
 ######################################################
 ### Get the distances
-energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct1, pStruct2, pSet )
-traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct1, pStruct2, pSet )
-fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct1, pStruct2, pSet )
+energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor     ( pStruct1, pStruct2, pSet )
+traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor       ( pStruct1, pStruct2, pSet )
+fullRotationFunctionDescriptor                        = proshade.computeRotationFunctionDescriptor ( pStruct1, pStruct2, pSet )
 
 ######################################################
 ### Print results
@@ -83,9 +83,9 @@ print                                                 ( "The rotation function d
 
 ######################################################
 ### Expected output
-#   The energy levels distance is          +0.859
-#   The trace sigma distance is            +0.962
-#   The rotation function distance is      +0.625
+#   The energy levels distance is          +0.736
+#   The trace sigma distance is            +0.914
+#   The rotation function distance is      +0.341
 
 ######################################################
 ### Release C++ pointers
