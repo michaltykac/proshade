@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -36,7 +36,7 @@ int main ( int argc, char **argv )
     settings->addStructure                            ( "./emd_6324.map" );                  // A path to the structure to be processed. This example uses EMD 6324 (PDB 3JA7)
     
     //================================================ Further useful settings
-    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
+    settings->setSymmetryCentreSearch                 ( false );                             // Should symmetry centre be searched for? Takes a lot of time...
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -105,21 +105,21 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry C of fold 12. The symmetry axes are:
-//   ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.973208 | Average FSC: 0.971207
+//   ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.974519 | Average FSC: 0.970268
 
     //================================================ Get list of all detected cyclic symmetries
     std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
     std::cout << "Found a total of " << allCs.size() << " cyclic symmetries." << std::endl;
     
     //================================================ Expected output
-//  Found a total of 49 cyclic symmetries.
+//  Found a total of 90 cyclic symmetries.
     
     //================================================ Find the internal map processing COM shift
     std::vector< proshade_double > comMove            = runProshade->getMapCOMProcessChange ( );
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [-0.0308251 , -0.0256403 , 9.75918].
+//  Internal map processing shifted the map COM by: [2.04652 , 2.04272 , 11.3845].
     
     //================================================ Release the settings and runProshade objects
     delete runProshade;
