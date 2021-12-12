@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -117,9 +117,9 @@ print                                                 ( "Full rotation function 
 
 ######################################################
 ### Expected output
-#   Energy levels distance          : 0.85850143       0.58064646
-#   Trace sigma distance            : 0.9622864        0.75547904
-#   Full rotation function distance : 0.6247927        0.47406107
+#   Energy levels distance          : 0.8556063        0.5606434
+#   Trace sigma distance            : 0.96467125        0.7530951
+#   Full rotation function distance : 0.62452674        0.46518552
 
 ######################################################
 ### Release memory

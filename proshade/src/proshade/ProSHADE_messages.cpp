@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -392,7 +392,10 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "    --noFRF or -n                                   [DEFAULT:         TRUE]     " << std::endl;
     std::cout << "            Is the computation of the full rotation function descriptor         " << std::endl;
     std::cout << "            required?                                                           " << std::endl;
-    std::cout << "                                                                                " << std::endl;
+    std::cout << "                                                    [DEFAUlT:        FALSE]     " << std::endl;
+    std::cout << "    -I or --symCentre                                                           " << std::endl;
+    std::cout << "            Should symmetry centre be sought using phaseless map symmetry       " << std::endl;
+    std::cout << "            before symmetry detection task is done?                             " << std::endl;
     std::cout << std::endl << std::flush;
     
     //================================================ Done

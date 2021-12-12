@@ -21,8 +21,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -154,12 +154,12 @@ print                                                 ( "Rot. centre to overlay 
 
 ######################################################
 ### Expected output
-#   Optimal Euler angles                :  +3.886    +0.765    +5.457
-#   Optimal Euler rotation matrix       :  -0.858    +0.210    -0.469
-#                                       :  +0.068    -0.858    -0.509
-#                                       :  -0.509    -0.469    +0.722
-#   Rot. centre to origin translation   :  +19.284   +23.307   +24.304
-#   Rot. centre to overlay translation  :  +2.000    +1.000    -5.000
+#   Optimal Euler angles                :  +3.927    +0.736    +5.400
+#   Optimal Euler rotation matrix       :  -0.879    +0.214    -0.426
+#                                       :  +0.044    -0.854    -0.519
+#                                       :  -0.475    -0.475    +0.741
+#   Rot. centre to origin translation   :  +16.941    +21.053    +20.952
+#   Rot. centre to overlay translation  :  +4.000    +8.000    -4.000
 
 
 ######################################################

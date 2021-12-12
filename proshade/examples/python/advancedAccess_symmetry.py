@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -97,8 +97,8 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ### Expected output
 #   Detected D-6 symetry.
 #   Fold              x           y         z       Angle      Height    Average FSC
-#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9696      +0.9755
-#     2.0        +1.000      -0.000    -0.000    -3.142    +0.9898      +0.9996
+#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9709      +0.9758
+#     2.0        +1.000      -0.005    -0.000    -3.142    +1.0103      +0.8624
 
 ######################################################
 ### Get list of all cyclic axes detected
@@ -125,7 +125,7 @@ print                                                 ( "The internal map has be
 
 ######################################################
 ### Expected output
-#   The internal map has been shifted by -1.861176 , -1.8552165 , -3.575491
+#   The internal map has been shifted by 4.111518 , 4.1201262 , 2.39567
 
 ######################################################
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
@@ -193,11 +193,11 @@ print                                                 ( "  %+1.3f    %+1.3f    %
 
 ######################################################
 ### Expected output
-#   Found a total of 12 group [3, 0] elements.
+#   Found a total of 12 group [6, 0] elements.
 #   The first non-identity element is:
-#     +0.500    +0.866    +0.000
-#     -0.866    +0.500    +0.000
-#     +0.000    +0.000    +1.000
+#     +0.500    +0.866    +0.000 
+#     -0.866    +0.500    +0.000 
+#     +0.000    +0.000    +1.000 
 
 ######################################################
 ### Assuming you have modifiex / created your own C groups

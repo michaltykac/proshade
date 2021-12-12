@@ -17,8 +17,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -64,7 +64,7 @@ int main ( int argc, char **argv )
 
 
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
+    settings->setSymmetryCentreSearch                 ( false );                             // Should symmetry centre be searched for? Takes a lot of time...
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -116,7 +116,7 @@ int main ( int argc, char **argv )
     //================================================ Get results - these are already computed by the previous line, they are just copied by these commands.
     proshade_double energyDistance                    = ProSHADE_internal_distances::computeEnergyLevelsDescriptor     ( structure1, structure2, settings ); // This is how the energy levels distance is computed between structure1 and structure2.
     proshade_double traceDistance                     = ProSHADE_internal_distances::computeTraceSigmaDescriptor       ( structure1, structure2, settings ); // This is how the trace sigma distance is computed between structure1 and structure2.
-    proshade_double rotFunDistance                    = ProSHADE_internal_distances::computeRotationunctionDescriptor  ( structure1, structure2, settings ); // This is how the rotation function distance is computed between structure1 and structure2.
+    proshade_double rotFunDistance                    = ProSHADE_internal_distances::computeRotationFunctionDescriptor ( structure1, structure2, settings ); // This is how the rotation function distance is computed between structure1 and structure2.
 
     //================================================ Print results
     std::cout << std::setprecision(5) << std::flush;
@@ -125,9 +125,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distance   : " << rotFunDistance << std::endl;
     
     //================================================ Expected output
-//  Energy levels distance       : 0.8585
-//  Trace sigma distance         : 0.96229
-//  Rotation function distance   : 0.62479
+//  Energy levels distance       : 0.85561
+//  Trace sigma distance         : 0.96467
+//  Rotation function distance   : 0.62453
 
     //================================================ Release the settings and runProshade objects
     delete structure1;

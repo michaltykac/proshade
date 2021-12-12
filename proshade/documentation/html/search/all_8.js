@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['icosahedronaxes_343',['icosahedronAxes',['../class_pro_s_h_a_d_e__internal__precomputed_vals_1_1icosahedron_axes.html',1,'ProSHADE_internal_precomputedVals::icosahedronAxes'],['../class_pro_s_h_a_d_e__internal__precomputed_vals_1_1icosahedron_axes.html#a1a917ec27d33a965d4dc80cd25c5312e',1,'ProSHADE_internal_precomputedVals::icosahedronAxes::icosahedronAxes()']]],
+  ['initialiseallmemory_344',['initialiseAllMemory',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#aa3e5098a48755bb2665044472d619029',1,'ProSHADE_internal_sphericalHarmonics']]],
+  ['initialisefftwplans_345',['initialiseFFTWPlans',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#a38c2dcddc09fd31877eecb17f1d84aa7',1,'ProSHADE_internal_sphericalHarmonics']]],
+  ['initialiseinverseshcomputation_346',['initialiseInverseSHComputation',['../namespace_pro_s_h_a_d_e__internal__overlay.html#ac173210899aeeae2e207f9acdd7670a7',1,'ProSHADE_internal_overlay']]],
+  ['initialsplitdiscretetransform_347',['initialSplitDiscreteTransform',['../namespace_pro_s_h_a_d_e__internal__spherical_harmonics.html#a0d0b0cf8683acd16bc76285b3897b66f',1,'ProSHADE_internal_sphericalHarmonics']]],
+  ['inputfiles_348',['inputFiles',['../class_pro_s_h_a_d_e__settings.html#a8a032c43a41e79e9d86c5beccb329169',1,'ProSHADE_settings']]],
+  ['inputorder_349',['inputOrder',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a99ab4a34f3a42c17f923ef131c64b4a7',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['integorder_350',['integOrder',['../class_pro_s_h_a_d_e__settings.html#af696bcba16302fe3a42e0341b4c5415a',1,'ProSHADE_settings']]],
+  ['integrationweight_351',['integrationWeight',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a5d266289b137b48132f1456fd8fc43ea',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['internalmap_352',['internalMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a8aa6fbd67df9911e886f9001a0ef8bc2',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['interpolatealongfirst_353',['interpolateAlongFirst',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a01767ce99492c8f3b5fb33f2945e629f',1,'ProSHADE_internal_spheres::ProSHADE_sphere']]],
+  ['interpolatealongsecond_354',['interpolateAlongSecond',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__sphere.html#a47a2a0198036c23f6fa1b0c4c9d75d3a',1,'ProSHADE_internal_spheres::ProSHADE_sphere']]],
+  ['interpolatemapfromspheres_355',['interpolateMapFromSpheres',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#a9d11953ff54d5774659117be22bdb3b3',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['interpolatespherevalues_356',['interpolateSphereValues',['../class_pro_s_h_a_d_e__internal__spheres_1_1_pro_s_h_a_d_e__rot_fun__sphere.html#af915e4a94ebca294b9adc39b1badca5e',1,'ProSHADE_internal_spheres::ProSHADE_rotFun_sphere']]],
+  ['invertmap_357',['invertMap',['../class_pro_s_h_a_d_e__settings.html#a0d205c102e722997ab1f0953f76a288a',1,'ProSHADE_settings']]],
+  ['invertmirrormap_358',['invertMirrorMap',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#aa67115a6b234764c958899863fb60b54',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['invertshcoefficients_359',['invertSHCoefficients',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ac3dbae1c18d0550ee1940cadb5335684',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['isaxisunique_360',['isAxisUnique',['../namespace_pro_s_h_a_d_e__internal__maths.html#a2380a3710f7dbe672519c3adda30f7cd',1,'ProSHADE_internal_maths::isAxisUnique(std::vector&lt; proshade_double * &gt; *CSymList, proshade_double *axis, proshade_double tolerance=0.1, bool improve=false)'],['../namespace_pro_s_h_a_d_e__internal__maths.html#a49f093fbdd34498d27a4d8998b620c91',1,'ProSHADE_internal_maths::isAxisUnique(std::vector&lt; proshade_double * &gt; *CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance)']]],
+  ['isbandwithinshell_361',['isBandWithinShell',['../namespace_pro_s_h_a_d_e__internal__distances.html#a6e15740000a0079151a2d24dbbdebb2e',1,'ProSHADE_internal_distances']]],
+  ['isempty_362',['isEmpty',['../class_pro_s_h_a_d_e__internal__data_1_1_pro_s_h_a_d_e__data.html#ac57d606fdb59d54bd3f9249941402b12',1,'ProSHADE_internal_data::ProSHADE_data']]],
+  ['isfilemap_363',['isFileMAP',['../namespace_pro_s_h_a_d_e__internal__io.html#ae496132c658b22a5abb5d7aaca5e1f56',1,'ProSHADE_internal_io']]],
+  ['isfilepdb_364',['isFilePDB',['../namespace_pro_s_h_a_d_e__internal__io.html#abc5e6a82b6b44e3666abfc190dc0bc64',1,'ProSHADE_internal_io']]],
+  ['issymmetrysame_365',['isSymmetrySame',['../namespace_pro_s_h_a_d_e__internal__symmetry.html#ad977c265833d6466598cceb406a085db',1,'ProSHADE_internal_symmetry::isSymmetrySame(std::vector&lt; proshade_double * &gt; *ret, proshade_double *sym, proshade_double simThres, proshade_signed *matchedPos)'],['../namespace_pro_s_h_a_d_e__internal__symmetry.html#a10af3702dc9022c3afcaf72b049779f3',1,'ProSHADE_internal_symmetry::isSymmetrySame(std::vector&lt; proshade_double * &gt; *ret, proshade_double *sym, proshade_double simThres, proshade_signed *matchedPos, proshade_double fscVal)']]]
+];

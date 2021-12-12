@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.1
-#   \date      AUG 2021
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -87,12 +87,16 @@ pStruct.writeGemmi                                    ( "gemmiTest.pdb", gStruct
 pStruct.processInternalMap                            ( pSet )
 pStruct.mapToSpheres                                  ( pSet )
 pStruct.computeSphericalHarmonics                     ( pSet )
-energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor    ( pStruct, pStruct, pSet )
-traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor      ( pStruct, pStruct, pSet )
-fullRotationFunctionDescriptor                        = proshade.computeRotationunctionDescriptor ( pStruct, pStruct, pSet )
+energyLevelsDescriptor                                = proshade.computeEnergyLevelsDescriptor     ( pStruct, pStruct, pSet )
+traceSigmaDescriptor                                  = proshade.computeTraceSigmaDescriptor       ( pStruct, pStruct, pSet )
+fullRotationFunctionDescriptor                        = proshade.computeRotationFunctionDescriptor ( pStruct, pStruct, pSet )
 print                                                 ( "The energy levels distance is          %+1.3f" % ( energyLevelsDescriptor ) )
 print                                                 ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor ) )
 print                                                 ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
+
+### Expected output: TThe energy levels distance is          +1.000
+### Expected output: TThe trace sigma distance is            +1.000
+### Expected output: TThe rotation function distance is      +1.000
 
 ######################################################
 ### Release ProSHADE memory

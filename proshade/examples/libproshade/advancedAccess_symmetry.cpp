@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -43,7 +43,7 @@ int main ( int argc, char **argv )
     
     
     //================================================ Further useful settings
-    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
+    settings->setSymmetryCentreSearch                 ( false );                             // Should symmetry centre be searched for? Takes a lot of time...
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -134,9 +134,8 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: D-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.983466 and averaged FSC of 0.967776
-//  Symmetry axis number 1: Fold 2 XYZ: 1 ; 0 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 0.985993 and averaged FSC of 0.998879
+//  Detected symmetry: C-6 with axes:
+//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.955807 and averaged FSC of 0.966346
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
@@ -150,7 +149,7 @@ int main ( int argc, char **argv )
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [-4.20439 , -4.20564 , -6.00848].
+//  Internal map processing shifted the map COM by: [3.19419 , 3.1979 , 1.36808].
     
     //================================================ Release the object
     delete simpleSym;
@@ -192,8 +191,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: D-3 as requested. The axes are:
-//  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944 and axis peak: 0.982836
-//  Symmetry axis number 1: Fold 2 XYZ: 1.83697e-16 ; 1 ; -6.12323e-17 Angle (radians): -3.14159 and axis peak: 0.985911
+//  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944 and axis peak: 0.948237
+//  Symmetry axis number 1: Fold 2 XYZ: 0.999961 ; -0.0088698 ; -6.12323e-17 Angle (radians): -3.14159 and axis peak: 1.00933
     
     
     //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the

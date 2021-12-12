@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
  */
 
 //==================================================== ProSHADE
@@ -757,7 +757,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     ProSHADE_internal_mapManip::findPDBCOMValues      ( gemmiStruct, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
     
     //================================================ Find the ranges
-    proshade_single xF, xT, yF, yT, zF, zT;
+    proshade_single xF = 0.0f, xT = 0.0f, yF = 0.0f, yT = 0.0f, zF = 0.0f, zT = 0.0f;
     ProSHADE_internal_mapManip::determinePDBRanges    ( gemmiStruct, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
     
     //================================================ Move ranges to have all FROM values 20
@@ -767,9 +767,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     ProSHADE_internal_mapManip::movePDBForMapCalc     ( &gemmiStruct, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
-    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 5.0f * settings->coOrdsExtraSpace ) );
-    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 4.0f * settings->coOrdsExtraSpace ) );
-    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 3.0f * settings->coOrdsExtraSpace ) );
+    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 2.0f * settings->coOrdsExtraSpace ) );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( gemmiStruct, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );
@@ -2629,10 +2629,10 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     //================================================ If we are using phaseless detection, different threshold needs to be used due to large number of false positives
     proshade_double newThres                          = settings->fscThreshold;
     if ( !settings->usePhase )
-    {
+    { 
         proshade_double phaselessStep                 = 0.01;
         proshade_double phaselessSigma                = 0.005;
-        proshade_double phaselessWSize                = 5;
+        proshade_signed phaselessWSize                = 5;
         newThres =                                    ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, phaselessStep, phaselessSigma, phaselessWSize, 0.94 );
     }
     
@@ -3723,10 +3723,10 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
     //================================================ Change settings to reflect Patterson map
     if ( !settings->usePhase )
     {
-        this->xDimSize                               *= 2.0;
-        this->yDimSize                               *= 2.0;
-        this->zDimSize                               *= 2.0;
-        settings->setResolution                       ( settings->requestedResolution * 2.0 );
+        this->xDimSize                               *= 2.0f;
+        this->yDimSize                               *= 2.0f;
+        this->zDimSize                               *= 2.0f;
+        settings->setResolution                       ( settings->requestedResolution * 2.0f );
     }
     
     //================================================ Report function completion
