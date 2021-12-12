@@ -33,8 +33,12 @@
 //==================================================== Declare LAPACK functions
 extern "C"
 {
-    // ... The complex matrix singular value decomposition function
-    extern void zgesdd_( char* jobz, int* m, int* n, std::complex<double>* a, int* lda, double* s, std::complex<double>* u, int* ldu, std::complex<double>* vt, int* ldvt, std::complex<double>* work, int* lwork, double* rwork, int* iwork, int* info );
+    // ... The real matrix singular value decomposition function from LAPACK
+    extern void dgesdd_ ( char* jobz, int* m, int* n, double* a, int* lda, double* s, double* u, int* ldu, double* vt, int* ldvt, double* work, int* lwork, double* rwork, int* iwork, int* info );
+    // ... The complex matrix singular value decomposition function from LAPACK
+    extern void zgesdd_ ( char* jobz, int* m, int* n, std::complex<double>* a, int* lda, double* s, std::complex<double>* u, int* ldu, std::complex<double>* vt, int* ldvt, std::complex<double>* work, int* lwork, double* rwork, int* iwork, int* info );
+    // ... The eigenvalue/eigenvector solver
+    extern void dgeev_ ( char* jobvl, char* jobvr, int* n, double* a, int* lda, double* wr, double* wi, double* vl, int* ldvl, double* vr, int* ldvr, double* work, int* lwork, int* info );
 }
 
 //==================================================== ProSHADE_internal_spheres Namespace
@@ -76,6 +80,7 @@ namespace ProSHADE_internal_spheres
         std::vector<std::pair<proshade_unsign,proshade_unsign>> getPeaks ( void );
         proshade_double getSphereLatLonPosition       ( proshade_unsign lattitude, proshade_unsign longitude );
         proshade_double getSphereLatLonLinearInterpolationPos ( proshade_double lattitude, proshade_double longitude );
+        std::vector< std::vector< proshade_double > > getCopyOfValues ( void );
         
         
     public:
@@ -320,15 +325,15 @@ namespace ProSHADE_internal_maths
                                                         proshade_double* abscissas, proshade_double* weights, proshade_double integralOverRange,
                                                         proshade_double maxSphereDists, proshade_double* retReal, proshade_double* retImag );
     void complexMatrixSVDSigmasOnly                   ( proshade_complex** mat, int dim, double*& singularValues );
-    void complexMatrixSVDUandVOnly                    ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail = true );
+    void realMatrixSVDUandVOnly                       ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail = true );
     void getEulerZXZFromSOFTPosition                  ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha,
                                                         proshade_double* eulerBeta, proshade_double* eulerGamma );
     void getSOFTPositionFromEulerZXZ                  ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma,
                                                         proshade_double* x, proshade_double* y, proshade_double* z );
     void getRotationMatrixFromEulerZXZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
     void getRotationMatrixFromEulerZXZAngles          ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix );
-    void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
-    void getAxisAngleFromRotationMatrix               ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang );
+    void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang, proshade_signed verbose = 1 );
+    void getAxisAngleFromRotationMatrix               ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang, proshade_signed verbose = 1 );
     void getRotationMatrixFromAngleAxis               ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getRotationMatrixFromAngleAxis               ( proshade_single* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getEulerZXZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
@@ -343,13 +348,18 @@ namespace ProSHADE_internal_maths
                                                         proshade_double z2 );
     proshade_double* computeCrossProduct              ( proshade_double* x1, proshade_double* y1, proshade_double* z1, proshade_double* x2, proshade_double* y2,
                                                         proshade_double* z2 );
+    proshade_double* computeCrossProduct              ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
+                                                        proshade_double z2 );
     proshade_double* compute3x3MatrixMultiplication   ( proshade_double* mat1, proshade_double* mat2 );
     proshade_double* compute3x3MatrixVectorMultiplication ( proshade_double* mat, proshade_double x, proshade_double y, proshade_double z );
     proshade_single* compute3x3MatrixVectorMultiplication ( proshade_single* mat, proshade_single x, proshade_single y, proshade_single z );
     proshade_double* compute3x3MatrixInverse          ( proshade_double* mat );
     void transpose3x3MatrixInPlace                    ( proshade_double* mat );
+    proshade_double* build3x3MatrixFromDiag           ( proshade_double* diag );
+    proshade_double* build3x3MatrixFromXYZRotations   ( proshade_double xRot, proshade_double yRot, proshade_double zRot );
     proshade_double* findRotMatMatchingVectors        ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
                                                         proshade_double z2 );
+    proshade_double* compute3x3MoorePenrosePseudoInverseOfIMinusMat ( std::vector < proshade_double >* rMat, proshade_signed verbose );
     std::vector < proshade_double > findVectorFromTwoVAndTwoD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
                                                                 proshade_double z2, proshade_double dot1, proshade_double dot2 );
     std::vector < proshade_double > findVectorFromThreeVAndThreeD ( proshade_double x1, proshade_double y1, proshade_double z1, proshade_double x2, proshade_double y2,
@@ -379,7 +389,20 @@ namespace ProSHADE_internal_maths
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );
     void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed* noBin, proshade_signed*& binIndexing );
     proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds,
-                                                        proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts );
+                                                        proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin );
+    void computeFSCWeightByBin                        ( proshade_double*& weights1, proshade_double*& weights2, proshade_signed* binIndexing, proshade_double* fscByBin, proshade_signed noBins,
+                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+    proshade_double computeTheFValue                  ( proshade_complex* fCoeffs, proshade_double* weights, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+    void computeTrFunDerivatives                      ( proshade_complex* fCoeffs, proshade_double* weights1, proshade_double* weights2, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim,
+                                                        proshade_double*& firstDers, proshade_double*& secondDers );
+    proshade_double* computeTrFunStep                 ( proshade_double* firstDers, proshade_double* secondDers );
+    std::vector< proshade_signed > findPeaks1D        ( std::vector< proshade_double > data );
+    proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize, proshade_double maxLim = 0.9 );
+    proshade_double findTopGroupSmooth                ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize,
+                                                        proshade_double maxLim = 0.9 );
+    void combineFourierForTranslation                 ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD );
+    void findHighestValueInMap                        ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX,
+                                                        proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak );
 }
 
 #endif

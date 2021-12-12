@@ -257,6 +257,8 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
             for ( proshade_signed zIt = zFrom; zIt <= zTo; zIt++ )
             {
                 arrPos                                = (zIt-zFrom) + ( zTo - zFrom + 1 ) * ( ( yIt - yFrom ) + ( yTo - yFrom + 1 ) * ( xIt - xFrom ) );
+                const FloatingPoint< proshade_double > lhs ( map[arrPos] );
+                if ( !lhs.AlmostEquals ( lhs ) )       { map[arrPos] = 0.0; continue; }
                 
                 if ( map[arrPos] > 0.0 )
                 {
@@ -853,39 +855,10 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     //================================================ Compute Forward Fourier
     fftw_execute                                      ( planForwardFourier );
     
-    //================================================ Add the required shift
-    for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )
-    {
-        for ( proshade_unsign vIt = 0; vIt < static_cast<proshade_unsign> ( yDim ); vIt++ )
-        {
-            for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
-            {
-                //==================================== Var init
-                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
-                real                                  = fCoeffs[arrayPos][0];
-                imag                                  = fCoeffs[arrayPos][1];
-                
-                //==================================== Change the B-factors, if required
-                if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
-                if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
-                if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
-                
-                //==================================== Get translation coefficient change
-                exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * static_cast< proshade_double > ( -xMov ) ) +
-                                                          ( ( static_cast <proshade_double> ( k ) / static_cast <proshade_double> ( yAngs ) ) * static_cast< proshade_double > ( -yMov ) ) +
-                                                          ( ( static_cast <proshade_double> ( l ) / static_cast <proshade_double> ( zAngs ) ) * static_cast< proshade_double > ( -zMov ) ) ) * 2.0 * M_PI;
-                        
-                trCoeffReal                           = cos ( exponent );
-                trCoeffImag                           = sin ( exponent );
-                ProSHADE_internal_maths::complexMultiplication ( &real, &imag, &trCoeffReal, &trCoeffImag, &hlpArrReal, &hlpArrImag );
-                
-                //==================================== Save the mask data
-                fCoeffs[arrayPos][0]                  = hlpArrReal / normFactor;
-                fCoeffs[arrayPos][1]                  = hlpArrImag / normFactor;
-            }
-        }
-    }
-    
+    //================================================ Shift the Fourier coefficients
+    proshade_double *weight                           = nullptr;
+    moveMapByFourierInReci                            ( fCoeffs, weight, xMov, yMov, zMov, xAngs, yAngs, zAngs, xDim, yDim, zDim );
+
     //================================================ Compute inverse Fourier
     fftw_execute                                      ( planBackwardFourier );
     
@@ -907,6 +880,83 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     fftw_destroy_plan                                 ( planBackwardFourier );
     delete[] fCoeffs;
     delete[] translatedMap;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function for moving map using Fourier coefficients in the reciprocal space only.
+ 
+    This function translates the map by changing the phase information of the map Fourier transform. Contrary to the
+    moveMapByFourier() function, it does not compute the inverse Fourier transform
+ 
+    \param[in] coeffs A Reference Pointer to the Fourier decomposition coefficients of the map to be moved.
+    \param[in] weights An array of weights to be applied to the shifted coefficients.
+    \param[in] xMov The NEGATIVE value by how many angstroms should the x axis be moved.
+    \param[in] yMov The NEGATIVE value by how many angstroms should the y axis be moved.
+    \param[in] zMov The NEGATIVE value by how many angstroms should the z axis be moved.
+    \param[in] xAngs How many angstroms are there along the x dimension.
+    \param[in] yAngs How many angstroms are there along the y dimensionzAngs
+    \param[in] zAngs How many angstroms are there along the z dimension.
+    \param[in] xDim How many indices are there along the x dimension.
+    \param[in] yDim How many indices are there along the y dimension.
+    \param[in] zDim How many indices are there along the z dimension.
+ */
+void ProSHADE_internal_mapManip::moveMapByFourierInReci ( proshade_complex*& coeffs, proshade_double*& weights, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+{
+    //================================================ Local variables initialisation
+    proshade_unsign arrayPos                          = 0;
+    proshade_signed h, k, l;
+    proshade_double real                              = 0.0;
+    proshade_double imag                              = 0.0;
+    proshade_double trCoeffReal, trCoeffImag;
+    proshade_double normFactor                        = static_cast< proshade_double > ( xDim * yDim * zDim );
+    proshade_double exponent                          = 0.0;
+    proshade_double hlpArrReal;
+    proshade_double hlpArrImag;
+    
+    //================================================ If no weights are given, set them to 1.0, otherwise use supplied
+    proshade_double* wght                             = new proshade_double[xDim * yDim * zDim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( wght, __FILE__, __LINE__, __func__ );
+    if ( weights == nullptr ) { for ( size_t iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { wght[iter] = 1.0; } }
+    else                      { for ( size_t iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { wght[iter] = weights[iter]; } }
+    
+    //================================================ Add the required shift
+    for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )
+    {
+        for ( proshade_unsign vIt = 0; vIt < static_cast<proshade_unsign> ( yDim ); vIt++ )
+        {
+            for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
+            {
+                //==================================== Var init
+                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
+                real                                  = coeffs[arrayPos][0];
+                imag                                  = coeffs[arrayPos][1];
+                
+                //==================================== Convert 0-max indices to HKL
+                if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
+                if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
+                if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
+                
+                //==================================== Get translation coefficient change
+                exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * static_cast< proshade_double > ( -xMov ) ) +
+                                                          ( ( static_cast <proshade_double> ( k ) / static_cast <proshade_double> ( yAngs ) ) * static_cast< proshade_double > ( -yMov ) ) +
+                                                          ( ( static_cast <proshade_double> ( l ) / static_cast <proshade_double> ( zAngs ) ) * static_cast< proshade_double > ( -zMov ) ) ) * 2.0 * M_PI;
+                        
+                trCoeffReal                           = cos ( exponent );
+                trCoeffImag                           = sin ( exponent );
+                ProSHADE_internal_maths::complexMultiplication ( &real, &imag, &trCoeffReal, &trCoeffImag, &hlpArrReal, &hlpArrImag );
+                
+                //==================================== Save the translated coefficient value and apply weights
+                coeffs[arrayPos][0]                   = ( hlpArrReal / normFactor ) * wght[arrayPos];
+                coeffs[arrayPos][1]                   = ( hlpArrImag / normFactor ) * wght[arrayPos];
+            }
+        }
+    }
+    
+    //================================================ Release weights
+    delete[] wght;
     
     //================================================ Done
     return ;

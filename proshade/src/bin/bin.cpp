@@ -947,9 +947,9 @@
  pStruct2.computeSphericalHarmonics                   ( pSet )
 
  """ Get the distances """
- energyLevelsDescriptor                               = proshade.computeEnergyLevelsDescriptor    ( pStruct1, pStruct2, pSet )
- traceSigmaDescriptor                                 = proshade.computeTraceSigmaDescriptor      ( pStruct1, pStruct2, pSet )
- fullRotationFunctionDescriptor                       = proshade.computeRotationunctionDescriptor ( pStruct1, pStruct2, pSet )
+ energyLevelsDescriptor                               = proshade.computeEnergyLevelsDescriptor     ( pStruct1, pStruct2, pSet )
+ traceSigmaDescriptor                                 = proshade.computeTraceSigmaDescriptor       ( pStruct1, pStruct2, pSet )
+ fullRotationFunctionDescriptor                       = proshade.computeRotationFunctionDescriptor ( pStruct1, pStruct2, pSet )
 
  """ Print results """
  print                                                ( "The energy levels distance is          %+1.3f" % ( energyLevelsDescriptor ) )

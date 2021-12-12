@@ -66,8 +66,9 @@ void ProSHADE_internal_messages::printTerminateMessage ( proshade_signed verbose
     \param[in] verbose Int value stating how loud the user requested the ProSHADE run to be.
     \param[in] messageLevel Int value stating how important the message is.
     \param[in] message String of the actual message to be displayed.
+    \param[in] messageShift How much should  the message be shifted (i.e. if this a sub-process of larger task, set this to 1 instead of 0).
  */
-void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose, proshade_signed messageLevel, std::string message )
+void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose, proshade_signed messageLevel, std::string message, proshade_signed messageShift )
 {
     if ( verbose >= messageLevel )
     {
@@ -76,7 +77,7 @@ void ProSHADE_internal_messages::printProgressMessage ( proshade_signed verbose,
             std::cout << " ";
         }
         
-        for ( proshade_signed iter = 0; iter < messageLevel; iter++ )
+        for ( proshade_signed iter = 0; iter < ( messageLevel + messageShift ); iter++ )
         {
             std::cout << "... ";
         }
@@ -305,11 +306,11 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --fscThres or -C                               [DEFAULT:          0.75]     " << std::endl;
+    std::cout << "    --fscThres or -C                               [DEFAULT:          0.33]     " << std::endl;
     std::cout << "            The Fourier Shell Correlation value the axes need to achieve in     " << std::endl;
     std::cout << "            order to be considered \"real\" by the symmetry detection algorithm.  " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --peakMinThres or -E                           [DEFAULT:          0.80]     " << std::endl;
+    std::cout << "    --peakMinThres or -E                           [DEFAULT:          0.75]     " << std::endl;
     std::cout << "            The average peak height value the axes need to achieve in order     " << std::endl;
     std::cout << "            to be considered \"possible\" by the symmetry detection algorithm.    " << std::endl;
     std::cout << "                                                                                " << std::endl;

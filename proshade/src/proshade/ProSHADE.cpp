@@ -97,9 +97,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding COM
     this->moveToCOM                                   = false;
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding extra cell space
     this->addExtraSpace                               = 10.0;
@@ -125,10 +125,12 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.65;
-    this->peakThresholdMin                            = 0.80;
+    this->fscThreshold                                = 0.33;
+    this->peakThresholdMin                            = 0.75;
+    this->fastISearch                                 = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -139,15 +141,161 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->requestedSymmetryFold                       = 0;
     this->detectedSymmetry.clear                      ( );
     
+    //================================================ Settings regarding centre of map
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
     this->rotTrsJSONFile                              = "movedStructureOperations.json";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
+    this->messageShift                                = 0;
     
     //================================================ Done
     
+}
+
+/*! \brief Copy contructor for the ProSHADE_settings class.
+ 
+    This is the constructor used to create a copy of supplied ProSHADE_settings object.
+ 
+    \param[in] settings The ProSHADE_settings object that should be copied from.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+__declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* settings )
+#else
+                      ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* settings )
+#endif
+{
+    //================================================ Settings regarding the task at hand
+    this->task                                        = settings->task;
+    
+    //================================================ Settings regarding input files
+    for ( size_t fIt = 0; fIt < settings->inputFiles.size(); fIt++ ) { this->inputFiles.push_back ( settings->inputFiles.at(fIt) ); }
+    this->forceP1                                     = settings->forceP1;
+    this->removeWaters                                = settings->removeWaters;
+    this->firstModelOnly                              = settings->firstModelOnly;
+    this->removeNegativeDensity                       = settings->removeNegativeDensity;
+    
+    //================================================ Settings regarding the resolution of calculations
+    this->requestedResolution                         = settings->requestedResolution;
+    this->changeMapResolution                         = settings->changeMapResolution;
+    this->changeMapResolutionTriLinear                = settings->changeMapResolutionTriLinear;
+    
+    //================================================ Settings regarding the PDB B-factor change
+    this->pdbBFactorNewVal                            = settings->pdbBFactorNewVal;
+    
+    //================================================ Settings regarding the bandwidth of calculations
+    this->maxBandwidth                                = settings->maxBandwidth;
+    this->rotationUncertainty                         = settings->rotationUncertainty;
+    
+    //================================================ Settings regarding the phase
+    this->usePhase                                    = settings->usePhase;
+    
+    //================================================ Settings regarding the spheres
+    this->maxSphereDists                              = settings->maxSphereDists;
+    
+    //================================================ Settings regarding the Gauss-Legendre integration
+    this->integOrder                                  = settings->integOrder;
+    this->taylorSeriesCap                             = settings->taylorSeriesCap;
+    
+    //================================================ Settings regarding map normalisation
+    this->normaliseMap                                = settings->normaliseMap;
+    
+    //================================================ Settings regarding map inversion
+    this->invertMap                                   = settings->invertMap;
+    
+    //================================================ Settings regarding map masking
+    this->blurFactor                                  = settings->blurFactor;
+    this->maskingThresholdIQRs                        = settings->maskingThresholdIQRs;
+    this->maskMap                                     = settings->maskMap;
+    this->useCorrelationMasking                       = settings->useCorrelationMasking;
+    this->halfMapKernel                               = settings->halfMapKernel;
+    this->correlationKernel                           = settings->correlationKernel;
+    this->saveMask                                    = settings->saveMask;
+    this->maskFileName                                = settings->maskFileName;
+    this->appliedMaskFileName                         = settings->appliedMaskFileName;
+    
+    //================================================ Settings regarding Fourier weights
+    this->fourierWeightsFileName                      = settings->fourierWeightsFileName;
+    
+    //================================================ Settings regarding re-boxing
+    this->reBoxMap                                    = settings->reBoxMap;
+    this->boundsExtraSpace                            = settings->boundsExtraSpace;
+    this->boundsSimilarityThreshold                   = settings->boundsSimilarityThreshold;
+    this->useSameBounds                               = settings->useSameBounds;
+    this->forceBounds                                 = new proshade_signed [6];
+    for ( size_t fbIt = 0; fbIt < 6; fbIt++ ) { this->forceBounds[fbIt] = settings->forceBounds[fbIt]; }
+    
+    //================================================ Settings regarding COM
+    this->moveToCOM                                   = settings->moveToCOM;
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, settings->boxCentre.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, settings->boxCentre.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, settings->boxCentre.at(2) );
+    
+    //================================================ Settings regarding extra cell space
+    this->addExtraSpace                               = settings->addExtraSpace;
+    this->coOrdsExtraSpace                            = settings->coOrdsExtraSpace;
+    
+    //================================================ Settings regarding shell settings
+    this->progressiveSphereMapping                    = settings->progressiveSphereMapping;
+    
+    //================================================ Settings regarding output file name
+    this->outName                                     = settings->outName;
+    
+    //================================================ Settings regarding distances computation
+    this->computeEnergyLevelsDesc                     = settings->computeEnergyLevelsDesc;
+    this->computeTraceSigmaDesc                       = settings->computeTraceSigmaDesc;
+    this->computeRotationFuncDesc                     = settings->computeRotationFuncDesc;
+    this->enLevMatrixPowerWeight                      = settings->enLevMatrixPowerWeight;
+    
+    //================================================ Settings regarding peak searching
+    this->peakNeighbours                              = settings->peakNeighbours;
+    this->noIQRsFromMedianNaivePeak                   = settings->noIQRsFromMedianNaivePeak;
+    
+    //================================================ Settings regarding 1D grouping
+    this->smoothingFactor                             = settings->smoothingFactor;
+    
+    //================================================ Settings regarding the symmetry detection
+    this->findSymCentre                               = settings->findSymCentre;
+    this->useBiCubicInterpolationOnPeaks              = settings->useBiCubicInterpolationOnPeaks;
+    this->maxSymmetryFold                             = settings->maxSymmetryFold;
+    this->fscThreshold                                = settings->fscThreshold;
+    this->peakThresholdMin                            = settings->peakThresholdMin;
+    this->fastISearch                                 = settings->fastISearch;
+    this->symMissPeakThres                            = settings->symMissPeakThres;
+    this->axisErrTolerance                            = settings->axisErrTolerance;
+    this->axisErrToleranceDefault                     = settings->axisErrToleranceDefault;
+    this->minSymPeak                                  = settings->minSymPeak;
+    this->recommendedSymmetryType                     = settings->recommendedSymmetryType;
+    this->recommendedSymmetryFold                     = settings->recommendedSymmetryFold;
+    this->requestedSymmetryType                       = settings->requestedSymmetryType;
+    this->requestedSymmetryFold                       = settings->requestedSymmetryFold;
+    
+    
+    this->detectedSymmetry.clear                      ( );
+    for ( size_t dsIt = 0; dsIt < settings->detectedSymmetry.size(); dsIt++ )
+    {
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, settings->detectedSymmetry.at(dsIt) );
+    }
+    
+    //================================================ Settings regarding centre of map
+    this->centrePosition.clear                        ( );
+    for ( size_t cpIt = 0; cpIt < settings->centrePosition.size(); cpIt++ )
+    {
+        ProSHADE_internal_misc::addToDoubleVector     ( &this->centrePosition, settings->centrePosition.at(cpIt) );
+    }
+    
+    //================================================ Settings regarding the structure overlay
+    this->overlayStructureName                        = settings->overlayStructureName;
+    this->rotTrsJSONFile                              = settings->rotTrsJSONFile;
+    
+    //================================================ Settings regarding verbosity of the program
+    this->verbose                                     = settings->verbose;
+    this->messageShift                                = settings->messageShift;
 }
 
 /*! \brief Contructor for the ProSHADE_settings class for particular task.
@@ -216,9 +364,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->fourierWeightsFileName                      = "";
     
     //================================================ Settings regarding COM
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
-    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits<double>::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->boxCentre, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding re-boxing
     this->reBoxMap                                    = false;
@@ -251,10 +399,12 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->smoothingFactor                             =  15.0;
     
     //================================================ Settings regarding the symmetry detection
+    this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.65;
-    this->peakThresholdMin                            = 0.80;
+    this->fscThreshold                                = 0.33;
+    this->peakThresholdMin                            = 0.75;
+    this->fastISearch                                 = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
@@ -265,12 +415,18 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->requestedSymmetryFold                       = 0;
     this->detectedSymmetry.clear                      ( );
     
+    //================================================ Settings regarding centre of map
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
+    
     //================================================ Settings regarding the structure overlay
     this->overlayStructureName                        = "movedStructure";
     this->rotTrsJSONFile                              = "movedStructureOperations.json";
     
     //================================================ Settings regarding verbosity of the program
     this->verbose                                     = 1;
+    this->messageShift                                = 0;
     
     //================================================ Task specific settings
     switch ( this->task )
@@ -1213,6 +1369,27 @@ void                       ProSHADE_settings::setMissingPeakThreshold ( proshade
     
 }
 
+/*! \brief Sets the symmetry centre search on or off.
+ 
+    This function sets the correct internal variable so that either the search for centre of symmetry using phase-less
+    symmetry detection first is used or not. If this is on, it will take a lot more time...
+ 
+    \param[in] sCen Should the symmetry centre be sought?.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setSymmetryCentreSearch ( bool sCen )
+#else
+void                       ProSHADE_settings::setSymmetryCentreSearch ( bool sCen )
+#endif
+{
+    //================================================ Set the value
+    this->findSymCentre                               = sCen;
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the threshold for matching symmetry axes.
  
     When comparing symmetry axes, there needs to be a threshold allowing for some small error comming from the numberical
@@ -1541,7 +1718,7 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
     {
         std::stringstream hlpSS;
         hlpSS << "The bandwidth was determined as: " << this->maxBandwidth;
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
         return ;
     }
     
@@ -1551,7 +1728,7 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined as: " << this->maxBandwidth;
-    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1581,7 +1758,7 @@ void ProSHADE_settings::determineBandwidthFromAngle ( proshade_double uncertaint
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined from uncertainty " << uncertainty << " degrees as: " << this->maxBandwidth;
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1604,7 +1781,7 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
     {
         std::stringstream hlpSS;
         hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
         return ;
     }
     
@@ -1614,7 +1791,7 @@ void ProSHADE_settings::determineSphereDistances ( proshade_single maxMapRange )
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The sphere distances were determined as " << this->maxSphereDists << " Angstroms.";
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1636,7 +1813,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     {
         std::stringstream hlpSS;
         hlpSS << "The integration order was determined as " << this->integOrder;
-        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage ( this->verbose, 3, hlpSS.str(), this->messageShift );
         return ;
     }
     
@@ -1646,7 +1823,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The integration order was determined as " << this->integOrder;
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 3, hlpSS.str(), this->messageShift );
     
     //================================================ Done
     return ;
@@ -1676,7 +1853,7 @@ void ProSHADE_settings::determineIntegrationOrder ( proshade_single maxMapRange 
 void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_unsign yDim, proshade_single xDimAngs, proshade_single yDimAngs, proshade_single zDimAngs )
 {
     //================================================ Print progress message
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment." );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment.", this->messageShift );
     
     //================================================ Modify dims by resolution
     proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
@@ -1708,7 +1885,7 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     this->determineIntegrationOrder                   ( maxDiag );
     
     //================================================ Report function completion
-    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared." );
+    ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared.", this->messageShift );
     
     //================================================ Done
     return ;
@@ -1970,6 +2147,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "distances",       no_argument,        nullptr, 'D' },
         { "mapManip",        no_argument,        nullptr, 'M' },
         { "symmetry",        no_argument,        nullptr, 'S' },
+        { "symCentre",       no_argument,        nullptr, 'I' },
         { "overlay",         no_argument,        nullptr, 'O' },
         { "file",            required_argument,  nullptr, 'f' },
         { "forceSpgP1",      no_argument,        nullptr, 'u' },
@@ -2025,7 +2203,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2358,6 +2536,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case '+':
              {
                  this->setPeakNaiveNoIQR              ( static_cast<proshade_double> ( atof ( optarg ) ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as the symmetry centre search required value
+             case 'I':
+             {
+                 this->setSymmetryCentreSearch        ( true );
                  continue;
              }
                  
@@ -2729,6 +2914,10 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Energy lvl weight   : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
+    if ( this->findSymCentre ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Symmetry centre     : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
     if ( this->computeTraceSigmaDesc ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Tr sigma desc       : %37s\n", strstr.str().c_str() );
     
@@ -2790,6 +2979,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->peakThresholdMin;
     printf ( "Peak Threshold      : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    if ( this->fastISearch ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
+    printf ( "Fast I Search      : %37s\n", strstr.str().c_str() );
     
     //== Settings regarding the structure overlay
     strstr.str(std::string());

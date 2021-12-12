@@ -59,7 +59,7 @@ void ProSHADE_internal_data::ProSHADE_data::allocateRRPMemory ( )
 void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing RRP matrices for structure " + this->fileName );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing RRP matrices for structure " + this->fileName, settings->messageShift );
     
     //================================================ Allocate the memory
     this->allocateRRPMemory                           ( );
@@ -120,7 +120,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeRRPMatrices ( ProSHADE_settin
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "RRP matrices successfully computed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "RRP matrices successfully computed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -161,7 +161,7 @@ bool ProSHADE_internal_distances::isBandWithinShell ( proshade_unsign bandInQues
 proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report starting the task
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting energy levels distance computation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting energy levels distance computation.", settings->messageShift );
     
     //================================================ Initialise local variables
     proshade_double ret                               = 0.0;
@@ -189,7 +189,7 @@ proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( Pro
                                                                                        static_cast<proshade_double> ( bandDists.size() );
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Energy levels distance computation complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Energy levels distance computation complete.", settings->messageShift );
     
     //================================================ Done
     return                                            ( ret );
@@ -211,7 +211,7 @@ proshade_double ProSHADE_internal_distances::computeEnergyLevelsDescriptor ( Pro
 void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings, proshade_unsign minCommonBands, proshade_unsign minCommonShells, std::vector<proshade_double>* bandDists )
 {
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Correlating RRP matrices." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Correlating RRP matrices.", settings->messageShift );
     
     //================================================ Initialise local variables
     proshade_double *str1Vals                         = new proshade_double[minCommonShells * minCommonShells];
@@ -258,7 +258,7 @@ void ProSHADE_internal_distances::computeRRPPearsonCoefficients ( ProSHADE_inter
     delete[] str2Vals;
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "RRP matrices correlation computed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "RRP matrices correlation computed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -510,7 +510,7 @@ void ProSHADE_internal_distances::releaseTrSigmaWorkspace ( proshade_double*& ob
 void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Starting computation of E matrices." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Starting computation of E matrices.", settings->messageShift );
     
     //================================================ Allocatre memory for E matrices in the second object (first may be compared to more structures and therefore its data would be written over)
     obj2->allocateEMatrices                           ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
@@ -544,7 +544,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
         {
             std::stringstream hlpSS;
             hlpSS << "E matrices computed for band " << bandIter;
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str() );
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str(), settings->messageShift );
         }
     }
     
@@ -552,7 +552,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
     releaseTrSigmaWorkspace                           ( obj1Vals, obj2Vals, GLAbscissas, GLWeights, radiiVals );
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "E matrices computed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "E matrices computed.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -572,7 +572,7 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
 void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Starting E matrices normalisation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Starting E matrices normalisation.", settings->messageShift );
     
     //================================================ Normalise by the Pearson's c.c. like formula
     proshade_double eMatNormFactor                    = std::sqrt ( obj1->getIntegrationWeight() * obj2->getIntegrationWeight() );
@@ -593,7 +593,7 @@ void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::P
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 4, "E matrices normalised." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 4, "E matrices normalised.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -616,7 +616,7 @@ void ProSHADE_internal_distances::normaliseEMatrices ( ProSHADE_internal_data::P
 proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report starting the task
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting trace sigma distance computation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting trace sigma distance computation.", settings->messageShift );
     
     //================================================ Initialise return variable
     proshade_double ret                               = 0.0;
@@ -655,13 +655,13 @@ proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSH
     }
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "E matrices decomposed to singular values." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "E matrices decomposed to singular values.", settings->messageShift );
     
     //================================================ Release the memory
     delete[] singularValues;
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Trace sigma distance computation complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Trace sigma distance computation complete.", settings->messageShift );
     
     //================================================ Done
     return                                            ( ret );
@@ -701,7 +701,7 @@ void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_un
 void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Converting E matrices to SO(3) coefficients." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Converting E matrices to SO(3) coefficients.", settings->messageShift );
     
     //================================================ Allocate memory for the coefficients
     obj2->allocateSO3CoeffsSpace                      ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) );
@@ -744,7 +744,7 @@ void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_inte
     }
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "SO(3) coefficients obtained." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "SO(3) coefficients obtained.", settings->messageShift );
     
     //================================================ Done
     return ;
@@ -854,7 +854,7 @@ void ProSHADE_internal_distances::releaseInvSOFTMemory ( proshade_complex*& work
 void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing inverse SO(3) Fourier transform." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing inverse SO(3) Fourier transform.", settings->messageShift );
     
     //================================================ Initialise local variables
     proshade_complex *workspace1, *workspace2;
@@ -882,7 +882,9 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
     fftw_destroy_plan                                 ( inverseSO3 );
     
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Inverse SO(3) Fourier transform computed." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, "Inverse SO(3) Fourier transform computed.", settings->messageShift );
+    
+    
     
     //================================================ Done
     return ;
@@ -903,10 +905,10 @@ void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_interna
     \param[in] settings A pointer to settings class containing all the information required for the task.
     \param[out] ret The final normalised value of the rotation function descriptor for the two objects.
  */
-proshade_double ProSHADE_internal_distances::computeRotationunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
+proshade_double ProSHADE_internal_distances::computeRotationFunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report starting the task
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting rotation function distance computation." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting rotation function distance computation.", settings->messageShift );
     
     //================================================ Initialise return variable
     proshade_double ret                               = 0.0;
@@ -957,7 +959,7 @@ proshade_double ProSHADE_internal_distances::computeRotationunctionDescriptor ( 
     }
     
     //================================================ Report completion
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Rotation function distance computation complete." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Rotation function distance computation complete.", settings->messageShift );
     
     //================================================ Done
     return                                            ( ret );

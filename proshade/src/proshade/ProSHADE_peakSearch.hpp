@@ -84,7 +84,6 @@ namespace ProSHADE_internal_peakSearch
     void getBestPeakEulerAngsSmoothedZ                ( proshade_complex* map, proshade_unsign dim, proshade_double smoothingFraction,
                                                         proshade_double noIQRs, proshade_signed peakSize, proshade_double* eulA, proshade_double* eulB,
                                                         proshade_double* eulG );
-    std::vector< proshade_signed > findPeaks1D        ( std::vector< proshade_double > data );
 }
 
 #endif

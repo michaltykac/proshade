@@ -69,6 +69,7 @@ ps.setAppliedMaskFilename                             ( "" )                    
 
 ######################################################
 ### All other (possibly other tasks related) settings
+ps.setSymmetryCentreSearch                            ( False )                      # Should symmetry centre be searched for? Takes a lot of time...
 ps.setExtraSpace                                      ( 0.0 )                        # Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
 ps.setBicubicInterpolationSearch                      ( True )                       # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                         # The maximum prime number fold that will be searched for.

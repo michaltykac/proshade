@@ -762,8 +762,8 @@ std::vector<std::pair<proshade_unsign,proshade_unsign>> ProSHADE_internal_sphere
 void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues ( proshade_complex* rotFun )
 {
     //================================================ Initialise variables
-    proshade_double lonSampling                       = ( M_PI       ) / static_cast<proshade_double> ( this->angularDim );
-    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast<proshade_double> ( this->angularDim );
+    proshade_double lonSampling                       = ( M_PI       ) / static_cast< proshade_double > ( this->angularDim );
+    proshade_double latSampling                       = ( M_PI * 2.0 ) / static_cast< proshade_double > ( this->angularDim );
     
     proshade_double lat, lon, cX, cY, cZ, c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1, xRelative, yRelative, zRelative, eulerAlpha, eulerBeta, eulerGamma, mapX, mapY, mapZ;
     proshade_signed xBottom, xTop, yBottom, yTop, zBottom, zTop, mapIndex;
@@ -908,6 +908,34 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getSphereLatL
     
     //================================================ Done
     return                                            ( res );
+    
+}
+
+/*! \brief Function for obtaining a copy of all sphere values.
+ 
+    This function gives access to the mapped sphere values.
+ 
+    \param[out] ret A vector of vectors of doubles indexed longitude, latitude containing all sphere mapped  RF values.
+ */
+std::vector< std::vector< proshade_double > > ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getCopyOfValues ( )
+{
+    //================================================ Initialise variables
+    std::vector< std::vector< proshade_double > > ret ( this->angularDim );
+    std::vector< proshade_double > retHlp             ( this->angularDim, 0.0 );
+    
+    //================================================ Fill in the values
+    for ( size_t lonIt = 0; lonIt < this->angularDim; lonIt++ )
+    {
+        for ( size_t latIt = 0; latIt < this->angularDim; latIt++ )
+        {
+            retHlp.at(latIt)                          = this->getSphereLatLonPosition ( static_cast< proshade_unsign > ( latIt ), static_cast< proshade_unsign > ( lonIt ) );
+        }
+        
+        ret.at(lonIt)                                 = retHlp;
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
     
 }
 
@@ -1129,9 +1157,10 @@ proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angu
     \param[in] sphPos The sphere number of the peak.
     \param[in] cosTol The tolerance for cosine distance similarity to consider the two vectors similar.
     \param[in] verbose How verbose should the run be? Use -1 if you do not want any standard output output.
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
     \param[out] res Boolean value signifying if the peak was added.
  */
-bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose )
+bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Initialise local variables
     bool peakAdded                                    = false;
@@ -1154,7 +1183,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
     {
         //============================================ Report progress
         hlpSS << "Peak group dimensions changed from LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " to ";
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS2.str() );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 6, hlpSS2.str(), messageShift );
         
         //============================================ Initialise local variables
         proshade_signed largerCorner, smallerCorner;
@@ -1272,7 +1301,7 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
         //============================================ Compute corner vectors
         this->computeCornerPositions                  ( );
         hlpSS << "LAT " << this->latFromInds << " - " << this->latToInds << " and LON " << this->lonFromInds << " - " << this->lonToInds << " ( peak position LAT " << lat << " LON " << lon << " )";
-        ProSHADE_internal_messages::printProgressMessage  ( verbose, 7, hlpSS.str() );
+        ProSHADE_internal_messages::printProgressMessage  ( verbose, 7, hlpSS.str(), messageShift );
         
         //============================================ If new sphere, add it to the list
         bool isSphereNew                              = true;
@@ -1358,8 +1387,9 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
     \param[in] bicubicInterp Should the bicubic interpolation between the peak indices be done?
     \param[in] fold The fold for which we are searching for cyclic point groups.
     \param[in] verbose The verbosity of the run.
+    \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose )
+void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Check that this peak group has all the angles
     if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
@@ -1393,7 +1423,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
     detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
-    detectedSymmetry[6]                               = -1.0;
+    detectedSymmetry[6]                               = -std::numeric_limits < proshade_double >::infinity();
     
     //================================================ Make sure max is positive
     const FloatingPoint< proshade_double > lhs1 ( std::max ( std::abs ( detectedSymmetry[1] ), std::max ( std::abs ( detectedSymmetry[2] ), std::abs ( detectedSymmetry[3] ) ) ) );
@@ -1422,7 +1452,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Detected group with fold " << detectedSymmetry[0] << " along axis " << detectedSymmetry[1] << " ; " << detectedSymmetry[2] << " ; " << detectedSymmetry[3] << " and with peak height " << detectedSymmetry[5];
-    ProSHADE_internal_messages::printProgressMessage ( verbose, 4, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage ( verbose, 4, hlpSS.str(), messageShift );
     
     //================================================ Done
     return ;

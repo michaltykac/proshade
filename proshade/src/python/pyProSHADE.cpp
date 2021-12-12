@@ -117,6 +117,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "rotTrsJSONFile",                       &ProSHADE_settings::rotTrsJSONFile                      )
     
         .def_readwrite                                ( "verbose",                              &ProSHADE_settings::verbose                             )
+        .def_readwrite                                ( "messageShift",                         &ProSHADE_settings::messageShift                        )
     
         //============================================ Mutators
         .def                                          ( "addStructure",                         &ProSHADE_settings::addStructure,                           "Adds a structure file name to the appropriate variable.",                                                                  pybind11::arg ( "structure"     ) )

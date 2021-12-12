@@ -265,10 +265,35 @@ bool ProSHADE_internal_misc::sortSymHlp ( const proshade_double* a, const prosha
  */
 bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const proshade_double* b )
 {
-    //======================================== Compare
-    return                                    ( a[5] > b[5] );
+    //================================================ Compare
+    return                                            ( a[5] > b[5] );
     
 }
+
+/*! \brief This function compares two vectors of arrays based on the sum of the fifth column, sorting highest first.
+ 
+    \param[in] a The first vector to compare.
+    \param[in] b The second vector to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortISymByPeak ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b )
+{
+    //================================================ If one is less or more than 31, it is wrong
+    if ( a.size() != 31 ) { return ( false ); }
+    if ( b.size() != 31 ) { return ( true  ); }
+    
+    //================================================ Find the sums
+    proshade_double aSum = 0.0, bSum = 0.0;
+    for ( size_t it = 0; it < 31; it++ )
+    {
+        aSum                                         += a.at(it)[5];
+        bSum                                         += b.at(it)[5];
+    }
+    
+    //================================================ Decide
+    return                                            ( aSum > bSum );
+    
+} 
 
 /*! \brief This function compares two arrays of the ProSHADE dihedral symmetry list based on combination of axes folds and heightst.
  

@@ -123,6 +123,7 @@ public:
     proshade_double smoothingFactor;                  //!< This factor decides how small the group sizes should be - larger factor means more smaller groups.
     
     //================================================ Settings regarding the symmetry detection
+    bool findSymCentre;                               //!< Should phase-less map be used to determine centre of symmetry?
     proshade_double symMissPeakThres;                 //!< Percentage of peaks that could be missing that would warrant starting the missing peaks search procedure.
     proshade_double axisErrTolerance;                 //!< Allowed error on vector axis in in dot product ( acos ( 1 - axErr ) is the allowed difference in radians ).
     bool axisErrToleranceDefault;
@@ -135,6 +136,10 @@ public:
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
     proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
+    bool fastISearch;                                 //!< Should FSC be computed for all possible I matches, or just for the best one according to FR?
+    
+    //================================================ Settings regarding centre of map
+    std::vector < proshade_double > centrePosition;   //!< The position of the centre of the map in "real space" co-ordinates.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -142,6 +147,7 @@ public:
     
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
+    proshade_signed messageShift;                     //!< This value allows shifting the messages to create more readable log for sub-processes.
         
 public:
     //================================================ Symmetry results holding values. This is required for Python being able to access the results without having the ProSHADE_run object.
@@ -166,10 +172,12 @@ public:
     //================================================ Constructors / Destructors
 #if defined ( _WIN64 ) || defined ( _WIN32 )
     __declspec(dllexport)  ProSHADE_settings          ( );
+    __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_settings* settings );
     __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_Task task );
     __declspec(dllexport) ~ProSHADE_settings          ( );
 #else
     ProSHADE_settings                                 ( void );
+    ProSHADE_settings                                 ( ProSHADE_settings* settings );
     ProSHADE_settings                                 ( ProSHADE_Task task );
    ~ProSHADE_settings                                 ( void );
 #endif
@@ -216,6 +224,7 @@ public:
     void __declspec(dllexport) setPhaseUsage                                  ( bool phaseUsage );
     void __declspec(dllexport) setEnLevShellWeight                            ( proshade_double mPower );
     void __declspec(dllexport) setGroupingSmoothingFactor                     ( proshade_double smFact );
+    void __declspec(dllexport) setSymmetryCentreSearch                        ( bool sCen );
     void __declspec(dllexport) setMissingPeakThreshold                        ( proshade_double mpThres );
     void __declspec(dllexport) setAxisComparisonThreshold                     ( proshade_double axThres );
     void __declspec(dllexport) setAxisComparisonThresholdBehaviour            ( bool behav );
@@ -274,6 +283,7 @@ public:
     void setEnLevShellWeight                          ( proshade_double mPower );
     void setGroupingSmoothingFactor                   ( proshade_double smFact );
     void setMissingPeakThreshold                      ( proshade_double mpThres );
+    void setSymmetryCentreSearch                      ( bool sCen );
     void setAxisComparisonThreshold                   ( proshade_double axThres );
     void setAxisComparisonThresholdBehaviour          ( bool behav );
     void setMinimumPeakForAxis                        ( proshade_double minSP );
