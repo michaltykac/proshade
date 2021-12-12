@@ -70,7 +70,7 @@ namespace ProSHADE_internal_distances
     void releaseInvSOFTMemory                         ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3 );
     void computeInverseSOFTTransform                  ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         ProSHADE_settings* settings );
-    proshade_double computeRotationunctionDescriptor  ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
+    proshade_double computeRotationFunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         ProSHADE_settings* settings );
 }
 

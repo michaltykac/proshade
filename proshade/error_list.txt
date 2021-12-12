@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00067 ==
+== NEXT FREE MESSAGE NUMBER: 00073 ==
 
 ========
 GENERAL:
@@ -86,6 +86,7 @@ ES00060		Computed point group elements do not form a group.																		The
 ES00061		Failed to find enough neighbours for rotation function conversion.														The rotation function does not have enough points to be mapped onto the symmetry detection sphere format. This should not really happen, but increasing the resolution could help if this happend.
 ES00062		Rotation function was not converted into angle-axis space.																It seems that the convertRotationFunction() function was not yet called. Therefore, there are no data to detect the symmetry from; please call the convertRotationFunction() function before the detectSymmetryFromAngleAxisSpace() function.
 ES00064		Requested bicubic interpolation outside of pre-computed square.															The supplied x or y value is outside of the range of the bi-cubic interpolator's pre-computed square. Please make sure the start values were correctly supplied when the constructor was called or create a new interpolator for this case.
+ES00070		Attempted to optimise less than two axes for dihedral group.															he function for optimisation of dihedral angle of D group was called on group with less than two axes. This seems like a programming bug and should not happen - contact author if you ever see this.
 
 ============
 MAP OVERLAY:
@@ -134,6 +135,8 @@ PDB READING:
 
 CODE:		Message:																												Comment:
 WP00055		Found multiple models in co-ordinate file while single is used.															This warning occurs when ProSHADE is run with the default PDB file single model usage, but the input PDB file has multiple models. If you want to use multiple models, please supply ProSHADE with the '-x' option.
+WP00067     Requested specific map box centre and also centre of mass centring. These are mutually 									Self exlpanatory.
+			exclusive - turning COM centring off	
 
 ============
 MAP READING:
@@ -141,6 +144,8 @@ MAP READING:
 
 CODE:		Message:																												Comment:
 WM00049		Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.				This warning results when both -a and -j options are given. If you are not using both, then consider that the Fourier-space re-sampling is default for some tasks.
+WM00068		Requested box centre to be co-ordinate position outside of co-ordinates range. Please re-view the requested box 		The requested map box centre position (given in co-ordinate space) is outside of the map range. This could happen if position is given in non-co-ordinate space, e.g. in map indices space...
+			centre position.
 
 ==========
 RE-BOXING:
@@ -174,6 +179,10 @@ NO LONGER IN USE !!!	WS00054		Detected symmetry CX, however, the grid sampling d
 			high fold and therefore ProSHADE cannot responsibly claim this symmetry to be correct. It is suggested that the 		means that misplacing a peak by less than 1 point could reasonably lead to symmetry fold+1. In such cases, ProSHADE cannot be reasonably sure that the reported symmetry is correct and will need higher 
 			grid sampling is increased for more accurate symmetry detection. (Set higher resolution using -r).						sampling to remedy this.
 WS00063		Failed to detect requested symmetry.																					ProSHADE did not find any point group with reasonable average peak height and therefore is issuing this warning. The reported symmetry is unlikely in ProSHADE's view.											
+WS00069		SVD algorithm did not converge. 																						When computing the centre of map from symmetry, SVD computation is needed. In particular numerical cases, the SVD computation may fail. Solution is to change the computation resolution slightly so that the numerical issue no longer applies.											
+WS00071		Failed to find symmetry in Patterson map. Map rotation centre detection cannot be done without a symmetry, returning 	Pretty much what is says. If you believe the symmetry should be there, try changing the resolution.
+			vector with [Inf, Inf, Inf].
+WS00072		Failed to find eigenvalue with value 1 for this rotation matrix. Is this a rotation matrix?								This warning occurs when eigenvalue with value 1 is not found be LAPACK in the supplied rotation matrix. This should not happen, as all rotation matrices must have at least one eigenvalue with value 1, so this suggests the supplied matrix is not a rotation matrix.
 																																	
 ========
 OVERLAY:

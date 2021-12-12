@@ -65,6 +65,7 @@ ps.setExtraSpace                                      ( 10.0 )                  
 
 ######################################################
 ### All other (possibly other tasks related) settings
+ps.setSymmetryCentreSearch                            ( False )                                                          # Should symmetry centre be searched for? Takes a lot of time...
 ps.setBicubicInterpolationSearch                      ( True )                                                           # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                                                             # The maximum prime number fold that will be searched for.
 ps.setFSCThreshold                                    ( 0.75 )                                                           # The threshold for FSC value under which the axis is considered to be likely noise.

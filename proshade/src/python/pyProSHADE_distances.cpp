@@ -26,7 +26,7 @@
 //==================================================== Add the ProSHADE_settings and ProSHADE_run classes to the PyBind11 module
 void add_distancesClass ( pybind11::module& pyProSHADE )
 {
-    pyProSHADE.def                                    ( "computeEnergyLevelsDescriptor",    &ProSHADE_internal_distances::computeEnergyLevelsDescriptor,    "This function computes the energy levels descriptor value between two objects.",         pybind11::arg ( "obj1" ), pybind11::arg ( "obj2" ), pybind11::arg ( "settings" ) );
-    pyProSHADE.def                                    ( "computeTraceSigmaDescriptor",      &ProSHADE_internal_distances::computeTraceSigmaDescriptor,      "This function computes the trace sigma descriptor value between two objects.",         pybind11::arg ( "obj1" ), pybind11::arg ( "obj2" ), pybind11::arg ( "settings" ) );
-    pyProSHADE.def                                    ( "computeRotationunctionDescriptor", &ProSHADE_internal_distances::computeRotationunctionDescriptor, "This function computes the rotation function descriptor value between two objects.",   pybind11::arg ( "obj1" ), pybind11::arg ( "obj2" ), pybind11::arg ( "settings" ) );
+    pyProSHADE.def                                    ( "computeEnergyLevelsDescriptor",     &ProSHADE_internal_distances::computeEnergyLevelsDescriptor,     "This function computes the energy levels descriptor value between two objects.",         pybind11::arg ( "obj1" ), pybind11::arg ( "obj2" ), pybind11::arg ( "settings" ) );
+    pyProSHADE.def                                    ( "computeTraceSigmaDescriptor",       &ProSHADE_internal_distances::computeTraceSigmaDescriptor,       "This function computes the trace sigma descriptor value between two objects.",         pybind11::arg ( "obj1" ), pybind11::arg ( "obj2" ), pybind11::arg ( "settings" ) );
+    pyProSHADE.def                                    ( "computeRotationFunctionDescriptor", &ProSHADE_internal_distances::computeRotationFunctionDescriptor, "This function computes the rotation function descriptor value between two objects.",   pybind11::arg ( "obj1" ), pybind11::arg ( "obj2" ), pybind11::arg ( "settings" ) );
 }

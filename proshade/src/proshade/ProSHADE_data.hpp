@@ -182,6 +182,8 @@ namespace ProSHADE_internal_data
         void centreMapOnCOM                           ( ProSHADE_settings* settings );
         void addExtraSpace                            ( ProSHADE_settings* settings );
         void removePhaseInormation                    ( ProSHADE_settings* settings );
+        void shiftToBoxCentre                         ( ProSHADE_settings* settings );
+        void shiftToRotationCentre                    ( ProSHADE_settings* settings );
         void processInternalMap                       ( ProSHADE_settings* settings );
         
         //============================================ Data sphere mapping functions
@@ -209,7 +211,6 @@ namespace ProSHADE_internal_data
         void getImagTranslationFunction               ( double *trsFunImag, int len );
         void getRotMatrixFromRotFunInds               ( proshade_signed aI, proshade_signed bI, proshade_signed gI, double *rotMat, int len );
         int so3CoeffsArrayIndex                       ( proshade_signed order1, proshade_signed order2, proshade_signed band );
-        std::vector< proshade_double* > getCyclicSymmetriesList      ( ProSHADE_settings* settings );
         std::vector< proshade_double* > getDihedralSymmetriesList    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
@@ -225,25 +226,25 @@ namespace ProSHADE_internal_data
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
-        proshade_double findTopGroupSmooth            ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize );
         void prepareFSCFourierMemory                  ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs, proshade_signed*& binIndexing,
-                                                        proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier );
+                                                        proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier, proshade_double*& fscByBin );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,
                                                         fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins,
-                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts );
+                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
                                                         fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
-                                                        proshade_signed*& binCounts );
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
                                                         fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
-                                                        proshade_double** bindata, proshade_signed* binCounts );
+                                                        proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
         void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
                                                         fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
-                                                        proshade_double** bindata, proshade_signed* binCounts );
+                                                        proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
+        std::vector<std::vector< proshade_double > > getAllGroupElements ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
         
         //============================================ Map overlay functions

@@ -255,7 +255,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         for ( proshade_unsign i = 0; i < 9; i++ ) { avgMat[i] /= matWeight; }
         
         //============================================  Decompose the average matrix using SVD
-        ProSHADE_internal_maths::complexMatrixSVDUandVOnly ( avgMat, 3, uAndV, false );
+        ProSHADE_internal_maths::realMatrixSVDUandVOnly ( avgMat, 3, uAndV, false );
         const FloatingPoint< proshade_double > lhs ( uAndV[0] ), rhs ( -777.7 );
         if ( lhs.AlmostEquals ( rhs ) )
         {
@@ -352,7 +352,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksNaive (
 void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex* map, proshade_unsign dim, proshade_double* eulA, proshade_double* eulB, proshade_double* eulG, ProSHADE_settings* settings )
 {
     //================================================ Report progress
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Looking for Euler angles of highest peak." );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Looking for Euler angles of highest peak.", settings->messageShift );
     
     //================================================ Get all peaks
     std::vector< proshade_double* > allPeaks          = getAllPeaksNaive ( map, dim, static_cast< proshade_signed > ( settings->peakNeighbours ), settings->noIQRsFromMedianNaivePeak );
@@ -360,7 +360,7 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex*
     //================================================ Report progress
     std::stringstream hlpSSP;
     hlpSSP << "Found " << allPeaks.size() << " possible peaks.";
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSSP.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSSP.str(), settings->messageShift );
     
     //================================================ Sanity check
     if ( allPeaks.size() == 0 )
@@ -393,7 +393,7 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex*
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Optimal Euler angles are " << *eulA << " ; " << *eulB << " ; " << *eulG << " with peak height " << highestPeak;
-    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
     
     //================================================ Done
     return ;
@@ -1001,47 +1001,5 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsSmoothedZ ( proshade_comp
     
     //================================================ Done
     return ;
-    
-}
-
-/*! \brief This function simply finds all the peaks in a 1D data array.
- 
-    ...
- 
-    \param[in] data The input array containning (pressumably smoothened) data.
-    \param[out] peaks A vector containing all the peak indices in the  input array.
- */
-std::vector< proshade_signed > ProSHADE_internal_peakSearch::findPeaks1D ( std::vector< proshade_double > data )
-{
-    //================================================ Initialise local variables
-    std::vector< proshade_signed > ret;
-    
-    //================================================ Peak is simply any position with both neighbours having lower position (with special care for borders)
-    for ( proshade_signed index = 0; index < static_cast< proshade_signed > ( data.size() ); index++ )
-    {
-        //============================================ Starting border?
-        if ( index == 0 )
-        {
-            if ( data.size() > 1 ) { if ( data.at(0) > data.at(1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } }
-            continue;
-        }
-        
-        //============================================ End border?
-        if ( index == static_cast< proshade_signed > ( data.size() - 1 ) )
-        {
-            if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
-            continue;
-        }
-        
-        //============================================ Is this a peak?
-        if ( ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) &&
-             ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 1 ) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
-        
-        //============================================ Deal with equally sized values
-        if ( index < static_cast< proshade_signed > ( data.size() - 2 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) - 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) + 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 2 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
-    }
-    
-    //================================================ Done
-    return                                            ( ret );
     
 }

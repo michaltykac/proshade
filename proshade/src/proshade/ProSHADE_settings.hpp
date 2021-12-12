@@ -97,9 +97,11 @@ public:
     
     //================================================ Settings regarding COM
     bool moveToCOM;                                   //!< Logical value stating whether the structure should be moved to have its Centre Of Mass (COM) in the middle.
+    std::vector< proshade_double > boxCentre;         //!< If box centre is to be in any other location, this variable will hold the real space location that should be it.
     
     //================================================ Settings regarding extra cell space
     proshade_single addExtraSpace;                    //!< If this value is non-zero, this many angstroms of empty space will be added to the internal map.
+    proshade_single coOrdsExtraSpace;                 //!< This number of Angstroms will be added before and any co-ordinates to make sure there is no atom directly at the edge of the map.
     
     //================================================ Settings regarding shell settings
     bool progressiveSphereMapping;                    //!< If true, each shell will have its own angular resolution dependent on the actual number of map points which are available to it. If false, all shells will have the same settings.
@@ -121,6 +123,7 @@ public:
     proshade_double smoothingFactor;                  //!< This factor decides how small the group sizes should be - larger factor means more smaller groups.
     
     //================================================ Settings regarding the symmetry detection
+    bool findSymCentre;                               //!< Should phase-less map be used to determine centre of symmetry?
     proshade_double symMissPeakThres;                 //!< Percentage of peaks that could be missing that would warrant starting the missing peaks search procedure.
     proshade_double axisErrTolerance;                 //!< Allowed error on vector axis in in dot product ( acos ( 1 - axErr ) is the allowed difference in radians ).
     bool axisErrToleranceDefault;
@@ -133,6 +136,10 @@ public:
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
     proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
     proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
+    bool fastISearch;                                 //!< Should FSC be computed for all possible I matches, or just for the best one according to FR?
+    
+    //================================================ Settings regarding centre of map
+    std::vector < proshade_double > centrePosition;   //!< The position of the centre of the map in "real space" co-ordinates.
     
     //================================================ Settings regarding the structure overlay
     std::string overlayStructureName;                 //!< The filename to which the rotated and translated moving structure is to be saved.
@@ -140,6 +147,7 @@ public:
     
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
+    proshade_signed messageShift;                     //!< This value allows shifting the messages to create more readable log for sub-processes.
         
 public:
     //================================================ Symmetry results holding values. This is required for Python being able to access the results without having the ProSHADE_run object.
@@ -164,10 +172,12 @@ public:
     //================================================ Constructors / Destructors
 #if defined ( _WIN64 ) || defined ( _WIN32 )
     __declspec(dllexport)  ProSHADE_settings          ( );
+    __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_settings* settings );
     __declspec(dllexport)  ProSHADE_settings          ( ProSHADE_Task task );
     __declspec(dllexport) ~ProSHADE_settings          ( );
 #else
     ProSHADE_settings                                 ( void );
+    ProSHADE_settings                                 ( ProSHADE_settings* settings );
     ProSHADE_settings                                 ( ProSHADE_Task task );
    ~ProSHADE_settings                                 ( void );
 #endif
@@ -199,6 +209,8 @@ public:
     void __declspec(dllexport) setMapResolutionChangeTriLinear                ( bool mrChange );
     void __declspec(dllexport) setMapCentering                                ( bool com );
     void __declspec(dllexport) setExtraSpace                                  ( proshade_single exSpace );
+    void __declspec(dllexport) setCoordExtraSpace                             ( proshade_single exSpace );
+    void __declspec(dllexport) setBoxCentering                                ( proshade_double xPos, proshade_double yPos, proshade_double zPos );
     void __declspec(dllexport) setBandwidth                                   ( proshade_unsign band );
     void __declspec(dllexport) setSphereDistances                             ( proshade_single sphDist );
     void __declspec(dllexport) setIntegrationOrder                            ( proshade_unsign intOrd );
@@ -212,6 +224,7 @@ public:
     void __declspec(dllexport) setPhaseUsage                                  ( bool phaseUsage );
     void __declspec(dllexport) setEnLevShellWeight                            ( proshade_double mPower );
     void __declspec(dllexport) setGroupingSmoothingFactor                     ( proshade_double smFact );
+    void __declspec(dllexport) setSymmetryCentreSearch                        ( bool sCen );
     void __declspec(dllexport) setMissingPeakThreshold                        ( proshade_double mpThres );
     void __declspec(dllexport) setAxisComparisonThreshold                     ( proshade_double axThres );
     void __declspec(dllexport) setAxisComparisonThresholdBehaviour            ( bool behav );
@@ -254,6 +267,8 @@ public:
     void setMapResolutionChangeTriLinear              ( bool mrChange );
     void setMapCentering                              ( bool com );
     void setExtraSpace                                ( proshade_single exSpace );
+    void setCoordExtraSpace                           ( proshade_single exSpace );
+    void setBoxCentering                              ( proshade_double xPos, proshade_double yPos, proshade_double zPos );
     void setBandwidth                                 ( proshade_unsign band );
     void setSphereDistances                           ( proshade_single sphDist );
     void setIntegrationOrder                          ( proshade_unsign intOrd );
@@ -268,6 +283,7 @@ public:
     void setEnLevShellWeight                          ( proshade_double mPower );
     void setGroupingSmoothingFactor                   ( proshade_double smFact );
     void setMissingPeakThreshold                      ( proshade_double mpThres );
+    void setSymmetryCentreSearch                      ( bool sCen );
     void setAxisComparisonThreshold                   ( proshade_double axThres );
     void setAxisComparisonThresholdBehaviour          ( bool behav );
     void setMinimumPeakForAxis                        ( proshade_double minSP );

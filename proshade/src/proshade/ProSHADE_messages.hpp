@@ -37,7 +37,7 @@ namespace ProSHADE_internal_messages
 {
     void printWellcomeMessage                         ( proshade_signed verbose );
     void printTerminateMessage                        ( proshade_signed verbose );
-    void printProgressMessage                         ( proshade_signed verbose, proshade_signed messageLevel, std::string message );
+    void printProgressMessage                         ( proshade_signed verbose, proshade_signed messageLevel, std::string message, proshade_signed messageShift = 0 );
     void printWarningMessage                          ( proshade_signed verbose, std::string message, std::string warnCode );
     void printHelp  [[noreturn]]                      ( void );
 }

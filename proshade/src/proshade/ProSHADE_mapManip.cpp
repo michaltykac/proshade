@@ -257,6 +257,8 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
             for ( proshade_signed zIt = zFrom; zIt <= zTo; zIt++ )
             {
                 arrPos                                = (zIt-zFrom) + ( zTo - zFrom + 1 ) * ( ( yIt - yFrom ) + ( yTo - yFrom + 1 ) * ( xIt - xFrom ) );
+                const FloatingPoint< proshade_double > lhs ( map[arrPos] );
+                if ( !lhs.AlmostEquals ( lhs ) )       { map[arrPos] = 0.0; continue; }
                 
                 if ( map[arrPos] > 0.0 )
                 {
@@ -685,7 +687,7 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
     }
     
     //================================================ Compute the f's
-    double wavelength                                 = 0.1;
+    double wavelength                                 = 10.0;
     double energy                                     = gemmi::hc() / wavelength;
     
     //================================================ Create the density calculator object and fill it in
@@ -763,14 +765,14 @@ void ProSHADE_internal_mapManip::generateMapFromPDB ( gemmi::Structure pdbFile, 
 void ProSHADE_internal_mapManip::moveMapByIndices ( proshade_single* xMov, proshade_single* yMov, proshade_single* zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed* xFrom, proshade_signed* xTo, proshade_signed* yFrom, proshade_signed* yTo, proshade_signed* zFrom, proshade_signed* zTo, proshade_signed* xOrigin, proshade_signed* yOrigin, proshade_signed* zOrigin )
 {
     //================================================ Compute movement in indices
-    proshade_single xIndMove                          = std::floor ( -(*xMov) / ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) ) ) );
-    proshade_single yIndMove                          = std::floor ( -(*yMov) / ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) ) ) );
-    proshade_single zIndMove                          = std::floor ( -(*zMov) / ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) ) ) );
+    proshade_single xIndMove                          = std::floor ( -(*xMov) / ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) + 1.0f ) ) );
+    proshade_single yIndMove                          = std::floor ( -(*yMov) / ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) + 1.0f ) ) );
+    proshade_single zIndMove                          = std::floor ( -(*zMov) / ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) + 1.0f ) ) );
     
     //================================================ Set the movs to the remainder
-    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) ) ) );
-    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) ) ) );
-    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) ) ) );
+    *xMov                                             =  -( *xMov ) - ( xIndMove * ( xAngs / ( static_cast< proshade_single > ( *xTo ) - static_cast< proshade_single > ( *xFrom ) + 1.0f ) ) );
+    *yMov                                             =  -( *yMov ) - ( yIndMove * ( yAngs / ( static_cast< proshade_single > ( *yTo ) - static_cast< proshade_single > ( *yFrom ) + 1.0f ) ) );
+    *zMov                                             =  -( *zMov ) - ( zIndMove * ( zAngs / ( static_cast< proshade_single > ( *zTo ) - static_cast< proshade_single > ( *zFrom ) + 1.0f ) ) );
     
     //================================================ Move indices by as much
     *xFrom                                           += static_cast< proshade_signed > ( xIndMove );
@@ -853,39 +855,10 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     //================================================ Compute Forward Fourier
     fftw_execute                                      ( planForwardFourier );
     
-    //================================================ Add the required shift
-    for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )
-    {
-        for ( proshade_unsign vIt = 0; vIt < static_cast<proshade_unsign> ( yDim ); vIt++ )
-        {
-            for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
-            {
-                //==================================== Var init
-                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
-                real                                  = fCoeffs[arrayPos][0];
-                imag                                  = fCoeffs[arrayPos][1];
-                
-                //==================================== Change the B-factors, if required
-                if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
-                if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
-                if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
-                
-                //==================================== Get translation coefficient change
-                exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * static_cast< proshade_double > ( -xMov ) ) +
-                                                          ( ( static_cast <proshade_double> ( k ) / static_cast <proshade_double> ( yAngs ) ) * static_cast< proshade_double > ( -yMov ) ) +
-                                                          ( ( static_cast <proshade_double> ( l ) / static_cast <proshade_double> ( zAngs ) ) * static_cast< proshade_double > ( -zMov ) ) ) * 2.0 * M_PI;
-                        
-                trCoeffReal                           = cos ( exponent );
-                trCoeffImag                           = sin ( exponent );
-                ProSHADE_internal_maths::complexMultiplication ( &real, &imag, &trCoeffReal, &trCoeffImag, &hlpArrReal, &hlpArrImag );
-                
-                //==================================== Save the mask data
-                fCoeffs[arrayPos][0]                  = hlpArrReal / normFactor;
-                fCoeffs[arrayPos][1]                  = hlpArrImag / normFactor;
-            }
-        }
-    }
-    
+    //================================================ Shift the Fourier coefficients
+    proshade_double *weight                           = nullptr;
+    moveMapByFourierInReci                            ( fCoeffs, weight, xMov, yMov, zMov, xAngs, yAngs, zAngs, xDim, yDim, zDim );
+
     //================================================ Compute inverse Fourier
     fftw_execute                                      ( planBackwardFourier );
     
@@ -907,6 +880,83 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     fftw_destroy_plan                                 ( planBackwardFourier );
     delete[] fCoeffs;
     delete[] translatedMap;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Function for moving map using Fourier coefficients in the reciprocal space only.
+ 
+    This function translates the map by changing the phase information of the map Fourier transform. Contrary to the
+    moveMapByFourier() function, it does not compute the inverse Fourier transform
+ 
+    \param[in] coeffs A Reference Pointer to the Fourier decomposition coefficients of the map to be moved.
+    \param[in] weights An array of weights to be applied to the shifted coefficients.
+    \param[in] xMov The NEGATIVE value by how many angstroms should the x axis be moved.
+    \param[in] yMov The NEGATIVE value by how many angstroms should the y axis be moved.
+    \param[in] zMov The NEGATIVE value by how many angstroms should the z axis be moved.
+    \param[in] xAngs How many angstroms are there along the x dimension.
+    \param[in] yAngs How many angstroms are there along the y dimensionzAngs
+    \param[in] zAngs How many angstroms are there along the z dimension.
+    \param[in] xDim How many indices are there along the x dimension.
+    \param[in] yDim How many indices are there along the y dimension.
+    \param[in] zDim How many indices are there along the z dimension.
+ */
+void ProSHADE_internal_mapManip::moveMapByFourierInReci ( proshade_complex*& coeffs, proshade_double*& weights, proshade_single xMov, proshade_single yMov, proshade_single zMov, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+{
+    //================================================ Local variables initialisation
+    proshade_unsign arrayPos                          = 0;
+    proshade_signed h, k, l;
+    proshade_double real                              = 0.0;
+    proshade_double imag                              = 0.0;
+    proshade_double trCoeffReal, trCoeffImag;
+    proshade_double normFactor                        = static_cast< proshade_double > ( xDim * yDim * zDim );
+    proshade_double exponent                          = 0.0;
+    proshade_double hlpArrReal;
+    proshade_double hlpArrImag;
+    
+    //================================================ If no weights are given, set them to 1.0, otherwise use supplied
+    proshade_double* wght                             = new proshade_double[xDim * yDim * zDim];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( wght, __FILE__, __LINE__, __func__ );
+    if ( weights == nullptr ) { for ( size_t iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { wght[iter] = 1.0; } }
+    else                      { for ( size_t iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { wght[iter] = weights[iter]; } }
+    
+    //================================================ Add the required shift
+    for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )
+    {
+        for ( proshade_unsign vIt = 0; vIt < static_cast<proshade_unsign> ( yDim ); vIt++ )
+        {
+            for ( proshade_unsign wIt = 0; wIt < static_cast<proshade_unsign> ( zDim ); wIt++ )
+            {
+                //==================================== Var init
+                arrayPos                              = wIt + static_cast< proshade_unsign > ( zDim ) * ( vIt + static_cast< proshade_unsign > ( yDim ) * uIt );
+                real                                  = coeffs[arrayPos][0];
+                imag                                  = coeffs[arrayPos][1];
+                
+                //==================================== Convert 0-max indices to HKL
+                if ( uIt > static_cast< proshade_unsign > ( (xDim+1) / 2) ) { h = static_cast < proshade_signed > ( uIt ) - xDim; } else { h = static_cast < proshade_signed > ( uIt ); }
+                if ( vIt > static_cast< proshade_unsign > ( (yDim+1) / 2) ) { k = static_cast < proshade_signed > ( vIt ) - yDim; } else { k = static_cast < proshade_signed > ( vIt ); }
+                if ( wIt > static_cast< proshade_unsign > ( (zDim+1) / 2) ) { l = static_cast < proshade_signed > ( wIt ) - zDim; } else { l = static_cast < proshade_signed > ( wIt ); }
+                
+                //==================================== Get translation coefficient change
+                exponent                              = ( ( ( static_cast <proshade_double> ( h ) / static_cast <proshade_double> ( xAngs ) ) * static_cast< proshade_double > ( -xMov ) ) +
+                                                          ( ( static_cast <proshade_double> ( k ) / static_cast <proshade_double> ( yAngs ) ) * static_cast< proshade_double > ( -yMov ) ) +
+                                                          ( ( static_cast <proshade_double> ( l ) / static_cast <proshade_double> ( zAngs ) ) * static_cast< proshade_double > ( -zMov ) ) ) * 2.0 * M_PI;
+                        
+                trCoeffReal                           = cos ( exponent );
+                trCoeffImag                           = sin ( exponent );
+                ProSHADE_internal_maths::complexMultiplication ( &real, &imag, &trCoeffReal, &trCoeffImag, &hlpArrReal, &hlpArrImag );
+                
+                //==================================== Save the translated coefficient value and apply weights
+                coeffs[arrayPos][0]                   = ( hlpArrReal / normFactor ) * wght[arrayPos];
+                coeffs[arrayPos][1]                   = ( hlpArrImag / normFactor ) * wght[arrayPos];
+            }
+        }
+    }
+    
+    //================================================ Release weights
+    delete[] wght;
     
     //================================================ Done
     return ;
@@ -1372,6 +1422,15 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( proshade_dou
     \param[in] yAngs The size of the y dimension of the map in angstroms.
     \param[in] zAngs The size of the z dimension of the map in angstroms.
     \param[in] corrs Pointer reference to proshade_single array of 6 values with the following meaning: 0 = xAdd; 1 = yAdd; 2 = zAdd; 3 = newXAng; 4 = newYAng;  5 = newZAng
+    \param[in] xFrom The initial index of the x dimension of the map.
+    \param[in] xTo The terminal index of the x dimension of the map.
+    \param[in] yFrom The initial index of the y dimension of the map.
+    \param[in] yTo The terminal index of the y dimension of the map.
+    \param[in] zFrom The initial index of the z dimension of the map.
+    \param[in] zTo The terminal index of the z dimension of the map.
+    \param[in] xOrigin The first value of the x axis index.
+    \param[in] yOrigin The first value of the y axis index.
+    \param[in] zOrigin The first value of the z axis index.
  */
 void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_double*& map, proshade_single resolution, proshade_unsign xDimS, proshade_unsign yDimS, proshade_unsign zDimS, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_single*& corrs )
 {
@@ -1468,7 +1527,6 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     corrs[3]                                          = static_cast< proshade_single > ( newXDim ) * static_cast< proshade_single > ( resolution / 2.0f );
     corrs[4]                                          = static_cast< proshade_single > ( newYDim ) * static_cast< proshade_single > ( resolution / 2.0f );
     corrs[5]                                          = static_cast< proshade_single > ( newZDim ) * static_cast< proshade_single > ( resolution / 2.0f );
-
     
     //======================================== Done
     return ;

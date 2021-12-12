@@ -53,10 +53,6 @@ namespace ProSHADE_internal_overlay
     void allocateTranslationFunctionMemory            ( fftw_complex*& tmpIn1, fftw_complex*& tmpOut1, fftw_complex*& tmpIn2, fftw_complex*& tmpOut2, fftw_complex*& resIn,
                                                         fftw_complex*& resOut, fftw_plan& forwardFourierObj1, fftw_plan& forwardFourierObj2, fftw_plan& inverseFourierCombo,
                                                         proshade_unsign xD, proshade_unsign yD, proshade_unsign zD );
-    void combineFourierForTranslation                 ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD,
-                                                        proshade_unsign zD );
-    void findHighestValueInMap                        ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX,
-                                                        proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak );
     void freeTranslationFunctionMemory                ( fftw_complex*& tmpIn1, fftw_complex*& tmpOut1, fftw_complex*& tmpIn2, fftw_complex*& tmpOut2, fftw_complex*& resOut,
                                                         fftw_plan& forwardFourierObj1, fftw_plan& forwardFourierObj2, fftw_plan& inverseFourierCombo );
     void computeAngularThreshold                      ( std::vector<proshade_double>* lonCO, std::vector<proshade_double>* latCO, proshade_unsign angRes );
