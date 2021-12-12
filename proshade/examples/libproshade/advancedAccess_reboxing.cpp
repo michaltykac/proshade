@@ -143,8 +143,8 @@ int main ( int argc, char **argv )
     std::cout << "The new structure boundaries are:       " << reboxedBounds.at(0)[0] << " to " << reboxedBounds.at(0)[1] << " ; " << reboxedBounds.at(0)[2] << " to " << reboxedBounds.at(0)[3] << " and " << reboxedBounds.at(0)[4] << " to " << reboxedBounds.at(0)[5] << std::endl;
     
     //================================================ Expected output
-//  TThe original structure boundaries were: -128 to 127 ; -128 to 127 and -128 to 127
-//  TThe new structure boundaries are:       -94 to 93 ; -94 to 93 and -136 to 135
+//  The original structure boundaries were: -128 to 127 ; -128 to 127 and -128 to 127
+//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -136 to 135
 //  // And of course the reBoxed.map file :-)
     
     //================================================ Release the settings and runProshade objects

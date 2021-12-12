@@ -96,7 +96,7 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ######################################################
 ### Expected output
 #   Detected D-6 symetry.
-#   Fold              x           y         z       Angle      Height    Average FSC FSC
+#   Fold              x           y         z       Angle      Height    Average FSC
 #     6.0        +0.000      +0.000    +1.000    +1.047    +0.9709      +0.9758
 #     2.0        +1.000      -0.005    -0.000    -3.142    +1.0103      +0.8624
 

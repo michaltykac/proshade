@@ -897,13 +897,13 @@ eMat                                                  = pStruct_moving.getEMatri
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (-0.00011146063742513426-0.0007921520472189464j)
+# Expected output: (-0.0007796590626317366-0.0010195435475450075j)
 
 so3Coeffs                                             = pStruct_moving.getSO3Coefficients ( )
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (0.00033013770952825656+0.002346292543344185j)
+# Expected output: (0.002309289297964725+0.0030198084213981114j)
 
 ######################################################
 ### Acceasing rotation function and etc.
@@ -930,15 +930,15 @@ rotMapMax                                             = numpy.where ( rotationFu
 ### Find maximum value
 print                                                 ( "Rotation map maximum is: " + str( rotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Rotation map maximum is: (0.9759933345505016+2.2187624196227762e-18j)
+### Expected output: Rotation map maximum is: (0.9774796595100823-3.358472249513311e-18j)
 
 ### Find rotation matrix for the maximum
 rotMatMaxVal                                          = pStruct_moving.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
 print                                                 ( rotMatMaxVal )
 
-# Expected output: [[-0.89525502  0.12088215 -0.42884258]
-# Expected output:  [ 0.12088215 -0.86049456 -0.49491072]
-# Expected output:  [-0.42884258 -0.49491072  0.75574957]]
+# Expected output: [[-0.9033352   0.11520062 -0.41317591]
+# Expected output:  [ 0.11520062 -0.86270924 -0.49240388]
+# Expected output:  [-0.41317591 -0.49240388  0.76604444]]
 
 ######################################################
 ### Finding optimal rotation
@@ -956,9 +956,9 @@ optimalRotationAngles                                 = pStruct_moving.getBestRo
 optimalRotationMatrix                                 = pStruct_moving.getBestRotationMapPeaksRotationMatrix ( pSet )
 
 print ( optimalRotationMatrix )
-# Expected output: [[-0.89520547  0.12219024 -0.42857521]
-# Expected output:  [ 0.11951459 -0.86062674 -0.495013  ]
-# Expected output:  [-0.42932905 -0.49435933  0.75583425]]
+# Expected output: [[-0.90327969  0.11682726 -0.41284041]
+# Expected output:  [ 0.11355349 -0.86280879 -0.49261201]
+# Expected output:  [-0.41375284 -0.49184589  0.76609151]]
 
 ######################################################
 ### Delete the phase-less data
@@ -1094,7 +1094,7 @@ rotMapMax                                             = numpy.where ( translatio
 ### Find maximum value
 print                                                 ( "Translation map maximum is: " + str( translationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Translation map maximum is: (2.651994416765846+0j)
+### Expected output: Translation map maximum is: (2.160945931840744+0j)
 
 ######################################################
 ### Obtaining the optimal translation
@@ -1128,8 +1128,8 @@ print                                                 ( "The centre of rotation 
 print                                                 ( "The centre of rotation to optimal overlay translation is: " + str( translationVecs["rotCenToOverlay"][0] ) + " ; " + str( translationVecs["rotCenToOverlay"][1] ) + " ; " + str( translationVecs["rotCenToOverlay"][2] ) )
 
 ### Expected output
-#   The centre of rotation is:                                -26.181819915771484 ; -26.181819915771484 ; -26.181819915771484
-#   The centre of rotation to optimal overlay translation is: -8.0 ; -0.0 ; -8.0
+#   The centre of rotation is:                                -9.14285659790039 ; -17.77777862548828 ; -17.77777862548828
+#   The centre of rotation to optimal overlay translation is: 16.0 ; 16.0 ; -8.0
 
 ######################################################
 ### Writing out the final structures

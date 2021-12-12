@@ -129,7 +129,7 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 
 ######################################################
 ### Expected outuput
-#   Detected symmetry C-4 with axes:
+#   Detected symmetry C-4 with axes: 
 #   Fold      x         y         z       Angle     Height    Averaged FSC
 #     4.0    +0.000    +0.000    +1.000    +1.571    +0.9797      +1.0000
 

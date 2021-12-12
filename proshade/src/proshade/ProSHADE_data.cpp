@@ -757,7 +757,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     ProSHADE_internal_mapManip::findPDBCOMValues      ( gemmiStruct, &xCOMPdb, &yCOMPdb, &zCOMPdb, settings->firstModelOnly );
     
     //================================================ Find the ranges
-    proshade_single xF, xT, yF, yT, zF, zT;
+    proshade_single xF = 0.0f, xT = 0.0f, yF = 0.0f, yT = 0.0f, zF = 0.0f, zT = 0.0f;
     ProSHADE_internal_mapManip::determinePDBRanges    ( gemmiStruct, &xF, &xT, &yF, &yT, &zF, &zT, settings->firstModelOnly );
     
     //================================================ Move ranges to have all FROM values 20
@@ -767,9 +767,9 @@ void ProSHADE_internal_data::ProSHADE_data::readInGemmi ( gemmi::Structure gemmi
     ProSHADE_internal_mapManip::movePDBForMapCalc     ( &gemmiStruct, xMov, yMov, zMov, settings->firstModelOnly );
     
     //================================================ Set the angstrom sizes
-    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 5.0f * settings->coOrdsExtraSpace ) );
-    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 4.0f * settings->coOrdsExtraSpace ) );
-    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 3.0f * settings->coOrdsExtraSpace ) );
+    this->xDimSize                                    = static_cast< proshade_single > ( xT - xF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->yDimSize                                    = static_cast< proshade_single > ( yT - yF + ( 2.0f * settings->coOrdsExtraSpace ) );
+    this->zDimSize                                    = static_cast< proshade_single > ( zT - zF + ( 2.0f * settings->coOrdsExtraSpace ) );
 
     //================================================ Generate map from nicely placed atoms (cell size will be range + 40)
     ProSHADE_internal_mapManip::generateMapFromPDB    ( gemmiStruct, this->internalMap, settings->requestedResolution, this->xDimSize, this->yDimSize, this->zDimSize, &this->xTo, &this->yTo, &this->zTo, settings->forceP1, settings->firstModelOnly );

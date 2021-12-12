@@ -125,10 +125,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      3.99728 ; 0.713869 ; 5.42598
-//  Optimal rotation matrix is       :      -0.895205 ; 0.12219 ; -0.428575
-//                                   :      0.119515 ; -0.860627 ; -0.495013
-//                                   :      -0.429329 ; -0.494359 ; 0.755834
+//  Optimal rotation Euler angles are:      4.01301 ; 0.698058 ; 5.40991
+//  Optimal rotation matrix is       :      -0.90328 ; 0.116827 ; -0.41284
+//                                   :      0.113553 ; -0.862809 ; -0.492612
+//                                   :      -0.413753 ; -0.491846 ; 0.766092
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
@@ -184,8 +184,8 @@ int main ( int argc, char **argv )
     std::cout << "Rot. Centre to optimal overlay translation:  " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Rot. Centre to origin translation:           26.1818 ; 26.1818 ; 26.1818
-//  Rot. Centre to optimal overlay translation:  -8 ; -0 ; -8
+//  Rot. Centre to origin translation:           9.14286 ; 17.7778 ; 17.7778
+//  Rot. Centre to optimal overlay translation:  16 ; 16 ; -8
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );

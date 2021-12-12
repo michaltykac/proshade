@@ -154,12 +154,12 @@ print                                                 ( "Rot. centre to overlay 
 
 ######################################################
 ### Expected output
-#   Optimal Euler angles                :  +3.890    +0.748    +5.461
-#   Optimal Euler rotation matrix       :  -0.864    +0.198    -0.463
-#                                       :  +0.069    -0.864    -0.499
-#                                       :  -0.498    -0.463    +0.733
-#   Rot. centre to origin translation   :  +33.280    +29.120    +25.043
-#   Rot. centre to overlay translation  :  -24.000    -12.000    -4.000
+#   Optimal Euler angles                :  +3.927    +0.736    +5.400
+#   Optimal Euler rotation matrix       :  -0.879    +0.214    -0.426
+#                                       :  +0.044    -0.854    -0.519
+#                                       :  -0.475    -0.475    +0.741
+#   Rot. centre to origin translation   :  +16.941    +21.053    +20.952
+#   Rot. centre to overlay translation  :  +4.000    +8.000    -4.000
 
 
 ######################################################

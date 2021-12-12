@@ -117,9 +117,9 @@ print                                                 ( "Full rotation function 
 
 ######################################################
 ### Expected output
-#   Energy levels distance          : 0.73626          0.5299525
-#   Trace sigma distance            : 0.9142483        0.7577827
-#   Full rotation function distance : 0.34083956       0.26805493
+#   Energy levels distance          : 0.8556063        0.5606434
+#   Trace sigma distance            : 0.96467125        0.7530951
+#   Full rotation function distance : 0.62452674        0.46518552
 
 ######################################################
 ### Release memory

@@ -94,9 +94,9 @@ print                                                 ( "The energy levels dista
 print                                                 ( "The trace sigma distance is            %+1.3f" % ( traceSigmaDescriptor ) )
 print                                                 ( "The rotation function distance is      %+1.3f" % ( fullRotationFunctionDescriptor ) )
 
-### Expected output: The energy levels distance is          +1.000
-### Expected output: The trace sigma distance is            +1.000
-### Expected output: The rotation function distance is      +1.000
+### Expected output: TThe energy levels distance is          +1.000
+### Expected output: TThe trace sigma distance is            +1.000
+### Expected output: TThe rotation function distance is      +1.000
 
 ######################################################
 ### Release ProSHADE memory

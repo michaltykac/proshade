@@ -120,12 +120,12 @@ print                                                 ( "Translation to overlay 
 
 ######################################################
 ### Expected outuput
-#   Optimal rotation Euler angles : 3.889921    0.74798244    5.4605694
-#   Optimal rotation matrix       : -0.8641611    0.19778189    -0.46271798
-#                                 : 0.06915548    -0.8641217    -0.49850905
-#                                 : -0.49844068    -0.4627916    0.7330626
-#   Translation to origin         : -33.28    -29.119999    -25.043478
-#   Translation to overlay        : -24.0    -12.0    -4.0
+#   Optimal rotation Euler angles : 3.9272058    0.73626494    5.4001775
+#   Optimal rotation matrix       : -0.87901455    0.2135372    -0.42630416
+#                                 : 0.044242524    -0.85371655    -0.5188551
+#                                 : -0.4747378    -0.47494197    0.7409819
+#   Translation to origin         : -16.941177    -21.052631    -20.952383
+#   Translation to overlay        : 4.0    8.0    -4.0
 
 ######################################################
 ### Release memory
