@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -66,7 +66,7 @@ int main ( int argc, char **argv )
 
 
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
+    settings->setSymmetryCentreSearch                 ( false );                             // Should symmetry centre be searched for? Takes a lot of time...
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -109,9 +109,9 @@ int main ( int argc, char **argv )
     std::cout << "Rotation function distances      : " << rotFunDistances.at(0) << " and " << rotFunDistances.at(1) << std::endl;
     
     //================================================ Expected output
-//  Energy levels distances          : 0.8585 and 0.58065
-//  Trace sigma distances            : 0.96229 and 0.75548
-//  Rotation function distances      : 0.62479 and 0.47406
+//  Energy levels distances          : 0.85561 and 0.56064
+//  Trace sigma distances            : 0.96467 and 0.7531
+//  Rotation function distances      : 0.62453 and 0.46519
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

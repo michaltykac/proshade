@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
  */
 
 //==================================================== ProSHADE
@@ -814,14 +814,6 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
 {
     //================================================ Local variables initialisation
     proshade_unsign arrayPos                          = 0;
-    proshade_signed h, k, l;
-    proshade_double real                              = 0.0;
-    proshade_double imag                              = 0.0;
-    proshade_double trCoeffReal, trCoeffImag;
-    proshade_double normFactor                        = static_cast< proshade_double > ( xDim * yDim * zDim );
-    proshade_double exponent                          = 0.0;
-    proshade_double hlpArrReal;
-    proshade_double hlpArrImag;
     
     //================================================ Create Fourier map variable
     fftw_complex *fCoeffs                             = new fftw_complex [xDim * yDim * zDim];
@@ -919,8 +911,8 @@ void ProSHADE_internal_mapManip::moveMapByFourierInReci ( proshade_complex*& coe
     //================================================ If no weights are given, set them to 1.0, otherwise use supplied
     proshade_double* wght                             = new proshade_double[xDim * yDim * zDim];
     ProSHADE_internal_misc::checkMemoryAllocation     ( wght, __FILE__, __LINE__, __func__ );
-    if ( weights == nullptr ) { for ( size_t iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { wght[iter] = 1.0; } }
-    else                      { for ( size_t iter = 0; iter < ( xDim * yDim * zDim ); iter++ ) { wght[iter] = weights[iter]; } }
+    if ( weights == nullptr ) { for ( size_t iter = 0; iter < static_cast< size_t > ( xDim * yDim * zDim ); iter++ ) { wght[iter] = 1.0; } }
+    else                      { for ( size_t iter = 0; iter < static_cast< size_t > ( xDim * yDim * zDim ); iter++ ) { wght[iter] = weights[iter]; } }
     
     //================================================ Add the required shift
     for ( proshade_unsign uIt = 0; uIt < static_cast<proshade_unsign> ( xDim ); uIt++ )

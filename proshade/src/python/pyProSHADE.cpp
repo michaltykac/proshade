@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
  */
 
 //==================================================== Include PyBind11 header
@@ -158,9 +158,10 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setPeakNeighboursNumber",              &ProSHADE_settings::setPeakNeighboursNumber,                "Sets the number of neighbour values that have to be smaller for an index to be considered a peak.",                        pybind11::arg ( "pkS"           ) )
         .def                                          ( "setPeakNaiveNoIQR",                    &ProSHADE_settings::setPeakNaiveNoIQR,                      "Sets the number of IQRs from the median for threshold height a peak needs to be considered a peak.",                       pybind11::arg ( "noIQRs"        ) )
         .def                                          ( "setPhaseUsage",                        &ProSHADE_settings::setPhaseUsage,                          "Sets whether the phase information will be used.",                                                                         pybind11::arg ( "phaseUsage"    ) )
-        .def                                          ( "setEnLevShellWeight",                  &ProSHADE_settings::setEnLevShellWeight,                    "Sets the weight of shell position for the energy levels computation.",                                                     pybind11::arg ( "mPower"        ) )
-        .def                                          ( "setGroupingSmoothingFactor",           &ProSHADE_settings::setGroupingSmoothingFactor,             "Sets the grouping smoothing factor into the proper variable.",                                                             pybind11::arg ( "smFact"        ) )
-        .def                                          ( "setMissingPeakThreshold",              &ProSHADE_settings::setMissingPeakThreshold,                "Sets the threshold for starting the missing peaks procedure.",                                                             pybind11::arg ( "mpThres"       ) )
+        .def                                          ( "setEnLevShellWeight",                  &ProSHADE_settings::setEnLevShellWeight,                    "Sets the weight of shell position for the energy levels computation.",                                                  pybind11::arg ( "mPower"        ) )
+        .def                                          ( "setGroupingSmoothingFactor",           &ProSHADE_settings::setGroupingSmoothingFactor,             "Sets the grouping smoothing factor into the proper variable.",                                                     pybind11::arg ( "smFact"        ) )
+        .def                                          ( "setMissingPeakThreshold",              &ProSHADE_settings::setMissingPeakThreshold,                "Sets the threshold for starting the missing peaks procedure.",                                                    pybind11::arg ( "mpThres"       ) )
+        .def                                          ( "setSymmetryCentreSearch",              &ProSHADE_settings::setSymmetryCentreSearch,                "Sets the symmetry centre search on or off.",                                                                               pybind11::arg ( "sCen"          ) )
         .def                                          ( "setAxisComparisonThreshold",           &ProSHADE_settings::setAxisComparisonThreshold,             "Sets the threshold for matching symmetry axes.",                                                                           pybind11::arg ( "axThres"       ) )
         .def                                          ( "setAxisComparisonThresholdBehaviour",  &ProSHADE_settings::setAxisComparisonThresholdBehaviour,    "Sets the automatic symmetry axis tolerance decreasing.",                                                                   pybind11::arg ( "behav"         ) )
         .def                                          ( "setMinimumPeakForAxis",                &ProSHADE_settings::setMinimumPeakForAxis,                  "Sets the minimum peak height for symmetry axis to be considered.",                                                         pybind11::arg ( "minSP"         ) )

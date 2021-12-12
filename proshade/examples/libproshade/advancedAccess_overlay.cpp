@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -54,7 +54,7 @@ int main ( int argc, char **argv )
     settings->setExtraSpace                           ( 10.0 );                              // Extra space in Angs to be added when creating internap map representation. This helps avoid map effects from other cells.
     
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
+    settings->setSymmetryCentreSearch                 ( false );                             // Should symmetry centre be searched for? Takes a lot of time...
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -125,10 +125,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      3.88623 ; 0.744047 ; 5.45676
-//  Optimal rotation matrix is       :      -0.865 ; 0.203035 ; -0.458859
-//                                   :      0.0612312 ; -0.864932 ; -0.498141
-//                                   :      -0.498022 ; -0.458988 ; 0.735734
+//  Optimal rotation Euler angles are:      4.01301 ; 0.698058 ; 5.40991
+//  Optimal rotation matrix is       :      -0.90328 ; 0.116827 ; -0.41284
+//                                   :      0.113553 ; -0.862809 ; -0.492612
+//                                   :      -0.413753 ; -0.491846 ; 0.766092
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
@@ -184,8 +184,8 @@ int main ( int argc, char **argv )
     std::cout << "Rot. Centre to optimal overlay translation:  " << optimalTranslation.at(0) << " ; " << optimalTranslation.at(1) << " ; " << optimalTranslation.at(2) << std::endl;
     
     //================================================ Expected output
-//  Rot. Centre to origin translation:           18.5455 ; 22.5946 ; 24.6154
-//  Rot. Centre to optimal overlay translation:  4 ; 2 ; -6
+//  Rot. Centre to origin translation:           9.14286 ; 17.7778 ; 17.7778
+//  Rot. Centre to optimal overlay translation:  16 ; 16 ; -8
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );

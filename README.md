@@ -3,7 +3,7 @@
 ProSHADE
 ========
 
-Protein Shape Description and Symmetry Detection version 0.7.6.1 (AUG 2021)
+Protein Shape Description and Symmetry Detection version 0.7.6.2 (DEC 2021)
 
 # Introduction
 
@@ -313,7 +313,7 @@ In order to detect symmetry in either a co-ordinate input file or in a map input
 
 One particular option regarding the symmetry detection mode should be noted; the **--reqSym** (or **-u**) option, which allows the user to state which symmetry they believe to exist in the structure. The allowed values for this command line argument are "Cx", "Dx", "T", "O" and "I", where the *x* should be an integer number specifying the fold of the requested symmetry. When this option is used, it removes the default behaviour of returning the "best" detected symmetry and instead the symmetry requested by the user is returned, if it can be found in the structure.
 
-Another noteworthy option is the **--center** or **-c** option, which  tells ProSHADE **NOT** to center the internal map representation over the centre of density before running any processing of the map (default is centering and adding this option will turn centering off). This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate/box centre.
+Another noteworthy option is the **--center** or **-c** option, which  tells ProSHADE **NOT** to center the internal map representation over the centre of density before running any processing of the map (default is centering and adding this option will turn centering off). This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate/box centre. Alternatively, ProSHADE can attempt a procedure for finding the symmetry centre itself - to enable this procedure, please supply the **--symCentre** or **-I** option. This procedure will firstly remove phase from the internal density map and attempt symmetry detection over the Patterson map. Then, by applying the symmetry that is known from the Patterson map to be there, the symmetry centre can be found; however, please note that this will consume considerable extra computation time (approximately 3-4 times slower than when the procedure is disabled).
 
 It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (**i.e.** either through the dynamic C++ library or through the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all detected dihedral, tetrahedral, ... symmetries and the cyclic axes forming them) and also the ability to compute all point group elements for any point group formed by a combination of ProSHADE detected cyclic point groups. For more details on these functinoalities, the users are invited to consult the *advancedAccess_symmetry.cpp/py* example files in the **examples** folder.
 
@@ -323,46 +323,48 @@ To demonstrate how the tool can be run and the standard output for the symmetry 
 
 ```
 $: ./proshade -S -f ./emd_6324.map
-ProSHADE 0.7.6.1 (AUG 2021):
+ProSHADE 0.7.6.2 (DEC 2021):
 ============================
 
  ... Starting to read the structure: ./emd_6324.map
+ ... Map left at original position.
+ ... Map rotation centre not shifted.
  ... Map inversion (mirror image) not requested.
  ... Map normalisation not requested.
  ... Masking not requested.
  ... Centering map onto its COM.
- ... Adding extra 10 angstroms.
  ... Phase information retained in the data.
+ ... Adding extra 10 angstroms.
  ... Starting sphere mapping procedure.
  ... Preparing spherical harmonics environment.
  ... Starting spherical harmonics decomposition.
  ... Starting self-rotation function computation.
  ... Starting C symmetry detection.
  ... Starting D symmetry detection.
+ ... Starting I symmetry prediction.
  ... Starting O symmetry prediction.
  ... Starting T symmetry prediction.
- ... Starting I symmetry prediction.
  ... Starting recommended symmetry decision procedure.
 
-Detected C symmetry with fold 12 about point [-0.20967 , -0.208407 , 9.74166] away from centre of mass .
+Detected C symmetry with fold 12 about point [2.9202 , 2.92307 , 13.017] away from centre of mass .
   Fold       X           Y          Z           Angle        Height      Average FSC
-   +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.95203      +0.94907
+   +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.95258      +0.94672
 
 To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
   Fold       X           Y          Z           Angle        Height      Average FSC
-   +2     +1.00000   +0.00000   +0.00000     +3.14159      +0.99425      +0.03548
-   +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99386      +0.99884
-   +2     +0.00000   +0.00000   +1.00000     +3.14159      +0.99367      +0.99828
-   +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.95203      +0.94907
-   +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.94781      +0.94399
-   +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.93624      +0.93008
+   +2     +0.00096   +0.00000   +1.00000     +3.14159      +0.99402      +0.99512
+   +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99359      +0.99694
+   +12    +0.00000   +0.00000   +1.00000     +0.52360      +0.95258      +0.94672
+   +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.94835      +0.94139
+   +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.93690      +0.92691
+   +8     +0.00000   +0.00000   +1.00000     +0.78540      +0.69255      -inf
 ... [Some lines removed for more succinct documentation]
-   +3     +0.43693   +0.30842   +0.84497     -2.09440      +0.36936      -1.00000
-   +2     +0.00000   +1.00000   +0.00000     +3.14159      -999.90000      +0.03545
+   +2     -0.54269   +0.23607   -0.80607     +3.14159      +0.36182      +0.00256
+   +2     +0.87870   -0.36777   +0.30435     +3.14159      +0.35287      +0.00973
 
 ======================
 ProSHADE run complete.
-Time taken: 56 seconds.
+Time taken: 114 seconds.
 ======================
 ```
 
@@ -378,26 +380,30 @@ Time taken: 56 seconds.
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.6.1 (AUG 2021):
+  ProSHADE 0.7.6.2 (DEC 2021):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
+   ... Map left at original position.
+   ... Map rotation centre not shifted.
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
    ... Masking not requested.
    ... Map centering not requested.
-   ... Adding extra 10 angstroms.
    ... Phase information retained in the data.
+   ... Adding extra 10 angstroms.
    ... Starting sphere mapping procedure.
    ... Preparing spherical harmonics environment.
    ... Starting spherical harmonics decomposition.
    ... Starting to read the structure: ./1H8N_A_dom_1.pdb
+   ... Map left at original position.
+   ... Map rotation centre not shifted.
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
    ... Masking not requested.
    ... Map centering not requested.
-   ... Adding extra 10 angstroms.
    ... Phase information retained in the data.
+   ... Adding extra 10 angstroms.
    ... Starting sphere mapping procedure.
    ... Preparing spherical harmonics environment.
    ... Starting spherical harmonics decomposition.
@@ -405,16 +411,18 @@ Time taken: 56 seconds.
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
-  Energy levels distance    : 0.858501
-  Trace sigma distance      : 0.962286
-  Rotation function distance: 0.624793
+  Energy levels distance    : 0.855606
+  Trace sigma distance      : 0.964671
+  Rotation function distance: 0.624527
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
+   ... Map left at original position.
+   ... Map rotation centre not shifted.
    ... Map inversion (mirror image) not requested.
    ... Map normalisation not requested.
    ... Masking not requested.
    ... Map centering not requested.
-   ... Adding extra 10 angstroms.
    ... Phase information retained in the data.
+   ... Adding extra 10 angstroms.
    ... Starting sphere mapping procedure.
    ... Preparing spherical harmonics environment.
    ... Starting spherical harmonics decomposition.
@@ -422,13 +430,13 @@ Time taken: 56 seconds.
    ... Starting trace sigma distance computation.
    ... Starting rotation function distance computation.
   Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
-  Energy levels distance    : 0.580646
-  Trace sigma distance      : 0.755479
-  Rotation function distance: 0.474061
+  Energy levels distance    : 0.560643
+  Trace sigma distance      : 0.753095
+  Rotation function distance: 0.465186
 
   ======================
   ProSHADE run complete.
-  Time taken: 1 seconds.
+  Time taken: 0 seconds.
   ======================
 ```
  
@@ -446,16 +454,18 @@ Time taken: 56 seconds.
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz                                                   
-ProSHADE 0.7.6.1 (AUG 2021):
+ProSHADE 0.7.6.2 (DEC 2021):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
+ ... Map left at original position.
+ ... Map rotation centre not shifted.
  ... Map inversion (mirror image) not requested.
  ... Map normalisation not requested.
  ... Computing mask.
  ... Map centering not requested.
- ... Adding extra 10 angstroms.
  ... Phase information retained in the data.
+ ... Adding extra 10 angstroms.
  ... Finding new boundaries.
  ... Creating new structure according to the new  bounds.
  ... Saving the re-boxed map into reBoxed_0.map
@@ -487,26 +497,30 @@ Time taken: 9 seconds.
  ![ProSHADE Overlay results for 2A2Q_T_dom_2.pdb](https://github.com/michaltykac/proshade/blob/experimental/proshade/documentation/ProSHADE_overlay.jpg)
  
 ```
- $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 4
- ProSHADE 0.7.6.1 (AUG 2021):
+ $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 1 
+ ProSHADE 0.7.6.2 (DEC 2021):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
   ... Starting to read the structure: ./1H8N_A_dom_1.pdb
+  ... Map left at original position.
+  ... Map rotation centre not shifted.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 10 angstroms.
-  ... Centering map onto its COM.
+  ... Removing phase from the map.
   ... Phase information removed from the data.
+  ... Adding extra 10 angstroms.
+  ... Map left at original position.
+  ... Map rotation centre not shifted.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 10 angstroms.
-  ... Centering map onto its COM.
+  ... Removing phase from the map.
   ... Phase information removed from the data.
+  ... Adding extra 10 angstroms.
   ... Starting sphere mapping procedure.
   ... Preparing spherical harmonics environment.
   ... Starting sphere mapping procedure.
@@ -517,29 +531,33 @@ Time taken: 9 seconds.
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
   ... Starting to read the structure: ./1H8N_A_dom_1.pdb
   ... Preparing spherical harmonics environment.
+  ... Map left at original position.
+  ... Map rotation centre not shifted.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
+  ... Adding extra 10 angstroms.
+  ... Map left at original position.
+  ... Map rotation centre not shifted.
   ... Map inversion (mirror image) not requested.
   ... Map normalisation not requested.
   ... Masking not requested.
   ... Map centering not requested.
-  ... Adding extra 10 angstroms.
   ... Phase information retained in the data.
+  ... Adding extra 10 angstroms.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is:  -18.5     -22.6     -24.6
- The rotation matrix about origin is                 : -0.865     +0.203     -0.459
-                                                     : +0.0613     -0.865     -0.498
-                                                     : -0.498     -0.459     +0.736
- The rotation centre to overlay translation vector is: +4     +2     -6
+ The rotation centre to origin translation vector is:  -18.5     -20.5     -22.6
+ The rotation matrix about origin is                 : -0.861     +0.179     -0.476
+                                                     : +0.0969     -0.861     -0.499
+                                                     : -0.499     -0.476     +0.724
+ The rotation centre to overlay translation vector is: +2     +6     -4
 
  ======================
  ProSHADE run complete.
- Time taken: 2 seconds.
+ Time taken: 18 seconds.
  ======================
 ```
 # Using the ProSHADE library

@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
 */
 
 //==================================================== ProSHADE
@@ -57,7 +57,7 @@ int main ( int argc, char **argv )
     settings->setMapResolutionChangeTriLinear         ( false );                             // Should maps be re-sample to the computation resolution using real-space tri-linear interpolation?
     
     //================================================ All other (possibly other tasks related) settings
-    settings->setSymmetryCentreSearch                 ( false )                              // Should symmetry centre be searched for? Takes a lot of time...
+    settings->setSymmetryCentreSearch                 ( false );                             // Should symmetry centre be searched for? Takes a lot of time...
     settings->setBicubicInterpolationSearch           ( true );                              // Should bi-cubic interpolation between peak grid indices be done?
     settings->setMaxSymmetryFold                      ( 30 );                                // The maximum prime number fold that will be searched for.
     settings->setFSCThreshold                         ( 0.75 );                              // Sets the minimum FSC threshold for axis to be considered detected.
@@ -144,7 +144,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  The original structure boundaries were: -128 to 127 ; -128 to 127 and -128 to 127
-//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -132 to 131
+//  The new structure boundaries are:       -94 to 93 ; -94 to 93 and -136 to 135
 //  // And of course the reBoxed.map file :-)
     
     //================================================ Release the settings and runProshade objects

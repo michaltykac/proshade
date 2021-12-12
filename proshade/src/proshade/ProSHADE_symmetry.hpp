@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.1
-    \date      AUG 2021
+    \version   0.7.6.2
+    \date      DEC 2021
  */
 
 //==================================================== ProSHADE
@@ -113,7 +113,7 @@ namespace ProSHADE_internal_symmetry
                                                         proshade_double angle2, proshade_unsign noMatchesG3, proshade_double angle3,
                                                         ProSHADE_internal_data::ProSHADE_data* dataObj );
     proshade_double findPredictedSingleAxisHeight     ( proshade_double* axis, proshade_double fold, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
-    void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings, bool improve = true );
+    void findPredictedAxesHeights                     ( std::vector< proshade_double* >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
     void optimiseDGroupAngleFromAxesHeights           ( std::vector < std::vector< proshade_double > >* ret, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings );
     void optimiseDGroupAngleFromAxesHeights           ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > selection, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         ProSHADE_settings* settings );
@@ -128,10 +128,10 @@ namespace ProSHADE_internal_symmetry
                                                         fftw_plan planForwardFourier, fftw_plan planForwardFourierRot, fftw_plan planReverseFourierComb );
     std::vector< proshade_double > findTranslationBetweenRotatedAndOriginalMap ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < proshade_double > symElem, fftw_complex *origCoeffs,
                                                                                  fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs,
-                                                                                 fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose );
+                                                                                 fftw_complex* trFunc, fftw_plan planReverseFourierComb );
     std::vector< proshade_double > findPointFromTranslations ( ProSHADE_internal_data::ProSHADE_data* symStr, std::vector < std::vector < proshade_double > > symElems, fftw_complex *origCoeffs,
                                                                fftw_complex* rotMapComplex, fftw_complex* rotCoeffs, fftw_plan planForwardFourierRot, fftw_complex* trFuncCoeffs,
-                                                               fftw_complex* trFunc, fftw_plan planReverseFourierComb, proshade_signed verbose );
+                                                               fftw_complex* trFunc, fftw_plan planReverseFourierComb );
 }
 
 #endif
