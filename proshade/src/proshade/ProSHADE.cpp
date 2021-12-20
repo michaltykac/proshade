@@ -3284,7 +3284,7 @@ void                       getReBoxedMap ( ProSHADE_run* run, proshade_unsign st
 
 /*! \brief This function returns the vector of Euler angles with best overlay correlation.
 
-    \param[out] ret Vector of Euler angles (ZXZ convention) which lead to the globally best overlay correlation.
+    \param[out] ret Vector of Euler angles (ZYZ convention) which lead to the globally best overlay correlation.
 */
 #if defined ( _WIN64 ) || defined ( _WIN32 )
 std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getEulerAngles ( )
@@ -3324,7 +3324,7 @@ std::vector< proshade_double >                       ProSHADE_run::getOptimalRot
     //================================================ Obtain the optimal rotation matrix
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( this->eulerAngles.at(0), this->eulerAngles.at(1), this->eulerAngles.at(2), rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( this->eulerAngles.at(0), this->eulerAngles.at(1), this->eulerAngles.at(2), rotMat );
     
     //================================================ Copy to the output variable
     std::vector< proshade_double > ret;

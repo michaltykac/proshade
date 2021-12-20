@@ -476,10 +476,10 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         //== Get values
                                                         std::vector< proshade_double > vals = self.getBestRotationMapPeaksEulerAngles ( settings );
             
-                                                        //== Convert Euler ZXZ to matrix
+                                                        //== Convert Euler ZYZ to matrix
                                                         proshade_double* retMat = new proshade_double[9];
                                                         ProSHADE_internal_misc::checkMemoryAllocation ( retMat, __FILE__, __LINE__, __func__ );
-                                                        ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( vals.at(0), vals.at(1), vals.at(2), retMat );
+                                                        ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( vals.at(0), vals.at(1), vals.at(2), retMat );
 
                                                         //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                         pybind11::capsule pyCapsuleRMPeak ( retMat, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
@@ -705,10 +705,10 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             proshade_double eulA, eulB, eulG;
             
                                                             //== Compute the Euler angles from SOFT position
-                                                            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxShellBand ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
+                                                            ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxShellBand ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
             
                                                             //== Compute the rotation matrix
-                                                            ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, npVals );
+                                                            ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulA, eulB, eulG, npVals );
     
                                                             //== Create capsule to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleRMSoft ( npVals, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );

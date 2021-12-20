@@ -301,7 +301,7 @@ proshade_double yCom, proshade_double zCom, bool firstModel )
     //================================================ Convert Euler angles to rotation matrix
     proshade_double *rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euG, euB, euA, rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( euG, euB, euA, rotMat );
     
     //================================================ Initialise internal variables
     proshade_double xTmp, yTmp, zTmp;

@@ -168,8 +168,8 @@ void ProSHADE_internal_wigner::prepareTrigsSqrtsAndExponents ( proshade_double* 
 /*! \brief This function does the actual computation of the Wigner D matrices.
  
     This function is the workhorse of the Wigner D matrices computation. It does iterate throught all the appropriate bands and order combinations
-    and it computes the Wigner D matrix (l,m,m') values using the Wigner d matrices (which only take into account the beta Euler ZXZ angle) and the
-    exponents obtained using the Euler ZXZ alpha and gamma angles. It also deals with the signs, but it does not deal with the memory allocation,
+    and it computes the Wigner D matrix (l,m,m') values using the Wigner d matrices (which only take into account the beta Euler ZYZ angle) and the
+    exponents obtained using the Euler ZYZ alpha and gamma angles. It also deals with the signs, but it does not deal with the memory allocation,
     release and general value set-up.
  
     \param[in] settings A pointer to settings class containing all the information required for the task.
@@ -251,9 +251,9 @@ void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settin
  
     \param[in] settings A pointer to settings class containing all the information required for the task.
     \param[in] obj A ProSHADE_data class object for which the Wigner matrices should be computed.
-    \param[in] eulerAlpha The Euler ZXZ convention alpha angle value for the rotation in SO(3) space.
-    \param[in] eulerBeta The Euler ZXZ convention beta angle value for the rotation in SO(3) space.
-    \param[in] eulerGamma The Euler ZXZ convention gamma angle value for the rotation in SO(3) space.
+    \param[in] eulerAlpha The Euler ZYZ convention alpha angle value for the rotation in SO(3) space.
+    \param[in] eulerBeta The Euler ZYZ convention beta angle value for the rotation in SO(3) space.
+    \param[in] eulerGamma The Euler ZYZ convention gamma angle value for the rotation in SO(3) space.
  */
 void ProSHADE_internal_wigner::computeWignerMatricesForRotation ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma )
 {

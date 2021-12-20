@@ -838,10 +838,10 @@ std::vector < proshade_double* > ProSHADE_internal_symmetry::findMissingAxisPoin
                 arrIndex                              = zIt  + ( dataObj->getMaxBand() * 2 ) * ( yIt  + ( dataObj->getMaxBand() * 2 ) * xIt );
                 
                 //==================================== Get angle-axis values
-                ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< proshade_signed > ( dataObj->getMaxBand() ), static_cast< proshade_signed > ( xIt ),
+                ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< proshade_signed > ( dataObj->getMaxBand() ), static_cast< proshade_signed > ( xIt ),
                                                                        static_cast< proshade_signed > ( yIt ), static_cast< proshade_signed > ( zIt ),
                                                                        &euA, &euB, &euG );
-                ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euA, euB, euG, rotMat );
+                ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( euA, euB, euG, rotMat );
                 ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( rotMat, &xPk, &yPk, &zPk, &anglPk );
                 
                 //==================================== Set largest axis element to positive

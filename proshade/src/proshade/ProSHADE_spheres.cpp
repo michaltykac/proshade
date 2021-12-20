@@ -780,11 +780,11 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             cY                                        = 1.0 * std::sin ( lon ) * std::sin ( lat );
             cZ                                        = 1.0 * std::cos ( lon );
             
-            //======================================== Convert to ZXZ Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
+            //======================================== Convert to ZYZ Euler angles
+            ProSHADE_internal_maths::getEulerZYZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
-            ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
+            ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
             
             //======================================== Find lower and higher points and deal with boundaries
             xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0 ) { xBottom += this->angularDim; } if ( xBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { xBottom -= static_cast<proshade_signed> ( this->angularDim ); }

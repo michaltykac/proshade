@@ -396,6 +396,23 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         settings->centrePosition.at(2)                = std::numeric_limits< proshade_double >::infinity();
         return                                        ;
     }
+    else
+    {
+        std::stringstream ssHlp;
+        std::stringstream ssHlp2;
+        if ( relSym.size() == 1 )
+        {
+            ssHlp << "Decided that there is one reliable axis forming C" << allCs->at(relSym.at(0))[0];
+            ssHlp2 << "The axis is: [" << allCs->at(relSym.at(0))[1] << " , " << allCs->at(relSym.at(0))[2] << " , " << allCs->at(relSym.at(0))[3] << "] with angle " << allCs->at(relSym.at(0))[4] << " peak height " << allCs->at(relSym.at(0))[5] << " and average FSC of " << allCs->at(relSym.at(0))[6] << std::endl;
+        }
+        else
+        {
+            ssHlp << "Decided that there are two reliable axes forming D" << std::max ( allCs->at(relSym.at(0))[0], allCs->at(relSym.at(1))[0] );
+            ssHlp2 << "The first axis is:         [" << allCs->at(relSym.at(0))[1] << " , " << allCs->at(relSym.at(0))[2] << " , " << allCs->at(relSym.at(0))[3] << "] with angle " << allCs->at(relSym.at(0))[4] << " peak height " << allCs->at(relSym.at(0))[5] << " and average FSC of " << allCs->at(relSym.at(0))[6] << std::endl;
+            ssHlp2 << "   and the second axis is: [" << allCs->at(relSym.at(1))[1] << " , " << allCs->at(relSym.at(1))[2] << " , " << allCs->at(relSym.at(1))[3] << "] with angle " << allCs->at(relSym.at(1))[4] << " peak height " << allCs->at(relSym.at(1))[5] << " and average FSC of " << allCs->at(relSym.at(1))[6] << std::endl;
+        }
+        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ssHlp.str(), settings->messageShift );
+    }
     
     //================================================ Optimise the orthogonal pair, if there is one
     if ( relSym.size() == 2 )

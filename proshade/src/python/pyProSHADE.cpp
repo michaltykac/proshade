@@ -33,6 +33,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         //============================================ Constructors (destructors do not need wrappers???)
         .def                                          ( pybind11::init < > ( ) )
         .def                                          ( pybind11::init < ProSHADE_Task > ( ), pybind11::arg ( "task" ) )
+        .def                                          ( pybind11::init < ProSHADE_settings* > ( ), pybind11::arg ( "settings" ) )
     
         //============================================ Member variables
         .def_readwrite                                ( "task",                                 &ProSHADE_settings::task                                )
@@ -100,6 +101,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
     
         .def_readwrite                                ( "smoothingFactor",                      &ProSHADE_settings::smoothingFactor                     )
     
+        .def_readwrite                                ( "findSymCentre",                        &ProSHADE_settings::findSymCentre                       )
         .def_readwrite                                ( "symMissPeakThres",                     &ProSHADE_settings::symMissPeakThres                    )
         .def_readwrite                                ( "axisErrTolerance",                     &ProSHADE_settings::axisErrTolerance                    )
         .def_readwrite                                ( "axisErrToleranceDefault",              &ProSHADE_settings::axisErrToleranceDefault             )

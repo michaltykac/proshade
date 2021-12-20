@@ -2658,9 +2658,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ( IFSCAverage > std::max( OFSCAverage * 0.9, TFSCAverage * 0.8 ) ) && ( IFSCAverage > newThres ) ) { IIsBest = true; }
     if ( ( OFSCAverage > std::max( IFSCAverage * 1.1, TFSCAverage * 0.9 ) ) && ( OFSCAverage > newThres ) ) { OIsBest = true; }
     if ( ( TFSCAverage > std::max( IFSCAverage * 1.2, OFSCAverage * 1.1 ) ) && ( TFSCAverage > newThres ) ) { TIsBest = true; }
-    std::cout << "I val: " << IFSCAverage << " | Is Best? " << IIsBest << std::endl;
-    std::cout << "O val: " << OFSCAverage << " | Is Best? " << OIsBest << std::endl;
-    std::cout << "T val: " << TFSCAverage << " | Is Best? " << TIsBest << std::endl;
     if ( !IIsBest && !OIsBest && !TIsBest && ( std::max( IFSCAverage, std::max( OFSCAverage, TFSCAverage ) ) > newThres ) )
     {
         const FloatingPoint< proshade_double > lhsPolyI ( IFSCAverage ), lhsPolyO ( OFSCAverage ), lhsPolyT ( TFSCAverage ), rhsPolyMax ( std::max( IFSCAverage, std::max( OFSCAverage, TFSCAverage ) ) );
@@ -4374,7 +4371,7 @@ void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshad
 {
     //================================================ Get Euler angles
     proshade_double eA, eB, eG;
-    ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< int > ( this->getMaxBand() ), aI, bI, gI, &eA, &eB, &eG );
+    ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< int > ( this->getMaxBand() ), aI, bI, gI, &eA, &eB, &eG );
     
     //================================================ Prepare internal rotation matrix memory
     proshade_double* rMat                             = nullptr;
@@ -4382,7 +4379,7 @@ void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshad
     ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
     
     //================================================ Convert to rotation matrix
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eA, eB, eG, rMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eA, eB, eG, rMat );
     
     //================================================ Copy to output
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( len ); iter++ )
@@ -4542,7 +4539,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportOverlayResults ( ProSHADE_sett
     //================================================ Write out rotation matrix about origin
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulerAngles->at(0), eulerAngles->at(1), eulerAngles->at(2), rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulerAngles->at(0), eulerAngles->at(1), eulerAngles->at(2), rotMat );
     
     std::stringstream rotMatSS;  
     rotMatSS << std::setprecision (3) << std::showpos << "The rotation matrix about origin is                 : " << rotMat[0] << "     " << rotMat[1] << "     " << rotMat[2] << std::endl;

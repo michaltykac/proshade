@@ -947,9 +947,9 @@ void ProSHADE_internal_maths::realMatrixSVDUandVOnly ( proshade_double* mat, int
     
 }
 
-/*! \brief Function to find Euler angles (ZXZ convention) from index position in the inverse SOFT map.
+/*! \brief Function to find Euler angles (ZYZ convention) from index position in the inverse SOFT map.
  
-    This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZXZ convention angles, saving
+    This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZYZ convention angles, saving
     these into the supplied pointers.
  
     \param[in] band The maximum bandwidth of the computation.
@@ -960,7 +960,7 @@ void ProSHADE_internal_maths::realMatrixSVDUandVOnly ( proshade_double* mat, int
     \param[in] eulerBeta Pointer to where the Euler beta angle will be saved.
     \param[in] eulerGamma Pointer to where the Euler gamma angle will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
+void ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
 {
     //================================================ Convert index to Euler angles
    *eulerAlpha                                        = M_PI *         static_cast<proshade_double> ( y )    / (       static_cast<proshade_double> ( band ) ) ;
@@ -972,9 +972,9 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
     
 }
 
-/*! \brief Function to find the index position in the inverse SOFT map from given Euler angles (ZXZ convention).
+/*! \brief Function to find the index position in the inverse SOFT map from given Euler angles (ZYZ convention).
  
-    This function does the conversion from Euler angles ZXZ convention to the SOFT map x, y and z position. It is not limitted to
+    This function does the conversion from Euler angles ZYZ convention to the SOFT map x, y and z position. It is not limitted to
     the SOFT map indices and instead if given Euler agnles between two indices will return a decimal point for the indices.
  
     \param[in] band The maximum bandwidth of the computation.
@@ -985,7 +985,7 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
     \param[in] y Pointer to where the closest y-axis position in the inverse SOFT map will be saved to (position may be decimal!).
     \param[in] z Pointer to where the closest z-axis position in the inverse SOFT map will be saved to (position may be decimal!).
  */
-void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
+void ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
 {
     //================================================ Convert Euler angles to indices
    *x                                                 = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
@@ -1010,14 +1010,14 @@ void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band
     
 }
 
-/*! \brief Function to find the rotation matrix from Euler angles (ZXZ convention).
+/*! \brief Function to find the rotation matrix from Euler angles (ZYZ convention).
  
     \param[in] eulerAlpha The Euler alpha angle value.
     \param[in] eulerBeta The Euler beta angle value.
     \param[in] eulerGamma The Euler gamma angle value.
     \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
  */
-void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
+void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
 {
     //================================================ First row
     matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
@@ -1039,14 +1039,14 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
     
 }
 
-/*! \brief Function to find the rotation matrix from Euler angles (ZXZ convention).
+/*! \brief Function to find the rotation matrix from Euler angles (ZYZ convention).
  
     \param[in] eulerAlpha The Euler alpha angle value.
     \param[in] eulerBeta The Euler beta angle value.
     \param[in] eulerGamma The Euler gamma angle value.
     \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
  */
-void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
+void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
 {
     //================================================ First row
     matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
@@ -1552,14 +1552,14 @@ void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_single* 
     
 }
 
-/*! \brief This function converts rotation matrix to the Euler ZXZ angles representation.
+/*! \brief This function converts rotation matrix to the Euler ZYZ angles representation.
  
     \param[in] rotMat Rotation matrix as an array of 9 values.
     \param[in] eA Pointer to which the Euler angle alpha value will be saved.
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
+void ProSHADE_internal_maths::getEulerZYZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
     //================================================ Convert to Eulers
     if ( std::abs( rotMat[8] ) < 0.99999 )
@@ -1598,9 +1598,9 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     
 }
 
-/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation.
+/*! \brief This function converts angle-axis representation to the Euler ZYZ angles representation.
  
-    This function does the angle-axis to Euler ZXZ conversion and if a problem around the Z axis arises, it deal with it.
+    This function does the angle-axis to Euler ZYZ conversion and if a problem around the Z axis arises, it deal with it.
  
     \param[in] axX Angle-axis representation axis x element.
     \param[in] axY Angle-axis representation axis y element.
@@ -1610,7 +1610,7 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
+void ProSHADE_internal_maths::getEulerZYZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
     //================================================ If angle is 0 or infinity (anything divided by 0), return no rotation
     if ( ( axAng == 0.0 ) || ( std::isinf ( axAng ) ) )

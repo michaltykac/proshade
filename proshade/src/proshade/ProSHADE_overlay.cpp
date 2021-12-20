@@ -814,7 +814,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     ProSHADE_internal_misc::checkMemoryAllocation     ( rMat, __FILE__, __LINE__, __func__ );
     
     //================================================ Convert Euler angles to rotation matrix
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulG, eulB, eulA, rMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulG, eulB, eulA, rMat );
     
     //================================================ Transpose the rotation matrix
     tmp     = rMat[1];

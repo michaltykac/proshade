@@ -326,18 +326,18 @@ namespace ProSHADE_internal_maths
                                                         proshade_double maxSphereDists, proshade_double* retReal, proshade_double* retImag );
     void complexMatrixSVDSigmasOnly                   ( proshade_complex** mat, int dim, double*& singularValues );
     void realMatrixSVDUandVOnly                       ( proshade_double* mat, int dim, proshade_double* uAndV, bool fail = true );
-    void getEulerZXZFromSOFTPosition                  ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha,
+    void getEulerZYZFromSOFTPosition                  ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha,
                                                         proshade_double* eulerBeta, proshade_double* eulerGamma );
-    void getSOFTPositionFromEulerZXZ                  ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma,
+    void getSOFTPositionFromEulerZYZ                  ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma,
                                                         proshade_double* x, proshade_double* y, proshade_double* z );
-    void getRotationMatrixFromEulerZXZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
-    void getRotationMatrixFromEulerZXZAngles          ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix );
+    void getRotationMatrixFromEulerZYZAngles          ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix );
+    void getRotationMatrixFromEulerZYZAngles          ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix );
     void getAxisAngleFromRotationMatrix               ( proshade_double* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang, proshade_signed verbose = 1 );
     void getAxisAngleFromRotationMatrix               ( std::vector< proshade_double >* rotMat, proshade_double* x, proshade_double* y, proshade_double* z, proshade_double* ang, proshade_signed verbose = 1 );
     void getRotationMatrixFromAngleAxis               ( proshade_double* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
     void getRotationMatrixFromAngleAxis               ( proshade_single* rotMat, proshade_double x, proshade_double y, proshade_double z, proshade_double ang );
-    void getEulerZXZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
-    void getEulerZXZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
+    void getEulerZYZFromRotMatrix                     ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG );
+    void getEulerZYZFromAngleAxis                     ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA,
                                                         proshade_double* eB, proshade_double* eG );
     void multiplyTwoSquareMatrices                    ( proshade_double* A, proshade_double* B, proshade_double* res, proshade_unsign dim = 3 );
     std::vector < proshade_signed > primeFactorsDecomp ( proshade_signed number );

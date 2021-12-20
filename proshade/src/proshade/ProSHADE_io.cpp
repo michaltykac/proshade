@@ -977,7 +977,7 @@ void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1,
     //================================================ Get rotation matrix from Euler angles
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulA, eulB, eulG, rotMat );
     
     //================================================ Write the info
     jsonFile << "{\n";

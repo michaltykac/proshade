@@ -40,7 +40,7 @@ void add_mathsNamespace ( pybind11::module& pyProSHADE )
         proshade_double aX, aY, aZ, aA;
 
         //== Compute the conversion
-        ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulerAlpha, eulerBeta, eulerGamma, rMat );
+        ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulerAlpha, eulerBeta, eulerGamma, rMat );
         ProSHADE_internal_maths::getAxisAngleFromRotationMatrix ( rMat, &aX, &aY, &aZ, &aA );
         
         //== Release workspace memory
@@ -63,5 +63,5 @@ void add_mathsNamespace ( pybind11::module& pyProSHADE )
 
         //== Done
         return ( retArr );
-    }, "This function converts the ZXZ Euler angles to angle-axis representation, returning numpy.ndarray with the following four numbers: [0] = x-axis; [1] = y-axis; [2] = z-axis; [3] = angle." );
+    }, "This function converts the ZYZ Euler angles to angle-axis representation, returning numpy.ndarray with the following four numbers: [0] = x-axis; [1] = y-axis; [2] = z-axis; [3] = angle." );
 }
