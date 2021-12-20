@@ -89,7 +89,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 0
+startFrom                                             = 48
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0
@@ -402,7 +402,10 @@ for entry in symIDs:
     ( outResCondensed, outResAxes )                   = openOutputFiles ( counter )
 
     ### Write results
-    outResCondensed.write                             ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + str( symRes[1] ) + "\t" + str( stopTime - startTime ) + "\n" )
+    if ( symRes[0] == "I" ) or ( symRes[0] == "O" ) or ( symRes[0] == "T" ):
+        outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + "\t" + str( stopTime - startTime ) + "\n" )
+    else:
+        outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + str( symRes[1] ) + "\t" + str( stopTime - startTime ) + "\n" )
     outResAxes.write                                  ( str( id ) + " :\n==========\n" )
     for ax in range ( 0, len ( symRes[2] ) ):
         outResAxes.write                              ( str ( symRes[2][ax][0] ) + "\t" + str ( symRes[2][ax][1] ) + "\t" + str( symRes[2][ax][2] ) + "\t" + str( symRes[2][ax][3] ) + "\t" + str( symRes[2][ax][4] ) + "\t" + str( symRes[2][ax][5] ) + "\t" + str( symRes[2][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str( compResolution ) + "\n" )

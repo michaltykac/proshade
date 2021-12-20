@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00073 ==
+== NEXT FREE MESSAGE NUMBER: 00074 ==
 
 ========
 GENERAL:
@@ -183,6 +183,7 @@ WS00069		SVD algorithm did not converge. 																						When computing th
 WS00071		Failed to find symmetry in Patterson map. Map rotation centre detection cannot be done without a symmetry, returning 	Pretty much what is says. If you believe the symmetry should be there, try changing the resolution.
 			vector with [Inf, Inf, Inf].
 WS00072		Failed to find eigenvalue with value 1 for this rotation matrix. Is this a rotation matrix?								This warning occurs when eigenvalue with value 1 is not found be LAPACK in the supplied rotation matrix. This should not happen, as all rotation matrices must have at least one eigenvalue with value 1, so this suggests the supplied matrix is not a rotation matrix.
+WS00073		Requested both symmetry centre detection and COM centering. COM centering turned off.									This warning means that symmetry centre detection was done (or at least symmetry centre position was supplied) and still centering on COM was requested - this makes no sense as the COM centering would over-write the previous centre of symmetry search and therefore the COM centering is turned off.
 																																	
 ========
 OVERLAY:

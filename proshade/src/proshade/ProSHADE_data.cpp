@@ -1159,6 +1159,13 @@ void ProSHADE_internal_data::ProSHADE_data::shiftToRotationCentre ( ProSHADE_set
     ss2 << "Map shifted by " << settings->centrePosition.at(0) << "; " << settings->centrePosition.at(1) << "; " << settings->centrePosition.at(2) << " A.";
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss2.str(), settings->messageShift );
     
+    //================================================ Do not do COM centering if this was done
+    if ( settings->moveToCOM )
+    {
+        settings->moveToCOM                           = false;
+        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested both symmetry centre detection and COM centering. COM centering turned off.", "WS00073" );
+    }
+    
     //================================================ Done
     return ;
     
@@ -1519,6 +1526,14 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
  */
 void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* settings )
 {
+    //================================================ Sanity check
+    if ( !( ( std::isinf ( settings->centrePosition.at(0) ) ) || ( std::isinf ( settings->centrePosition.at(1) ) ) || ( std::isinf ( settings->centrePosition.at(2) ) ) ) )
+    {
+        settings->moveToCOM                           = false;
+        ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested both symmetry centre detection and COM centering. COM centering turned off.", "WS00073" );
+        return ;
+    }
+    
     //================================================ Report function start
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Centering map onto its COM.", settings->messageShift );
     
@@ -2594,8 +2609,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_double fscVal                        = 0.0;
         proshade_double fscValAvg                     = 0.0;
         
-        //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t iIt = 0; iIt < 31; iIt++ ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { fscValAvg = 0.0; break; } }
+        //============================================ Find FSCs and their average
+        proshade_double failedAxes = 0.0, allowedFail = 0.1;
+        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 31.0 ) > ( allowedFail * 31.0 ) ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 31.0;
         IFSCAverage                                   = fscValAvg;
     }
@@ -2607,8 +2623,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_double fscVal                        = 0.0;
         proshade_double fscValAvg                     = 0.0;
         
-        //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t oIt = 0; oIt < 13; oIt++ ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { fscValAvg = 0.0; break; } }
+        //============================================ Find FSCs and their average
+        proshade_double failedAxes = 0.0, allowedFail = 0.1;
+        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 13.0 ) > ( allowedFail * 13.0 ) ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 13.0;
         OFSCAverage                                   = fscValAvg;
     }
@@ -2620,8 +2637,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_double fscVal                        = 0.0;
         proshade_double fscValAvg                     = 0.0;
         
-        //============================================ Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-        for ( size_t tIt = 0; tIt < 7; tIt++ ) { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { fscValAvg = 0.0; break; } }
+        //============================================ Find FSCs and their average
+        proshade_double failedAxes = 0.0, allowedFail = 0.1;
+        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 7.0  ) > ( allowedFail * 7.0  ) ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 7.0;
         TFSCAverage                                   = fscValAvg;
     }
@@ -2640,6 +2658,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( ( IFSCAverage > std::max( OFSCAverage * 0.9, TFSCAverage * 0.8 ) ) && ( IFSCAverage > newThres ) ) { IIsBest = true; }
     if ( ( OFSCAverage > std::max( IFSCAverage * 1.1, TFSCAverage * 0.9 ) ) && ( OFSCAverage > newThres ) ) { OIsBest = true; }
     if ( ( TFSCAverage > std::max( IFSCAverage * 1.2, OFSCAverage * 1.1 ) ) && ( TFSCAverage > newThres ) ) { TIsBest = true; }
+    std::cout << "I val: " << IFSCAverage << " | Is Best? " << IIsBest << std::endl;
+    std::cout << "O val: " << OFSCAverage << " | Is Best? " << OIsBest << std::endl;
+    std::cout << "T val: " << TFSCAverage << " | Is Best? " << TIsBest << std::endl;
     if ( !IIsBest && !OIsBest && !TIsBest && ( std::max( IFSCAverage, std::max( OFSCAverage, TFSCAverage ) ) > newThres ) )
     {
         const FloatingPoint< proshade_double > lhsPolyI ( IFSCAverage ), lhsPolyO ( OFSCAverage ), lhsPolyT ( TFSCAverage ), rhsPolyMax ( std::max( IFSCAverage, std::max( OFSCAverage, TFSCAverage ) ) );

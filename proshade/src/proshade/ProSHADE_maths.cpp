@@ -271,7 +271,7 @@ proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* val
     proshade_double ret                               = xmmymm / ( sqrt(xmmsq) * sqrt(ymmsq) );
     
     //================================================ Done
-    if ( std::isnan ( ret ) ) { return ( 0.0 ); }
+    if ( std::isnan ( ret ) )                         { return ( 0.0 ); }
     return                                            ( ret );
     
 }
