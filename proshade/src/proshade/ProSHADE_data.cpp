@@ -1156,7 +1156,7 @@ void ProSHADE_internal_data::ProSHADE_data::shiftToRotationCentre ( ProSHADE_set
     
     //================================================ Report function completion
     std::stringstream ss2;
-    ss2 << "Map shifted by " << settings->centrePosition.at(0) << "; " << settings->centrePosition.at(1) << "; " << settings->centrePosition.at(2) << " A.";
+    ss2 << "Map rotation centre shifted.";
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss2.str(), settings->messageShift );
     
     //================================================ Do not do COM centering if this was done
@@ -2611,7 +2611,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         
         //============================================ Find FSCs and their average
         proshade_double failedAxes = 0.0, allowedFail = 0.1;
-        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 31.0 ) > ( allowedFail * 31.0 ) ) { fscValAvg = 0.0; break; } }
+        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 31.0 ) > allowedFail ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 31.0;
         IFSCAverage                                   = fscValAvg;
     }
@@ -2625,7 +2625,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         
         //============================================ Find FSCs and their average
         proshade_double failedAxes = 0.0, allowedFail = 0.1;
-        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 13.0 ) > ( allowedFail * 13.0 ) ) { fscValAvg = 0.0; break; } }
+        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 13.0 ) > allowedFail ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 13.0;
         OFSCAverage                                   = fscValAvg;
     }
@@ -2639,7 +2639,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         
         //============================================ Find FSCs and their average
         proshade_double failedAxes = 0.0, allowedFail = 0.1;
-        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 7.0  ) > ( allowedFail * 7.0  ) ) { fscValAvg = 0.0; break; } }
+        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 7.0  ) > allowedFail ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 7.0;
         TFSCAverage                                   = fscValAvg;
     }

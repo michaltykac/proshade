@@ -82,6 +82,9 @@
 void    add_settingsClass                             ( pybind11::module& pyProSHADE );
 void    add_dataClass                                 ( pybind11::module& pyProSHADE );
 void    add_distancesClass                            ( pybind11::module& pyProSHADE );
+void    add_mathsNamespace                            ( pybind11::module& pyProSHADE );
+void    add_symmetryNamespace                         ( pybind11::module& pyProSHADE );
+void    add_mapManipNamespace                         ( pybind11::module& pyProSHADE );
 
 //==================================================== Remove the bindings that are not modifyable in python
 PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::string > )
@@ -106,6 +109,8 @@ PYBIND11_MAKE_OPAQUE                                  ( std::vector < std::strin
 #include "pyProSHADE_data.cpp"
 #include "pyProSHADE_distances.cpp"
 #include "pyProSHADE_maths.cpp"
+#include "pyProSHADE_symmetry.cpp"
+#include "pyProSHADE_mapManip.cpp"
 
 //==================================================== Declare the exported functions
 PYBIND11_MODULE ( proshade, pyProSHADE )
@@ -133,4 +138,6 @@ PYBIND11_MODULE ( proshade, pyProSHADE )
     add_dataClass                                     ( pyProSHADE );
     add_distancesClass                                ( pyProSHADE );
     add_mathsNamespace                                ( pyProSHADE );
+    add_symmetryNamespace                             ( pyProSHADE );
+    add_mapManipNamespace                             ( pyProSHADE );
 }

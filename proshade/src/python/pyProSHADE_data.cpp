@@ -925,7 +925,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             }
         
                                                             //== Save values to pointer
-                                                            proshade_double* npVals = new proshade_double[(dataObj->getMaxBand() * 2) * (dataObj->getMaxBand() * 2) * (fold - 1)];
+                                                            proshade_double* npVals = new proshade_double[(dataObj->getMaxBand() * 2) * (dataObj->getMaxBand() * 2) * (static_cast< proshade_unsign > ( fold ) - 1)];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy value to the pointer

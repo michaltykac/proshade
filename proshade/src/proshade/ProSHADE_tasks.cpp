@@ -472,9 +472,9 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         ProSHADE_internal_mapManip::findMAPCOMValues  ( symStr->internalMap, &xMapCOM, &yMapCOM, &zMapCOM, symStr->xDimSize, symStr->yDimSize, symStr->zDimSize, symStr->xFrom, symStr->xTo, symStr->yFrom, symStr->yTo, symStr->zFrom, symStr->zTo );
         
         //============================================ Determine box centre in indices
-        proshade_double xBoxCentre                    = ( ( symStr->xTo - symStr->xFrom ) / 2 ) + symStr->xFrom;
-        proshade_double yBoxCentre                    = ( ( symStr->yTo - symStr->yFrom ) / 2 ) + symStr->yFrom;
-        proshade_double zBoxCentre                    = ( ( symStr->zTo - symStr->zFrom ) / 2 ) + symStr->zFrom;
+        proshade_double xBoxCentre                    = ( ( static_cast< proshade_double > ( symStr->xTo ) - static_cast< proshade_double > ( symStr->xFrom ) ) / 2.0 ) + static_cast< proshade_double > ( symStr->xFrom );
+        proshade_double yBoxCentre                    = ( ( static_cast< proshade_double > ( symStr->yTo ) - static_cast< proshade_double > ( symStr->yFrom ) ) / 2.0 ) + static_cast< proshade_double > ( symStr->yFrom );
+        proshade_double zBoxCentre                    = ( ( static_cast< proshade_double > ( symStr->zTo ) - static_cast< proshade_double > ( symStr->zFrom ) ) / 2.0 ) + static_cast< proshade_double > ( symStr->zFrom );
         
         //============================================ Determine distance from COM in indices to box centre in indices
         proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / static_cast< proshade_double > ( symStr->xDimSize / symStr->xDimIndices ) );

@@ -74,6 +74,7 @@ import emda.emda_methods as emda_methods
 resolution                                            = 8.0
 minimalAllowedResolution                              = 20.0
 mapReSampling                                         = True
+symmetryCentering                                     = True
 inputFileName                                         = "../symmetryPredictions/emdb_spa_210329.dat"
 outputFileName                                        = "results_allKnownEMDB_centre_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
@@ -274,7 +275,7 @@ def maskMapUsingEMDA ( mapFile, locRes ):
 This function runs ProSHADE symmetry detection and returns the recommented symmetry type,
 fold and a list of all detected C axes.
 """
-def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap ):
+def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMap ):
     ### Run proshade symmetry detection on the map
     pSet                                              = proshade.ProSHADE_settings ( )
 
@@ -285,7 +286,7 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap ):
     pSet.setMapCentering                              ( cntrMap )
     pSet.verbose                                      = 4
     pSet.setAppliedMaskFilename                       ( maskFile )
-    pSet.setSymmetryCentreSearch                      ( True )
+    pSet.setSymmetryCentreSearch                      ( symCenMap )
 
     ### Print major settings
     print ( " ... Running: res = " + str( resol ) + " mask = " + str( maskFile ) )
@@ -294,6 +295,7 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap ):
     pStruct                                           = proshade.ProSHADE_data ( )
     pStruct.readInStructure                           ( mapFile, 0, pSet )
 
+    ### Should we search for symmetry centre?
     if pSet.findSymCentre:
         ### Start centre detection - create the settings objects for the phaseless and phased centre detection runs
         rotCenSettingsPhased                          = proshade.ProSHADE_settings ( pSet )
@@ -309,20 +311,86 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap ):
             
         ###  Read in the structure and find all symmetries without using phase information
         symStr                                        = proshade.ProSHADE_data ( )
-        symStr.readInStructure                        ( mapFile, 0, rotCenSettingsUnphased );
-        symStr.processInternalMap                     ( rotCenSettingsUnphased );
-        symStr.mapToSpheres                           ( rotCenSettingsUnphased );
-        symStr.computeSphericalHarmonics              ( rotCenSettingsUnphased );
-        symStr.computeRotationFunction                ( rotCenSettingsUnphased );
-        symStr.detectSymmetryInStructure              ( rotCenSettingsUnphased );
+        symStr.readInStructure                        ( mapFile, 0, rotCenSettingsUnphased )
+        symStr.processInternalMap                     ( rotCenSettingsUnphased )
+        symStr.mapToSpheres                           ( rotCenSettingsUnphased )
+        symStr.computeSphericalHarmonics              ( rotCenSettingsUnphased )
+        symStr.computeRotationFunction                ( rotCenSettingsUnphased )
+        symStr.detectSymmetryInStructure              ( rotCenSettingsUnphased )
     
         ### Find reliable symmetries in the Patterson map
-#        relSym                                        = ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( allCs, tmpSettings->verbose, settings->messageShift, tmpSettings->axisErrTolerance );
+        relSym                                        = proshade.findReliableUnphasedSymmetries ( rotCenSettingsUnphased, rotCenSettingsUnphased.verbose, rotCenSettingsUnphased.messageShift, rotCenSettingsUnphased.axisErrTolerance );
         
-        print ( rotCenSettingsPhased.centrePosition )
-        print ( pSet.centrePosition )
+        ### Are there any reasonable symmetries?
+        if len ( relSym ) != 0:
         
-        import sys; sys.exit();
+            ### If there is a D, then optimise it
+            if len ( relSym ) == 2:
+                proshade.optimiseDGroupAngleFromAxesHeights ( relSym, symStr, rotCenSettingsUnphased )
+                
+            ### Get all axes
+            allCAxes                                  = symStr.getAllCSyms ( rotCenSettingsUnphased )
+                
+            ### Read in with phases
+            del symStr
+            symStr                                    = proshade.ProSHADE_data ( )
+            symStr.readInStructure                    ( mapFile, 0, rotCenSettingsPhased )
+            symStr.processInternalMap                 ( rotCenSettingsPhased )
+            
+            ### If single axis, determine point closest to COM
+            if len( relSym ) == 1:
+            
+                ### Find the line and point on it closest to COM
+                point1                                = proshade.findPointFromTranslations ( rotCenSettingsPhased, symStr, allCAxes, relSym[0] )
+                axis1                                 = numpy.array( [ allCAxes[relSym[0]][1], allCAxes[relSym[0]][2], allCAxes[relSym[0]][3]] )
+                COM                                   = proshade.findMAPCOMValues ( symStr )
+                
+                xBoxCentre                            = ( ( symStr.xTo - symStr.xFrom ) / 2 ) + symStr.xFrom
+                yBoxCentre                            = ( ( symStr.yTo - symStr.yFrom ) / 2 ) + symStr.yFrom
+                zBoxCentre                            = ( ( symStr.zTo - symStr.zFrom ) / 2 ) + symStr.zFrom
+                
+                COMFromBoxCen                         = numpy.zeros ( 3 )
+                COMFromBoxCen[0]                      = xBoxCentre - ( COM[0] / ( symStr.xDimSize / symStr.xDimIndices ) )
+                COMFromBoxCen[1]                      = yBoxCentre - ( COM[1] / ( symStr.yDimSize / symStr.yDimIndices ) )
+                COMFromBoxCen[2]                      = zBoxCentre - ( COM[2] / ( symStr.zDimSize / symStr.zDimIndices ) )
+                
+                alpha1                                = numpy.dot ( point1 - COMFromBoxCen, axis1 ) / numpy.dot ( axis1, axis1 )
+                
+                cpVec                                 = numpy.zeros ( 3 )
+                cpVec[0]                              = point1[0] + ( alpha1 * axis1[0] )
+                cpVec[1]                              = point1[1] + ( alpha1 * axis1[1] )
+                cpVec[2]                              = point1[2] + ( alpha1 * axis1[2] )
+                
+                pSet.setSymmetryCentrePosition        ( cpVec )
+            
+            ### If dihedral, find exact point
+            if len( relSym ) == 2:
+                
+                ### Find the point
+                point1                                = proshade.findPointFromTranslations ( rotCenSettingsPhased, symStr, allCAxes, relSym[0] )
+                point2                                = proshade.findPointFromTranslations ( rotCenSettingsPhased, symStr, allCAxes, relSym[1] )
+                
+                axis1                                 = numpy.array( [ allCAxes[relSym[0]][1], allCAxes[relSym[0]][2], allCAxes[relSym[0]][3]] )
+                axis2                                 = numpy.array( [ allCAxes[relSym[1]][1], allCAxes[relSym[1]][2], allCAxes[relSym[1]][3]] )
+                
+                tangentToAxes                         = numpy.cross ( axis1, axis2 )
+                correctedSecondAxis                   = numpy.cross ( axis1, tangentToAxes )
+                correctedFirstAxis                    = numpy.cross ( axis2, tangentToAxes )
+                
+                alpha1                                = numpy.dot ( point2 - point1, correctedFirstAxis  ) / numpy.dot ( axis1, correctedFirstAxis  )
+                alpha2                                = numpy.dot ( point1 - point2, correctedSecondAxis ) / numpy.dot ( axis2, correctedSecondAxis )
+                
+                cpVec                                 = numpy.zeros ( 3 )
+                cpVec[0]                              = ( ( point1[0] + ( alpha1 * axis1[0] ) ) + ( point2[0] + ( alpha2 * axis2[0] ) ) ) / 2.0
+                cpVec[1]                              = ( ( point1[1] + ( alpha1 * axis1[1] ) ) + ( point2[1] + ( alpha2 * axis2[1] ) ) ) / 2.0
+                cpVec[2]                              = ( ( point1[2] + ( alpha1 * axis1[2] ) ) + ( point2[2] + ( alpha2 * axis2[2] ) ) ) / 2.0
+                
+                pSet.setSymmetryCentrePosition        ( cpVec )
+            
+        ### If no symmetries, just be done
+        else:
+            print ( "No symmetry found in the Patterson map. Will try detecting symmetry over the centre of the box now..." )
+            del symStr
 
     ### Do all the computations
     pStruct.processInternalMap                        ( pSet )
@@ -335,6 +403,8 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap ):
     recSymmetryType                                   = pStruct.getRecommendedSymmetryType ( pSet )
     recSymmetryFold                                   = pStruct.getRecommendedSymmetryFold ( pSet )
     allCAxes                                          = pStruct.getAllCSyms ( pSet )
+    
+    print ( allCAxes )
     
     ### Convert results for return
     retList                                           = []
@@ -395,6 +465,9 @@ for entry in symIDs:
         counter                                       = counter + 1
         continue
 
+    if id != "0072":
+        continue
+
     ### Report progress
     print                                             ( str ( id ) + " ( " + str ( counter ) + " out of " + str ( len ( symIDs ) ) + " ):" )
 
@@ -420,7 +493,7 @@ for entry in symIDs:
     startTime                                         = time.time ( )
 
     ### Run symmetry detection
-    symRes                                            = runProSHADESymmetry ( mapPath, maskPath, compResolution, mapReSampling, False )
+    symRes                                            = runProSHADESymmetry ( mapPath, maskPath, compResolution, mapReSampling, False, symmetryCentering )
 
     ### Stop timer
     stopTime                                          = time.time ( )
