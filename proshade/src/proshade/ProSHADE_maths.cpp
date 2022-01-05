@@ -3753,7 +3753,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     if ( windowSize % 2 == 0 )                        { windowSize += 1; }
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( !std::isinf( CSym->at(symIt)[peakPos] ) ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); } }
     
     //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
     for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
@@ -3782,7 +3782,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
     else                    { bestHistPos = 0.0; }
     
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize - 1 ) * step );
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
     
     //================================================ Done
     return                                            ( threshold );
@@ -3816,7 +3816,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     if ( windowSize % 2 == 0 )                        { windowSize += 1; }
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt).at(peakPos), symIt ) ); }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( !std::isinf( CSym->at(symIt).at(peakPos) ) ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt).at(peakPos), symIt ) ); } }
     
     //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
     for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
@@ -3846,7 +3846,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
     else                    { bestHistPos = 0.0; }
     
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
     
     //================================================ Done
     return                                            ( threshold );

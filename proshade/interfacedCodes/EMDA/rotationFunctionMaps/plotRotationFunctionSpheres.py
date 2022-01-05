@@ -46,7 +46,7 @@ import proshade
 ###
 ### This is where all the settings are given.
 ###
-structureFilename                                     = "/Users/mysak/LMB/1_ProteinDomains/14_FullRotFunction/11_Symmetry2/D5.pdb"
+structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_0300.map"
 structureFold                                         = 2
 structureReSampleMap                                  = True
 computationResolution                                 = 10
@@ -303,7 +303,6 @@ pSet                                                  = proshade.ProSHADE_settin
 
 ### Apply the user supplied settings
 pSet.task                                             = proshade.Symmetry
-pSet.usePhase = False
 pSet.setResolution                                    ( computationResolution )
 pSet.setMapResolutionChange                           ( structureReSampleMap )
 pSet.verbose                                          = 3
@@ -316,7 +315,6 @@ pSet.addExtraSpace                                    = 100.0
     
 ### Do all the required computations in correct order
 pStruct.processInternalMap                            ( pSet )
-pStruct.writeMap ( "patterson.map" );
 pStruct.mapToSpheres                                  ( pSet )
 pStruct.computeSphericalHarmonics                     ( pSet )
 pStruct.computeRotationFunction                       ( pSet )

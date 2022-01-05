@@ -2847,6 +2847,16 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                         if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(newAxIt), settings->axisErrTolerance, true ) )
                         {
                             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &tmpHolder, prSyms.at(newAxIt) );
+                            
+                            //======================== Add newly found groups and repeat if need be
+                            for ( proshade_unsign tmpIt = 0; tmpIt < static_cast< proshade_unsign > ( tmpHolder.size() ); tmpIt++ )
+                            {
+                                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, tmpHolder.at(tmpIt) );
+                                delete[] tmpHolder.at(tmpIt);
+                            }
+                            
+                            anyNewSyms                = true;
+                            tmpHolder.clear           ( );
                         }
                     }
 
@@ -2854,19 +2864,6 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                     delete[] prSyms.at(newAxIt);
                 }
             }
-        }
-        
-        //============================================ Add newly found groups and repeat if need be
-        if ( tmpHolder.size() > 0 )
-        {
-            for ( proshade_unsign tmpIt = 0; tmpIt < static_cast< proshade_unsign > ( tmpHolder.size() ); tmpIt++ )
-            {
-                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, tmpHolder.at(tmpIt) );
-                delete[] tmpHolder.at(tmpIt);
-            }
-            
-            anyNewSyms                                = true;
-            tmpHolder.clear                           ( );
         }
     }
     
@@ -2991,6 +2988,68 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         hlpSS3 << "Now considering group with LAT " << peakGroups.at(grIt)->getLatFromIndices() << " - " << peakGroups.at(grIt)->getLatToIndices() << " and LON " << peakGroups.at(grIt)->getLonFromIndices() << " - " << peakGroups.at(grIt)->getLonToIndices() << " spanning spheres ";
         for ( proshade_unsign sphIt = 0; sphIt < static_cast<proshade_unsign> ( peakGroups.at(grIt)->getSpherePositions().size() ); sphIt++ ) { hlpSS3 << peakGroups.at(grIt)->getSpherePositions().at(sphIt) << " ; "; }
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 5, hlpSS3.str(), settings->messageShift );
+        
+        //============================================ If most lat indices are covered, then group needs to be slit
+        if ( ( ( static_cast< proshade_double > ( peakGroups.at(grIt)->getLatToIndices() - peakGroups.at(grIt)->getLatFromIndices() ) / static_cast< proshade_double > ( peakGroups.at(grIt)->dimension ) ) > 0.5 ) &&
+             !( ( ( static_cast< proshade_double > ( peakGroups.at(grIt)->getLonToIndices() - peakGroups.at(grIt)->getLonFromIndices() ) / static_cast< proshade_double > ( peakGroups.at(grIt)->dimension ) ) < 0.1 ) &&
+                ( ( peakGroups.at(grIt)->getLonFromIndices() < ( 0.05 * static_cast< proshade_double > ( peakGroups.at(grIt)->dimension ) ) ) ||
+                  ( peakGroups.at(grIt)->getLonToIndices()   > ( 0.95 * static_cast< proshade_double > ( peakGroups.at(grIt)->dimension ) ) ) ) ) )
+        {
+            //======================================== Decide on new group sizes peakGroups.at(grIt)->getLonToIndices() << std::endl;
+            proshade_unsign newGroups                 = static_cast< proshade_unsign > ( std::ceil ( ( ( static_cast< proshade_double > ( peakGroups.at(grIt)->getLatToIndices() - peakGroups.at(grIt)->getLatFromIndices() ) / static_cast< proshade_double > ( peakGroups.at(grIt)->dimension ) ) * 360.0 ) / 5.0 ) ) - 1;
+            proshade_double latStep                   = static_cast< proshade_double > ( static_cast< proshade_double > ( peakGroups.at(grIt)->getLatToIndices() - peakGroups.at(grIt)->getLatFromIndices() ) / static_cast< proshade_double > ( newGroups + 1 ) );
+            
+            //======================================== Modify the original group
+            proshade_double origLatTo                 = peakGroups.at(grIt)->latTo;
+            proshade_double origLatToInds             = peakGroups.at(grIt)->latToInds;
+            peakGroups.at(grIt)->latToInds            = peakGroups.at(grIt)->latFromInds + static_cast< proshade_unsign > ( std::floor ( latStep ) );
+            peakGroups.at(grIt)->latTo                = peakGroups.at(grIt)->latSampling * peakGroups.at(grIt)->latToInds;
+            proshade_double prevLatToInds             = peakGroups.at(grIt)->latToInds;
+            peakGroups.at(grIt)->computeCornerPositions ( );
+            
+            //======================================== Add new groups
+            for ( proshade_unsign gI = 1; gI <= newGroups; gI++ )
+            {
+                //==================================== Create new group
+                size_t vecIt                          = peakGroups.size ( );
+                peakGroups.emplace_back               ( new ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup ( prevLatToInds,
+                                                                                                                         peakGroups.at(grIt)->lonFromInds,
+                                                                                                                         peakGroups.at(grIt)->spherePositions.at(0),
+                                                                                                                         peakGroups.at(grIt)->dimension ) );
+                                                       
+                //==================================== Modify properly
+                if ( gI != newGroups )
+                {
+                    peakGroups.at(vecIt)->latToInds   = peakGroups.at(grIt)->latFromInds + ( static_cast< proshade_unsign > ( std::floor ( latStep * gI ) ) );
+                    peakGroups.at(vecIt)->latTo       = peakGroups.at(vecIt)->latSampling * peakGroups.at(vecIt)->latToInds;
+                    
+                    if ( prevLatToInds == peakGroups.at(vecIt)->latToInds )
+                    {
+                        prevLatToInds                += 1.0;
+                    }
+                    else
+                    {
+                        prevLatToInds                     = peakGroups.at(vecIt)->latToInds;
+                    }
+                }
+                else
+                {
+                    peakGroups.at(vecIt)->latToInds   = origLatToInds;
+                    peakGroups.at(vecIt)->latTo       = origLatTo;
+                }
+                
+                peakGroups.at(vecIt)->lonToInds       = peakGroups.at(grIt)->lonToInds;
+                peakGroups.at(vecIt)->lonTo           = peakGroups.at(grIt)->lonTo;
+                
+                for ( size_t sI = 1; sI < peakGroups.at(grIt)->spherePositions.size(); sI++ )
+                {
+                    ProSHADE_internal_misc::addToUnsignVector ( &peakGroups.at(vecIt)->spherePositions, peakGroups.at(grIt)->spherePositions.at( sI ) );
+                }
+                
+                //==================================== Recompute corner vectors
+                peakGroups.at(vecIt)->computeCornerPositions ( );
+            }
+        }
         
         //============================================ Find point groups in the peak group
         peakGroups.at(grIt)->findCyclicPointGroupsGivenFold ( this->sphereMappedRotFun, &ret, settings->useBiCubicInterpolationOnPeaks, fold, settings->verbose, settings->messageShift );
@@ -3680,8 +3739,8 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     std::vector< proshade_unsign > ret;
     
     //================================================ Find the threshold
-    proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 5, 0.01, 0.03, 5 );
-    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.01, 0.005, 5, 0.94 );
+    proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 5, 0.02, 0.03, 5 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.02, 0.01, 5, 0.94 );
     if ( bestHistPeakStart > 0.9 ) { bestHistPeakStart = 0.9; }
     
     //================================================ Are any axes orthogonal

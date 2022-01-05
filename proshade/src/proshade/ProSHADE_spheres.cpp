@@ -974,7 +974,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_
                     nbLat                             = latIt + latRound;
                     nbLon                             = lonIt + lonRound;
                     if ( nbLat < 0 ) { nbLat += this->angularDim; } if ( nbLat >= static_cast<proshade_signed> ( this->angularDim ) ) { nbLat -= this->angularDim; }
-                    if ( nbLon < 0 ) { nbLon += this->angularDim; } if ( nbLon >= static_cast<proshade_signed> ( this->angularDim ) ) { nbLon -= this->angularDim; }
+                    if ( nbLon < 0 ) { continue; } if ( nbLon >= static_cast<proshade_signed> ( this->angularDim ) ) { continue; }
                     
                     //================================ If this value is larger than the tested one, no peak
                     if ( this->getSphereLatLonPosition ( static_cast< proshade_unsign > ( nbLat ), static_cast< proshade_unsign > ( nbLon ) ) > currentHeight ) { isPeak = false; break; }

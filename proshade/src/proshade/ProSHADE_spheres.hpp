@@ -148,7 +148,6 @@ namespace ProSHADE_internal_spheres
         proshade_double* latMaxLonMaxXYZ;
         
     protected:
-        void computeCornerPositions                   ( void );
         proshade_signed angularDistanceWithBorders    ( proshade_signed origLat, proshade_signed testedLat );
         void getAllAngleDifferences                   ( std::vector< proshade_double >* angDiffs, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
         void getAllPossibleFolds                      ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry );
@@ -165,6 +164,7 @@ namespace ProSHADE_internal_spheres
         bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift );
         void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs,
                                                         bool bicubicInterp, proshade_unsign fold, proshade_signed verbose, proshade_signed messageShift );
+        void computeCornerPositions                   ( void );
         
     public:
         proshade_double getLatFromIndices             ( void );
