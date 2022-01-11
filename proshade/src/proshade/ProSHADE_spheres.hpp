@@ -161,7 +161,8 @@ namespace ProSHADE_internal_spheres
        ~ProSHADE_rotFun_spherePeakGroup               ( void );
         
     public:
-        bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift );
+        bool checkIfPeakBelongs                       ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift,
+                                                        proshade_double allowedAngle );
         void findCyclicPointGroupsGivenFold           ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs,
                                                         bool bicubicInterp, proshade_unsign fold, proshade_signed verbose, proshade_signed messageShift );
         void computeCornerPositions                   ( void );

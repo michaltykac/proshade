@@ -383,6 +383,8 @@ namespace ProSHADE_internal_maths
                                                         std::vector<ProSHADE_internal_maths::BicubicInterpolator*>* interpols, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*>* sphereMappedRotFun );
     bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance = 0.1, bool improve = false );
     bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );
+    proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance );
+    proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );  
     std::vector< proshade_unsign > findAllPrimes      ( proshade_unsign upTo );
     proshade_double computeGaussian                   ( proshade_double val, proshade_double sigma );
     std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data );

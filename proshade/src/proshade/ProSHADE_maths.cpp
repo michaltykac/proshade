@@ -3047,6 +3047,76 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
     
 }
 
+/*! \brief This function checks if new axis is unique, or already detected and returns the position of match or -1.
+ 
+    This function is a variation on the isAxisUnique function, returning the index of the match or -1.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axis The axis to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[in] improve If a similar axis is found and if this already existing axis has lower peak height, should the CSymList be updated with the higher peak height axis?
+    \param[out] ret Index of the match or -1.
+ */
+proshade_signed ProSHADE_internal_maths::whichAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    proshade_signed ret                               = -1;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        //============================================ Is fold the same?
+        const FloatingPoint< proshade_double > lhs ( CSymList->at(grIt)[0] ), rhs ( axis[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
+        {
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
+            {
+                ret                                   = static_cast< proshade_signed > ( grIt );
+                break;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function checks if new axis is unique, or already detected and returns the position of match or -1.
+ 
+    This function is a variation on the isAxisUnique function, returning the index of the match or -1.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] X The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Y The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Z The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[out] ret Index of the match or -1.
+ */
+proshade_signed ProSHADE_internal_maths::whichAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    proshade_signed ret                               = -1;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        const FloatingPoint< proshade_double > lhs ( fold ), rhs ( CSymList->at(grIt)[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
+        {
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
+            {
+                ret                                   = static_cast< proshade_signed > ( grIt );
+                break;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief This function finds all prime numbers up to the supplied limit.
  
     This function uses the sieve of Eratosthenes algorithm to find all prime numbers from 2 to the supplied limit. This is not

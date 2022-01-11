@@ -1158,9 +1158,10 @@ proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angu
     \param[in] cosTol The tolerance for cosine distance similarity to consider the two vectors similar.
     \param[in] verbose How verbose should the run be? Use -1 if you do not want any standard output output.
     \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
+    \param[in] allowedAngle The maximum allowed angle in radians before point stops belonging only because the group would grow too much.
     \param[out] res Boolean value signifying if the peak was added.
  */
-bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift )
+bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift, proshade_double allowedAngle )
 {
     //================================================ Initialise local variables
     bool peakAdded                                    = false;
@@ -1177,6 +1178,24 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
     if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMinXYZ[0], this->latMaxLonMinXYZ[1], this->latMaxLonMinXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMaxLonMinXYZ[0] << " ; " << this->latMaxLonMinXYZ[1] << " ; " << this->latMaxLonMinXYZ[2]; }
     if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMaxXYZ[0], this->latMinLonMaxXYZ[1], this->latMinLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMinLonMaxXYZ[0] << " ; " << this->latMinLonMaxXYZ[1] << " ; " << this->latMinLonMaxXYZ[2];  }
     if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMaxXYZ[0], this->latMaxLonMaxXYZ[1], this->latMaxLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMaxLonMaxXYZ[0] << " ; " << this->latMaxLonMaxXYZ[1] << " ; " << this->latMaxLonMaxXYZ[2];  }
+    
+    //================================================ If group grows over allowedAngle radians, do not add to it
+    if ( peakAdded )
+    {
+        proshade_double lenPos                        = std::sqrt ( std::pow ( xPos, 2.0 ) + std::pow ( yPos, 2.0 ) + std::pow( zPos, 2.0 ) );
+        proshade_double minMinPos                     = std::sqrt ( std::pow ( this->latMinLonMinXYZ[0], 2.0 ) + std::pow ( this->latMinLonMinXYZ[1], 2.0 ) + std::pow( this->latMinLonMinXYZ[2], 2.0 ) );
+        proshade_double minMaxPos                     = std::sqrt ( std::pow ( this->latMinLonMaxXYZ[0], 2.0 ) + std::pow ( this->latMinLonMaxXYZ[1], 2.0 ) + std::pow( this->latMinLonMaxXYZ[2], 2.0 ) );
+        proshade_double maxMinPos                     = std::sqrt ( std::pow ( this->latMaxLonMinXYZ[0], 2.0 ) + std::pow ( this->latMaxLonMinXYZ[1], 2.0 ) + std::pow( this->latMaxLonMinXYZ[2], 2.0 ) );
+        proshade_double maxMaxPos                     = std::sqrt ( std::pow ( this->latMaxLonMaxXYZ[0], 2.0 ) + std::pow ( this->latMaxLonMaxXYZ[1], 2.0 ) + std::pow( this->latMaxLonMaxXYZ[2], 2.0 ) );
+        
+        if ( ( std::acos ( ( xPos * this->latMinLonMinXYZ[0] + yPos * this->latMinLonMinXYZ[1] + zPos * this->latMinLonMinXYZ[2] ) / ( lenPos * minMinPos ) ) > allowedAngle ) ||
+             ( std::acos ( ( xPos * this->latMinLonMaxXYZ[0] + yPos * this->latMinLonMaxXYZ[1] + zPos * this->latMinLonMaxXYZ[2] ) / ( lenPos * minMaxPos ) ) > allowedAngle ) ||
+             ( std::acos ( ( xPos * this->latMaxLonMinXYZ[0] + yPos * this->latMaxLonMinXYZ[1] + zPos * this->latMaxLonMinXYZ[2] ) / ( lenPos * maxMinPos ) ) > allowedAngle ) ||
+             ( std::acos ( ( xPos * this->latMaxLonMaxXYZ[0] + yPos * this->latMaxLonMaxXYZ[1] + zPos * this->latMaxLonMaxXYZ[2] ) / ( lenPos * maxMaxPos ) ) > allowedAngle ) )
+        {
+            peakAdded                                 = false;
+        }
+    }
     
     //================================================ If peak within corners, add it
     if ( peakAdded )
