@@ -46,10 +46,11 @@ import proshade
 ###
 ### This is where all the settings are given.
 ###
-structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_0300.map"
+structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_0965.map"
+#structureFilename                                     = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry/EMD-0126/emd_0126.map.gz"
 structureFold                                         = 2
 structureReSampleMap                                  = True
-computationResolution                                 = 10
+computationResolution                                 = 30
 
 ######################################################
 ### Local functions
@@ -430,7 +431,7 @@ pSRF                                                  = proshade.ProSHADE_data (
                                                                                  zTo,
                                                                                  ord )
                                                                                  
-pSRF.writeMap ( "rotFun_beta=0.map" )
+pSRF.writeMap ( "rotFun_beta=180.map" )
 del pSRF
 
 rfMap = numpy.zeros ( [ ( xDimIndices * yDimIndices * zDimIndices ) ] )

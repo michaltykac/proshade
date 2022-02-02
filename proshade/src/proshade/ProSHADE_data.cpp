@@ -640,8 +640,16 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     ProSHADE_internal_io::readInMapData               ( &map, this->internalMap, this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xAxisOrder, this->yAxisOrder, this->zAxisOrder );
         
     //================================================ If mask is supplied and the correct task is used
-    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift,
+    ProSHADE_internal_io::applyMask                   ( this->internalMap, settings->appliedMaskFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift, &settings->calcBounds,
                                                         maskArr, maskXDim, maskYDim, maskZDim );
+    
+    //================================================ Convert mask boundaries to angstroms using original sampling
+    if ( !std::isinf ( settings->calcBounds.at(0) ) && !std::isinf ( settings->calcBounds.at(1) ) && !std::isinf ( settings->calcBounds.at(2) ) )
+    {
+        settings->calcBounds.at(0)                   *= ( static_cast<proshade_double> ( this->xDimSize ) / static_cast<proshade_double> ( this->xDimIndices ) );
+        settings->calcBounds.at(1)                   *= ( static_cast<proshade_double> ( this->yDimSize ) / static_cast<proshade_double> ( this->yDimIndices ) );
+        settings->calcBounds.at(2)                   *= ( static_cast<proshade_double> ( this->zDimSize ) / static_cast<proshade_double> ( this->zDimIndices ) );
+    }
     
     //================================================ Apply Fourier weights
     ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift,
@@ -1040,7 +1048,7 @@ void ProSHADE_internal_data::ProSHADE_data::writeMask ( std::string fName, prosh
 {
     //================================================ Allocate the memory
     proshade_double* hlpMap                           = new proshade_double[this->xDimIndices * this->yDimIndices * this->zDimIndices];
-    ProSHADE_internal_misc::checkMemoryAllocation ( hlpMap, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( hlpMap, __FILE__, __LINE__, __func__ );
     
     //================================================ Copy original map and over-write with the mask
     for ( proshade_unsign iter = 0; iter < ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); iter++ )
@@ -2717,9 +2725,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), mapData, fCoeffs, origCoeffs, planForwardFourier, noBins, binIndexing, bindata, binCounts, fscByBin ); }
         }
         
-        //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize, 0.8 );
-        
         //============================================ Check if both C symmetries are reliable
         for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
         {
@@ -2734,7 +2739,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                 //==================================== Check the FSC vals
                 if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < settings->fscThreshold ) { continue; }
                 if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < settings->fscThreshold ) { continue; }
-                if ( std::min ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) < bestHistFSCStart ) { continue; }
                 
                 //==================================== All good!
                 bestFold                              = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
@@ -2791,7 +2795,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
             {
                 //==================================== If FSC passes
-                if ( ( CSym->at(cIt)[6] > bestHistFSCStart ) && ( CSym->at(cIt)[6] >= bestHistFSCStart ) )
+                if ( CSym->at(cIt)[6] > bestHistFSCStart )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );

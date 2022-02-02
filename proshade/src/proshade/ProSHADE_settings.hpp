@@ -84,6 +84,7 @@ public:
     bool saveMask;                                    //!< Should the mask be saved?
     std::string maskFileName;                         //!< The filename to which mask should be saved.
     std::string appliedMaskFileName;                  //!< The filename from which mask data will be read from.
+    std::vector< proshade_double > calcBounds;        //!< The boundaries to be used for deciding the calculation thresholds (band, integration order, etc.)
     
     //================================================ Settings regarding map weighting
     std::string fourierWeightsFileName;               //!< The filename from which Fourier weights data will be read from.

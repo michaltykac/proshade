@@ -696,6 +696,13 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     //================================================ Get rotation matrix from Euler angles
     ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, axX, axY, axZ, axAng );
     
+//    std::cout << axAng << " | " << axX << " x " << axY << " x " << axZ << std::endl << std::endl;
+//    
+//    std::cout << rotMat[0] << " | " << rotMat[1] << " | " << rotMat[2] << std::endl;
+//    std::cout << rotMat[3] << " | " << rotMat[4] << " | " << rotMat[5] << std::endl;
+//    std::cout << rotMat[6] << " | " << rotMat[7] << " | " << rotMat[8] << std::endl;
+//    exit(0);
+    
     //================================================ For each point
     for ( proshade_single xIt = mins[0]; xIt <= maxs[0]; xIt += 1.0f )
     {

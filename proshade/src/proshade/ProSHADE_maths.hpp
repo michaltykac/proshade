@@ -367,6 +367,9 @@ namespace ProSHADE_internal_maths
                                                                     proshade_double dot2, proshade_double dot3 );
     std::vector< proshade_double > multiplyGroupElementMatrices ( std::vector< proshade_double >* el1, std::vector< proshade_double >* el2 );
     bool rotationMatrixSimilarity                     ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance = 0.1 );
+    bool rotationMatrixSimilarity                     ( proshade_double* mat1, proshade_double* mat2, proshade_double tolerance = 0.1 );
+    proshade_double rotationMatrixSimilarityValue     ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2 );
+    proshade_double rotationMatrixSimilarityValue     ( proshade_double* mat1, proshade_double* mat2 );
     bool vectorOrientationSimilarity                  ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2,
                                                         proshade_double b3, proshade_double tolerance = 0.1 );
     bool vectorOrientationSimilaritySameDirection     ( proshade_double a1, proshade_double a2, proshade_double a3, proshade_double b1, proshade_double b2,
@@ -384,7 +387,7 @@ namespace ProSHADE_internal_maths
     bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance = 0.1, bool improve = false );
     bool isAxisUnique                                 ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );
     proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance );
-    proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );  
+    proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );
     std::vector< proshade_unsign > findAllPrimes      ( proshade_unsign upTo );
     proshade_double computeGaussian                   ( proshade_double val, proshade_double sigma );
     std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data );

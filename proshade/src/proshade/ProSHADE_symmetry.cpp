@@ -2904,7 +2904,7 @@ bool sortProSHADESymmetryByPeak ( proshade_double* a, proshade_double* b)
     \param[out] ret  Vector of double pointers to arrays having the standard ProSHADE symmetry group structure.
  */
 std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequestedCSymmetryFromAngleAxis ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres )
-{    
+{
     //================================================ Initialise variables
     proshade_double soughtAngle;
     std::vector< proshade_double  > allPeakHeights;

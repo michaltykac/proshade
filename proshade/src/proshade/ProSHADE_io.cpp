@@ -22,6 +22,12 @@
 //==================================================== ProSHADE
 #include "ProSHADE_io.hpp"
 
+//==================================================== Forward declarations
+namespace ProSHADE_internal_mapManip
+{
+    void getNonZeroBounds ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_signed*& ret );
+}
+
 /*! \brief Function determining if the input data type is PDB.
  
     This function checks if the input file is a PDB file and can be read by the gemmi library.
@@ -291,8 +297,9 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<int8_t> *gemmiMap, prosha
     \param[in] maXInds The size of maskArray x dimension in indices (defaults to 0).
     \param[in] maYInds The size of maskArray y dimension in indices (defaults to 0).
     \param[in] maZInds The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] calcBounds The mask boundaries that will be used to limit calculation complexity.
  */
-void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_signed messageShift, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
+void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_signed messageShift, std::vector< proshade_double >* calcBounds, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
 {
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -303,7 +310,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     if ( ( maskArray != nullptr ) && ( maXInds != 0 ) && ( maYInds != 0 ) && ( maZInds != 0 ) )
     {
         //============================================ Array it is!
-        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, verbose, messageShift );
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, calcBounds, verbose, messageShift );
     }
     else
     {
@@ -335,7 +342,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
         ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
         
         //============================================ Apply mask from array
-        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, verbose, messageShift );
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, calcBounds, verbose, messageShift );
 
         //============================================ Release the memory
         delete[] internalMask;
@@ -361,10 +368,11 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     \param[in] xDimIndsMsk The size of the mask x dimension in indices.
     \param[in] yDimIndsMsk The size of the mask y dimension in indices.
     \param[in] zDimIndsMsk The size of the mask z dimension in indices.
+    \param[in] calcBounds The mask boundaries that will be used to limit calculation complexity.
     \param[in] verbose How much std::out output would you like?
     \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose, proshade_signed messageShift )
+void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, std::vector< proshade_double >* calcBounds, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Initialise local variables
     size_t origVolume                                 = xDimInds * yDimInds * zDimInds;
@@ -532,12 +540,26 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
 
     //================================================ Apply the mask to the map
     for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { map[iter] *= maskFinal[iter]; }
-
-    //================================================ Release memory
-    delete[] maskFinal;
     
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully.", messageShift );
+    
+    //================================================ Determine bounds for computation
+    proshade_signed* bnds                             = new proshade_signed[6];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( bnds, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_mapManip::getNonZeroBounds      ( maskFinal, static_cast< proshade_signed > ( xDimInds ), static_cast< proshade_signed > ( yDimInds ), static_cast< proshade_signed > ( zDimInds ), bnds );
+    
+    //================================================ Copy to settings
+    calcBounds->at(0)                                 = static_cast< proshade_double > ( bnds[1] - bnds[0] );
+    calcBounds->at(1)                                 = static_cast< proshade_double > ( bnds[3] - bnds[2] );
+    calcBounds->at(2)                                 = static_cast< proshade_double > ( bnds[5] - bnds[4] );
+    
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 4, "Computation boundaries determined.", messageShift );
+    
+    //================================================ Release memory
+    delete[] bnds;
+    delete[] maskFinal;
     
     //================================================ Done
     return ;

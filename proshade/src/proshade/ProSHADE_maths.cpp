@@ -992,18 +992,14 @@ void ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( proshade_signed band
    *y                                                 = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
    *z                                                 = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
     
-    //================================================ Deal with singularities
-    if ( eulerBeta > ( M_PI - 0.05 ) )
-    {
-        //============================================ Rotation is 180 deg
-       *z                                             = ( ( eulerAlpha - eulerGamma ) * static_cast<proshade_double> ( band ) ) / M_PI;
-       *y                                             = 0;
-    }
+    //================================================ Keep value within boundaries
+    if ( *x >= ( 2.0 * static_cast<proshade_double> ( band - 1 ) ) ) { *x = ( 2.0 * static_cast<proshade_double> ( band ) ) - 1.0; }
+    if ( *y >= ( 2.0 * static_cast<proshade_double> ( band - 1 ) ) ) { *y = ( 2.0 * static_cast<proshade_double> ( band ) ) - 1.0; }
+    if ( *z >= ( 2.0 * static_cast<proshade_double> ( band - 1 ) ) ) { *z = ( 2.0 * static_cast<proshade_double> ( band ) ) - 1.0; }
     
-    //================================================ Keep value within boundaries, but do not repeat over them!
-    if ( *x >= ( 2 * band ) ) { *x = ( 2 * band ) - 1; }
-    if ( *y >= ( 2 * band ) ) { *y = ( 2 * band ) - 1; }
-    if ( *z >= ( 2 * band ) ) { *z = ( 2 * band ) - 1; }
+    if ( *x < 0.0 ) { *x = 0.0; }
+    if ( *y < 0.0 ) { *y = 0.0; }
+    if ( *z < 0.0 ) { *z = 0.0; }
     
     //================================================ Done
     return ;
@@ -1652,23 +1648,21 @@ void ProSHADE_internal_maths::getEulerZYZFromAngleAxis ( proshade_double axX, pr
     else
     {
         //============================================ Compute some extra rotation matrix elements
-        tmp1                                          = axX * axY * tAng;
-        tmp2                                          = axZ * sAng;
-        proshade_double element10                     = tmp1 + tmp2;
-        proshade_double element00                     = cAng + axX * axX * tAng;
+        proshade_double element10                     = ( axX * axY * tAng ) + ( axZ * sAng );
+        proshade_double element11                     = cAng + axY * axY * tAng;
         
         //============================================ This case occurs when there is either 0 or 180 degrees rotation angle in the rotation matrix and therefore when beta is zero.
         if ( element22 >= 0.99999 )
         {
             //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their sum. So we arbitrarily set gamma to 0 and solve alpha.
-           *eA                                        = std::atan2 ( element10, element00 );
+           *eA                                        = std::atan2 ( element10, element11 );
            *eB                                        = 0.0;
            *eG                                        = 0.0;
         }
         if ( element22 <= -0.99999 )
         {
             //======================================== In this case, beta = PI and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
-           *eA                                        = std::atan2 ( element10, element00 );
+           *eA                                        = -std::atan2 ( element10, element11 );
            *eB                                        = M_PI;
            *eG                                        = 0.0;
         }
@@ -2547,23 +2541,90 @@ std::vector< proshade_double > ProSHADE_internal_maths::multiplyGroupElementMatr
     \param[in] mat1 Vector of 9 numbers representing first rotation matrix.
     \param[in] mat1 Vector of 9 numbers representing second rotation matrix.
     \param[in] tolerance Double number representing the maximum allowed error on the distance.
-    \param[out] res Boolean decision if the two matrices are similar or not.
+    \param[out] ret Boolean decision if the two matrices are similar or not.
  */
 bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance )
 {
     //================================================ Initialise variables
     bool ret                                          = false;
     
-    //================================================ Compute trace of mat1 * mat2^T
-    proshade_double trace                             = ( mat1->at(0) * mat2->at(0) ) + ( mat1->at(1) * mat2->at(1) ) + ( mat1->at(2) * mat2->at(2) );
-    trace                                            += ( mat1->at(3) * mat2->at(3) ) + ( mat1->at(4) * mat2->at(4) ) + ( mat1->at(5) * mat2->at(5) );
-    trace                                            += ( mat1->at(6) * mat2->at(6) ) + ( mat1->at(7) * mat2->at(7) ) + ( mat1->at(8) * mat2->at(8) );
+    //================================================ Compare to tolerance
+    if ( tolerance > std::abs ( ProSHADE_internal_maths::rotationMatrixSimilarityValue ( mat1, mat2 ) ) ) { ret = true; }
     
-    //================================================ Subtract 3 (so that we would have 0 in case of idenity matrix)
-    trace                                            -= 3.0;
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function compares the distance between two rotation matrices and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Therefore, from this trace
+    3.0 is subtracted and the absolute value of the result is compared to the tolerance. If the difference is less than the tolerance, true is returned, while
+    false is returned otherwise.
+ 
+    \param[in] mat1 Pointer to double array of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Pointer to double array of 9 numbers representing second rotation matrix.
+    \param[in] tolerance Double number representing the maximum allowed error on the distance.
+    \param[out] ret Boolean decision if the two matrices are similar or not.
+ */
+bool ProSHADE_internal_maths::rotationMatrixSimilarity ( proshade_double* mat1, proshade_double* mat2, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
     
     //================================================ Compare to tolerance
-    if ( tolerance > std::abs ( trace ) ) { ret = true; }
+    if ( tolerance > std::abs ( ProSHADE_internal_maths::rotationMatrixSimilarityValue ( mat1, mat2 ) ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function computes the distance between two rotation matrices and returns it.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Subtracting 3 will then
+    result in matrix similarity measure.
+ 
+    \param[in] mat1 Vector of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Vector of 9 numbers representing second rotation matrix.
+    \param[out] ret Matrix similarity measure.
+ */
+proshade_double ProSHADE_internal_maths::rotationMatrixSimilarityValue ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2 )
+{
+    //================================================ Compute trace of mat1 * mat2^T
+    proshade_double ret                               = ( mat1->at(0) * mat2->at(0) ) + ( mat1->at(1) * mat2->at(1) ) + ( mat1->at(2) * mat2->at(2) );
+    ret                                              += ( mat1->at(3) * mat2->at(3) ) + ( mat1->at(4) * mat2->at(4) ) + ( mat1->at(5) * mat2->at(5) );
+    ret                                              += ( mat1->at(6) * mat2->at(6) ) + ( mat1->at(7) * mat2->at(7) ) + ( mat1->at(8) * mat2->at(8) );
+    
+    //================================================ Subtract 3 (so that we would have 0 in case of identical matrices)
+    ret                                              -= 3.0;
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function computes the distance between two rotation matrices and returns it.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Subtracting 3 will then
+    result in matrix similarity measure.
+ 
+    \param[in] mat1 Pointer to double array of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Pointer to double array of 9 numbers representing second rotation matrix.
+    \param[out] ret Matrix similarity measure.
+ */
+proshade_double ProSHADE_internal_maths::rotationMatrixSimilarityValue ( proshade_double* mat1, proshade_double* mat2 )
+{
+    //================================================ Compute trace of mat1 * mat2^T
+    proshade_double ret                               = ( mat1[0] * mat2[0] ) + ( mat1[1] * mat2[1] ) + ( mat1[2] * mat2[2] );
+    ret                                              += ( mat1[3] * mat2[3] ) + ( mat1[4] * mat2[4] ) + ( mat1[5] * mat2[5] );
+    ret                                              += ( mat1[6] * mat2[6] ) + ( mat1[7] * mat2[7] ) + ( mat1[8] * mat2[8] );
+    
+    //================================================ Subtract 3 (so that we would have 0 in case of identical matrices)
+    ret                                              -= 3.0;
     
     //================================================ Done
     return                                            ( ret );

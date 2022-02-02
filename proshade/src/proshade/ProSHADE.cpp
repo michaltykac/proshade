@@ -84,6 +84,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = "";
@@ -128,7 +131,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.33;
+    this->fscThreshold                                = 0.6;
     this->peakThresholdMin                            = 0.75;
     this->fastISearch                                 = true;
     this->symMissPeakThres                            = 0.3;
@@ -218,6 +221,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     this->saveMask                                    = settings->saveMask;
     this->maskFileName                                = settings->maskFileName;
     this->appliedMaskFileName                         = settings->appliedMaskFileName;
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, settings->calcBounds.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, settings->calcBounds.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, settings->calcBounds.at(2) );
     
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = settings->fourierWeightsFileName;
@@ -359,6 +365,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = "";
@@ -402,7 +411,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.33;
+    this->fscThreshold                                = 0.6;
     this->peakThresholdMin                            = 0.75;
     this->fastISearch                                 = true;
     this->symMissPeakThres                            = 0.3;
@@ -1855,10 +1864,27 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     //================================================ Print progress message
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment.", this->messageShift );
     
+//    std::cout << "Band:     " << this->maxBandwidth << std::endl;
+//    std::cout << "Integ:    " << this->integOrder << std::endl;
+//    std::cout << "Sph Dist: " << this->maxSphereDists << std::endl << std::endl;
+    
     //================================================ Modify dims by resolution
     proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
     proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0f ) ) );
     proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0f ) ) );
+    
+    //================================================ Reduce calculation cost by using only density filled map part instead of the whole box
+    if ( std::isinf ( this->calcBounds.at(0) ) || std::isinf ( this->calcBounds.at(1) ) || std::isinf ( this->calcBounds.at(2) ) )
+    {
+        //== Determine from sphere variance
+    }
+    else
+    {
+        //============================================ Data from mask are available - use them!
+        theoXDim                                      = static_cast< proshade_unsign > ( std::ceil ( this->calcBounds.at(0) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+        theoYDim                                      = static_cast< proshade_unsign > ( std::ceil ( this->calcBounds.at(1) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+        theoZDim                                      = static_cast< proshade_unsign > ( std::ceil ( this->calcBounds.at(2) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+    }
     
     //================================================ Find maximum circumference
     proshade_unsign maxDim                            = std::max ( theoXDim, std::max ( theoYDim, theoZDim ) );
@@ -1886,6 +1912,10 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     
     //================================================ Report function completion
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared.", this->messageShift );
+    
+//    std::cout << "Band:     " << this->maxBandwidth << std::endl;
+//    std::cout << "Integ:    " << this->integOrder << std::endl;
+//    std::cout << "Sph Dist: " << this->maxSphereDists << std::endl << std::endl; exit(0);
     
     //================================================ Done
     return ;
@@ -2846,6 +2876,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->maskFileName;
     printf ( "Map mask filename   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->calcBounds.at(0) << " | " << this->calcBounds.at(1) << " | " << this->calcBounds.at(2);
+    printf ( "Calculation bounds  : %37s\n", strstr.str().c_str() );
     
     //== Settings regarding re-boxing
     strstr.str(std::string());

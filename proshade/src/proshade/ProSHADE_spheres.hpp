@@ -147,7 +147,7 @@ namespace ProSHADE_internal_spheres
         proshade_double* latMinLonMaxXYZ;
         proshade_double* latMaxLonMaxXYZ;
         
-    protected:
+    public:
         proshade_signed angularDistanceWithBorders    ( proshade_signed origLat, proshade_signed testedLat );
         void getAllAngleDifferences                   ( std::vector< proshade_double >* angDiffs, std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals );
         void getAllPossibleFolds                      ( std::vector< proshade_double >* angDiffs, std::vector< proshade_unsign >* foldsToTry );
