@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -3430,7 +3430,9 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     //================================================ Determine resolution limits
     proshade_single highResLimit                      = resArray->at ( static_cast< size_t > ( *noBin - 1 ) );
     proshade_single lowResLimit                       = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, 0.0f, xSize, ySize, zSize );
-
+    
+    const FloatingPoint< proshade_single > minX ( mins[0] ), minY ( mins[1] ), minZ ( mins[2] );
+    
     //================================================ Assign reflections to bins
     for ( proshade_single xIt = static_cast< proshade_single > ( mins[0] ); xIt <= static_cast< proshade_single > ( maxs[0] ); xIt += 1.0f )
     {
@@ -3477,7 +3479,8 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
                 binIndexing[ static_cast< size_t > ( arrPos ) ] = binLoc;
                 
                 //==================================== If applicable, use Friedel's Law
-                if ( ( xIt == mins[0] ) || ( yIt == mins[1] ) || ( zIt == mins[2] ) ) { continue; }
+                const FloatingPoint< proshade_single > itX ( xIt ), itY ( yIt ), itZ ( zIt );
+                if ( minX.AlmostEquals ( itX ) || minY.AlmostEquals ( itY ) || minZ.AlmostEquals ( itZ ) ) { continue; }
                 
                 reciX                                 = static_cast< proshade_signed > ( -xIt - mins[0] );
                 reciY                                 = static_cast< proshade_signed > ( -yIt - mins[1] );
@@ -3533,12 +3536,12 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
     for ( size_t iter = 0; iter < resDists.size(); iter++ ) { if ( resDists.at(iter) < minVal ) { minVal = resDists.at(iter); (*noBins) = static_cast< proshade_signed > ( iter ); } }
     
     //================================================ Compute new map dimensions
-    proshade_signed newXFrom                          = std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * (*noBins) ) / 2 );
-    proshade_signed newYFrom                          = std::round ( ( static_cast< proshade_signed > ( yInds ) - 2 * (*noBins) ) / 2 );
-    proshade_signed newZFrom                          = std::round ( ( static_cast< proshade_signed > ( zInds ) - 2 * (*noBins) ) / 2 );
-    proshade_signed newXTo                            = std::round ( newXFrom + 2 * (*noBins) );
-    proshade_signed newYTo                            = std::round ( newYFrom + 2 * (*noBins) );
-    proshade_signed newZTo                            = std::round ( newZFrom + 2 * (*noBins) );
+    proshade_signed newXFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * (*noBins) ) / 2 ) );
+    proshade_signed newYFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( yInds ) - 2 * (*noBins) ) / 2 ) );
+    proshade_signed newZFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( zInds ) - 2 * (*noBins) ) / 2 ) );
+    proshade_signed newXTo                            = static_cast< proshade_signed > ( std::round ( newXFrom + 2 * (*noBins) ) );
+    proshade_signed newYTo                            = static_cast< proshade_signed > ( std::round ( newYFrom + 2 * (*noBins) ) );
+    proshade_signed newZTo                            = static_cast< proshade_signed > ( std::round ( newZFrom + 2 * (*noBins) ) );
    *cutXDim                                           = ( newXTo - newXFrom );
    *cutYDim                                           = ( newYTo - newYFrom );
    *cutZDim                                           = ( newZTo - newZFrom );
@@ -3583,18 +3586,18 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
 void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap )
 {
     //================================================ Compute new map dimensions
-    proshade_signed newXFrom                          = std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * noBins ) / 2 );
-    proshade_signed newYFrom                          = std::round ( ( static_cast< proshade_signed > ( yInds ) - 2 * noBins ) / 2 );
-    proshade_signed newZFrom                          = std::round ( ( static_cast< proshade_signed > ( zInds ) - 2 * noBins ) / 2 );
-    proshade_signed newXTo                            = std::round ( newXFrom + 2 * noBins );
-    proshade_signed newYTo                            = std::round ( newYFrom + 2 * noBins );
-    proshade_signed newZTo                            = std::round ( newZFrom + 2 * noBins );
+    proshade_signed newXFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * noBins ) / 2 ) );
+    proshade_signed newYFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( yInds ) - 2 * noBins ) / 2 ) );
+    proshade_signed newZFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( zInds ) - 2 * noBins ) / 2 ) );
+    proshade_signed newXTo                            = static_cast< proshade_signed > ( std::round ( newXFrom + 2 * noBins ) );
+    proshade_signed newYTo                            = static_cast< proshade_signed > ( std::round ( newYFrom + 2 * noBins ) );
+    proshade_signed newZTo                            = static_cast< proshade_signed > ( std::round ( newZFrom + 2 * noBins ) );
     proshade_signed cutXDim                           = ( newXTo - newXFrom );
     proshade_signed cutYDim                           = ( newYTo - newYFrom );
     proshade_signed cutZDim                           = ( newZTo - newZFrom );
     
     //================================================ Create new binIndexing within only the new dimensions
-    cutMap                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * cutXDim * cutYDim * cutZDim ) );
+    cutMap                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( cutXDim * cutYDim * cutZDim ) ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( cutMap, __FILE__, __LINE__, __func__ );
     
     proshade_signed newArrPos = 0, origArrPos = 0;
@@ -3639,7 +3642,7 @@ void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, pros
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
     \param[out] fsc The Fourier Shell Correlation between the two supplied Fourier coefficient maps.
  */
-proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin )
+proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin )
 {
     //================================================ Initialise local variables
     proshade_double realOrig, realRot, imagOrig, imagRot, fsc = 0.0;;
@@ -3651,11 +3654,11 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
     
     //================================================ Compute bin sums
-    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xInds ); xIt++ )
+    for ( proshade_signed xIt = 0; xIt < xInds; xIt++ )
     {
-        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yInds ); yIt++ )
+        for ( proshade_signed yIt = 0; yIt < yInds; yIt++ )
         {
-            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zInds / 2 ); zIt++ )
+            for ( proshade_signed zIt = 0; zIt < ( zInds / 2 ); zIt++ )
             {
                 //==================================== Find array position
                 arrPos                                = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );

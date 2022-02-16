@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -816,8 +816,8 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     proshade_unsign arrayPos                          = 0;
     
     //================================================ Create Fourier map variable
-    fftw_complex *fCoeffs                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
-    fftw_complex *translatedMap                       = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    fftw_complex *fCoeffs                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
+    fftw_complex *translatedMap                       = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( fCoeffs,       __FILE__, __LINE__, __func__ );
@@ -983,8 +983,8 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
     proshade_double normFactor                        = static_cast<proshade_double> ( xDim * yDim * zDim );
     
     //================================================ Copy map for processing
-    fftw_complex* mapCoeffs                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
-    fftw_complex* mapMask                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    fftw_complex* mapCoeffs                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
+    fftw_complex* mapMask                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( mapCoeffs, __FILE__, __LINE__, __func__ );
@@ -1627,7 +1627,7 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
     }
         
     //================================================ Allocate helper array memory
-    fftw_complex *hlpFCoeffs                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    fftw_complex *hlpFCoeffs                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( hlpFCoeffs, __FILE__, __LINE__, __func__ );
     
     //================================================ Change the coefficients order

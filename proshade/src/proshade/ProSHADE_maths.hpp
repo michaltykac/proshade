@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -399,7 +399,7 @@ namespace ProSHADE_internal_maths
                                                         std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim,
                                                         proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins );
     void cutArrayToResolution                         ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap );
-    proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds,
+    proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds,
                                                         proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin );
     void computeFSCWeightByBin                        ( proshade_double*& weights1, proshade_double*& weights2, proshade_signed* binIndexing, proshade_double* fscByBin, proshade_signed noBins,
                                                         proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );

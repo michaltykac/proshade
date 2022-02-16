@@ -14,8 +14,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== Do not use the following flags for the included files - this causes a lot of warnings that have nothing to do with ProSHADE

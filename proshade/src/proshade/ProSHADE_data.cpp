@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -1943,8 +1943,8 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     //================================================ Prepare FSC computation memory and variables
     fftw_complex* fCoeffsCut;
     proshade_double **bindata, *fscByBin;
-    proshade_signed *binIndexing, *cutIndices, *binCounts, noBins, cutXDim, cutYDim, cutZDim;
-    this->prepareFSCFourierMemory                     ( cutIndices, fCoeffsCut, binIndexing, &noBins, bindata, binCounts, fscByBin, settings->requestedResolution, &cutXDim, &cutYDim, &cutZDim );
+    proshade_signed *cutIndices, *binCounts, noBins, cutXDim, cutYDim, cutZDim;
+    this->prepareFSCFourierMemory                     ( cutIndices, fCoeffsCut, &noBins, bindata, binCounts, fscByBin, settings->requestedResolution, &cutXDim, &cutYDim, &cutZDim );
     
     //================================================  If C was requested, we will do it immediately - this allows for a significant speed-up.
     if ( settings->requestedSymmetryType == "C" )
@@ -1961,7 +1961,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         //============================================ Compute FSC for all possible axes
         for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { const FloatingPoint< proshade_double > lhs ( CSyms.at(cIt)[5] ), rhs ( -999.9 ); if ( ( CSyms.at(cIt)[5] > settings->peakThresholdMin ) || ( lhs.AlmostEquals ( rhs ) ) )
         {
-            this->computeFSC                          ( settings, &CSyms, cIt, cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+            this->computeFSC                          ( settings, &CSyms, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
         } }
         
         //============================================ Sort by FSC
@@ -2000,7 +2000,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         }
         
         //============================================ Release memory after FSC computation
-        delete[] binIndexing;
         for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
         delete[] bindata;
         delete[] binCounts;
@@ -2046,14 +2045,13 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             if ( cIt > 15 ) { break; }
             
             //======================================== Compute FSC
-            this->computeFSC                          ( settings, &CSyms, cIt, cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+            this->computeFSC                          ( settings, &CSyms, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
         }
 
         //============================================ Save the detected Cs
         this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
         
         //============================================ Release memory
-        delete[] binIndexing;
         for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
         delete[] bindata;
         delete[] binCounts;
@@ -2101,7 +2099,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
                 proshade_signed matchedPos            = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ISymsHlp.at(icoIt).at(aIt)[0] ), ISymsHlp.at(icoIt).at(aIt)[1], ISymsHlp.at(icoIt).at(aIt)[2], ISymsHlp.at(icoIt).at(aIt)[3], ISymsHlp.at(icoIt).at(aIt)[5], ISymsHlp.at(icoIt).at(aIt)[6], &CSyms, settings->axisErrTolerance );
                 
                 //==================================== Compute FSC
-                fscVal                                = this->computeFSC ( settings, &CSyms, static_cast< size_t > ( matchedPos ), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                fscVal                                = this->computeFSC ( settings, &CSyms, static_cast< size_t > ( matchedPos ), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
                 ISymsHlp.at(fscMaxInd).at(aIt)[6]     = fscVal;
                 fscValAvg                            += fscVal;
             }
@@ -2135,14 +2133,14 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         }
         
         //============================================ Decide on recommended symmetry
-        this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes, cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
     }
     
     if ( settings->requestedSymmetryType == "D" )
     {
         //============================================ Run only the D symmetry detection and search for requested fold
         std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        this->saveRequestedSymmetryD                  ( settings, &DSyms, axes, cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        this->saveRequestedSymmetryD                  ( settings, &DSyms, axes, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
     }
     
     if ( settings->requestedSymmetryType == "T" )
@@ -2157,7 +2155,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             proshade_double fscValAvg                 = 0.0;
             
             //======================================== Check if axes have high enough FSC and peak height
-            for ( size_t tIt = 0; tIt < 7; tIt++ ) { if ( CSyms.at(settings->allDetectedTAxes.at(tIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
+            for ( size_t tIt = 0; tIt < 7; tIt++ ) { if ( CSyms.at(settings->allDetectedTAxes.at(tIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
             fscValAvg                                /= 7.0;
             
             //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
@@ -2184,7 +2182,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             proshade_double fscValAvg                 = 0.0;
             
             //======================================== Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-            for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( CSyms.at(settings->allDetectedOAxes.at(oIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
+            for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( CSyms.at(settings->allDetectedOAxes.at(oIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
             fscValAvg                                /= 13.0;
             
             //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
@@ -2223,7 +2221,7 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
                 proshade_signed matchedPos            = ProSHADE_internal_symmetry::addAxisUnlessSame ( static_cast< proshade_unsign > ( ISymsHlp.at(icoIt).at(aIt)[0] ), ISymsHlp.at(icoIt).at(aIt)[1], ISymsHlp.at(icoIt).at(aIt)[2], ISymsHlp.at(icoIt).at(aIt)[3], ISymsHlp.at(icoIt).at(aIt)[5], ISymsHlp.at(icoIt).at(aIt)[6], &CSyms, settings->axisErrTolerance );
                 
                 //==================================== Compute FSC
-                fscVal                                = this->computeFSC ( settings, &CSyms, static_cast< size_t > ( matchedPos ), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                fscVal                                = this->computeFSC ( settings, &CSyms, static_cast< size_t > ( matchedPos ), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
                 ISymsHlp.at(fscMaxInd).at(aIt)[6]     = fscVal;
                 fscValAvg                            += fscVal;
             }
@@ -2272,7 +2270,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     this->saveDetectedSymmetries                      ( settings, &CSyms, allCs );
     
     //================================================ Release memory after FSC computation
-    delete[] binIndexing;
     for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
     delete[] bindata;
     delete[] binCounts;
@@ -2337,9 +2334,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
     but not more. Next, it computes the Fourier transform of the static map and cuts it to the same dimensions as the bin array to save
     space and computation time.
  
-    \param[in] cutIndices This is where the binIndexing array cut to the resolution will be saved into.
+    \param[in] cutIndices This is where the bin indexing array 'cut to the resolution' will be saved into.
     \param[in] fCoeffsCut This is where the Fourier coefficients array cut to the resolution will be saved into.
-    \param[in] binIndexing A map that will be filled with binning indices for fast binning.
     \param[in] noBins The number of bins will be stored in this variable.
     \param[in] bindata An array to store the bin sums and other FSC computation temporary results.
     \param[in] binCounts An array that will be used to store the number of reflactions in each bin.
@@ -2349,10 +2345,11 @@ void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_se
     \param[in] cutYDim The x-axis dimension of the cut coefficients (and bin indices) will be saved here.
     \param[in] cutZDim The x-axis dimension of the cut coefficients (and bin indices) will be saved here.
  */
-void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed*& binIndexing, proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_single resolution, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim )
+void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_single resolution, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim )
 {    
     //================================================ Decide number of bins and allocate which reflection belongs to which bin
     std::vector< proshade_single > *resArray;
+    proshade_signed* binIndexing                      = nullptr;
     ProSHADE_internal_maths::binReciprocalSpaceReflections ( this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, noBins, binIndexing, resArray );
     
     //================================================ Cut the indices to contain only up to the requested resolution
@@ -2363,6 +2360,9 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
                                                         cutXDim, cutYDim, cutZDim,
                                                         cutIndices,
                                                         noBins );
+    
+    //================================================ Release binning memory
+    delete[] binIndexing;
     
     //================================================ Allocate memory for FSC sums
     bindata                                           = new proshade_double*[*noBins];
@@ -2442,7 +2442,6 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
     \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
     \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
-    \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
     \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
@@ -2451,7 +2450,7 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
     \param[out] fsc The FSC value found for the first (smallest) rotated map along the symmetry axis and the original map.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Sanity check
     if ( symIndex >= CSym->size() )
@@ -2517,7 +2516,6 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
     \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
     \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
-    \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
     \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
@@ -2526,7 +2524,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
     \param[out] fsc The FSC value found for the first (smallest) rotated map along the symmetry axis and the original map.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Ignore if already computed
     if ( sym[6] > -2.0 ) { return ( sym[6] ); }
@@ -2597,7 +2595,6 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
     \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
     \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
-    \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
     \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
@@ -2605,7 +2602,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
  */
-void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting recommended symmetry decision procedure.", settings->messageShift );
@@ -2646,7 +2643,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         
         //============================================ Find FSCs and their average
         proshade_double failedAxes = 0.0, allowedFail = 0.2;
-        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 31.0 ) > allowedFail ) { fscValAvg = 0.0; break; } }
+        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 31.0 ) > allowedFail ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 31.0;
         IFSCAverage                                   = fscValAvg;
     }
@@ -2660,7 +2657,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         
         //============================================ Find FSCs and their average
         proshade_double failedAxes = 0.0, allowedFail = 0.2;
-        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 13.0 ) > allowedFail ) { fscValAvg = 0.0; break; } }
+        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 13.0 ) > allowedFail ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 13.0;
         OFSCAverage                                   = fscValAvg;
     }
@@ -2674,7 +2671,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         
         //============================================ Find FSCs and their average
         proshade_double failedAxes = 0.0, allowedFail = 0.2;
-        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 7.0  ) > allowedFail ) { fscValAvg = 0.0; break; } }
+        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { failedAxes += 1.0; } if ( ( failedAxes / 7.0  ) > allowedFail ) { fscValAvg = 0.0; break; } }
         fscValAvg                                    /= 7.0;
         TFSCAverage                                   = fscValAvg;
     }
@@ -2758,8 +2755,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
             
             //======================================== Find FSCs
-            if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
-            if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
+            if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
+            if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
         }
         
         //============================================ Check if both C symmetries are reliable
@@ -2819,7 +2816,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
             
             //======================================== Compute FSC
-            if ( std::isinf ( CSym->at(cIt)[6] ) ) { this->computeFSC ( settings, CSym, cIt, cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
+            if ( std::isinf ( CSym->at(cIt)[6] ) ) { this->computeFSC ( settings, CSym, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
         }
         
         //============================================ Find FSC top group threshold
@@ -2924,7 +2921,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
     \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
     \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
     \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
-    \param[in] binIndexing A map of pre-computed bin assignments for each reflection in the format as outputted by FFTW.
     \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
@@ -2932,7 +2928,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
     \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
  */
-void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Initialise variables
     proshade_unsign bestIndex                         = 0;
@@ -2951,8 +2947,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
         if ( ( DSym->at(iter)[12] < settings->peakThresholdMin ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
         
         //============================================ If correct, compute FSC
-        this->computeFSC                              ( settings, &DSym->at(iter)[0], cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim );
-        this->computeFSC                              ( settings, &DSym->at(iter)[7], cutIndices, fCoeffsCut, noBins, binIndexing, bindata, binCounts, fscByBin, xDim, yDim, zDim );
+        this->computeFSC                              ( settings, &DSym->at(iter)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim );
+        this->computeFSC                              ( settings, &DSym->at(iter)[7], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim );
         
         //============================================ If best, store it
         if ( ( DSym->at(iter)[6] + DSym->at(iter)[13] ) > highestSym )

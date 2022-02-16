@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -855,9 +855,10 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     
 }
 
-/*! \brief This function ...
+/*! \brief This function takes the rotation in terms of angle-axis representation and returns the input Fourier coefficients rotated by the rotation.
  
-    ...
+    This function converts a set of Fourier coefficients of a structure onto a set of Fourier coefficients corresponding to a structure rotated by the given
+    rotation. It deals with the boundaries as well as the axis order.
  
     \param[in] axX The x-axis element of the angle-axis rotation representation.
     \param[in] axY The y-axis element of the angle-axis rotation representation.
@@ -878,8 +879,8 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
     proshade_single *interpMins                       = new proshade_single[3];
     proshade_single *interpMaxs                       = new proshade_single[3];
     proshade_single *interpDiff                       = new proshade_single[3];
-    rotCoeffs                                         = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
-    fftw_complex *rotCoeffsHlp                        = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    rotCoeffs                                         = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
+    fftw_complex *rotCoeffsHlp                        = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     proshade_single *rotVec;
     std::complex< proshade_double > c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1;
     size_t arrPos                                     = 0;
@@ -908,6 +909,8 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
     maxs[0]                                           = -(mins[0] + 1);
     maxs[1]                                           = -(mins[1] + 1);
     maxs[2]                                           = -(mins[2] + 1);
+    
+    const FloatingPoint< proshade_single > minX ( mins[0] ), minY ( mins[1] ), minZ ( mins[2] );
     
     //================================================ For each hkl
     for ( proshade_single xIt = mins[0]; xIt <= maxs[0]; xIt++ )
@@ -989,7 +992,8 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
                 rotCoeffs[arrPos][1]                  = ( ( c0   * ( 1.0 - static_cast< proshade_double > ( interpDiff[2] ) ) ) + ( c1   * static_cast< proshade_double > ( interpDiff[2] ) ) ).imag();
                 
                 //==================================== Use Friedel's Law to save time
-                if ( ( xIt == mins[0] ) || ( yIt == mins[1] ) || ( zIt == mins[2] ) ) { continue; }
+                const FloatingPoint< proshade_single > itX ( xIt ), itY ( yIt ), itZ ( zIt );
+                if ( minX.AlmostEquals( itX ) || minY.AlmostEquals( itY ) || minZ.AlmostEquals( itZ ) ) { continue; }
                     
                 arrPos2                               = static_cast< size_t > ( ( -zIt - mins[2] ) + static_cast< proshade_single > ( zDim ) * ( ( -yIt - mins[1] ) + static_cast< proshade_single > ( yDim ) * ( -xIt - mins[0] ) ) );
                 rotCoeffs[arrPos2][0]                 = rotCoeffs[arrPos][0];
