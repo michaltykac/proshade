@@ -675,8 +675,8 @@ proshade_double ProSHADE_internal_distances::computeTraceSigmaDescriptor ( ProSH
 void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_unsign band )
 {
     //================================================ Allocate the memory
-    this->so3Coeffs                                   = new fftw_complex [static_cast<proshade_unsign>( ( 4 * pow( static_cast<proshade_double> ( band ), 3.0 ) - static_cast<proshade_double> ( band ) ) / 3.0 )];
-    this->so3CoeffsInverse                            = new fftw_complex [static_cast<proshade_unsign>( pow( static_cast<proshade_double> ( band ) * 2.0, 3.0 ) )];
+    this->so3Coeffs                                   = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast<proshade_unsign>( ( 4 * pow( static_cast<proshade_double> ( band ), 3.0 ) - static_cast<proshade_double> ( band ) ) / 3.0 ) ) );
+    this->so3CoeffsInverse                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast<proshade_unsign>( pow( static_cast<proshade_double> ( band ) * 2.0, 3.0 ) ) ) );
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( this->so3Coeffs,        __FILE__, __LINE__, __func__ );

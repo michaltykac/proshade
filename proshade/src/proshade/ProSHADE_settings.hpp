@@ -57,6 +57,7 @@ public:
     //================================================ Settings regarding the bandwidth of calculations
     proshade_unsign maxBandwidth;                     //!< The bandwidth of spherical harmonics decomposition for the largest sphere.
     proshade_double rotationUncertainty;              //!< Alternative to bandwidth - the angle in degrees to which the rotation function accuracy should be computed.
+    proshade_double maxRadius;                        //!< The maximum distance from centre in Angstroms for a map value to still be used. 
 
     //================================================ Settings regarding the phase
     bool usePhase;                                    //!< If true, the full data will be used, if false, Patterson maps will be used instead and phased data will be converted to them. Also, only half of the spherical harmonics bands will be necessary as odd bands have to be 0 for Patterson maps.

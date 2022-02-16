@@ -200,6 +200,11 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The bandwidth to which spherical harmonics decomposition shoud      " << std::endl;
     std::cout << "            be computed to. For automatic determination supply 0 or nothing.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -J or --maxRadius                               [DEFAULT:         NONE]     " << std::endl;
+    std::cout << "            The maximum distance from map centre to which the map values will   " << std::endl;
+    std::cout << "            be used. Note that this affects bandwidth and other values and is   " << std::endl;
+    std::cout << "            not recommended in combination with manual setting of these,        " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    -s or --sphereDists                             [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            The distance in Angstroms between any two concentric spheres to     " << std::endl;
     std::cout << "            which the internal map representation will be mapped to. Use        " << std::endl;

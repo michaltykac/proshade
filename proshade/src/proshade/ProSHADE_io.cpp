@@ -383,12 +383,12 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
     if ( ( xDimIndsMsk != xDimInds ) || ( yDimIndsMsk != yDimInds ) || ( zDimIndsMsk != zDimInds ) )
     {
         //============================================ Initialise variables
-        fftw_complex* origCoeffs                      = new fftw_complex [newVolume ];
-        fftw_complex* origCoeffsHKL                   = new fftw_complex [newVolume ];
-        fftw_complex* modifCoeffs                     = new fftw_complex [origVolume];
-        fftw_complex* modifCoeffsHKL                  = new fftw_complex [origVolume];
-        fftw_complex* inMap                           = new fftw_complex [newVolume ];
-        fftw_complex* outMap                          = new fftw_complex [origVolume];
+        fftw_complex* origCoeffs                      = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* origCoeffsHKL                   = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* modifCoeffs                     = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* modifCoeffsHKL                  = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* inMap                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* outMap                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
 
         //============================================ Check memory allocation
         ProSHADE_internal_misc::checkMemoryAllocation ( inMap,          __FILE__, __LINE__, __func__ );
@@ -518,18 +518,18 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
         maskFinal                                     = new proshade_double [origVolume];
         ProSHADE_internal_misc::checkMemoryAllocation ( maskFinal, __FILE__, __LINE__, __func__ );
 
-        //======================================== Copy results into a new, properly sampled mask
+        //============================================ Copy results into a new, properly sampled mask
         for ( size_t iter = 0; iter < origVolume; iter++ ) { maskFinal[iter] = outMap[iter][0]; }
 
-        //======================================== Release remaining memory
-        fftw_destroy_plan                         ( planForwardFourier );
-        fftw_destroy_plan                         ( inverseFoourier );
-        delete[] origCoeffs;
-        delete[] modifCoeffs;
-        delete[] origCoeffsHKL;
-        delete[] modifCoeffsHKL;
-        delete[] inMap;
-        delete[] outMap;
+        //============================================ Release remaining memory
+        fftw_destroy_plan                             ( planForwardFourier );
+        fftw_destroy_plan                             ( inverseFoourier );
+        fftw_free                                     ( origCoeffs );
+        fftw_free                                     ( modifCoeffs );
+        fftw_free                                     ( origCoeffsHKL );
+        fftw_free                                     ( modifCoeffsHKL );
+        fftw_free                                     ( inMap );
+        fftw_free                                     ( outMap );
     }
     else
     {
@@ -668,12 +668,12 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     if ( ( xDimIndsWgh != xDimInds ) || ( yDimIndsWgh != yDimInds ) || ( zDimIndsWgh != zDimInds ) )
     {
         //============================================ Initialise variables
-        fftw_complex* origCoeffs                      = new fftw_complex [newVolume ];
-        fftw_complex* origCoeffsHKL                   = new fftw_complex [newVolume ];
-        fftw_complex* modifCoeffs                     = new fftw_complex [origVolume];
-        fftw_complex* modifCoeffsHKL                  = new fftw_complex [origVolume];
-        fftw_complex* inMap                           = new fftw_complex [newVolume ];
-        fftw_complex* outMap                          = new fftw_complex [origVolume];
+        fftw_complex* origCoeffs                      = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* origCoeffsHKL                   = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* modifCoeffs                     = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* modifCoeffsHKL                  = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* inMap                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* outMap                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
 
         //============================================ Check memory allocation
         ProSHADE_internal_misc::checkMemoryAllocation ( inMap,          __FILE__, __LINE__, __func__ );
@@ -809,12 +809,12 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
         //============================================ Release remaining memory
         fftw_destroy_plan                             ( planForwardFourier );
         fftw_destroy_plan                             ( inverseFoourier );
-        delete[] origCoeffs;
-        delete[] modifCoeffs;
-        delete[] origCoeffsHKL;
-        delete[] modifCoeffsHKL;
-        delete[] inMap;
-        delete[] outMap;
+        fftw_free                                     ( origCoeffs );
+        fftw_free                                     ( modifCoeffs );
+        fftw_free                                     ( origCoeffsHKL );
+        fftw_free                                     ( modifCoeffsHKL );
+        fftw_free                                     ( inMap );
+        fftw_free                                     ( outMap );
     }
     else
     {
@@ -824,8 +824,8 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     }
     
     //================================================ Allocate memory for map Fourier transform
-    fftw_complex* inMap                               = new fftw_complex [origVolume];
-    fftw_complex* outMap                              = new fftw_complex [origVolume];
+    fftw_complex* inMap                               = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+    fftw_complex* outMap                              = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( inMap,  __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( outMap, __FILE__, __LINE__, __func__ );
     fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), inMap, outMap, FFTW_FORWARD,  FFTW_ESTIMATE );
@@ -849,8 +849,8 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     
     //================================================ Release memory
     delete[] weightsFinal;
-    delete[] inMap;
-    delete[] outMap;
+    fftw_free                                         ( inMap );
+    fftw_free                                         ( outMap );
     fftw_destroy_plan                                 ( planForwardFourier );
     fftw_destroy_plan                                 ( inverseFoourier );
     

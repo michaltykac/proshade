@@ -57,6 +57,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = 0;
     this->rotationUncertainty                         = 0;
+    this->maxRadius                                   = -1.0;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = true;
@@ -194,6 +195,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = settings->maxBandwidth;
     this->rotationUncertainty                         = settings->rotationUncertainty;
+    this->maxRadius                                   = settings->maxRadius;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = settings->usePhase;
@@ -338,6 +340,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = 0;
     this->rotationUncertainty                         = 0;
+    this->maxRadius                                   = -1.0;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = true;
@@ -1864,17 +1867,31 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     //================================================ Print progress message
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 1, "Preparing spherical harmonics environment.", this->messageShift );
     
-//    std::cout << "Band:     " << this->maxBandwidth << std::endl;
-//    std::cout << "Integ:    " << this->integOrder << std::endl;
-//    std::cout << "Sph Dist: " << this->maxSphereDists << std::endl << std::endl;
-    
     //================================================ Modify dims by resolution
     proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
     proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0f ) ) );
     proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0f ) ) );
     
+    //================================================ If max radius is given, use it for speed up
+    if ( this->maxRadius > 0.0 )
+    {
+        //============================================ Sanity check
+        if ( static_cast< proshade_single > ( this->maxRadius * 2.0 ) > std::max ( xDimAngs, std::max( yDimAngs, zDimAngs ) ) )
+        {
+            ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested maximum radius is larger than the maximum map dimension. Using the maximum map dimension instead.", "WM00074" );
+        }
+        
+        //============================================ Reasonable radius
+        else
+        {
+            theoXDim                                  = static_cast< proshade_unsign > ( std::ceil ( ( this->maxRadius * 2.0 ) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+            theoYDim                                  = static_cast< proshade_unsign > ( std::ceil ( ( this->maxRadius * 2.0 ) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+            theoZDim                                  = static_cast< proshade_unsign > ( std::ceil ( ( this->maxRadius * 2.0 ) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+        }
+    }
+    
     //================================================ Reduce calculation cost by using only density filled map part instead of the whole box
-    if ( std::isinf ( this->calcBounds.at(0) ) || std::isinf ( this->calcBounds.at(1) ) || std::isinf ( this->calcBounds.at(2) ) )
+    if ( ( std::isinf ( this->calcBounds.at(0) ) || std::isinf ( this->calcBounds.at(1) ) || std::isinf ( this->calcBounds.at(2) ) ) && ( this->maxRadius < 0.0 ) )
     {
         //== Determine from sphere variance
     }
@@ -1912,10 +1929,6 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     
     //================================================ Report function completion
     ProSHADE_internal_messages::printProgressMessage  ( this->verbose, 2, "Spherical harmonics environment prepared.", this->messageShift );
-    
-//    std::cout << "Band:     " << this->maxBandwidth << std::endl;
-//    std::cout << "Integ:    " << this->integOrder << std::endl;
-//    std::cout << "Sph Dist: " << this->maxSphereDists << std::endl << std::endl; exit(0);
     
     //================================================ Done
     return ;
@@ -2226,6 +2239,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "overlayFile",     required_argument,  nullptr, '}' },
         { "overlayJSONFile", required_argument,  nullptr, 'y' },
         { "angUncertain",    required_argument,  nullptr, ';' },
+        { "maxRadius",       required_argument,  nullptr, 'J' },
         { "fourierWeights",  required_argument,  nullptr, 'z' },
         { "keepNegDens",     no_argument,        nullptr, 'F' },
         { "coordExtraSpace", required_argument,  nullptr, 'H' },
@@ -2233,7 +2247,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:J:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2703,6 +2717,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case ';':
              {
                  this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
+                 continue;
+             }
+                 
+             //======================================= Save the argument as maximum map radius to be used
+             case 'J':
+             {
+                 this->maxRadius                      = static_cast< proshade_double > ( atof ( optarg ) );
                  continue;
              }
 

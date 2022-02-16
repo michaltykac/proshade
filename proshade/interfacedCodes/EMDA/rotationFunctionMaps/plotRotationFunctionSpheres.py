@@ -19,8 +19,8 @@
 #   \author    Rangana Sanjeewa Warshamanage
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.1.1
-#   \date      AUG 2021
+#   \version   0.1.2
+#   \date      FEB 2022
 ######################################################
 ######################################################
 
@@ -46,11 +46,11 @@ import proshade
 ###
 ### This is where all the settings are given.
 ###
-structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_0965.map"
-#structureFilename                                     = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry/EMD-0126/emd_0126.map.gz"
+#structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_0020.map"
+structureFilename                                     = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry/EMD-0020/emd_0020.map.gz"
 structureFold                                         = 2
 structureReSampleMap                                  = True
-computationResolution                                 = 30
+computationResolution                                 = 20
 
 ######################################################
 ### Local functions
@@ -312,7 +312,7 @@ pSet.verbose                                          = 3
 pStruct                                               = proshade.ProSHADE_data ( )
 pStruct.readInStructure                               ( structureFilename, 0, pSet )
 
-pSet.addExtraSpace                                    = 100.0
+pSet.addExtraSpace                                    = 10.0
     
 ### Do all the required computations in correct order
 pStruct.processInternalMap                            ( pSet )
@@ -335,176 +335,6 @@ sphereMappedData                                      = proshade.getRotationFunc
 ###
 ### This is where each spheres are plotted.
 ###
-
-#!!! Write rot fun
-selfRotationFunction                                  = pStruct.getRotationFunctionMap ( )
-xDimIndices                                           = selfRotationFunction.shape[0]
-yDimIndices                                           = selfRotationFunction.shape[1]
-zDimIndices                                           = selfRotationFunction.shape[2]
-xDimAngstroms                                         = xDimIndices
-yDimAngstroms                                         = yDimIndices
-zDimAngstroms                                         = zDimIndices
-xFrom                                                 = int ( -xDimIndices/2 )
-yFrom                                                 = int ( -yDimIndices/2 )
-zFrom                                                 = int ( -zDimIndices/2 )
-xTo                                                   = int ( (xDimIndices/2) )
-yTo                                                   = int ( (yDimIndices/2) )
-zTo                                                   = int ( (zDimIndices/2) )
-ord                                                   = 1
-band                                                  = selfRotationFunction.shape[0] / 2
-
-if xDimIndices % 2 == 0:
-    xTo                                               = xTo - 1
-    
-if yDimIndices % 2 == 0:
-    yTo                                               = yTo - 1
-    
-if zDimIndices % 2 == 0:
-    zTo                                               = zTo - 1
-
-######################################################
-### Create example map (this will be a ball in the middle of the map)
-rfMap = numpy.zeros ( [ ( xDimIndices * yDimIndices * zDimIndices ) ] )
-for xIt in range( 0, xDimIndices ):
-    for yIt in range( 0, yDimIndices ):
-        for zIt in range( 0, zDimIndices ):
-            
-            ### Convert to eulers
-            eulerAlpha                                = numpy.pi * yIt / band
-            eulerBeta                                 = numpy.pi * ( 2.0 * xIt ) / ( 4.0 * band )
-            eulerGamma                                = numpy.pi * zIt / band
-            
-            ind                                       = zIt + zDimIndices * ( yIt + yDimIndices * xIt )
-            rfMap[ind]                                = pow ( selfRotationFunction[xIt][yIt][zIt].real, 2.0 ) + pow ( selfRotationFunction[xIt][yIt][zIt].imag, 2.0 )
-                
-    
-pSRF                                                  = proshade.ProSHADE_data ( )
-pSRF                                                  = proshade.ProSHADE_data ( "rotFun",
-                                                                                 rfMap,
-                                                                                 xDimAngstroms,
-                                                                                 yDimAngstroms,
-                                                                                 zDimAngstroms,
-                                                                                 xDimIndices,
-                                                                                 yDimIndices,
-                                                                                 zDimIndices,
-                                                                                 xFrom,
-                                                                                 yFrom,
-                                                                                 zFrom,
-                                                                                 xTo,
-                                                                                 yTo,
-                                                                                 zTo,
-                                                                                 ord )
-                                                                                 
-pSRF.writeMap ( "rotFun_full_FALSE.map" )
-del pSRF
-
-rfMap = numpy.zeros ( [ ( xDimIndices * yDimIndices * zDimIndices ) ] )
-for xIt in range( 0, xDimIndices ):
-    for yIt in range( 0, yDimIndices ):
-        for zIt in range( 0, zDimIndices ):
-            
-            ### Convert to eulers
-            eulerAlpha                                = numpy.pi * yIt / band
-            eulerBeta                                 = numpy.pi * ( 2.0 * xIt ) / ( 4.0 * band )
-            eulerGamma                                = numpy.pi * zIt / band
-            
-            ### If beta is close to 180 degrees
-            if ( ( eulerBeta > ( numpy.pi - 0.1 ) ) and ( eulerBeta < ( numpy.pi + 0.1 ) ) ):
-                ind                                   = zIt + zDimIndices * ( yIt + yDimIndices * xIt )
-                rfMap[ind]                            = pow ( selfRotationFunction[xIt][yIt][zIt].real, 2.0 ) + pow ( selfRotationFunction[xIt][yIt][zIt].imag, 2.0 )
-                
-    
-pSRF                                                  = proshade.ProSHADE_data ( )
-pSRF                                                  = proshade.ProSHADE_data ( "rotFun",
-                                                                                 rfMap,
-                                                                                 xDimAngstroms,
-                                                                                 yDimAngstroms,
-                                                                                 zDimAngstroms,
-                                                                                 xDimIndices,
-                                                                                 yDimIndices,
-                                                                                 zDimIndices,
-                                                                                 xFrom,
-                                                                                 yFrom,
-                                                                                 zFrom,
-                                                                                 xTo,
-                                                                                 yTo,
-                                                                                 zTo,
-                                                                                 ord )
-                                                                                 
-pSRF.writeMap ( "rotFun_beta=180.map" )
-del pSRF
-
-rfMap = numpy.zeros ( [ ( xDimIndices * yDimIndices * zDimIndices ) ] )
-for xIt in range( 0, xDimIndices ):
-    for yIt in range( 0, yDimIndices ):
-        for zIt in range( 0, zDimIndices ):
-            
-            ### Convert to eulers
-            eulerAlpha                                = numpy.pi * yIt / band
-            eulerBeta                                 = numpy.pi * ( 2.0 * xIt ) / ( 4.0 * band )
-            eulerGamma                                = numpy.pi * zIt / band
-            
-            ### zAxis = 0
-            angAx                                     = proshade.getAngleAxisFromEulerAngles ( eulerAlpha, eulerBeta, eulerGamma )
-            if ( ( angAx[2] > ( -0.1 ) ) and ( angAx[2] < ( 0.1 ) ) ):
-                ind                                   = zIt + zDimIndices * ( yIt + yDimIndices * xIt )
-                rfMap[ind]                            = pow ( selfRotationFunction[xIt][yIt][zIt].real, 2.0 ) + pow ( selfRotationFunction[xIt][yIt][zIt].imag, 2.0 )
-                            
-pSRF                                                  = proshade.ProSHADE_data ( )
-pSRF                                                  = proshade.ProSHADE_data ( "rotFun",
-                                                                                 rfMap,
-                                                                                 xDimAngstroms,
-                                                                                 yDimAngstroms,
-                                                                                 zDimAngstroms,
-                                                                                 xDimIndices,
-                                                                                 yDimIndices,
-                                                                                 zDimIndices,
-                                                                                 xFrom,
-                                                                                 yFrom,
-                                                                                 zFrom,
-                                                                                 xTo,
-                                                                                 yTo,
-                                                                                 zTo,
-                                                                                 ord )
-
-pSRF.writeMap ( "rotFun_zAx=0.map" )
-del pSRF
-
-rfMap = numpy.zeros ( [ ( xDimIndices * yDimIndices * zDimIndices ) ] )
-for xIt in range( 0, xDimIndices ):
-    for yIt in range( 0, yDimIndices ):
-        for zIt in range( 0, zDimIndices ):
-            
-            ### Convert to eulers
-            eulerAlpha                                = numpy.pi * yIt / band
-            eulerBeta                                 = numpy.pi * ( 2.0 * xIt ) / ( 4.0 * band )
-            eulerGamma                                = numpy.pi * zIt / band
-            
-            ### zAxis = 0
-            angAx                                     = proshade.getAngleAxisFromEulerAngles ( eulerAlpha, eulerBeta, eulerGamma )
-            if ( ( angAx[3] > ( numpy.pi-0.1 ) ) and ( angAx[3] < ( numpy.pi+0.1 ) ) ):
-                ind                                   = zIt + zDimIndices * ( yIt + yDimIndices * xIt )
-                rfMap[ind]                            = pow ( selfRotationFunction[xIt][yIt][zIt].real, 2.0 ) + pow ( selfRotationFunction[xIt][yIt][zIt].imag, 2.0 )
-                            
-pSRF                                                  = proshade.ProSHADE_data ( )
-pSRF                                                  = proshade.ProSHADE_data ( "rotFun",
-                                                                                 rfMap,
-                                                                                 xDimAngstroms,
-                                                                                 yDimAngstroms,
-                                                                                 zDimAngstroms,
-                                                                                 xDimIndices,
-                                                                                 yDimIndices,
-                                                                                 zDimIndices,
-                                                                                 xFrom,
-                                                                                 yFrom,
-                                                                                 zFrom,
-                                                                                 xTo,
-                                                                                 yTo,
-                                                                                 zTo,
-                                                                                 ord )
-
-pSRF.writeMap ( "rotFun_ang=180.map" )
-del pSRF
 
 plot3dIndividually                                    ( sphereMappedData, stride = 1 )
 #plot3dAverage                                         ( sphereMappedData )

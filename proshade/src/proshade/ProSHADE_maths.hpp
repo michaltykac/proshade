@@ -354,6 +354,7 @@ namespace ProSHADE_internal_maths
     proshade_double* compute3x3MatrixVectorMultiplication ( proshade_double* mat, proshade_double x, proshade_double y, proshade_double z );
     proshade_single* compute3x3MatrixVectorMultiplication ( proshade_single* mat, proshade_single x, proshade_single y, proshade_single z );
     proshade_double* compute3x3MatrixInverse          ( proshade_double* mat );
+    void transpose3x3MatrixInPlace                    ( proshade_single* mat );
     void transpose3x3MatrixInPlace                    ( proshade_double* mat );
     proshade_double* build3x3MatrixFromDiag           ( proshade_double* diag );
     proshade_double* build3x3MatrixFromXYZRotations   ( proshade_double xRot, proshade_double yRot, proshade_double zRot );
@@ -392,7 +393,12 @@ namespace ProSHADE_internal_maths
     proshade_double computeGaussian                   ( proshade_double val, proshade_double sigma );
     std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data );
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );
-    void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed* noBin, proshade_signed*& binIndexing );
+    void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single xSize, proshade_single ySize, proshade_single zSize,
+                                                        proshade_signed* noBin, proshade_signed*& binIndexing, std::vector< proshade_single >*& resArray );
+    void cutIndicesToResolution                       ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single resolution, proshade_signed* binIndexing,
+                                                        std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim,
+                                                        proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins );
+    void cutArrayToResolution                         ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap );
     proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds,
                                                         proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin );
     void computeFSCWeightByBin                        ( proshade_double*& weights1, proshade_double*& weights2, proshade_signed* binIndexing, proshade_double* fscByBin, proshade_signed noBins,

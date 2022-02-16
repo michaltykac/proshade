@@ -3788,12 +3788,12 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
 void ProSHADE_internal_symmetry::allocateCentreOfMapFourierTransforms ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, fftw_complex *&origMap, fftw_complex *&origCoeffs, fftw_complex *&rotMapComplex, fftw_complex *&rotCoeffs, fftw_complex *&trFunc, fftw_complex *&trFuncCoeffs, fftw_plan *planForwardFourier, fftw_plan *planForwardFourierRot, fftw_plan *planReverseFourierComb )
 {
     //================================================ Allocate the memory
-    origMap                                           = new fftw_complex [xDim * yDim * zDim];
-    origCoeffs                                        = new fftw_complex [xDim * yDim * zDim];
-    rotMapComplex                                     = new fftw_complex [xDim * yDim * zDim];
-    rotCoeffs                                         = new fftw_complex [xDim * yDim * zDim];
-    trFunc                                            = new fftw_complex [xDim * yDim * zDim];
-    trFuncCoeffs                                      = new fftw_complex [xDim * yDim * zDim];
+    origMap                                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    origCoeffs                                        = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    rotMapComplex                                     = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    rotCoeffs                                         = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    trFunc                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
+    trFuncCoeffs                                      = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDim * yDim * zDim ) );
     
     //================================================ Check the memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( origMap,       __FILE__, __LINE__, __func__ );
@@ -3838,12 +3838,12 @@ void ProSHADE_internal_symmetry::releaseCentreOfMapFourierTransforms ( fftw_comp
     planForwardFourierRot                             = nullptr;
     
     //================================================ Release the memory
-    delete[] origMap;
-    delete[] origCoeffs;
-    delete[] rotMapComplex;
-    delete[] rotCoeffs;
-    delete[] trFunc;
-    delete[] trFuncCoeffs;
+    fftw_free                                         ( origMap );
+    fftw_free                                         ( origCoeffs );
+    fftw_free                                         ( rotMapComplex );
+    fftw_free                                         ( rotCoeffs );
+    fftw_free                                         ( trFunc );
+    fftw_free                                         ( trFuncCoeffs );
     
     //================================================ Done
     return ;

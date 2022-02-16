@@ -51,7 +51,7 @@ void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_
     
     //================================================ Allocate Working Memory
     shWeights                                         = new proshade_double [band * 4];
-    workspace                                         = new fftw_complex    [(  8 * band * band ) +  ( 10 * band )];
+    workspace                                         = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * (  8 * band * band ) +  ( 10 * band ) ) );
     
     //================================================ Allocate table
     tableSpaceHelper                                  = new proshade_double [static_cast<proshade_unsign> ( Reduced_Naive_TableSize ( static_cast< int > ( band ), static_cast< int > ( band ) ) +
@@ -176,7 +176,7 @@ void ProSHADE_internal_sphericalHarmonics::releaseSphericalMemory ( proshade_dou
     delete[] outputImag;
     delete[] tableSpaceHelper;
     delete[] shWeights;
-    delete[] workspace;
+    fftw_free                                         ( workspace );
             
     //================================================ Set pointers to NULL
     tableSpaceHelper                                  = nullptr;

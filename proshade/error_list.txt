@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00074 ==
+== NEXT FREE MESSAGE NUMBER: 00075 ==
 
 ========
 GENERAL:
@@ -146,6 +146,7 @@ CODE:		Message:																												Comment:
 WM00049		Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.				This warning results when both -a and -j options are given. If you are not using both, then consider that the Fourier-space re-sampling is default for some tasks.
 WM00068		Requested box centre to be co-ordinate position outside of co-ordinates range. Please re-view the requested box 		The requested map box centre position (given in co-ordinate space) is outside of the map range. This could happen if position is given in non-co-ordinate space, e.g. in map indices space...
 			centre position.
+WM00074		Requested maximum radius is larger than the maximum map dimension. Using the maximum map dimension instead.				The user has supplied maximum radius using --maxRadius larger, than is the largest dimension. This makes no sense and would only be slower than just using the maximum dimension, while it would only add noise.
 
 ==========
 RE-BOXING:

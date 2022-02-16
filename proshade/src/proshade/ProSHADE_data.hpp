@@ -226,23 +226,24 @@ namespace ProSHADE_internal_data
         proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
-        void prepareFSCFourierMemory                  ( fftw_complex*& mapData, fftw_complex*& origCoeffs, fftw_complex*& fCoeffs, proshade_signed*& binIndexing,
-                                                        proshade_signed* noBins, proshade_double**& bindata, proshade_signed*& binCounts, fftw_plan* planForwardFourier, proshade_double*& fscByBin );
-        proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, fftw_complex* mapData,
-                                                        fftw_complex* fCoeffs, fftw_complex* origCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins,
-                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin );
-        proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, fftw_complex* mapData, fftw_complex* fCoeffs, fftw_complex* origCoeffs,
-                                                        fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
-                                                        proshade_signed*& binCounts, proshade_double*& fscByBin );
+        void prepareFSCFourierMemory                  ( proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed*& binIndexing, proshade_signed* noBins,
+                                                        proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_single resolution,
+                                                        proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim );
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices,
+                                                        fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+        proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins,
+                                                        proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin,
+                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
-                                                        std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
-                                                        fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
-                                                        proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin );
+                                                        std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices,
+                                                        fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
         void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
-        void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, fftw_complex* mapData,
-                                                        fftw_complex* origCoeffs, fftw_complex* fCoeffs, fftw_plan* planForwardFourier, proshade_signed noBins, proshade_signed* binIndexing,
-                                                        proshade_double** bindata, proshade_signed* binCounts, proshade_double*& fscByBin );
+        void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices,
+                                                        fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_signed *binIndexing, proshade_double**& bindata, proshade_signed*& binCounts,
+                                                        proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
@@ -255,6 +256,8 @@ namespace ProSHADE_internal_data
         void rotateMapReciprocalSpace                 ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma );
         std::vector< proshade_double > rotateMapRealSpace ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double*& map );
         std::vector< proshade_double > rotateMapRealSpaceInPlace ( proshade_double eulA, proshade_double eulB, proshade_double eulG );
+        void rotateFourierCoeffs                      ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, fftw_complex*& coeffs, fftw_complex*& rotCoeffs,
+                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
         void translateMap                             ( proshade_double trsX, proshade_double trsY, proshade_double trsZ );
         void allocateRotatedSHMemory                  ( void );
         void computeRotatedSH                         ( void );
