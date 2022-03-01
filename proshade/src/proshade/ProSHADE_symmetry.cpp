@@ -3160,7 +3160,7 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
     }
     
     //================================================ Check for improved sum
-    searchRangeInDeg                                  = 360.0 / ( dataObj->getMaxBand() * 2.0 );
+    searchRangeInDeg                                  = 360.0 / ( static_cast< proshade_double > ( dataObj->getMaxBand() ) * 2.0 );
     proshade_double* rotMat, *newAxis;
     while ( searchRangeInDeg > 0.09 )
     {
@@ -3990,9 +3990,9 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetwee
     ProSHADE_internal_maths::findHighestValueInMap    ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );
     
     //================================================ Convert to Angstroms
-    trsX                                             *= static_cast< proshade_double > ( symStr->getXDimSize() / symStr->getXDim() );
-    trsY                                             *= static_cast< proshade_double > ( symStr->getYDimSize() / symStr->getYDim() );
-    trsZ                                             *= static_cast< proshade_double > ( symStr->getZDimSize() / symStr->getZDim() );
+    trsX                                             *= static_cast< proshade_double > ( symStr->getXDimSize() ) / static_cast< proshade_double > ( symStr->getXDim() );
+    trsY                                             *= static_cast< proshade_double > ( symStr->getYDimSize() ) / static_cast< proshade_double > ( symStr->getYDim() );
+    trsZ                                             *= static_cast< proshade_double > ( symStr->getZDimSize() ) / static_cast< proshade_double > ( symStr->getZDim() );
     
     //================================================ Do not translate over half
     if ( trsX > ( static_cast< proshade_double > ( symStr->getXDimSize() ) / 2.0 ) ) { trsX = trsX - static_cast< proshade_double > ( symStr->getXDimSize() ); }

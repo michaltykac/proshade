@@ -3938,12 +3938,12 @@ void ProSHADE_internal_maths::computeTrFunDerivatives ( proshade_complex* fCoeff
                 firstDers[2] += ( weights1[arrPos] * fCoeffs[arrPos][0] * std::conj( fCoeffs[arrPos][1] * piConstFirst * static_cast< proshade_double > ( reciZ ) ) ).real();
                 
                 //==================================== Add to the second derivatives sum
-                secondDers[0]                        += weights2[arrPos] * reciX * reciX;
-                secondDers[1]                        += weights2[arrPos] * reciX * reciY;
-                secondDers[2]                        += weights2[arrPos] * reciX * reciZ;
-                secondDers[4]                        += weights2[arrPos] * reciY * reciY;
-                secondDers[5]                        += weights2[arrPos] * reciY * reciZ;
-                secondDers[8]                        += weights2[arrPos] * reciZ * reciZ;
+                secondDers[0]                        += weights2[arrPos] * static_cast< proshade_double > ( reciX * reciX );
+                secondDers[1]                        += weights2[arrPos] * static_cast< proshade_double > ( reciX * reciY );
+                secondDers[2]                        += weights2[arrPos] * static_cast< proshade_double > ( reciX * reciZ );
+                secondDers[4]                        += weights2[arrPos] * static_cast< proshade_double > ( reciY * reciY );
+                secondDers[5]                        += weights2[arrPos] * static_cast< proshade_double > ( reciY * reciZ );
+                secondDers[8]                        += weights2[arrPos] * static_cast< proshade_double > ( reciZ * reciZ );
             }
         }
     }

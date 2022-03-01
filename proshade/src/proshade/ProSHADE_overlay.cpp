@@ -1006,11 +1006,11 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
     }
     
     //================================================ Switch X and Z (the Fourier rotation switched them)
-    for ( proshade_single xIt = 0; xIt < xDim; xIt++ )
+    for ( proshade_single xIt = 0; xIt < static_cast< proshade_single > ( xDim ); xIt++ )
     {
-        for ( proshade_single yIt = 0; yIt < yDim; yIt++ )
+        for ( proshade_single yIt = 0; yIt < static_cast< proshade_single > ( yDim ); yIt++ )
         {
-            for ( proshade_single zIt = 0; zIt < zDim; zIt++ )
+            for ( proshade_single zIt = 0; zIt < static_cast< proshade_single > ( zDim ); zIt++ )
             {
                 arrPos                                = static_cast< size_t > ( zIt + static_cast< proshade_single > ( zDim ) * ( yIt + static_cast< proshade_single > ( yDim ) * xIt ) );
                 arrPos2                               = static_cast< size_t > ( xIt + static_cast< proshade_single > ( xDim ) * ( yIt + static_cast< proshade_single > ( yDim ) * zIt ) );
