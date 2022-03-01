@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
 */
 
 //==================================================== ProSHADE
@@ -134,8 +134,9 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: C-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.955807 and averaged FSC of 0.966346
+//  Detected symmetry: D-6 with axes:
+//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.955807 and averaged FSC of 0.975556
+//  Symmetry axis number 1: Fold 2 XYZ: 0.87222 ; 0.489037 ; 0.00868856 Angle (radians): 3.14159 , axis peak: 0.957264 and averaged FSC of 0.612032
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
@@ -190,9 +191,9 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: D-3 as requested. The axes are:
+//  Detected symmetry: D-3 as requested. The axes are
 //  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944 and axis peak: 0.948237
-//  Symmetry axis number 1: Fold 2 XYZ: 0.999961 ; -0.0088698 ; -6.12323e-17 Angle (radians): -3.14159 and axis peak: 1.00933
+//  Symmetry axis number 1: Fold 2 XYZ: 0.0088698 ; 0.999961 ; 6.12323e-17 Angle (radians): 3.14159 and axis peak: 1
     
     
     //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the

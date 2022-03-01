@@ -40,7 +40,7 @@ namespace ProSHADE_internal_mapManip
     proshade_signed myRound                           ( proshade_single x );
     void determinePDBRanges                           ( gemmi::Structure pdbFile, proshade_single* xFrom, proshade_single* xTo, proshade_single* yFrom,
                                                         proshade_single* yTo, proshade_single* zFrom, proshade_single* zTo, bool firstModel );
-    void findPDBCOMValues                             ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel );
+    void findPDBCOMValues                             ( gemmi::Structure* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel );
     void findMAPCOMValues                             ( proshade_double* map, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom,
                                                         proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xFrom,
                                                         proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom,

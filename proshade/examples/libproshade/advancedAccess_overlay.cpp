@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
 */
 
 //==================================================== ProSHADE
@@ -118,7 +118,7 @@ int main ( int argc, char **argv )
     //================================================ Get optimal rotation matrix. This is not required for ProSHADE, but users may be interested in this, so it is showcased here.
     proshade_double* rotMat                           = new proshade_double[9];                 // The rotation matrix is returned as an array of 9 doubles, rows first. This is where the memory is allocated.
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ ); // Function for checking memory allocation, feel free to change to your preferred memory checking approach.
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), rotMat ); // This is internal ProSHADE function which computes the rotation matrix from the Euler angles.
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), rotMat ); // This is internal ProSHADE function which computes the rotation matrix from the Euler angles.
     std::cout << "Optimal rotation Euler angles are:      " << optimalEulerRot.at(0) << " ; " << optimalEulerRot.at(1) << " ; " << optimalEulerRot.at(2) << std::endl;
     std::cout << "Optimal rotation matrix is       :      " << rotMat[0] << " ; " << rotMat[1] << " ; " << rotMat[2] << std::endl;
     std::cout << "                                 :      " << rotMat[3] << " ; " << rotMat[4] << " ; " << rotMat[5] << std::endl;

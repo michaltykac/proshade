@@ -118,8 +118,8 @@ namespace ProSHADE_internal_symmetry
     void optimiseDGroupAngleFromAxesHeights           ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > selection, ProSHADE_internal_data::ProSHADE_data* dataObj,
                                                         ProSHADE_settings* settings );
     void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
-    void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
-    void predictTetraAxes                             ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret, proshade_double axErr, proshade_double minPeakHeight );
+    void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
+    void predictTetraAxes                             ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
     std::vector< proshade_unsign > findReliableUnphasedSymmetries ( std::vector < std::vector< proshade_double > >* allCs, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance );
     void allocateCentreOfMapFourierTransforms         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, fftw_complex *&origMap, fftw_complex *&origCoeffs, fftw_complex *&rotMapComplex,
                                                         fftw_complex *&rotCoeffs, fftw_complex *&trFunc, fftw_complex *&trFuncCoeffs, fftw_plan *planForwardFourier, fftw_plan *planForwardFourierRot,

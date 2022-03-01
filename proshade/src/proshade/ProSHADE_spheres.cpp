@@ -1409,9 +1409,6 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
  */
 void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose, proshade_signed messageShift )
 {
-    //================================================ Check that this peak group has all the angles
-    if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
-    
     //================================================ Initialise variables
     proshade_double bestPosVal, bestLatInd, bestLonInd;
     std::vector< proshade_unsign > spheresFormingFold;
@@ -1440,7 +1437,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[2]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
-    detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
+    detectedSymmetry[5]                               = std::min ( ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 ), 1.0 );
     detectedSymmetry[6]                               = -std::numeric_limits < proshade_double >::infinity();
     
     //================================================ Make sure max is positive

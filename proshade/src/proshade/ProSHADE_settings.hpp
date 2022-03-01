@@ -236,6 +236,7 @@ public:
     void __declspec(dllexport) setRequestedSymmetry                           ( std::string val );
     void __declspec(dllexport) setRequestedFold                               ( proshade_unsign val );
     void __declspec(dllexport) setDetectedSymmetry                            ( proshade_double* sym );
+    void __declspec(dllexport) cleanDetectedSymmetry                          ( void );
     void __declspec(dllexport) setOverlaySaveFile                             ( std::string filename );
     void __declspec(dllexport) setOverlayJsonFile                             ( std::string filename );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
@@ -294,6 +295,7 @@ public:
     void setRequestedSymmetry                         ( std::string val );
     void setRequestedFold                             ( proshade_unsign val );
     void setDetectedSymmetry                          ( proshade_double* sym );
+    void cleanDetectedSymmetry                        ( void );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );

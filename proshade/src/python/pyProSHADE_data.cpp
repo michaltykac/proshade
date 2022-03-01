@@ -87,8 +87,6 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                       } ) )
     
         //============================================ Data I/O functions
-        .def                                          ( "readInStructure", static_cast<void (ProSHADE_internal_data::ProSHADE_data::*)(gemmi::Structure, proshade_unsign, ProSHADE_settings*)> (&ProSHADE_internal_data::ProSHADE_data::readInStructure),    "This function initialises the basic ProSHADE_data variables and reads in a single structure from Gemmi co-ordinate object.", pybind11::arg ( "gemmiStruct" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ) )
-    
         .def                                          ( "readInStructure",
                                                     [] ( ProSHADE_internal_data::ProSHADE_data &self, std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, pybind11::array_t < proshade_double > maskArr, pybind11::array_t < proshade_double > weightsArr )
                                                     {

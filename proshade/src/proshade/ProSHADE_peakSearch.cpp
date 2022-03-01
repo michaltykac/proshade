@@ -132,7 +132,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
 void ProSHADE_internal_peakSearch::pointsAboveNeighboursRemoveSmallHeight ( std::vector< proshade_double* >* pointVec, proshade_double* medianIQR, proshade_double noIQRs )
 {
     //================================================ Determine the threshold
-    proshade_double backgroundThreshold               = std::min ( std::max ( medianIQR[0] + ( medianIQR[1] * noIQRs ), 0.05 ), 0.3 );
+    proshade_double backgroundThreshold               = std::min ( std::max ( medianIQR[0] + ( medianIQR[1] * noIQRs ), 0.05 ), 0.5 );
     
     //================================================ Check for passing the threshold
     for ( proshade_signed iter = static_cast<proshade_signed> ( pointVec->size()-1 ); iter >= 0  ; iter-- )
@@ -318,7 +318,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksNaive (
     //================================================ Find all indices with higher value than all neighbours
     std::vector< proshade_double* > allHigherIndices;
     proshade_double* nonPeakMedianIQR                 = new  proshade_double[2];
-    ProSHADE_internal_misc::checkMemoryAllocation ( nonPeakMedianIQR, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( nonPeakMedianIQR, __FILE__, __LINE__, __func__ );
     allHigherIndices                                  = findAllPointsAboveNeighbours ( map, dim, peakSize, nonPeakMedianIQR );
     
     //================================================ Remove all indices with too small height

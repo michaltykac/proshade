@@ -307,7 +307,7 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            folds and then for multiples of any folds found. This sets the      " << std::endl;
     std::cout << "            maximum prime number to use in the search.                          " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
+    std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.5]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;

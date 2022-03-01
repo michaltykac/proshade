@@ -3640,9 +3640,10 @@ void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, pros
     \param[in] binData Array of arrays for holding temporary results of the FSC computation. It needs to have been already allocated and have dimensions of noBins x 12. This array is modified by the function in case the caller would like access to these.
     \param[in] binCounts Array of counts for each bin. It needs to be pre-allocated and have dimension of noBins. This array is modified by the function in case the caller would like access to these.
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
+    \param[in] weightByBinSize Boolean value determining if averaging bins should take into account  the bin sizes or not.
     \param[out] fsc The Fourier Shell Correlation between the two supplied Fourier coefficient maps.
  */
-proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin )
+proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin, bool averageByBinSize )
 {
     //================================================ Initialise local variables
     proshade_double realOrig, realRot, imagOrig, imagRot, fsc = 0.0;;
@@ -3716,8 +3717,16 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     proshade_double binSizeSum                        = 0.0;
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        fsc                                          += fscByBin[binIt] * static_cast< proshade_double > ( binCounts[binIt] );
-        binSizeSum                                   += static_cast< proshade_double > ( binCounts[binIt] );
+        if ( averageByBinSize )
+        {
+            fsc                                      += fscByBin[binIt] * static_cast< proshade_double > ( binCounts[binIt] );
+            binSizeSum                               += static_cast< proshade_double > ( binCounts[binIt] );
+        }
+        else
+        {
+            fsc                                      += fscByBin[binIt];
+            binSizeSum                               += 1;
+        }
     }
     fsc                                              /= static_cast< proshade_double > ( binSizeSum );
     

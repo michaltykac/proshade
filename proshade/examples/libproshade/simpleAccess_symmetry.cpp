@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
 */
 
 //==================================================== ProSHADE
@@ -105,14 +105,14 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry C of fold 12. The symmetry axes are:
-//   ... FOLD: 12 | XYZ: 0 ; 0 ; 1 | Angle: 0.523599 | Peak: 0.974519 | Average FSC: 0.970268
+//   ... FOLD: 12 | XYZ: -0.000177333 ; -4.83473e-05 ; 1 | Angle: -0.523599 | Peak: 0.974527 | Average FSC: 0.991312
 
     //================================================ Get list of all detected cyclic symmetries
     std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
     std::cout << "Found a total of " << allCs.size() << " cyclic symmetries." << std::endl;
     
     //================================================ Expected output
-//  Found a total of 90 cyclic symmetries.
+//  Found a total of 5 cyclic symmetries.
     
     //================================================ Find the internal map processing COM shift
     std::vector< proshade_double > comMove            = runProshade->getMapCOMProcessChange ( );

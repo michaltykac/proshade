@@ -138,7 +138,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
-    this->minSymPeak                                  = 0.3;
+    this->minSymPeak                                  = 0.5;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -420,7 +420,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
-    this->minSymPeak                                  = 0.3;
+    this->minSymPeak                                  = 0.5;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -1583,6 +1583,28 @@ void                       ProSHADE_settings::setDetectedSymmetry ( proshade_dou
     
     //================================================ Release memory
     delete[] hlpAxis;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief If the detected symmetry vector needs to be cleared, this is where it is done.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::cleanDetectedSymmetry ( )
+#else
+void                       ProSHADE_settings::cleanDetectedSymmetry ( )
+#endif
+{
+    //================================================ Release the detected symmetry vector memory
+    for ( size_t it = 0; it < this->detectedSymmetry.size(); it++ )
+    {
+        delete[] this->detectedSymmetry.at( it );
+    }
+    
+    //================================================ Empty the vector
+    this->detectedSymmetry.clear                      ( );
     
     //================================================ Done
     return ;

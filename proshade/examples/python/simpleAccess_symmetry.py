@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.2
-#   \date      DEC 2021
+#   \version   0.7.6.3
+#   \date      FEB 2022
 ######################################################
 ######################################################
 
@@ -49,8 +49,8 @@ ps.setAppliedMaskFilename                             ( "/Users/mysak/BioCEV/pro
 ps.setSymmetryCentreSearch                            ( True )                  # Should symmetry centre be searched for? Takes a lot of time...
 ps.setBicubicInterpolationSearch                      ( True )                  # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                    # The maximum prime number fold that will be searched for.
-ps.setFSCThreshold                                    ( 0.75 )                  # The threshold for FSC value under which the axis is considered to be likely noise.
-ps.setPeakThreshold                                   ( 0.80 )                  # The threshold for peak height above which axes are considered possible.
+ps.setFSCThreshold                                    ( 0.30 )                  # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.50 )                  # The threshold for peak height above which axes are considered possible.
 ps.forceP1                                            = True                    # Should PDB files be forced to have P1 spacegroup?
 ps.setNegativeDensity                                 ( True )                  # Should the negative density be removed from input files?
 ps.removeWaters                                       = True                    # Should PDB files have their water molecules removed?
@@ -113,7 +113,7 @@ print                                                 ( "Found a total of " + st
 
 ##############################################
 ### Expected output
-#   Found a total of 111 cyclic symmetries.
+#   Found a total of 47 cyclic symmetries.
 
 ######################################################
 ### Print results
@@ -129,9 +129,9 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 
 ######################################################
 ### Expected outuput
-#   Detected symmetry C-4 with axes: 
+#   Detected symmetry C-4 with axes:
 #   Fold      x         y         z       Angle     Height    Averaged FSC
-#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9797      +1.0000
+#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9797      +0.9977
 
 ######################################################
 ### Find the internal map COM shift

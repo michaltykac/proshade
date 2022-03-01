@@ -897,6 +897,9 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotCoeffs,     __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotCoeffsHlp,  __FILE__, __LINE__, __func__ );
     
+    //================================================ Set all output array values to zero
+    for ( size_t iter = 0; iter < static_cast< size_t > ( xDim * yDim * zDim ); iter++ ) { rotCoeffs[iter][0] = 0.0; rotCoeffs[iter][1] = 0.0; }
+    
     //================================================ Get rotation matrix from Euler angles
     ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, axZ, axY, axX, axAng );
     ProSHADE_internal_maths::transpose3x3MatrixInPlace ( rotMat );

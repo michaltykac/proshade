@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.2
-#   \date      DEC 2021
+#   \version   0.7.6.3
+#   \date      FEB 2022
 ######################################################
 ######################################################
 
@@ -68,8 +68,8 @@ ps.setExtraSpace                                      ( 10.0 )                  
 ps.setSymmetryCentreSearch                            ( False )                                                          # Should symmetry centre be searched for? Takes a lot of time...
 ps.setBicubicInterpolationSearch                      ( True )                                                           # Should bi-cubic interpolation between peak grid indices be done?
 ps.setMaxSymmetryFold                                 ( 30 )                                                             # The maximum prime number fold that will be searched for.
-ps.setFSCThreshold                                    ( 0.75 )                                                           # The threshold for FSC value under which the axis is considered to be likely noise.
-ps.setPeakThreshold                                   ( 0.80 )                                                           # The threshold for peak height above which axes are considered possible.
+ps.setFSCThreshold                                    ( 0.30 )                                                           # The threshold for FSC value under which the axis is considered to be likely noise.
+ps.setPeakThreshold                                   ( 0.50 )                                                           # The threshold for peak height above which axes are considered possible.
 ps.setPeakNeighboursNumber                            ( 1 )                                                              # Numer of points in each direction which needs to be lower in order for the central point to be considered a peak.
 ps.setPeakNaiveNoIQR                                  ( -999.9 )                                                         # Peak searching threshold for too low peaks in number of inter-quartile ranges from median of the non-peak point values.
 ps.setMissingPeakThreshold                            ( 0.3 )                                                            # Fraction of peaks that can be missing for missing axis search to be initiated.

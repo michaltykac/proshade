@@ -146,7 +146,7 @@ namespace ProSHADE_internal_data
                                                         proshade_unsign maskZDim = 0, proshade_double* weightsArr = nullptr, proshade_unsign weigXDim = 0, proshade_unsign weigYDim = 0,
                                                         proshade_unsign weigZDim = 0 );
         void readInPDB                                ( ProSHADE_settings* settings );
-        void readInGemmi                              ( gemmi::Structure gemmiStruct, ProSHADE_settings* settings );
+        void readInGemmi                              ( gemmi::Structure* gemmiStruct, ProSHADE_settings* settings );
         void allocateRRPMemory                        ( );
         
     public:
@@ -162,7 +162,7 @@ namespace ProSHADE_internal_data
         void readInStructure                          ( std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, proshade_double* maskArr = nullptr, proshade_unsign maskXDim = 0,
                                                         proshade_unsign maskYDim = 0, proshade_unsign maskZDim = 0, proshade_double* weightsArr = nullptr, proshade_unsign weigXDim = 0,
                                                         proshade_unsign weigYDim = 0, proshade_unsign weigZDim = 0 );
-        void readInStructure                          ( gemmi::Structure gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings );
+        void readInStructure                          ( gemmi::Structure* gemmiStruct, proshade_unsign inputO, ProSHADE_settings* settings );
         void writeMap                                 ( std::string fName, std::string title = "Created by ProSHADE and written by GEMMI", int mode = 2 );
         void writePdb                                 ( std::string fName, proshade_double euA = 0.0, proshade_double euB = 0.0, proshade_double euG = 0.0,
                                                         proshade_double trsX = 0.0, proshade_double trsY = 0.0, proshade_double trsZ = 0.0, proshade_double rotX = 0.0,
@@ -215,9 +215,13 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector < std::vector< proshade_double* > > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getPredictedOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getPredictedTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        std::vector< proshade_double* > decidePolyFromList           ( ProSHADE_settings* settings, std::vector < std::vector< proshade_double* > >* polyList, size_t fullGroupSize,
+                                                                       std::vector< proshade_double* >* CSyms, proshade_double tolerance, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut,
+                                                                       proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin,
+                                                                       proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+        std::vector< std::vector< proshade_double* > > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        std::vector< std::vector< proshade_double* > > getPredictedOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        std::vector< std::vector< proshade_double* > > getPredictedTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
         std::vector< proshade_double* > getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings );
         std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );

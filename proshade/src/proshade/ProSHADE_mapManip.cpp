@@ -154,7 +154,7 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, 
     \param[in] zCom A pointer to proshade_double variable where the PDB file COM along the Z-axis will be saved.
     \param[in] firstModel Should only the first, or all models be used?
 */
-void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel )
+void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel )
 {
     //================================================ Initialise structure crawl
     proshade_double totAtoms                          = 0.0;
@@ -163,13 +163,13 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
    *zCom                                              = 0.0;
     
     //================================================ Use the first model, if it exists
-    if ( pdbFile.models.size() > 0 )
+    if ( pdbFile->models.size() > 0 )
     {
         //============================================ For each model
-        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); sIt++ )
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
         {
             //======================================== Get model
-            gemmi::Model model                        = pdbFile.models.at(sIt);
+            gemmi::Model model                        = pdbFile->models.at(sIt);
             
             //======================================== Check if multiple models are allowed
             if ( firstModel && ( sIt != 0 ) ) { break; }
@@ -180,11 +180,13 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
                 //==================================== Get chain
                 gemmi::Chain chain                    = model.chains.at(mIt);
                 
+                gemmi::ResidueSpan span               = chain.whole ( );
+                
                 //==================================== For each residue
-                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( span.size() ); rIt++ )
                 {
                     //================================ Get residue
-                    gemmi::Residue residue            = chain.residues.at(rIt);
+                    gemmi::Residue residue            = span.at(rIt);
                     
                     //================================ For each atom
                     for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
@@ -205,7 +207,7 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
     else
     {
         std::stringstream hlpSS;
-        hlpSS << "Found 0 models in input file " << pdbFile.name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
         throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
@@ -213,7 +215,7 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
    *xCom                                             /= totAtoms;
    *yCom                                             /= totAtoms;
    *zCom                                             /= totAtoms;
-    
+ 
     //================================================ Done
     return ;
     
