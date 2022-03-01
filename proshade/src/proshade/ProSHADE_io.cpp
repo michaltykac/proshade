@@ -322,7 +322,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
         mask.read_ccp4                                ( gemmi::MaybeGzipped ( maskFile.c_str() ) );
         
         //============================================ Convert to XYZ and create complete mask, if need be
-        mask.setup                                    ( gemmi::GridSetup::ReorderOnly, 0 );
+        mask.setup                                    ( 0.0f, gemmi::MapSetup::ReorderOnly );
         
         //============================================ Read in the rest of the mask file header
         proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
@@ -608,7 +608,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
         weights.read_ccp4                             ( gemmi::MaybeGzipped ( weightsFile.c_str() ) );
         
         //============================================ Convert to XYZ and create complete weights, if need be
-        weights.setup                                 ( gemmi::GridSetup::ReorderOnly, 0 );
+        weights.setup                                 ( 0.0f, gemmi::MapSetup::ReorderOnly );
         
         //============================================ Read in the rest of the weights file header
         proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;

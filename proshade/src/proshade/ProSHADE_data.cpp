@@ -624,7 +624,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     map.read_ccp4                                     ( gemmi::MaybeGzipped ( this->fileName.c_str() ) );
     
     //================================================ Convert to XYZ and create complete map, if need be
-    map.setup                                         ( gemmi::GridSetup::ReorderOnly, NAN );
+    map.setup                                         ( 0.0f, gemmi::MapSetup::ReorderOnly );
     
     //================================================ Read in the rest of the map file header
     ProSHADE_internal_io::readInMapHeader             ( &map,
