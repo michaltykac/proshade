@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -276,6 +276,56 @@ bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const pro
     \param[in] b The second vector to compare.
     \param[out] X Boolean whether the first is smaller than the second.
  */
+bool ProSHADE_internal_misc::sortTSymByPeak ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b )
+{
+    //================================================ If one is less or more than 31, it is wrong
+    if ( a.size() != 7 ) { return ( false ); }
+    if ( b.size() != 7 ) { return ( true  ); }
+    
+    //================================================ Find the sums
+    proshade_double aSum = 0.0, bSum = 0.0;
+    for ( size_t it = 0; it < 7; it++ )
+    {
+        aSum                                         += a.at(it)[5];
+        bSum                                         += b.at(it)[5];
+    }
+    
+    //================================================ Decide
+    return                                            ( aSum > bSum );
+    
+}
+
+/*! \brief This function compares two vectors of arrays based on the sum of the fifth column, sorting highest first.
+ 
+    \param[in] a The first vector to compare.
+    \param[in] b The second vector to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortOSymByPeak ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b )
+{
+    //================================================ If one is less or more than 31, it is wrong
+    if ( a.size() != 13 ) { return ( false ); }
+    if ( b.size() != 13 ) { return ( true  ); }
+    
+    //================================================ Find the sums
+    proshade_double aSum = 0.0, bSum = 0.0;
+    for ( size_t it = 0; it < 13; it++ )
+    {
+        aSum                                         += a.at(it)[5];
+        bSum                                         += b.at(it)[5];
+    }
+    
+    //================================================ Decide
+    return                                            ( aSum > bSum );
+    
+}
+
+/*! \brief This function compares two vectors of arrays based on the sum of the fifth column, sorting highest first.
+ 
+    \param[in] a The first vector to compare.
+    \param[in] b The second vector to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
 bool ProSHADE_internal_misc::sortISymByPeak ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b )
 {
     //================================================ If one is less or more than 31, it is wrong
@@ -293,7 +343,7 @@ bool ProSHADE_internal_misc::sortISymByPeak ( const std::vector< proshade_double
     //================================================ Decide
     return                                            ( aSum > bSum );
     
-} 
+}
 
 /*! \brief This function compares two arrays of the ProSHADE dihedral symmetry list based on combination of axes folds and heightst.
  

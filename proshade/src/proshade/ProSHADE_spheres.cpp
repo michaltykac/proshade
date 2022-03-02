@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //============================================ ProSHADE
@@ -79,7 +79,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
     }
     
     //================================================ Save the maximum shell band for later
-    if ( *maxShellBand < this->localBandwidth ) {  *maxShellBand  = this->localBandwidth; }
+    if ( *maxShellBand < this->localBandwidth ) { *maxShellBand = this->localBandwidth; }
     
     //================================================ Allocate memory for sphere mapping
     this->mappedData                                  = new proshade_double[this->localAngRes * this->localAngRes];
@@ -772,7 +772,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
     for ( proshade_signed lonIt = 0; lonIt < static_cast<proshade_signed> ( this->angularDim ); lonIt++ )
     {
         for ( proshade_signed latIt = 0; latIt < static_cast<proshade_signed> ( this->angularDim ); latIt++ )
-        {   
+        {
             //======================================== Convert to XYZ position on unit sphere. The radius here is not important, as it does not change the direction of the vector.
             lon                                       = static_cast<proshade_double> ( lonIt ) * lonSampling;
             lat                                       = static_cast<proshade_double> ( latIt ) * latSampling;
@@ -780,19 +780,19 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             cY                                        = 1.0 * std::sin ( lon ) * std::sin ( lat );
             cZ                                        = 1.0 * std::cos ( lon );
             
-            //======================================== Convert to ZXZ Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
+            //======================================== Convert to ZYZ Euler angles
+            ProSHADE_internal_maths::getEulerZYZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
-            ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
+            ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
             
             //======================================== Find lower and higher points and deal with boundaries
-            xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0 ) { xBottom += this->angularDim; } if ( xBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { xBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            yBottom = static_cast< proshade_signed > ( std::floor ( mapY ) ); if ( yBottom < 0 ) { yBottom += this->angularDim; } if ( yBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { yBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            zBottom = static_cast< proshade_signed > ( std::floor ( mapZ ) ); if ( zBottom < 0 ) { zBottom += this->angularDim; } if ( zBottom >= static_cast<proshade_signed> ( this->angularDim ) ) { zBottom -= static_cast<proshade_signed> ( this->angularDim ); }
-            xTop = static_cast< proshade_signed > ( std::ceil ( mapX ) ); if ( xTop < 0 ) { xTop += this->angularDim; } if ( xTop >= static_cast<proshade_signed> ( this->angularDim ) ) { xTop -= static_cast<proshade_signed> ( this->angularDim ); }
-            yTop = static_cast< proshade_signed > ( std::ceil ( mapY ) ); if ( yTop < 0 ) { yTop += this->angularDim; } if ( yTop >= static_cast<proshade_signed> ( this->angularDim ) ) { yTop -= static_cast<proshade_signed> ( this->angularDim ); }
-            zTop = static_cast< proshade_signed > ( std::ceil ( mapZ ) ); if ( zTop < 0 ) { zTop += this->angularDim; } if ( zTop >= static_cast<proshade_signed> ( this->angularDim ) ) { zTop -= static_cast<proshade_signed> ( this->angularDim ); }
+            xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0 ) { xBottom = 0; } if ( xBottom >= static_cast< proshade_signed > ( this->angularDim ) ) { xBottom = static_cast<proshade_signed> ( this->angularDim - 2 ); }
+            yBottom = static_cast< proshade_signed > ( std::floor ( mapY ) ); if ( yBottom < 0 ) { yBottom = 0; } if ( yBottom >= static_cast< proshade_signed > ( this->angularDim ) ) { yBottom = static_cast<proshade_signed> ( this->angularDim - 2 ); }
+            zBottom = static_cast< proshade_signed > ( std::floor ( mapZ ) ); if ( zBottom < 0 ) { zBottom = 0; } if ( zBottom >= static_cast< proshade_signed > ( this->angularDim ) ) { zBottom = static_cast<proshade_signed> ( this->angularDim - 2 ); }
+            xTop = static_cast< proshade_signed > ( std::ceil ( mapX ) );     if ( xTop    < 1 ) { xTop = 1;    } if ( xTop    >= static_cast< proshade_signed > ( this->angularDim ) ) { xTop    = static_cast<proshade_signed> ( this->angularDim - 1 ); }
+            yTop = static_cast< proshade_signed > ( std::ceil ( mapY ) );     if ( yTop    < 1 ) { yTop = 1;    } if ( yTop    >= static_cast< proshade_signed > ( this->angularDim ) ) { yTop    = static_cast<proshade_signed> ( this->angularDim - 1 ); }
+            zTop = static_cast< proshade_signed > ( std::ceil ( mapZ ) );     if ( zTop    < 1 ) { zTop = 1;    } if ( zTop    >= static_cast< proshade_signed > ( this->angularDim ) ) { zTop    = static_cast<proshade_signed> ( this->angularDim - 1 ); }
             
             //======================================== Start X interpolation - bottom, bottom, bottom
             mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
@@ -846,7 +846,6 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             this->axesValues[mapIndex]                = ( c0 * ( 1.0 - zRelative ) ) + ( c1 * zRelative );
         }
     }
-    
     //================================================ Done
     return ;
     
@@ -974,7 +973,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::findAllPeaks ( proshade_
                     nbLat                             = latIt + latRound;
                     nbLon                             = lonIt + lonRound;
                     if ( nbLat < 0 ) { nbLat += this->angularDim; } if ( nbLat >= static_cast<proshade_signed> ( this->angularDim ) ) { nbLat -= this->angularDim; }
-                    if ( nbLon < 0 ) { nbLon += this->angularDim; } if ( nbLon >= static_cast<proshade_signed> ( this->angularDim ) ) { nbLon -= this->angularDim; }
+                    if ( nbLon < 0 ) { continue; } if ( nbLon >= static_cast<proshade_signed> ( this->angularDim ) ) { continue; }
                     
                     //================================ If this value is larger than the tested one, no peak
                     if ( this->getSphereLatLonPosition ( static_cast< proshade_unsign > ( nbLat ), static_cast< proshade_unsign > ( nbLon ) ) > currentHeight ) { isPeak = false; break; }
@@ -1158,9 +1157,10 @@ proshade_signed ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::angu
     \param[in] cosTol The tolerance for cosine distance similarity to consider the two vectors similar.
     \param[in] verbose How verbose should the run be? Use -1 if you do not want any standard output output.
     \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
+    \param[in] allowedAngle The maximum allowed angle in radians before point stops belonging only because the group would grow too much.
     \param[out] res Boolean value signifying if the peak was added.
  */
-bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift )
+bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelongs ( proshade_double lat, proshade_double lon, proshade_unsign sphPos, proshade_double cosTol, proshade_signed verbose, proshade_signed messageShift, proshade_double allowedAngle )
 {
     //================================================ Initialise local variables
     bool peakAdded                                    = false;
@@ -1177,6 +1177,24 @@ bool ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::checkIfPeakBelo
     if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMinXYZ[0], this->latMaxLonMinXYZ[1], this->latMaxLonMinXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMaxLonMinXYZ[0] << " ; " << this->latMaxLonMinXYZ[1] << " ; " << this->latMaxLonMinXYZ[2]; }
     if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMinLonMaxXYZ[0], this->latMinLonMaxXYZ[1], this->latMinLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMinLonMaxXYZ[0] << " ; " << this->latMinLonMaxXYZ[1] << " ; " << this->latMinLonMaxXYZ[2];  }
     if ( ProSHADE_internal_maths::vectorOrientationSimilaritySameDirection ( xPos, yPos, zPos, this->latMaxLonMaxXYZ[0], this->latMaxLonMaxXYZ[1], this->latMaxLonMaxXYZ[2], cosTol ) && !peakAdded ) { peakAdded = true; hlpSS2 << this->latMaxLonMaxXYZ[0] << " ; " << this->latMaxLonMaxXYZ[1] << " ; " << this->latMaxLonMaxXYZ[2];  }
+    
+    //================================================ If group grows over allowedAngle radians, do not add to it
+    if ( peakAdded )
+    {
+        proshade_double lenPos                        = std::sqrt ( std::pow ( xPos, 2.0 ) + std::pow ( yPos, 2.0 ) + std::pow( zPos, 2.0 ) );
+        proshade_double minMinPos                     = std::sqrt ( std::pow ( this->latMinLonMinXYZ[0], 2.0 ) + std::pow ( this->latMinLonMinXYZ[1], 2.0 ) + std::pow( this->latMinLonMinXYZ[2], 2.0 ) );
+        proshade_double minMaxPos                     = std::sqrt ( std::pow ( this->latMinLonMaxXYZ[0], 2.0 ) + std::pow ( this->latMinLonMaxXYZ[1], 2.0 ) + std::pow( this->latMinLonMaxXYZ[2], 2.0 ) );
+        proshade_double maxMinPos                     = std::sqrt ( std::pow ( this->latMaxLonMinXYZ[0], 2.0 ) + std::pow ( this->latMaxLonMinXYZ[1], 2.0 ) + std::pow( this->latMaxLonMinXYZ[2], 2.0 ) );
+        proshade_double maxMaxPos                     = std::sqrt ( std::pow ( this->latMaxLonMaxXYZ[0], 2.0 ) + std::pow ( this->latMaxLonMaxXYZ[1], 2.0 ) + std::pow( this->latMaxLonMaxXYZ[2], 2.0 ) );
+        
+        if ( ( std::acos ( ( xPos * this->latMinLonMinXYZ[0] + yPos * this->latMinLonMinXYZ[1] + zPos * this->latMinLonMinXYZ[2] ) / ( lenPos * minMinPos ) ) > allowedAngle ) ||
+             ( std::acos ( ( xPos * this->latMinLonMaxXYZ[0] + yPos * this->latMinLonMaxXYZ[1] + zPos * this->latMinLonMaxXYZ[2] ) / ( lenPos * minMaxPos ) ) > allowedAngle ) ||
+             ( std::acos ( ( xPos * this->latMaxLonMinXYZ[0] + yPos * this->latMaxLonMinXYZ[1] + zPos * this->latMaxLonMinXYZ[2] ) / ( lenPos * maxMinPos ) ) > allowedAngle ) ||
+             ( std::acos ( ( xPos * this->latMaxLonMaxXYZ[0] + yPos * this->latMaxLonMaxXYZ[1] + zPos * this->latMaxLonMaxXYZ[2] ) / ( lenPos * maxMaxPos ) ) > allowedAngle ) )
+        {
+            peakAdded                                 = false;
+        }
+    }
     
     //================================================ If peak within corners, add it
     if ( peakAdded )
@@ -1391,9 +1409,6 @@ std::vector<proshade_unsign> ProSHADE_internal_spheres::ProSHADE_rotFun_spherePe
  */
 void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPointGroupsGivenFold ( std::vector<ProSHADE_internal_spheres::ProSHADE_rotFun_sphere*> sphereVals, std::vector < proshade_double* >* detectedCs, bool bicubicInterp, proshade_unsign fold, proshade_signed verbose, proshade_signed messageShift )
 {
-    //================================================ Check that this peak group has all the angles
-    if ( ( fold - 1 ) != spherePositions.size() ) { return ; }
-    
     //================================================ Initialise variables
     proshade_double bestPosVal, bestLatInd, bestLonInd;
     std::vector< proshade_unsign > spheresFormingFold;
@@ -1422,7 +1437,7 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_spherePeakGroup::findCyclicPoint
     detectedSymmetry[2]                               = 1.0 * std::sin ( bestLonInd * this->lonSampling ) * std::sin ( bestLatInd * this->latSampling );
     detectedSymmetry[3]                               = 1.0 * std::cos ( bestLonInd * this->lonSampling );
     detectedSymmetry[4]                               = ( 2.0 * M_PI ) / detectedSymmetry[0];
-    detectedSymmetry[5]                               = ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 );
+    detectedSymmetry[5]                               = std::min ( ( bestPosVal - 1.0 ) / ( detectedSymmetry[0] - 1 ), 1.0 );
     detectedSymmetry[6]                               = -std::numeric_limits < proshade_double >::infinity();
     
     //================================================ Make sure max is positive

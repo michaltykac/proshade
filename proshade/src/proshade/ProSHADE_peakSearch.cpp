@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -132,7 +132,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::findAllPointsAbove
 void ProSHADE_internal_peakSearch::pointsAboveNeighboursRemoveSmallHeight ( std::vector< proshade_double* >* pointVec, proshade_double* medianIQR, proshade_double noIQRs )
 {
     //================================================ Determine the threshold
-    proshade_double backgroundThreshold               = std::min ( std::max ( medianIQR[0] + ( medianIQR[1] * noIQRs ), 0.05 ), 0.3 );
+    proshade_double backgroundThreshold               = std::min ( std::max ( medianIQR[0] + ( medianIQR[1] * noIQRs ), 0.05 ), 0.5 );
     
     //================================================ Check for passing the threshold
     for ( proshade_signed iter = static_cast<proshade_signed> ( pointVec->size()-1 ); iter >= 0  ; iter-- )
@@ -239,10 +239,10 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         for ( proshade_unsign it = 0; it < noPoints; it += 4 )
         {
             //======================================== Get the Euler angles
-            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[it+0] ), static_cast< proshade_signed > ( pointVec->at(iter)[it+1] ), static_cast< proshade_signed > ( pointVec->at(iter)[it+2] ), eulA, eulB, eulG );
+            ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[it+0] ), static_cast< proshade_signed > ( pointVec->at(iter)[it+1] ), static_cast< proshade_signed > ( pointVec->at(iter)[it+2] ), eulA, eulB, eulG );
             
             //======================================== Convert Euler angles to rotation matrix
-            ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( *eulA, *eulB, *eulG, hlpMat );
+            ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( *eulA, *eulB, *eulG, hlpMat );
             
             //======================================== Add the matrix to the sum
             for ( proshade_unsign i = 0; i < 9; i++ ) { avgMat[i] += hlpMat[i] * pointVec->at(iter)[it+3]; }
@@ -260,7 +260,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         if ( lhs.AlmostEquals ( rhs ) )
         {
             //======================================== SVD Failed. Just use the central value
-            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[0] ), static_cast< proshade_signed > ( pointVec->at(iter)[1] ), static_cast< proshade_signed > ( pointVec->at(iter)[2] ), eulA, eulB, eulG );
+            ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( band, static_cast< proshade_signed > ( pointVec->at(iter)[0] ), static_cast< proshade_signed > ( pointVec->at(iter)[1] ), static_cast< proshade_signed > ( pointVec->at(iter)[2] ), eulA, eulB, eulG );
             matWeight                                 = pointVec->at(iter)[3];
             pointVec->at(iter)                        = new proshade_double [4];
             ProSHADE_internal_misc::checkMemoryAllocation ( pointVec->at(iter), __FILE__, __LINE__, __func__ );
@@ -277,7 +277,7 @@ void ProSHADE_internal_peakSearch::optimisePeakPositions ( std::vector< proshade
         ProSHADE_internal_maths::multiplyTwoSquareMatrices ( uAndV, uAndV+9, avgMat, 3 );
         
         //============================================ Convert to Euler
-        ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( avgMat, eulA, eulB, eulG );
+        ProSHADE_internal_maths::getEulerZYZFromRotMatrix ( avgMat, eulA, eulB, eulG );
         
         //============================================ Save over input
         matWeight                                     = pointVec->at(iter)[3];
@@ -318,7 +318,7 @@ std::vector< proshade_double* > ProSHADE_internal_peakSearch::getAllPeaksNaive (
     //================================================ Find all indices with higher value than all neighbours
     std::vector< proshade_double* > allHigherIndices;
     proshade_double* nonPeakMedianIQR                 = new  proshade_double[2];
-    ProSHADE_internal_misc::checkMemoryAllocation ( nonPeakMedianIQR, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( nonPeakMedianIQR, __FILE__, __LINE__, __func__ );
     allHigherIndices                                  = findAllPointsAboveNeighbours ( map, dim, peakSize, nonPeakMedianIQR );
     
     //================================================ Remove all indices with too small height
@@ -379,7 +379,7 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( proshade_complex*
         if ( allPeaks.at(iter)[3] > highestPeak ) { highestPeak = allPeaks.at(iter)[3]; highestPeakIndex = iter; }
     }
 
-    //================================================ Get Euler ZXZ for the highest peak
+    //================================================ Get Euler ZYZ for the highest peak
    *eulA                                              = allPeaks.at(highestPeakIndex)[0];
    *eulB                                              = allPeaks.at(highestPeakIndex)[1];
    *eulG                                              = allPeaks.at(highestPeakIndex)[2];
@@ -986,11 +986,11 @@ void ProSHADE_internal_peakSearch::getBestPeakEulerAngsSmoothedZ ( proshade_comp
         if ( allPeaks.at(iter)[4] > highestPeak ) { highestPeak = allPeaks.at(iter)[4]; highestPeakIndex = iter; }
     }
     
-    //================================================ Get Euler ZXZ from Angle-axis
+    //================================================ Get Euler ZYZ from Angle-axis
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( rotMat, allPeaks.at(highestPeakIndex)[0], allPeaks.at(highestPeakIndex)[1], allPeaks.at(highestPeakIndex)[2], allPeaks.at(highestPeakIndex)[3] );
-    ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( rotMat, eulA, eulB, eulG );
+    ProSHADE_internal_maths::getEulerZYZFromRotMatrix ( rotMat, eulA, eulB, eulG );
     
     //================================================ Release memory
     delete[] rotMat;

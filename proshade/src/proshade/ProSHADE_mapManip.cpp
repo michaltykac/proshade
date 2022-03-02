@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -154,7 +154,7 @@ void ProSHADE_internal_mapManip::determinePDBRanges ( gemmi::Structure pdbFile, 
     \param[in] zCom A pointer to proshade_double variable where the PDB file COM along the Z-axis will be saved.
     \param[in] firstModel Should only the first, or all models be used?
 */
-void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel )
+void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure* pdbFile, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, bool firstModel )
 {
     //================================================ Initialise structure crawl
     proshade_double totAtoms                          = 0.0;
@@ -163,13 +163,13 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
    *zCom                                              = 0.0;
     
     //================================================ Use the first model, if it exists
-    if ( pdbFile.models.size() > 0 )
+    if ( pdbFile->models.size() > 0 )
     {
         //============================================ For each model
-        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile.models.size() ); sIt++ )
+        for ( proshade_unsign sIt = 0; sIt < static_cast<proshade_unsign> ( pdbFile->models.size() ); sIt++ )
         {
             //======================================== Get model
-            gemmi::Model model                        = pdbFile.models.at(sIt);
+            gemmi::Model model                        = pdbFile->models.at(sIt);
             
             //======================================== Check if multiple models are allowed
             if ( firstModel && ( sIt != 0 ) ) { break; }
@@ -180,11 +180,13 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
                 //==================================== Get chain
                 gemmi::Chain chain                    = model.chains.at(mIt);
                 
+                gemmi::ResidueSpan span               = chain.whole ( );
+                
                 //==================================== For each residue
-                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( chain.residues.size() ); rIt++ )
+                for ( proshade_unsign rIt = 0; rIt < static_cast<proshade_unsign> ( span.size() ); rIt++ )
                 {
                     //================================ Get residue
-                    gemmi::Residue residue            = chain.residues.at(rIt);
+                    gemmi::Residue residue            = span.at(rIt);
                     
                     //================================ For each atom
                     for ( proshade_unsign aIt = 0; aIt < static_cast<proshade_unsign> ( residue.atoms.size() ); aIt++ )
@@ -205,7 +207,7 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
     else
     {
         std::stringstream hlpSS;
-        hlpSS << "Found 0 models in input file " << pdbFile.name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
+        hlpSS << "Found 0 models in input file " << pdbFile->name << ".\n                    : This suggests that the input co-ordinate file is\n                    : corrupted or mis-formatted.";
         throw ProSHADE_exception ( "Found no model in co-ordinate file.", "EP00050", __FILE__, __LINE__, __func__, hlpSS.str() );
     }
     
@@ -213,7 +215,7 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure pdbFile, pr
    *xCom                                             /= totAtoms;
    *yCom                                             /= totAtoms;
    *zCom                                             /= totAtoms;
-    
+ 
     //================================================ Done
     return ;
     
@@ -301,7 +303,7 @@ proshade_double yCom, proshade_double zCom, bool firstModel )
     //================================================ Convert Euler angles to rotation matrix
     proshade_double *rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( euG, euB, euA, rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( euG, euB, euA, rotMat );
     
     //================================================ Initialise internal variables
     proshade_double xTmp, yTmp, zTmp;
@@ -816,8 +818,8 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     proshade_unsign arrayPos                          = 0;
     
     //================================================ Create Fourier map variable
-    fftw_complex *fCoeffs                             = new fftw_complex [xDim * yDim * zDim];
-    fftw_complex *translatedMap                       = new fftw_complex [xDim * yDim * zDim];
+    fftw_complex *fCoeffs                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
+    fftw_complex *translatedMap                       = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( fCoeffs,       __FILE__, __LINE__, __func__ );
@@ -870,8 +872,8 @@ void ProSHADE_internal_mapManip::moveMapByFourier ( proshade_double*& map, prosh
     //================================================ Release memory
     fftw_destroy_plan                                 ( planForwardFourier );
     fftw_destroy_plan                                 ( planBackwardFourier );
-    delete[] fCoeffs;
-    delete[] translatedMap;
+    fftw_free                                         ( fCoeffs );
+    fftw_free                                         ( translatedMap );
     
     //================================================ Done
     return ;
@@ -983,8 +985,8 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
     proshade_double normFactor                        = static_cast<proshade_double> ( xDim * yDim * zDim );
     
     //================================================ Copy map for processing
-    fftw_complex* mapCoeffs                           = new fftw_complex[xDim * yDim * zDim];
-    fftw_complex* mapMask                             = new fftw_complex[xDim * yDim * zDim];
+    fftw_complex* mapCoeffs                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
+    fftw_complex* mapMask                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( mapCoeffs, __FILE__, __LINE__, __func__ );
@@ -1045,8 +1047,8 @@ void ProSHADE_internal_mapManip::blurSharpenMap ( proshade_double*& map, proshad
     }
     
     //================================================ Release memory
-    delete[] mapMask;
-    delete[] mapCoeffs;
+    fftw_free                                         ( mapMask );
+    fftw_free                                         ( mapCoeffs );
     
     //================================================ Delete FFTW plans
     fftw_destroy_plan                                 ( forward );
@@ -1546,10 +1548,10 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
 void ProSHADE_internal_mapManip::allocateResolutionFourierMemory ( fftw_complex*& origMap, fftw_complex*& fCoeffs, fftw_complex*& newFCoeffs, fftw_complex*& newMap, fftw_plan& planForwardFourier, fftw_plan& planBackwardRescaledFourier, proshade_unsign xDimOld, proshade_unsign yDimOld, proshade_unsign zDimOld, proshade_unsign xDimNew, proshade_unsign yDimNew, proshade_unsign zDimNew )
 {
     //================================================ Initialise memory
-    origMap                                           = new fftw_complex [xDimOld * yDimOld * zDimOld];
-    fCoeffs                                           = new fftw_complex [xDimOld * yDimOld * zDimOld];
-    newFCoeffs                                        = new fftw_complex [xDimNew * yDimNew * zDimNew];
-    newMap                                            = new fftw_complex [xDimNew * yDimNew * zDimNew];
+    origMap                                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDimOld * yDimOld * zDimOld ) );
+    fCoeffs                                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDimOld * yDimOld * zDimOld ) );
+    newFCoeffs                                        = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDimNew * yDimNew * zDimNew ) );
+    newMap                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * xDimNew * yDimNew * zDimNew ) );
     
     //================================================ Check memory allocation
     ProSHADE_internal_misc::checkMemoryAllocation     ( origMap,          __FILE__, __LINE__, __func__ );
@@ -1584,10 +1586,10 @@ void ProSHADE_internal_mapManip::releaseResolutionFourierMemory ( fftw_complex*&
     fftw_destroy_plan                                 ( planBackwardRescaledFourier );
     
     //================================================ Delete the complex arrays
-    delete[] origMap;
-    delete[] fCoeffs;
-    delete[] newFCoeffs;
-    delete[] newMap;
+    fftw_free                                         ( origMap );
+    fftw_free                                         ( fCoeffs );
+    fftw_free                                         ( newFCoeffs );
+    fftw_free                                         ( newMap );
     
     //================================================ Done
     return ;
@@ -1612,7 +1614,7 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
     proshade_signed h = 0, k = 0, l = 0, origSizeArr = 0, newSizeArr = 0;
     proshade_signed xSeq1FreqStart, ySeq1FreqStart, zSeq1FreqStart, xSeq2FreqStart, ySeq2FreqStart, zSeq2FreqStart;
     
-    //================================================ Find the positive and negative indices cot-offs
+    //================================================ Find the positive and negative indices cut-offs
     if ( negativeFirst )
     {
         if ( ( xDim % 2 ) == 0 ) { xSeq1FreqStart = xDim / 2; xSeq2FreqStart = xDim / 2; } else { xSeq1FreqStart = (xDim / 2) + 1; xSeq2FreqStart = xDim / 2; }
@@ -1627,7 +1629,7 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
     }
         
     //================================================ Allocate helper array memory
-    fftw_complex *hlpFCoeffs                          = new fftw_complex [xDim * yDim * zDim];
+    fftw_complex *hlpFCoeffs                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( xDim * yDim * zDim ) ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( hlpFCoeffs, __FILE__, __LINE__, __func__ );
     
     //================================================ Change the coefficients order
@@ -1635,6 +1637,7 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
     {
         //============================================ Find x frequency
         if ( xIt < xSeq1FreqStart ) { h = xIt + xSeq2FreqStart; } else { h = xIt - xSeq1FreqStart; }
+        
         for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
         {
             //======================================== Find y frequency
@@ -1660,7 +1663,7 @@ void ProSHADE_internal_mapManip::changeFourierOrder ( fftw_complex*& fCoeffs, pr
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( xDim * yDim * zDim ); iter++ ) { fCoeffs[iter][0] = hlpFCoeffs[iter][0]; fCoeffs[iter][1] = hlpFCoeffs[iter][1]; }
     
     //================================================ Release helper array memory
-    delete[] hlpFCoeffs;
+    fftw_free                                         ( hlpFCoeffs );
     
     //================================================ Done
     return ;

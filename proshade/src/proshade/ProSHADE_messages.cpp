@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
 */
 
 //==================================================== ProSHADE
@@ -200,6 +200,11 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The bandwidth to which spherical harmonics decomposition shoud      " << std::endl;
     std::cout << "            be computed to. For automatic determination supply 0 or nothing.    " << std::endl;
     std::cout << "                                                                                " << std::endl;
+    std::cout << "    -J or --maxRadius                               [DEFAULT:         NONE]     " << std::endl;
+    std::cout << "            The maximum distance from map centre to which the map values will   " << std::endl;
+    std::cout << "            be used. Note that this affects bandwidth and other values and is   " << std::endl;
+    std::cout << "            not recommended in combination with manual setting of these,        " << std::endl;
+    std::cout << "                                                                                " << std::endl;
     std::cout << "    -s or --sphereDists                             [DEFAULT:         AUTO]     " << std::endl;
     std::cout << "            The distance in Angstroms between any two concentric spheres to     " << std::endl;
     std::cout << "            which the internal map representation will be mapped to. Use        " << std::endl;
@@ -302,11 +307,11 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            folds and then for multiples of any folds found. This sets the      " << std::endl;
     std::cout << "            maximum prime number to use in the search.                          " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.3]     " << std::endl;
+    std::cout << "    --minPeakHeight or -o                           [DEFAULT:          0.5]     " << std::endl;
     std::cout << "            The minimum average peak height for symmetry axis to be still       " << std::endl;
     std::cout << "            considered as \"real\" for the symmetry detection.                    " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    --fscThres or -C                               [DEFAULT:          0.33]     " << std::endl;
+    std::cout << "    --fscThres or -C                               [DEFAULT:           0.3]     " << std::endl;
     std::cout << "            The Fourier Shell Correlation value the axes need to achieve in     " << std::endl;
     std::cout << "            order to be considered \"real\" by the symmetry detection algorithm.  " << std::endl;
     std::cout << "                                                                                " << std::endl;

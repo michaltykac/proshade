@@ -34,8 +34,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.2
-#   \date      DEC 2021
+#   \version   0.7.6.3
+#   \date      FEB 2022
 ######################################################
 ######################################################
 
@@ -709,8 +709,8 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
      print                                            ( "  %s    %+1.3f    %+1.3f    %+1.3f    %+1.3f    %+1.4f      %+1.4f" % ( recSymmetryAxes[iter][0], recSymmetryAxes[iter][1], recSymmetryAxes[iter][2], recSymmetryAxes[iter][3], recSymmetryAxes[iter][4], recSymmetryAxes[iter][5], recSymmetryAxes[iter][6] ) )
      
 # Expected output: Fold      x         y         z       Angle     Height    Average FSC
-# Expected output:   3.0    +0.000    +0.000    +1.000    +2.094    +0.9726      +0.9206
-# Expected output:   2.0    +1.000    +0.000    +0.000    +3.142    +0.9920      +1.0000
+# Expected output:  3.0    -0.000    -0.000    +1.000    -2.094    +0.9726      +0.9726
+# Expected output:  2.0    +0.004    +1.000    +0.000    +3.142    +1.0000      +0.9281
 
 ######################################################
 ### Get more symmetry results
@@ -747,12 +747,12 @@ bestDCombination.append                               ( allNonCAxesIndices["D"][
 allGroupElements                                      = pStruct.getAllGroupElements ( pSet, bestDCombination, "D" )
 
 print                                                 ( "Found a total of " + str( len ( allGroupElements ) ) + " elements." )
-# Expected output: Found a total of 12 elements.
+# Expected output: Found a total of 6 elements.
 
-print                                                 ( allGroupElements[1] )
-# Expected output: [[ 0.5        0.8660254  0.       ]
-# Expected output:  [-0.8660254  0.5        0.       ]
-# Expected output:  [ 0.         0.         1.       ]]
+print                                                 ( allGroupElements[0] )
+# Expected output: [[-5.0000000e-01  8.6602539e-01 -7.3650001e-05]
+# Expected output:  [-8.6602539e-01 -5.0000000e-01 -1.2843401e-04]
+# Expected output:  [-1.4805212e-04 -4.3423356e-07  1.0000000e+00]]
 
 ######################################################
 ### Computing and combining group elements
@@ -1036,6 +1036,8 @@ pStruct_moving.computeSphericalHarmonics              ( pSet )
 ### described above.
 ###
 pStruct_moving.rotateMapRealSpaceInPlace              ( optimalRotationAngles[0], optimalRotationAngles[1], optimalRotationAngles[2] )
+
+# Expected output: [9.14285659790039, 17.77777862548828, 17.77777862548828]
 
 ######################################################
 ### Zero padd the maps
