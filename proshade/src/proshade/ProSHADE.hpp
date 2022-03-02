@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE library code
@@ -57,7 +57,7 @@ private:
     std::vector < proshade_double* > manipulatedMaps; //!< The map (in XYZ format) after all manipulations are done. It will have the dimensions of reboxedBounds, but the rest of map information will not be available in the simpleAccess ProSHADE run.
     
     //================================================ Variables regarding overlay optimisation
-    std::vector < proshade_double > eulerAngles;      //!< Vector of three Euler angles (ZXZ convention) specifying the rotation required to best overlay two structures.
+    std::vector < proshade_double > eulerAngles;      //!< Vector of three Euler angles (ZYZ convention) specifying the rotation required to best overlay two structures.
     std::vector < proshade_double > coordRotationCentre; //!< Vector specifying the rotation centre about which the optimal overlay rotation should be done.
     std::vector < proshade_double > overlayTranslation; //!< Final translation to be applied after rotation in the overlay mode.
     

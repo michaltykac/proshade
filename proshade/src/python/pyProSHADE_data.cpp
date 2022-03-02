@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== Include PyBind11 header
@@ -87,8 +87,6 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                       } ) )
     
         //============================================ Data I/O functions
-        .def                                          ( "readInStructure", static_cast<void (ProSHADE_internal_data::ProSHADE_data::*)(gemmi::Structure, proshade_unsign, ProSHADE_settings*)> (&ProSHADE_internal_data::ProSHADE_data::readInStructure),    "This function initialises the basic ProSHADE_data variables and reads in a single structure from Gemmi co-ordinate object.", pybind11::arg ( "gemmiStruct" ), pybind11::arg ( "inputO" ), pybind11::arg ( "settings" ) )
-    
         .def                                          ( "readInStructure",
                                                     [] ( ProSHADE_internal_data::ProSHADE_data &self, std::string fName, proshade_unsign inputO, ProSHADE_settings* settings, pybind11::array_t < proshade_double > maskArr, pybind11::array_t < proshade_double > weightsArr )
                                                     {
@@ -476,10 +474,10 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         //== Get values
                                                         std::vector< proshade_double > vals = self.getBestRotationMapPeaksEulerAngles ( settings );
             
-                                                        //== Convert Euler ZXZ to matrix
+                                                        //== Convert Euler ZYZ to matrix
                                                         proshade_double* retMat = new proshade_double[9];
                                                         ProSHADE_internal_misc::checkMemoryAllocation ( retMat, __FILE__, __LINE__, __func__ );
-                                                        ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( vals.at(0), vals.at(1), vals.at(2), retMat );
+                                                        ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( vals.at(0), vals.at(1), vals.at(2), retMat );
 
                                                         //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                         pybind11::capsule pyCapsuleRMPeak ( retMat, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
@@ -705,10 +703,10 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             proshade_double eulA, eulB, eulG;
             
                                                             //== Compute the Euler angles from SOFT position
-                                                            ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxShellBand ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
+                                                            ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxShellBand ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
             
                                                             //== Compute the rotation matrix
-                                                            ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, npVals );
+                                                            ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulA, eulB, eulG, npVals );
     
                                                             //== Create capsule to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleRMSoft ( npVals, []( void *f ) { proshade_double* foo = reinterpret_cast< proshade_double* > ( f ); delete foo; } );
@@ -925,7 +923,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             }
         
                                                             //== Save values to pointer
-                                                            proshade_double* npVals = new proshade_double[(dataObj->getMaxBand() * 2) * (dataObj->getMaxBand() * 2) * (fold - 1)];
+                                                            proshade_double* npVals = new proshade_double[(dataObj->getMaxBand() * 2) * (dataObj->getMaxBand() * 2) * (static_cast< proshade_unsign > ( fold ) - 1)];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy value to the pointer

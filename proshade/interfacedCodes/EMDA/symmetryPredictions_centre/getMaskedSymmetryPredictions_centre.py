@@ -30,8 +30,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.3
-#   \date      FEB 2022
+#   \version   0.7.6.2
+#   \date      DEC 2021
 ######################################################
 ######################################################
 
@@ -74,14 +74,14 @@ import emda.emda_methods as emda_methods
 resolution                                            = 8.0
 minimalAllowedResolution                              = 20.0
 mapReSampling                                         = True
-symmetryCentering                                     = False
-comCentering                                          = True
+symmetryCentering                                     = True
+comCentering                                          = False
 verbosity                                             = -1
-inputFileName                                         = "emdb_spa_210329.dat"
-outputFileName                                        = "results_allKnownEMDB_COM_resol-"
+inputFileName                                         = "../symmetryPredictions/emdb_spa_210329.dat"
+outputFileName                                        = "results_allKnownEMDB_SYM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
-unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
-tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768" ]
+unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145" ]
+tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618" ]
 
 ######################################################
 ### Local settings
@@ -91,7 +91,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 39
+startFrom                                             = 0
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0
@@ -111,29 +111,25 @@ for writing, otherwise for appending.
 """
 def openOutputFiles ( cntr ):
     ### Declare local variables
-    outResRecom                                       = ""
     outResCondensed                                   = ""
     outResAxes                                        = ""
 
     ### Open files for output
     if cntr == 0:
         outResCondensed                               = open ( outputFileName + str ( resolutionFilename ) + "_condensed.txt", "w")
-        outResRecom                                   = open ( outputFileName + str ( resolutionFilename ) + "_recommended.txt", "w")
         outResAxes                                    = open ( outputFileName + str ( resolutionFilename ) + ".txt", "w")
     else:
         outResCondensed                               = open ( outputFileName + str ( resolutionFilename ) + "_condensed.txt", "a")
-        outResRecom                                   = open ( outputFileName + str ( resolutionFilename ) + "_recommended.txt", "a")
         outResAxes                                    = open ( outputFileName + str ( resolutionFilename ) + ".txt", "a")
         
-    return                                            ( outResRecom, outResCondensed, outResAxes )
+    return                                            ( outResCondensed, outResAxes )
 
 """
 This function closes the output files. This is done after each symmetry prediction
 to make sure results are written out after each step.
 """
-def closeOutputFiles ( outResRecom, outResCondensed, outResAxes ):
+def closeOutputFiles ( outResCondensed, outResAxes ):
     ## Close output files
-    outResRecom.close                                 ( )
     outResCondensed.close                             ( )
     outResAxes.close                                  ( )
 
@@ -227,7 +223,6 @@ def checkMapResolution ( mapFile, declRes ):
     locRes                                            = resolution
 
     ### Read in map using mrc file
-    print ( mapFile )
     mrc                                               = mrcfile.open ( mapFile, mode = "r+" )
 
     ### Find dims in Angstroms
@@ -409,7 +404,6 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
     ### Retrieve results
     recSymmetryType                                   = pStruct.getRecommendedSymmetryType ( pSet )
     recSymmetryFold                                   = pStruct.getRecommendedSymmetryFold ( pSet )
-    recSymmetryAxes                                   = pStruct.getRecommendedSymmetryAxes ( pSet )
     allCAxes                                          = pStruct.getAllCSyms ( pSet )
     
     ### Convert results for return
@@ -417,7 +411,6 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
     retList.append                                    ( recSymmetryType )
     retList.append                                    ( recSymmetryFold )
     retList.append                                    ( allCAxes )
-    retList.append                                    ( recSymmetryAxes )
     
     ### Release memory
     del pStruct
@@ -506,26 +499,20 @@ for entry in symIDs:
     print                                             ( " ... Symmetry detection complete ( time taken: " + str( stopTime - startTime ) + " )." )
 
     ### Open files for output
-    ( outResRecom, outResCondensed, outResAxes )      = openOutputFiles ( counter )
+    ( outResCondensed, outResAxes )                   = openOutputFiles ( counter )
 
     ### Write results
     if ( symRes[0] == "I" ) or ( symRes[0] == "O" ) or ( symRes[0] == "T" ):
         outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + "\t" + str( stopTime - startTime ) + "\n" )
     else:
         outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + str( symRes[1] ) + "\t" + str( stopTime - startTime ) + "\n" )
-        
     outResAxes.write                                  ( str( id ) + " :\n==========\n" )
     for ax in range ( 0, len ( symRes[2] ) ):
         outResAxes.write                              ( str ( symRes[2][ax][0] ) + "\t" + str ( symRes[2][ax][1] ) + "\t" + str( symRes[2][ax][2] ) + "\t" + str( symRes[2][ax][3] ) + "\t" + str( symRes[2][ax][4] ) + "\t" + str( symRes[2][ax][5] ) + "\t" + str( symRes[2][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str( compResolution ) + "\n" )
     outResAxes.write                                  ( "\n" )
     
-    outResRecom.write                                 ( str( id ) + " :\n==========\n" )
-    for ax in range ( 0, len ( symRes[3] ) ):
-        outResRecom.write                             ( str ( symRes[3][ax][0] ) + "\t" + str ( symRes[3][ax][1] ) + "\t" + str( symRes[3][ax][2] ) + "\t" + str( symRes[3][ax][3] ) + "\t" + str( symRes[3][ax][4] ) + "\t" + str( symRes[3][ax][5] ) + "\t" + str( symRes[3][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str( compResolution ) + "\n" )
-    outResRecom.write                                  ( "\n" )
-    
     ### Close output files
-    closeOutputFiles                                  ( outResRecom, outResCondensed, outResAxes )
+    closeOutputFiles                                  ( outResCondensed, outResAxes )
     
     ### Move counter
     counter                                           = counter + 1

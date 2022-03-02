@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE library code
@@ -31,7 +31,7 @@
     \brief This namespace contains all the functionality required to perform object rotation in SO(3) space.
  
     The ProSHADE namespace wraps around all the functions required to compute Wigner d and D matrices for any perticular rotation (as given
-    by the ZXZ Euler angles) and applying these to the SO(3) coefficients of any object.
+    by the ZYZ Euler angles) and applying these to the SO(3) coefficients of any object.
  */
 namespace ProSHADE_internal_wigner
 {

@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -57,6 +57,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = 0;
     this->rotationUncertainty                         = 0;
+    this->maxRadius                                   = -1.0;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = true;
@@ -84,6 +85,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = "";
@@ -128,13 +132,13 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.33;
+    this->fscThreshold                                = 0.3;
     this->peakThresholdMin                            = 0.75;
     this->fastISearch                                 = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
-    this->minSymPeak                                  = 0.3;
+    this->minSymPeak                                  = 0.5;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -191,6 +195,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = settings->maxBandwidth;
     this->rotationUncertainty                         = settings->rotationUncertainty;
+    this->maxRadius                                   = settings->maxRadius;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = settings->usePhase;
@@ -218,6 +223,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     this->saveMask                                    = settings->saveMask;
     this->maskFileName                                = settings->maskFileName;
     this->appliedMaskFileName                         = settings->appliedMaskFileName;
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, settings->calcBounds.at(0) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, settings->calcBounds.at(1) );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, settings->calcBounds.at(2) );
     
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = settings->fourierWeightsFileName;
@@ -332,6 +340,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     //================================================ Settings regarding the bandwidth of calculations
     this->maxBandwidth                                = 0;
     this->rotationUncertainty                         = 0;
+    this->maxRadius                                   = -1.0;
     
     //================================================ Settings regarding the phase
     this->usePhase                                    = true;
@@ -359,6 +368,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->saveMask                                    = false;
     this->maskFileName                                = "maskFile";
     this->appliedMaskFileName                         = "";
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
+    ProSHADE_internal_misc::addToDoubleVector         ( &this->calcBounds, std::numeric_limits< proshade_double >::infinity() );
     
     //================================================ Settings regarding Fourier weights
     this->fourierWeightsFileName                      = "";
@@ -402,13 +414,13 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
-    this->fscThreshold                                = 0.33;
+    this->fscThreshold                                = 0.3;
     this->peakThresholdMin                            = 0.75;
     this->fastISearch                                 = true;
     this->symMissPeakThres                            = 0.3;
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
-    this->minSymPeak                                  = 0.3;
+    this->minSymPeak                                  = 0.5;
     this->recommendedSymmetryType                     = "";
     this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
@@ -1577,6 +1589,28 @@ void                       ProSHADE_settings::setDetectedSymmetry ( proshade_dou
     
 }
 
+/*! \brief If the detected symmetry vector needs to be cleared, this is where it is done.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::cleanDetectedSymmetry ( )
+#else
+void                       ProSHADE_settings::cleanDetectedSymmetry ( )
+#endif
+{
+    //================================================ Release the detected symmetry vector memory
+    for ( size_t it = 0; it < this->detectedSymmetry.size(); it++ )
+    {
+        delete[] this->detectedSymmetry.at( it );
+    }
+    
+    //================================================ Empty the vector
+    this->detectedSymmetry.clear                      ( );
+    
+    //================================================ Done
+    return ;
+    
+}
+
 /*! \brief Sets the filename to which the overlay structure is to be save into.
  
     \param[in] filename The filename to which the overlay structure is to be saved to.
@@ -1859,6 +1893,37 @@ void ProSHADE_settings::determineAllSHValues ( proshade_unsign xDim, proshade_un
     proshade_unsign theoXDim                          = static_cast< proshade_unsign > ( std::ceil ( xDimAngs / ( this->requestedResolution / 2.0f ) ) );
     proshade_unsign theoYDim                          = static_cast< proshade_unsign > ( std::ceil ( yDimAngs / ( this->requestedResolution / 2.0f ) ) );
     proshade_unsign theoZDim                          = static_cast< proshade_unsign > ( std::ceil ( zDimAngs / ( this->requestedResolution / 2.0f ) ) );
+    
+    //================================================ If max radius is given, use it for speed up
+    if ( this->maxRadius > 0.0 )
+    {
+        //============================================ Sanity check
+        if ( static_cast< proshade_single > ( this->maxRadius * 2.0 ) > std::max ( xDimAngs, std::max( yDimAngs, zDimAngs ) ) )
+        {
+            ProSHADE_internal_messages::printWarningMessage ( this->verbose, "!!! ProSHADE WARNING !!! Requested maximum radius is larger than the maximum map dimension. Using the maximum map dimension instead.", "WM00074" );
+        }
+        
+        //============================================ Reasonable radius
+        else
+        {
+            theoXDim                                  = static_cast< proshade_unsign > ( std::ceil ( ( this->maxRadius * 2.0 ) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+            theoYDim                                  = static_cast< proshade_unsign > ( std::ceil ( ( this->maxRadius * 2.0 ) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+            theoZDim                                  = static_cast< proshade_unsign > ( std::ceil ( ( this->maxRadius * 2.0 ) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+        }
+    }
+    
+    //================================================ Reduce calculation cost by using only density filled map part instead of the whole box
+    if ( ( std::isinf ( this->calcBounds.at(0) ) || std::isinf ( this->calcBounds.at(1) ) || std::isinf ( this->calcBounds.at(2) ) ) && ( this->maxRadius < 0.0 ) )
+    {
+        //== Determine from sphere variance
+    }
+    else
+    {
+        //============================================ Data from mask are available - use them!
+        theoXDim                                      = static_cast< proshade_unsign > ( std::ceil ( this->calcBounds.at(0) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+        theoYDim                                      = static_cast< proshade_unsign > ( std::ceil ( this->calcBounds.at(1) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+        theoZDim                                      = static_cast< proshade_unsign > ( std::ceil ( this->calcBounds.at(2) / static_cast< proshade_double > ( this->requestedResolution / 2.0f ) ) );
+    }
     
     //================================================ Find maximum circumference
     proshade_unsign maxDim                            = std::max ( theoXDim, std::max ( theoYDim, theoZDim ) );
@@ -2196,6 +2261,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "overlayFile",     required_argument,  nullptr, '}' },
         { "overlayJSONFile", required_argument,  nullptr, 'y' },
         { "angUncertain",    required_argument,  nullptr, ';' },
+        { "maxRadius",       required_argument,  nullptr, 'J' },
         { "fourierWeights",  required_argument,  nullptr, 'z' },
         { "keepNegDens",     no_argument,        nullptr, 'F' },
         { "coordExtraSpace", required_argument,  nullptr, 'H' },
@@ -2203,7 +2269,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:J:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2675,6 +2741,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  this->rotationUncertainty            = static_cast<proshade_double> ( atof ( optarg ) );
                  continue;
              }
+                 
+             //======================================= Save the argument as maximum map radius to be used
+             case 'J':
+             {
+                 this->maxRadius                      = static_cast< proshade_double > ( atof ( optarg ) );
+                 continue;
+             }
 
              //======================================= Should the negative density from input files be removed?
              case 'F':
@@ -2846,6 +2919,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->maskFileName;
     printf ( "Map mask filename   : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->calcBounds.at(0) << " | " << this->calcBounds.at(1) << " | " << this->calcBounds.at(2);
+    printf ( "Calculation bounds  : %37s\n", strstr.str().c_str() );
     
     //== Settings regarding re-boxing
     strstr.str(std::string());
@@ -3284,7 +3361,7 @@ void                       getReBoxedMap ( ProSHADE_run* run, proshade_unsign st
 
 /*! \brief This function returns the vector of Euler angles with best overlay correlation.
 
-    \param[out] ret Vector of Euler angles (ZXZ convention) which lead to the globally best overlay correlation.
+    \param[out] ret Vector of Euler angles (ZYZ convention) which lead to the globally best overlay correlation.
 */
 #if defined ( _WIN64 ) || defined ( _WIN32 )
 std::vector< proshade_double > __declspec(dllexport) ProSHADE_run::getEulerAngles ( )
@@ -3324,7 +3401,7 @@ std::vector< proshade_double >                       ProSHADE_run::getOptimalRot
     //================================================ Obtain the optimal rotation matrix
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( this->eulerAngles.at(0), this->eulerAngles.at(1), this->eulerAngles.at(2), rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( this->eulerAngles.at(0), this->eulerAngles.at(1), this->eulerAngles.at(2), rotMat );
     
     //================================================ Copy to the output variable
     std::vector< proshade_double > ret;

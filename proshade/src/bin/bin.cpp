@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== DOxygen main page specifications
@@ -410,7 +410,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map
- ProSHADE 0.7.6.2 (DEC 2021):
+ ProSHADE 0.7.6.3 (FEB 2022):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -428,31 +428,27 @@
   ... Starting self-rotation function computation.
   ... Starting C symmetry detection.
   ... Starting D symmetry detection.
-  ... Starting I symmetry prediction.
-  ... Starting O symmetry prediction.
   ... Starting T symmetry prediction.
+  ... Starting O symmetry prediction.
+  ... Starting I symmetry prediction.
   ... Starting recommended symmetry decision procedure.
 
  Detected C symmetry with fold 12 about point [2.9202 , 2.92307 , 13.017] away from centre of mass .
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.95258      +0.94672
+    +12     -0.00001   +0.00002   +1.00000     -0.52360      +0.95258      +0.99413
 
  To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +2     +0.00096   +0.00000   +1.00000     +3.14159      +0.99402      +0.99512
-    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99359      +0.99694
-    +12    +0.00000   +0.00000   +1.00000     +0.52360      +0.95258      +0.94672
-    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.94835      +0.94139
-    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.93690      +0.92691
-    +8     +0.00000   +0.00000   +1.00000     +0.78540      +0.69255      -inf
- ... [Some lines removed for more succinct documentation]
-    +2     -0.54269   +0.23607   -0.80607     +3.14159      +0.36182      +0.00256
-    +2     +0.87870   -0.36777   +0.30435     +3.14159      +0.35287      +0.00973
+    +2     +0.00096   +0.00000   +1.00000     +3.14159      +0.99402      +0.99624
+    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99359      +0.99720
+    +12     -0.00001   +0.00002   +1.00000     -0.52360      +0.95258      +0.99413
+    +6     -0.00000   +0.00000   +1.00000     -1.04720      +0.94835      +0.99353
+    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.93690      +0.99211
 
-======================
-ProSHADE run complete.
-Time taken: 114 seconds.
-======================
+ ======================
+ ProSHADE run complete.
+ Time taken: 52 seconds.
+ ======================
 *\endcode
  *
  * \subsection distDetection Shape similarity distances
@@ -473,8 +469,8 @@ Time taken: 114 seconds.
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-ProSHADE 0.7.6.2 (DEC 2021):
-============================
+ ProSHADE 0.7.6.3 (FEB 2022):
+ ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
   ... Map left at original position.
@@ -529,7 +525,7 @@ ProSHADE 0.7.6.2 (DEC 2021):
 
  ======================
  ProSHADE run complete.
- Time taken: 0 seconds.
+ Time taken: 1 seconds.
  ======================
  *\endcode
  *
@@ -553,7 +549,7 @@ ProSHADE 0.7.6.2 (DEC 2021):
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.6.2 (DEC 2021):
+ ProSHADE 0.7.6.3 (FEB 2022):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -616,7 +612,7 @@ ProSHADE 0.7.6.2 (DEC 2021):
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 1
- ProSHADE 0.7.6.2 (DEC 2021):
+ ProSHADE 0.7.6.3 (FEB 2022):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -1034,27 +1030,6 @@ ProSHADE 0.7.6.2 (DEC 2021):
  * running software/code, as this avoids the need for the mask to be written into a file onto the disk and then read back. Furthermore, if the user should require weighting the input map in Fourier space, a set of weights can
  * be supplied to the \e readInStructure() function as well; these weights will be applieds in the same order as they are given to the FFTW3 coefficients of the input map, \e i.e. the weights should be supplied in the format:
  * f_0, ..., f_N/2, f_-N/2+1, ..., f_-1. For more details as to how the mask or weights can be supplied, please see the \e /path/to/proshade/proshade/examples/python/howto_accessInterimResults.py file.
- *
- * \e Reading \e co-ordinates \e from \e gemmi
- *
- * An alternative way of supplying the structural data to the ProSHADE_data object is to pass it a gemmi::Structure object. Since Gemmi is also a C++ library with PyBind11 python interface, it is possible to pass its objects to
- * ProSHADE through the shared python interface. This can be useful for users who wish to modify or create gemmi::Structure objects using other codes and then pass these to ProSHADE for further analysis. Please note, that
- * only co-ordinate data will be parsed from gemmi::Structure objects by ProSHADE. An example follows, but more detailed description can be found in the \e /path/to/proshade/proshade/examples/python/howto_useGemmiObject.py file.
- *
- * \code{.py}
- """ Import gemmi """
- import gemmi
-
- """ Read structure into gemmi::Structure object """
- gStruct                                               = gemmi.read_structure( "5woh.pdb" )
-
- """ Modify the gemmi::Structure object """
- ...
-
- """ Read gemmi::Structure into ProSHADE """
- pStruct                                               = proshade.ProSHADE_data ( )
- pStruct.readInStructure                               ( gStruct, 0, pSet )
- \endcode
  *
  * \e Creating \e ProSHADE_data \e object \e from \e map
  *

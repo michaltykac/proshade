@@ -15,12 +15,18 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_io.hpp"
+
+//==================================================== Forward declarations
+namespace ProSHADE_internal_mapManip
+{
+    void getNonZeroBounds ( proshade_double* map, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_signed*& ret );
+}
 
 /*! \brief Function determining if the input data type is PDB.
  
@@ -291,8 +297,9 @@ void ProSHADE_internal_io::readInMapData ( gemmi::Ccp4<int8_t> *gemmiMap, prosha
     \param[in] maXInds The size of maskArray x dimension in indices (defaults to 0).
     \param[in] maYInds The size of maskArray y dimension in indices (defaults to 0).
     \param[in] maZInds The size of maskArray z dimension in indices (defaults to 0).
+    \param[in] calcBounds The mask boundaries that will be used to limit calculation complexity.
  */
-void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_signed messageShift, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
+void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFile, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_signed verbose, proshade_signed messageShift, std::vector< proshade_double >* calcBounds, proshade_double* maskArray, proshade_unsign maXInds, proshade_unsign maYInds, proshade_unsign maZInds )
 {
     //================================================ Report progress
     std::stringstream hlpSS;
@@ -303,7 +310,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     if ( ( maskArray != nullptr ) && ( maXInds != 0 ) && ( maYInds != 0 ) && ( maZInds != 0 ) )
     {
         //============================================ Array it is!
-        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, verbose, messageShift );
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, maskArray, maXInds, maYInds, maZInds, calcBounds, verbose, messageShift );
     }
     else
     {
@@ -315,7 +322,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
         mask.read_ccp4                                ( gemmi::MaybeGzipped ( maskFile.c_str() ) );
         
         //============================================ Convert to XYZ and create complete mask, if need be
-        mask.setup                                    ( gemmi::GridSetup::ReorderOnly, 0 );
+        mask.setup                                    ( 0.0f, gemmi::MapSetup::ReorderOnly );
         
         //============================================ Read in the rest of the mask file header
         proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
@@ -335,7 +342,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
         ProSHADE_internal_io::readInMapData           ( &mask, internalMask, xDI, yDI, zDI, xAOR, yAOR, zAOR );
         
         //============================================ Apply mask from array
-        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, verbose, messageShift );
+        ProSHADE_internal_io::applyMaskFromArray      ( map, xDimInds, yDimInds, zDimInds, internalMask, xDI, yDI, zDI, calcBounds, verbose, messageShift );
 
         //============================================ Release the memory
         delete[] internalMask;
@@ -361,10 +368,11 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     \param[in] xDimIndsMsk The size of the mask x dimension in indices.
     \param[in] yDimIndsMsk The size of the mask y dimension in indices.
     \param[in] zDimIndsMsk The size of the mask z dimension in indices.
+    \param[in] calcBounds The mask boundaries that will be used to limit calculation complexity.
     \param[in] verbose How much std::out output would you like?
     \param[in] messageShift Are we in a subprocess, so that the log should be shifted for this function call? If so, by how much?
  */
-void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, proshade_signed verbose, proshade_signed messageShift )
+void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_unsign xDimInds, proshade_unsign yDimInds, proshade_unsign zDimInds, proshade_double*& mask, proshade_unsign xDimIndsMsk, proshade_unsign yDimIndsMsk, proshade_unsign zDimIndsMsk, std::vector< proshade_double >* calcBounds, proshade_signed verbose, proshade_signed messageShift )
 {
     //================================================ Initialise local variables
     size_t origVolume                                 = xDimInds * yDimInds * zDimInds;
@@ -375,12 +383,12 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
     if ( ( xDimIndsMsk != xDimInds ) || ( yDimIndsMsk != yDimInds ) || ( zDimIndsMsk != zDimInds ) )
     {
         //============================================ Initialise variables
-        fftw_complex* origCoeffs                      = new fftw_complex [newVolume ];
-        fftw_complex* origCoeffsHKL                   = new fftw_complex [newVolume ];
-        fftw_complex* modifCoeffs                     = new fftw_complex [origVolume];
-        fftw_complex* modifCoeffsHKL                  = new fftw_complex [origVolume];
-        fftw_complex* inMap                           = new fftw_complex [newVolume ];
-        fftw_complex* outMap                          = new fftw_complex [origVolume];
+        fftw_complex* origCoeffs                      = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* origCoeffsHKL                   = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* modifCoeffs                     = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* modifCoeffsHKL                  = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* inMap                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* outMap                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
 
         //============================================ Check memory allocation
         ProSHADE_internal_misc::checkMemoryAllocation ( inMap,          __FILE__, __LINE__, __func__ );
@@ -510,18 +518,18 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
         maskFinal                                     = new proshade_double [origVolume];
         ProSHADE_internal_misc::checkMemoryAllocation ( maskFinal, __FILE__, __LINE__, __func__ );
 
-        //======================================== Copy results into a new, properly sampled mask
+        //============================================ Copy results into a new, properly sampled mask
         for ( size_t iter = 0; iter < origVolume; iter++ ) { maskFinal[iter] = outMap[iter][0]; }
 
-        //======================================== Release remaining memory
-        fftw_destroy_plan                         ( planForwardFourier );
-        fftw_destroy_plan                         ( inverseFoourier );
-        delete[] origCoeffs;
-        delete[] modifCoeffs;
-        delete[] origCoeffsHKL;
-        delete[] modifCoeffsHKL;
-        delete[] inMap;
-        delete[] outMap;
+        //============================================ Release remaining memory
+        fftw_destroy_plan                             ( planForwardFourier );
+        fftw_destroy_plan                             ( inverseFoourier );
+        fftw_free                                     ( origCoeffs );
+        fftw_free                                     ( modifCoeffs );
+        fftw_free                                     ( origCoeffsHKL );
+        fftw_free                                     ( modifCoeffsHKL );
+        fftw_free                                     ( inMap );
+        fftw_free                                     ( outMap );
     }
     else
     {
@@ -532,12 +540,26 @@ void ProSHADE_internal_io::applyMaskFromArray ( proshade_double*& map, proshade_
 
     //================================================ Apply the mask to the map
     for ( size_t iter = 0; iter < static_cast< size_t > ( xDimInds * yDimInds * zDimInds ); iter++ ) { map[iter] *= maskFinal[iter]; }
-
-    //================================================ Release memory
-    delete[] maskFinal;
     
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( verbose, 3, "Mask read in and applied successfully.", messageShift );
+    
+    //================================================ Determine bounds for computation
+    proshade_signed* bnds                             = new proshade_signed[6];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( bnds, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_mapManip::getNonZeroBounds      ( maskFinal, static_cast< proshade_signed > ( xDimInds ), static_cast< proshade_signed > ( yDimInds ), static_cast< proshade_signed > ( zDimInds ), bnds );
+    
+    //================================================ Copy to settings
+    calcBounds->at(0)                                 = static_cast< proshade_double > ( bnds[1] - bnds[0] );
+    calcBounds->at(1)                                 = static_cast< proshade_double > ( bnds[3] - bnds[2] );
+    calcBounds->at(2)                                 = static_cast< proshade_double > ( bnds[5] - bnds[4] );
+    
+    //================================================ Report progress
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 4, "Computation boundaries determined.", messageShift );
+    
+    //================================================ Release memory
+    delete[] bnds;
+    delete[] maskFinal;
     
     //================================================ Done
     return ;
@@ -586,7 +608,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
         weights.read_ccp4                             ( gemmi::MaybeGzipped ( weightsFile.c_str() ) );
         
         //============================================ Convert to XYZ and create complete weights, if need be
-        weights.setup                                 ( gemmi::GridSetup::ReorderOnly, 0 );
+        weights.setup                                 ( 0.0f, gemmi::MapSetup::ReorderOnly );
         
         //============================================ Read in the rest of the weights file header
         proshade_unsign xDI, yDI, zDI, xAOR, yAOR, zAOR, xGI, yGI, zGI;
@@ -646,12 +668,12 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     if ( ( xDimIndsWgh != xDimInds ) || ( yDimIndsWgh != yDimInds ) || ( zDimIndsWgh != zDimInds ) )
     {
         //============================================ Initialise variables
-        fftw_complex* origCoeffs                      = new fftw_complex [newVolume ];
-        fftw_complex* origCoeffsHKL                   = new fftw_complex [newVolume ];
-        fftw_complex* modifCoeffs                     = new fftw_complex [origVolume];
-        fftw_complex* modifCoeffsHKL                  = new fftw_complex [origVolume];
-        fftw_complex* inMap                           = new fftw_complex [newVolume ];
-        fftw_complex* outMap                          = new fftw_complex [origVolume];
+        fftw_complex* origCoeffs                      = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* origCoeffsHKL                   = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* modifCoeffs                     = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* modifCoeffsHKL                  = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+        fftw_complex* inMap                           = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * newVolume  ) );
+        fftw_complex* outMap                          = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
 
         //============================================ Check memory allocation
         ProSHADE_internal_misc::checkMemoryAllocation ( inMap,          __FILE__, __LINE__, __func__ );
@@ -787,12 +809,12 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
         //============================================ Release remaining memory
         fftw_destroy_plan                             ( planForwardFourier );
         fftw_destroy_plan                             ( inverseFoourier );
-        delete[] origCoeffs;
-        delete[] modifCoeffs;
-        delete[] origCoeffsHKL;
-        delete[] modifCoeffsHKL;
-        delete[] inMap;
-        delete[] outMap;
+        fftw_free                                     ( origCoeffs );
+        fftw_free                                     ( modifCoeffs );
+        fftw_free                                     ( origCoeffsHKL );
+        fftw_free                                     ( modifCoeffsHKL );
+        fftw_free                                     ( inMap );
+        fftw_free                                     ( outMap );
     }
     else
     {
@@ -802,8 +824,8 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     }
     
     //================================================ Allocate memory for map Fourier transform
-    fftw_complex* inMap                               = new fftw_complex [origVolume];
-    fftw_complex* outMap                              = new fftw_complex [origVolume];
+    fftw_complex* inMap                               = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
+    fftw_complex* outMap                              = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * origVolume ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( inMap,  __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( outMap, __FILE__, __LINE__, __func__ );
     fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( xDimInds ), static_cast< int > ( yDimInds ), static_cast< int > ( zDimInds ), inMap, outMap, FFTW_FORWARD,  FFTW_ESTIMATE );
@@ -827,8 +849,8 @@ void ProSHADE_internal_io::applyWeightsFromArray ( proshade_double*& map, prosha
     
     //================================================ Release memory
     delete[] weightsFinal;
-    delete[] inMap;
-    delete[] outMap;
+    fftw_free                                         ( inMap );
+    fftw_free                                         ( outMap );
     fftw_destroy_plan                                 ( planForwardFourier );
     fftw_destroy_plan                                 ( inverseFoourier );
     
@@ -977,7 +999,7 @@ void ProSHADE_internal_io::writeRotationTranslationJSON ( proshade_double trsX1,
     //================================================ Get rotation matrix from Euler angles
     proshade_double* rotMat                           = new proshade_double[9];
     ProSHADE_internal_misc::checkMemoryAllocation     ( rotMat, __FILE__, __LINE__, __func__ );
-    ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( eulA, eulB, eulG, rotMat );
+    ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulA, eulB, eulG, rotMat );
     
     //================================================ Write the info
     jsonFile << "{\n";

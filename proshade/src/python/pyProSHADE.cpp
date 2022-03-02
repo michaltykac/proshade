@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== Include PyBind11 header
@@ -33,6 +33,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         //============================================ Constructors (destructors do not need wrappers???)
         .def                                          ( pybind11::init < > ( ) )
         .def                                          ( pybind11::init < ProSHADE_Task > ( ), pybind11::arg ( "task" ) )
+        .def                                          ( pybind11::init < ProSHADE_settings* > ( ), pybind11::arg ( "settings" ) )
     
         //============================================ Member variables
         .def_readwrite                                ( "task",                                 &ProSHADE_settings::task                                )
@@ -100,6 +101,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
     
         .def_readwrite                                ( "smoothingFactor",                      &ProSHADE_settings::smoothingFactor                     )
     
+        .def_readwrite                                ( "findSymCentre",                        &ProSHADE_settings::findSymCentre                       )
         .def_readwrite                                ( "symMissPeakThres",                     &ProSHADE_settings::symMissPeakThres                    )
         .def_readwrite                                ( "axisErrTolerance",                     &ProSHADE_settings::axisErrTolerance                    )
         .def_readwrite                                ( "axisErrToleranceDefault",              &ProSHADE_settings::axisErrToleranceDefault             )
@@ -112,6 +114,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "maxSymmetryFold",                      &ProSHADE_settings::maxSymmetryFold                     )
         .def_readwrite                                ( "fscThreshold",                         &ProSHADE_settings::fscThreshold                        )
         .def_readwrite                                ( "peakThresholdMin",                     &ProSHADE_settings::peakThresholdMin                    )
+        .def_readwrite                                ( "fastISearch",                          &ProSHADE_settings::fastISearch                         )
     
         .def_readwrite                                ( "overlayStructureName",                 &ProSHADE_settings::overlayStructureName                )
         .def_readwrite                                ( "rotTrsJSONFile",                       &ProSHADE_settings::rotTrsJSONFile                      )
@@ -177,6 +180,24 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setFSCThreshold",                      &ProSHADE_settings::setFSCThreshold,                        "Sets the minimum FSC threshold for axis to be considered detected.",                                                     pybind11::arg ( "fscThr"        ) )
         .def                                          ( "setPeakThreshold",                     &ProSHADE_settings::setPeakThreshold,                       "Sets the minimum peak height threshold for axis to be considered possible.",                                          pybind11::arg ( "peakThr"       ) )
         .def                                          ( "setNegativeDensity",                   &ProSHADE_settings::setNegativeDensity,                     "Sets the internal variable deciding whether input files negative density should be removed.",                           pybind11::arg ( "nDens"         ) )
+    
+        .def                                          ( "setSymmetryCentrePosition",
+                                                        [] ( ProSHADE_settings &self, pybind11::array_t < proshade_double > pos )
+                                                        {
+                                                            //== Sanity check
+                                                            pybind11::buffer_info pos_buf = pos.request();
+                                                            if ( pos_buf.ndim != 1 ) { std::cerr << "!!! ProSHADE PYTHON MODULE ERROR !!! The second argument to setSymmetryCentrePosition() must be a 1D numpy array!" << std::endl; exit ( EXIT_FAILURE ); }
+                                                            if ( pos_buf.shape.at(0) != 3 ) { std::cerr << "!!! ProSHADE PYTHON MODULE ERROR !!! The second argument to setSymmetryCentrePosition() must be an array of length 3!" << std::endl; exit ( EXIT_FAILURE ); }
+                                                            
+                                                            //== Copy to C++ data format
+                                                            proshade_double* arrStart = static_cast< proshade_double* > ( pos_buf.ptr );
+                                                            self.centrePosition.at(0) = arrStart[0];
+                                                            self.centrePosition.at(1) = arrStart[1];
+                                                            self.centrePosition.at(2) = arrStart[2];
+                                                            
+                                                            //== Done
+                                                            return ;
+                                                        }, "This function sets the symmetry rotation centre values from numpy vector.", pybind11::arg ( "pos" ) )
     
         //============================================ Command line parsing
         .def                                          ( "getCommandLineParams",

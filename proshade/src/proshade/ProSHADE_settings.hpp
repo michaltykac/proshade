@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -57,6 +57,7 @@ public:
     //================================================ Settings regarding the bandwidth of calculations
     proshade_unsign maxBandwidth;                     //!< The bandwidth of spherical harmonics decomposition for the largest sphere.
     proshade_double rotationUncertainty;              //!< Alternative to bandwidth - the angle in degrees to which the rotation function accuracy should be computed.
+    proshade_double maxRadius;                        //!< The maximum distance from centre in Angstroms for a map value to still be used. 
 
     //================================================ Settings regarding the phase
     bool usePhase;                                    //!< If true, the full data will be used, if false, Patterson maps will be used instead and phased data will be converted to them. Also, only half of the spherical harmonics bands will be necessary as odd bands have to be 0 for Patterson maps.
@@ -84,6 +85,7 @@ public:
     bool saveMask;                                    //!< Should the mask be saved?
     std::string maskFileName;                         //!< The filename to which mask should be saved.
     std::string appliedMaskFileName;                  //!< The filename from which mask data will be read from.
+    std::vector< proshade_double > calcBounds;        //!< The boundaries to be used for deciding the calculation thresholds (band, integration order, etc.)
     
     //================================================ Settings regarding map weighting
     std::string fourierWeightsFileName;               //!< The filename from which Fourier weights data will be read from.
@@ -234,6 +236,7 @@ public:
     void __declspec(dllexport) setRequestedSymmetry                           ( std::string val );
     void __declspec(dllexport) setRequestedFold                               ( proshade_unsign val );
     void __declspec(dllexport) setDetectedSymmetry                            ( proshade_double* sym );
+    void __declspec(dllexport) cleanDetectedSymmetry                          ( void );
     void __declspec(dllexport) setOverlaySaveFile                             ( std::string filename );
     void __declspec(dllexport) setOverlayJsonFile                             ( std::string filename );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
@@ -292,6 +295,7 @@ public:
     void setRequestedSymmetry                         ( std::string val );
     void setRequestedFold                             ( proshade_unsign val );
     void setDetectedSymmetry                          ( proshade_double* sym );
+    void cleanDetectedSymmetry                        ( void );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );

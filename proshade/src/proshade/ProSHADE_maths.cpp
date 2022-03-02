@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.2
-    \date      DEC 2021
+    \version   0.7.6.3
+    \date      FEB 2022
  */
 
 //==================================================== ProSHADE
@@ -271,7 +271,7 @@ proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* val
     proshade_double ret                               = xmmymm / ( sqrt(xmmsq) * sqrt(ymmsq) );
     
     //================================================ Done
-    if ( std::isnan ( ret ) ) { return ( 0.0 ); }
+    if ( std::isnan ( ret ) )                         { return ( 0.0 ); }
     return                                            ( ret );
     
 }
@@ -947,9 +947,9 @@ void ProSHADE_internal_maths::realMatrixSVDUandVOnly ( proshade_double* mat, int
     
 }
 
-/*! \brief Function to find Euler angles (ZXZ convention) from index position in the inverse SOFT map.
+/*! \brief Function to find Euler angles (ZYZ convention) from index position in the inverse SOFT map.
  
-    This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZXZ convention angles, saving
+    This function proceeds to convert the inverse SOFT map x, y and z position to Euler ZYZ convention angles, saving
     these into the supplied pointers.
  
     \param[in] band The maximum bandwidth of the computation.
@@ -960,7 +960,7 @@ void ProSHADE_internal_maths::realMatrixSVDUandVOnly ( proshade_double* mat, int
     \param[in] eulerBeta Pointer to where the Euler beta angle will be saved.
     \param[in] eulerGamma Pointer to where the Euler gamma angle will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
+void ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( proshade_signed band, proshade_signed x, proshade_signed y, proshade_signed z, proshade_double* eulerAlpha, proshade_double* eulerBeta, proshade_double* eulerGamma )
 {
     //================================================ Convert index to Euler angles
    *eulerAlpha                                        = M_PI *         static_cast<proshade_double> ( y )    / (       static_cast<proshade_double> ( band ) ) ;
@@ -972,9 +972,9 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
     
 }
 
-/*! \brief Function to find the index position in the inverse SOFT map from given Euler angles (ZXZ convention).
+/*! \brief Function to find the index position in the inverse SOFT map from given Euler angles (ZYZ convention).
  
-    This function does the conversion from Euler angles ZXZ convention to the SOFT map x, y and z position. It is not limitted to
+    This function does the conversion from Euler angles ZYZ convention to the SOFT map x, y and z position. It is not limitted to
     the SOFT map indices and instead if given Euler agnles between two indices will return a decimal point for the indices.
  
     \param[in] band The maximum bandwidth of the computation.
@@ -985,39 +985,35 @@ void ProSHADE_internal_maths::getEulerZXZFromSOFTPosition ( proshade_signed band
     \param[in] y Pointer to where the closest y-axis position in the inverse SOFT map will be saved to (position may be decimal!).
     \param[in] z Pointer to where the closest z-axis position in the inverse SOFT map will be saved to (position may be decimal!).
  */
-void ProSHADE_internal_maths::getSOFTPositionFromEulerZXZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
+void ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( proshade_signed band, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* x, proshade_double* y, proshade_double* z )
 {
     //================================================ Convert Euler angles to indices
    *x                                                 = ( eulerBeta  * static_cast<proshade_double> ( band ) * 2.0 ) / M_PI;
    *y                                                 = ( eulerGamma * static_cast<proshade_double> ( band )       ) / M_PI;
    *z                                                 = ( eulerAlpha * static_cast<proshade_double> ( band )       ) / M_PI;
     
-    //================================================ Deal with singularities
-    if ( eulerBeta > ( M_PI - 0.05 ) )
-    {
-        //============================================ Rotation is 180 deg
-       *z                                             = ( ( eulerAlpha - eulerGamma ) * static_cast<proshade_double> ( band ) ) / M_PI;
-       *y                                             = 0;
-    }
+    //================================================ Keep value within boundaries
+    if ( *x >= ( 2.0 * static_cast<proshade_double> ( band - 1 ) ) ) { *x = ( 2.0 * static_cast<proshade_double> ( band ) ) - 1.0; }
+    if ( *y >= ( 2.0 * static_cast<proshade_double> ( band - 1 ) ) ) { *y = ( 2.0 * static_cast<proshade_double> ( band ) ) - 1.0; }
+    if ( *z >= ( 2.0 * static_cast<proshade_double> ( band - 1 ) ) ) { *z = ( 2.0 * static_cast<proshade_double> ( band ) ) - 1.0; }
     
-    //================================================ Keep value within boundaries, but do not repeat over them!
-    if ( *x >= ( 2 * band ) ) { *x = ( 2 * band ) - 1; }
-    if ( *y >= ( 2 * band ) ) { *y = ( 2 * band ) - 1; }
-    if ( *z >= ( 2 * band ) ) { *z = ( 2 * band ) - 1; }
+    if ( *x < 0.0 ) { *x = 0.0; }
+    if ( *y < 0.0 ) { *y = 0.0; }
+    if ( *z < 0.0 ) { *z = 0.0; }
     
     //================================================ Done
     return ;
     
 }
 
-/*! \brief Function to find the rotation matrix from Euler angles (ZXZ convention).
+/*! \brief Function to find the rotation matrix from Euler angles (ZYZ convention).
  
     \param[in] eulerAlpha The Euler alpha angle value.
     \param[in] eulerBeta The Euler beta angle value.
     \param[in] eulerGamma The Euler gamma angle value.
     \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
  */
-void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
+void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma, proshade_double* matrix )
 {
     //================================================ First row
     matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
@@ -1039,14 +1035,14 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_dou
     
 }
 
-/*! \brief Function to find the rotation matrix from Euler angles (ZXZ convention).
+/*! \brief Function to find the rotation matrix from Euler angles (ZYZ convention).
  
     \param[in] eulerAlpha The Euler alpha angle value.
     \param[in] eulerBeta The Euler beta angle value.
     \param[in] eulerGamma The Euler gamma angle value.
     \param[in] matrix A pointer to array of 9 values to which the results of the function will be saved.
  */
-void ProSHADE_internal_maths::getRotationMatrixFromEulerZXZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
+void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_single eulerAlpha, proshade_single eulerBeta, proshade_single eulerGamma, proshade_single* matrix )
 {
     //================================================ First row
     matrix[0]                                         =  cos ( eulerAlpha ) * cos ( eulerBeta  ) * cos ( eulerGamma ) - sin ( eulerAlpha ) * sin ( eulerGamma );
@@ -1552,14 +1548,14 @@ void ProSHADE_internal_maths::getRotationMatrixFromAngleAxis ( proshade_single* 
     
 }
 
-/*! \brief This function converts rotation matrix to the Euler ZXZ angles representation.
+/*! \brief This function converts rotation matrix to the Euler ZYZ angles representation.
  
     \param[in] rotMat Rotation matrix as an array of 9 values.
     \param[in] eA Pointer to which the Euler angle alpha value will be saved.
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
+void ProSHADE_internal_maths::getEulerZYZFromRotMatrix ( proshade_double* rotMat, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
     //================================================ Convert to Eulers
     if ( std::abs( rotMat[8] ) < 0.99999 )
@@ -1598,9 +1594,9 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     
 }
 
-/*! \brief This function converts angle-axis representation to the Euler ZXZ angles representation.
+/*! \brief This function converts angle-axis representation to the Euler ZYZ angles representation.
  
-    This function does the angle-axis to Euler ZXZ conversion and if a problem around the Z axis arises, it deal with it.
+    This function does the angle-axis to Euler ZYZ conversion and if a problem around the Z axis arises, it deal with it.
  
     \param[in] axX Angle-axis representation axis x element.
     \param[in] axY Angle-axis representation axis y element.
@@ -1610,7 +1606,7 @@ void ProSHADE_internal_maths::getEulerZXZFromRotMatrix ( proshade_double* rotMat
     \param[in] eB Pointer to which the Euler angle beta value will be saved.
     \param[in] eG Pointer to which the Euler angle gamma value will be saved.
  */
-void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
+void ProSHADE_internal_maths::getEulerZYZFromAngleAxis ( proshade_double axX, proshade_double axY, proshade_double axZ, proshade_double axAng, proshade_double* eA, proshade_double* eB, proshade_double* eG )
 {
     //================================================ If angle is 0 or infinity (anything divided by 0), return no rotation
     if ( ( axAng == 0.0 ) || ( std::isinf ( axAng ) ) )
@@ -1652,23 +1648,21 @@ void ProSHADE_internal_maths::getEulerZXZFromAngleAxis ( proshade_double axX, pr
     else
     {
         //============================================ Compute some extra rotation matrix elements
-        tmp1                                          = axX * axY * tAng;
-        tmp2                                          = axZ * sAng;
-        proshade_double element10                     = tmp1 + tmp2;
-        proshade_double element00                     = cAng + axX * axX * tAng;
+        proshade_double element10                     = ( axX * axY * tAng ) + ( axZ * sAng );
+        proshade_double element11                     = cAng + axY * axY * tAng;
         
         //============================================ This case occurs when there is either 0 or 180 degrees rotation angle in the rotation matrix and therefore when beta is zero.
         if ( element22 >= 0.99999 )
         {
             //======================================== In this case, beta = 0 and alpha and gamma are only defined in terms of their sum. So we arbitrarily set gamma to 0 and solve alpha.
-           *eA                                        = std::atan2 ( element10, element00 );
+           *eA                                        = std::atan2 ( element10, element11 );
            *eB                                        = 0.0;
            *eG                                        = 0.0;
         }
         if ( element22 <= -0.99999 )
         {
             //======================================== In this case, beta = PI and alpha and gamma are only defined in terms of their difference. So we arbitrarily set gamma to 0 and solve alpha.
-           *eA                                        = std::atan2 ( element10, element00 );
+           *eA                                        = -std::atan2 ( element10, element11 );
            *eB                                        = M_PI;
            *eG                                        = 0.0;
         }
@@ -1967,6 +1961,33 @@ proshade_double* ProSHADE_internal_maths::compute3x3MatrixInverse ( proshade_dou
     
     //================================================ Done
     return                                            ( inverse );
+}
+
+/*! \brief Transposes 3x3 matrix in place.
+ 
+    \param[in] mat The matrix to be transposed.
+ */
+void ProSHADE_internal_maths::transpose3x3MatrixInPlace ( proshade_single* mat )
+{
+    //================================================ Initialise variables
+    proshade_single tmp;
+    
+    //================================================ Transpose the non-diagonal values
+    tmp                                               = mat[1];
+    mat[1]                                            = mat[3];
+    mat[3]                                            = tmp;
+    
+    tmp                                               = mat[2];
+    mat[2]                                            = mat[6];
+    mat[6]                                            = tmp;
+    
+    tmp                                               = mat[5];
+    mat[5]                                            = mat[7];
+    mat[7]                                            = tmp;
+    
+    //================================================ Done
+    return ;
+    
 }
 
 /*! \brief Transposes 3x3 matrix in place.
@@ -2547,23 +2568,90 @@ std::vector< proshade_double > ProSHADE_internal_maths::multiplyGroupElementMatr
     \param[in] mat1 Vector of 9 numbers representing first rotation matrix.
     \param[in] mat1 Vector of 9 numbers representing second rotation matrix.
     \param[in] tolerance Double number representing the maximum allowed error on the distance.
-    \param[out] res Boolean decision if the two matrices are similar or not.
+    \param[out] ret Boolean decision if the two matrices are similar or not.
  */
 bool ProSHADE_internal_maths::rotationMatrixSimilarity ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2, proshade_double tolerance )
 {
     //================================================ Initialise variables
     bool ret                                          = false;
     
-    //================================================ Compute trace of mat1 * mat2^T
-    proshade_double trace                             = ( mat1->at(0) * mat2->at(0) ) + ( mat1->at(1) * mat2->at(1) ) + ( mat1->at(2) * mat2->at(2) );
-    trace                                            += ( mat1->at(3) * mat2->at(3) ) + ( mat1->at(4) * mat2->at(4) ) + ( mat1->at(5) * mat2->at(5) );
-    trace                                            += ( mat1->at(6) * mat2->at(6) ) + ( mat1->at(7) * mat2->at(7) ) + ( mat1->at(8) * mat2->at(8) );
+    //================================================ Compare to tolerance
+    if ( tolerance > std::abs ( ProSHADE_internal_maths::rotationMatrixSimilarityValue ( mat1, mat2 ) ) ) { ret = true; }
     
-    //================================================ Subtract 3 (so that we would have 0 in case of idenity matrix)
-    trace                                            -= 3.0;
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function compares the distance between two rotation matrices and decides if they are similar using tolerance.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Therefore, from this trace
+    3.0 is subtracted and the absolute value of the result is compared to the tolerance. If the difference is less than the tolerance, true is returned, while
+    false is returned otherwise.
+ 
+    \param[in] mat1 Pointer to double array of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Pointer to double array of 9 numbers representing second rotation matrix.
+    \param[in] tolerance Double number representing the maximum allowed error on the distance.
+    \param[out] ret Boolean decision if the two matrices are similar or not.
+ */
+bool ProSHADE_internal_maths::rotationMatrixSimilarity ( proshade_double* mat1, proshade_double* mat2, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    bool ret                                          = false;
     
     //================================================ Compare to tolerance
-    if ( tolerance > std::abs ( trace ) ) { ret = true; }
+    if ( tolerance > std::abs ( ProSHADE_internal_maths::rotationMatrixSimilarityValue ( mat1, mat2 ) ) ) { ret = true; }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function computes the distance between two rotation matrices and returns it.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Subtracting 3 will then
+    result in matrix similarity measure.
+ 
+    \param[in] mat1 Vector of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Vector of 9 numbers representing second rotation matrix.
+    \param[out] ret Matrix similarity measure.
+ */
+proshade_double ProSHADE_internal_maths::rotationMatrixSimilarityValue ( std::vector< proshade_double >* mat1, std::vector< proshade_double >* mat2 )
+{
+    //================================================ Compute trace of mat1 * mat2^T
+    proshade_double ret                               = ( mat1->at(0) * mat2->at(0) ) + ( mat1->at(1) * mat2->at(1) ) + ( mat1->at(2) * mat2->at(2) );
+    ret                                              += ( mat1->at(3) * mat2->at(3) ) + ( mat1->at(4) * mat2->at(4) ) + ( mat1->at(5) * mat2->at(5) );
+    ret                                              += ( mat1->at(6) * mat2->at(6) ) + ( mat1->at(7) * mat2->at(7) ) + ( mat1->at(8) * mat2->at(8) );
+    
+    //================================================ Subtract 3 (so that we would have 0 in case of identical matrices)
+    ret                                              -= 3.0;
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function computes the distance between two rotation matrices and returns it.
+ 
+    This function computes the distance between two rotation matrices, specifically by computing the trace of (R1 * R2^T). This measure will be
+    3.0 if the two matrices are identical and will decrease the more the rotation matrices difference diverges from identity. Subtracting 3 will then
+    result in matrix similarity measure.
+ 
+    \param[in] mat1 Pointer to double array of 9 numbers representing first rotation matrix.
+    \param[in] mat1 Pointer to double array of 9 numbers representing second rotation matrix.
+    \param[out] ret Matrix similarity measure.
+ */
+proshade_double ProSHADE_internal_maths::rotationMatrixSimilarityValue ( proshade_double* mat1, proshade_double* mat2 )
+{
+    //================================================ Compute trace of mat1 * mat2^T
+    proshade_double ret                               = ( mat1[0] * mat2[0] ) + ( mat1[1] * mat2[1] ) + ( mat1[2] * mat2[2] );
+    ret                                              += ( mat1[3] * mat2[3] ) + ( mat1[4] * mat2[4] ) + ( mat1[5] * mat2[5] );
+    ret                                              += ( mat1[6] * mat2[6] ) + ( mat1[7] * mat2[7] ) + ( mat1[8] * mat2[8] );
+    
+    //================================================ Subtract 3 (so that we would have 0 in case of identical matrices)
+    ret                                              -= 3.0;
     
     //================================================ Done
     return                                            ( ret );
@@ -3047,6 +3135,76 @@ bool ProSHADE_internal_maths::isAxisUnique ( std::vector< proshade_double* >* CS
     
 }
 
+/*! \brief This function checks if new axis is unique, or already detected and returns the position of match or -1.
+ 
+    This function is a variation on the isAxisUnique function, returning the index of the match or -1.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] axis The axis to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[in] improve If a similar axis is found and if this already existing axis has lower peak height, should the CSymList be updated with the higher peak height axis?
+    \param[out] ret Index of the match or -1.
+ */
+proshade_signed ProSHADE_internal_maths::whichAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    proshade_signed ret                               = -1;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        //============================================ Is fold the same?
+        const FloatingPoint< proshade_double > lhs ( CSymList->at(grIt)[0] ), rhs ( axis[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
+        {
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], axis[1], axis[2], axis[3], tolerance ) )
+            {
+                ret                                   = static_cast< proshade_signed > ( grIt );
+                break;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function checks if new axis is unique, or already detected and returns the position of match or -1.
+ 
+    This function is a variation on the isAxisUnique function, returning the index of the match or -1.
+ 
+    \param[in] CSymList A vector containing the already detected Cyclic symmetries.
+    \param[in] X The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Y The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] Z The axis x-element to be checked against CSymList to see if it not already present.
+    \param[in] tolerance The allowed error on each dimension of the axis.
+    \param[out] ret Index of the match or -1.
+ */
+proshade_signed ProSHADE_internal_maths::whichAxisUnique ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance )
+{
+    //================================================ Initialise variables
+    proshade_signed ret                               = -1;
+    
+    //================================================ For each already detected member
+    for ( proshade_unsign grIt = 0; grIt < static_cast<proshade_unsign> ( CSymList->size() ); grIt++ )
+    {
+        const FloatingPoint< proshade_double > lhs ( fold ), rhs ( CSymList->at(grIt)[0] );
+        if ( lhs.AlmostEquals ( rhs ) )
+        {
+            if ( ProSHADE_internal_maths::vectorOrientationSimilarity ( CSymList->at(grIt)[1], CSymList->at(grIt)[2], CSymList->at(grIt)[3], X, Y, Z, tolerance ) )
+            {
+                ret                                   = static_cast< proshade_signed > ( grIt );
+                break;
+            }
+        }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief This function finds all prime numbers up to the supplied limit.
  
     This function uses the sieve of Eratosthenes algorithm to find all prime numbers from 2 to the supplied limit. This is not
@@ -3193,10 +3351,14 @@ proshade_single ProSHADE_internal_maths::getResolutionOfReflection ( proshade_si
     \param[in] xInds The number of indices along the x-axis.
     \param[in] yInds The number of indices along the y-axis.
     \param[in] zInds The number of indices along the z-axis.
+    \param[in] xSize The size of x-axis in Angstroms
+    \param[in] ySize The size of x-axis in Angstroms
+    \param[in] zSize The size of x-axis in Angstroms
     \param[in] noBin Variable to which the number of binds found will be saved into.
     \param[in] binIndexing A pointer to which the map of bin belonging for each reflection will be saved into.
+    \param[in] resArray Pointer to vector of values to which the resolution from each bin will be saved into.
  */
-void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed* noBin, proshade_signed*& binIndexing )
+void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single xSize, proshade_single ySize, proshade_single zSize, proshade_signed* noBin, proshade_signed*& binIndexing, std::vector< proshade_single >*& resArray )
 {
     //================================================ Allocate output bin indexing memory and set to -100
     binIndexing                                       = new proshade_signed [xInds * yInds * zInds];
@@ -3207,6 +3369,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     //================================================ Allocate local memory
     proshade_single *mins                             = new proshade_single[3];
     proshade_single *maxs                             = new proshade_single[3];
+    proshade_single *hkl                              = new proshade_single[3];
     proshade_single *resMins                          = new proshade_single[3];
     proshade_signed *resMinLoc                        = new proshade_signed[3];
     proshade_single *steps                            = new proshade_single[3];
@@ -3214,13 +3377,14 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     //================================================ Check local memory
     ProSHADE_internal_misc::checkMemoryAllocation     ( mins,      __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( maxs,      __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( hkl,       __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( resMins,   __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( resMinLoc, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( steps,     __FILE__, __LINE__, __func__ );
     
     //================================================ Initialise local variables
-    proshade_single resol                             = 0.0f;
-    proshade_signed reciX, reciY, reciZ, arrPos = 0, minLoc = -1;
+    proshade_single resVal = 0.0, binVal = 0.0, tmpVal = 0.0, tmpMinVal = 0.0;
+    proshade_signed reciX, reciY, reciZ, arrPos = 0, binLoc = 0, minLoc = 0;
    *noBin                                             = 0;
     
     //================================================ Determine reciprocal space indexing
@@ -3228,87 +3392,102 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     mins[1]                                           = std::floor ( yIndsF / -2.0f );
     mins[2]                                           = std::floor ( zIndsF / -2.0f );
         
-    maxs[0]                                           = -mins[0];
-    maxs[1]                                           = -mins[1];
-    maxs[2]                                           = -mins[2];
-    
-    if ( xInds % 2 == 0 ) { mins[0] += 1.0f; }
-    if ( yInds % 2 == 0 ) { mins[1] += 1.0f; }
-    if ( zInds % 2 == 0 ) { mins[2] += 1.0f; }
+    maxs[0]                                           = -(mins[0] + 1);
+    maxs[1]                                           = -(mins[1] + 1);
+    maxs[2]                                           = 0.0;
     
     //================================================ Get minimum resolution based on dims for each dimension
-    resMins[0]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( maxs[0], 0.0f, 0.0f, xIndsF, yIndsF, zIndsF );
-    resMins[1]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, maxs[1], 0.0f, xIndsF, yIndsF, zIndsF );
-    resMins[2]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, maxs[2], xIndsF, yIndsF, zIndsF );
-
+    resMins[0]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( maxs[0], 0.0f, 0.0f, xSize, ySize, zSize );
+    resMins[1]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, maxs[1], 0.0f, xSize, ySize, zSize );
+    resMins[2]                                        = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, maxs[2], xSize, ySize, zSize );
+    
     //================================================ Decide which dimension to work with (the one with the lowest resolution)
     resMinLoc[0] = 0; resMinLoc[1] = 0; resMinLoc[2] = 0;
     const FloatingPoint< proshade_single > lhs1 ( resMins[0] ), lhs2 ( resMins[1] ), lhs3 ( resMins[2] ), rhs1 ( std::min( resMins[0], std::min( resMins[1], resMins[2] ) ) );
     if ( lhs1.AlmostEquals ( rhs1 ) ) { resMinLoc[0] = 1; minLoc = 0; }
-    if ( lhs2.AlmostEquals ( rhs1 ) ) { resMinLoc[1] = 1; minLoc = 1; }
-    if ( lhs3.AlmostEquals ( rhs1 ) ) { resMinLoc[2] = 1; minLoc = 2; }
+    else if ( lhs2.AlmostEquals ( rhs1 ) ) { resMinLoc[1] = 1; minLoc = 1; }
+    else if ( lhs3.AlmostEquals ( rhs1 ) ) { resMinLoc[2] = 1; minLoc = 2; }
+    
+    for ( size_t it = 0; it < 3; it++ ) { hkl[it] = 0.0; if ( static_cast<size_t> ( minLoc ) == it ) { hkl[it] = 1.0; } }
     
     //================================================ Find the bins and corresponding cut-offs
-    std::vector< proshade_single > resArray           ( static_cast< size_t > ( maxs[minLoc] - 1 ), 0.0f );
-    std::vector< proshade_single > binArray           ( static_cast< size_t > ( maxs[minLoc] - 1 ), 0.0f );
-    for ( proshade_signed dimIt = 0; dimIt < static_cast< proshade_signed > ( maxs[minLoc] - 1 ); dimIt++ )
+    resArray                                          = new std::vector< proshade_single > ( static_cast< size_t > ( maxs[minLoc] ), 0.0f );
+    for ( proshade_signed dimIt = 0; dimIt < static_cast< proshade_signed > ( maxs[minLoc] ); dimIt++ )
     {
         //============================================ Prepare steps
-        steps[0]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[0] );
-        steps[1]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[1] );
-        steps[2]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[2] );
+        steps[0]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[0] ) * hkl[0];
+        steps[1]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[1] ) * hkl[1];
+        steps[2]                                      = ( static_cast< proshade_single > ( dimIt ) + 2.5f ) * static_cast< proshade_single > ( resMinLoc[2] ) * hkl[2];
         
         //============================================ Find resolution
-        resol                                         = ProSHADE_internal_maths::getResolutionOfReflection ( steps[0], steps[1], steps[2], xIndsF, yIndsF, zIndsF );
+        resVal                                        = ProSHADE_internal_maths::getResolutionOfReflection ( steps[0], steps[1], steps[2], xSize, ySize, zSize );
         
         //============================================ Assign to arrays
-        resArray.at( static_cast< size_t > ( dimIt ) ) = resol;
-        binArray.at( static_cast< size_t > ( dimIt ) ) = static_cast< proshade_single > ( dimIt ) + 2.5f;
+        resArray->at(static_cast< size_t > ( dimIt ))  = resVal;
        *noBin                                          = dimIt + 1;
     }
     
+    //================================================ Determine resolution limits
+    proshade_single highResLimit                      = resArray->at ( static_cast< size_t > ( *noBin - 1 ) );
+    proshade_single lowResLimit                       = ProSHADE_internal_maths::getResolutionOfReflection ( 0.0f, 0.0f, 0.0f, xSize, ySize, zSize );
+    
+    const FloatingPoint< proshade_single > minX ( mins[0] ), minY ( mins[1] ), minZ ( mins[2] );
+    
     //================================================ Assign reflections to bins
-    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xInds ); xIt++ )
+    for ( proshade_single xIt = static_cast< proshade_single > ( mins[0] ); xIt <= static_cast< proshade_single > ( maxs[0] ); xIt += 1.0f )
     {
-        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yInds ); yIt++ )
+        for ( proshade_single yIt = static_cast< proshade_single > ( mins[1] ); yIt <= static_cast< proshade_single > ( maxs[1] ); yIt += 1.0f )
         {
-            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zInds / 2 ) + 1; zIt++ )
+            for ( proshade_single zIt = static_cast< proshade_single > ( mins[2] ); zIt <= 0.0f; zIt += 1.0f )
             {
-                //==================================== Deal with reciprocal indices ordering
-                reciX = xIt; if ( reciX > static_cast< proshade_signed > ( maxs[0] ) ) { reciX -= static_cast< proshade_signed > ( xInds ); }
-                reciY = yIt; if ( reciY > static_cast< proshade_signed > ( maxs[1] ) ) { reciY -= static_cast< proshade_signed > ( yInds ); }
-                reciZ = zIt; if ( reciZ > static_cast< proshade_signed > ( maxs[2] ) ) { reciZ -= static_cast< proshade_signed > ( zInds ); }
+                //==================================== Find resoltion of this spot
+                resVal                                = ProSHADE_internal_maths::getResolutionOfReflection ( xIt, yIt, zIt, xSize, ySize, zSize );
+                
+                //==================================== Is it in range?
+                if ( ( resVal < highResLimit ) || ( resVal > lowResLimit ) ) { continue; }
                 
                 //==================================== For each bin, check if this reflection belongs to it
                 for ( proshade_signed binIt = 0; binIt < (*noBin); binIt++ )
                 {
-                    //================================ Check by comparing distances
-                    if ( std::sqrt ( std::pow ( static_cast< proshade_single > ( reciX ), 2.0f ) +
-                                     std::pow ( static_cast< proshade_single > ( reciY ), 2.0f ) +
-                                     std::pow ( static_cast< proshade_single > ( reciZ ), 2.0f ) ) <= binArray.at( static_cast< size_t > ( binIt ) ) )
+                    //================================ Find bin resolution
+                    binVal                            = std::sqrt ( std::pow ( resArray->at( static_cast< size_t > ( binIt ) ) - resVal, 2.0f ) );
+                    
+                    //================================ Is this the closest bin to the spot resolution?
+                    if ( binIt == 0 )
                     {
-                        //============================ This is the bin for this reflection. Assign it.
-                        arrPos                        = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
-                        binIndexing[ static_cast< size_t > ( arrPos ) ] = binIt;
-                        
-                        //============================ If one of the uneven ends, do not use Friedel's Law
-                        if ( reciX == static_cast< proshade_signed > ( mins[0] ) || -reciX == static_cast< proshade_signed > ( mins[0] ) ) { break; }
-                        if ( reciY == static_cast< proshade_signed > ( mins[1] ) || -reciY == static_cast< proshade_signed > ( mins[1] ) ) { break; }
-                        if ( reciZ == static_cast< proshade_signed > ( mins[2] ) || -reciZ == static_cast< proshade_signed > ( mins[2] ) ) { break; }
-                        
-                        //============================ Use Friedel's Law to find the second index (this is why we can use zDim / 2)
-                        reciX *= -1; if ( reciX < 0 ) { reciX += static_cast< proshade_signed > ( xInds ); }
-                        reciY *= -1; if ( reciY < 0 ) { reciY += static_cast< proshade_signed > ( yInds ); }
-                        reciZ *= -1; if ( reciZ < 0 ) { reciZ += static_cast< proshade_signed > ( zInds ); }
-
-                        //============================ Apply Friedel's Law
-                        arrPos                        = reciZ + static_cast< proshade_signed > ( zInds ) * ( reciY + static_cast< proshade_signed > ( yInds ) * reciX );
-                        binIndexing[ static_cast< size_t > ( arrPos ) ] = binIt;
-                        
-                        //============================ Done, exit bins loop
-                        break;
+                        tmpVal                        = binVal;
+                        tmpMinVal                     = binVal;
+                        binLoc                        = binIt;
+                    }
+                    else
+                    {
+                        tmpVal                        = binVal;
+                        if ( tmpVal < tmpMinVal )
+                        {
+                            tmpMinVal                 = binVal;
+                            binLoc                    = binIt;
+                        }
                     }
                 }
+                
+                //==================================== Save bin index
+                reciX                                 = static_cast< proshade_signed > (  xIt - mins[0] );
+                reciY                                 = static_cast< proshade_signed > (  yIt - mins[1] );
+                reciZ                                 = static_cast< proshade_signed > (  zIt - mins[2] );
+                
+                arrPos                                = reciZ + static_cast< proshade_signed > ( zInds ) * ( reciY + static_cast< proshade_signed > ( yInds ) * reciX );
+                binIndexing[ static_cast< size_t > ( arrPos ) ] = binLoc;
+                
+                //==================================== If applicable, use Friedel's Law
+                const FloatingPoint< proshade_single > itX ( xIt ), itY ( yIt ), itZ ( zIt );
+                if ( minX.AlmostEquals ( itX ) || minY.AlmostEquals ( itY ) || minZ.AlmostEquals ( itZ ) ) { continue; }
+                
+                reciX                                 = static_cast< proshade_signed > ( -xIt - mins[0] );
+                reciY                                 = static_cast< proshade_signed > ( -yIt - mins[1] );
+                reciZ                                 = static_cast< proshade_signed > ( -zIt - mins[2] );
+                
+                arrPos                                = reciZ + static_cast< proshade_signed > ( zInds ) * ( reciY + static_cast< proshade_signed > ( yInds ) * reciX );
+                binIndexing[ static_cast< size_t > ( arrPos ) ] = binLoc;
             }
         }
     }
@@ -3316,10 +3495,129 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     //================================================ Release memory
     delete[] mins;
     delete[] maxs;
+    delete[] hkl;
     delete[] resMins;
     delete[] resMinLoc;
     delete[] steps;
     
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function cuts the bin assignment array into a smaller array containing all bins up to a given resolution.
+ 
+    This function firstly decides on between which array indices the bin assignment values need to be held for all bins up to the given
+    resolution to be present. Once the decision is made, it cuts the bin indexing array to the smallest size sufficient to contain all
+    bin assignments to the required resolution.
+ 
+    \param[in] xInds The number of indices along the x-axis.
+    \param[in] yInds The number of indices along the y-axis.
+    \param[in] zInds The number of indices along the z-axis.
+    \param[in] resolution The resolution to which the map should be cut to.
+    \param[in] binIndexing A pointer to the map of bin assignment for each reflection.
+    \param[in] resArray Pointer to a vector of the resolution for each bin.
+    \param[in] cutXDim Pointer to which the x-axis dimension of the cut map will be saved into.
+    \param[in] cutYDim Pointer to which the y-axis dimension of the cut map will be saved into.
+    \param[in] cutZDim Pointer to which the z-axis dimension of the cut map will be saved into.
+    \param[in] cutBinIndices Array to which the cut indices will be saved into.
+    \param[in] noBins Variable to which the number of bins adter cutting will be saved into.
+ */
+void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single resolution, proshade_signed* binIndexing, std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins )
+{
+    //================================================ Initialise local variables
+    proshade_single resCut                            = resolution;
+    proshade_single minVal                            = std::numeric_limits < proshade_single >::infinity();
+   *noBins                                            = 0;
+    std::vector< proshade_single > resDists;
+    
+    //================================================ Find the maximum bin to be used
+    for ( size_t iter = 0; iter < resArray->size(); iter++ ) { ProSHADE_internal_misc::addToSingleVector ( &resDists, std::sqrt ( std::pow ( resArray->at(iter) - resCut, 2.0f ) ) ); }
+    for ( size_t iter = 0; iter < resDists.size(); iter++ ) { if ( resDists.at(iter) < minVal ) { minVal = resDists.at(iter); (*noBins) = static_cast< proshade_signed > ( iter ); } }
+    
+    //================================================ Compute new map dimensions
+    proshade_signed newXFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * (*noBins) ) / 2 ) );
+    proshade_signed newYFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( yInds ) - 2 * (*noBins) ) / 2 ) );
+    proshade_signed newZFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( zInds ) - 2 * (*noBins) ) / 2 ) );
+    proshade_signed newXTo                            = static_cast< proshade_signed > ( std::round ( newXFrom + 2 * (*noBins) ) );
+    proshade_signed newYTo                            = static_cast< proshade_signed > ( std::round ( newYFrom + 2 * (*noBins) ) );
+    proshade_signed newZTo                            = static_cast< proshade_signed > ( std::round ( newZFrom + 2 * (*noBins) ) );
+   *cutXDim                                           = ( newXTo - newXFrom );
+   *cutYDim                                           = ( newYTo - newYFrom );
+   *cutZDim                                           = ( newZTo - newZFrom );
+    
+    //================================================ Create new binIndexing within only the new dimensions
+    cutBinIndices                                     = new proshade_signed[(*cutXDim) * (*cutYDim) * (*cutZDim)];
+    ProSHADE_internal_misc::checkMemoryAllocation     ( cutBinIndices, __FILE__, __LINE__, __func__ );
+    
+    proshade_signed newArrPos = 0, origArrPos = 0;
+    for ( proshade_signed xIt = newXFrom; xIt < newXTo; xIt++ )
+    {
+        for ( proshade_signed yIt = newYFrom; yIt < newYTo; yIt++ )
+        {
+            for ( proshade_signed zIt = newZFrom; zIt < newZTo; zIt++ )
+            {
+                //==================================== Find positions
+                newArrPos                             = (zIt-newZFrom) + (newZTo-newZFrom) * ( (yIt-newYFrom) + (newYTo-newYFrom) * (xIt-newXFrom) );
+                origArrPos                            = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
+                
+                //==================================== Copy value
+                cutBinIndices[newArrPos]              = binIndexing[origArrPos];
+            }
+        }
+    }
+
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief This function re-sizes data array to contain only values up to a particular resolution bin.
+ 
+    \param[in] xInds The number of indices along the x-axis for the full map.
+    \param[in] yInds The number of indices along the y-axis for the full map.
+    \param[in] zInds The number of indices along the z-axis for the full map.
+    \param[in] noBins The largest bin after cutting.
+    \param[in] inputMap The map to be cut.
+    \param[in] cutMap The map after cutting.
+ 
+    \warning This function is part of the FSC computation framework and makes assumptions that may not be true in general. Please look into the code before using.
+ */
+void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap )
+{
+    //================================================ Compute new map dimensions
+    proshade_signed newXFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * noBins ) / 2 ) );
+    proshade_signed newYFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( yInds ) - 2 * noBins ) / 2 ) );
+    proshade_signed newZFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( zInds ) - 2 * noBins ) / 2 ) );
+    proshade_signed newXTo                            = static_cast< proshade_signed > ( std::round ( newXFrom + 2 * noBins ) );
+    proshade_signed newYTo                            = static_cast< proshade_signed > ( std::round ( newYFrom + 2 * noBins ) );
+    proshade_signed newZTo                            = static_cast< proshade_signed > ( std::round ( newZFrom + 2 * noBins ) );
+    proshade_signed cutXDim                           = ( newXTo - newXFrom );
+    proshade_signed cutYDim                           = ( newYTo - newYFrom );
+    proshade_signed cutZDim                           = ( newZTo - newZFrom );
+    
+    //================================================ Create new binIndexing within only the new dimensions
+    cutMap                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( cutXDim * cutYDim * cutZDim ) ) );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( cutMap, __FILE__, __LINE__, __func__ );
+    
+    proshade_signed newArrPos = 0, origArrPos = 0;
+    for ( proshade_signed xIt = newXFrom; xIt < newXTo; xIt++ )
+    {
+        for ( proshade_signed yIt = newYFrom; yIt < newYTo; yIt++ )
+        {
+            for ( proshade_signed zIt = newZFrom; zIt < newZTo; zIt++ )
+            {
+                //==================================== Find positions
+                newArrPos                             = (zIt-newZFrom) + (newZTo-newZFrom) * ( (yIt-newYFrom) + (newYTo-newYFrom) * (xIt-newXFrom) );
+                origArrPos                            = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
+                
+                //==================================== Copy value
+                cutMap[newArrPos][0]                  = inputMap[origArrPos][0];
+                cutMap[newArrPos][1]                  = inputMap[origArrPos][1];
+            }
+        }
+    }
+
     //================================================ Done
     return ;
     
@@ -3342,9 +3640,10 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     \param[in] binData Array of arrays for holding temporary results of the FSC computation. It needs to have been already allocated and have dimensions of noBins x 12. This array is modified by the function in case the caller would like access to these.
     \param[in] binCounts Array of counts for each bin. It needs to be pre-allocated and have dimension of noBins. This array is modified by the function in case the caller would like access to these.
     \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
+    \param[in] weightByBinSize Boolean value determining if averaging bins should take into account  the bin sizes or not.
     \param[out] fsc The Fourier Shell Correlation between the two supplied Fourier coefficient maps.
  */
-proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin )
+proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin, bool averageByBinSize )
 {
     //================================================ Initialise local variables
     proshade_double realOrig, realRot, imagOrig, imagRot, fsc = 0.0;;
@@ -3356,25 +3655,25 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { binCounts[binIt] = 0; }
     
     //================================================ Compute bin sums
-    for ( proshade_signed xIt = 0; xIt < static_cast< proshade_signed > ( xInds ); xIt++ )
+    for ( proshade_signed xIt = 0; xIt < xInds; xIt++ )
     {
-        for ( proshade_signed yIt = 0; yIt < static_cast< proshade_signed > ( yInds ); yIt++ )
+        for ( proshade_signed yIt = 0; yIt < yInds; yIt++ )
         {
-            for ( proshade_signed zIt = 0; zIt < static_cast< proshade_signed > ( zInds ); zIt++ )
+            for ( proshade_signed zIt = 0; zIt < ( zInds / 2 ); zIt++ )
             {
                 //==================================== Find array position
                 arrPos                                = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
                 
                 //==================================== If no bin is associated, skip this reflection
                 indx                                  = binIndexing[ static_cast< size_t > ( arrPos ) ];
-                if ( ( indx < 0 ) || ( indx > noBins ) ) { continue; }
+                if ( ( indx < 0 ) || ( indx >= noBins ) ) { continue; }
                 
                 //==================================== Calculate the sums
                 realOrig                              = fCoeffs1[arrPos][0];
                 imagOrig                              = fCoeffs1[arrPos][1];
                 realRot                               = fCoeffs2[arrPos][0];
                 imagRot                               = fCoeffs2[arrPos][1];
-                    
+                
                 binData[indx][0]                     += realOrig;
                 binData[indx][1]                     += imagOrig;
                 binData[indx][2]                     += realRot;
@@ -3418,8 +3717,16 @@ proshade_double ProSHADE_internal_maths::computeFSC ( fftw_complex *fCoeffs1, ff
     proshade_double binSizeSum                        = 0.0;
     for ( size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ )
     {
-        fsc                                          += fscByBin[binIt] * static_cast< proshade_double > ( binCounts[binIt] );
-        binSizeSum                                   += static_cast< proshade_double > ( binCounts[binIt] );
+        if ( averageByBinSize )
+        {
+            fsc                                      += fscByBin[binIt] * static_cast< proshade_double > ( binCounts[binIt] );
+            binSizeSum                               += static_cast< proshade_double > ( binCounts[binIt] );
+        }
+        else
+        {
+            fsc                                      += fscByBin[binIt];
+            binSizeSum                               += 1;
+        }
     }
     fsc                                              /= static_cast< proshade_double > ( binSizeSum );
     
@@ -3631,12 +3938,12 @@ void ProSHADE_internal_maths::computeTrFunDerivatives ( proshade_complex* fCoeff
                 firstDers[2] += ( weights1[arrPos] * fCoeffs[arrPos][0] * std::conj( fCoeffs[arrPos][1] * piConstFirst * static_cast< proshade_double > ( reciZ ) ) ).real();
                 
                 //==================================== Add to the second derivatives sum
-                secondDers[0]                        += weights2[arrPos] * reciX * reciX;
-                secondDers[1]                        += weights2[arrPos] * reciX * reciY;
-                secondDers[2]                        += weights2[arrPos] * reciX * reciZ;
-                secondDers[4]                        += weights2[arrPos] * reciY * reciY;
-                secondDers[5]                        += weights2[arrPos] * reciY * reciZ;
-                secondDers[8]                        += weights2[arrPos] * reciZ * reciZ;
+                secondDers[0]                        += weights2[arrPos] * static_cast< proshade_double > ( reciX * reciX );
+                secondDers[1]                        += weights2[arrPos] * static_cast< proshade_double > ( reciX * reciY );
+                secondDers[2]                        += weights2[arrPos] * static_cast< proshade_double > ( reciX * reciZ );
+                secondDers[4]                        += weights2[arrPos] * static_cast< proshade_double > ( reciY * reciY );
+                secondDers[5]                        += weights2[arrPos] * static_cast< proshade_double > ( reciY * reciZ );
+                secondDers[8]                        += weights2[arrPos] * static_cast< proshade_double > ( reciZ * reciZ );
             }
         }
     }
@@ -3753,7 +4060,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     if ( windowSize % 2 == 0 )                        { windowSize += 1; }
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( !std::isinf( CSym->at(symIt)[peakPos] ) ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt)[peakPos], symIt ) ); } }
     
     //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
     for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
@@ -3782,7 +4089,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
     else                    { bestHistPos = 0.0; }
     
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize - 1 ) * step );
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
     
     //================================================ Done
     return                                            ( threshold );
@@ -3816,7 +4123,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     if ( windowSize % 2 == 0 )                        { windowSize += 1; }
     
     //================================================ Get vector of pairs of peak heights and indices in CSym array
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt).at(peakPos), symIt ) ); }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( !std::isinf( CSym->at(symIt).at(peakPos) ) ) { vals.emplace_back ( std::pair < proshade_double, proshade_unsign > ( CSym->at(symIt).at(peakPos), symIt ) ); } }
     
     //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
     for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
@@ -3846,7 +4153,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
     else                    { bestHistPos = 0.0; }
     
-    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step ) - ( static_cast< proshade_double > ( windowSize ) * step );
+    threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
     
     //================================================ Done
     return                                            ( threshold );
