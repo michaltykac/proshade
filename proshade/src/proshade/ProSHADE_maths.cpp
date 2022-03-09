@@ -2813,9 +2813,8 @@ void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double
         //============================================ Prepare for next iteration
         valChange                                     = std::floor ( 100000.0 * ( *bestSum - prevVal ) ) / 100000.0;
         prevVal                                       = std::floor ( 100000.0 * ( *bestSum           ) ) / 100000.0;
-        step                                          = std::max ( ( valChange / step ) * learningRate, 0.01 );
+        step                                          = std::min ( 0.2, std::max ( ( valChange / step ) * learningRate, 0.01 ) );
         if ( learningRate >= 0.02 ) { learningRate -= 0.01; }
-        
     }
     
     //================================================ Release interpolators memory

@@ -2917,7 +2917,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
             {
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
-                if ( foldToTest > settings->maxSymmetryFold ) { continue; }
+                if ( foldToTest > ( settings->maxSymmetryFold * 4 ) ) { continue; }
                 
                 //==================================== Was this fold tested already?
                 foldDone                              = false;
@@ -2938,7 +2938,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 {
                     if ( prSyms.at(newAxIt)[5] >= symThres )
                     {
-                        //================================ Add to detected axes
+                        //============================ Add to detected axes
                         if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(newAxIt), settings->axisErrTolerance, true ) )
                         {
                             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &tmpHolder, prSyms.at(newAxIt) );

@@ -644,7 +644,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     proshade_single zSampRate                         = this->zDimSize / static_cast< proshade_single > ( this->zTo - this->zFrom );
     
     //================================================ Compute map COM
-    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOM, &yCOM, &zCOM, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOM, &yCOM, &zCOM, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, false );
     
     //================================================ Allocate local variables
     proshade_single *mins                             = new proshade_single[3];

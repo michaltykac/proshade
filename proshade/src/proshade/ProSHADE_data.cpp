@@ -1463,7 +1463,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     
     //================================================ Find COM before map re-sampling
     proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
-    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
     
     //================================================ Now re-sample the map
     if ( settings->changeMapResolution )
@@ -1502,7 +1502,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     
     //================================================ Find COM after map re-sampling and corner move
     proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
-    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
     
     //================================================ Figure how much the new map moved
     proshade_single xMov                              = static_cast< proshade_single > ( xMapCOMPostReSampl - xMapCOMPreReSampl );
@@ -1553,13 +1553,30 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
     
     //================================================ Find the COM location
     ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOM, &yCOM, &zCOM,
-                                                        this->xDimSize, this->yDimSize, this->xDimSize, this->xFrom,
-                                                        this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+                                                        this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom,
+                                                        this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
+    
+    proshade_double tot = 0.0, xc = 0.0l, yc = 0.0, zc = 0.0;
+    for ( int x = 0; x < this->xTo; x++ )
+    {
+        for ( int y = 0; y < this->yTo; y++ )
+        {
+            for ( int z = 0; z < this->zTo; z++ )
+            {
+                int ap = z + (this->zTo+1) * ( y + (this->yTo+1) * x );
+                
+                tot += this->internalMap[ap];
+                xc += ( x * this->internalMap[ap] );
+                yc += ( y * this->internalMap[ap] );
+                zc += ( z * this->internalMap[ap] );
+            }
+        }
+    }
     
     //================================================ Find the sampling rates
-    proshade_single xSampRate                         = static_cast< proshade_single > ( this->xDimSize ) / static_cast< proshade_single > ( this->xTo - this->xFrom );
-    proshade_single ySampRate                         = static_cast< proshade_single > ( this->yDimSize ) / static_cast< proshade_single > ( this->yTo - this->yFrom );
-    proshade_single zSampRate                         = static_cast< proshade_single > ( this->zDimSize ) / static_cast< proshade_single > ( this->zTo - this->zFrom );
+    proshade_single xSampRate                         = static_cast< proshade_single > ( this->xDimSize ) / static_cast< proshade_single > ( this->xTo - this->xFrom + 1 );
+    proshade_single ySampRate                         = static_cast< proshade_single > ( this->yDimSize ) / static_cast< proshade_single > ( this->yTo - this->yFrom + 1 );
+    proshade_single zSampRate                         = static_cast< proshade_single > ( this->zDimSize ) / static_cast< proshade_single > ( this->zTo - this->zFrom + 1 );
     
     //================================================ Convert to position in indices starting from 0
     xCOM                                             /= static_cast< proshade_double > ( xSampRate );
@@ -1729,7 +1746,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Invert map
     if ( settings->invertMap ) { this->invertMirrorMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion (mirror image) not requested.", settings->messageShift ); }
- 
+    
     //================================================ Normalise map
     if ( settings->normaliseMap ) { this->normaliseMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested.", settings->messageShift ); }
@@ -1737,7 +1754,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Compute mask
     if ( settings->maskMap ) { this->maskMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested.", settings->messageShift ); }
-
+    
     //================================================ Centre map
     if ( settings->moveToCOM ) { this->centreMapOnCOM ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested.", settings->messageShift ); }
@@ -1752,7 +1769,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
-        
+    this->writeMap ( "testMap.map" );
     //================================================ Done
     return ;
     
