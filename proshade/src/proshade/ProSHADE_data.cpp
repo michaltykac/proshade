@@ -1556,23 +1556,6 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
                                                         this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom,
                                                         this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
     
-    proshade_double tot = 0.0, xc = 0.0l, yc = 0.0, zc = 0.0;
-    for ( int x = 0; x < this->xTo; x++ )
-    {
-        for ( int y = 0; y < this->yTo; y++ )
-        {
-            for ( int z = 0; z < this->zTo; z++ )
-            {
-                int ap = z + (this->zTo+1) * ( y + (this->yTo+1) * x );
-                
-                tot += this->internalMap[ap];
-                xc += ( x * this->internalMap[ap] );
-                yc += ( y * this->internalMap[ap] );
-                zc += ( z * this->internalMap[ap] );
-            }
-        }
-    }
-    
     //================================================ Find the sampling rates
     proshade_single xSampRate                         = static_cast< proshade_single > ( this->xDimSize ) / static_cast< proshade_single > ( this->xTo - this->xFrom + 1 );
     proshade_single ySampRate                         = static_cast< proshade_single > ( this->yDimSize ) / static_cast< proshade_single > ( this->yTo - this->yFrom + 1 );

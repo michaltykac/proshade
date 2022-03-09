@@ -28,7 +28,7 @@
 void add_mapManipNamespace ( pybind11::module& pyProSHADE )
 {
     pyProSHADE.def                                    ( "findMAPCOMValues",
-    [] ( ProSHADE_internal_data::ProSHADE_data* dataObj ) -> pybind11::array_t < proshade_double >
+    [] ( ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings ) -> pybind11::array_t < proshade_double >
     {
         //== Run the detection
         proshade_double xMapCOM = 0.0, yMapCOM = 0.0, zMapCOM = 0.0;
@@ -37,7 +37,7 @@ void add_mapManipNamespace ( pybind11::module& pyProSHADE )
                                                         dataObj->xDimSize, dataObj->yDimSize, dataObj->zDimSize,
                                                         dataObj->xFrom, dataObj->xTo,
                                                         dataObj->yFrom, dataObj->yTo,
-                                                        dataObj->zFrom, dataObj->zTo );
+                                                        dataObj->zFrom, dataObj->zTo, settings->removeNegativeDensity );
         
         //== Allocate memory for the numpy values
         proshade_double* npVals                       = new proshade_double[3];
@@ -59,6 +59,6 @@ void add_mapManipNamespace ( pybind11::module& pyProSHADE )
 
         //== Done
         return                                        ( retArr );
-    }, "This function takes the proshade map object and procceds to compute the Centre of Mass of this object in Angstroms in real space.", pybind11::arg ( "dataObj" ) );
+    }, "This function takes the proshade map object and procceds to compute the Centre of Mass of this object in Angstroms in real space.", pybind11::arg ( "dataObj" ), pybind11::arg ( "settings" ) );
     
 }
