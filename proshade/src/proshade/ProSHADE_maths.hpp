@@ -3,7 +3,7 @@
  
     This header file declares the ProSHADE_internal_maths namespace, which groups all the functions required to computed various information from
     the specific ProSHADE data and its organisation. The functionalities available here include complex number computations, rotation representation
-    conversions as well as Gauss-Legendre integration or Taylor series approximation.
+    conversions as well as Gauss-Legendre integration.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
 
@@ -309,15 +309,14 @@ namespace ProSHADE_internal_maths
     void arrayMedianAndIQR                            ( proshade_double* vec, proshade_unsign vecSize, proshade_double*& ret );
     proshade_double pearsonCorrCoeff                  ( proshade_double* valSet1, proshade_double* valSet2, proshade_unsign length );
     void getLegendreAbscAndWeights                    ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights,
-                                                        proshade_unsign taylorSeriesCap );
+                                                        proshade_unsign noSteps );
     void getGLPolyAtZero                              ( proshade_unsign order, proshade_double *polyValue, proshade_double *deriValue );
-    void getGLFirstEvenRoot                           ( proshade_double polyAtZero, proshade_unsign order, proshade_double *abscAtZero,
+    void getGLFirstRealRoot                           ( proshade_double polyAtZero, proshade_unsign order, proshade_double *abscAtZero,
                                                         proshade_double *weighAtZero, proshade_unsign taylorSeriesCap );
-    proshade_double evaluateGLSeries                  ( proshade_double *series, proshade_double target, proshade_unsign terms );
-    proshade_double advanceGLPolyValue                ( proshade_double from, proshade_double to, proshade_double valAtFrom,
-                                                        proshade_unsign noSteps, proshade_unsign taylorSeriesCap );
-    void completeLegendreSeries                       ( proshade_unsign order, proshade_double* abscissa, proshade_double* weights,
-                                                        proshade_unsign taylorSeriesCap );
+    proshade_double evaluateGLPolynomial              ( proshade_double *series, proshade_double target, proshade_unsign terms );
+    proshade_double advanceGLPolyValue                ( proshade_double from, proshade_double to, proshade_double valAtFrom, proshade_unsign order, proshade_unsign noSteps );
+    void completeAbscissasAndWeights                  ( proshade_unsign order, proshade_double* abscissa, proshade_double* weights,
+                                                        proshade_unsign noSteps );
     proshade_double gaussLegendreIntegrationReal      ( proshade_double* vals, proshade_unsign valsSize, proshade_unsign order,
                                                         proshade_double* abscissas, proshade_double* weights, proshade_double integralOverRange,
                                                         proshade_double maxSphereDists );

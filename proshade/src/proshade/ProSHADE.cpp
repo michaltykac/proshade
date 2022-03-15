@@ -67,7 +67,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the Gauss-Legendre integration
     this->integOrder                                  = 0;
-    this->taylorSeriesCap                             = 10;
+    this->integApproxSteps                            = 10;
     
     //================================================ Settings regarding map normalisation
     this->normaliseMap                                = false;
@@ -205,7 +205,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     
     //================================================ Settings regarding the Gauss-Legendre integration
     this->integOrder                                  = settings->integOrder;
-    this->taylorSeriesCap                             = settings->taylorSeriesCap;
+    this->integApproxSteps                            = settings->integApproxSteps;
     
     //================================================ Settings regarding map normalisation
     this->normaliseMap                                = settings->normaliseMap;
@@ -350,7 +350,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     
     //================================================ Settings regarding the Gauss-Legendre integration
     this->integOrder                                  = 0;
-    this->taylorSeriesCap                             = 10;
+    this->integApproxSteps                            = 10;
     
     //================================================ Settings regarding map normalisation
     this->normaliseMap                                = false;
@@ -1147,21 +1147,21 @@ void                       ProSHADE_settings::setIntegrationOrder ( proshade_uns
     
 }
 
-/*! \brief Sets the requested Taylor series cap for the Gauss-Legendre integration in the appropriate variable.
+/*! \brief Sets the requested number of steps used in approximating Legendre polynomial decomposition to steps in the appropriate variable.
  
-    This function sets the Taylor series maximum limit for the Gauss-Legendre integration between the spheres order
-    value in the appropriate variable.
+    This function sets the number of steps that will be used by the Gauss-Legendre quadrature preparation, mor specifically when the Legendre polynomials
+    are being decomposed into terms.
  
-    \param[in] tayCap The requested value for the Taylor series cap. (0 = AUTOMATIC DETERMINATION).
+    \param[in] noSteps The requested value for the number of steps to be used.
  */
 #if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
+void __declspec(dllexport) ProSHADE_settings::setIntegrationApproxSteps ( proshade_unsign noSteps )
 #else
-void                       ProSHADE_settings::setTaylorSeriesCap ( proshade_unsign tayCap )
+void                       ProSHADE_settings::setIntegrationApproxSteps ( proshade_unsign noSteps )
 #endif
 {
     //================================================ Set the value
-    this->taylorSeriesCap                             = tayCap;
+    this->integApproxSteps                            = noSteps;
     
     //================================================ Done
     return ;
@@ -2223,7 +2223,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "sphereDists",     required_argument,  nullptr, 's' },
         { "extraSpace",      required_argument,  nullptr, 'e' },
         { "integOrder",      required_argument,  nullptr, 'i' },
-        { "taylorCap",       required_argument,  nullptr, 't' },
+        { "integApprox",     required_argument,  nullptr, 't' },
         { "invertMap",       no_argument,        nullptr, '@' },
         { "normalise",       no_argument,        nullptr, '#' },
         { "mask",            no_argument,        nullptr, '$' },
@@ -2414,10 +2414,10 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
                  continue;
              }
                  
-             //======================================= Save the argument as the taylor series cap value
+             //======================================= Save the argument as the number of steps for Legendre polynomial decomposition onto terms approximation
              case 't':
              {
-                 this->setTaylorSeriesCap             ( static_cast<proshade_unsign> ( atof ( optarg ) ) );
+                 this->setIntegrationApproxSteps      ( static_cast<proshade_unsign> ( atof ( optarg ) ) );
                  continue;
              }
                  
@@ -2874,8 +2874,8 @@ void                       ProSHADE_settings::printSettings ( )
     printf ( "Integration order   : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
-    strstr << this->taylorSeriesCap;
-    printf ( "Taylor series cap   : %37s\n", strstr.str().c_str() );
+    strstr << this->integApproxSteps;
+    printf ( "Integ. approx. steps: %37s\n", strstr.str().c_str() );
     
     //== Settings regarding map normalisation
     strstr.str(std::string());

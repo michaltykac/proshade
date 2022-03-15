@@ -223,10 +223,9 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The order to which the Gauss-Legendre integration should be         " << std::endl;
     std::cout << "            computed to. For automatic determination use 0.                     " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    -t or --taylorCap                               [DEFAULT:           10]     " << std::endl;
-    std::cout << "            The cap on Taylor series calculation (used for the Legendre         " << std::endl;
-    std::cout << "            polynomial computation). No automatic determination available       " << std::endl;
-    std::cout << "            yet.                                                                " << std::endl;
+    std::cout << "    -t or --integApprox                             [DEFAULT:           10]     " << std::endl;
+    std::cout << "            This is the number of steps that will be used in the approximation  " << std::endl;
+    std::cout << "            of the Legendre polynomial decomposition into terms.                " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    -d or --pdbTempFact                             [DEFAULT:         -1.0]     " << std::endl;
     std::cout << "            Some PDB files have issues with B-factors (like all being 0.0)      " << std::endl;

@@ -1752,7 +1752,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
-    this->writeMap ( "testMap.map" );
+
     //================================================ Done
     return ;
     
@@ -1820,7 +1820,7 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
 /*! \brief This function converts the internal map onto a set of concentric spheres.
  
     This function starts by determining the spherical harmonics values which were not supplied by the user, these may be
-    bandwidth, taylor series cap, integration order, etc. It then proceeds to determine the optimal sphere distances, unless
+    bandwidth, Legendre approximation steps, integration order, etc. It then proceeds to determine the optimal sphere distances, unless
     these were determined by the user.
  
     Finally, the function creates a new instance of the ProSHADE_sphere class for each of the already determined sphere
