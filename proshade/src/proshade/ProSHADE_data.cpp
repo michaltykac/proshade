@@ -3504,7 +3504,8 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     //================================================ Improve this!
     if ( settings->recommendedSymmetryType == "" )
     {
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!", settings->messageShift );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "", settings->messageShift );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Cannot predict any symmetry! There may still be symmetries detected, but ProSHADE algorithm does not consider them reliable.", settings->messageShift );
     }
     else
     {
@@ -3525,25 +3526,24 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
             ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->detectedSymmetry.at(symIt)[0] << std::setprecision(5) << "     " << settings->detectedSymmetry.at(symIt)[1] << "   " << settings->detectedSymmetry.at(symIt)[2] << "   " << settings->detectedSymmetry.at(symIt)[3] << "     " << settings->detectedSymmetry.at(symIt)[4] << "      " << settings->detectedSymmetry.at(symIt)[5] << "      " << settings->detectedSymmetry.at(symIt)[6];
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
+    }
         
-        std::stringstream hlpSS3;
+    std::stringstream ssHlp, hlpSS3;
+    ssHlp.clear(); ssHlp.str ( "" );
+    hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str(), settings->messageShift );
+    
+    if ( settings->allDetectedCAxes.size() > 0 )
+    {
         ssHlp.clear(); ssHlp.str ( "" );
-        hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str(), settings->messageShift );
-        
-        if ( settings->allDetectedCAxes.size() > 0 )
-        {
-            ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
-        }
-        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
-        {
-            ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5] << "      " << settings->allDetectedCAxes.at(symIt)[6];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
-        }
-        
+        ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5] << "      " << settings->allDetectedCAxes.at(symIt)[6];
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
     }
     
     //================================================ Done
