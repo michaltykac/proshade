@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      MAR 2022
  */
 
 //==================================================== ProSHADE
@@ -2769,7 +2769,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
         {
             //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
-            if ( cIt > 15 ) { break; }
+            if ( cIt > 20 ) { break; }
             
             //======================================== Check the peak height
             if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
@@ -2788,7 +2788,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
             {
                 //==================================== If FSC passes
-                if ( CSym->at(cIt)[6] > bestHistFSCStart )
+                if ( ( CSym->at(cIt)[6] > bestHistFSCStart ) && ( CSym->at(cIt)[6] > settings->fscThreshold ) )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );
