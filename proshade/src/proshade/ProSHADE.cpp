@@ -111,7 +111,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->coOrdsExtraSpace                            = 10.0;
     
     //================================================ Settings regarding shell settings
-    this->progressiveSphereMapping                    = false;
+    this->progressiveSphereMapping                    = true;
     
     //================================================ Settings regarding output file name
     this->outName                                     = "reBoxed";
@@ -395,7 +395,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->coOrdsExtraSpace                            = 10.0;
     
     //================================================ Settings regarding shell settings
-    this->progressiveSphereMapping                    = false;
+    this->progressiveSphereMapping                    = true;
     
     //================================================ Settings regarding output file name
     this->outName                                     = "reBoxed";
@@ -2580,7 +2580,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              //======================================= Set progressive shell mapping to true
              case 'k':
              {
-                 this->setProgressiveSphereMapping    ( true );
+                 this->setProgressiveSphereMapping    ( false );
                  continue;
              }
                  
