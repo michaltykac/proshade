@@ -2725,6 +2725,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                 if ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) < onlyDThreshold ) { continue; }
                 
                 //==================================== All good!
+                bestVal                               = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
                 bestFold                              = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
                 bestD                                 = static_cast< proshade_signed > ( dIt );
             }
@@ -3762,6 +3763,10 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
 
 /*! \brief This function allows access to the private internal real spherical harmonics values.
  
+    \param[in] band The l for which the spherical harmonics value is to be retrieved.
+    \param[in] order The m for which the spherical harmonics value is to be retrieved.
+    \param[in] shell The shell for which the spherical harmonics value is to be retrieved.
+    \param[in] locBand The bandwidth to which this shell was computed to.
     \param[out] X Pointer to the value of the internal private spherical harmonics real value of the given index.
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
@@ -3775,6 +3780,10 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( pr
 
 /*! \brief This function allows access to the private internal imaginary spherical harmonics values.
  
+    \param[in] band The l for which the spherical harmonics value is to be retrieved.
+    \param[in] order The m for which the spherical harmonics value is to be retrieved.
+    \param[in] shell The shell for which the spherical harmonics value is to be retrieved.
+    \param[in] locBand The bandwidth to which this shell was computed to.
     \param[out] X Pointer to the value of the internal private spherical harmonics imaginary value of the given index.
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getImagSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
@@ -4138,7 +4147,7 @@ void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeightCumul ( proshade
     \param[in] order2 The second order indice of the E matrix to which the value should be assigned.
     \param[in] val The value which should be saved.
  */
-void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_complex val )
+void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( int band, int order1, int order2, proshade_complex val )
 {
     //================================================ Mutate
     this->eMatrices[band][order1][order2][0]          = val[0];

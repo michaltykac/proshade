@@ -68,6 +68,7 @@ public:
     //================================================ Settings regarding the Gauss-Legendre integration
     proshade_unsign integOrder;                       //!< The order required for full Gauss-Legendre integration between the spheres.
     proshade_unsign integApproxSteps;                 //!< The number of steps taken in the approximation of Legendre polynomial decomposition to terms.
+    bool noIntegrationSpeedup;                        //!< This option turns off the integration speedup (only using abscissas and weights up to appropriate l for each E matrix index).
     
     //================================================ Settings regarding map normalisation
     bool normaliseMap;                                //!< Should the map be normalised to mean 0 sd 1?
@@ -217,6 +218,7 @@ public:
     void __declspec(dllexport) setSphereDistances                             ( proshade_single sphDist );
     void __declspec(dllexport) setIntegrationOrder                            ( proshade_unsign intOrd );
     void __declspec(dllexport) setIntegrationApproxSteps                      ( proshade_unsign noSteps );
+    void __declspec(dllexport) setIntegrationSpeedUp                          ( bool speedup );
     void __declspec(dllexport) setProgressiveSphereMapping                    ( bool progSphMap );
     void __declspec(dllexport) setEnergyLevelsComputation                     ( bool enLevDesc );
     void __declspec(dllexport) setTraceSigmaComputation                       ( bool trSigVal );
@@ -276,6 +278,7 @@ public:
     void setSphereDistances                           ( proshade_single sphDist );
     void setIntegrationOrder                          ( proshade_unsign intOrd );
     void setIntegrationApproxSteps                    ( proshade_unsign noSteps );
+    void setIntegrationSpeedUp                        ( bool speedup );
     void setProgressiveSphereMapping                  ( bool progSphMap );
     void setEnergyLevelsComputation                   ( bool enLevDesc );
     void setTraceSigmaComputation                     ( bool trSigVal );

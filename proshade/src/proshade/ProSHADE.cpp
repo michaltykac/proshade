@@ -67,7 +67,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     
     //================================================ Settings regarding the Gauss-Legendre integration
     this->integOrder                                  = 0;
-    this->integApproxSteps                            = 10;
+    this->integApproxSteps                            = 5;
+    this->noIntegrationSpeedup                        = false;
     
     //================================================ Settings regarding map normalisation
     this->normaliseMap                                = false;
@@ -206,6 +207,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     //================================================ Settings regarding the Gauss-Legendre integration
     this->integOrder                                  = settings->integOrder;
     this->integApproxSteps                            = settings->integApproxSteps;
+    this->noIntegrationSpeedup                        = settings->noIntegrationSpeedup;
     
     //================================================ Settings regarding map normalisation
     this->normaliseMap                                = settings->normaliseMap;
@@ -350,7 +352,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     
     //================================================ Settings regarding the Gauss-Legendre integration
     this->integOrder                                  = 0;
-    this->integApproxSteps                            = 10;
+    this->integApproxSteps                            = 5;
+    this->noIntegrationSpeedup                        = false;
     
     //================================================ Settings regarding map normalisation
     this->normaliseMap                                = false;
@@ -1162,6 +1165,24 @@ void                       ProSHADE_settings::setIntegrationApproxSteps ( prosha
 {
     //================================================ Set the value
     this->integApproxSteps                            = noSteps;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the variable deciding if integration speedup should be used or not.
+ 
+    \param[in] speedup Should the speedup be used?
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setIntegrationSpeedUp ( bool speedup )
+#else
+void                       ProSHADE_settings::setIntegrationSpeedUp ( bool speedup )
+#endif
+{
+    //================================================ Set the value
+    this->noIntegrationSpeedup                        = !speedup;
     
     //================================================ Done
     return ;
@@ -2873,9 +2894,15 @@ void                       ProSHADE_settings::printSettings ( )
     strstr << this->integOrder;
     printf ( "Integration order   : %37s\n", strstr.str().c_str() );
     
+    //== Settings regarding integration approximation steps
     strstr.str(std::string());
     strstr << this->integApproxSteps;
     printf ( "Integ. approx. steps: %37s\n", strstr.str().c_str() );
+    
+    //== Settings regarding integration speedup
+    strstr.str(std::string());
+    if ( this->noIntegrationSpeedup ) { strstr << "FALSE"; } else { strstr << "TRUE"; }
+    printf ( "Integration speedup : %37s\n", strstr.str().c_str() );
     
     //== Settings regarding map normalisation
     strstr.str(std::string());

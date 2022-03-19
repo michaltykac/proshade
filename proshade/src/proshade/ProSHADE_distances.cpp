@@ -338,13 +338,17 @@ void ProSHADE_internal_distances::allocateTrSigmaWorkspace ( proshade_unsign min
     \param[in] radius The shell of the SH value for which this should be done.
     \param[in] result The location where the result is to be saved.
  */
-void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_internal_data::ProSHADE_data* obj, proshade_unsign band, proshade_unsign order, proshade_unsign radius, proshade_double* result )
+void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_internal_data::ProSHADE_data* obj, int band, int order, proshade_unsign radius, proshade_double* result )
 {
+    //================================================ Pre-compute values
+    int locBand                                       = static_cast< int > ( obj->spheres[radius]->getLocalBandwidth() );
+    int objArrPos                                     = seanindex ( order - band, band, locBand );
+    
     //================================================ Find the magnitude
-   *result                                            = ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( obj->getRealSphHarmValue ( band, order, radius ),
-                                                                                                                       obj->getImagSphHarmValue ( band, order, radius ),
-                                                                                                                       obj->getRealSphHarmValue ( band, order, radius ),
-                                                                                                                       obj->getImagSphHarmValue ( band, order, radius ) );
+   *result                                            = ProSHADE_internal_maths::complexMultiplicationConjugRealOnly ( &obj->sphericalHarmonics[radius][objArrPos][0],
+                                                                                                                       &obj->sphericalHarmonics[radius][objArrPos][1],
+                                                                                                                       &obj->sphericalHarmonics[radius][objArrPos][0],
+                                                                                                                       &obj->sphericalHarmonics[radius][objArrPos][1] );
     
     //================================================ Weight by radius^2 for the integration that will follow
    *result                                           *= pow ( static_cast<proshade_double> ( obj->getAnySphereRadius( radius ) ), 2.0 );
@@ -367,15 +371,17 @@ void ProSHADE_internal_distances::computeSphericalHarmonicsMagnitude ( ProSHADE_
     \param[in] integRange The range in angstroms between the smalleds and largest shell which are integrated over (might not be 0 to max for progressive shell sampling).
     \param[in] sphereDist The distance between any two spheres.
  */
-void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_complex* radiiVals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist )
+void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, int bandIter, int orderIter, proshade_complex* radiiVals, int integOrder, proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist )
 {
     //================================================ Initialise local variables
     proshade_unsign objCombValsIter                   = 0;
-    proshade_double hlpReal, hlpImag;
+    proshade_double hlpReal, hlpImag, rSquared;
     proshade_complex arrVal;
+    int o1ArrPos, o2ArrPos, locBand;
+    proshade_unsign integOrderU                       = static_cast< proshade_unsign > ( integOrder );
     
     //================================================ For each combination of m and m' for E matrices
-    for ( proshade_unsign order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
+    for ( int order2Iter = 0; order2Iter < ( ( bandIter * 2 ) + 1 ); order2Iter++ )
     {
         //============================================ Reset loop
         objCombValsIter                               = 0;
@@ -383,26 +389,32 @@ void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data
         //============================================ Find the c*conj(c) values for different radii
         for ( proshade_unsign radiusIter = 0; radiusIter < std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ); radiusIter++ )
         {
-    
             //======================================== Get only values where the shell has the band
-            if ( std::min ( obj1->getShellBandwidth ( radiusIter ), obj2->getShellBandwidth ( radiusIter ) ) <= bandIter ) { continue; }
+            if ( std::min ( obj1->getShellBandwidth ( radiusIter ), obj2->getShellBandwidth ( radiusIter ) ) <= static_cast< proshade_unsign > ( bandIter ) ) { continue; }
+            
+            //======================================== Pre-compute values
+            rSquared                                  = pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
             
             //======================================== Multiply coeffs
-            ProSHADE_internal_maths::complexMultiplicationConjug ( obj1->getRealSphHarmValue ( bandIter, orderIter,  radiusIter ),
-                                                                   obj1->getImagSphHarmValue ( bandIter, orderIter,  radiusIter ),
-                                                                   obj2->getRealSphHarmValue ( bandIter, order2Iter, radiusIter ),
-                                                                   obj2->getImagSphHarmValue ( bandIter, order2Iter, radiusIter ),
-                                                                  &hlpReal, &hlpImag );
+            locBand                                   = static_cast< int > ( obj1->spheres[radiusIter]->getLocalBandwidth() );
+            o1ArrPos                                  = seanindex ( orderIter - bandIter, bandIter, locBand );
+            o2ArrPos                                  = seanindex ( order2Iter - bandIter, bandIter, locBand );
+            
+            ProSHADE_internal_maths::complexMultiplicationConjug ( &obj1->sphericalHarmonics[radiusIter][o1ArrPos][0],
+                                                                   &obj1->sphericalHarmonics[radiusIter][o1ArrPos][1],
+                                                                   &obj2->sphericalHarmonics[radiusIter][o2ArrPos][0],
+                                                                   &obj2->sphericalHarmonics[radiusIter][o2ArrPos][1],
+                                                                   &hlpReal, &hlpImag );
   
             //======================================== Apply r^2 integral weight
-            radiiVals[objCombValsIter][0]             = hlpReal *  pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
-            radiiVals[objCombValsIter][1]             = hlpImag *  pow ( ( static_cast<proshade_double> ( obj1->getAnySphereRadius( radiusIter ) ) ), 2.0 );
+            radiiVals[objCombValsIter][0]             = hlpReal * rSquared;
+            radiiVals[objCombValsIter][1]             = hlpImag * rSquared;
         
             objCombValsIter                          += 1;
         }
         
         //============================================ Integrate over all radii using n-point Gauss-Legendre integration
-        ProSHADE_internal_maths::gaussLegendreIntegration ( radiiVals, objCombValsIter, integOrder, abscissas, weights, integRange, sphereDist, &hlpReal, &hlpImag );
+        ProSHADE_internal_maths::gaussLegendreIntegration ( radiiVals, objCombValsIter, integOrderU, abscissas, weights, integRange, sphereDist, &hlpReal, &hlpImag );
   
         //============================================ Save the result into E matrices
         arrVal[0]                                     = hlpReal;
@@ -430,11 +442,12 @@ void ProSHADE_internal_distances::computeEMatricesForLM ( ProSHADE_internal_data
     \param[in] sphereDist The distance between any two spheres.
     \param[out] sphereRange The distance between the smallest and largest usable sphere (usable as in having the required band).
  */
-proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist )
+proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, int bandIter, int orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals, int integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist )
 {
     //================================================ Initialise local values
     proshade_unsign obj1ValsIter                      = 0;
     proshade_unsign obj2ValsIter                      = 0;
+    proshade_unsign integOrderU                       = static_cast< proshade_unsign > ( integOrder );
     
     //================================================ Set sphere counters
     proshade_unsign minSphere                         = std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() );
@@ -444,7 +457,7 @@ proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( P
     for ( proshade_unsign radiusIter  = 0; radiusIter < std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ); radiusIter++ )
     {
         //============================================ Get only values where the shell has the band
-        if ( std::min ( obj1->getShellBandwidth ( radiusIter ), obj2->getShellBandwidth ( radiusIter ) ) <= bandIter ) { continue; }
+        if ( std::min ( obj1->getShellBandwidth ( radiusIter ), obj2->getShellBandwidth ( radiusIter ) ) <= static_cast< proshade_unsign > ( bandIter ) ) { continue; }
         minSphere                                     = std::min ( radiusIter, minSphere );
         maxSphere                                     = std::max ( radiusIter, maxSphere );
         
@@ -459,8 +472,8 @@ proshade_double ProSHADE_internal_distances::computeWeightsForEMatricesForLM ( P
     proshade_single minSphereRad                      = obj1->getSpherePosValue ( minSphere ) - ( sphereDist * 0.5f );
     proshade_single maxSphereRad                      = obj1->getSpherePosValue ( maxSphere ) + ( sphereDist * 0.5f );
             
-    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrder, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
-    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrder, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
+    obj1->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj1Vals, obj1ValsIter, integOrderU, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
+    obj2->setIntegrationWeightCumul                   ( ProSHADE_internal_maths::gaussLegendreIntegrationReal ( obj2Vals, obj2ValsIter, integOrderU, abscissas, weights, static_cast< proshade_double > ( maxSphereRad - minSphereRad ), static_cast< proshade_double > ( sphereDist ) ) );
     
     //================================================ Done
     return                                            ( static_cast< proshade_double > ( maxSphereRad - minSphereRad ) );
@@ -522,21 +535,23 @@ void ProSHADE_internal_distances::computeEMatrices    ( ProSHADE_internal_data::
     
     //================================================ Allocate workspace memory
     allocateTrSigmaWorkspace                          ( std::min( obj1->getMaxSpheres(), obj2->getMaxSpheres() ), settings->integOrder, obj1Vals, obj2Vals, GLAbscissas, GLWeights,  radiiVals);
-    
-    //================================================ Initialise abscissas and weights for integration
-    ProSHADE_internal_maths::getLegendreAbscAndWeights ( settings->integOrder, GLAbscissas, GLWeights, settings->integApproxSteps );
-    
+
     //================================================ For each band (l), compute the E matrix integrals
-    for ( proshade_unsign bandIter = 0; bandIter < std::min ( obj1->getMaxBand(), obj2->getMaxBand() ); bandIter++ )
+    for ( int bandIter = 0; bandIter < static_cast< int > ( std::min ( obj1->getMaxBand(), obj2->getMaxBand() ) ); bandIter++ )
     {
+        //============================================ Initialise abscissas and weights for integration
+        int localIntegOrder                           = std::max ( bandIter, 5 );
+        if ( settings->noIntegrationSpeedup )         { localIntegOrder = static_cast< int > ( settings->integOrder ); }
+        ProSHADE_internal_maths::getLegendreAbscAndWeights ( static_cast< proshade_unsign > ( localIntegOrder ), GLAbscissas, GLWeights, settings->integApproxSteps );
+        
         //============================================ For each order (m)
-        for ( proshade_unsign orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
+        for ( int orderIter = 0; orderIter < ( ( bandIter * 2 ) + 1 ); orderIter++ )
         {
             //======================================== Get weights for the required band(l) and order (m)
-            integRange                                = computeWeightsForEMatricesForLM ( obj1, obj2, bandIter, orderIter, obj1Vals, obj2Vals, settings->integOrder, GLAbscissas, GLWeights, settings->maxSphereDists );
+            integRange                                = computeWeightsForEMatricesForLM ( obj1, obj2, bandIter, orderIter, obj1Vals, obj2Vals, localIntegOrder, GLAbscissas, GLWeights, settings->maxSphereDists );
 
             //======================================== Compute E matrices value for given band (l) and order(m)
-            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, settings->integOrder, GLAbscissas, GLWeights, integRange, static_cast< proshade_double > ( settings->maxSphereDists ) );
+            computeEMatricesForLM                     ( obj1, obj2, bandIter, orderIter, radiiVals, localIntegOrder, GLAbscissas, GLWeights, integRange, static_cast< proshade_double > ( settings->maxSphereDists ) );
         }
         
         //============================================ Report progress

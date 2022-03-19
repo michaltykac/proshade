@@ -59,6 +59,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
     
         .def_readwrite                                ( "integOrder",                           &ProSHADE_settings::integOrder                          )
         .def_readwrite                                ( "integApproxSteps",                     &ProSHADE_settings::integApproxSteps                    )
+        .def_readwrite                                ( "noIntegrationSpeedup",                 &ProSHADE_settings::noIntegrationSpeedup                )
     
         .def_readwrite                                ( "normaliseMap",                         &ProSHADE_settings::normaliseMap                        )
     
@@ -155,6 +156,7 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setSphereDistances",                   &ProSHADE_settings::setSphereDistances,                     "Sets the requested distance between spheres in the appropriate variable.",                                                 pybind11::arg ( "sphDist"       ) )
         .def                                          ( "setIntegrationOrder",                  &ProSHADE_settings::setIntegrationOrder,                    "Sets the requested order for the Gauss-Legendre integration in the appropriate variable.",                                 pybind11::arg ( "intOrd"        ) )
         .def                                          ( "setIntegrationApproxSteps",            &ProSHADE_settings::setIntegrationApproxSteps,              "Sets the requested number of steps used in approximating Legendre polynomial decomposition to steps in the appropriate variable.",                     pybind11::arg ( "noSteps"        ) )
+        .def                                          ( "setIntegrationSpeedUp",                &ProSHADE_settings::setIntegrationSpeedUp,                  "Sets the variable deciding if integration speedup should be used or not.",                                                 pybind11::arg ( "speedup"       ) )
         .def                                          ( "setEnergyLevelsComputation",           &ProSHADE_settings::setEnergyLevelsComputation,             "Sets whether the energy level distance descriptor should be computed.",                                                    pybind11::arg ( "enLevDesc"     ) )
         .def                                          ( "setTraceSigmaComputation",             &ProSHADE_settings::setTraceSigmaComputation,               "Sets whether the trace sigma distance descriptor should be computed.",                                                     pybind11::arg ( "trSigVal"      ) )
         .def                                          ( "setRotationFunctionComputation",       &ProSHADE_settings::setRotationFunctionComputation,         "Sets whether the rotation function distance descriptor should be computed.",                                               pybind11::arg ( "rotfVal"       ) )

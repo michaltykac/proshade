@@ -223,7 +223,7 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            The order to which the Gauss-Legendre integration should be         " << std::endl;
     std::cout << "            computed to. For automatic determination use 0.                     " << std::endl;
     std::cout << "                                                                                " << std::endl;
-    std::cout << "    -t or --integApprox                             [DEFAULT:           10]     " << std::endl;
+    std::cout << "    -t or --integApprox                             [DEFAULT:            5]     " << std::endl;
     std::cout << "            This is the number of steps that will be used in the approximation  " << std::endl;
     std::cout << "            of the Legendre polynomial decomposition into terms.                " << std::endl;
     std::cout << "                                                                                " << std::endl;

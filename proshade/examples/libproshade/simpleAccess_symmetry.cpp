@@ -82,7 +82,8 @@ int main ( int argc, char **argv )
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
-    settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
+    settings->setIntegrationApproxSteps               ( 5 );                                 // Set the number of steps in the Gauss-Legendre quadrature approximation.
+    settings->setIntegrationSpeedUp                   ( true );                              // Should the computation be spead up using the integration improvement?
     settings->setMapReboxing                          ( false );                             // Should the structure be re-boxed? Required masking to be done in order to be meaningful.
     
     //================================================ Print all the settings values
