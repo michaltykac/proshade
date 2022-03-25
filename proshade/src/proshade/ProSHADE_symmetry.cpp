@@ -23,7 +23,7 @@
 #include "ProSHADE_symmetry.hpp"
 
 //==================================================== Local functions prototypes
-proshade_double                                               determinePeakThreshold      ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal, proshade_double endMaxVal );
+proshade_double                                               determinePeakThreshold      ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal );
 bool                                                          sortProSHADESymmetryByPeak  ( proshade_double* a, proshade_double* b );
 std::vector < std::pair< proshade_unsign, proshade_unsign > > findBestIcosDihedralPair    ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
 std::vector < std::pair< proshade_unsign, proshade_unsign > > findBestOctaDihedralPair    ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
@@ -68,10 +68,9 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_s
     \param[in] inArr A vector of values for which the threshold is to be determined.
     \param[in] noIQRsFromMedian Mow many times should the RMSD be added to the mean to get starting threshold.
     \param[in] startMinVal Minimal value for the threshold.
-    \param[in] endMaxVal Minimal value for the threshold.
     \param[out] ret The threshold.
  */
-proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal, proshade_double endMaxVal )
+proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal )
 {
     //================================================ Initialise variables
     proshade_double ret                               = 0.0;
@@ -100,11 +99,10 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
         //============================================ Get the threshold
         ret                                           = std::min ( mean + ( noIQRsFromMedian * rmsd ), startMinVal );
         for ( size_t iter = 0; iter < inArr.size(); iter++ ) { if ( inArr.at(iter) > ret ) { noVals += 1; } }
-        while ( noVals > 10000)
+        while ( noVals > 1000)
         {
             noVals                                    = 0;
             ret                                      += 0.01;
-            if ( ret >= endMaxVal )                   { break; }
             for ( size_t iter = 0; iter < inArr.size(); iter++ ) { if ( inArr.at(iter) > ret ) { noVals += 1; } }
         }
         if ( noVals == 0 ) { ret -= 0.01; }
@@ -179,7 +177,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
     
     //================================================ Compute threshold for small peaks
-    proshade_double peakThres                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin, 0.75 ) );
+    proshade_double peakThres                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin ) );
     
     //================================================ Report progress
     std::stringstream hlpSS2;
@@ -3036,7 +3034,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str(), settings->messageShift );
     
     //================================================ Determine the threshold for significant peaks
-   *peakThres                                         = determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin, 0.75 );
+   *peakThres                                         = determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin );
     
     //============================================ Report progress
     std::stringstream hlpSS2;
