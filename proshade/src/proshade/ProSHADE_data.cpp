@@ -2613,8 +2613,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     }
     
     //================================================ Decide between polyhedral
-    if ( ( IFSCAverage > std::max( OFSCAverage * 0.9, TFSCAverage * 0.8 ) ) && ( IFSCAverage > newThres ) ) { IIsBest = true; }
-    if ( ( OFSCAverage > std::max( IFSCAverage * 1.1, TFSCAverage * 0.9 ) ) && ( OFSCAverage > newThres ) ) { OIsBest = true; }
+    if ( ( IFSCAverage > std::max( OFSCAverage * 0.9, TFSCAverage * 0.7 ) ) && ( IFSCAverage > newThres ) ) { IIsBest = true; }
+    if ( ( OFSCAverage > std::max( IFSCAverage * 1.2, TFSCAverage * 0.7 ) ) && ( OFSCAverage > newThres ) ) { OIsBest = true; }
     if ( ( TFSCAverage > std::max( IFSCAverage * 1.2, OFSCAverage * 1.1 ) ) && ( TFSCAverage > newThres ) ) { TIsBest = true; }
     if ( !IIsBest && !OIsBest && !TIsBest && ( std::max( IFSCAverage, std::max( OFSCAverage, TFSCAverage ) ) > newThres ) )
     {
@@ -2801,7 +2801,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         if ( ( bestC != -1 ) && ( settings->recommendedSymmetryType == "D" ) )
         {
             //======================================== Decide if C or D is more appropriate
-            if ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.7 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) )
+            if ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.75 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) )
             {
                 settings->cleanDetectedSymmetry       ( );
                 settings->recommendedSymmetryType     = "";
