@@ -15,11 +15,11 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.6.4
-    \date      MAR 2022
+    \date      APR 2022
  */
 
 //==================================================== Overinclusion protection
 #ifndef PROSHADE_VERSION
-#define PROSHADE_VERSION "0.7.6.4 (MAR 2022)"
+#define PROSHADE_VERSION "0.7.6.4 (APR 2022)"
 
 #endif

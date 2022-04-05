@@ -19,7 +19,7 @@
     \author    Michal Tykac
     \author    Garib N. Murshudov
     \version   0.7.6.4
-    \date      MAR 2022
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE library code
