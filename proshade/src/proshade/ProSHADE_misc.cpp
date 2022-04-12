@@ -270,6 +270,32 @@ bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const pro
     
 }
 
+/*! \brief This function compares two arrays of two based on the sixth number, sorting highest first.
+ 
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortSymFSCHlp ( const proshade_double* a, const proshade_double* b )
+{
+    //================================================ Compare
+    return                                            ( a[6] > b[6] );
+    
+}
+
+/*! \brief This function compares two arrays of two based on the sixth number, sorting highest first.
+ 
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortSymFSCHlpInv ( const proshade_double* a, const proshade_double* b )
+{
+    //================================================ Compare
+    return                                            ( a[6] > b[6] );
+    
+}
+
 /*! \brief This function compares two vectors of arrays based on the sum of the fifth column, sorting highest first.
  
     \param[in] a The first vector to compare.

@@ -2770,7 +2770,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
         {
             //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
-            if ( cIt > 20 ) { break; }
+            if ( ( cIt > 20 ) && ( CSym->at(cIt)[5] < 0.95 ) ) { break; }
             
             //======================================== Check the peak height
             if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }

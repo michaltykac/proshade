@@ -389,6 +389,7 @@ namespace ProSHADE_internal_maths
     proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double* axis, proshade_double tolerance );
     proshade_signed whichAxisUnique                   ( std::vector< proshade_double* >* CSymList, proshade_double X, proshade_double Y, proshade_double Z, proshade_double fold, proshade_double tolerance );
     std::vector< proshade_unsign > findAllPrimes      ( proshade_unsign upTo );
+    bool isPrime                                      ( proshade_unsign toCheck );
     proshade_double computeGaussian                   ( proshade_double val, proshade_double sigma );
     std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data );
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );

@@ -114,6 +114,8 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
         ret                                           = *( std::max_element ( inArr.begin(), inArr.end() ) );
     }
     
+    if ( ret > 0.95 ) { ret                           = 0.95; }
+    
     //================================================ Done
     return                                            ( ret );
     
@@ -2870,6 +2872,12 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     proshade_unsign foldToTest;
     bool foldDone, anyNewSyms = true;
     
+    //================================================ Prepare FSC computation memory and variables
+    fftw_complex* fCoeffsCut;
+    proshade_double **bindata, *fscByBin;
+    proshade_signed *cutIndices, *binCounts, noBins, cutXDim, cutYDim, cutZDim;
+    this->prepareFSCFourierMemory                     ( cutIndices, fCoeffsCut, &noBins, bindata, binCounts, fscByBin, settings->requestedResolution, &cutXDim, &cutYDim, &cutZDim );
+    
     //================================================ For each found prime number in the limit
     for ( proshade_unsign prIt = 0; prIt < static_cast< proshade_unsign > ( primes.size() ); prIt++ )
     {
@@ -2881,15 +2889,19 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         //============================================ Get all symmetries for this prime fold
         std::vector< proshade_double* > prSyms        = this->findRequestedCSymmetryFromAngleAxis ( settings, primes.at(prIt), &symThres );
         
-        //============================================ Save the detected C symmetries
+        //============================================ For each detected C symmetry with this fold
         for ( size_t axIt = 0; axIt < prSyms.size(); axIt++ )
         {
-            //======================================== Is this symmetry passing the threshold?
+            //======================================== Check the peak threshold
             if ( prSyms.at(axIt)[5] >= symThres )
             {
-                //==================================== Add this symmetry to final list
+                //==================================== Check if the axis and fold are unique
                 if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(axIt), settings->axisErrTolerance, true ) )
                 {
+                    //================================ Compute FSC
+                    this->computeFSC                  ( settings, prSyms.at(axIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                    
+                    //================================ Save axis
                     ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, prSyms.at(axIt) );
                 }
             }
@@ -2902,6 +2914,9 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     //================================================ Was anything found?
     if ( ret.size() < 1 ) { return ( ret ); }
     
+    //================================================ Compute the FSC threshold
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.01, 5, 0.9 );
+    
     //================================================ Check for prime symmetry fold multiples
     while ( anyNewSyms )
     {
@@ -2913,9 +2928,18 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         {
             for ( proshade_unsign axIt2 = 0; axIt2 < static_cast< proshade_unsign > ( ret.size() ); axIt2++ )
             {
+                //==================================== At least one fold needs to be prime (to avoid escalation of high symmetries - i.e. C32 would require checking C32 * C32 = C1024 including computing its FSC...)
+                if ( !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt1)[0] ) ) &&
+                     !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt2)[0] ) ) ) { continue; }
+                           
+                //==================================== Do not try combinations with low FSC
+                if ( bestFSCPeakStart > ( ( ret.at(axIt1)[6] + ret.at(axIt2)[6] ) / 2.0 ) ) { continue; }
+                
+                //==================================== Do not try combinations with too high fold
+                if ( ( ret.at(axIt1)[0] > 120 ) || ( ret.at(axIt2)[0] > 120 ) ) { continue; }
+                
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
-                if ( foldToTest > ( settings->maxSymmetryFold * 4 ) ) { continue; }
                 
                 //==================================== Was this fold tested already?
                 foldDone                              = false;
@@ -2934,34 +2958,54 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 //==================================== For each detected group with the required fold
                 for ( size_t newAxIt = 0; newAxIt < prSyms.size(); newAxIt++ )
                 {
+                    //================================ Check peak threshold
                     if ( prSyms.at(newAxIt)[5] >= symThres )
                     {
-                        //============================ Add to detected axes
-                        if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(newAxIt), settings->axisErrTolerance, true ) )
+                        //============================ Check axis and fold are unique
+                        if ( ProSHADE_internal_maths::isAxisUnique ( &ret,       prSyms.at(newAxIt), settings->axisErrTolerance, true  ) &&
+                             ProSHADE_internal_maths::isAxisUnique ( &tmpHolder, prSyms.at(newAxIt), settings->axisErrTolerance, false ) )
                         {
+                            //======================== Compute FSC
+                            this->computeFSC          ( settings, prSyms.at(newAxIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                            
+                            //======================== Save axis
                             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &tmpHolder, prSyms.at(newAxIt) );
-                            
-                            //======================== Add newly found groups and repeat if need be
-                            for ( proshade_unsign tmpIt = 0; tmpIt < static_cast< proshade_unsign > ( tmpHolder.size() ); tmpIt++ )
-                            {
-                                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, tmpHolder.at(tmpIt) );
-                                delete[] tmpHolder.at(tmpIt);
-                            }
-                            
-                            anyNewSyms                = true;
-                            tmpHolder.clear           ( );
                         }
                     }
 
-                    //==================================== Release memory
+                    //================================ Release memory
                     delete[] prSyms.at(newAxIt);
                 }
+                
+                //==================================== If new axes were found, add them and repeat
+                if ( tmpHolder.size() != 0 )
+                {
+                    //================================ Add newly found groups and repeat if need be
+                    for ( proshade_unsign tmpIt = 0; tmpIt < static_cast< proshade_unsign > ( tmpHolder.size() ); tmpIt++ )
+                    {
+                        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, tmpHolder.at(tmpIt) );
+                        delete[] tmpHolder.at(tmpIt);
+                    }
+                    
+                    anyNewSyms                        = true;
+                }
+                
+                //==================================== Clean up
+                tmpHolder.clear                       ( );
             }
         }
     }
     
+    //================================================ Release memory after FSC computation
+    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
+    delete[] bindata;
+    delete[] binCounts;
+    delete[] fscByBin;
+    delete[] cutIndices;
+    fftw_free                                     ( fCoeffsCut );
+    
     //================================================ Sort the vector
-    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymHlpInv );
+    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymFSCHlpInv );
     
     //================================================ Done
     return                                            ( ret );

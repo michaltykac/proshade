@@ -3252,6 +3252,29 @@ std::vector< proshade_unsign > ProSHADE_internal_maths::findAllPrimes ( proshade
     
 }
 
+/*! \brief This function check is the supplied number is prime or not.
+ 
+    \param[in] toCheck The number which should be checked for being prime.
+ */
+bool ProSHADE_internal_maths::isPrime ( proshade_unsign toCheck )
+{
+    //================================================ Initialise local variables
+    bool ret                                          = true;
+
+    //================================================ Deal with exceptions
+    if ( ( toCheck == 0 ) || ( toCheck == 1 ) )       { ret = false; return ( ret ); }
+    
+    //================================================ Naively test
+    for ( proshade_unsign divider = 2; divider <= static_cast< proshade_unsign > ( std::round( toCheck / 2 ) ); divider++ )
+    {
+        if ( toCheck % divider == 0 )                 { ret = false; break; }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
 /*! \brief This function computes a Gaussian (normal) distribution value given distance from mean and sigma.
  
     This function simply returns the height of a normal distribution with a given sigma for a value specific distance from the mean.
