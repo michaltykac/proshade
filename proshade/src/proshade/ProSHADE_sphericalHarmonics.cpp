@@ -363,8 +363,8 @@ void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_u
     //================================================ Copy the results into the final holder
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( (band * 2) * (band * 2) ); iter++ )
     {
-        shArray[iter][0]                              = 0.0;
-        shArray[iter][1]                              = 0.0;
+        shArray[iter][0]                              = outputReal[iter];
+        shArray[iter][1]                              = outputImag[iter];
     }
     
     //================================================ Apply the Condon-Shortley phase sign
