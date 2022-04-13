@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.3
-#   \date      FEB 2022
+#   \version   0.7.6.4
+#   \date      APR 2022
 ######################################################
 ######################################################
 
@@ -114,7 +114,7 @@ print                                                 ( "Found a total of " + st
 
 ##############################################
 ### Expected output
-#   Found a total of 47 cyclic symmetries.
+#   Found a total of 13 cyclic symmetries.
 
 ######################################################
 ### Print results
@@ -132,7 +132,7 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 ### Expected outuput
 #   Detected symmetry C-4 with axes:
 #   Fold      x         y         z       Angle     Height    Averaged FSC
-#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9797      +0.9977
+#     4.0    -0.000    -0.000    +1.000    -1.571    +0.9558      +0.9975
 
 ######################################################
 ### Find the internal map COM shift

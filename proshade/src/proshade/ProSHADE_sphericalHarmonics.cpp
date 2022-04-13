@@ -66,6 +66,15 @@ void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_
     ProSHADE_internal_misc::checkMemoryAllocation     ( tableSpaceHelper, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( workspace,        __FILE__, __LINE__, __func__ );
     
+    //================================================ Fill arrays with zeroes
+    for ( size_t iter = 0; iter < static_cast< size_t > ( oneDimmension * oneDimmension ); iter++ )
+    {
+        inputReal[iter]                               = 0.0;
+        inputImag[iter]                               = 0.0;
+        outputReal[iter]                              = 0.0;
+        outputImag[iter]                              = 0.0;
+    }
+    
     //================================================ Done
     return ;
     
@@ -354,8 +363,8 @@ void ProSHADE_internal_sphericalHarmonics::applyCondonShortleyPhase ( proshade_u
     //================================================ Copy the results into the final holder
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( (band * 2) * (band * 2) ); iter++ )
     {
-        shArray[iter][0]                              = outputReal[iter];
-        shArray[iter][1]                              = outputImag[iter];
+        shArray[iter][0]                              = 0.0;
+        shArray[iter][1]                              = 0.0;
     }
     
     //================================================ Apply the Condon-Shortley phase sign

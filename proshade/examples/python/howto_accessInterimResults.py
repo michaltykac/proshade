@@ -28,8 +28,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.3
-#   \date      FEB 2022
+#   \version   0.7.6.4
+#   \date      APR 2022
 ######################################################
 ######################################################
 
@@ -119,7 +119,7 @@ band  =  4
 order = -2
 Shell3Band4OrderMin2Value                             = sphericalHarmonics[shell][pStruct.findSHIndex(shell, band, order)]
 print                                                 ( Shell3Band4OrderMin2Value )
-# Expected output: (-347.44607161116426+101.64982296378105j)
+# Expected output: (-22.530226619574222+138.92104503022847j)
 
 ######################################################
 ### Computing self-rotation function
@@ -164,7 +164,7 @@ eMat                                                  = pStruct.getEMatrix ( )
 Band4OrderOneMin2OrderTwo3EMatrixValue                = eMat[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3EMatrixValue )
-# Expected output: (5.778754095640288e-06-2.5857120907687985e-06j)
+# Expected output: (1.942241067890014e-06+3.1539391839121625e-06j)
 
 ######################################################
 ### Accessing SO(3) coefficients
@@ -191,7 +191,7 @@ so3Coeffs                                             = pStruct.getSO3Coefficien
 Band4OrderOneMin2OrderTwo3SO3CoeffsValue              = so3Coeffs[4][2][7] # Band = 4, Order1 = -2 and Order2 = 3
 
 print ( Band4OrderOneMin2OrderTwo3SO3CoeffsValue )
-# Expected output: (-1.711621865022201e-05+7.658677420710994e-06j)
+# Expected output: (-5.752766468212686e-06-9.341721725461645e-06j)
 
 ######################################################
 ### Accessing self-rotation function
@@ -216,15 +216,15 @@ rotMapMax                                             = numpy.where ( selfRotati
 ### Find maximum value
 print                                                 ( "Rotation map maximum is: " + str( selfRotationFunction[rotMapMax[0][0]][rotMapMax[1][0]][rotMapMax[2][0]] ) )
 
-### Expected output: Rotation map maximum is: (0.9900905128913581-2.4602730194392386e-21j)
+### Expected output: Rotation map maximum is: (0.9936719862516401+9.152452905593322e-17j)
 
 ### Find rotation matrix for the maximum (uses only the real parts, using magnitudes would be better)
 rotMatMaxVal                                          = pStruct.getRotationMatrixFromSOFTCoordinates ( rotMapMax[0][0], rotMapMax[1][0], rotMapMax[2][0] )
 print                                                 ( rotMatMaxVal )
 
-### Expected output: [[ 1.0000000e+00 -2.4492936e-16 -0.0000000e+00]
-### Expected output:  [ 2.4492936e-16  1.0000000e+00  0.0000000e+00]
-### Expected output:  [-0.0000000e+00 -0.0000000e+00  1.0000000e+00]]
+### Expected output: [[ 1.00000000e+00 -4.71844785e-16  0.00000000e+00]
+### Expected output:  [ 4.71844785e-16  1.00000000e+00 -0.00000000e+00]
+### Expected output:  [-0.00000000e+00  0.00000000e+00  1.00000000e+00]]
 
 ######################################################
 ### Release ProSHADE memory

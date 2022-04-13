@@ -153,9 +153,9 @@ for i in range( 0, len( allCAxes ) ):
 ### EXPECTED OUTPUT:
 ### EXPECTED OUTPUT: All axes:
 ### EXPECTED OUTPUT: 2.0 | 0.0008414979 x 0.0 x 0.99999964 || 0.99789506
+### EXPECTED OUTPUT: 3.0 | 0.9999141 x -0.013107536 x -6.123234e-17 || 0.8906641
 ### EXPECTED OUTPUT: 2.0 | 0.010965976 x 0.8641671 x 0.5030855 || 0.8886832
 ### EXPECTED OUTPUT: 2.0 | 0.010963198 x 0.864096 x -0.5032076 || 0.88805044
-### EXPECTED OUTPUT: 3.0 | 0.9999141 x -0.013107536 x -6.123234e-17 || 0.8906641
 
 ######################################################
 ### Release ProSHADE memory

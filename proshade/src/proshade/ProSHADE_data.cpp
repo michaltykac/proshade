@@ -1882,8 +1882,9 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
     ProSHADE_internal_misc::checkMemoryAllocation     ( this->sphericalHarmonics, __FILE__, __LINE__, __func__ );
     for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
     {
-        this->sphericalHarmonics[iter]                = new proshade_complex [(this->spheres[iter]->getLocalBandwidth() * 2) * (this->spheres[iter]->getLocalBandwidth() * 2)];
+        this->sphericalHarmonics[iter]                = new proshade_complex [( this->spheres[iter]->getLocalAngRes() ) * ( this->spheres[iter]->getLocalAngRes() )];
         ProSHADE_internal_misc::checkMemoryAllocation ( this->sphericalHarmonics[iter], __FILE__, __LINE__, __func__ );
+        for ( size_t it = 0; it < ( ( this->spheres[iter]->getLocalAngRes() ) * ( this->spheres[iter]->getLocalAngRes() ) ); it++ ) { this->sphericalHarmonics[iter][it][0] = 0.0; this->sphericalHarmonics[iter][it][1] = 0.0; }
     }
     
     //================================================ Compute the spherical harmonics

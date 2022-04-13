@@ -2936,7 +2936,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 if ( bestFSCPeakStart > ( ( ret.at(axIt1)[6] + ret.at(axIt2)[6] ) / 2.0 ) ) { continue; }
                 
                 //==================================== Do not try combinations with too high fold
-                if ( ( ret.at(axIt1)[0] > 120 ) || ( ret.at(axIt2)[0] > 120 ) ) { continue; }
+                if ( ret.at(axIt1)[0] * ret.at(axIt2)[0] > 120 ) { continue; }
                 
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
