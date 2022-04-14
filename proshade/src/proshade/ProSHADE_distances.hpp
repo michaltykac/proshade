@@ -16,8 +16,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //============================================ ProSHADE
@@ -47,14 +47,14 @@ namespace ProSHADE_internal_distances
                                                         proshade_unsign minCommonShells, std::vector<proshade_double>* bandDists );
     void allocateTrSigmaWorkspace                     ( proshade_unsign minSpheres, proshade_unsign intOrder, proshade_double*& obj1Vals, proshade_double*& obj2Vals,
                                                         proshade_double*& GLabscissas, proshade_double*& glWeights, proshade_complex*& radiiVals );
-    void computeSphericalHarmonicsMagnitude           ( ProSHADE_internal_data::ProSHADE_data* obj, proshade_unsign band, proshade_unsign order,
+    void computeSphericalHarmonicsMagnitude           ( ProSHADE_internal_data::ProSHADE_data* obj, int band, int order,
                                                         proshade_unsign radius, proshade_double* result );
     void computeEMatricesForLM                        ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
-                                                        proshade_unsign bandIter, proshade_unsign orderIter, proshade_complex* radiiVals, proshade_unsign integOrder,
+                                                        int bandIter, int orderIter, proshade_complex* radiiVals, int integOrder,
                                                         proshade_double* abscissas, proshade_double* weights, proshade_double integRange, proshade_double sphereDist );
     proshade_double computeWeightsForEMatricesForLM   ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
-                                                        proshade_unsign bandIter, proshade_unsign orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals,
-                                                        proshade_unsign integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist );
+                                                        int bandIter, int orderIter, proshade_double* obj1Vals, proshade_double* obj2Vals,
+                                                        int integOrder, proshade_double* abscissas, proshade_double* weights, proshade_single sphereDist );
     void releaseTrSigmaWorkspace                      ( proshade_double*& obj1Vals, proshade_double*& obj2Vals, proshade_double*& GLabscissas,
                                                         proshade_double*& glWeights, proshade_complex*& radiiVals );
     void computeEMatrices                             ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,

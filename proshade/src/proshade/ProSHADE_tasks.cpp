@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -469,7 +469,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 planReverseFourierComb );
         
         //============================================ Find COM in Angstroms in visualisation space
-        ProSHADE_internal_mapManip::findMAPCOMValues  ( symStr->internalMap, &xMapCOM, &yMapCOM, &zMapCOM, symStr->xDimSize, symStr->yDimSize, symStr->zDimSize, symStr->xFrom, symStr->xTo, symStr->yFrom, symStr->yTo, symStr->zFrom, symStr->zTo );
+        ProSHADE_internal_mapManip::findMAPCOMValues  ( symStr->internalMap, &xMapCOM, &yMapCOM, &zMapCOM, symStr->xDimSize, symStr->yDimSize, symStr->zDimSize, symStr->xFrom, symStr->xTo, symStr->yFrom, symStr->yTo, symStr->zFrom, symStr->zTo, settings->removeNegativeDensity );
         
         //============================================ Determine box centre in indices
         proshade_double xBoxCentre                    = ( ( static_cast< proshade_double > ( symStr->xTo ) - static_cast< proshade_double > ( symStr->xFrom ) ) / 2.0 ) + static_cast< proshade_double > ( symStr->xFrom );

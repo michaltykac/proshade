@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -1463,7 +1463,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     
     //================================================ Find COM before map re-sampling
     proshade_double xMapCOMPreReSampl = 0.0, yMapCOMPreReSampl = 0.0, zMapCOMPreReSampl = 0.0;
-    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPreReSampl, &yMapCOMPreReSampl, &zMapCOMPreReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
     
     //================================================ Now re-sample the map
     if ( settings->changeMapResolution )
@@ -1502,7 +1502,7 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     
     //================================================ Find COM after map re-sampling and corner move
     proshade_double xMapCOMPostReSampl = 0.0, yMapCOMPostReSampl = 0.0, zMapCOMPostReSampl = 0.0;
-    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+    ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xMapCOMPostReSampl, &yMapCOMPostReSampl, &zMapCOMPostReSampl, this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom, this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
     
     //================================================ Figure how much the new map moved
     proshade_single xMov                              = static_cast< proshade_single > ( xMapCOMPostReSampl - xMapCOMPreReSampl );
@@ -1553,13 +1553,13 @@ void ProSHADE_internal_data::ProSHADE_data::centreMapOnCOM ( ProSHADE_settings* 
     
     //================================================ Find the COM location
     ProSHADE_internal_mapManip::findMAPCOMValues      ( this->internalMap, &xCOM, &yCOM, &zCOM,
-                                                        this->xDimSize, this->yDimSize, this->xDimSize, this->xFrom,
-                                                        this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo );
+                                                        this->xDimSize, this->yDimSize, this->zDimSize, this->xFrom,
+                                                        this->xTo, this->yFrom, this->yTo, this->zFrom, this->zTo, settings->removeNegativeDensity );
     
     //================================================ Find the sampling rates
-    proshade_single xSampRate                         = static_cast< proshade_single > ( this->xDimSize ) / static_cast< proshade_single > ( this->xTo - this->xFrom );
-    proshade_single ySampRate                         = static_cast< proshade_single > ( this->yDimSize ) / static_cast< proshade_single > ( this->yTo - this->yFrom );
-    proshade_single zSampRate                         = static_cast< proshade_single > ( this->zDimSize ) / static_cast< proshade_single > ( this->zTo - this->zFrom );
+    proshade_single xSampRate                         = static_cast< proshade_single > ( this->xDimSize ) / static_cast< proshade_single > ( this->xTo - this->xFrom + 1 );
+    proshade_single ySampRate                         = static_cast< proshade_single > ( this->yDimSize ) / static_cast< proshade_single > ( this->yTo - this->yFrom + 1 );
+    proshade_single zSampRate                         = static_cast< proshade_single > ( this->zDimSize ) / static_cast< proshade_single > ( this->zTo - this->zFrom + 1 );
     
     //================================================ Convert to position in indices starting from 0
     xCOM                                             /= static_cast< proshade_double > ( xSampRate );
@@ -1729,7 +1729,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Invert map
     if ( settings->invertMap ) { this->invertMirrorMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map inversion (mirror image) not requested.", settings->messageShift ); }
- 
+    
     //================================================ Normalise map
     if ( settings->normaliseMap ) { this->normaliseMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map normalisation not requested.", settings->messageShift ); }
@@ -1737,7 +1737,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     //================================================ Compute mask
     if ( settings->maskMap ) { this->maskMap ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Masking not requested.", settings->messageShift ); }
-
+    
     //================================================ Centre map
     if ( settings->moveToCOM ) { this->centreMapOnCOM ( settings ); }
     else { ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Map centering not requested.", settings->messageShift ); }
@@ -1752,7 +1752,7 @@ void ProSHADE_internal_data::ProSHADE_data::processInternalMap ( ProSHADE_settin
     
     //================================================ Set settings values which were left on AUTO by user and will not be set later
     settings->setVariablesLeftOnAuto                  ( );
-        
+
     //================================================ Done
     return ;
     
@@ -1820,7 +1820,7 @@ void ProSHADE_internal_data::ProSHADE_data::getSpherePositions ( ProSHADE_settin
 /*! \brief This function converts the internal map onto a set of concentric spheres.
  
     This function starts by determining the spherical harmonics values which were not supplied by the user, these may be
-    bandwidth, taylor series cap, integration order, etc. It then proceeds to determine the optimal sphere distances, unless
+    bandwidth, Legendre approximation steps, integration order, etc. It then proceeds to determine the optimal sphere distances, unless
     these were determined by the user.
  
     Finally, the function creates a new instance of the ProSHADE_sphere class for each of the already determined sphere
@@ -1882,8 +1882,9 @@ void ProSHADE_internal_data::ProSHADE_data::computeSphericalHarmonics ( ProSHADE
     ProSHADE_internal_misc::checkMemoryAllocation     ( this->sphericalHarmonics, __FILE__, __LINE__, __func__ );
     for ( proshade_unsign iter = 0; iter < this->noSpheres; iter++ )
     {
-        this->sphericalHarmonics[iter]                = new proshade_complex [(this->spheres[iter]->getLocalBandwidth() * 2) * (this->spheres[iter]->getLocalBandwidth() * 2)];
+        this->sphericalHarmonics[iter]                = new proshade_complex [( this->spheres[iter]->getLocalAngRes() ) * ( this->spheres[iter]->getLocalAngRes() )];
         ProSHADE_internal_misc::checkMemoryAllocation ( this->sphericalHarmonics[iter], __FILE__, __LINE__, __func__ );
+        for ( size_t it = 0; it < ( ( this->spheres[iter]->getLocalAngRes() ) * ( this->spheres[iter]->getLocalAngRes() ) ); it++ ) { this->sphericalHarmonics[iter][it][0] = 0.0; this->sphericalHarmonics[iter][it][1] = 0.0; }
     }
     
     //================================================ Compute the spherical harmonics
@@ -2613,8 +2614,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     }
     
     //================================================ Decide between polyhedral
-    if ( ( IFSCAverage > std::max( OFSCAverage * 0.9, TFSCAverage * 0.8 ) ) && ( IFSCAverage > newThres ) ) { IIsBest = true; }
-    if ( ( OFSCAverage > std::max( IFSCAverage * 1.1, TFSCAverage * 0.9 ) ) && ( OFSCAverage > newThres ) ) { OIsBest = true; }
+    if ( ( IFSCAverage > std::max( OFSCAverage * 0.9, TFSCAverage * 0.7 ) ) && ( IFSCAverage > newThres ) ) { IIsBest = true; }
+    if ( ( OFSCAverage > std::max( IFSCAverage * 1.2, TFSCAverage * 0.7 ) ) && ( OFSCAverage > newThres ) ) { OIsBest = true; }
     if ( ( TFSCAverage > std::max( IFSCAverage * 1.2, OFSCAverage * 1.1 ) ) && ( TFSCAverage > newThres ) ) { TIsBest = true; }
     if ( !IIsBest && !OIsBest && !TIsBest && ( std::max( IFSCAverage, std::max( OFSCAverage, TFSCAverage ) ) > newThres ) )
     {
@@ -2725,6 +2726,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                 if ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) < onlyDThreshold ) { continue; }
                 
                 //==================================== All good!
+                bestVal                               = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
                 bestFold                              = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
                 bestD                                 = static_cast< proshade_signed > ( dIt );
             }
@@ -2769,7 +2771,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
         {
             //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
-            if ( cIt > 15 ) { break; }
+            if ( ( cIt > 20 ) && ( CSym->at(cIt)[5] < 0.95 ) ) { break; }
             
             //======================================== Check the peak height
             if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
@@ -2788,7 +2790,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
             {
                 //==================================== If FSC passes
-                if ( CSym->at(cIt)[6] > bestHistFSCStart )
+                if ( ( CSym->at(cIt)[6] > bestHistFSCStart ) && ( CSym->at(cIt)[6] > settings->fscThreshold ) )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );
@@ -2800,7 +2802,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         if ( ( bestC != -1 ) && ( settings->recommendedSymmetryType == "D" ) )
         {
             //======================================== Decide if C or D is more appropriate
-            if ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.7 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) )
+            if ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.75 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) )
             {
                 settings->cleanDetectedSymmetry       ( );
                 settings->recommendedSymmetryType     = "";
@@ -3504,7 +3506,8 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     //================================================ Improve this!
     if ( settings->recommendedSymmetryType == "" )
     {
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Did not detect any symmetry!", settings->messageShift );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "", settings->messageShift );
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Cannot predict any symmetry! There may still be symmetries detected, but ProSHADE algorithm does not consider them reliable.", settings->messageShift );
     }
     else
     {
@@ -3525,25 +3528,24 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
             ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->detectedSymmetry.at(symIt)[0] << std::setprecision(5) << "     " << settings->detectedSymmetry.at(symIt)[1] << "   " << settings->detectedSymmetry.at(symIt)[2] << "   " << settings->detectedSymmetry.at(symIt)[3] << "     " << settings->detectedSymmetry.at(symIt)[4] << "      " << settings->detectedSymmetry.at(symIt)[5] << "      " << settings->detectedSymmetry.at(symIt)[6];
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
+    }
         
-        std::stringstream hlpSS3;
+    std::stringstream ssHlp, hlpSS3;
+    ssHlp.clear(); ssHlp.str ( "" );
+    hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str(), settings->messageShift );
+    
+    if ( settings->allDetectedCAxes.size() > 0 )
+    {
         ssHlp.clear(); ssHlp.str ( "" );
-        hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
-        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str(), settings->messageShift );
-        
-        if ( settings->allDetectedCAxes.size() > 0 )
-        {
-            ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
-        }
-        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
-        {
-            ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5] << "      " << settings->allDetectedCAxes.at(symIt)[6];
-            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
-        }
-        
+        ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5] << "      " << settings->allDetectedCAxes.at(symIt)[6];
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
     }
     
     //================================================ Done
@@ -3762,6 +3764,10 @@ void ProSHADE_internal_data::ProSHADE_data::removePhaseInormation ( ProSHADE_set
 
 /*! \brief This function allows access to the private internal real spherical harmonics values.
  
+    \param[in] band The l for which the spherical harmonics value is to be retrieved.
+    \param[in] order The m for which the spherical harmonics value is to be retrieved.
+    \param[in] shell The shell for which the spherical harmonics value is to be retrieved.
+    \param[in] locBand The bandwidth to which this shell was computed to.
     \param[out] X Pointer to the value of the internal private spherical harmonics real value of the given index.
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
@@ -3775,6 +3781,10 @@ proshade_double* ProSHADE_internal_data::ProSHADE_data::getRealSphHarmValue ( pr
 
 /*! \brief This function allows access to the private internal imaginary spherical harmonics values.
  
+    \param[in] band The l for which the spherical harmonics value is to be retrieved.
+    \param[in] order The m for which the spherical harmonics value is to be retrieved.
+    \param[in] shell The shell for which the spherical harmonics value is to be retrieved.
+    \param[in] locBand The bandwidth to which this shell was computed to.
     \param[out] X Pointer to the value of the internal private spherical harmonics imaginary value of the given index.
  */
 proshade_double* ProSHADE_internal_data::ProSHADE_data::getImagSphHarmValue ( proshade_unsign band, proshade_unsign order, proshade_unsign shell )
@@ -4138,7 +4148,7 @@ void ProSHADE_internal_data::ProSHADE_data::setIntegrationWeightCumul ( proshade
     \param[in] order2 The second order indice of the E matrix to which the value should be assigned.
     \param[in] val The value which should be saved.
  */
-void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_complex val )
+void ProSHADE_internal_data::ProSHADE_data::setEMatrixValue ( int band, int order1, int order2, proshade_complex val )
 {
     //================================================ Mutate
     this->eMatrices[band][order1][order2][0]          = val[0];

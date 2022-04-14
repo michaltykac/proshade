@@ -52,10 +52,10 @@ import plotly.offline as offline
 ###
 ### This is where all the settings are given.
 ###
-structureFilename                                     = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry/EMD-0020/emd_0020.map.gz"
+structureFilename                                     = "/Users/mysak/BioCEV/proshade/playground/emd_10575.map"
 structureFold                                         = 2
 structureReSampleMap                                  = True
-computationResolution                                 = 20
+computationResolution                                 = 4
 verbosity                                             = 3
 
 ######################################################

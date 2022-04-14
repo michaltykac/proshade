@@ -18,8 +18,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //==================================================== ProSHADE
@@ -70,7 +70,8 @@ int main ( int argc, char **argv )
     settings->setBandwidth                            ( 0 );                                 // The spherical harmonics bandwidth to which to compute. Set to 0 for automatic determination.
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
-    settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
+    settings->setIntegrationApproxSteps               ( 5 );                                 // Set the number of steps in the Gauss-Legendre quadrature approximation.
+    settings->setIntegrationSpeedUp                   ( true );                              // Should the computation be spead up using the integration improvement?
     settings->setEnergyLevelsComputation              ( true );                              // Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setTraceSigmaComputation                ( true );                              // Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
     settings->setRotationFunctionComputation          ( true );                              // Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -125,10 +126,10 @@ int main ( int argc, char **argv )
     std::cout << "                                 :      " << rotMat[6] << " ; " << rotMat[7] << " ; " << rotMat[8] << std::endl;
 
     //================================================ Expected output
-//  Optimal rotation Euler angles are:      4.01301 ; 0.698058 ; 5.40991
-//  Optimal rotation matrix is       :      -0.90328 ; 0.116827 ; -0.41284
-//                                   :      0.113553 ; -0.862809 ; -0.492612
-//                                   :      -0.413753 ; -0.491846 ; 0.766092
+//  Optimal rotation Euler angles are:      4.01163 ; 0.698203 ; 5.40945
+//  Optimal rotation matrix is       :      -0.90313 ; 0.118517 ; -0.412686
+//                                   :      0.111992 ; -0.862857 ; -0.492886
+//                                   :      -0.414504 ; -0.491357 ; 0.765999
     
     //================================================ Delete the Patterson maps. They are no longer needed as we will now proceed with phased maps.
     delete staticStr;
@@ -185,7 +186,7 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Rot. Centre to origin translation:           9.14286 ; 17.7778 ; 17.7778
-//  Rot. Centre to optimal overlay translation:  16 ; 16 ; -8
+//  Rot. Centre to optimal overlay translation:  16 ; 24 ; -8
     
     //================================================ Write out the output files
     movingStr->writeOutOverlayFiles                   ( settings, optimalEulerRot.at(0), optimalEulerRot.at(1), optimalEulerRot.at(2), &rotationCentre, &optimalTranslation );

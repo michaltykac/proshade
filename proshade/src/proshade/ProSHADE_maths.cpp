@@ -2,7 +2,7 @@
     \brief This source file contains all the mathematical functions not simply available from elsewhere or modified to work with ProSHADE specific data formats.
  
     The functions in this source file provide the computational power for the rest of the code. The functions here are specifically written to work with the ProSHADE internal data organisation and
-    are used throughtout the rest of the code. The functionalities implemented here range from complex number maths, Taylor series and Gauss-Legendre integration to conversion betwee different
+    are used throughtout the rest of the code. The functionalities implemented here range from complex number maths and Gauss-Legendre integration to conversion betwee different
     rotation representations.
  
     Copyright by Michal Tykac and individual contributors. All rights reserved.
@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -276,7 +276,7 @@ proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* val
     
 }
 
-/*! \brief Function to prepare abscissas and weights for Gauss-Legendre integration.
+/*! \brief Function to prepare abscissas and weights for Gauss-Legendre integration using the Glaser-Liu-Rokhlin method.
  
     This function fills in the Gauss-Legendre interpolation points positions (abscissas) and their weights vectors, which will then be used for computing the
     Gauss-Legendre interpolation.
@@ -284,9 +284,9 @@ proshade_double ProSHADE_internal_maths::pearsonCorrCoeff ( proshade_double* val
     \param[in] order The order to which the abscissas and weights should be prepared.
     \param[in] abscissas The array holding the abscissa values.
     \param[in] weights The array holding the weight values.
-    \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] noSteps The number of steps to be used in approximations.
  */
-void ProSHADE_internal_maths::getLegendreAbscAndWeights ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_unsign taylorSeriesCap )
+void ProSHADE_internal_maths::getLegendreAbscAndWeights ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_unsign noSteps )
 {
     //================================================ Sanity check
     if ( order < 2 )
@@ -304,26 +304,26 @@ void ProSHADE_internal_maths::getLegendreAbscAndWeights ( proshade_unsign order,
                                                        &polyValue,
                                                        &deriValue );
     
-    //================================================ If the order is odd, then 0 is a root ...
+    //================================================ If the order is odd, then 0 is a root and we know the value already
     if ( order % 2 == 1 )
     {
         abscissas[((order-1)/2)]                      = polyValue;
         weights[((order-1)/2)]                        = deriValue;
     }
+    //================================================ But if order is even, find the first root as follows
     else
     {
-        // ... and if order is even, find the first root
-        getGLFirstEvenRoot                            ( polyValue, order, &abscissas[(order/2)], &weights[(order/2)], taylorSeriesCap );
+        getGLFirstRealRoot                            ( polyValue, order, &abscissas[(order/2)], &weights[(order/2)], noSteps );
     }
 
-    //================================================ Now, having computed the first roots, complete the series
-    completeLegendreSeries                            ( order, abscissas, weights, taylorSeriesCap );
+    //================================================ Now, having computed the first root, complete the series
+    completeAbscissasAndWeights                       ( order, abscissas, weights, noSteps );
 
-    //================================================ Correct weights by anscissa values
+    //================================================ Correct weights by abscissa values
     for ( proshade_unsign iter = 0; iter < order; iter++ )
     {
         weights[iter]                                 = 2.0 / ( 1.0 - abscissas[iter] ) / ( 1.0 + abscissas[iter] ) / weights[iter] / weights[iter];
-        weightSum                                     = weightSum + weights[iter];
+        weightSum                                    += weights[iter];
     }
 
     //================================================ Normalise weights
@@ -379,80 +379,81 @@ void ProSHADE_internal_maths::getGLPolyAtZero ( proshade_unsign order, proshade_
  
     \param[in] polyAtZero The value of the polynomial at zero.
     \param[in] order The positive integer value of the polynomial order.
-    \param[in] abscAtZero Pointer to variable storing the abscissa value at zero.
-    \param[in] weightAtZero Pointer to variable storing the weight value at zero.
-    \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] firstRoot Pointer to variable storing the first real root.
+    \param[in] firstRootDeriv Pointer to variable storing the derivative of the first real root.
+    \param[in] noSteps How many steps should the search use?
  */
-void ProSHADE_internal_maths::getGLFirstEvenRoot ( proshade_double polyAtZero, proshade_unsign order, proshade_double *abscAtZero, proshade_double *weighAtZero, proshade_unsign taylorSeriesCap )
+void ProSHADE_internal_maths::getGLFirstRealRoot ( proshade_double polyAtZero, proshade_unsign order, proshade_double *firstRoot, proshade_double *firstRootDeriv, proshade_unsign noSteps )
 {
     //================================================ Sanity check
-    if ( taylorSeriesCap < 2 )
+    if ( noSteps < 2 )
     {
-        throw ProSHADE_exception ( "The Taylor series cap is too low.", "EI00020", __FILE__, __LINE__, __func__, "The Taylor series expansion limit is less than 2. This\n                    : seems very low; if you have a very small structure or very\n                    : low resolution, please manually increase the integration\n                    : order. Otherwise, please report this as a bug." );
+        throw ProSHADE_exception ( "The number of steps is too low.", "EI00020", __FILE__, __LINE__, __func__, "The number of steps limit is less than 2. This\n                    : seems very low; if you have a very small structure or very\n                    : low resolution, please manually increase the integration\n                    : order. Otherwise, please report this as a bug." );
     }
     
     //================================================ Initialise variables
-   *abscAtZero                                        = advanceGLPolyValue ( 0.0, -M_PI / 2.0, 0.0, order, taylorSeriesCap );
+   *firstRoot                                         = advanceGLPolyValue ( 0.0, -M_PI / 2.0, 0.0, order, noSteps );
     proshade_double hlp                               = 0.0;
     proshade_double hlpVal                            = static_cast<proshade_double> ( order );
-    proshade_double *abscSteps;
-    proshade_double *weightSteps;
+    proshade_double *polyTerms;
+    proshade_double *deriTerms;
 
     //================================================ Allocate memory
-    abscSteps                                         = new proshade_double [taylorSeriesCap+2];
-    weightSteps                                       = new proshade_double [taylorSeriesCap+1];
+    polyTerms                                         = new proshade_double [noSteps+2];
+    deriTerms                                         = new proshade_double [noSteps+1];
+    ProSHADE_internal_misc::checkMemoryAllocation ( polyTerms, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation ( deriTerms, __FILE__, __LINE__, __func__ );
 
     //================================================ Pre-set values
-    abscSteps[0]                                      = 0.0;
-    abscSteps[1]                                      = polyAtZero;
-    weightSteps[0]                                    = 0.0;
+    polyTerms[0]                                      = 0.0;
+    polyTerms[1]                                      = polyAtZero;
+    deriTerms[0]                                      = 0.0;
 
-    //================================================ Fill in abscissa and weight steps
-    for ( proshade_unsign iter = 0; iter <= taylorSeriesCap - 2; iter = iter + 2 )
+    //================================================ Prepare polynomial decomposition into terms
+    for ( proshade_unsign iter = 0; iter <= noSteps - 2; iter = iter + 2 )
     {
         hlp                                           = static_cast<proshade_double> ( iter );
         
-        abscSteps[iter+2]                             = 0.0;
-        abscSteps[iter+3]                             = ( hlp * ( hlp + 1.0 ) - hlpVal * ( hlpVal + 1.0 ) ) * abscSteps[iter+1] / (hlp + 1.0) / (hlp + 2.0 );
+        polyTerms[iter+2]                             = 0.0;
+        polyTerms[iter+3]                             = ( hlp * ( hlp + 1.0 ) - hlpVal * ( hlpVal + 1.0 ) ) * polyTerms[iter+1] / (hlp + 1.0) / (hlp + 2.0 );
         
-        weightSteps[iter+1]                           = 0.0;
-        weightSteps[iter+2]                           = ( hlp + 2.0 ) * abscSteps[iter+3];
+        deriTerms[iter+1]                             = 0.0;
+        deriTerms[iter+2]                             = ( hlp + 2.0 ) * polyTerms[iter+3];
     }
 
-    //================================================ Find abscissa and weights
-    for ( proshade_double iter = 0; iter < 5; iter++ )
+    //================================================ Evaluate the polynomial and its derivative to determine the first root and derivative value
+    for ( proshade_double iter = 0; iter < noSteps; iter++ )
     {
-        *abscAtZero                                   = *abscAtZero - evaluateGLSeries ( abscSteps, *abscAtZero, taylorSeriesCap ) / evaluateGLSeries ( weightSteps, *abscAtZero, taylorSeriesCap-1 );
+        *firstRoot                                    = *firstRoot - evaluateGLPolynomial ( polyTerms, *firstRoot, noSteps ) / evaluateGLPolynomial ( deriTerms, *firstRoot, noSteps-1 );
     }
-    *weighAtZero                                      = evaluateGLSeries ( weightSteps, *abscAtZero, taylorSeriesCap-1 );
+    *firstRootDeriv                                   = evaluateGLPolynomial ( deriTerms, *firstRoot, noSteps-1 );
 
     //================================================ Free memory
-    delete abscSteps;
-    delete weightSteps;
+    delete polyTerms;
+    delete deriTerms;
 
     //================================================ Done
     return ;
     
 }
 
-/*! \brief This function evaluates the Taylor expansion.
+/*! \brief This function evaluates the decomposed Legendre polynomial at a given position.
  
-    This function takes the series array, the target value and the cap on Taylor expansion and proceeds to
-    evaluate the series. The main use of this is to evaluate the series twice, one where the series evaluation
-    'overshoots' and once where it 'undershoots' and taking value in between those, thus adding accuracy.
+    This function takes the series array (first value is ignored) which should contain the decomposed Legendre polynomial
+    and it proceeds to evaluate it at the target position for up to terms terms.
  
-    \param[in] series Pointer to array with the series values.
-    \param[in] target The target location on the series value.
-    \param[in] terms The Taylor expansion cap.
+    \param[in] series Pointer to array with the polynomial decomposition values.
+    \param[in] target The value on which the polynomial is to be evaluated at.
+    \param[in] terms Number of terms to which the polynomial is to be evaluated to.
     \param[out] X The value of the series at the target location.
  */
-proshade_double ProSHADE_internal_maths::evaluateGLSeries ( proshade_double *series, proshade_double target, proshade_unsign terms )
+proshade_double ProSHADE_internal_maths::evaluateGLPolynomial ( proshade_double *series, proshade_double target, proshade_unsign terms )
 {
     //================================================ Initalise
     proshade_double factorialValue                    = 1.0;
     proshade_double value                             = 0.0;
     
-    //================================================ Compute
+    //================================================ Evaluate the polynomial
     for ( proshade_unsign iter = 1; iter <= terms; iter++ )
     {
         value                                         = value + series[iter] * factorialValue;
@@ -464,139 +465,141 @@ proshade_double ProSHADE_internal_maths::evaluateGLSeries ( proshade_double *ser
     
 }
 
-/*! \brief This function finds the next value of the polynomial.
+/*! \brief This function finds the next value of a Legendre polynomial using the Runge-Kutta method.
  
     Given the previous value of the polynomial, the distance to proceed and the number of steps to
-    take, this function finds the next value of the polynomial using the Taylor series.
+    take, this function finds the next value of the polynomial using the Runge-Kutta method.
  
     \param[in] from Current polynomial position.
     \param[in] to Polynomial position to move to.
     \param[in] valAtFrom The current value of the polynomial at the <from> position.
-    \param[in] noSteps Number of steps in which to reach the <to> position.
-    \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] order Order of the polynomial to advance.
+    \param[in] noSteps How many steps the advance should be divided into.
     \param[out] X The polynomial value at the <to> position.
  */
-proshade_double ProSHADE_internal_maths::advanceGLPolyValue ( proshade_double from, proshade_double to, proshade_double valAtFrom, proshade_unsign noSteps, proshade_unsign taylorSeriesCap )
+proshade_double ProSHADE_internal_maths::advanceGLPolyValue ( proshade_double from, proshade_double to, proshade_double valAtFrom, proshade_unsign order, proshade_unsign noSteps )
 {
     //================================================ Initialise variables
     proshade_double hlpVal                            = 0.0;
     proshade_double stepSize                          = 0.0;
     proshade_double valChange                         = 0.0;
     proshade_double valSecChange                      = 0.0;
-    proshade_double squareSteps                       = 0.0;
-    proshade_double curVal                            = 0.0;
+    proshade_double squareOrder                       = 0.0;
+    proshade_double curPos                            = from;
+    proshade_double curVal                            = valAtFrom;
     
     //================================================ Set initial values
-    stepSize                                          = ( to - from ) / static_cast<proshade_double> ( taylorSeriesCap );
-    squareSteps                                       = sqrt ( static_cast<proshade_double> ( noSteps * ( noSteps + 1 ) ) );
-    curVal                                            = from;
+    stepSize                                          = ( to - from ) / static_cast<proshade_double> ( noSteps );
+    squareOrder                                       = sqrt ( static_cast<proshade_double> ( order * ( order + 1 ) ) );
     
     //================================================ Go through the series and iteratively improve the estimate
-    for ( proshade_unsign iter = 0; iter < taylorSeriesCap; iter++ )
+    for ( proshade_unsign iter = 0; iter < noSteps; iter++ )
     {
-        hlpVal                                        = ( 1.0 - valAtFrom ) * ( 1.0 + valAtFrom );
-        valChange                                     = - stepSize * hlpVal / ( squareSteps * sqrt ( hlpVal ) - 0.5 * valAtFrom * sin ( 2.0 * curVal ) );
-        valAtFrom                                     = valAtFrom + valChange;
-                
-        curVal                                        = curVal + stepSize;
-                
-        hlpVal                                        = ( 1.0 - valAtFrom ) * ( 1.0 + valAtFrom );
-        valSecChange                                  = - stepSize * hlpVal / ( squareSteps * sqrt ( hlpVal ) - 0.5 * valAtFrom * sin ( 2.0 * curVal ) );
-        valAtFrom                                     = valAtFrom + 0.5 * ( valSecChange - valChange );
+        hlpVal                                        = ( 1.0 - curVal ) * ( 1.0 + curVal );
+        valChange                                     = - stepSize * hlpVal / ( squareOrder * sqrt ( hlpVal ) - ( curVal * std::sin ( 2.0 * curPos ) / 2.0 ) );
+        
+        curVal                                       += valChange;
+        curPos                                       += stepSize;
+        
+        hlpVal                                        = ( 1.0 - curVal ) * ( 1.0 + curVal );
+        valSecChange                                  = - stepSize * hlpVal / ( squareOrder * sqrt ( hlpVal ) - ( curVal * std::sin ( 2.0 * curPos ) / 2.0 ) );
+        curVal                                        = curVal + ( valSecChange - valChange ) / 2.0;
     }
     
     //================================================ Done
-    return valAtFrom;
+    return curVal;
     
 }
 
-/*! \brief This function completes the Legendre polynomial series assuming you have obtained the first values.
+/*! \brief This function completes the abscissas and weights series from the first roots computed beforehand.
  
-    Given that the polynomial value at zero is known, this function will complete the Legendre polynomial and with it
-    the absicassas and weights for the Gauss-Legendre integration using the other functions defined above.
+    Given that the first root value and derivative are known, this function will complete the Gauss-Legendre quarature
+    weights and abscissas.
  
     \param[in] order The positive integer value of the polynomial order.
     \param[in] abscissas Pointer to an array of abscissas containing the first value.
     \param[in] weights Pointer to an array of weights containing the first value.
-    \param[in] taylorSeriesCap The limit on the Taylor series.
+    \param[in] noSteps The number of steps in approximations.
  */
-void ProSHADE_internal_maths::completeLegendreSeries ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_unsign taylorSeriesCap )
+void ProSHADE_internal_maths::completeAbscissasAndWeights ( proshade_unsign order, proshade_double* abscissas, proshade_double* weights, proshade_unsign noSteps )
 {
     //================================================ Initialise internal variables
-    proshade_double hlpTaylorVal                      = 0.0;
+    proshade_double hlpStepVal                        = 0.0;
     proshade_double hlpOrderVal                       = static_cast<proshade_double> ( order );
     proshade_double abscValueChange                   = 0.0;
     proshade_double prevAbsc                          = 0.0;
-    proshade_double *hlpAbscSeries;
-    proshade_double *hlpWeightSeries;
-    proshade_unsign noSeriesElems                     = 0;
+    proshade_double *polyDecomposition;
+    proshade_double *deriDecomposition;
+    proshade_unsign knownRootPos                      = 0;
     proshade_unsign oddEvenSwitch                     = 0;
     
     //================================================ Pre-set internal values
     if ( order % 2 == 1 )
     {
-        noSeriesElems                                 = ( order - 1 ) / 2 - 1;
+        knownRootPos                                  = ( order - 1 ) / 2;
         oddEvenSwitch                                 = 1;
     }
     else
     {
-        noSeriesElems                                 = order / 2 - 1;
+        knownRootPos                                  = order / 2;
         oddEvenSwitch                                 = 0;
     }
     
     //================================================ Allocate memory
-    hlpAbscSeries                                     = new proshade_double[taylorSeriesCap+2];
-    hlpWeightSeries                                   = new proshade_double[taylorSeriesCap+1];
+    polyDecomposition                                 = new proshade_double[noSteps+2];
+    deriDecomposition                                 = new proshade_double[noSteps+1];
+    ProSHADE_internal_misc::checkMemoryAllocation ( polyDecomposition, __FILE__, __LINE__, __func__ );
+    ProSHADE_internal_misc::checkMemoryAllocation ( deriDecomposition, __FILE__, __LINE__, __func__ );
     
-    //================================================ For each series element
-    for ( proshade_unsign serIt = noSeriesElems + 1; serIt < order - 1; serIt++ )
+    //================================================ For each abscissa-weight pair after the first root
+    for ( proshade_unsign serIt = knownRootPos + 1; serIt < order; serIt++ )
     {
         //============================================ Init loop
-        prevAbsc                                      = abscissas[serIt];
-        abscValueChange                               = advanceGLPolyValue ( M_PI/2.0, -M_PI/2.0, prevAbsc, order, taylorSeriesCap ) - prevAbsc;
+        prevAbsc                                      = abscissas[serIt-1];
+        abscValueChange                               = advanceGLPolyValue ( M_PI/2.0, -M_PI/2.0, prevAbsc, order, noSteps ) - prevAbsc;
         
-        //============================================ Init abscissas
-        hlpAbscSeries[0]                              = 0.0;
-        hlpAbscSeries[1]                              = 0.0;
-        hlpAbscSeries[2]                              = weights[serIt];
+        //============================================ Init polynomial decomposition array
+        polyDecomposition[0]                          = 0.0;
+        polyDecomposition[1]                          = 0.0;
+        polyDecomposition[2]                          = weights[serIt-1];
         
-        //============================================ Init weights
-        hlpWeightSeries[0]                            = 0.0;
-        hlpWeightSeries[1]                            = hlpAbscSeries[2];
+        //============================================ Init polynomial derivative decomposition array
+        deriDecomposition[0]                          = 0.0;
+        deriDecomposition[1]                          = polyDecomposition[2];
         
-        //============================================ Taylor expansion
-        for ( proshade_unsign tayIt = 0; tayIt <= taylorSeriesCap - 2; tayIt++ )
+        //============================================ Compute the polynomial and its derivative decomposition into terms
+        for ( proshade_unsign stIt = 0; stIt <= noSteps - 2; stIt++ )
         {
-            hlpTaylorVal                              = static_cast<proshade_double> ( tayIt );
+            hlpStepVal                                = static_cast<proshade_double> ( stIt );
                     
-            hlpAbscSeries[tayIt+3]                    = ( 2.0 * prevAbsc * ( hlpTaylorVal + 1.0 ) * hlpAbscSeries[tayIt+2] + ( hlpTaylorVal * ( hlpTaylorVal + 1.0 ) - hlpOrderVal *
-                                                        ( hlpOrderVal + 1.0 ) ) * hlpAbscSeries[tayIt+1] / ( hlpTaylorVal + 1.0 ) ) / ( 1.0 - prevAbsc ) / ( 1.0 + prevAbsc ) /
-                                                        ( hlpTaylorVal + 2.0 );
+            polyDecomposition[stIt+3]                 = ( 2.0 * prevAbsc * ( hlpStepVal + 1.0 ) * polyDecomposition[stIt+2] + ( hlpStepVal * ( hlpStepVal + 1.0 ) - hlpOrderVal *
+                                                        ( hlpOrderVal + 1.0 ) ) * polyDecomposition[stIt+1] / ( hlpStepVal + 1.0 ) ) / ( 1.0 - prevAbsc ) / ( 1.0 + prevAbsc ) /
+                                                        ( hlpStepVal + 2.0 );
             
-            hlpWeightSeries[tayIt+2]                  = ( hlpTaylorVal + 2.0 ) * hlpAbscSeries[tayIt+3];
+            deriDecomposition[stIt+2]                 = ( hlpStepVal + 2.0 ) * polyDecomposition[stIt+3];
         }
         
-        //============================================ Sum over results
-        for ( proshade_unsign iter = 0; iter < 5; iter++ )
+        //============================================ Evaluate the polynomial and its derivative to determine the root and derivative value
+        for ( proshade_unsign iter = 0; iter < noSteps; iter++ )
         {
-            abscValueChange                           = abscValueChange - evaluateGLSeries ( hlpAbscSeries,   abscValueChange, taylorSeriesCap   ) /
-                                                                          evaluateGLSeries ( hlpWeightSeries, abscValueChange, taylorSeriesCap-1 );
+            abscValueChange                           = abscValueChange - evaluateGLPolynomial ( polyDecomposition, abscValueChange, noSteps ) / evaluateGLPolynomial ( deriDecomposition, abscValueChange, noSteps-1 );
         }
         
         //============================================ Save results
-        abscissas[serIt+1]                            = prevAbsc + abscValueChange;
-        weights[serIt+1]                              = evaluateGLSeries ( hlpWeightSeries, abscValueChange, taylorSeriesCap - 1 );
+        abscissas[serIt]                              = prevAbsc + abscValueChange;
+        weights[serIt]                                = evaluateGLPolynomial ( deriDecomposition, abscValueChange, noSteps - 1 );
     }
     
-    for ( proshade_unsign serIt = 0; serIt <= noSeriesElems + oddEvenSwitch; serIt++ )
+    //================================================ The negative roots and their weights have the same distance as the positive roots (i.e. abscissas[firstRoot+1] == -abscissas[firstRoot-1]) and same weight
+    for ( proshade_unsign serIt = 0; serIt < knownRootPos + oddEvenSwitch; serIt++ )
     {
         abscissas[serIt]                              = -abscissas[order-serIt-1];
         weights[serIt]                                = weights[order-serIt-1];
     }
     
     //================================================ Free memory
-    delete hlpAbscSeries;
-    delete hlpWeightSeries;
+    delete polyDecomposition;
+    delete deriDecomposition;
     
     //================================================ Done
     return ;
@@ -2813,9 +2816,8 @@ void ProSHADE_internal_maths::optimiseAxisBiCubicInterpolation ( proshade_double
         //============================================ Prepare for next iteration
         valChange                                     = std::floor ( 100000.0 * ( *bestSum - prevVal ) ) / 100000.0;
         prevVal                                       = std::floor ( 100000.0 * ( *bestSum           ) ) / 100000.0;
-        step                                          = std::max ( ( valChange / step ) * learningRate, 0.01 );
+        step                                          = std::min ( 0.2, std::max ( ( valChange / step ) * learningRate, 0.01 ) );
         if ( learningRate >= 0.02 ) { learningRate -= 0.01; }
-        
     }
     
     //================================================ Release interpolators memory
@@ -3243,6 +3245,29 @@ std::vector< proshade_unsign > ProSHADE_internal_maths::findAllPrimes ( proshade
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( sieveOfEratosthenesArray.size() ); iter++ )
     {
         if ( sieveOfEratosthenesArray.at(iter).second ) { ProSHADE_internal_misc::addToUnsignVector ( &ret, sieveOfEratosthenesArray.at(iter).first ); }
+    }
+    
+    //================================================ Done
+    return                                            ( ret );
+    
+}
+
+/*! \brief This function check is the supplied number is prime or not.
+ 
+    \param[in] toCheck The number which should be checked for being prime.
+ */
+bool ProSHADE_internal_maths::isPrime ( proshade_unsign toCheck )
+{
+    //================================================ Initialise local variables
+    bool ret                                          = true;
+
+    //================================================ Deal with exceptions
+    if ( ( toCheck == 0 ) || ( toCheck == 1 ) )       { ret = false; return ( ret ); }
+    
+    //================================================ Naively test
+    for ( proshade_unsign divider = 2; divider <= static_cast< proshade_unsign > ( std::round( toCheck / 2 ) ); divider++ )
+    {
+        if ( toCheck % divider == 0 )                 { ret = false; break; }
     }
     
     //================================================ Done

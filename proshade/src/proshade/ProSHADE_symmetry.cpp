@@ -15,15 +15,15 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
 #include "ProSHADE_symmetry.hpp"
 
 //==================================================== Local functions prototypes
-proshade_double                                               determinePeakThreshold      ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal, proshade_double endMaxVal );
+proshade_double                                               determinePeakThreshold      ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal );
 bool                                                          sortProSHADESymmetryByPeak  ( proshade_double* a, proshade_double* b );
 std::vector < std::pair< proshade_unsign, proshade_unsign > > findBestIcosDihedralPair    ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
 std::vector < std::pair< proshade_unsign, proshade_unsign > > findBestOctaDihedralPair    ( std::vector< proshade_double* >* CSymList, proshade_double minPeakHeight, proshade_double axErr );
@@ -68,10 +68,9 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_s
     \param[in] inArr A vector of values for which the threshold is to be determined.
     \param[in] noIQRsFromMedian Mow many times should the RMSD be added to the mean to get starting threshold.
     \param[in] startMinVal Minimal value for the threshold.
-    \param[in] endMaxVal Minimal value for the threshold.
     \param[out] ret The threshold.
  */
-proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal, proshade_double endMaxVal )
+proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal )
 {
     //================================================ Initialise variables
     proshade_double ret                               = 0.0;
@@ -100,11 +99,10 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
         //============================================ Get the threshold
         ret                                           = std::min ( mean + ( noIQRsFromMedian * rmsd ), startMinVal );
         for ( size_t iter = 0; iter < inArr.size(); iter++ ) { if ( inArr.at(iter) > ret ) { noVals += 1; } }
-        while ( noVals > 10000)
+        while ( noVals > 1000)
         {
             noVals                                    = 0;
             ret                                      += 0.01;
-            if ( ret >= endMaxVal )                   { break; }
             for ( size_t iter = 0; iter < inArr.size(); iter++ ) { if ( inArr.at(iter) > ret ) { noVals += 1; } }
         }
         if ( noVals == 0 ) { ret -= 0.01; }
@@ -115,6 +113,8 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
     {
         ret                                           = *( std::max_element ( inArr.begin(), inArr.end() ) );
     }
+    
+    if ( ret > 0.95 ) { ret                           = 0.95; }
     
     //================================================ Done
     return                                            ( ret );
@@ -179,7 +179,7 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
     
     //================================================ Compute threshold for small peaks
-    proshade_double peakThres                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin, 0.75 ) );
+    proshade_double peakThres                         = std::max ( settings->minSymPeak, determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin ) );
     
     //================================================ Report progress
     std::stringstream hlpSS2;
@@ -2872,6 +2872,12 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     proshade_unsign foldToTest;
     bool foldDone, anyNewSyms = true;
     
+    //================================================ Prepare FSC computation memory and variables
+    fftw_complex* fCoeffsCut;
+    proshade_double **bindata, *fscByBin;
+    proshade_signed *cutIndices, *binCounts, noBins, cutXDim, cutYDim, cutZDim;
+    this->prepareFSCFourierMemory                     ( cutIndices, fCoeffsCut, &noBins, bindata, binCounts, fscByBin, settings->requestedResolution, &cutXDim, &cutYDim, &cutZDim );
+    
     //================================================ For each found prime number in the limit
     for ( proshade_unsign prIt = 0; prIt < static_cast< proshade_unsign > ( primes.size() ); prIt++ )
     {
@@ -2883,15 +2889,19 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         //============================================ Get all symmetries for this prime fold
         std::vector< proshade_double* > prSyms        = this->findRequestedCSymmetryFromAngleAxis ( settings, primes.at(prIt), &symThres );
         
-        //============================================ Save the detected C symmetries
+        //============================================ For each detected C symmetry with this fold
         for ( size_t axIt = 0; axIt < prSyms.size(); axIt++ )
         {
-            //======================================== Is this symmetry passing the threshold?
+            //======================================== Check the peak threshold
             if ( prSyms.at(axIt)[5] >= symThres )
             {
-                //==================================== Add this symmetry to final list
+                //==================================== Check if the axis and fold are unique
                 if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(axIt), settings->axisErrTolerance, true ) )
                 {
+                    //================================ Compute FSC
+                    this->computeFSC                  ( settings, prSyms.at(axIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                    
+                    //================================ Save axis
                     ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, prSyms.at(axIt) );
                 }
             }
@@ -2904,6 +2914,9 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     //================================================ Was anything found?
     if ( ret.size() < 1 ) { return ( ret ); }
     
+    //================================================ Compute the FSC threshold
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.01, 5, 0.9 );
+    
     //================================================ Check for prime symmetry fold multiples
     while ( anyNewSyms )
     {
@@ -2915,9 +2928,18 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         {
             for ( proshade_unsign axIt2 = 0; axIt2 < static_cast< proshade_unsign > ( ret.size() ); axIt2++ )
             {
+                //==================================== At least one fold needs to be prime (to avoid escalation of high symmetries - i.e. C32 would require checking C32 * C32 = C1024 including computing its FSC...)
+                if ( !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt1)[0] ) ) &&
+                     !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt2)[0] ) ) ) { continue; }
+                           
+                //==================================== Do not try combinations with low FSC
+                if ( bestFSCPeakStart > ( ( ret.at(axIt1)[6] + ret.at(axIt2)[6] ) / 2.0 ) ) { continue; }
+                
+                //==================================== Do not try combinations with too high fold
+                if ( ret.at(axIt1)[0] * ret.at(axIt2)[0] > 120 ) { continue; }
+                
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
-                if ( foldToTest > settings->maxSymmetryFold ) { continue; }
                 
                 //==================================== Was this fold tested already?
                 foldDone                              = false;
@@ -2936,34 +2958,54 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 //==================================== For each detected group with the required fold
                 for ( size_t newAxIt = 0; newAxIt < prSyms.size(); newAxIt++ )
                 {
+                    //================================ Check peak threshold
                     if ( prSyms.at(newAxIt)[5] >= symThres )
                     {
-                        //================================ Add to detected axes
-                        if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(newAxIt), settings->axisErrTolerance, true ) )
+                        //============================ Check axis and fold are unique
+                        if ( ProSHADE_internal_maths::isAxisUnique ( &ret,       prSyms.at(newAxIt), settings->axisErrTolerance, true  ) &&
+                             ProSHADE_internal_maths::isAxisUnique ( &tmpHolder, prSyms.at(newAxIt), settings->axisErrTolerance, false ) )
                         {
+                            //======================== Compute FSC
+                            this->computeFSC          ( settings, prSyms.at(newAxIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                            
+                            //======================== Save axis
                             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &tmpHolder, prSyms.at(newAxIt) );
-                            
-                            //======================== Add newly found groups and repeat if need be
-                            for ( proshade_unsign tmpIt = 0; tmpIt < static_cast< proshade_unsign > ( tmpHolder.size() ); tmpIt++ )
-                            {
-                                ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, tmpHolder.at(tmpIt) );
-                                delete[] tmpHolder.at(tmpIt);
-                            }
-                            
-                            anyNewSyms                = true;
-                            tmpHolder.clear           ( );
                         }
                     }
 
-                    //==================================== Release memory
+                    //================================ Release memory
                     delete[] prSyms.at(newAxIt);
                 }
+                
+                //==================================== If new axes were found, add them and repeat
+                if ( tmpHolder.size() != 0 )
+                {
+                    //================================ Add newly found groups and repeat if need be
+                    for ( proshade_unsign tmpIt = 0; tmpIt < static_cast< proshade_unsign > ( tmpHolder.size() ); tmpIt++ )
+                    {
+                        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, tmpHolder.at(tmpIt) );
+                        delete[] tmpHolder.at(tmpIt);
+                    }
+                    
+                    anyNewSyms                        = true;
+                }
+                
+                //==================================== Clean up
+                tmpHolder.clear                       ( );
             }
         }
     }
     
+    //================================================ Release memory after FSC computation
+    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
+    delete[] bindata;
+    delete[] binCounts;
+    delete[] fscByBin;
+    delete[] cutIndices;
+    fftw_free                                     ( fCoeffsCut );
+    
     //================================================ Sort the vector
-    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymHlpInv );
+    std::sort                                         ( ret.begin(), ret.end(), ProSHADE_internal_misc::sortSymFSCHlpInv );
     
     //================================================ Done
     return                                            ( ret );
@@ -3036,7 +3078,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 4, hlpSS.str(), settings->messageShift );
     
     //================================================ Determine the threshold for significant peaks
-   *peakThres                                         = determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin, 0.75 );
+   *peakThres                                         = determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin );
     
     //============================================ Report progress
     std::stringstream hlpSS2;

@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -49,6 +49,8 @@ namespace ProSHADE_internal_misc
             
     bool sortSymHlp                                   ( const proshade_double* a, const proshade_double* b );
     bool sortSymHlpInv                                ( const proshade_double* a, const proshade_double* b );
+    bool sortSymFSCHlp                                ( const proshade_double* a, const proshade_double* b );
+    bool sortSymFSCHlpInv                             ( const proshade_double* a, const proshade_double* b );
     bool sortTSymByPeak                               ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b );
     bool sortOSymByPeak                               ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b );
     bool sortISymByPeak                               ( const std::vector< proshade_double* > a, const std::vector< proshade_double* > b );

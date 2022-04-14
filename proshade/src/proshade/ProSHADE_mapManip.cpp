@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -238,8 +238,9 @@ void ProSHADE_internal_mapManip::findPDBCOMValues ( gemmi::Structure* pdbFile, p
     \param[in] yTo The terminal index of the y dimension of the map.
     \param[in] zFrom The initial index of the z dimension of the map.
     \param[in] zTo The terminal index of the z dimension of the map.
+    \param[in] useNegDens Should the negative density be used in the computation?
 */
-void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom, proshade_signed zTo )
+void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom, proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xFrom, proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom, proshade_signed zTo, bool removeNegDens )
 {
     //================================================ Initialise computation
     proshade_double totDensity                        = 0.0;
@@ -247,36 +248,45 @@ void ProSHADE_internal_mapManip::findMAPCOMValues ( proshade_double* map, prosha
    *yCom                                              = 0.0;
    *zCom                                              = 0.0;
     proshade_signed arrPos                            = 0;
-    proshade_single xSampRate                         = xAngs / static_cast< proshade_single > ( xTo - xFrom );
-    proshade_single ySampRate                         = yAngs / static_cast< proshade_single > ( yTo - yFrom );
-    proshade_single zSampRate                         = zAngs / static_cast< proshade_single > ( zTo - zFrom );
+    proshade_single xSampRate                         = xAngs / static_cast< proshade_single > ( xTo - xFrom + 1 );
+    proshade_single ySampRate                         = yAngs / static_cast< proshade_single > ( yTo - yFrom + 1 );
+    proshade_single zSampRate                         = zAngs / static_cast< proshade_single > ( zTo - zFrom + 1 );
     
     //================================================ For each map point
-    for ( proshade_signed xIt = xFrom; xIt <= xTo; xIt++ )
+    for ( proshade_signed xIt = 0; xIt <= ( xTo - xFrom ); xIt++ )
     {
-        for ( proshade_signed yIt = yFrom; yIt <= yTo; yIt++ )
+        for ( proshade_signed yIt = 0; yIt <= ( yTo - yFrom ); yIt++ )
         {
-            for ( proshade_signed zIt = zFrom; zIt <= zTo; zIt++ )
+            for ( proshade_signed zIt = 0; zIt <= ( zTo - zFrom ); zIt++ )
             {
-                arrPos                                = (zIt-zFrom) + ( zTo - zFrom + 1 ) * ( ( yIt - yFrom ) + ( yTo - yFrom + 1 ) * ( xIt - xFrom ) );
-                const FloatingPoint< proshade_double > lhs ( map[arrPos] );
-                if ( !lhs.AlmostEquals ( lhs ) )       { map[arrPos] = 0.0; continue; }
+                //==================================== Find array position
+                arrPos                                = zIt + ( zTo - zFrom + 1 ) * ( yIt + ( yTo - yFrom + 1 ) * xIt );
                 
-                if ( map[arrPos] > 0.0 )
-                {
-                    totDensity                       += map[arrPos];
-                    *xCom                            += static_cast<proshade_double> ( static_cast< proshade_single > ( xIt ) * xSampRate ) * map[arrPos];
-                    *yCom                            += static_cast<proshade_double> ( static_cast< proshade_single > ( yIt ) * ySampRate ) * map[arrPos];
-                    *zCom                            += static_cast<proshade_double> ( static_cast< proshade_single > ( zIt ) * zSampRate ) * map[arrPos];
-                }
+                //==================================== Ignore NaN's and NA's
+                const FloatingPoint< proshade_double > lhs ( map[arrPos] );
+                if ( !lhs.AlmostEquals ( lhs ) )      { map[arrPos] = 0.0; continue; }
+                
+                //==================================== If negative density is to be ignored, do so
+                if ( ( map[arrPos] < 0.0 ) && removeNegDens ) { continue; }
+
+                //==================================== Compute position times weight
+                totDensity                           += map[arrPos];
+               *xCom                                 += static_cast<proshade_double> ( xIt * map[arrPos] );
+               *yCom                                 += static_cast<proshade_double> ( yIt * map[arrPos] );
+               *zCom                                 += static_cast<proshade_double> ( zIt * map[arrPos] );
             }
         }
     }
     
-    //================================================ Normalise sums to COM
+    //================================================ Divide by total weight
    *xCom                                             /= totDensity;
    *yCom                                             /= totDensity;
    *zCom                                             /= totDensity;
+    
+    //================================================ Convert from indices to Angstroms and into "real world" co-ordinate system.
+   *xCom                                              = ( static_cast< proshade_double > ( xFrom ) + (*xCom) ) * static_cast< proshade_double > ( xSampRate );
+   *yCom                                              = ( static_cast< proshade_double > ( yFrom ) + (*yCom) ) * static_cast< proshade_double > ( ySampRate );
+   *zCom                                              = ( static_cast< proshade_double > ( zFrom ) + (*zCom) ) * static_cast< proshade_double > ( zSampRate );
     
     //================================================ Done
     return ;
