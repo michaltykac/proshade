@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -65,6 +65,15 @@ void ProSHADE_internal_sphericalHarmonics::allocateComputationMemory ( proshade_
     ProSHADE_internal_misc::checkMemoryAllocation     ( shWeights,        __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( tableSpaceHelper, __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( workspace,        __FILE__, __LINE__, __func__ );
+    
+    //================================================ Fill arrays with zeroes
+    for ( size_t iter = 0; iter < static_cast< size_t > ( oneDimmension * oneDimmension ); iter++ )
+    {
+        inputReal[iter]                               = 0.0;
+        inputImag[iter]                               = 0.0;
+        outputReal[iter]                              = 0.0;
+        outputImag[iter]                              = 0.0;
+    }
     
     //================================================ Done
     return ;

@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -267,6 +267,32 @@ bool ProSHADE_internal_misc::sortSymHlpInv ( const proshade_double* a, const pro
 {
     //================================================ Compare
     return                                            ( a[5] > b[5] );
+    
+}
+
+/*! \brief This function compares two arrays of two based on the sixth number, sorting highest first.
+ 
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortSymFSCHlp ( const proshade_double* a, const proshade_double* b )
+{
+    //================================================ Compare
+    return                                            ( a[6] > b[6] );
+    
+}
+
+/*! \brief This function compares two arrays of two based on the sixth number, sorting highest first.
+ 
+    \param[in] a The first array to compare.
+    \param[in] b The second array to compare.
+    \param[out] X Boolean whether the first is smaller than the second.
+ */
+bool ProSHADE_internal_misc::sortSymFSCHlpInv ( const proshade_double* a, const proshade_double* b )
+{
+    //================================================ Compare
+    return                                            ( a[6] > b[6] );
     
 }
 

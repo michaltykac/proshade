@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.3
-#   \date      FEB 2022
+#   \version   0.7.6.4
+#   \date      APR 2022
 ######################################################
 ######################################################
 
@@ -82,7 +82,8 @@ ps.setBandwidth                                       ( 0 )                     
 ps.setPhaseUsage                                      ( True )                                                           # Use full maps, or Patterson-like maps?
 ps.setSphereDistances                                 ( 0.0 )                                                            # The distance between spheres. Use 0.0 for automatic determination.
 ps.setIntegrationOrder                                ( 0 )                                                              # The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
-ps.setTaylorSeriesCap                                 ( 10 )                                                             # Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
+ps.setIntegrationApproxSteps                          ( 5 )                                                              # Set the number of steps in the Gauss-Legendre quadrature approximation.
+ps.setIntegrationSpeedUp                              ( True )                                                           # Should the computation be spead up using the integration improvement?
 ps.setEnergyLevelsComputation                         ( True )                                                           # Should energy levels descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 ps.setTraceSigmaComputation                           ( True )                                                           # Should trace sigma descriptor be computed, assuming Distances are required (irrelevant otherwise)?
 ps.setRotationFunctionComputation                     ( True )                                                           # Should rotation function descriptor be computed, assuming Distances are required (irrelevant otherwise)?
@@ -120,10 +121,10 @@ print                                                 ( "Translation to overlay 
 
 ######################################################
 ### Expected outuput
-#   Optimal rotation Euler angles : 3.9272058    0.73626494    5.4001775
-#   Optimal rotation matrix       : -0.87901455    0.2135372    -0.42630416
-#                                 : 0.044242524    -0.85371655    -0.5188551
-#                                 : -0.4747378    -0.47494197    0.7409819
+#   Optimal rotation Euler angles : 3.9276586    0.7363272    5.4011497
+#   Optimal rotation matrix       : -0.8790486    0.21232776    -0.42683777
+#                                 : 0.045506652    -0.85388047    -0.5184759
+#                                 : -0.47455525    -0.47518948    0.74094015
 #   Translation to origin         : -16.941177    -21.052631    -20.952383
 #   Translation to overlay        : 4.0    8.0    -4.0
 
@@ -133,4 +134,4 @@ del rn
 del ps
 
 ######################################################
-### Done
+### Done 

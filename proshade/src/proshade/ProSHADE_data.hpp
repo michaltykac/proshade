@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //==================================================== ProSHADE
@@ -316,7 +316,7 @@ namespace ProSHADE_internal_data
         //============================================ Mutator functions
         void setIntegrationWeight                     ( proshade_double intW );
         void setIntegrationWeightCumul                ( proshade_double intW );
-        void setEMatrixValue                          ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_complex val );
+        void setEMatrixValue                          ( int band, int order1, int order2, proshade_complex val );
         void normaliseEMatrixValue                    ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double normF );
         void setSO3CoeffValue                         ( proshade_unsign position, proshade_complex val );
         void setWignerMatrixValue                     ( proshade_complex val, proshade_unsign band, proshade_unsign order1, proshade_unsign order2 );

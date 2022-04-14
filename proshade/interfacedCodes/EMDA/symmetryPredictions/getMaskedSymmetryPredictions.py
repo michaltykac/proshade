@@ -61,7 +61,8 @@ import proshade
 import mrcfile
 
 ### Import EMDA
-import emda.emda_methods as emda_methods
+import emda2.emda_methods2 as emda_methods
+from emda2.core import iotools
 
 
 ######################################################
@@ -81,7 +82,7 @@ inputFileName                                         = "emdb_spa_210329.dat"
 outputFileName                                        = "results_allKnownEMDB_COM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
 unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
-tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768" ]
+tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768", "EMD-10926", "EMD-1610" ]
 
 ######################################################
 ### Local settings
@@ -242,7 +243,7 @@ def checkMapResolution ( mapFile, declRes ):
     
     ### If map resolution below decent resolution, report
     if mapResol > minimalAllowedResolution:
-        return                                        ( -1.0 )
+        return                                        ( -1.0, -1.0 )
         
     ### Check map resolution against the minimal required resolution
     if ( locRes < float ( mapResol ) ):
@@ -260,23 +261,25 @@ This function reads in the density map data from the file and proceeds to use
 EMDA to compute the density mask, saving it into file "mapmask.mrc".
 """
 def maskMapUsingEMDA ( mapFile, locRes ):
-    ### Read in the data using mrcfile
-    mrc                                               = mrcfile.open ( mapFile, mode = "r+" )
+    ### Read in map
+    mapStruct                                         = iotools.Map ( name = mapFile )
+    mapStruct.read                                    ( )
     
-    ### Parse out data from the mrcfile object
-    cell                                              = numpy.zeros ( 6, dtype="float" )
-    uc                                                = numpy.array(mrc.header.cella)
-    uc                                                = mrc.header.cella[ [ "x", "y", "z" ] ]
-    cell[:3]                                          = uc.view( ( "f4", 3 ) )
-    cell[3:]                                          = float ( 90.0 )
-    origin                                            = [mrc.header.nxstart, mrc.header.nystart, mrc.header.nzstart]
-    arr                                               = mrc.data
+    ### Get mask
+    mask, lwp                                         = emda_methods.mask_from_map ( uc     = mapStruct.workcell,
+                                                                                     arr    = mapStruct.workarr,
+                                                                                     resol  = locRes,
+                                                                                     filter = 'butterworth' )
     
-    ### Close the file to stop changes from being written onto the disc
-    mrc.close                                         ( )
+    ### Prepare output file
+    croppedImage                                      = iotools.cropimage ( arr = mask, tdim = mapStruct.arr.shape )
+    maskOut                                           = iotools.Map ( name = 'mapmask.mrc' )
+    maskOut.cell                                      = mapStruct.cell
+    maskOut.arr                                       = croppedImage
+    maskOut.origin                                    = mapStruct.origin
     
-    ### Compute mask
-    mapmask                                           = emda_methods.mask_from_map ( uc=cell, arr=arr, kern=4, resol=locRes, filter='butterworth', prob=0.99, itr=3, orig=origin )
+    ### Write mask out
+    maskOut.write()
     
 """
 This function runs ProSHADE symmetry detection and returns the recommented symmetry type,

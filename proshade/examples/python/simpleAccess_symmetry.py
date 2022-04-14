@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.3
-#   \date      FEB 2022
+#   \version   0.7.6.4
+#   \date      APR 2022
 ######################################################
 ######################################################
 
@@ -93,7 +93,8 @@ ps.setBandwidth                                       ( 0 )                     
 ps.setPhaseUsage                                      ( True )                  # Use full maps, or Patterson-like maps?
 ps.setSphereDistances                                 ( 0.0 )                   # The distance between spheres. Use 0.0 for automatic determination.
 ps.setIntegrationOrder                                ( 0 )                     # The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
-ps.setTaylorSeriesCap                                 ( 10 )                    # Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
+ps.setIntegrationApproxSteps                          ( 5 )                     # Set the number of steps in the Gauss-Legendre quadrature approximation.
+ps.setIntegrationSpeedUp                              ( True )                  # Should the computation be spead up using the integration improvement?
 ps.setMapReboxing                                     ( False )                 # Should the structure be re-boxed? Required masking to be done in order to be meaningful.
 
 ######################################################
@@ -113,7 +114,7 @@ print                                                 ( "Found a total of " + st
 
 ##############################################
 ### Expected output
-#   Found a total of 47 cyclic symmetries.
+#   Found a total of 13 cyclic symmetries.
 
 ######################################################
 ### Print results
@@ -131,7 +132,7 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 ### Expected outuput
 #   Detected symmetry C-4 with axes:
 #   Fold      x         y         z       Angle     Height    Averaged FSC
-#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9797      +0.9977
+#     4.0    -0.000    -0.000    +1.000    -1.571    +0.9558      +0.9975
 
 ######################################################
 ### Find the internal map COM shift
@@ -148,4 +149,4 @@ del rn
 del ps
 
 ######################################################
-### Done
+### Done 

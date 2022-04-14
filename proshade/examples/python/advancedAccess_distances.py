@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.3
-#   \date      FEB 2022
+#   \version   0.7.6.4
+#   \date      APR 2022
 ######################################################
 ######################################################
 
@@ -83,9 +83,9 @@ print                                                 ( "The rotation function d
 
 ######################################################
 ### Expected output
-#   The energy levels distance is          +0.856
-#   The trace sigma distance is            +0.965
-#   The rotation function distance is      +0.625
+#   The energy levels distance is          +0.852
+#   The trace sigma distance is            +0.911
+#   The rotation function distance is      +0.622
 
 ######################################################
 ### Release C++ pointers

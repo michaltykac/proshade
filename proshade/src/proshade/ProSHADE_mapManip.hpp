@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
  */
 
 //==================================================== ProSHADE
@@ -44,7 +44,7 @@ namespace ProSHADE_internal_mapManip
     void findMAPCOMValues                             ( proshade_double* map, proshade_double *xCom, proshade_double *yCom, proshade_double *zCom,
                                                         proshade_single xAngs, proshade_single yAngs, proshade_single zAngs, proshade_signed xFrom,
                                                         proshade_signed xTo, proshade_signed yFrom, proshade_signed yTo, proshade_signed zFrom,
-                                                        proshade_signed zTo );
+                                                        proshade_signed zTo, bool removeNegDens );
     void rotatePDBCoordinates                         ( gemmi::Structure *pdbFile, proshade_double euA, proshade_double euB, proshade_double euG, proshade_double xCom,
                                                         proshade_double yCom, proshade_double zCom, bool firstModel );
     void translatePDBCoordinates                      ( gemmi::Structure *pdbFile, proshade_double transX, proshade_double transY, proshade_double transZ, bool firstModel );

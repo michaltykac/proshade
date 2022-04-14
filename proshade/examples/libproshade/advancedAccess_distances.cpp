@@ -17,8 +17,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //==================================================== ProSHADE
@@ -51,7 +51,8 @@ int main ( int argc, char **argv )
     settings->setPhaseUsage                           ( true );                              // Use full maps, or Patterson-like maps?
     settings->setSphereDistances                      ( 0.0 );                               // The distance between spheres. Use 0.0 for automatic determination.
     settings->setIntegrationOrder                     ( 0 );                                 // The order of the Gauss-Legendre integration computation. Set to 0 for automatic determination.
-    settings->setTaylorSeriesCap                      ( 10 );                                // Set the Taylor series approximation cap. 10 seems like a fast and accurate value, but feel free to change.
+    settings->setIntegrationApproxSteps               ( 5 );                                 // Set the number of steps in the Gauss-Legendre quadrature approximation.
+    settings->setIntegrationSpeedUp                   ( true );                              // Should the computation be spead up using the integration improvement?
     settings->setNormalisation                        ( false );                             // Should internal map representation be normalised to mean 0 and standard deviation 1?
     settings->setMapInversion                         ( false );                             // Should all map positions x,y,z be swapped to -x,-y,-z? Use this only if your helices have the wrong hand as a result of first runs of map computation.
     settings->setMasking                              ( false );                             // Should maps be masked by blurring?
@@ -126,8 +127,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Energy levels distance       : 0.85561
-//  Trace sigma distance         : 0.96467
-//  Rotation function distance   : 0.62453
+//  Trace sigma distance         : 0.97777
+//  Rotation function distance   : 0.6
 
     //================================================ Release the settings and runProshade objects
     delete structure1;
