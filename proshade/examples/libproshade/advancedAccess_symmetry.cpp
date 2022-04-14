@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //==================================================== ProSHADE
@@ -136,8 +136,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: D-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.955807 and averaged FSC of 0.975556
-//  Symmetry axis number 1: Fold 2 XYZ: 0.87222 ; 0.489037 ; 0.00868856 Angle (radians): 3.14159 , axis peak: 0.957264 and averaged FSC of 0.612032
+//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.978024 and averaged FSC of 0.976069
+//  Symmetry axis number 1: Fold 2 XYZ: 0.0096167 ; 0.999954 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 1 and averaged FSC of 0.841425
     
     //================================================ Find all C axes
     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
@@ -151,7 +151,7 @@ int main ( int argc, char **argv )
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [3.19419 , 3.1979 , 1.36808].
+//  Internal map processing shifted the map COM by: [6.36407 , 6.38724 , 4.58921].
     
     //================================================ Release the object
     delete simpleSym;
@@ -192,9 +192,9 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry: D-3 as requested. The axes are
-//  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944 and axis peak: 0.948237
-//  Symmetry axis number 1: Fold 2 XYZ: 0.0088698 ; 0.999961 ; 6.12323e-17 Angle (radians): 3.14159 and axis peak: 1
+//  Detected symmetry: D-3 as requested. The axes are:
+//  Symmetry axis number 0: Fold 3 XYZ: -7.7335e-05 ; -4.5076e-05 ; 1 Angle (radians): -2.0944 and axis peak: 0.974444
+//  Symmetry axis number 1: Fold 2 XYZ: 0.0096167 ; 0.999954 ; 6.12323e-17 Angle (radians): 3.14159 and axis peak: 1
     
     
     //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
@@ -271,9 +271,9 @@ int main ( int argc, char **argv )
         
     //================================================ Expected output
 //  Point group D3-2 has been found to have 6 group elements, with the first element (excluding the identity one) having rotation matrix:
-//  -0.50 | +0.87 | +0.00
-//  -0.87 | -0.50 | +0.00
-//  +0.00 | +0.00 | +1.00
+//  -0.50 | +0.87 | -0.00
+//  -0.87 | -0.50 | -0.00
+//  -0.00 | -0.00 | +1.00
  
     //================================================ Release the settings and runProshade objects
     delete requestSym;

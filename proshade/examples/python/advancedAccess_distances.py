@@ -84,8 +84,8 @@ print                                                 ( "The rotation function d
 ######################################################
 ### Expected output
 #   The energy levels distance is          +0.852
-#   The trace sigma distance is            +3.248
-#   The rotation function distance is      -0.093
+#   The trace sigma distance is            +0.911
+#   The rotation function distance is      +0.622
 
 ######################################################
 ### Release C++ pointers

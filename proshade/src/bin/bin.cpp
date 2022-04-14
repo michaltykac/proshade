@@ -410,7 +410,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map
- ProSHADE 0.7.6.3 (FEB 2022):
+ ProSHADE 0.7.6.4 (APR 2022):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -433,21 +433,32 @@
   ... Starting I symmetry prediction.
   ... Starting recommended symmetry decision procedure.
 
- Detected C symmetry with fold 12 about point [2.9202 , 2.92307 , 13.017] away from centre of mass .
+ Detected C symmetry with fold 12 about point [-0.0347284 , -0.0296968 , 13.0487] away from centre of mass .
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +12     -0.00001   +0.00002   +1.00000     -0.52360      +0.95258      +0.99413
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99840      +0.99443
 
  To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +2     +0.00096   +0.00000   +1.00000     +3.14159      +0.99402      +0.99624
-    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99359      +0.99720
-    +12     -0.00001   +0.00002   +1.00000     -0.52360      +0.95258      +0.99413
-    +6     -0.00000   +0.00000   +1.00000     -1.04720      +0.94835      +0.99353
-    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.93690      +0.99211
+    +4     +0.00080   +0.00000   +1.00000     +1.57080      +0.99978      +0.99785
+    +2     +0.00080   +0.00000   +1.00000     +3.14159      +0.99980      +0.99706
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99840      +0.99443
+    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.99826      +0.99395
+    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.99788      +0.99264
+    +24     +0.00000   +0.00000   +1.00000     +0.26180      +0.95467      +0.50824
+    +8     +0.00000   +0.00000   +1.00000     +0.78540      +0.95121      +0.46326
+    +36     -0.00150   -0.00056   +1.00000     -0.17453      +0.95492      +0.38587
+    +18     +0.00000   +0.00000   +1.00000     +0.34907      +0.95360      +0.36790
+    +29     +0.00000   +0.00000   +1.00000     +0.21666      +0.95457      +0.34070
+    +23     +0.00000   +0.00000   +1.00000     +0.27318      +0.95434      +0.33475
+    +9     +0.00000   +0.00000   +1.00000     +0.69813      +0.95071      +0.32845
+    +19     +0.00000   +0.00000   +1.00000     +0.33069      +0.95375      +0.32822
+    +17     +0.00000   +0.00000   +1.00000     +0.36960      +0.95341      +0.32379
+    +13     +0.00000   +0.00000   +1.00000     +0.48332      +0.95265      +0.31051
+    +11     +0.00000   +0.00000   +1.00000     +0.57120      +0.95179      +0.30020
 
  ======================
  ProSHADE run complete.
- Time taken: 52 seconds.
+ Time taken: 120 seconds.
  ======================
 *\endcode
  *
@@ -469,7 +480,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.6.3 (FEB 2022):
+ ProSHADE 0.7.6.4 (APR 2022):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -500,9 +511,9 @@
   ... Starting trace sigma distance computation.
   ... Starting rotation function distance computation.
  Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
- Energy levels distance    : 0.855606
- Trace sigma distance      : 0.964671
- Rotation function distance: 0.624527
+ Energy levels distance    : 0.851642
+ Trace sigma distance      : 0.910876
+ Rotation function distance: 0.621719
   ... Starting to read the structure: ./3IGU_A_dom_1.pdb
   ... Map left at original position.
   ... Map rotation centre not shifted.
@@ -519,9 +530,9 @@
   ... Starting trace sigma distance computation.
   ... Starting rotation function distance computation.
  Distances between ./1BFO_A_dom_1.pdb and ./3IGU_A_dom_1.pdb
- Energy levels distance    : 0.560643
- Trace sigma distance      : 0.753095
- Rotation function distance: 0.465186
+ Energy levels distance    : 0.542158
+ Trace sigma distance      : 0.575506
+ Rotation function distance: 0.439295
 
  ======================
  ProSHADE run complete.
@@ -549,7 +560,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.6.3 (FEB 2022):
+ ProSHADE 0.7.6.4 (APR 2022):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -567,7 +578,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 9 seconds.
+ Time taken: 19 seconds.
  ======================
  \endcode
  *
@@ -612,7 +623,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 1
- ProSHADE 0.7.6.3 (FEB 2022):
+ ProSHADE 0.7.6.4 (APR 2022):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -664,14 +675,14 @@
   ... Starting translation function computation.
 
  The rotation centre to origin translation vector is:  -18.5     -20.5     -22.6
- The rotation matrix about origin is                 : -0.861     +0.179     -0.476
-                                                     : +0.0969     -0.861     -0.499
-                                                     : -0.499     -0.476     +0.724
- The rotation centre to overlay translation vector is: +2     +6     -4
+ The rotation matrix about origin is                 : -0.861     +0.18     -0.476
+                                                     : +0.0967     -0.861     -0.499
+                                                     : -0.5     -0.476     +0.724
+ The rotation centre to overlay translation vector is: +2     +8     -4
 
  ======================
  ProSHADE run complete.
- Time taken: 18 seconds.
+ Time taken: 24 seconds.
  ======================
  \endcode
  *

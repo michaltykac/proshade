@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //==================================================== ProSHADE
@@ -111,8 +111,8 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Energy levels distances          : 0.85561 and 0.56064
-//  Trace sigma distances            : 0.96467 and 0.7531
-//  Rotation function distances      : 0.62453 and 0.46519
+//  Trace sigma distances            : 0.97777 and 0.63716
+//  Rotation function distances      : 0.6 and 0.33717
 
     //================================================ Release the settings and runProshade objects
     delete runProshade;

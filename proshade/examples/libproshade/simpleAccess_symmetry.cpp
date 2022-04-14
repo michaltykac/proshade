@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.3
-    \date      FEB 2022
+    \version   0.7.6.4
+    \date      APR 2022
 */
 
 //==================================================== ProSHADE
@@ -105,8 +105,8 @@ int main ( int argc, char **argv )
     }
     
     //================================================ Expected output
-//  Detected symmetry C of fold 12. The symmetry axes are:
-//   ... FOLD: 12 | XYZ: -0.000177333 ; -4.83473e-05 ; 1 | Angle: -0.523599 | Peak: 0.974527 | Average FSC: 0.991312
+//  DDetected symmetry C of fold 12. The symmetry axes are:
+//    ... FOLD: 12 | XYZ: -0.00039104 ; -0.000106604 ; 1 | Angle: -0.523599 | Peak: 0.994949 | Average FSC: 0.991859
 
     //================================================ Get list of all detected cyclic symmetries
     std::vector < std::vector< proshade_double > > allCs = runProshade->getAllCSyms ( );
@@ -120,7 +120,7 @@ int main ( int argc, char **argv )
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [2.04652 , 2.04272 , 11.3845].
+//  Internal map processing shifted the map COM by: [-0.0251693 , -0.0188001 , 9.79853].
     
     //================================================ Release the settings and runProshade objects
     delete runProshade;
