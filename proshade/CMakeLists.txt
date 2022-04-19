@@ -73,7 +73,7 @@ set     ( CUSTOM_FFTW3_LIB_PATH  ""      CACHE STRING "Path to libfftw3.a"      
 set     ( CUSTOM_FFTW3_INC_PATH  ""      CACHE STRING "Path to fftw3.h"                        )
 set     ( CUSTOM_LAPACK_LIB_PATH ""      CACHE STRING "Custom path to LAPACK libs"             )
 set     ( BUILD_PYTHON           FALSE   CACHE BOOL   "Should python modules be build?"        )
-set     ( CMAKE_BUILD_TYPE       Debug                                                         )
+set     ( CMAKE_BUILD_TYPE       Release                                                       )
 
 ##########################################################################################
 ################################### Warn if non-local installation - sudo may be needed
