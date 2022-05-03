@@ -2291,19 +2291,10 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     //================================================ Release binning memory
     delete[] binIndexing;
     
-    //================================================ Allocate memory for FSC sums
+    //================================================ Allocate memory for FSC sums and Fourier transform imputs and outputs
     bindata                                           = new proshade_double*[*noBins];
     binCounts                                         = new proshade_signed [*noBins];
     fscByBin                                          = new proshade_double [*noBins];
-    
-    //================================================ Allcate memory for bin sumation
-    for ( size_t binIt = 0; binIt < static_cast< size_t > ( *noBins ); binIt++ )
-    {
-        bindata[binIt]                                = new proshade_double[12];
-        ProSHADE_internal_misc::checkMemoryAllocation ( bindata[binIt], __FILE__, __LINE__, __func__ );
-    }
-    
-    //================================================ Allocate memory for Fourier transform imputs and outputs
     fftw_complex* mapData                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * this->xDimIndices * this->yDimIndices * this->zDimIndices ) );
     fftw_complex* fCoeffs                             = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * this->xDimIndices * this->yDimIndices * this->zDimIndices ) );
     fCoeffsCut                                        = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( (*cutXDim) * (*cutYDim) * (*cutZDim) ) ) );
@@ -2315,6 +2306,20 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     ProSHADE_internal_misc::checkMemoryAllocation     ( bindata,       __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( binCounts,     __FILE__, __LINE__, __func__ );
     ProSHADE_internal_misc::checkMemoryAllocation     ( fscByBin,      __FILE__, __LINE__, __func__ );
+    
+    //================================================ Allcate memory for bin sumation
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( *noBins ); binIt++ )
+    {
+        bindata[binIt]                                = new proshade_double[12];
+        ProSHADE_internal_misc::checkMemoryAllocation ( bindata[binIt], __FILE__, __LINE__, __func__ );
+    }
+    
+    //================================================ Zeroes
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( *noBins ); binIt++ ) { for ( size_t it = 0; it < 12; it++ ) { bindata[binIt][it] = 0.0; } }
+    for ( size_t binIt = 0; binIt < static_cast< size_t > ( *noBins ); binIt++ ) { binCounts[binIt] = 0; fscByBin[binIt] = 0.0; }
+    for ( size_t mapIt = 0; mapIt < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); mapIt++ ) { mapData[mapIt][0] = 0.0; mapData[mapIt][1] = 0.0; fCoeffs[mapIt][0] = 0.0; fCoeffs[mapIt][1] = 0.0; }
+    for ( size_t mapIt = 0; mapIt < static_cast< size_t > ( (*cutXDim) * (*cutYDim) * (*cutZDim) ); mapIt++ ) { fCoeffsCut[mapIt][0] = 0.0; fCoeffsCut[mapIt][1] = 0.0; }
+    
     
     //================================================ Prepare memory for Fourier transform
     fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( this->xDimIndices ), static_cast< int > ( this->yDimIndices ), static_cast< int > ( this->zDimIndices ), mapData, fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
@@ -2544,7 +2549,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     
     //================================================ Initialise local variables
     proshade_double step                              = 0.01;
-    proshade_double sigma                             = 0.03;
+    proshade_double sigma                             = 0.1;
     proshade_signed windowSize                        = 9;
     proshade_double IFSCAverage = 0.0, OFSCAverage = 0.0, TFSCAverage = 0.0;
     bool IIsBest = false, OIsBest = false, TIsBest = false;
@@ -2567,12 +2572,13 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         //============================================ Initialise decision vars
         proshade_double fscVal                        = 0.0;
         proshade_double fscValAvg                     = 0.0;
+        proshade_unsign lowFSC                        = 0;
         
         //============================================ Find FSCs and their average
-        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; }
+        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { lowFSC++; } }
         fscValAvg                                    /= 31.0;
         IFSCAverage                                   = fscValAvg;
-        if ( IFSCAverage < settings->fscThreshold )   { IFSCAverage = 0.0; }
+        if ( ( IFSCAverage < settings->fscThreshold ) || ( lowFSC > 10 ) ) { IFSCAverage = 0.0; }
     }
     
     //================================================ Decide if O is the answer
@@ -2581,12 +2587,13 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         //============================================ Initialise decision vars
         proshade_double fscVal                        = 0.0;
         proshade_double fscValAvg                     = 0.0;
+        proshade_unsign lowFSC                        = 0;
         
         //============================================ Find FSCs and their average
-        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; }
+        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { lowFSC++; } }
         fscValAvg                                    /= 13.0;
         OFSCAverage                                   = fscValAvg;
-        if ( OFSCAverage < settings->fscThreshold )   { OFSCAverage = 0.0; }
+        if ( ( OFSCAverage < settings->fscThreshold ) || ( lowFSC > 5 ) ) { OFSCAverage = 0.0; }
     }
     
     //================================================ Decide if T is the answer
@@ -2595,12 +2602,13 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         //============================================ Initialise decision vars
         proshade_double fscVal                        = 0.0;
         proshade_double fscValAvg                     = 0.0;
+        proshade_unsign lowFSC                        = 0;
         
         //============================================ Find FSCs and their average
-        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; }
+        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { lowFSC++; } }
         fscValAvg                                    /= 7.0;
         TFSCAverage                                   = fscValAvg;
-        if ( TFSCAverage < settings->fscThreshold )   { TFSCAverage = 0.0; }
+        if ( ( TFSCAverage < settings->fscThreshold ) || ( lowFSC > 2 ) ) { TFSCAverage = 0.0; }
     }
     
     //================================================ If we are using phaseless detection, different threshold needs to be used due to large number of false positives
@@ -2723,7 +2731,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                 //==================================== Check the FSC vals
                 if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < settings->fscThreshold ) { continue; }
                 if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < settings->fscThreshold ) { continue; }
-                if ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) < onlyDThreshold ) { continue; }
+                if ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) < ( onlyDThreshold * 0.9 ) ) { continue; }
                 
                 //==================================== All good!
                 bestVal                               = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
@@ -2781,7 +2789,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize, 0.95 );
         
         //============================================ Find reliable C syms
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )

@@ -349,7 +349,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         //============================================ Release memory
         delete symmetryStructure;
     }
-    
+        
     //================================================ Done
     return ;
     

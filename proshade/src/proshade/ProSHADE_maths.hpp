@@ -391,7 +391,7 @@ namespace ProSHADE_internal_maths
     std::vector< proshade_unsign > findAllPrimes      ( proshade_unsign upTo );
     bool isPrime                                      ( proshade_unsign toCheck );
     proshade_double computeGaussian                   ( proshade_double val, proshade_double sigma );
-    std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data );
+    std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data, proshade_signed decRound = 2 );
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );
     void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single xSize, proshade_single ySize, proshade_single zSize,
                                                         proshade_signed* noBin, proshade_signed*& binIndexing, std::vector< proshade_single >*& resArray );
