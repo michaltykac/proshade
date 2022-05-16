@@ -2915,7 +2915,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     if ( ret.size() < 1 ) { return ( ret ); }
     
     //================================================ Compute the FSC threshold
-    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.01, 0.05, 9, 0.9 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.1, 9, 0.9 );
     
     //================================================ Check for prime symmetry fold multiples
     while ( anyNewSyms )

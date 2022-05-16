@@ -3560,7 +3560,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     \param[in] cutBinIndices Array to which the cut indices will be saved into.
     \param[in] noBins Variable to which the number of bins adter cutting will be saved into.
  */
-void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single resolution, proshade_signed* binIndexing, std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins )
+void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_single resolution, proshade_signed* binIndexing, std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins )
 {
     //================================================ Initialise local variables
     proshade_single resCut                            = resolution;
@@ -3586,6 +3586,7 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
     //================================================ Create new binIndexing within only the new dimensions
     cutBinIndices                                     = new proshade_signed[(*cutXDim) * (*cutYDim) * (*cutZDim)];
     ProSHADE_internal_misc::checkMemoryAllocation     ( cutBinIndices, __FILE__, __LINE__, __func__ );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( (*cutXDim) * (*cutYDim) * (*cutZDim) ); iter++ ) { cutBinIndices[iter] = 0; }
     
     proshade_signed newArrPos = 0, origArrPos = 0;
     for ( proshade_signed xIt = newXFrom; xIt < newXTo; xIt++ )
@@ -3594,8 +3595,12 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
         {
             for ( proshade_signed zIt = newZFrom; zIt < newZTo; zIt++ )
             {
+                //==================================== Skip if outside of box
+                if ( ( xIt < 0 )      || ( yIt < 0 )      || ( zIt < 0 ) )      { continue; }
+                if ( ( xIt >= xInds ) || ( yIt >= yInds ) || ( zIt >= zInds ) ) { continue; }
+                
                 //==================================== Find positions
-                newArrPos                             = (zIt-newZFrom) + (newZTo-newZFrom) * ( (yIt-newYFrom) + (newYTo-newYFrom) * (xIt-newXFrom) );
+                newArrPos                             = (zIt-newZFrom) + (*cutZDim) * ( (yIt-newYFrom) + (*cutYDim) * (xIt-newXFrom) );
                 origArrPos                            = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
                 
                 //==================================== Copy value
@@ -3620,7 +3625,7 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
  
     \warning This function is part of the FSC computation framework and makes assumptions that may not be true in general. Please look into the code before using.
  */
-void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap )
+void ProSHADE_internal_maths::cutArrayToResolution ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap )
 {
     //================================================ Compute new map dimensions
     proshade_signed newXFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * noBins ) / 2 ) );
@@ -3633,9 +3638,10 @@ void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, pros
     proshade_signed cutYDim                           = ( newYTo - newYFrom );
     proshade_signed cutZDim                           = ( newZTo - newZFrom );
     
-    //================================================ Create new binIndexing within only the new dimensions
+    //================================================ Create new coefficients array within only the new dimensions
     cutMap                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( cutXDim * cutYDim * cutZDim ) ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( cutMap, __FILE__, __LINE__, __func__ );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( cutXDim * cutYDim * cutZDim ); iter++ ) { cutMap[iter][0] = 0.0; cutMap[iter][1] = 0.0; }
     
     proshade_signed newArrPos = 0, origArrPos = 0;
     for ( proshade_signed xIt = newXFrom; xIt < newXTo; xIt++ )
@@ -3644,8 +3650,12 @@ void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, pros
         {
             for ( proshade_signed zIt = newZFrom; zIt < newZTo; zIt++ )
             {
+                //==================================== Skip if outside of box
+                if ( ( xIt < 0 )      || ( yIt < 0 )      || ( zIt < 0 ) )      { continue; }
+                if ( ( xIt >= xInds ) || ( yIt >= yInds ) || ( zIt >= zInds ) ) { continue; }
+                
                 //==================================== Find positions
-                newArrPos                             = (zIt-newZFrom) + (newZTo-newZFrom) * ( (yIt-newYFrom) + (newYTo-newYFrom) * (xIt-newXFrom) );
+                newArrPos                             = (zIt-newZFrom) + cutZDim * ( (yIt-newYFrom) + cutYDim * (xIt-newXFrom) );
                 origArrPos                            = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
                 
                 //==================================== Copy value

@@ -61,8 +61,7 @@ import proshade
 import mrcfile
 
 ### Import EMDA
-import emda2.emda_methods2 as emda_methods
-from emda2.core import iotools
+from emda2.ext import mapmask
 
 
 ######################################################
@@ -79,7 +78,7 @@ symmetryCentering                                     = False
 comCentering                                          = True
 verbosity                                             = -1
 inputFileName                                         = "emdb_spa_210329.dat"
-outputFileName                                        = "results_allKnownEMDB_COM_resol-"
+outputFileName                                        = "NEW_results_allKnownEMDB_COM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
 unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
 tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768", "EMD-10926", "EMD-1610", "EMD-23042" ]
@@ -94,7 +93,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 2624
+startFrom                                             = 487
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0
@@ -260,28 +259,11 @@ def checkMapResolution ( mapFile, declRes ):
 
 """
 This function reads in the density map data from the file and proceeds to use
-EMDA to compute the density mask, saving it into file "mapmask.mrc".
+EMDA to compute the density mask, saving it into file "mapmask2.mrc".
 """
-def maskMapUsingEMDA ( mapFile, locRes ):
-    ### Read in map
-    mapStruct                                         = iotools.Map ( name = mapFile )
-    mapStruct.read                                    ( )
-    
-    ### Get mask
-    mask, lwp                                         = emda_methods.mask_from_map ( uc     = mapStruct.workcell,
-                                                                                     arr    = mapStruct.workarr,
-                                                                                     resol  = locRes,
-                                                                                     filter = 'butterworth' )
-    
-    ### Prepare output file
-    croppedImage                                      = iotools.cropimage ( arr = mask, tdim = mapStruct.arr.shape )
-    maskOut                                           = iotools.Map ( name = 'mapmask.mrc' )
-    maskOut.cell                                      = mapStruct.cell
-    maskOut.arr                                       = croppedImage
-    maskOut.origin                                    = mapStruct.origin
-    
-    ### Write mask out
-    maskOut.write()
+def maskMapUsingEMDA ( mapFile ):
+    ### Now all work is done in this function
+    mapmask.main ( imap = mapFile, imask = 'mapmask2.mrc' )
     
 """
 This function runs ProSHADE symmetry detection and returns the recommented symmetry type,
@@ -495,8 +477,8 @@ for entry in symIDs:
     ### Figure mask filename and if none, use EMDA
     maskPath                                          = findMaskFile ( id, EMDBDataPath )
     if ( maskPath == "" ):
-        maskMapUsingEMDA                              ( mapPath, compResolution )
-        maskPath                                      = "mapmask.mrc"
+        maskMapUsingEMDA                              ( mapPath )
+        maskPath                                      = "mapmask2.mrc"
 
     ### Start timer
     startTime                                         = time.time ( )

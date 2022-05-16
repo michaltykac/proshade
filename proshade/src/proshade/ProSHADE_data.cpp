@@ -2280,7 +2280,7 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     ProSHADE_internal_maths::binReciprocalSpaceReflections ( this->xDimIndices, this->yDimIndices, this->zDimIndices, this->xDimSize, this->yDimSize, this->zDimSize, noBins, binIndexing, resArray );
     
     //================================================ Cut the indices to contain only up to the requested resolution
-    ProSHADE_internal_maths::cutIndicesToResolution   ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
+    ProSHADE_internal_maths::cutIndicesToResolution   ( static_cast< proshade_signed > ( this->xDimIndices ), static_cast< proshade_signed > ( this->yDimIndices ), static_cast< proshade_signed > ( this->zDimIndices ),
                                                         resolution * 1.1f,
                                                         binIndexing,
                                                         resArray,
@@ -2320,7 +2320,6 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     for ( size_t mapIt = 0; mapIt < static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices ); mapIt++ ) { mapData[mapIt][0] = 0.0; mapData[mapIt][1] = 0.0; fCoeffs[mapIt][0] = 0.0; fCoeffs[mapIt][1] = 0.0; }
     for ( size_t mapIt = 0; mapIt < static_cast< size_t > ( (*cutXDim) * (*cutYDim) * (*cutZDim) ); mapIt++ ) { fCoeffsCut[mapIt][0] = 0.0; fCoeffsCut[mapIt][1] = 0.0; }
     
-    
     //================================================ Prepare memory for Fourier transform
     fftw_plan planForwardFourier                      = fftw_plan_dft_3d ( static_cast< int > ( this->xDimIndices ), static_cast< int > ( this->yDimIndices ), static_cast< int > ( this->zDimIndices ), mapData, fCoeffs, FFTW_FORWARD,  FFTW_ESTIMATE );
     
@@ -2331,7 +2330,7 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     ProSHADE_internal_mapManip::changeFourierOrder    ( fCoeffs, static_cast< proshade_signed > ( this->xDimIndices ), static_cast< proshade_signed > ( this->yDimIndices ), static_cast< proshade_signed > ( this->zDimIndices ), true );
     
     //================================================ Cut Fourier coeffs
-    ProSHADE_internal_maths::cutArrayToResolution     ( this->xDimIndices, this->yDimIndices, this->zDimIndices, *noBins, fCoeffs, fCoeffsCut );
+    ProSHADE_internal_maths::cutArrayToResolution     ( static_cast< proshade_signed > ( this->xDimIndices ), static_cast< proshade_signed > ( this->yDimIndices ), static_cast< proshade_signed > ( this->zDimIndices ), *noBins, fCoeffs, fCoeffsCut );
     
     //================================================ Set bins outside of max bin to zero
     proshade_unsign arrPos                            = 0;
@@ -2408,6 +2407,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     {
         //============================================ Get rotated Fourier coefficients
         this->rotateFourierCoeffs                     (  CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( ( 2.0 * M_PI ) / CSym->at(symIndex)[0] ) * rotIter, fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
+//        this->rotateFourierCoeffs                     (  CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( ( 2.0 * M_PI ) / CSym->at(symIndex)[0] ), fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
         
         //============================================ Compute FSC
         averageFSC                                   += ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
@@ -2475,7 +2475,8 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     {
         //============================================ Get rotated Fourier coefficients
         this->rotateFourierCoeffs                     (  sym[1], sym[2], sym[3], ( ( 2.0 * M_PI ) / sym[0] ) * rotIter, fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
-
+//        this->rotateFourierCoeffs                     (  sym[1], sym[2], sym[3], ( ( 2.0 * M_PI ) / sym[0] ), fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
+        
         //============================================ Compute FSC
         averageFSC                                   += ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
         

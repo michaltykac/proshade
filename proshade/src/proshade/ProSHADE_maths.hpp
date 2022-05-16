@@ -395,10 +395,10 @@ namespace ProSHADE_internal_maths
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );
     void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single xSize, proshade_single ySize, proshade_single zSize,
                                                         proshade_signed* noBin, proshade_signed*& binIndexing, std::vector< proshade_single >*& resArray );
-    void cutIndicesToResolution                       ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single resolution, proshade_signed* binIndexing,
+    void cutIndicesToResolution                       ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_single resolution, proshade_signed* binIndexing,
                                                         std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim,
                                                         proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins );
-    void cutArrayToResolution                         ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap );
+    void cutArrayToResolution                         ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap );
     proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds,
                                                         proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin,
                                                         bool averageByBinSize = false );
