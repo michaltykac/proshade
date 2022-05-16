@@ -2379,9 +2379,10 @@ void ProSHADE_internal_data::ProSHADE_data::prepareFSCFourierMemory ( proshade_s
     \param[in] xDim The number of indices along the x-axis of the of the array to be rotated.
     \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
+    \param[in] all Should all rotations be averaged for the FSC computation, or should just the first rotation be unsed? Defaults to only the first.
     \param[out] fsc The FSC value found for the first (smallest) rotated map along the symmetry axis and the original map.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool all )
 {
     //================================================ Sanity check
     if ( symIndex >= CSym->size() )
@@ -2401,23 +2402,37 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     //================================================ Initialise local variables
     fftw_complex *rotCoeffs;
 
-    //================================================ For each rotation along the axis
+    //================================================ How do we proceed?
     proshade_double averageFSC                        = 0.0;
-    for ( proshade_double rotIter = 1.0; rotIter < CSym->at(symIndex)[0]; rotIter += 1.0 )
+    if ( all )
+    {
+        //============================================ For each rotation along the axis
+        for ( proshade_double rotIter = 1.0; rotIter < CSym->at(symIndex)[0]; rotIter += 1.0 )
+        {
+            //======================================== Get rotated Fourier coefficients
+            this->rotateFourierCoeffs                 (  CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( ( 2.0 * M_PI ) / CSym->at(symIndex)[0] ) * rotIter, fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
+            
+            //======================================== Compute FSC
+            averageFSC                               += ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
+            
+            //======================================== Release memory
+            fftw_free                                 ( rotCoeffs );
+        }
+        
+        //============================================ Convert sum to average
+        averageFSC                                   /= ( CSym->at(symIndex)[0] - 1.0 );
+    }
+    else
     {
         //============================================ Get rotated Fourier coefficients
-        this->rotateFourierCoeffs                     (  CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( ( 2.0 * M_PI ) / CSym->at(symIndex)[0] ) * rotIter, fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
-//        this->rotateFourierCoeffs                     (  CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( ( 2.0 * M_PI ) / CSym->at(symIndex)[0] ), fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
+        this->rotateFourierCoeffs                     (  CSym->at(symIndex)[1], CSym->at(symIndex)[2], CSym->at(symIndex)[3], ( ( 2.0 * M_PI ) / CSym->at(symIndex)[0] ), fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
         
         //============================================ Compute FSC
-        averageFSC                                   += ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
+        averageFSC                                    = ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
         
         //============================================ Release memory
         fftw_free                                     ( rotCoeffs );
     }
-
-    //================================================ Convert sum to average
-    averageFSC                                       /= ( CSym->at(symIndex)[0] - 1.0 );
 
     //================================================ Save result to the axis
     CSym->at(symIndex)[6]                             = averageFSC;
@@ -2454,9 +2469,10 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] xDim The number of indices along the x-axis of the of the array to be rotated.
     \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
+    \param[in] all Should all rotations be averaged for the FSC computation, or should just the first rotation be unsed? Defaults to only the first.
     \param[out] fsc The FSC value found for the first (smallest) rotated map along the symmetry axis and the original map.
  */
-proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool all )
 {
     //================================================ Ignore if already computed
     if ( sym[6] > -2.0 ) { return ( sym[6] ); }
@@ -2469,23 +2485,37 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     //================================================ Initialise local variables
     fftw_complex *rotCoeffs;
     
-    //================================================ For each rotation along the axis
+    //================================================ How do we proceed?
     proshade_double averageFSC                        = 0.0;
-    for ( proshade_double rotIter = 1.0; rotIter < sym[0]; rotIter += 1.0 )
+    if ( all )
+    {
+        //============================================ For each rotation along the axis
+        for ( proshade_double rotIter = 1.0; rotIter < sym[0]; rotIter += 1.0 )
+        {
+            //======================================== Get rotated Fourier coefficients
+            this->rotateFourierCoeffs                 (  sym[1], sym[2], sym[3], ( ( 2.0 * M_PI ) / sym[0] ) * rotIter, fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
+            
+            //======================================== Compute FSC
+            averageFSC                               += ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
+            
+            //======================================== Release memory
+            fftw_free                                 ( rotCoeffs );
+        }
+        
+        //============================================ Convert sum to average
+        averageFSC                                   /= ( sym[0] - 1.0 );
+    }
+    else
     {
         //============================================ Get rotated Fourier coefficients
-        this->rotateFourierCoeffs                     (  sym[1], sym[2], sym[3], ( ( 2.0 * M_PI ) / sym[0] ) * rotIter, fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
-//        this->rotateFourierCoeffs                     (  sym[1], sym[2], sym[3], ( ( 2.0 * M_PI ) / sym[0] ), fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
+        this->rotateFourierCoeffs                     (  sym[1], sym[2], sym[3], ( ( 2.0 * M_PI ) / sym[0] ), fCoeffsCut, rotCoeffs, xDim, yDim, zDim );
         
         //============================================ Compute FSC
-        averageFSC                                   += ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
+        averageFSC                                    = ProSHADE_internal_maths::computeFSC ( fCoeffsCut, rotCoeffs, xDim, yDim, zDim, noBins, cutIndices, bindata, binCounts, fscByBin );
         
         //============================================ Release memory
         fftw_free                                     ( rotCoeffs );
     }
-
-    //================================================ Convert sum to average
-    averageFSC                                       /= ( sym[0] - 1.0 );
 
     //================================================ Save result to the axis
     sym[6]                                            = averageFSC;

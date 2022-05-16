@@ -235,10 +235,10 @@ namespace ProSHADE_internal_data
                                                         proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices,
                                                         fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts,
-                                                        proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+                                                        proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool all = false );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins,
                                                         proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin,
-                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, bool all = false );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices,
