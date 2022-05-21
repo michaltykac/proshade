@@ -2915,7 +2915,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     if ( ret.size() < 1 ) { return ( ret ); }
     
     //================================================ Compute the FSC threshold
-    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.1, 9, 0.9 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.1, 9 );
     
     //================================================ Check for prime symmetry fold multiples
     while ( anyNewSyms )
@@ -2926,17 +2926,17 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         //============================================ For each passing symmetry, look if there are any combinations of symmetries that would contain it
         for ( proshade_unsign axIt1 = 0; axIt1 < static_cast< proshade_unsign > ( ret.size() ); axIt1++ )
         {
+            //======================================== Do not try axes with low FSC
+            if ( bestFSCPeakStart > ret.at(axIt1)[6] ) { continue; }
+            
             for ( proshade_unsign axIt2 = 0; axIt2 < static_cast< proshade_unsign > ( ret.size() ); axIt2++ )
             {
+                //==================================== Do not try axes with low FSC
+                if ( bestFSCPeakStart > ret.at(axIt2)[6] ) { continue; }
+                
                 //==================================== At least one fold needs to be prime (to avoid escalation of high symmetries - i.e. C32 would require checking C32 * C32 = C1024 including computing its FSC...)
                 if ( !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt1)[0] ) ) &&
                      !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt2)[0] ) ) ) { continue; }
-                           
-                //==================================== Do not try combinations with low FSC
-                if ( bestFSCPeakStart > ( ( ret.at(axIt1)[6] + ret.at(axIt2)[6] ) / 2.0 ) ) { continue; }
-                
-                //==================================== Do not try combinations with too high fold
-                if ( ret.at(axIt1)[0] * ret.at(axIt2)[0] > 120 ) { continue; }
                 
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );

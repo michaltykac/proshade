@@ -874,15 +874,15 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
 {
     //================================================ Initialise local variables
     size_t dimMax                                     = static_cast< size_t > ( xDim * yDim * zDim );
-    proshade_single *rotMat                           = new proshade_single[9];
+    proshade_double *rotMat                           = new proshade_double[9];
     proshade_signed *mins                             = new proshade_signed[3];
     proshade_signed *maxs                             = new proshade_signed[3];
     proshade_signed *interpMins                       = new proshade_signed[3];
     proshade_signed *interpMaxs                       = new proshade_signed[3];
-    proshade_signed *interpDiff                       = new proshade_signed[3];
+    proshade_double *interpDiff                       = new proshade_double[3];
     rotCoeffs                                         = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * dimMax ) );
     fftw_complex *rotCoeffsHlp                        = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * dimMax ) );
-    proshade_single *rotVec;
+    proshade_double *rotVec;
     std::complex< proshade_double > c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1;
     size_t arrPos                                     = 0;
     size_t arrPos2                                    = 0;
@@ -906,13 +906,13 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
     ProSHADE_internal_maths::transpose3x3MatrixInPlace ( rotMat );
     
     //================================================ Determine reciprocal space indexing
-    mins[0]                                           = static_cast< proshade_signed > ( std::floor ( xDim ) / -2 );
-    mins[1]                                           = static_cast< proshade_signed > ( std::floor ( yDim ) / -2 );
-    mins[2]                                           = static_cast< proshade_signed > ( std::floor ( zDim ) / -2 );
+    mins[0]                                           = static_cast< proshade_signed > ( std::floor ( static_cast< proshade_single > ( xDim ) / -2.0f ) );
+    mins[1]                                           = static_cast< proshade_signed > ( std::floor ( static_cast< proshade_single > ( yDim ) / -2.0f ) );
+    mins[2]                                           = static_cast< proshade_signed > ( std::floor ( static_cast< proshade_single > ( zDim ) / -2.0f ) );
         
-    maxs[0]                                           = -(mins[0] + 1);
-    maxs[1]                                           = -(mins[1] + 1);
-    maxs[2]                                           = -(mins[2] + 1);
+    maxs[0]                                           = -( mins[0] + 1 );
+    maxs[1]                                           = -( mins[1] + 1 );
+    maxs[2]                                           = -( mins[2] + 1 );
     
     //================================================ For each hkl
     for ( proshade_signed xIt = mins[0]; xIt <= maxs[0]; xIt++ )
@@ -923,17 +923,18 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
             {
                 //==================================== Compute new point position
                 rotVec                                = ProSHADE_internal_maths::compute3x3MatrixVectorMultiplication ( rotMat,
-                                                                                                                        static_cast< proshade_single > ( xIt ),
-                                                                                                                        static_cast< proshade_single > ( yIt ),
-                                                                                                                        static_cast< proshade_single > ( zIt ) );
+                                                                                                                        static_cast< proshade_double > ( xIt ),
+                                                                                                                        static_cast< proshade_double > ( yIt ),
+                                                                                                                        static_cast< proshade_double > ( zIt ) );
                 
                 //==================================== Find surrounding grid points indices and check for boundaries
                 withinBounds                          = true;
                 for ( size_t posIt = 0; posIt < 3; posIt++ )
                 {
                     //================================ Determine surrounding points indices in this dimension
-                    interpMins[posIt]                 = static_cast< proshade_signed > ( std::floor ( rotVec[posIt] ) );
-                    interpMaxs[posIt]                 = interpMins[posIt] + 1;
+                    interpMins[posIt]                 = static_cast< proshade_signed > ( std::round ( rotVec[posIt] ) );
+                    if ( interpMins[posIt] > rotVec[posIt] ) { interpMaxs[posIt] = interpMins[posIt]; interpMins[posIt]--; }
+                    else                                     { interpMaxs[posIt] = interpMins[posIt] + 1; }
                     
                     //================================ Check for boundaries
                     if ( ( maxs[posIt] < interpMins[posIt] ) || ( interpMins[posIt] < mins[posIt] ) || ( maxs[posIt] < interpMaxs[posIt] ) || ( interpMaxs[posIt] < mins[posIt] ) )
@@ -943,7 +944,7 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
                     }
                     
                     //================================ Compute the difference from position to min index along this axis
-                    interpDiff[posIt]                 = static_cast< proshade_signed > ( rotVec[posIt] ) - interpMins[posIt];
+                    interpDiff[posIt]                 = rotVec[posIt] - static_cast< proshade_double > ( interpMins[posIt] );
                 }
                 if ( !withinBounds ) { continue; }
                 
@@ -957,28 +958,36 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
                 delete[] rotVec;
                 
                 //==================================== Find the surrounding points values from their indices for real and imaginary separately
-                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + ( zDim * ( ( interpMins[1] - mins[1] ) + ( yDim * ( interpMins[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + zDim * ( ( interpMins[1] - mins[1] ) + yDim * ( interpMins[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c000                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
 
-                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + ( zDim * ( ( interpMins[1] - mins[1] ) + ( yDim * ( interpMaxs[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + zDim * ( ( interpMins[1] - mins[1] ) + yDim * ( interpMaxs[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c001                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
-                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + ( zDim * ( ( interpMaxs[1] - mins[1] ) + ( yDim * ( interpMins[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + zDim * ( ( interpMaxs[1] - mins[1] ) + yDim * ( interpMins[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c010                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
-                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + ( zDim * ( ( interpMaxs[1] - mins[1] ) + ( yDim * ( interpMaxs[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMins[0] - mins[0] ) + zDim * ( ( interpMaxs[1] - mins[1] ) + yDim * ( interpMaxs[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c011                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
-                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + ( zDim * ( ( interpMins[1] - mins[1] ) + ( yDim * ( interpMins[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + zDim * ( ( interpMins[1] - mins[1] ) + yDim * ( interpMins[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c100                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
-                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + ( zDim * ( ( interpMins[1] - mins[1] ) + ( yDim * ( interpMaxs[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + zDim * ( ( interpMins[1] - mins[1] ) + yDim * ( interpMaxs[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c101                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
-                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + ( zDim * ( ( interpMaxs[1] - mins[1] ) + ( yDim * ( interpMins[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + zDim * ( ( interpMaxs[1] - mins[1] ) + yDim * ( interpMins[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c110                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
-                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + ( zDim * ( ( interpMaxs[1] - mins[1] ) + ( yDim * ( interpMaxs[2] - mins[2] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( interpMaxs[0] - mins[0] ) + zDim * ( ( interpMaxs[1] - mins[1] ) + yDim * ( interpMaxs[2] - mins[2] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 c111                                  = std::complex< proshade_double > ( coeffs[arrPos][0], coeffs[arrPos][1] );
                 
                 //==================================== Interpolate along x-axis
@@ -992,14 +1001,16 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
                 c1                                    = ( c01  * ( 1.0 - static_cast< proshade_double > ( interpDiff[1] ) ) ) + ( c11  * static_cast< proshade_double > ( interpDiff[1] ) );
                 
                 //==================================== Interpolate along z-axis
-                arrPos                                = static_cast< size_t > ( ( zIt - mins[2] ) + ( zDim * ( ( yIt - mins[1] ) + ( yDim * ( xIt - mins[0] ) ) ) ) );
+                arrPos                                = static_cast< size_t > ( ( zIt - mins[2] ) + zDim * ( ( yIt - mins[1] ) + yDim * ( xIt - mins[0] ) ) );
+                if ( arrPos >= dimMax ) { continue; }
                 rotCoeffs[arrPos][0]                  = ( ( c0   * ( 1.0 - static_cast< proshade_double > ( interpDiff[2] ) ) ) + ( c1   * static_cast< proshade_double > ( interpDiff[2] ) ) ).real();
                 rotCoeffs[arrPos][1]                  = ( ( c0   * ( 1.0 - static_cast< proshade_double > ( interpDiff[2] ) ) ) + ( c1   * static_cast< proshade_double > ( interpDiff[2] ) ) ).imag();
                 
                 //==================================== Use Friedel's Law to save time
                 if ( ( mins[0] == xIt ) || ( mins[1] == yIt ) || ( mins[2] == zIt ) ) { continue; }
-                
-                arrPos2                               = static_cast< size_t > ( ( -zIt - mins[2] ) + ( zDim * ( ( -yIt - mins[1] ) + ( yDim * ( -xIt - mins[0] ) ) ) ) );
+                    
+                arrPos2                               = static_cast< size_t > ( ( -zIt - mins[2] ) + zDim * ( ( -yIt - mins[1] ) + yDim * ( -xIt - mins[0] ) ) );
+                if ( arrPos2 >= dimMax ) { continue; }
                 rotCoeffs[arrPos2][0]                 = rotCoeffs[arrPos][0];
                 rotCoeffs[arrPos2][1]                 = rotCoeffs[arrPos][1] * -1.0;
             }
@@ -1007,17 +1018,17 @@ void ProSHADE_internal_data::ProSHADE_data::rotateFourierCoeffs ( proshade_doubl
     }
     
     //================================================ Switch X and Z (the Fourier rotation switched them)
-    for ( proshade_single xIt = 0; xIt < static_cast< proshade_single > ( xDim ); xIt++ )
+    for ( proshade_signed xIt = 0; xIt < xDim; xIt++ )
     {
-        for ( proshade_single yIt = 0; yIt < static_cast< proshade_single > ( yDim ); yIt++ )
+        for ( proshade_signed yIt = 0; yIt < yDim; yIt++ )
         {
-            for ( proshade_single zIt = 0; zIt < static_cast< proshade_single > ( zDim ); zIt++ )
+            for ( proshade_signed zIt = 0; zIt < zDim; zIt++ )
             {
                 arrPos                                = static_cast< size_t > ( zIt + zDim * ( yIt + yDim * xIt ) );
                 arrPos2                               = static_cast< size_t > ( xIt + xDim * ( yIt + yDim * zIt ) );
                 
-                if ( arrPos  >= dimMax )              { continue; }
-                if ( arrPos2 >= dimMax )              { continue; }
+                if ( std::isnan ( rotCoeffs[arrPos][0] ) ) { rotCoeffsHlp[arrPos2][0] = 0.0; continue; }
+                if ( std::isnan ( rotCoeffs[arrPos][1] ) ) { rotCoeffsHlp[arrPos2][1] = 0.0; continue; }
                 
                 rotCoeffsHlp[arrPos2][0]              = rotCoeffs[arrPos][0];
                 rotCoeffsHlp[arrPos2][1]              = rotCoeffs[arrPos][1];
