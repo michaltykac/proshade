@@ -2941,6 +2941,10 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
                 
+                //==================================== Check if the resolution supports this fold (i.e. there will be at least 5 points between one symmetry rotation and the next; 5 is arbitrary)
+                if ( ( ( ( M_PI / 2.0 ) / static_cast< proshade_double > ( std::min ( this->xDimIndices, std::min( this->yDimIndices, this->zDimIndices ) ) ) ) * 5.0 ) >
+                     ( ( 2.0 * M_PI ) / static_cast< proshade_double > ( foldToTest ) ) ) { continue; }
+                
                 //==================================== Was this fold tested already?
                 foldDone                              = false;
                 for ( proshade_unsign fIt = 0; fIt < static_cast< proshade_unsign > ( testedFolds.size() ); fIt++ ) { if ( testedFolds.at(fIt) == foldToTest ) { foldDone = true; break; } }
@@ -3079,6 +3083,7 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
     
     //================================================ Determine the threshold for significant peaks
    *peakThres                                         = determinePeakThreshold ( allPeakHeights, settings->noIQRsFromMedianNaivePeak, settings->peakThresholdMin );
+    if ( *peakThres > 0.9 ) { *peakThres = 0.9; }
     
     //============================================ Report progress
     std::stringstream hlpSS2;
@@ -3821,7 +3826,7 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     
     //================================================ Find the threshold
     proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 5, 0.02, 0.03, 5 );
-    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.02, 0.01, 5, 0.9 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.02, 0.01, 5 );
     if ( bestHistPeakStart > 0.9 ) { bestHistPeakStart = 0.9; }
     
     //================================================ Are any axes orthogonal

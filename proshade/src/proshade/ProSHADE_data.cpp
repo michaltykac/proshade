@@ -2649,7 +2649,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_double phaselessStep                 = 0.01;
         proshade_double phaselessSigma                = 0.005;
         proshade_signed phaselessWSize                = 5;
-        newThres =                                    ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, phaselessStep, phaselessSigma, phaselessWSize, 0.9 );
+        newThres =                                    ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, phaselessStep, phaselessSigma, phaselessWSize );
     }
     
     //================================================ Decide between polyhedral
@@ -2742,7 +2742,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Get smoothened threshold for D's only
-        proshade_double onlyDThreshold                = ProSHADE_internal_maths::findTopGroupSmooth ( &smootheningHlp, 6, step, sigma, windowSize, 0.9 );
+        proshade_double onlyDThreshold                = ProSHADE_internal_maths::findTopGroupSmooth ( &smootheningHlp, 6, step, sigma, windowSize );
         
         //============================================ Release the helper memory
         for ( size_t axIt = 0; axIt < smootheningHlp.size(); axIt++ ) { delete[] smootheningHlp.at(axIt); }
@@ -2760,9 +2760,8 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                  ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] > static_cast< proshade_double > ( bestFold ) ) )
             {
                 //==================================== Check the FSC vals
-                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < settings->fscThreshold ) { continue; }
-                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < settings->fscThreshold ) { continue; }
-                if ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) < ( onlyDThreshold * 0.9 ) ) { continue; }
+                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < std::max ( settings->fscThreshold, onlyDThreshold ) ) { continue; }
+                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < std::max ( settings->fscThreshold, onlyDThreshold ) ) { continue; }
                 
                 //==================================== All good!
                 bestVal                               = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
@@ -2772,7 +2771,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
             else
             {
                 //==================================== If not, is the FSC sum better?
-                const FloatingPoint< proshade_double > lhs1 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] ), lhs2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ), rhs ( static_cast< proshade_double > ( static_cast< proshade_double > ( bestFold ) ) );
+                const FloatingPoint< proshade_double > lhs1 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] ), lhs2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ), rhs ( static_cast< proshade_double > ( bestFold ) );
                 if ( ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) > bestVal ) &&
                        ( ( lhs1.AlmostEquals ( rhs ) ) || ( lhs2.AlmostEquals ( rhs ) ) ) )
                 {
@@ -2820,16 +2819,16 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize, 0.95 );
+        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
         
-        //============================================ Find reliable C syms
+        //============================================ Find reliable C syms (this makes the assumption that the input C axes list is FSC sorted!)
         for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
         {
             //======================================== Check if this improves the best already found fold
             if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
             {
                 //==================================== If FSC passes
-                if ( ( CSym->at(cIt)[6] > bestHistFSCStart ) && ( CSym->at(cIt)[6] > settings->fscThreshold ) )
+                if ( CSym->at(cIt)[6] > std::max ( bestHistFSCStart, settings->fscThreshold ) )
                 {
                     bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );
