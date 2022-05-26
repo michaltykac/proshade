@@ -4096,7 +4096,6 @@ std::vector< proshade_signed > ProSHADE_internal_maths::findPeaks1D ( std::vecto
     
 }
 
-
 /*! \brief This function finds a subgroup of axes with distinctly higher correlation value.
  
     This function starts by getting a vector of all peak heights detected in all C symmetries detected in the structure. It then proceeds to convert

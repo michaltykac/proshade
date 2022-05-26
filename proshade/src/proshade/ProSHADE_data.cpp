@@ -2760,8 +2760,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
                  ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] > static_cast< proshade_double > ( bestFold ) ) )
             {
                 //==================================== Check the FSC vals
-                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < std::max ( settings->fscThreshold, onlyDThreshold ) ) { continue; }
-                if ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < std::max ( settings->fscThreshold, onlyDThreshold ) ) { continue; }
+                if ( !( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < std::max ( settings->fscThreshold, onlyDThreshold ) ) &&
+                     !( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < std::max ( settings->fscThreshold, onlyDThreshold ) ) ) { continue; }
+                if ( std::min ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) < ( onlyDThreshold * 0.8 ) ) { continue; }
                 
                 //==================================== All good!
                 bestVal                               = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
