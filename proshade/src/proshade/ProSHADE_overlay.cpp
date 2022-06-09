@@ -44,10 +44,10 @@ void ProSHADE_internal_data::ProSHADE_data::getOverlayRotationFunction ( ProSHAD
     ProSHADE_internal_distances::normaliseEMatrices   ( obj2, this, settings );
 
     //================================================ Generate SO(3) coefficients
-    ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( obj2, this, settings );
+    ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( this, settings );
 
     //================================================ Compute the inverse SO(3) Fourier Transform (SOFT) on the newly computed coefficients
-    ProSHADE_internal_distances::computeInverseSOFTTransform ( obj2, this, settings );
+    ProSHADE_internal_distances::computeInverseSOFTTransform ( this, settings );
     
     //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Rotation function obtained.", settings->messageShift );

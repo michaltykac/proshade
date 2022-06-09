@@ -50,10 +50,10 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_s
     ProSHADE_internal_distances::normaliseEMatrices   ( this, this, settings );
     
     //================================================ Generate SO(3) coefficients
-    ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( this, this, settings );
+    ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( this, settings );
     
     //================================================ Compute the inverse SO(3) Fourier Transform (SOFT) on the newly computed coefficients
-    ProSHADE_internal_distances::computeInverseSOFTTransform ( this, this, settings );
+    ProSHADE_internal_distances::computeInverseSOFTTransform ( this, settings );
     
     //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function obtained.", settings->messageShift );

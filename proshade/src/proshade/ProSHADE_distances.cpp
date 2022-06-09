@@ -726,11 +726,10 @@ void ProSHADE_internal_data::ProSHADE_data::allocateSO3CoeffsSpace ( proshade_un
     normalisation factor and changing the sign as required by SOFT library. Upon termination, the coeffs
     will be saved in the obj2 class.
  
-    \param[in] obj1 The first ProSHADE_data object against which comparison is done.
     \param[in] obj2 The second ProSHADE_data object which is compared to the first.
     \param[in] settings A pointer to settings class containing all the information required for the task.
  */
-void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
+void ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Converting E matrices to SO(3) coefficients.", settings->messageShift );
@@ -883,7 +882,7 @@ void ProSHADE_internal_distances::releaseInvSOFTMemory ( proshade_complex*& work
     \param[in] obj2 The second ProSHADE_data object which is compared to the first.
     \param[in] settings A pointer to settings class containing all the information required for the task.
  */
-void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
+void ProSHADE_internal_distances::computeInverseSOFTTransform ( ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings )
 {
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Computing inverse SO(3) Fourier transform.", settings->messageShift );
@@ -960,10 +959,10 @@ proshade_double ProSHADE_internal_distances::computeRotationFunctionDescriptor (
     }
     
     //================================================ Generate SO(3) coefficients
-    generateSO3CoeffsFromEMatrices                    ( obj1, obj2, settings );
+    generateSO3CoeffsFromEMatrices                    ( obj2, settings );
     
     //================================================ Compute the inverse SO(3) Fourier Transform (SOFT) on the newly computed coefficients
-    computeInverseSOFTTransform                       ( obj1, obj2, settings );
+    computeInverseSOFTTransform                       ( obj2, settings );
     
     //================================================ Get inverse SO(3) map top peak Euler angle values
     ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( obj2->getInvSO3Coeffs (),
