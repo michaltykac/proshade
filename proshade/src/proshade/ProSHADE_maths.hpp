@@ -61,13 +61,14 @@ namespace ProSHADE_internal_spheres
         proshade_double radiusMax;
         proshade_double radiusMin;
         proshade_unsign angularDim;
+        proshade_unsign rotFunDim;
         proshade_double representedAngle;
         proshade_unsign sphereNumber;
         
         proshade_double* axesValues;
         std::vector< std::pair< proshade_unsign,proshade_unsign > > peaks;
     public:
-        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng, proshade_unsign sphNo );
+        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_unsign rfDim, proshade_double repAng, proshade_unsign sphNo );
        ~ProSHADE_rotFun_sphere                        ( void );
         
     public:
@@ -75,6 +76,7 @@ namespace ProSHADE_internal_spheres
         proshade_double getMaxRadius                  ( void );
         proshade_double getMinRadius                  ( void );
         proshade_unsign getAngularDim                 ( void );
+        proshade_unsign getRotFunDim                  ( void );
         proshade_double getRepresentedAngle           ( void );
         proshade_unsign getSphereNumber               ( void );
         std::vector<std::pair<proshade_unsign,proshade_unsign>> getPeaks ( void );

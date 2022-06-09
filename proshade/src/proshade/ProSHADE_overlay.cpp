@@ -94,7 +94,7 @@ void ProSHADE_internal_overlay::getOptimalRotation ( ProSHADE_settings* settings
     
     //================================================ Get inverse SO(3) map top peak Euler angle values
     ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( movingStructure->getInvSO3Coeffs (),
-                                                              std::min ( staticStructure->getMaxBand(), movingStructure->getMaxBand() ) * 2,
+                                                              movingStructure->getEMatDim ( ) * 2,
                                                               eulA,  eulB,  eulG, settings );
     
     //================================================ Done
@@ -571,7 +571,7 @@ void ProSHADE_internal_overlay::paddMapWithZeroes ( proshade_double* oldMap, pro
 void ProSHADE_internal_data::ProSHADE_data::rotateMapReciprocalSpace ( ProSHADE_settings* settings, proshade_double eulerAlpha, proshade_double eulerBeta, proshade_double eulerGamma )
 {
     //================================================ Set maximum comparison bandwidth to maximum object bandwidth
-    this->maxCompBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
+    this->maxShellBand                                 = this->spheres[this->noSpheres-1]->getLocalBandwidth();
     
     //================================================ Save map COM after processing but before rotation
     this->findMapCOM                                  ( );
@@ -1501,7 +1501,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getBestRot
     
     //================================================ Get inverse SO(3) map top peak Euler angle values
     ProSHADE_internal_peakSearch::getBestPeakEulerAngsNaive ( this->getInvSO3Coeffs (),
-                                                              this->getMaxBand() * 2,
+                                                              this->getEMatDim ( ) * 2,
                                                              &eulA, &eulB, &eulG, settings );
     
     //================================================ Re-format to vector

@@ -80,7 +80,7 @@ symmetryCentering                                     = False
 comCentering                                          = True
 verbosity                                             = -1
 inputFileName                                         = "emdb_spa_210329.dat"
-outputFileName                                        = "V21_PEAK_ONLY_results_allKnownEMDB_COM_resol-"
+outputFileName                                        = "V21_results_allKnownEMDB_COM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
 unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
 tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768", "EMD-10926", "EMD-1610", "EMD-23042" ]
@@ -261,7 +261,7 @@ def checkMapResolution ( mapFile, declRes ):
 
 """
 This function reads in the density map data from the file and proceeds to use
-EMDA to compute the density mask, saving it into file "mapmask.mrc".
+EMDA to compute the density mask, saving it into file "mapmask3.mrc".
 """
 def maskMapUsingEMDA ( mapFile, resolution ):
     m1 = iotools.Map ( name = mapFile )
@@ -273,14 +273,14 @@ def maskMapUsingEMDA ( mapFile, resolution ):
 
     mask = em.mask_from_map_connectedpixels(m1, binthresh=binary_threshold)
 
-    mout = iotools.Map(name='mapmask.mrc')
+    mout = iotools.Map(name='mapmask3.mrc')
     mout.arr = mask
     mout.cell = m1.workcell
     mout.origin = m1.origin
     mout.write()
 
     ### Now all work is done in this function
-    #    mapmask.main ( imap = mapFile, imask = 'mapmask2.mrc' )
+    #    mapmask.main ( imap = mapFile, imask = 'mapmask3.mrc' )
     
 """
 This function runs ProSHADE symmetry detection and returns the recommented symmetry type,
@@ -495,7 +495,7 @@ for entry in symIDs:
     maskPath                                          = findMaskFile ( id, EMDBDataPath )
     if ( maskPath == "" ):
         maskMapUsingEMDA                              ( mapPath, compResolution )
-        maskPath                                      = "mapmask.mrc"
+        maskPath                                      = "mapmask3.mrc"
 
     ### Start timer
     startTime                                         = time.time ( )

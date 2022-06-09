@@ -99,7 +99,7 @@ namespace ProSHADE_internal_spheres
                                                         proshade_single ySize, proshade_single zSize, proshade_unsign shOrder,
                                                         std::vector<proshade_single>* spherePos,
                                                         bool progressiveMapping, proshade_unsign band, proshade_double* map,
-                                                        proshade_unsign* maxShellBand );
+                                                        proshade_unsign* maxShellBand, proshade_unsign* maxCompBand );
        ~ProSHADE_sphere                               ( void );
         
         //============================================ Rotated map data related functions
