@@ -18,8 +18,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.4
-#   \date      APR 2022
+#   \version   0.7.6.5
+#   \date      JUN 2022
 ######################################################
 ######################################################
 
@@ -130,9 +130,9 @@ print                                                 ( "  %s    %+1.3f    %+1.3
 
 ######################################################
 ### Expected outuput
-#   Detected symmetry C-4 with axes:
+#   Detected symmetry C-4 with axes: 
 #   Fold      x         y         z       Angle     Height    Averaged FSC
-#     4.0    -0.000    -0.000    +1.000    -1.571    +0.9558      +0.9975
+#     4.0    +0.000    +0.000    +1.000    +1.571    +0.9689      +0.9985
 
 ######################################################
 ### Find the internal map COM shift

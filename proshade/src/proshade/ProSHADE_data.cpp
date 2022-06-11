@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -1853,7 +1853,7 @@ void ProSHADE_internal_data::ProSHADE_data::mapToSpheres ( ProSHADE_settings* se
         this->spheres[iter]                           = new ProSHADE_internal_spheres::ProSHADE_sphere ( this->xDimIndices, this->yDimIndices, this->zDimIndices,
                                                                                                          this->xDimSize, this->yDimSize, this->zDimSize, iter,
                                                                                                         &this->spherePos, settings->progressiveSphereMapping, settings->maxBandwidth,
-                                                                                                         this->internalMap, &this->maxShellBand, &this->maxShellBand );
+                                                                                                         this->internalMap, &this->maxShellBand, &this->maxEMatDim );
     }
     
     //================================================ Report completion
