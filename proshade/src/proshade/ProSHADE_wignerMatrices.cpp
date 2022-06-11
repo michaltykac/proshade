@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -27,17 +27,17 @@
 void ProSHADE_internal_data::ProSHADE_data::allocateWignerMatricesSpace ( )
 {
     //================================================ Sanity check
-    if ( this->maxCompBand == 0 )
+    if ( this->getEMatDim ( ) == 0 )
     {
         throw ProSHADE_exception ( "Attempted allocating Wigner D matrices before\n                    : allocating E matrices memory.", "EW00024", __FILE__, __LINE__, __func__, "The E matrices and Wigner matrices both require to know\n                    : the bandwidth of the comparison (which may differ from the\n                    : object bandwidth). This is set when allocating E matrices\n                    : and therefore if it is 0 now, E matrices were not  yet\n                    : allocated." );
     }
     
     //================================================ Allocate bands
-    this->wignerMatrices                              = new proshade_complex** [this->maxCompBand];
+    this->wignerMatrices                              = new proshade_complex** [this->getEMatDim ( )];
     ProSHADE_internal_misc::checkMemoryAllocation ( this->wignerMatrices, __FILE__, __LINE__, __func__ );
     
     //================================================ Allocate the arrays
-    for ( proshade_unsign bandIter = 0; bandIter < this->maxCompBand; bandIter++ )
+    for ( proshade_unsign bandIter = 0; bandIter < this->getEMatDim ( ); bandIter++ )
     {
         //============================================ Allocate order 1
         this->wignerMatrices[bandIter]                = new proshade_complex* [(bandIter * 2) + 1];
@@ -194,15 +194,15 @@ void ProSHADE_internal_wigner::computeWignerMatrices ( ProSHADE_settings* settin
     proshade_double Dij, eARi, eAIi, eGRj, eGIj, iSign, rSign;
     proshade_complex hlpVal;
     proshade_unsign noOrders, arrConvIter;
-    for ( proshade_unsign bandIter = 0; bandIter < obj->getComparisonBand(); bandIter++ )
+    for ( proshade_unsign bandIter = 0; bandIter < obj->getEMatDim ( ); bandIter++ )
     {
         //============================================ Initialise loop
         noOrders                                      = 2 * bandIter + 1;
         arrConvIter                                   = 0;
-        expARStart                                    = &alphaExponentReal[ (obj->getComparisonBand() - 1) - bandIter ];
-        expAIStart                                    = &alphaExponentImag[ (obj->getComparisonBand() - 1) - bandIter ];
-        expGRStart                                    = &gammaExponentReal[ (obj->getComparisonBand() - 1) - bandIter ];
-        expGIStart                                    = &gammaExponentImag[ (obj->getComparisonBand() - 1) - bandIter ];
+        expARStart                                    = &alphaExponentReal[ ( obj->getEMatDim ( ) - 1 ) - bandIter ];
+        expAIStart                                    = &alphaExponentImag[ ( obj->getEMatDim ( ) - 1 ) - bandIter ];
+        expGRStart                                    = &gammaExponentReal[ ( obj->getEMatDim ( ) - 1 ) - bandIter ];
+        expGIStart                                    = &gammaExponentImag[ ( obj->getEMatDim ( ) - 1 ) - bandIter ];
         iSign                                         = 1.0;
         rSign                                         = 1.0;
         
@@ -265,11 +265,11 @@ void ProSHADE_internal_wigner::computeWignerMatricesForRotation ( ProSHADE_setti
     
     //================================================ Allocate the workspace memory
     allocateWignerWorkspace                           ( matIn, matOut, sqrts, workspace, alphaExponentReal, alphaExponentImag,
-                                                        gammaExponentReal, gammaExponentImag, trigs, obj->getComparisonBand() );
+                                                        gammaExponentReal, gammaExponentImag, trigs, obj->getEMatDim ( ) );
     
     //================================================ Prepare all values for the computation
     prepareTrigsSqrtsAndExponents                     ( sqrts, alphaExponentReal, alphaExponentImag, gammaExponentReal, gammaExponentImag,
-                                                        trigs, obj->getComparisonBand(), eulerAlpha, eulerBeta, eulerGamma );
+                                                        trigs, obj->getEMatDim ( ), eulerAlpha, eulerBeta, eulerGamma );
     
     //================================================ Compute the values
     computeWignerMatrices                             ( settings, obj, alphaExponentReal, alphaExponentImag, gammaExponentReal, gammaExponentImag,

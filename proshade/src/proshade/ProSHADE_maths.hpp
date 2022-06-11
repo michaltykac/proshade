@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -61,13 +61,14 @@ namespace ProSHADE_internal_spheres
         proshade_double radiusMax;
         proshade_double radiusMin;
         proshade_unsign angularDim;
+        proshade_unsign rotFunDim;
         proshade_double representedAngle;
         proshade_unsign sphereNumber;
         
         proshade_double* axesValues;
         std::vector< std::pair< proshade_unsign,proshade_unsign > > peaks;
     public:
-        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng, proshade_unsign sphNo );
+        ProSHADE_rotFun_sphere                        ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_unsign rfDim, proshade_double repAng, proshade_unsign sphNo );
        ~ProSHADE_rotFun_sphere                        ( void );
         
     public:
@@ -75,6 +76,7 @@ namespace ProSHADE_internal_spheres
         proshade_double getMaxRadius                  ( void );
         proshade_double getMinRadius                  ( void );
         proshade_unsign getAngularDim                 ( void );
+        proshade_unsign getRotFunDim                  ( void );
         proshade_double getRepresentedAngle           ( void );
         proshade_unsign getSphereNumber               ( void );
         std::vector<std::pair<proshade_unsign,proshade_unsign>> getPeaks ( void );
@@ -391,14 +393,14 @@ namespace ProSHADE_internal_maths
     std::vector< proshade_unsign > findAllPrimes      ( proshade_unsign upTo );
     bool isPrime                                      ( proshade_unsign toCheck );
     proshade_double computeGaussian                   ( proshade_double val, proshade_double sigma );
-    std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data );
+    std::vector < proshade_double > smoothen1D        ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data, proshade_signed decRound = 2 );
     proshade_single getResolutionOfReflection         ( proshade_single h, proshade_single k, proshade_single l, proshade_single xDim, proshade_single yDim, proshade_single zDim );
     void binReciprocalSpaceReflections                ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single xSize, proshade_single ySize, proshade_single zSize,
                                                         proshade_signed* noBin, proshade_signed*& binIndexing, std::vector< proshade_single >*& resArray );
-    void cutIndicesToResolution                       ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single resolution, proshade_signed* binIndexing,
+    void cutIndicesToResolution                       ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_single resolution, proshade_signed* binIndexing,
                                                         std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim,
                                                         proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins );
-    void cutArrayToResolution                         ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap );
+    void cutArrayToResolution                         ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap );
     proshade_double computeFSC                        ( fftw_complex *fCoeffs1, fftw_complex *fCoeffs2, proshade_signed xInds, proshade_signed yInds, proshade_signed zInds,
                                                         proshade_signed noBins, proshade_signed* binIndexing, proshade_double**& binData, proshade_signed*& binCounts, proshade_double*& fscByBin,
                                                         bool averageByBinSize = false );
@@ -409,9 +411,9 @@ namespace ProSHADE_internal_maths
                                                         proshade_double*& firstDers, proshade_double*& secondDers );
     proshade_double* computeTrFunStep                 ( proshade_double* firstDers, proshade_double* secondDers );
     std::vector< proshade_signed > findPeaks1D        ( std::vector< proshade_double > data );
-    proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize, proshade_double maxLim = 0.9 );
+    proshade_double findTopGroupSmooth                ( std::vector< proshade_double* >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize, proshade_double maxLim = 1.0 );
     proshade_double findTopGroupSmooth                ( std::vector< std::vector< proshade_double > >* CSym, size_t peakPos, proshade_double step, proshade_double sigma, proshade_signed windowSize,
-                                                        proshade_double maxLim = 0.9 );
+                                                        proshade_double maxLim = 1.0 );
     void combineFourierForTranslation                 ( fftw_complex* tmpOut1, fftw_complex* tmpOut2, fftw_complex*& resOut, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD );
     void findHighestValueInMap                        ( fftw_complex* resIn, proshade_unsign xD, proshade_unsign yD, proshade_unsign zD, proshade_double* trsX,
                                                         proshade_double* trsY, proshade_double* trsZ, proshade_double* mapPeak );

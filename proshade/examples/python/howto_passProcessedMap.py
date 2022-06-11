@@ -22,8 +22,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.4
-#   \date      APR 2022
+#   \version   0.7.6.5
+#   \date      JUN 2022
 ######################################################
 ######################################################
 
@@ -148,14 +148,14 @@ for i in range( 0, len( allCAxes ) ):
 ### EXPECTED OUTPUT: D3
 ### EXPECTED OUTPUT:
 ### EXPECTED OUTPUT: Recommended axes:
-### EXPECTED OUTPUT: 3.0 | 0.9999141 x -0.013107536 x -6.123234e-17 || 0.8906641
-### EXPECTED OUTPUT: 2.0 | 0.0008414979 x 0.0 x 0.99999964 || 0.99789506
+### EXPECTED OUTPUT: 3.0 | 0.9999329 x -0.011586841 x -6.123234e-17 || 0.9128239
+### EXPECTED OUTPUT: 2.0 | 0.0008414974 x -9.441583e-07 x 0.99999964 || 0.9980464
 ### EXPECTED OUTPUT:
 ### EXPECTED OUTPUT: All axes:
-### EXPECTED OUTPUT: 2.0 | 0.0008414979 x 0.0 x 0.99999964 || 0.99789506
-### EXPECTED OUTPUT: 3.0 | 0.9999141 x -0.013107536 x -6.123234e-17 || 0.8906641
-### EXPECTED OUTPUT: 2.0 | 0.010965976 x 0.8641671 x 0.5030855 || 0.8886832
-### EXPECTED OUTPUT: 2.0 | 0.010963198 x 0.864096 x -0.5032076 || 0.88805044
+### EXPECTED OUTPUT: 2.0 | 0.0008414974 x -9.441583e-07 x 0.99999964 || 0.9980464
+### EXPECTED OUTPUT: 3.0 | 0.9999329 x -0.011586841 x -6.123234e-17 || 0.9128239
+### EXPECTED OUTPUT: 2.0 | 0.00974076 x 0.8641076 x 0.50321287 || 0.9079414
+### EXPECTED OUTPUT: 2.0 | 0.009739787 x 0.8641073 x -0.50321335 || 0.9079347
 
 ######################################################
 ### Release ProSHADE memory

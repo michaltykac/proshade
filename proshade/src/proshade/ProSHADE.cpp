@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -50,6 +50,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->requestedResolution                         = -1.0;
     this->changeMapResolution                         = false;
     this->changeMapResolutionTriLinear                = false;
+    this->resolutionOversampling                      = 0.75;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = -1.0;
@@ -133,6 +134,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
+    this->supportedSymmetryFold                       = 5;
     this->fscThreshold                                = 0.3;
     this->peakThresholdMin                            = 0.75;
     this->fastISearch                                 = true;
@@ -189,6 +191,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     this->requestedResolution                         = settings->requestedResolution;
     this->changeMapResolution                         = settings->changeMapResolution;
     this->changeMapResolutionTriLinear                = settings->changeMapResolutionTriLinear;
+    this->resolutionOversampling                      = settings->resolutionOversampling;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = settings->pdbBFactorNewVal;
@@ -273,6 +276,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     this->findSymCentre                               = settings->findSymCentre;
     this->useBiCubicInterpolationOnPeaks              = settings->useBiCubicInterpolationOnPeaks;
     this->maxSymmetryFold                             = settings->maxSymmetryFold;
+    this->supportedSymmetryFold                       = settings->supportedSymmetryFold;
     this->fscThreshold                                = settings->fscThreshold;
     this->peakThresholdMin                            = settings->peakThresholdMin;
     this->fastISearch                                 = settings->fastISearch;
@@ -335,6 +339,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->requestedResolution                         = -1.0;
     this->changeMapResolution                         = false;
     this->changeMapResolutionTriLinear                = false;
+    this->resolutionOversampling                      = 0.75;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = -1.0;
@@ -417,6 +422,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->findSymCentre                               = false;
     this->useBiCubicInterpolationOnPeaks              = true;
     this->maxSymmetryFold                             = 30;
+    this->supportedSymmetryFold                       = 5;
     this->fscThreshold                                = 0.3;
     this->peakThresholdMin                            = 0.75;
     this->fastISearch                                 = true;
@@ -993,6 +999,26 @@ void                       ProSHADE_settings::setMapResolutionChangeTriLinear ( 
 {
     //================================================ Set the value
     this->changeMapResolutionTriLinear                = mrChange;
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Sets the requested map resolution over-sampling.
+ 
+    This function sets the over-sampling to be applied to the requested resolution.
+ 
+    \param[in] overS The requested value for the resolution over-sampling.
+ */
+#if defined ( _WIN64 ) || defined ( _WIN32 )
+void __declspec(dllexport) ProSHADE_settings::setMapResolutionOverSampling ( proshade_single overS )
+#else
+void                       ProSHADE_settings::setMapResolutionOverSampling ( proshade_single overS )
+#endif
+{
+    //================================================ Set the value
+    this->resolutionOversampling                      = overS;
     
     //================================================ Done
     return ;
@@ -1780,6 +1806,11 @@ void ProSHADE_settings::determineBandwidth ( proshade_unsign circumference )
     //================================================ Determine automatically
     this->maxBandwidth                                = ProSHADE_internal_spheres::autoDetermineBandwidth ( circumference );
     
+    //================================================ Determine max detectable fold for symmetry detection ( 2.0 - we want the fold detectable not only on the surface, but also on the inside of the structure and 2.0 means 3/4 depth
+    //================================================                                                        5.0 - we want at least 3 points between any two members of the same fold to make sure the fold it detected correctly )
+    this->supportedSymmetryFold                       = static_cast< proshade_unsign > ( ( static_cast< proshade_double > ( circumference ) / 2.0 ) / 5.0 );
+    if ( this->supportedSymmetryFold < 5 ) { this->supportedSymmetryFold = 5; }
+    
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "The bandwidth was determined as: " << this->maxBandwidth;
@@ -2262,6 +2293,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
         { "center",          no_argument,        nullptr, 'c' },
         { "changeMapResol",  no_argument,        nullptr, 'j' },
         { "changeMapTriLin", no_argument,        nullptr, 'a' },
+        { "oversamplRate",   required_argument,  nullptr, 'K' },
         { "noPhase",         no_argument,        nullptr, 'p' },
         { "progressive",     no_argument,        nullptr, 'k' },
         { "noEnL",           no_argument,        nullptr, 'l' },
@@ -2290,7 +2322,7 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
     };
     
     //================================================ Short options string
-    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:J:jklmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
+    const char* const shortopts                       = "AaB:b:C:cDd:E:e:Ff:G:g:H:hIi:J:jK:klmMno:Opqr:Rs:St:uvwxy:z:!:@#$%^:&:*:(:):-_:=:+:[:]:{:}:;:";
     
     //================================================ Parsing the options
     while ( true )
@@ -2567,6 +2599,13 @@ void                       ProSHADE_settings::getCommandLineParams ( int argc, c
              case 'a':
              {
                  this->setMapResolutionChangeTriLinear ( true );
+                 continue;
+             }
+                 
+             //======================================= Set map resolution over-sampling rate
+             case 'K':
+             {
+                 this->setMapResolutionOverSampling   ( static_cast< proshade_single > ( atof ( optarg ) ) );
                  continue;
              }
                  
@@ -2864,6 +2903,10 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     if ( this->changeMapResolutionTriLinear ) { strstr << "TRUE"; } else { strstr << "FALSE"; }
     printf ( "Change map tri-lin  : %37s\n", strstr.str().c_str() );
+    
+    strstr.str(std::string());
+    strstr << this->resolutionOversampling;
+    printf ( "Resolution oversampl: %37s\n", strstr.str().c_str() );
     
     //== Settings regarding the PDB B-factor change
     strstr.str(std::string());

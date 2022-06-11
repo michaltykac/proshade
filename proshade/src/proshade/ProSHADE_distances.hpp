@@ -16,8 +16,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
 */
 
 //============================================ ProSHADE
@@ -63,13 +63,11 @@ namespace ProSHADE_internal_distances
                                                         ProSHADE_settings* settings );
     proshade_double computeTraceSigmaDescriptor       ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         ProSHADE_settings* settings );
-    void generateSO3CoeffsFromEMatrices               ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
-                                                        ProSHADE_settings* settings );
+    void generateSO3CoeffsFromEMatrices               ( ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings );
     void allocateInvSOFTWorkspaces                    ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3, proshade_unsign band );
     void prepareInvSOFTPlan                           ( fftw_plan* inverseSO3, int band, fftw_complex* work1, proshade_complex* invCoeffs );
     void releaseInvSOFTMemory                         ( proshade_complex*& work1, proshade_complex*& work2, proshade_double*& work3 );
-    void computeInverseSOFTTransform                  ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
-                                                        ProSHADE_settings* settings );
+    void computeInverseSOFTTransform                  ( ProSHADE_internal_data::ProSHADE_data* obj2, ProSHADE_settings* settings );
     proshade_double computeRotationFunctionDescriptor ( ProSHADE_internal_data::ProSHADE_data* obj1, ProSHADE_internal_data::ProSHADE_data* obj2,
                                                         ProSHADE_settings* settings );
 }

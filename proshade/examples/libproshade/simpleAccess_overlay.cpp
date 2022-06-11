@@ -16,8 +16,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
 */
 
 //==================================================== ProSHADE
@@ -112,13 +112,12 @@ int main ( int argc, char **argv )
     std::cout << "Rot. Centre to optimal overlay translation:  " << originToOverlay.at(0) << " ; " << originToOverlay.at(1) << " ; " << originToOverlay.at(2) << std::endl;
     
     //================================================ Expected out is (except for the output files, which will be named overlayResuls.map and overlayResuls.pdb)
-//  Optimal rotation Euler angles are:           4.01163 ; 0.698203 ; 5.40945
-//  Optimal rotation matrix is       :           -0.90313 ; 0.118517 ; -0.412686
-//                                   :           0.111992 ; -0.862857 ; -0.492886
-//                                   :           -0.414504 ; -0.491357 ; 0.765999
-//  Rot. Centre to origin translation:           -9.14286 ; -17.7778 ; -17.7778
-//  Rot. Centre to optimal overlay translation:  16 ; 24 ; -8
-//  Optimal rotation Euler angles are:           4.01163 ; 0.698203 ; 5.40945
+//  Optimal rotation Euler angles are:           3.92784 ; 0.706802 ; 5.49658
+//  Optimal rotation matrix is       :           -0.880467 ; 0.120094 ; -0.458645
+//                                   :           0.119463 ; -0.879976 ; -0.459751
+//                                   :           -0.45881 ; -0.459587 ; 0.760443
+//  Rot. Centre to origin translation:           -13.0909 ; -19.3846 ; -19.3846
+//  Rot. Centre to optimal overlay translation:  12 ; 18 ; -6
     
     //================================================ DONE
     return                                            ( EXIT_SUCCESS );
