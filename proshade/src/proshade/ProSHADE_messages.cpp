@@ -15,8 +15,8 @@
     
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
 */
 
 //==================================================== ProSHADE
@@ -236,6 +236,12 @@ void ProSHADE_internal_messages::printHelp [[noreturn]] ( void )
     std::cout << "            Some input files have negative density that causes differences      " << std::endl;
     std::cout << "            to be detected between structures that appear identical. By         " << std::endl;
     std::cout << "            default negative density is removed, this option keeps it in.       " << std::endl;
+    std::cout << "                                                                                " << std::endl;
+    std::cout << "    -K or --oversamplRate                           [DEFAULT:         0.75]     " << std::endl;
+    std::cout << "            The rate at which the map resolution will be over-sampled compared  " << std::endl;
+    std::cout << "            to the standard sampling of resolution / 2 indices per Angstrom.    " << std::endl;
+    std::cout << "            Note, that this will only take effect if either the  Fourier or the " << std::endl;
+    std::cout << "            tri-linear re-sampling methods are on                               " << std::endl;
     std::cout << "                                                                                " << std::endl;
     std::cout << "    --maskFile                                      [DEFAULT: \"./maskFile\"]     " << std::endl;
     std::cout << "            The filename to which the mask will be saved to. The extension      " << std::endl;

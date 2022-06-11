@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -50,6 +50,7 @@ public:
     proshade_single requestedResolution;              //!< The resolution to which the calculations are to be done.
     bool changeMapResolution;                         //!< Should maps be re-sampled to obtain the required resolution?
     bool changeMapResolutionTriLinear;                //!< Should maps be re-sampled to obtain the required resolution?
+    proshade_single resolutionOversampling;           //!< How much (%) should the requested resolution be over-sampled by map re-sampling?
     
     //================================================ Settings regarding the PDB B-factor change
     proshade_double pdbBFactorNewVal;                 //!< Change all PDB B-factors to this value (for smooth maps).
@@ -137,6 +138,7 @@ public:
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
     proshade_unsign maxSymmetryFold;                  //!< The highest symmetry fold to search for.
+    proshade_unsign supportedSymmetryFold;            //!< Maximum supported fold by the map.
     proshade_double fscThreshold;                     //!< The threshold for FSC value under which the axis is considered to be likely noise.
     proshade_double peakThresholdMin;                 //!< The threshold for peak height above which axes are considered possible.
     bool fastISearch;                                 //!< Should FSC be computed for all possible I matches, or just for the best one according to FR?
@@ -210,6 +212,7 @@ public:
     void __declspec(dllexport) setOutputFilename                              ( std::string oFileName );
     void __declspec(dllexport) setMapResolutionChange                         ( bool mrChange );
     void __declspec(dllexport) setMapResolutionChangeTriLinear                ( bool mrChange );
+    void __declspec(dllexport) setMapResolutionOverSampling                   ( proshade_single overS );
     void __declspec(dllexport) setMapCentering                                ( bool com );
     void __declspec(dllexport) setExtraSpace                                  ( proshade_single exSpace );
     void __declspec(dllexport) setCoordExtraSpace                             ( proshade_single exSpace );
@@ -270,6 +273,7 @@ public:
     void setOutputFilename                            ( std::string oFileName );
     void setMapResolutionChange                       ( bool mrChange );
     void setMapResolutionChangeTriLinear              ( bool mrChange );
+    void setMapResolutionOverSampling                 ( proshade_single overS );
     void setMapCentering                              ( bool com );
     void setExtraSpace                                ( proshade_single exSpace );
     void setCoordExtraSpace                           ( proshade_single exSpace );

@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //============================================ ProSHADE
@@ -41,9 +41,10 @@
     \param[in] band The bandwidth to be set for conservative mapping.
     \param[in] map A pointer to the internal map which should be mapped to the sphere.
     \param[in] maxShellBand This pointer reference will take the shell band, if it is higher than the already known one.
+    \param[in] maxCompBand This pointer reference will take the shell band, if it is higher than the already known one.
     \param[out] X Data object with all values set and the appropriate map part mapped.
  */
-ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single xSize, proshade_single ySize, proshade_single zSize, proshade_unsign shOrder, std::vector<proshade_single>* spherePos, bool progressiveMapping, proshade_unsign band, proshade_double* map, proshade_unsign* maxShellBand )
+ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xDimMax, proshade_unsign yDimMax, proshade_unsign zDimMax, proshade_single xSize, proshade_single ySize, proshade_single zSize, proshade_unsign shOrder, std::vector<proshade_single>* spherePos, bool progressiveMapping, proshade_unsign band, proshade_double* map, proshade_unsign* maxShellBand, proshade_unsign* maxCompBand )
 {
     //================================================ Save inputs
     this->shellOrder                                  = shOrder;
@@ -79,7 +80,7 @@ ProSHADE_internal_spheres::ProSHADE_sphere::ProSHADE_sphere ( proshade_unsign xD
     }
     
     //================================================ Save the maximum shell band for later
-    if ( *maxShellBand < this->localBandwidth ) { *maxShellBand = this->localBandwidth; }
+    if ( *maxShellBand < this->localBandwidth ) { *maxShellBand = this->localBandwidth; *maxCompBand = this->localBandwidth; }
     
     //================================================ Allocate memory for sphere mapping
     this->mappedData                                  = new proshade_double[this->localAngRes * this->localAngRes];
@@ -573,6 +574,9 @@ proshade_unsign ProSHADE_internal_spheres::autoDetermineIntegrationOrder ( prosh
         }
     }
     
+    //================================================ Require a minimum value
+    if ( ret < 5 )                                    { ret = 5; }
+    
     //================================================ Return largest passing value
     return                                            ( ret );
     
@@ -638,15 +642,17 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_sphere::getRotatedMappedData
     \param[in] rad The radius of this sphere.
     \param[in] radRange The range in the radial dimension covered by this sphere.
     \param[in] dim The required size of the sampling grid.
+    \param[in] rfDim The dimension size of the rotation function (can be different from the angular dimension of the sphere due to oversampling of the E matrices)
     \param[in] repAng The angle represented by this sphere.
     \param[in] sphNo The number of this sphere in the spheres vector.
     \param[out] X Data object with all values set and ready to accept the rotation function values.
  */
-ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_double repAng, proshade_unsign sphNo )
+ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::ProSHADE_rotFun_sphere ( proshade_double rad, proshade_double radRange, proshade_unsign dim, proshade_unsign rfDim, proshade_double repAng, proshade_unsign sphNo )
 {
     //================================================ Set internal values
     this->radius                                      = rad;
     this->angularDim                                  = dim;
+    this->rotFunDim                                   = rfDim;
     this->radiusMin                                   = this->radius - ( radRange / 2.0 );
     this->radiusMax                                   = this->radius + ( radRange / 2.0 );
     this->representedAngle                            = repAng;
@@ -695,9 +701,20 @@ proshade_double ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getMaxRadius 
     
 }
 
+/*! \brief Accessor function for the private variable rotastion function dim.
+ 
+    \param[out] rotFunDim The dimension size of the rotation function sampling grid.
+ */
+proshade_unsign ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getRotFunDim ( void )
+{
+    //================================================ Done
+    return                                            ( this->rotFunDim );
+    
+}
+
 /*! \brief Accessor function for the private variable angular dim.
  
-    \param[out] radius The dimension size of the angular sampling grid.
+    \param[out] angularDim The dimension size of the angular sampling grid.
  */
 proshade_unsign ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::getAngularDim ( void )
 {
@@ -784,46 +801,46 @@ void ProSHADE_internal_spheres::ProSHADE_rotFun_sphere::interpolateSphereValues 
             ProSHADE_internal_maths::getEulerZYZFromAngleAxis ( cX, cY, cZ, this->representedAngle, &eulerAlpha, &eulerBeta, &eulerGamma );
             
             //======================================== Convert to SOFT map position (decimal, not indices)
-            ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( this->angularDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
+            ProSHADE_internal_maths::getSOFTPositionFromEulerZYZ ( this->rotFunDim / 2, eulerAlpha, eulerBeta, eulerGamma, &mapX, &mapY, &mapZ );
             
             //======================================== Find lower and higher points and deal with boundaries
-            xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0 ) { xBottom = 0; } if ( xBottom >= static_cast< proshade_signed > ( this->angularDim ) ) { xBottom = static_cast<proshade_signed> ( this->angularDim - 2 ); }
-            yBottom = static_cast< proshade_signed > ( std::floor ( mapY ) ); if ( yBottom < 0 ) { yBottom = 0; } if ( yBottom >= static_cast< proshade_signed > ( this->angularDim ) ) { yBottom = static_cast<proshade_signed> ( this->angularDim - 2 ); }
-            zBottom = static_cast< proshade_signed > ( std::floor ( mapZ ) ); if ( zBottom < 0 ) { zBottom = 0; } if ( zBottom >= static_cast< proshade_signed > ( this->angularDim ) ) { zBottom = static_cast<proshade_signed> ( this->angularDim - 2 ); }
-            xTop = static_cast< proshade_signed > ( std::ceil ( mapX ) );     if ( xTop    < 1 ) { xTop = 1;    } if ( xTop    >= static_cast< proshade_signed > ( this->angularDim ) ) { xTop    = static_cast<proshade_signed> ( this->angularDim - 1 ); }
-            yTop = static_cast< proshade_signed > ( std::ceil ( mapY ) );     if ( yTop    < 1 ) { yTop = 1;    } if ( yTop    >= static_cast< proshade_signed > ( this->angularDim ) ) { yTop    = static_cast<proshade_signed> ( this->angularDim - 1 ); }
-            zTop = static_cast< proshade_signed > ( std::ceil ( mapZ ) );     if ( zTop    < 1 ) { zTop = 1;    } if ( zTop    >= static_cast< proshade_signed > ( this->angularDim ) ) { zTop    = static_cast<proshade_signed> ( this->angularDim - 1 ); }
+            xBottom = static_cast< proshade_signed > ( std::floor ( mapX ) ); if ( xBottom < 0 ) { xBottom = 0; } if ( xBottom >= static_cast< proshade_signed > ( this->rotFunDim ) ) { xBottom = static_cast<proshade_signed> ( this->rotFunDim - 2 ); }
+            yBottom = static_cast< proshade_signed > ( std::floor ( mapY ) ); if ( yBottom < 0 ) { yBottom = 0; } if ( yBottom >= static_cast< proshade_signed > ( this->rotFunDim ) ) { yBottom = static_cast<proshade_signed> ( this->rotFunDim - 2 ); }
+            zBottom = static_cast< proshade_signed > ( std::floor ( mapZ ) ); if ( zBottom < 0 ) { zBottom = 0; } if ( zBottom >= static_cast< proshade_signed > ( this->rotFunDim ) ) { zBottom = static_cast<proshade_signed> ( this->rotFunDim - 2 ); }
+            xTop = static_cast< proshade_signed > ( std::ceil ( mapX ) );     if ( xTop    < 1 ) { xTop = 1;    } if ( xTop    >= static_cast< proshade_signed > ( this->rotFunDim ) ) { xTop    = static_cast<proshade_signed> ( this->rotFunDim - 1 ); }
+            yTop = static_cast< proshade_signed > ( std::ceil ( mapY ) );     if ( yTop    < 1 ) { yTop = 1;    } if ( yTop    >= static_cast< proshade_signed > ( this->rotFunDim ) ) { yTop    = static_cast<proshade_signed> ( this->rotFunDim - 1 ); }
+            zTop = static_cast< proshade_signed > ( std::ceil ( mapZ ) );     if ( zTop    < 1 ) { zTop = 1;    } if ( zTop    >= static_cast< proshade_signed > ( this->rotFunDim ) ) { zTop    = static_cast<proshade_signed> ( this->rotFunDim - 1 ); }
             
             //======================================== Start X interpolation - bottom, bottom, bottom
-            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->rotFunDim ) * ( yBottom + static_cast< proshade_signed > ( this->rotFunDim ) * xBottom );
             c000                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, bottom, top
-            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->rotFunDim ) * ( yBottom + static_cast< proshade_signed > ( this->rotFunDim ) * xBottom );
             c001                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, top, bottom
-            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->rotFunDim ) * ( yTop    + static_cast< proshade_signed > ( this->rotFunDim ) * xBottom );
             c010                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - bottom, top, top
-            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xBottom );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->rotFunDim ) * ( yTop    + static_cast< proshade_signed > ( this->rotFunDim ) * xBottom );
             c011                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, bottom, bottom
-            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->rotFunDim ) * ( yBottom + static_cast< proshade_signed > ( this->rotFunDim ) * xTop    );
             c100                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, bottom, top
-            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yBottom + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->rotFunDim ) * ( yBottom + static_cast< proshade_signed > ( this->rotFunDim ) * xTop    );
             c101                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, top, bottom
-            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
+            mapIndex                                  = zBottom + static_cast< proshade_signed > ( this->rotFunDim ) * ( yTop    + static_cast< proshade_signed > ( this->rotFunDim ) * xTop    );
             c110                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== X interpolation - top, top, top
-            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->angularDim ) * ( yTop    + static_cast< proshade_signed > ( this->angularDim ) * xTop    );
+            mapIndex                                  = zTop    + static_cast< proshade_signed > ( this->rotFunDim ) * ( yTop    + static_cast< proshade_signed > ( this->rotFunDim ) * xTop    );
             c111                                      = pow( rotFun[mapIndex][0], 2.0 ) + pow( rotFun[mapIndex][1], 2.0 );
             
             //======================================== Solve for X

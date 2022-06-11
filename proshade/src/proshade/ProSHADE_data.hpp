@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
 */
 
 //==================================================== ProSHADE
@@ -121,6 +121,7 @@ namespace ProSHADE_internal_data
         proshade_complex** sphericalHarmonics;        //!< A set of spherical harmonics values arrays for each sphere.
         proshade_complex** rotSphericalHarmonics;     //!< A set of rotated spherical harmonics values arrays for each sphere, used only if map rotation is required.
         proshade_unsign maxShellBand;                 //!< The maximum band for any shell of the object.
+        proshade_unsign maxEMatDim;                   //!< The band (l) value for E matrix (i.e. the smallest of the two bands).
         
         //============================================ Variables regarding shape distance computations
         proshade_double*** rrpMatrices;               //!< The energy levels descriptor shell correlation tables.
@@ -129,7 +130,6 @@ namespace ProSHADE_internal_data
         proshade_complex* so3Coeffs;                  //!< The coefficients obtained by SO(3) Fourier Transform (SOFT), in this case derived from the E matrices.
         proshade_complex* so3CoeffsInverse;           //!< The inverse coefficients obtained by inverse SO(3) Fourier Transform (SOFT) - i.e. rotation function.
         proshade_complex*** wignerMatrices;           //!< These matrices are computed for a particular rotation to be done in spherical harmonics
-        proshade_unsign maxCompBand;                  //!< The largest comparison band - this variable tells how large arrays will be allocated for the comparison.
         proshade_complex* translationMap;             //!< This is where the translation map will be held, if at all used.
         
         //============================================ Variables regarding symmetry detection
@@ -194,7 +194,7 @@ namespace ProSHADE_internal_data
         //============================================ Distances pre-computation functions
         bool shellBandExists                          ( proshade_unsign shell, proshade_unsign bandVal );
         void computeRRPMatrices                       ( ProSHADE_settings* settings );
-        void allocateEMatrices                        ( proshade_unsign  band );
+        void allocateEMatrices                        ( proshade_unsign  band, proshade_single oversamplingRatio );
         void allocateSO3CoeffsSpace                   ( proshade_unsign band );
         void allocateWignerMatricesSpace              ( );
         
@@ -235,10 +235,10 @@ namespace ProSHADE_internal_data
                                                         proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, size_t symIndex, proshade_signed*& cutIndices,
                                                         fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts,
-                                                        proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+                                                        proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_unsign rotNumber = 1 );
         proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins,
                                                         proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin,
-                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_unsign rotNumber = 1 );
         void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
                                                         std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
                                                         std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices,
@@ -292,7 +292,7 @@ namespace ProSHADE_internal_data
         void getEMatrixValue                          ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag );
         proshade_complex* getInvSO3Coeffs             ( void );
         proshade_complex* getSO3Coeffs                ( void );
-        proshade_unsign getComparisonBand             ( void );
+        proshade_unsign getEMatDim                    ( void );
         void getWignerMatrixValue                     ( proshade_unsign band, proshade_unsign order1, proshade_unsign order2, proshade_double* valueReal, proshade_double* valueImag );
         proshade_single getXDimSize                   ( void );
         proshade_single getYDimSize                   ( void );

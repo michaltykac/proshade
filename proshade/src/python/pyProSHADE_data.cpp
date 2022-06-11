@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== Include PyBind11 header
@@ -578,29 +578,29 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                 
                                                             //== Done
                                                             return ( retArr );
-                                                        }, "This function returns a 2D numpy array of complex numbers representing the spherical harmonics computed for the structure. The first dimension of the array is the spheres (i.e. each sphere has its own array) and the second dimension is the band and order combination as given by the findSHIndex() function. Please note that while each sphere can have different number of spherical harmonics coefficients (depending on the settings.progressiveSphereMapping value), this array uses maxShellBand**2 values to make sure the length are equal for all spheres. To avoid issues, please use the findSHIndex() to correctly find the index of a particular shell, band, order combination." )
+                                                        }, "This function returns a 2D numpy array of complex numbers representing the spherical harmonics computed for the structure. The first dimension of the array is the spheres (i.e. each sphere has its own array) and the second dimension is the band and order combination as given by the findSHIndex() function. Please note that while each sphere can have different number of spherical harmonics coefficients (depending on the settings.progressiveSphereMapping value), this array uses maxEMatDim**2 values to make sure the length are equal for all spheres. To avoid issues, please use the findSHIndex() to correctly find the index of a particular shell, band, order combination." )
         .def                                          ( "getEMatrix",
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
                                                         {
                                                             //== Allocate memory for the numpy values
-                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) )];
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.maxEMatDim * ( ( self.maxEMatDim * 2 ) + 1 ) * ( ( self.maxEMatDim * 2 ) + 1 ) )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Allocate local variables
                                                             proshade_signed index = 0;
                                                                                                                                                                     
                                                             //== Fill with zeroes as the matrix will be sparse
-                                                            for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( self.maxEMatDim * ( ( self.maxEMatDim * 2 ) + 1 ) * ( ( self.maxEMatDim * 2 ) + 1 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
         
                                                             //== Copy data to new memory
                                                             proshade_double emReal, emImag;
-                                                            for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxShellBand ); bandIter++ )
+                                                            for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxEMatDim ); bandIter++ )
                                                             {
                                                                 for ( proshade_signed order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
                                                                 {
                                                                     for ( proshade_signed order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
                                                                     {
-                                                                        index = order2 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * ( order1 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * bandIter );
+                                                                        index = order2 + ( ( static_cast< proshade_signed > ( self.maxEMatDim ) * 2 ) + 1 ) * ( order1 + ( ( static_cast< proshade_signed > ( self.maxEMatDim ) * 2 ) + 1 ) * bandIter );
                                                                         self.getEMatrixValue( static_cast< proshade_unsign > ( bandIter ), static_cast< proshade_unsign > ( order1 ), static_cast< proshade_unsign > ( order2 ), &emReal, &emImag );
                                                                         npVals[index].real ( emReal );
                                                                         npVals[index].imag ( emImag );
@@ -612,9 +612,9 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             pybind11::capsule pyCapsuleEMs ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
 
                                                             //== Create the output object
-                                                            proshade_unsign orderSize = ( ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1 );
+                                                            proshade_unsign orderSize = ( ( static_cast< proshade_unsign > ( self.maxEMatDim ) * 2 ) + 1 );
                                                             pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
-                                                                            { self.maxShellBand, orderSize, orderSize },
+                                                                            { self.maxEMatDim, orderSize, orderSize },
                                                                             { sizeof ( std::complex < proshade_double > ) * orderSize * orderSize,
                                                                               sizeof ( std::complex < proshade_double > ) * orderSize,
                                                                               sizeof ( std::complex < proshade_double > ) },
@@ -628,23 +628,23 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
                                                         {
                                                             //== Allocate memory for the numpy values
-                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) )];
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( self.maxEMatDim * ( ( self.maxEMatDim * 2 ) + 1 ) * ( ( self.maxEMatDim * 2 ) + 1 ) )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
     
                                                             //== Allocate local variables
                                                             proshade_signed index = 0;
                                                                                                                                                                 
                                                             //== Fill with zeroes as the matrix will be sparse
-                                                            for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( self.maxShellBand * ( ( self.maxShellBand * 2 ) + 1 ) * ( ( self.maxShellBand * 2 ) + 1 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast < proshade_unsign > ( self.maxEMatDim * ( ( self.maxEMatDim * 2 ) + 1 ) * ( ( self.maxEMatDim * 2 ) + 1 ) ); iter++ ) { npVals[iter].real ( 0.0 );  npVals[iter].imag ( 0.0 ); }
     
                                                             //== Copy data to new memory
-                                                            for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxShellBand ); bandIter++ )
+                                                            for ( proshade_signed bandIter = 0; bandIter < static_cast< proshade_signed > ( self.maxEMatDim ); bandIter++ )
                                                             {
                                                                 for ( proshade_signed order1 = 0; order1 < ( ( bandIter * 2 ) + 1 ); order1++ )
                                                                 {
                                                                     for ( proshade_signed order2 = 0; order2 < ( ( bandIter * 2 ) + 1 ); order2++ )
                                                                     {
-                                                                        index = order2 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * ( order1 + ( ( static_cast< proshade_signed > ( self.maxShellBand ) * 2 ) + 1 ) * bandIter );
+                                                                        index = order2 + ( ( static_cast< proshade_signed > ( self.maxEMatDim ) * 2 ) + 1 ) * ( order1 + ( ( static_cast< proshade_signed > ( self.maxEMatDim ) * 2 ) + 1 ) * bandIter );
                                                                         npVals[index].real ( self.so3Coeffs[self.so3CoeffsArrayIndex ( static_cast< proshade_signed > ( order1 - bandIter ), order2 - bandIter, bandIter )][0] );
                                                                         npVals[index].imag ( self.so3Coeffs[self.so3CoeffsArrayIndex ( static_cast< proshade_signed > ( order1 - bandIter ), order2 - bandIter, bandIter )][1] );
                                                                     }
@@ -655,9 +655,9 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         pybind11::capsule pyCapsuleSOCoeffs ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
 
                                                         //== Create the output object
-                                                        proshade_unsign orderSize = ( ( static_cast< proshade_unsign > ( self.maxShellBand ) * 2 ) + 1 );
+                                                        proshade_unsign orderSize = ( ( static_cast< proshade_unsign > ( self.maxEMatDim ) * 2 ) + 1 );
                                                         pybind11::array_t < std::complex<proshade_double> > retArr = pybind11::array_t < std::complex<proshade_double > > (
-                                                                        { self.maxShellBand, orderSize, orderSize },
+                                                                        { self.maxEMatDim, orderSize, orderSize },
                                                                         { sizeof ( std::complex < proshade_double > ) * orderSize * orderSize,
                                                                           sizeof ( std::complex < proshade_double > ) * orderSize,
                                                                           sizeof ( std::complex < proshade_double > ) },
@@ -671,20 +671,20 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < std::complex < proshade_double > >
                                                         {
                                                             //== Allocate memory for the numpy values
-                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) )];
+                                                            std::complex<proshade_double>* npVals = new std::complex < proshade_double >[static_cast<proshade_unsign> ( ( self.maxEMatDim * 2 ) * ( self.maxEMatDim * 2 ) * ( self.maxEMatDim * 2 ) )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
             
                                                             //== Copy the values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) ); iter++ ) { npVals[iter].real ( self.so3CoeffsInverse[iter][0] ); npVals[iter].imag ( self.so3CoeffsInverse[iter][1] ); }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( ( self.maxEMatDim * 2 ) * ( self.maxEMatDim * 2 ) * ( self.maxEMatDim * 2 ) ); iter++ ) { npVals[iter].real ( self.so3CoeffsInverse[iter][0] ); npVals[iter].imag ( self.so3CoeffsInverse[iter][1] ); }
         
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleRotMap ( npVals, []( void *f ) { std::complex<proshade_double>* foo = reinterpret_cast< std::complex<proshade_double>* > ( f ); delete foo; } );
                                                        
                                                             //== Create python readable object with the correct memory access
                                                             pybind11::array_t < std::complex < proshade_double > > retArr = pybind11::array_t < std::complex < proshade_double > > (
-                                                                { ( self.maxShellBand * 2 ), ( self.maxShellBand * 2 ), ( self.maxShellBand * 2 ) },  // Shape
-                                                                { ( self.maxShellBand * 2 ) * ( self.maxShellBand * 2 ) * sizeof(std::complex < proshade_double >),
-                                                                  ( self.maxShellBand * 2 ) * sizeof(std::complex < proshade_double >),
+                                                                { ( self.maxEMatDim * 2 ),  ( self.maxEMatDim * 2 ), ( self.maxEMatDim * 2 ) },  // Shape
+                                                                { ( self.maxEMatDim * 2 ) * ( self.maxEMatDim * 2 ) * sizeof(std::complex < proshade_double >),
+                                                                  ( self.maxEMatDim * 2 ) * sizeof(std::complex < proshade_double >),
                                                                   sizeof(std::complex < proshade_double >) },                                         // C-stype strides
                                                                 npVals,                                                                               // Data
                                                                 pyCapsuleRotMap );                                                                    // Capsule (destructor)
@@ -703,7 +703,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             proshade_double eulA, eulB, eulG;
             
                                                             //== Compute the Euler angles from SOFT position
-                                                            ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxShellBand ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
+                                                            ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< proshade_signed > ( self.maxEMatDim ), xPos, yPos, zPos, &eulA, &eulB, &eulG );
             
                                                             //== Compute the rotation matrix
                                                             ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( eulA, eulB, eulG, npVals );
@@ -778,6 +778,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "spherePos",         &ProSHADE_internal_data::ProSHADE_data::spherePos     )
         .def_readwrite                                ( "noSpheres",         &ProSHADE_internal_data::ProSHADE_data::noSpheres     )
         .def_readwrite                                ( "maxShellBand",      &ProSHADE_internal_data::ProSHADE_data::maxShellBand  )
+        .def_readwrite                                ( "maxEMatDim",        &ProSHADE_internal_data::ProSHADE_data::maxEMatDim    )
         .def_readwrite                                ( "isEmpty",           &ProSHADE_internal_data::ProSHADE_data::isEmpty       )
         .def_readwrite                                ( "inputOrder",        &ProSHADE_internal_data::ProSHADE_data::inputOrder    )
         
@@ -914,7 +915,8 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                                 //== Create the angle-axis sphere with correct radius (angle)
                                                                 sphereMappedRotFun.emplace_back ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
                                                                                                                                                           M_PI / static_cast< proshade_double > ( dataObj->getMaxBand() ),
-                                                                                                                                                          dataObj->getMaxBand() * 2,
+                                                                                                                                                          dataObj->getMaxBand ( ) * 2,
+                                                                                                                                                          dataObj->getEMatDim ( ) * 2,
                                                                                                                                                           soughtAngle,
                                                                                                                                                           static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
                                                                 

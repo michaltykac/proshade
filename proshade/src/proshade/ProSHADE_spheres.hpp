@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -99,7 +99,7 @@ namespace ProSHADE_internal_spheres
                                                         proshade_single ySize, proshade_single zSize, proshade_unsign shOrder,
                                                         std::vector<proshade_single>* spherePos,
                                                         bool progressiveMapping, proshade_unsign band, proshade_double* map,
-                                                        proshade_unsign* maxShellBand );
+                                                        proshade_unsign* maxShellBand, proshade_unsign* maxCompBand );
        ~ProSHADE_sphere                               ( void );
         
         //============================================ Rotated map data related functions

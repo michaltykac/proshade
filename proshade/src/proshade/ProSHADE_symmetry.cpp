@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -50,10 +50,10 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_s
     ProSHADE_internal_distances::normaliseEMatrices   ( this, this, settings );
     
     //================================================ Generate SO(3) coefficients
-    ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( this, this, settings );
+    ProSHADE_internal_distances::generateSO3CoeffsFromEMatrices ( this, settings );
     
     //================================================ Compute the inverse SO(3) Fourier Transform (SOFT) on the newly computed coefficients
-    ProSHADE_internal_distances::computeInverseSOFTTransform ( this, this, settings );
+    ProSHADE_internal_distances::computeInverseSOFTTransform ( this, settings );
     
     //================================================ Report completion
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, "Self-rotation function obtained.", settings->messageShift );
@@ -67,7 +67,7 @@ void ProSHADE_internal_data::ProSHADE_data::computeRotationFunction ( ProSHADE_s
 
     \param[in] inArr A vector of values for which the threshold is to be determined.
     \param[in] noIQRsFromMedian Mow many times should the RMSD be added to the mean to get starting threshold.
-    \param[in] startMinVal Minimal value for the threshold.
+    \param[in] startMinVal Minimum value for the threshold.
     \param[out] ret The threshold.
  */
 proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, proshade_double noIQRsFromMedian, proshade_double startMinVal )
@@ -76,7 +76,7 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
     proshade_double ret                               = 0.0;
     proshade_double rmsd                              = 0.0;
     size_t vecSize                                    = inArr.size();
-    proshade_unsign noVals                            = std::numeric_limits < proshade_unsign >::infinity();
+    proshade_unsign noVals                            = 0;
     proshade_double mean                              = 0.0;
     
     //================================================ Deal with low number of input cases
@@ -114,7 +114,7 @@ proshade_double determinePeakThreshold ( std::vector < proshade_double > inArr, 
         ret                                           = *( std::max_element ( inArr.begin(), inArr.end() ) );
     }
     
-    if ( ret > 0.95 ) { ret                           = 0.95; }
+    if ( ret > 0.85 ) { ret                           = 0.85; }
     
     //================================================ Done
     return                                            ( ret );
@@ -138,15 +138,16 @@ void ProSHADE_internal_data::ProSHADE_data::convertRotationFunction ( ProSHADE_s
     ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 1, "Starting self-rotation function conversion to angle-axis representation.", settings->messageShift );
     
     //================================================ Initialise variables
-    proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->maxShellBand ) * 2.0;
+    proshade_double shellSpacing                      = ( 2.0 * M_PI ) / static_cast<proshade_double> ( this->getMaxBand ( ) ) * 2.0;
     std::vector< proshade_double > allPeakHeights;
     
     //================================================ Initialise the spheres
-    for ( proshade_unsign spIt = 1; spIt < ( this->maxShellBand * 2 ); spIt++ )
+    for ( proshade_unsign spIt = 1; spIt < ( this->getMaxBand ( ) * 2 ); spIt++ )
     {
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere( static_cast<proshade_double> ( spIt ) * shellSpacing,
                                                                                                                shellSpacing,
-                                                                                                               this->maxShellBand * 2,
+                                                                                                               this->getMaxBand ( ) * 2,
+                                                                                                               this->getEMatDim ( ) * 2,
                                                                                                                static_cast<proshade_double> ( spIt ) * shellSpacing,
                                                                                                                spIt - 1 ) );
     }
@@ -842,14 +843,14 @@ std::vector < proshade_double* > ProSHADE_internal_symmetry::findMissingAxisPoin
     std::vector< proshade_double* > angVec;
     
     //================================================ Search the self-rotation map
-    for ( proshade_unsign xIt = 0; xIt < ( dataObj->getMaxBand() * 2 ); xIt++ )
+    for ( proshade_unsign xIt = 0; xIt < ( dataObj->getMaxBand ( ) * 2 ); xIt++ )
     {
-        for ( proshade_unsign yIt = 0; yIt < ( dataObj->getMaxBand() * 2 ); yIt++ )
+        for ( proshade_unsign yIt = 0; yIt < ( dataObj->getMaxBand ( ) * 2 ); yIt++ )
         {
-            for ( proshade_unsign zIt = 0; zIt < ( dataObj->getMaxBand() * 2 ); zIt++ )
+            for ( proshade_unsign zIt = 0; zIt < ( dataObj->getMaxBand ( ) * 2 ); zIt++ )
             {
                 //==================================== Get height and check against threshold
-                arrIndex                              = zIt  + ( dataObj->getMaxBand() * 2 ) * ( yIt  + ( dataObj->getMaxBand() * 2 ) * xIt );
+                arrIndex                              = zIt  + ( dataObj->getMaxBand ( ) * 2 ) * ( yIt  + ( dataObj->getMaxBand ( ) * 2 ) * xIt );
                 
                 //==================================== Get angle-axis values
                 ProSHADE_internal_maths::getEulerZYZFromSOFTPosition ( static_cast< proshade_signed > ( dataObj->getMaxBand() ), static_cast< proshade_signed > ( xIt ),
@@ -2869,7 +2870,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     std::vector< proshade_double* > ret, tmpHolder;
     std::vector< proshade_unsign  > testedFolds;
     proshade_double symThres;
-    proshade_unsign foldToTest;
+    proshade_unsign foldToTest, rotationNumber;
     bool foldDone, anyNewSyms = true;
     
     //================================================ Prepare FSC computation memory and variables
@@ -2886,6 +2887,48 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         hlpSS << "Searching for prime fold symmetry C" << primes.at(prIt) << ".";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 3, hlpSS.str(), settings->messageShift );
         
+        //============================================ If fold is higher than the resolution supports, compute FSC using different than first rotation.
+        rotationNumber                                = 1;
+        if ( primes.at(prIt) >= settings->supportedSymmetryFold )
+        {
+            //========================================= Find all prime factors
+            std::vector< proshade_signed > divisAll;
+            ProSHADE_internal_misc::addToSignedVector ( &divisAll, static_cast< proshade_signed > ( primes.at(prIt) - 1 ) );
+            for ( proshade_unsign pfIt = primes.at(prIt) + 4; pfIt >= ( std::max ( primes.at(prIt) - 4, settings->supportedSymmetryFold ) ); pfIt-- )
+            {
+                if ( pfIt == primes.at(prIt) ) { continue; }
+                std::vector< proshade_signed > divis  = ProSHADE_internal_maths::primeFactorsDecomp ( static_cast< proshade_signed > ( pfIt ) );
+                for ( size_t iter = 0; iter < divis.size(); iter++ ) { ProSHADE_internal_misc::addToSignedVector ( &divisAll, divis.at(iter) ); }
+            }
+            
+            //======================================== Find all rotations of all smaller symmetries
+            std::vector< proshade_double > prevRots;
+            for ( size_t fIt = 0; fIt < divisAll.size(); fIt++ ) { for ( size_t rIt = 1; rIt < static_cast< size_t > ( divisAll.at(fIt) - 1 ); rIt++ ) { ProSHADE_internal_misc::addToDoubleVector ( &prevRots, ( ( 2.0 * M_PI ) / static_cast< proshade_double > ( divisAll.at(fIt) ) ) * static_cast< proshade_double > ( rIt ) ); } }
+            
+            //======================================== Find most unique rotation
+            proshade_unsign bestPos                   = 1;
+            proshade_double bestDist                  = 0.0;
+            proshade_double curPos                    = 0.0;
+            proshade_double bestDistHlp;
+            
+            //======================================== For each possible rotation
+            for ( proshade_unsign fIt = 2; fIt <= static_cast< proshade_unsign >( ( primes.at(prIt) + 1 ) / 2 ); fIt++ )
+            {
+                //==================================== Set current values
+                curPos                                = ( ( 2.0 * M_PI ) / static_cast< proshade_double > ( primes.at(prIt) ) ) * static_cast< proshade_double > ( fIt );
+                bestDistHlp                           = std::numeric_limits < proshade_double >::infinity();
+                
+                //==================================== Find closest other rotation
+                for ( proshade_unsign dIt = 0; dIt < static_cast< proshade_unsign > ( prevRots.size() ); dIt++ ) { if ( std::abs ( prevRots.at(dIt) - curPos ) < bestDistHlp ) { bestDistHlp = std::abs ( prevRots.at(dIt) - curPos ); } }
+
+                //==================================== Is this the best
+                if ( bestDistHlp > bestDist ) { bestDist = bestDistHlp; bestPos = fIt; }
+            }
+            
+            rotationNumber                            = bestPos;
+            if ( rotationNumber >= ( primes.at(prIt) - 1 ) ) { rotationNumber = 1; }
+        }
+        
         //============================================ Get all symmetries for this prime fold
         std::vector< proshade_double* > prSyms        = this->findRequestedCSymmetryFromAngleAxis ( settings, primes.at(prIt), &symThres );
         
@@ -2893,13 +2936,20 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         for ( size_t axIt = 0; axIt < prSyms.size(); axIt++ )
         {
             //======================================== Check the peak threshold
-            if ( prSyms.at(axIt)[5] >= symThres )
+            if ( prSyms.at(axIt)[5] >= std::max ( symThres, settings->minSymPeak ) )
             {
                 //==================================== Check if the axis and fold are unique
                 if ( ProSHADE_internal_maths::isAxisUnique ( &ret, prSyms.at(axIt), settings->axisErrTolerance, true ) )
                 {
                     //================================ Compute FSC
-                    this->computeFSC                  ( settings, prSyms.at(axIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                    this->computeFSC                  ( settings, prSyms.at(axIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim, rotationNumber );
+                    
+                    //======================== If high FSC and undersampled map, check the FSC with full computation
+                    if ( ( primes.at(prIt) >= settings->supportedSymmetryFold ) && ( prSyms.at(axIt)[6] >= settings->fscThreshold ) )
+                    {
+                        prSyms.at(axIt)[6]            = -std::numeric_limits < proshade_double >::infinity();
+                        this->computeFSC              ( settings, prSyms.at(axIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim, 0 );
+                    }
                     
                     //================================ Save axis
                     ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, prSyms.at(axIt) );
@@ -2915,7 +2965,7 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
     if ( ret.size() < 1 ) { return ( ret ); }
     
     //================================================ Compute the FSC threshold
-    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.01, 5, 0.9 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( &ret, 6, 0.02, 0.1, 9 );
     
     //================================================ Check for prime symmetry fold multiples
     while ( anyNewSyms )
@@ -2926,20 +2976,58 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
         //============================================ For each passing symmetry, look if there are any combinations of symmetries that would contain it
         for ( proshade_unsign axIt1 = 0; axIt1 < static_cast< proshade_unsign > ( ret.size() ); axIt1++ )
         {
+            //======================================== Do not try axes with low FSC
+            if ( bestFSCPeakStart > ret.at(axIt1)[6] ) { continue; }
+            
             for ( proshade_unsign axIt2 = 0; axIt2 < static_cast< proshade_unsign > ( ret.size() ); axIt2++ )
             {
+                //==================================== Do not try axes with low FSC
+                if ( bestFSCPeakStart > ret.at(axIt2)[6] ) { continue; }
+                
                 //==================================== At least one fold needs to be prime (to avoid escalation of high symmetries - i.e. C32 would require checking C32 * C32 = C1024 including computing its FSC...)
                 if ( !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt1)[0] ) ) &&
                      !ProSHADE_internal_maths::isPrime ( static_cast< proshade_unsign > ( ret.at(axIt2)[0] ) ) ) { continue; }
-                           
-                //==================================== Do not try combinations with low FSC
-                if ( bestFSCPeakStart > ( ( ret.at(axIt1)[6] + ret.at(axIt2)[6] ) / 2.0 ) ) { continue; }
-                
-                //==================================== Do not try combinations with too high fold
-                if ( ret.at(axIt1)[0] * ret.at(axIt2)[0] > 120 ) { continue; }
                 
                 //==================================== Initialise iteration
                 foldToTest                            = static_cast< proshade_unsign > ( ret.at(axIt1)[0] * ret.at(axIt2)[0] );
+                
+                //==================================== If fold is higher than the resolution supports, compute FSC using different than first rotation.
+                rotationNumber                        = 1;
+                if ( foldToTest >= settings->supportedSymmetryFold )
+                {
+                    //================================ Find all prime factors
+                    std::vector< proshade_signed > divisAll;
+                    ProSHADE_internal_misc::addToSignedVector ( &divisAll, static_cast< proshade_signed > ( ret.at(axIt1)[0] ) );
+                    ProSHADE_internal_misc::addToSignedVector ( &divisAll, static_cast< proshade_signed > ( ret.at(axIt2)[0] ) );
+                    for ( size_t iter = 0; iter < ret.size(); iter++ ) { if ( ret.at(iter)[6] > ( bestFSCPeakStart * 0.9 ) ) { ProSHADE_internal_misc::addToSignedVector ( &divisAll, static_cast< proshade_signed > ( ret.at(iter)[0] ) ); } }
+                    
+                    //================================ Find all rotations of all smaller symmetries
+                    std::vector< proshade_double > prevRots;
+                    for ( size_t fIt = 0; fIt < divisAll.size(); fIt++ ) { for ( size_t rIt = 1; rIt < static_cast< size_t > ( divisAll.at(fIt) - 1 ); rIt++ ) { ProSHADE_internal_misc::addToDoubleVector ( &prevRots, ( ( 2.0 * M_PI ) / static_cast< proshade_double > ( divisAll.at(fIt) ) ) * static_cast< proshade_double > ( rIt ) ); } }
+                    
+                    //================================ Find most unique rotation
+                    proshade_unsign bestPos           = 1;
+                    proshade_double bestDist          = 0.0;
+                    proshade_double curPos            = 0.0;
+                    proshade_double bestDistHlp;
+                    
+                    //================================ For each possible rotation
+                    for ( proshade_unsign fIt = 2; fIt <= static_cast< proshade_unsign >( foldToTest / 2 ); fIt++ )
+                    {
+                        //============================ Set current values
+                        curPos                        = ( ( 2.0 * M_PI ) / static_cast< proshade_double > ( foldToTest ) ) * static_cast< proshade_double > ( fIt );
+                        bestDistHlp                   = std::numeric_limits < proshade_double >::infinity();
+                        
+                        //============================ Find closest other rotation
+                        for ( proshade_unsign dIt = 0; dIt < static_cast< proshade_unsign > ( prevRots.size() ); dIt++ ) { if ( std::abs ( prevRots.at(dIt) - curPos ) < bestDistHlp ) { bestDistHlp = std::abs ( prevRots.at(dIt) - curPos ); } }
+                        
+                        //============================ Is this the best
+                        if ( bestDistHlp > bestDist ) { bestDist = bestDistHlp; bestPos = fIt; }
+                    }
+                    
+                    rotationNumber                    = bestPos;
+                    if ( rotationNumber >= ( foldToTest - 1 ) ) { rotationNumber = 1; }
+                }
                 
                 //==================================== Was this fold tested already?
                 foldDone                              = false;
@@ -2966,7 +3054,14 @@ std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclic
                              ProSHADE_internal_maths::isAxisUnique ( &tmpHolder, prSyms.at(newAxIt), settings->axisErrTolerance, false ) )
                         {
                             //======================== Compute FSC
-                            this->computeFSC          ( settings, prSyms.at(newAxIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                            this->computeFSC          ( settings, prSyms.at(newAxIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim, rotationNumber );
+                            
+                            //======================== If high FSC and undersampled map, check the FSC with full computation
+                            if ( ( foldToTest >= settings->supportedSymmetryFold ) && ( prSyms.at(newAxIt)[6] >= bestFSCPeakStart ) )
+                            {
+                                prSyms.at(newAxIt)[6] = -std::numeric_limits < proshade_double >::infinity();
+                                this->computeFSC      ( settings, prSyms.at(newAxIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim, 0 );
+                            }
                             
                             //======================== Save axis
                             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &tmpHolder, prSyms.at(newAxIt) );
@@ -3061,7 +3156,8 @@ std::vector < proshade_double* > ProSHADE_internal_data::ProSHADE_data::findRequ
         //============================================ Create the angle-axis sphere with correct radius (angle)
         this->sphereMappedRotFun.emplace_back         ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( soughtAngle,
                                                                                                                 M_PI / static_cast < proshade_double > ( this->maxShellBand ),
-                                                                                                                this->maxShellBand * 2,
+                                                                                                                this->getMaxBand ( ) * 2,
+                                                                                                                this->getEMatDim ( ) * 2,
                                                                                                                 soughtAngle,
                                                                                                                 static_cast < proshade_unsign > ( angIt - 1.0 ) ) );
         
@@ -3193,7 +3289,8 @@ void ProSHADE_internal_symmetry::findPredictedAxesHeights ( std::vector< proshad
         //============================================ Create the sphere
         dataObj->sphereMappedRotFun.emplace_back      ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angs.at(angIt),
                                                                                                                 radRange,
-                                                                                                                dataObj->maxShellBand * 2,
+                                                                                                                dataObj->getMaxBand ( ) * 2,
+                                                                                                                dataObj->getEMatDim ( ) * 2,
                                                                                                                 angs.at(angIt),
                                                                                                                 static_cast<proshade_unsign> ( angIt ) ) );
 
@@ -3515,7 +3612,8 @@ proshade_double ProSHADE_internal_symmetry::findPredictedSingleAxisHeight ( pros
         //============================================ Create the angle-axis sphere with correct radius (angle)
         dataObj->sphereMappedRotFun.emplace_back      ( new ProSHADE_internal_spheres::ProSHADE_rotFun_sphere ( angIt * ( 2.0 * M_PI / fold ),
                                                                                                                 M_PI / fold,
-                                                                                                                dataObj->maxShellBand * 2,
+                                                                                                                dataObj->getMaxBand ( ) * 2,
+                                                                                                                dataObj->getEMatDim ( ) * 2,
                                                                                                                 angIt * ( 2.0 * M_PI / fold ),
                                                                                                                 static_cast<proshade_unsign> ( angIt - 1.0 ) ) );
         
@@ -3821,7 +3919,7 @@ std::vector< proshade_unsign > ProSHADE_internal_symmetry::findReliableUnphasedS
     
     //================================================ Find the threshold
     proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 5, 0.02, 0.03, 5 );
-    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.02, 0.01, 5, 0.9 );
+    proshade_double bestFSCPeakStart                  = ProSHADE_internal_maths::findTopGroupSmooth ( allCs, 6, 0.02, 0.01, 5 );
     if ( bestHistPeakStart > 0.9 ) { bestHistPeakStart = 0.9; }
     
     //================================================ Are any axes orthogonal

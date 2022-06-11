@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.4
-    \date      APR 2022
+    \version   0.7.6.5
+    \date      JUN 2022
  */
 
 //==================================================== ProSHADE
@@ -3307,9 +3307,10 @@ proshade_double ProSHADE_internal_maths::computeGaussian ( proshade_double val, 
     \param[in] windowSize The size of the averaged over window. It is assumed to be odd.
     \param[in] sigma The standard deviation of the Gaussian to be used for smoothening.
     \param[in] data The data to be smoothened.
+    \param[in] decRound To which decimal place should the gausian be rounded to? If no rounding is required, please use -1.
     \param[out] smoothened A vector of smoothened values for the input data with length hist.size() - (windowSize - 1).
  */
-std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data )
+std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_double step, proshade_signed windowSize, proshade_double sigma, std::vector< proshade_double > data, proshade_signed decRound )
 {
     //================================================ Initialise local variables
     proshade_signed windowHalf                        = ( windowSize - 1 ) / 2;
@@ -3327,6 +3328,16 @@ std::vector < proshade_double > ProSHADE_internal_maths::smoothen1D ( proshade_d
         for ( proshade_signed winIt = 0; winIt < windowSize; winIt++ )
         {
             smoothened.at(it)                        += winWeights.at( static_cast< size_t > (  winIt ) ) * data.at( static_cast< size_t > ( static_cast< proshade_signed > ( it ) + winIt ) );
+        }
+    }
+    
+    //================================================ Round as requested
+    if ( decRound >= 0 )
+    {
+        proshade_double zeroMultip                    = std::pow ( 10.0, decRound );
+        for ( proshade_unsign it = 0; it < static_cast< proshade_unsign > ( smoothened.size() ); it++ )
+        {
+            smoothened.at(it)                         = std::round ( smoothened.at(it) * zeroMultip ) / zeroMultip;
         }
     }
     
@@ -3437,6 +3448,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     
     //================================================ Find the bins and corresponding cut-offs
     resArray                                          = new std::vector< proshade_single > ( static_cast< size_t > ( maxs[minLoc] ), 0.0f );
+    ProSHADE_internal_misc::checkMemoryAllocation     ( resArray, __FILE__, __LINE__, __func__ );
     for ( proshade_signed dimIt = 0; dimIt < static_cast< proshade_signed > ( maxs[minLoc] ); dimIt++ )
     {
         //============================================ Prepare steps
@@ -3548,7 +3560,7 @@ void ProSHADE_internal_maths::binReciprocalSpaceReflections ( proshade_unsign xI
     \param[in] cutBinIndices Array to which the cut indices will be saved into.
     \param[in] noBins Variable to which the number of bins adter cutting will be saved into.
  */
-void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_single resolution, proshade_signed* binIndexing, std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins )
+void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_single resolution, proshade_signed* binIndexing, std::vector< proshade_single >* resArray, proshade_signed* cutXDim, proshade_signed* cutYDim, proshade_signed* cutZDim, proshade_signed*& cutBinIndices, proshade_signed*& noBins )
 {
     //================================================ Initialise local variables
     proshade_single resCut                            = resolution;
@@ -3574,6 +3586,7 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
     //================================================ Create new binIndexing within only the new dimensions
     cutBinIndices                                     = new proshade_signed[(*cutXDim) * (*cutYDim) * (*cutZDim)];
     ProSHADE_internal_misc::checkMemoryAllocation     ( cutBinIndices, __FILE__, __LINE__, __func__ );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( (*cutXDim) * (*cutYDim) * (*cutZDim) ); iter++ ) { cutBinIndices[iter] = 0; }
     
     proshade_signed newArrPos = 0, origArrPos = 0;
     for ( proshade_signed xIt = newXFrom; xIt < newXTo; xIt++ )
@@ -3582,8 +3595,12 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
         {
             for ( proshade_signed zIt = newZFrom; zIt < newZTo; zIt++ )
             {
+                //==================================== Skip if outside of box
+                if ( ( xIt < 0 )      || ( yIt < 0 )      || ( zIt < 0 ) )      { continue; }
+                if ( ( xIt >= xInds ) || ( yIt >= yInds ) || ( zIt >= zInds ) ) { continue; }
+                
                 //==================================== Find positions
-                newArrPos                             = (zIt-newZFrom) + (newZTo-newZFrom) * ( (yIt-newYFrom) + (newYTo-newYFrom) * (xIt-newXFrom) );
+                newArrPos                             = (zIt-newZFrom) + (*cutZDim) * ( (yIt-newYFrom) + (*cutYDim) * (xIt-newXFrom) );
                 origArrPos                            = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
                 
                 //==================================== Copy value
@@ -3608,7 +3625,7 @@ void ProSHADE_internal_maths::cutIndicesToResolution ( proshade_unsign xInds, pr
  
     \warning This function is part of the FSC computation framework and makes assumptions that may not be true in general. Please look into the code before using.
  */
-void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, proshade_unsign yInds, proshade_unsign zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap )
+void ProSHADE_internal_maths::cutArrayToResolution ( proshade_signed xInds, proshade_signed yInds, proshade_signed zInds, proshade_signed noBins, fftw_complex* inputMap, fftw_complex*& cutMap )
 {
     //================================================ Compute new map dimensions
     proshade_signed newXFrom                          = static_cast< proshade_signed > ( std::round ( ( static_cast< proshade_signed > ( xInds ) - 2 * noBins ) / 2 ) );
@@ -3621,9 +3638,10 @@ void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, pros
     proshade_signed cutYDim                           = ( newYTo - newYFrom );
     proshade_signed cutZDim                           = ( newZTo - newZFrom );
     
-    //================================================ Create new binIndexing within only the new dimensions
+    //================================================ Create new coefficients array within only the new dimensions
     cutMap                                            = reinterpret_cast< fftw_complex* > ( fftw_malloc ( sizeof ( fftw_complex ) * static_cast< proshade_unsign > ( cutXDim * cutYDim * cutZDim ) ) );
     ProSHADE_internal_misc::checkMemoryAllocation     ( cutMap, __FILE__, __LINE__, __func__ );
+    for ( size_t iter = 0; iter < static_cast< size_t > ( cutXDim * cutYDim * cutZDim ); iter++ ) { cutMap[iter][0] = 0.0; cutMap[iter][1] = 0.0; }
     
     proshade_signed newArrPos = 0, origArrPos = 0;
     for ( proshade_signed xIt = newXFrom; xIt < newXTo; xIt++ )
@@ -3632,8 +3650,12 @@ void ProSHADE_internal_maths::cutArrayToResolution ( proshade_unsign xInds, pros
         {
             for ( proshade_signed zIt = newZFrom; zIt < newZTo; zIt++ )
             {
+                //==================================== Skip if outside of box
+                if ( ( xIt < 0 )      || ( yIt < 0 )      || ( zIt < 0 ) )      { continue; }
+                if ( ( xIt >= xInds ) || ( yIt >= yInds ) || ( zIt >= zInds ) ) { continue; }
+                
                 //==================================== Find positions
-                newArrPos                             = (zIt-newZFrom) + (newZTo-newZFrom) * ( (yIt-newYFrom) + (newYTo-newYFrom) * (xIt-newXFrom) );
+                newArrPos                             = (zIt-newZFrom) + cutZDim * ( (yIt-newYFrom) + cutYDim * (xIt-newXFrom) );
                 origArrPos                            = zIt + static_cast< proshade_signed > ( zInds ) * ( yIt + static_cast< proshade_signed > ( yInds ) * xIt );
                 
                 //==================================== Copy value
@@ -4026,37 +4048,53 @@ std::vector< proshade_signed > ProSHADE_internal_maths::findPeaks1D ( std::vecto
 {
     //================================================ Initialise local variables
     std::vector< proshade_signed > ret;
+    bool sameValStreak                                = false;
     
     //================================================ Peak is simply any position with both neighbours having lower position (with special care for borders)
-    for ( proshade_signed index = 0; index < static_cast< proshade_signed > ( data.size() ); index++ )
+    for ( proshade_signed index = static_cast< proshade_signed > ( data.size() ) - 1; index > 0; index-- )
     {
-        //============================================ Starting border?
-        if ( index == 0 )
+        //============================================ End border?
+        if ( index == ( static_cast< proshade_signed > ( data.size() ) - 1 ) )
         {
-            if ( data.size() > 1 ) { if ( data.at(0) > data.at(1) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } }
+            if ( data.size() > 1 ) { if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index - 1 ) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } }
             continue;
         }
         
-        //============================================ End border?
-        if ( index == static_cast< proshade_signed > ( data.size() - 1 ) )
+        //============================================ Start border?
+        if ( index == 0 )
         {
-            if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+            if ( data.at( 0 ) > data.at( 1 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
             continue;
         }
         
         //============================================ Is this a peak?
         if ( ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) - 1 ) ) &&
-             ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 1 ) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); }
+             ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 1 ) ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); continue; }
         
         //============================================ Deal with equally sized values
-        if ( index < static_cast< proshade_signed > ( data.size() - 2 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) - 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index ) + 1 ) ) { if ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index ) + 2 ) ) { ProSHADE_internal_misc::addToSignedVector ( &ret, index ); } } } }
+        if ( sameValStreak && ( index >= 1 ) && ( data.at( static_cast< size_t > ( index ) ) > data.at( static_cast< size_t > ( index - 1 ) ) ) ) { sameValStreak = false; ProSHADE_internal_misc::addToSignedVector ( &ret, index ); continue; }
+        if ( sameValStreak && ( index == 0 ) ) { sameValStreak = false; ProSHADE_internal_misc::addToSignedVector ( &ret, index ); continue; }
+        const FloatingPoint< proshade_double > lhs ( data.at( static_cast< size_t > ( index ) ) ), rhs ( 0.0 );
+        if ( lhs.AlmostEquals ( rhs ) ) { continue; }
+        if ( ( index > 1 ) && !sameValStreak )
+        {
+            if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index - 1 ) ) )
+            {
+                if ( data.at( static_cast< size_t > ( index ) ) >= data.at( static_cast< size_t > ( index + 1 ) ) )
+                {
+                    sameValStreak                     = true;
+                }
+            }
+        }
     }
+    
+    //================================================ Sort peaks
+    std::sort                                         ( ret.begin(), ret.end() );
     
     //================================================ Done
     return                                            ( ret );
     
 }
-
 
 /*! \brief This function finds a subgroup of axes with distinctly higher correlation value.
  
@@ -4109,12 +4147,16 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     //================================================ Find peaks in smoothened data
     std::vector< proshade_signed > peaks              = ProSHADE_internal_maths::findPeaks1D ( smoothened );
     
-    //================================================ Take best peaks surroundings and produce a new set of "high" axes
-    proshade_signed bestHistPos;
-    if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
-    else                    { bestHistPos = 0.0; }
-    
+    //================================================ Determine threshold from the peaks
+    size_t bestHistPos;
+    if ( peaks.size() > 0 )                           { bestHistPos = hist.size() - ( ( smoothened.size() - static_cast< size_t > ( peaks.at(peaks.size()-1) ) ) + ( ( static_cast< size_t > ( windowSize ) + 1 ) / 2 ) ); }
+    else                                              { bestHistPos = 0.0; }
     threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
+    
+    //================================================ Check that the threshold is not higher than the highest value
+    proshade_double maxVal                            = 0.0;
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( maxVal < CSym->at(symIt)[peakPos] ) { maxVal = CSym->at(symIt)[peakPos]; } }
+    if ( maxVal < threshold ) { threshold = maxVal - step; }
     
     //================================================ Done
     return                                            ( threshold );
@@ -4153,7 +4195,6 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     //================================================ Bump all top peaks together - we do not want single high peak overshadowing many good peaks
     for ( proshade_unsign vIt = 0; vIt < static_cast< proshade_unsign > ( vals.size() ); vIt++ ) { if ( vals.at(vIt).first > maxLim ) { vals.at(vIt).first = maxLim; } }
     
-    
     //================================================ Convert all found heights to histogram from 0.0 to 1.0 by step
     for ( proshade_double it = 0.0; it <= 1.0; it = it + step )
     {
@@ -4173,12 +4214,16 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     //================================================ Find peaks in smoothened data
     std::vector< proshade_signed > peaks              = ProSHADE_internal_maths::findPeaks1D ( smoothened );
     
-    //================================================ Take best peaks surroundings and produce a new set of "high" axes
-    proshade_signed bestHistPos;
-    if ( peaks.size() > 0 ) { bestHistPos = peaks.at(peaks.size()-1) + ( ( windowSize - 1 ) / 2 ); }
-    else                    { bestHistPos = 0.0; }
-    
+    //================================================ Determine threshold from the peaks
+    size_t bestHistPos;
+    if ( peaks.size() > 0 )                           { bestHistPos = hist.size() - ( ( smoothened.size() - static_cast< size_t > ( peaks.at(peaks.size()-1) ) ) + ( ( static_cast< size_t > ( windowSize ) + 1 ) / 2 ) ); }
+    else                                              { bestHistPos = 0.0; }
     threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
+    
+    //================================================ Check that the threshold is not higher than the highest value
+    proshade_double maxVal                            = 0.0;
+    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( CSym->size() ); symIt++ ) { if ( maxVal < CSym->at(symIt).at(peakPos) ) { maxVal = CSym->at(symIt).at(peakPos); } }
+    if ( maxVal < threshold ) { threshold = maxVal - step; }
     
     //================================================ Done
     return                                            ( threshold );
