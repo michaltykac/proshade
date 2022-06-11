@@ -27,7 +27,7 @@
 
 /*! \mainpage ProSHADE Documentation
  *
- * Protein Shape Description and Symmetry Detection version 0.7.6.1 (AUG 2021)
+ * Protein Shape Description and Symmetry Detection version 0.7.6.5 (JUN 2022)
  *
  * \section intro Introduction
  *
@@ -410,7 +410,7 @@
  *
 *\code{.sh}
  $: ./proshade -S -f ./emd_6324.map
- ProSHADE 0.7.6.4 (APR 2022):
+ ProSHADE 0.7.6.5 (JUN 2022):
  ============================
 
   ... Starting to read the structure: ./emd_6324.map
@@ -433,28 +433,30 @@
   ... Starting I symmetry prediction.
   ... Starting recommended symmetry decision procedure.
 
- Detected C symmetry with fold 12 about point [-0.0347284 , -0.0296968 , 13.0487] away from centre of mass .
+ Detected C symmetry with fold 12 about point [-0.00969196 , -0.008841 , 12.1956] away from centre of mass .
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99840      +0.99443
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99810      +0.99447
 
  To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
    Fold       X           Y          Z           Angle        Height      Average FSC
-    +4     +0.00080   +0.00000   +1.00000     +1.57080      +0.99978      +0.99785
-    +2     +0.00080   +0.00000   +1.00000     +3.14159      +0.99980      +0.99706
-    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99840      +0.99443
-    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.99826      +0.99395
-    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.99788      +0.99264
-    +24     +0.00000   +0.00000   +1.00000     +0.26180      +0.95467      +0.50824
-    +8     +0.00000   +0.00000   +1.00000     +0.78540      +0.95121      +0.46326
-    +36     -0.00150   -0.00056   +1.00000     -0.17453      +0.95492      +0.38587
-    +18     +0.00000   +0.00000   +1.00000     +0.34907      +0.95360      +0.36790
-    +29     +0.00000   +0.00000   +1.00000     +0.21666      +0.95457      +0.34070
-    +23     +0.00000   +0.00000   +1.00000     +0.27318      +0.95434      +0.33475
-    +9     +0.00000   +0.00000   +1.00000     +0.69813      +0.95071      +0.32845
-    +19     +0.00000   +0.00000   +1.00000     +0.33069      +0.95375      +0.32822
-    +17     +0.00000   +0.00000   +1.00000     +0.36960      +0.95341      +0.32379
-    +13     +0.00000   +0.00000   +1.00000     +0.48332      +0.95265      +0.31051
-    +11     +0.00000   +0.00000   +1.00000     +0.57120      +0.95179      +0.30020
+    +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99981      +0.99915
+    +2     +0.00080   -0.00000   +1.00000     +3.14159      +0.99984      +0.99843
+    +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99810      +0.99447
+    +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.99793      +0.99440
+    +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.99746      +0.99380
+    +13     +0.00000   +0.00000   +1.00000     +0.48332      +0.94064      +0.82881
+    +11     +0.00000   +0.00000   +1.00000     +0.57120      +0.93974      +0.77292
+    +29     +0.00000   +0.00000   +1.00000     +0.21666      +0.94337      +0.34082
+    +23     +0.00000   +0.00000   +1.00000     +0.27318      +0.94269      +0.33481
+    +19     +0.00000   +0.00000   +1.00000     +0.33069      +0.94215      +0.32833
+    +7     +0.00000   +0.00000   +1.00000     +0.89760      +0.93615      +0.15763
+    +17     +0.00000   +0.00000   +1.00000     +0.36960      +0.94179      +0.14640
+    +9     +0.00000   +0.00000   +1.00000     +0.69813      +0.93840      +0.10686
+    +36     +0.00000   +0.00000   +1.00000     +0.17453      +0.94366      +0.10686
+    +18     +0.00000   +0.00000   +1.00000     +0.34907      +0.94201      +0.10616
+    +5     +0.00000   +0.00000   +1.00000     +1.25664      +0.93167      +0.07275
+    +8     +0.00000   +0.00000   +1.00000     +0.78540      +0.93923      +0.06234
+    +24     +0.00000   +0.00000   +1.00000     +0.26180      +0.94370      +0.06234
 
  ======================
  ProSHADE run complete.
@@ -480,7 +482,7 @@
  *
  *\code{.sh}
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
- ProSHADE 0.7.6.4 (APR 2022):
+ ProSHADE 0.7.6.5 (JUN 2022):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -513,7 +515,7 @@
  Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
  Energy levels distance    : 0.851642
  Trace sigma distance      : 0.910876
- Rotation function distance: 0.621719
+ Rotation function distance: 0.616275
   ... Starting to read the structure: ./3IGU_A_dom_1.pdb
   ... Map left at original position.
   ... Map rotation centre not shifted.
@@ -536,7 +538,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 1 seconds.
+ Time taken: 0 seconds.
  ======================
  *\endcode
  *
@@ -560,7 +562,7 @@
  *
  *\code{.sh}
  $ ./proshade -RMf ./emd_5762.map.gz
- ProSHADE 0.7.6.4 (APR 2022):
+ ProSHADE 0.7.6.5 (JUN 2022):
  ============================
 
   ... Starting to read the structure: ./emd_5762.map.gz
@@ -578,7 +580,7 @@
 
  ======================
  ProSHADE run complete.
- Time taken: 19 seconds.
+ Time taken: 9 seconds.
  ======================
  \endcode
  *
@@ -623,7 +625,7 @@
  *
  *\code{.sh}
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 1
- ProSHADE 0.7.6.4 (APR 2022):
+ ProSHADE 0.7.6.5 (JUN 2022):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -674,15 +676,15 @@
   ... Adding extra 10 angstroms.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is:  -18.5     -20.5     -22.6
- The rotation matrix about origin is                 : -0.861     +0.18     -0.476
-                                                     : +0.0967     -0.861     -0.499
-                                                     : -0.5     -0.476     +0.724
- The rotation centre to overlay translation vector is: +2     +8     -4
+ The rotation centre to origin translation vector is:  -18.4     -21.4     -22.9
+ The rotation matrix about origin is                 : -0.852     +0.205     -0.481
+                                                     : +0.0745     -0.863     -0.499
+                                                     : -0.517     -0.462     +0.721
+ The rotation centre to overlay translation vector is: +3     +4.5     -4.5
 
  ======================
  ProSHADE run complete.
- Time taken: 24 seconds.
+ Time taken: 17 seconds.
  ======================
  \endcode
  *
@@ -709,12 +711,12 @@
  *\code{.sh}
  $ clang ./proshadeBinary.cpp -I/path/to/proshade/extern/soft-2.0/include \
                               -I/path/to/proshade/extern/gemmi/include \
-                               -I/path/to/proshade/extern \
-                               -I/path/to/proshade/extern/almostEqual \
-                               -L/path/to/proshade/install/lib \
-                               -std=c++11 -lproshade -lc++ -lz \
-                               -rpath /path/to/proshade/install/lib \
-                               -o ./proshadeProject
+                              -I/path/to/proshade/extern \
+                              -I/path/to/proshade/extern/almostEqual \
+                              -L/path/to/proshade/install/lib \
+                              -std=c++11 -lproshade -lc++ -lz \
+                              -rpath /path/to/proshade/install/lib \
+                              -o ./proshadeProject
  \endcode
  *
  * or
@@ -1004,7 +1006,7 @@
  """ System modules """
  import sys
 
- """ Numpy """"
+ """ Numpy """
  import numpy
 
  """ Import ProSHADE from non-system folder (local installation assumed - if ProSHADE is installed globally, ignore the next line) """
