@@ -80,7 +80,7 @@ symmetryCentering                                     = False
 comCentering                                          = True
 verbosity                                             = -1
 inputFileName                                         = "emdb_spa_210329.dat"
-outputFileName                                        = "V22_results_allKnownEMDB_COM_resol-"
+outputFileName                                        = "V23_results_allKnownEMDB_COM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
 unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
 tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768", "EMD-10926", "EMD-1610", "EMD-23042" ]
@@ -95,7 +95,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 188
+startFrom                                             = 0
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0
