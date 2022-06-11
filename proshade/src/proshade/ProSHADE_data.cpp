@@ -2860,7 +2860,7 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         if ( ( bestC != -1 ) && ( settings->recommendedSymmetryType == "D" ) )
         {
             //======================================== Decide if C or D is more appropriate
-            if ( ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.75 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) ) &&
+            if ( ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.80 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) ) &&
                  ( ( CSym->at( static_cast< size_t > ( bestC ) )[5] * 0.95 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[5] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[5] ) / 2.0 ) ) )
             {
                 settings->cleanDetectedSymmetry       ( );

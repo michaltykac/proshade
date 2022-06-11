@@ -98,7 +98,7 @@ if         ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 #  		### TO BE COMPLETED
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
   		################################# Using Visual Studio C++
-  		set   ( CMAKE_CXX_FLAGS " /Od /Z7 /DEBUG /W4 "                  )
+  		set   ( CMAKE_CXX_FLAGS " /Od /Z7 /DEBUG /W4 /EHsc "                  )
 	endif  ( )   
 
 elseif     ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
@@ -117,7 +117,7 @@ elseif     ( "${CMAKE_BUILD_TYPE}" STREQUAL "Release" )
 #  		### TO BE COMPLETED
 	elseif ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC"  )
   		################################# Using Visual Studio C++
-  		set   ( CMAKE_CXX_FLAGS " /O2 /GL /Gw /Qpar /Qspectre /Qspectre-load /Qspectre-load-cf /RTC " )
+  		set   ( CMAKE_CXX_FLAGS " /O2 /GL /Gw /Qpar /EHsc " )
 	endif  ( )   
 
 else       ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
