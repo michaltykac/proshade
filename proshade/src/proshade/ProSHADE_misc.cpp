@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -231,6 +231,28 @@ void ProSHADE_internal_misc::addToUnsignVectorVector ( std::vector < std::vector
     \param[in] elementToAdd vector of doubles to be added to the back of the vector.
  */
 void ProSHADE_internal_misc::addToDoubleVectorVector ( std::vector < std::vector < proshade_double  > >* vecToAddTo, std::vector < proshade_double  > elementToAdd )
+{
+    //================================================ Based on the compiler C++11 support, use the correct vector addition function.
+#if __cplusplus >= 201103L
+    vecToAddTo->emplace_back                          ( elementToAdd );
+#else
+    vecToAddTo->push_back                             ( elementToAdd );
+#endif
+    
+    //================================================ Done
+    return ;
+    
+}
+
+/*! \brief Adds the element to the vector of vectors of double pointers.
+ 
+    This function takes a pointer to a vector of vectors of double pointers and a single vector of double pointers and adds this element to the end of
+    the vector of vectors of pointers. The reason for this function is to make vector elongation C++ standard independent (push_back vs. emplace_back)
+ 
+    \param[in] vecToAddTo Pointer to vector of vectors of double pointers which should be elongated.
+    \param[in] elementToAdd vector of double pointers to be added to the back of the vector.
+ */
+void ProSHADE_internal_misc::addToDblPtrVectorVector ( std::vector < std::vector < proshade_double* > >* vecToAddTo, std::vector < proshade_double* > elementToAdd )
 {
     //================================================ Based on the compiler C++11 support, use the correct vector addition function.
 #if __cplusplus >= 201103L

@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -40,12 +40,10 @@ namespace ProSHADE_internal_tasks
                                                         std::vector < proshade_signed* >* reboxedBounds, std::vector < proshade_double* >* manipulatedMaps );
     void DistancesComputationTask                     ( ProSHADE_settings* settings, std::vector< proshade_double >* enLevs, std::vector< proshade_double >* trSigm,
                                                         std::vector< proshade_double >* rotFun );
-    void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs,
-                                                        std::vector< proshade_double >* mapCOMShift );
+    void SymmetryDetectionTask                        ( ProSHADE_settings* settings, std::vector< proshade_double >* mapCOMShift );
     void MapOverlayTask                               ( ProSHADE_settings* settings, std::vector < proshade_double >* rotationCentre, std::vector < proshade_double >* eulerAngles,
                                                         std::vector < proshade_double >* finalTranslation );
-    void SymmetryCentreDetectionTask                  ( ProSHADE_settings* settings, std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_double* >* axes,
-                                                        proshade_unsign strIndex = 0 );
+    void SymmetryCentreDetectionTask                  ( ProSHADE_settings* settings, proshade_unsign strIndex = 0 );
 
     void ReportDistancesResults                       ( ProSHADE_settings* settings, std::string str1, std::string str2, proshade_double enLevDist,
                                                         proshade_double trSigmDist, proshade_double rotFunDist );

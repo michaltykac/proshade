@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE library code
@@ -71,9 +71,6 @@ private:
     void setRecommendedSymmetry                       ( std::string val );
     void setRecommendedFold                           ( proshade_unsign val );
     void setRecommendedAxis                           ( proshade_double* sym );
-    
-    //================================================ Task completion functions
-    void setSymmetryResults                           ( ProSHADE_settings* settings );
     
 public:
     //================================================ Constructors / Destructors

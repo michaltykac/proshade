@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -132,8 +132,6 @@ public:
     proshade_double axisErrTolerance;                 //!< Allowed error on vector axis in in dot product ( acos ( 1 - axErr ) is the allowed difference in radians ).
     bool axisErrToleranceDefault;
     proshade_double minSymPeak;                       //!< Minimum average peak for symmetry axis to be considered as "real".
-    std::string recommendedSymmetryType;              //!< The symmetry type that ProSHADE finds the best fitting for the structure. Possible values are "" for none, "C" for cyclic, "D" for Dihedral, "T" for Tetrahedral, "O" for Octahedral and "I" for Icosahedral. C and D types also have fold value associated.
-    proshade_unsign recommendedSymmetryFold;          //!< The fold of the recommended symmetry C or D type, 0 otherwise.
     std::string requestedSymmetryType;                //!< The symmetry  type requested by the user. Allowed values are C, D, T, O and I.
     proshade_unsign requestedSymmetryFold;            //!< The fold of the requested symmetry (only applicable to C and D symmetry types).
     bool useBiCubicInterpolationOnPeaks;              //!< This variable switch decides whether best symmetry is detected from peak indices, or whether bicubic interpolation is done to seatch for better axis between indices.
@@ -153,15 +151,6 @@ public:
     //================================================ Settings regarding verbosity of the program
     proshade_signed verbose;                          //!< Should the software report on the progress, or just be quiet? Value between -1 (nothing) and 4 (loud)
     proshade_signed messageShift;                     //!< This value allows shifting the messages to create more readable log for sub-processes.
-        
-public:
-    //================================================ Symmetry results holding values. This is required for Python being able to access the results without having the ProSHADE_run object.
-    std::vector < proshade_double* > detectedSymmetry; //!< The vector of detected symmetry axes.
-    std::vector < std::vector< proshade_double > > allDetectedCAxes; //!< The vector of all detected cyclic symmetry axes.
-    std::vector < std::vector< proshade_unsign > > allDetectedDAxes; //!< The vector of all detected dihedral symmetry axes indices in allDetectedCAxes.
-    std::vector < proshade_unsign > allDetectedTAxes; //!< The vector of all detected tetrahedral symmetry axes indices in allDetectedCAxes.
-    std::vector < proshade_unsign > allDetectedOAxes; //!< The vector of all detected octahedral symmetry axes indices in allDetectedCAxes.
-    std::vector < proshade_unsign > allDetectedIAxes; //!< The vector of all detected icosahedral symmetry axes indices in allDetectedCAxes.
     
 public: // maybe make this protected?
     //================================================ Variable modifying functions
@@ -236,12 +225,8 @@ public:
     void __declspec(dllexport) setAxisComparisonThreshold                     ( proshade_double axThres );
     void __declspec(dllexport) setAxisComparisonThresholdBehaviour            ( bool behav );
     void __declspec(dllexport) setMinimumPeakForAxis                          ( proshade_double minSP );
-    void __declspec(dllexport) setRecommendedSymmetry                         ( std::string val );
-    void __declspec(dllexport) setRecommendedFold                             ( proshade_unsign val );
     void __declspec(dllexport) setRequestedSymmetry                           ( std::string val );
     void __declspec(dllexport) setRequestedFold                               ( proshade_unsign val );
-    void __declspec(dllexport) setDetectedSymmetry                            ( proshade_double* sym );
-    void __declspec(dllexport) cleanDetectedSymmetry                          ( void );
     void __declspec(dllexport) setOverlaySaveFile                             ( std::string filename );
     void __declspec(dllexport) setOverlayJsonFile                             ( std::string filename );
     void __declspec(dllexport) setBicubicInterpolationSearch                  ( bool bicubPeaks );
@@ -297,12 +282,8 @@ public:
     void setAxisComparisonThreshold                   ( proshade_double axThres );
     void setAxisComparisonThresholdBehaviour          ( bool behav );
     void setMinimumPeakForAxis                        ( proshade_double minSP );
-    void setRecommendedSymmetry                       ( std::string val );
-    void setRecommendedFold                           ( proshade_unsign val );
     void setRequestedSymmetry                         ( std::string val );
     void setRequestedFold                             ( proshade_unsign val );
-    void setDetectedSymmetry                          ( proshade_double* sym );
-    void cleanDetectedSymmetry                        ( void );
     void setOverlaySaveFile                           ( std::string filename );
     void setOverlayJsonFile                           ( std::string filename );
     void setBicubicInterpolationSearch                ( bool bicubPeaks );

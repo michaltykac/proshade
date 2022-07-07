@@ -19,8 +19,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== DOxygen main page specifications
@@ -830,8 +830,8 @@
      std::vector< proshade_double* > symAxes;
      std::vector< std::vector< proshade_double > > allCsFromSettings;
      simpleSym->detectSymmetryInStructure              ( settings, &symAxes, &allCsFromSettings );
-     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings );
-     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings );
+     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( );
+     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( );
 
      //================================================ Write out the symmetry detection results
      std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
@@ -851,7 +851,7 @@
      //================================================ Get group elements for the first axis (or any other axis)
      std::vector< proshade_unsign > axesList;
      axesList.emplace_back ( 0 );
-     std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->getAllGroupElements ( settings, axesList, "C" );
+     std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->getAllGroupElements ( axesList, "C" );
      std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (including the identity one), the second being the rotation matrix:" << std::endl;
      std::cout << groupElementsGrp0.at(1).at(0) << " x " << groupElementsGrp0.at(1).at(1) << " x " << groupElementsGrp0.at(1).at(2) << std::endl;
      std::cout << groupElementsGrp0.at(1).at(3) << " x " << groupElementsGrp0.at(1).at(4) << " x " << groupElementsGrp0.at(1).at(5) << std::endl;

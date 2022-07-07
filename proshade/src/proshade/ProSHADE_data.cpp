@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -336,6 +336,7 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( std::string strName, doub
     
     //================================================ Release memory (it was allocated by the PyBind11 lambda function and needs to be released)
     delete[] mapVals;
+    mapVals                                           = nullptr;
     
     //================================================ Done
     
@@ -353,6 +354,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
     if ( this->internalMap != nullptr )
     {
         delete[] this->internalMap;
+        this->internalMap                             = nullptr;
     }
     
     //================================================ Release the sphere mapping
@@ -409,6 +411,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
                     if ( this->rrpMatrices[bwIt][shIt] != nullptr )
                     {
                         delete[] this->rrpMatrices[bwIt][shIt];
+                        this->rrpMatrices[bwIt][shIt]  = nullptr;
                     }
                 }
                 
@@ -431,6 +434,7 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
                     if ( this->eMatrices[bandIter][band2Iter] != nullptr )
                     {
                         delete[] this->eMatrices[bandIter][band2Iter];
+                        this->eMatrices[bandIter][band2Iter] = nullptr;
                     }
                 }
                 
@@ -485,6 +489,14 @@ ProSHADE_internal_data::ProSHADE_data::~ProSHADE_data ( )
             delete this->sphereMappedRotFun.at(spIt);
         }
     }
+    
+    //================================================ Release symmetry result holders
+    for ( size_t vIt = 0; vIt < this->cyclicSymmetries.size();          vIt++ ) { if ( this->cyclicSymmetries.at(vIt)               != nullptr ) { delete[] this->cyclicSymmetries.at(vIt);          } }
+    for ( size_t vIt = 0; vIt < this->recommendedSymmetryValues.size(); vIt++ ) { if ( this->recommendedSymmetryValues.at(vIt)      != nullptr ) { delete[] this->recommendedSymmetryValues.at(vIt); } }
+    for ( size_t vIt = 0; vIt < this->tetrahedralSymmetries.size();     vIt++ ) { if ( this->tetrahedralSymmetries.at(vIt)          != nullptr ) { delete[] this->tetrahedralSymmetries.at(vIt);     } }
+    for ( size_t vIt = 0; vIt < this->octahedralSymmetries.size();      vIt++ ) { if ( this->octahedralSymmetries.at(vIt)           != nullptr ) { delete[] this->octahedralSymmetries.at(vIt);      } }
+    for ( size_t vIt = 0; vIt < this->icosahedralSymmetries.size();     vIt++ ) { if ( this->icosahedralSymmetries.at(vIt)          != nullptr ) { delete[] this->icosahedralSymmetries.at(vIt);     } }
+    for ( size_t vIt = 0; vIt < this->dihedralSymmetries.size();        vIt++ ) { for ( size_t vIt2 = 0; vIt2 < this->dihedralSymmetries.at(vIt).size();    vIt2++ ) { if ( this->dihedralSymmetries.at(vIt).at(vIt2)    != nullptr ) { delete[] this->dihedralSymmetries.at(vIt).at(vIt2);    } } }
     
     //================================================ Done
     
@@ -1162,6 +1174,11 @@ void ProSHADE_internal_data::ProSHADE_data::shiftToRotationCentre ( ProSHADE_set
                                                         static_cast< proshade_signed > ( this->xDimIndices ),
                                                         static_cast< proshade_signed > ( this->yDimIndices ),
                                                         static_cast< proshade_signed > ( this->zDimIndices ) );
+    
+    //================================================ Save the shift
+    this->mapCOMProcessChangeX                       += settings->centrePosition.at(0);
+    this->mapCOMProcessChangeY                       += settings->centrePosition.at(1);
+    this->mapCOMProcessChangeZ                       += settings->centrePosition.at(2);
     
     //================================================ Report function completion
     std::stringstream ss2;
@@ -1930,10 +1947,8 @@ bool sortProSHADESymmetryByFSC ( proshade_double* a, proshade_double* b)
     containing all detected cyclic point groups into the supplied vector pointers.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
-    \param[in] allCs A vector to which all the detected cyclic symmetries will be saved into.
  */
-void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs )
+void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( ProSHADE_settings* settings )
 {
     //================================================ Modify axis tolerance and matrix tolerance by sampling, if required by user
     if ( settings->axisErrToleranceDefault )
@@ -1957,31 +1972,36 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
         
         //============================================ Do simplified search only in the applicable data
         proshade_double symThres                      = 0.0;
-        std::vector< proshade_double* > CSyms         = this->findRequestedCSymmetryFromAngleAxis ( settings, settings->requestedSymmetryFold, &symThres );
+        this->cyclicSymmetries                        = this->findRequestedCSymmetryFromAngleAxis ( settings, settings->requestedSymmetryFold, &symThres );
         
         //============================================ Compute FSC for all possible axes
-        for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ ) { const FloatingPoint< proshade_double > lhs ( CSyms.at(cIt)[5] ), rhs ( -999.9 ); if ( ( CSyms.at(cIt)[5] > settings->peakThresholdMin ) || ( lhs.AlmostEquals ( rhs ) ) )
+        for ( size_t cIt = 0; cIt < this->cyclicSymmetries.size(); cIt++ )
         {
-            this->computeFSC                          ( settings, &CSyms, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
-        } }
+            const FloatingPoint< proshade_double > lhs ( this->cyclicSymmetries.at(cIt)[5] ), rhs ( -999.9 );
+            if ( ( this->cyclicSymmetries.at(cIt)[5] > settings->peakThresholdMin ) || ( lhs.AlmostEquals ( rhs ) ) )
+            {
+                this->computeFSC                      ( settings, &this->cyclicSymmetries, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+            }
+        }
         
         //============================================ Sort by FSC
-        std::sort                                     ( CSyms.begin(), CSyms.end(), sortProSHADESymmetryByFSC );
+        std::sort                                     ( this->cyclicSymmetries.begin(), this->cyclicSymmetries.end(), sortProSHADESymmetryByFSC );
         
         //============================================ Save the best axis as the recommended one
-        if ( settings->detectedSymmetry.size() == 0 ) { if ( CSyms.size() > 0 ) { settings->setDetectedSymmetry ( CSyms.at(0) ); } }
-        if ( CSyms.size() > 0 )
+        if ( this->cyclicSymmetries.size() > 0 )
         {
             bool passedTests                          = false;
-            for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ )
+            for ( size_t cIt = 0; cIt < this->cyclicSymmetries.size(); cIt++ )
             {
-                if ( CSyms.at(0)[6] > settings->fscThreshold )
+                if ( this->cyclicSymmetries.at(0)[6] > settings->fscThreshold )
                 {
-                    settings->setRecommendedSymmetry  ( "C" );
-                    settings->setRecommendedFold      ( settings->requestedSymmetryFold );
+                    this->recommendedSymmetryType     = "C";
+                    this->recommendedSymmetryFold     = settings->requestedSymmetryFold;
                     
-                    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSyms.at(0) );
-                    this->saveDetectedSymmetries      ( settings, &CSyms, allCs );
+                    proshade_double* hlpSym           = new proshade_double[7];
+                    ProSHADE_internal_misc::checkMemoryAllocation ( hlpSym, __FILE__, __LINE__, __func__ );
+                    for ( size_t iter = 0; iter < 7; iter++ ) { hlpSym[iter] = this->cyclicSymmetries.at(cIt)[iter]; }
+                    ProSHADE_internal_misc::addToDblPtrVector ( &this->recommendedSymmetryValues, hlpSym );
                     
                     passedTests                       = true;
                     break;
@@ -1990,14 +2010,14 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
             
             if ( !passedTests )
             {
-                settings->setRecommendedSymmetry      ( "" );
-                settings->setRecommendedFold          ( 0 );
+                this->recommendedSymmetryType         = "C";
+                this->recommendedSymmetryFold         = 1;
             }
         }
         else
         {
-            settings->setRecommendedSymmetry          ( "" );
-            settings->setRecommendedFold              ( 0 );
+            this->recommendedSymmetryType             = "C";
+            this->recommendedSymmetryFold             = 1;
         }
         
         //============================================ Release memory after FSC computation
@@ -2016,11 +2036,11 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting C symmetry detection.", settings->messageShift );
 
     //================================================ Detect cyclic symmetries
-    std::vector< proshade_double* > CSyms             = getCyclicSymmetriesListFromAngleAxis ( settings );
+    this->cyclicSymmetries                            = getCyclicSymmetriesListFromAngleAxis ( settings );
     
     //================================================ Report progress
     std::stringstream ss;
-    ss << "Detected " << CSyms.size() << " C symmetries.";
+    ss << "Detected " << this->cyclicSymmetries.size() << " C symmetries.";
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str(), settings->messageShift );
     
     //================================================ Sanity check - was the rotation function mapped properly?
@@ -2030,27 +2050,11 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     }
     
     //================================================ If only C syms were requested (e.g. rotation centre detection), terminate here!
-    if ( settings->requestedSymmetryType == "onlyC" )
+    if ( settings->requestedSymmetryType == "onlyCandD" )
     {
-        //============================================ Prepare threshold
-        proshade_double bestHistPeakStart             = ProSHADE_internal_maths::findTopGroupSmooth ( &CSyms, 5, 0.01, 0.03, 9 );
-        if ( bestHistPeakStart > settings->peakThresholdMin ) { bestHistPeakStart = settings->peakThresholdMin; }
+        //============================================ Detect the Ds
+        this->getDihedralSymmetriesList               ( settings, &this->cyclicSymmetries );
         
-        //============================================ Find FSCs for C syms
-        for ( size_t cIt = 0; cIt < CSyms.size(); cIt++ )
-        {
-            //======================================== Check the peak height
-            if ( CSyms.at(cIt)[5]  < bestHistPeakStart ) { continue; }
-            
-            //======================================== Stop at some point - it is unlikely the true axis would be this far.
-            if ( cIt > 15 ) { break; }
-            
-            //======================================== Compute FSC
-            this->computeFSC                          ( settings, &CSyms, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
-        }
-
-        //============================================ Save the detected Cs
-        this->saveDetectedSymmetries                  ( settings, &CSyms, allCs );
         
         //============================================ Release memory
         for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
@@ -2073,128 +2077,94 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     //================================================ Are we doing general search?
     if ( settings->requestedSymmetryType == "" )
     {
-        //============================================ Run the symmetry detection functions for C, D, T, O and I symmetries
-        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > TSyms, OSyms, ISyms;
-        std::vector < std::vector< proshade_double* > > TSymsHlp = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
-        std::vector < std::vector< proshade_double* > > OSymsHlp = this->getPredictedOctahedralSymmetriesList  ( settings, &CSyms );
-        std::vector < std::vector< proshade_double* > > ISymsHlp = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-    
-        //============================================ Find which of the polyhedral groups lists is the best one
-        TSyms                                         = decidePolyFromList ( settings, &TSymsHlp,  7, &CSyms, settings->axisErrTolerance, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
-        OSyms                                         = decidePolyFromList ( settings, &OSymsHlp, 13, &CSyms, settings->axisErrTolerance, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
-        ISyms                                         = decidePolyFromList ( settings, &ISymsHlp, 31, &CSyms, settings->axisErrTolerance, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
-        
-        //============================================ Release the helper memory
-        for ( size_t gIt = 0; gIt < TSymsHlp.size(); gIt++ ) { for ( size_t aIt = 0; aIt < TSymsHlp.at(gIt).size(); aIt++ ) { delete[] TSymsHlp[gIt][aIt]; } }
-        for ( size_t gIt = 0; gIt < OSymsHlp.size(); gIt++ ) { for ( size_t aIt = 0; aIt < OSymsHlp.at(gIt).size(); aIt++ ) { delete[] OSymsHlp[gIt][aIt]; } }
-        for ( size_t gIt = 0; gIt < ISymsHlp.size(); gIt++ ) { for ( size_t aIt = 0; aIt < ISymsHlp.at(gIt).size(); aIt++ ) { delete[] ISymsHlp[gIt][aIt]; } }
-        
         //============================================ Decide on recommended symmetry
-        this->saveRecommendedSymmetry                 ( settings, &CSyms, &DSyms, &TSyms, &OSyms, &ISyms, axes, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        this->determineRecommendedSymmetry            ( settings, -2.0, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
     }
     
     if ( settings->requestedSymmetryType == "D" )
     {
         //============================================ Run only the D symmetry detection and search for requested fold
-        std::vector< proshade_double* > DSyms         = this->getDihedralSymmetriesList ( settings, &CSyms );
-        this->saveRequestedSymmetryD                  ( settings, &DSyms, axes, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        this->getDihedralSymmetriesList               ( settings, &this->cyclicSymmetries );
+        this->saveRequestedSymmetryD                  ( settings, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
     }
     
     if ( settings->requestedSymmetryType == "T" )
     {
         //============================================ Run only the T symmetry detection
-        std::vector < std::vector< proshade_double* > > TSymsHlp = this->getPredictedTetrahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > TSyms         = decidePolyFromList ( settings, &TSymsHlp,  7, &CSyms, settings->axisErrTolerance, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        this->getPredictedTetrahedralSymmetriesList   ( settings, &this->cyclicSymmetries, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
 
-        if ( TSyms.size() == 7 )
+        if ( this->tetrahedralSymmetries.size() == 7 )
         {
             //======================================== Initialise decision vars
             proshade_double fscVal                    = 0.0;
             proshade_double fscValAvg                 = 0.0;
 
             //======================================== Check if axes have high enough FSC and peak height
-            for ( size_t tIt = 0; tIt < 7; tIt++ ) { if ( CSyms.at(settings->allDetectedTAxes.at(tIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
+            for ( size_t tIt = 0; tIt < this->tetrahedralSymmetries.size(); tIt++ ) { if ( this->tetrahedralSymmetries.at(tIt)[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &this->tetrahedralSymmetries.at(tIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
             fscValAvg                                /= 7.0;
 
-            //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
-            if ( fscValAvg >= ( settings->fscThreshold ) )
+            //======================================== If the average is over the threshold, save it
+            if ( fscValAvg >= settings->fscThreshold )
             {
                 //==================================== The decision is T
-                settings->setRecommendedSymmetry      ( "T" );
-                settings->setRecommendedFold          ( 0 );
-                for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedTAxes.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSyms.at(settings->allDetectedTAxes.at(it)) ); }
-                if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedTAxes.size() ); it++ ) { settings->setDetectedSymmetry ( CSyms.at(settings->allDetectedTAxes.at(it)) ); } }
+                this->recommendedSymmetryType         = "T";
+                this->recommendedSymmetryFold         = 0;
+                for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->tetrahedralSymmetries.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->tetrahedralSymmetries.at(it)[0] ); }
             }
         }
-        
-        //============================================ Release the helper memory
-        for ( size_t gIt = 0; gIt < TSymsHlp.size(); gIt++ ) { for ( size_t aIt = 0; aIt < TSymsHlp.at(gIt).size(); aIt++ ) { delete[] TSymsHlp[gIt][aIt]; } }
     }
     
     if ( settings->requestedSymmetryType == "O" )
     {
         //============================================ Run only the O symmetry detection
-        std::vector < std::vector< proshade_double* > > OSymsHlp = this->getPredictedOctahedralSymmetriesList  ( settings, &CSyms );
-        std::vector< proshade_double* > OSyms         = decidePolyFromList ( settings, &OSymsHlp, 13, &CSyms, settings->axisErrTolerance, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
-
-        if ( OSyms.size() == 13 )
+        this->getPredictedOctahedralSymmetriesList    ( settings, &this->cyclicSymmetries, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        
+        if ( this->octahedralSymmetries.size() == 13 )
         {
             //======================================== Initialise decision vars
             proshade_double fscVal                    = 0.0;
             proshade_double fscValAvg                 = 0.0;
 
-            //======================================== Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-            for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( CSyms.at(settings->allDetectedOAxes.at(oIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
+            //======================================== Find the average FSC
+            for ( size_t oIt = 0; oIt < this->octahedralSymmetries.size(); oIt++ ) { if ( this->octahedralSymmetries.at(oIt)[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &this->octahedralSymmetries.at(oIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
             fscValAvg                                /= 13.0;
 
-            //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
+            //======================================== If the average FSC is over the threshold, save it.
             if ( fscValAvg >= ( settings->fscThreshold ) )
             {
                 //==================================== The decision is O
-                settings->setRecommendedSymmetry      ( "O" );
-                settings->setRecommendedFold          ( 0 );
-                for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedOAxes.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSyms.at(settings->allDetectedOAxes.at(it)) ); }
-                if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedOAxes.size() ); it++ ) { settings->setDetectedSymmetry ( CSyms.at(settings->allDetectedOAxes.at(it)) ); } }
+                this->recommendedSymmetryType         = "O";
+                this->recommendedSymmetryFold         = 0;
+                for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->octahedralSymmetries.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->octahedralSymmetries.at(it)[0] ); }
             }
         }
-        
-        //============================================ Release the helper memory
-        for ( size_t gIt = 0; gIt < OSymsHlp.size(); gIt++ ) { for ( size_t aIt = 0; aIt < OSymsHlp.at(gIt).size(); aIt++ ) { delete[] OSymsHlp[gIt][aIt]; } }
     }
     
     if ( settings->requestedSymmetryType == "I" )
     {
-        std::vector < std::vector< proshade_double* > > ISymsHlp = this->getPredictedIcosahedralSymmetriesList ( settings, &CSyms );
-        std::vector< proshade_double* > ISyms         = decidePolyFromList ( settings, &ISymsHlp, 31, &CSyms, settings->axisErrTolerance, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+        //============================================ Run only the I symmetry detection
+        this->getPredictedIcosahedralSymmetriesList   ( settings, &this->cyclicSymmetries, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
         
-        if ( ISyms.size() == 31 )
+        if ( this->icosahedralSymmetries.size() == 31 )
         {
             //======================================== Initialise decision vars
             proshade_double fscVal                    = 0.0;
             proshade_double fscValAvg                 = 0.0;
 
-            //======================================== Check if at least one C5 and one C3 with the correct angle have high FSC and peak height
-            for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( CSyms.at(settings->allDetectedIAxes.at(iIt))[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &CSyms, settings->allDetectedIAxes.at(iIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
+            //======================================== Compute FSC average over all detected axes
+            for ( size_t iIt = 0; iIt < this->icosahedralSymmetries.size(); iIt++ ) { if ( this->icosahedralSymmetries.at(iIt)[5] > settings->peakThresholdMin ) { fscVal = this->computeFSC ( settings, &this->icosahedralSymmetries.at(iIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); fscValAvg += fscVal; } }
             fscValAvg                                /= 31.0;
 
-            //======================================== If C3 and C5 are found and have correct angle (must have if they are both in ISym)
+            //======================================== If the axes averaged FSC is over the threshold, save it
             if ( fscValAvg >= ( settings->fscThreshold ) )
             {
-                //==================================== The decision is O
-                settings->setRecommendedSymmetry      ( "I" );
-                settings->setRecommendedFold          ( 0 );
-                for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedOAxes.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSyms.at(settings->allDetectedIAxes.at(it)) ); }
-                if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedIAxes.size() ); it++ ) { settings->setDetectedSymmetry ( CSyms.at(settings->allDetectedIAxes.at(it)) ); } }
+                //==================================== The decision is I
+                this->recommendedSymmetryType         = "I";
+                this->recommendedSymmetryFold         = 0;
+                for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->icosahedralSymmetries.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues , &this->icosahedralSymmetries.at(it)[0] ); }
             }
         }
-        
-        //============================================ Release the helper memory
-        for ( size_t gIt = 0; gIt < ISymsHlp.size(); gIt++ ) { for ( size_t aIt = 0; aIt < ISymsHlp.at(gIt).size(); aIt++ ) { delete[] ISymsHlp[gIt][aIt]; } }
     }
-    
-    //================================================ Save C symmetries to argument and if different from settings, to the settings as well
-    this->saveDetectedSymmetries                      ( settings, &CSyms, allCs );
     
     //================================================ Release memory after FSC computation
     for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
@@ -2202,52 +2172,6 @@ void ProSHADE_internal_data::ProSHADE_data::detectSymmetryFromAngleAxisSpace ( P
     delete[] binCounts;
     delete[] cutIndices;
     fftw_free                                         ( fCoeffsCut );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function takes the results of point group searches and saves then into the output variables.
- 
-    This function takes the CSyms as they are returned by the findRequestedCSymmetryFromAngleAxis() or the
-    getCyclicSymmetriesListFromAngleAxis() functions and re-saves then to the output variables of the detectSymmetryFromAngleAxisSpace()
-    function. It also releases the memory of the CSyms argument.
- 
-    \warning This function releases the memory of the CSyms argument.
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] CSyms A pointer to vector
-    \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
-    \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
- */
-void ProSHADE_internal_data::ProSHADE_data::saveDetectedSymmetries ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSyms, std::vector < std::vector< proshade_double > >* allCs )
-{
-    //================================================ Initialise variables
-    bool isArgSameAsSettings                          = true;
-    
-    //================================================ For each detected point group
-    for ( proshade_unsign cIt = 0; cIt < static_cast<proshade_unsign> ( CSyms->size() ); cIt++ )
-    {
-        //============================================ Create vector to replace the pointer
-        std::vector< proshade_double > nextSym;
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[0] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[1] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[2] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[3] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[4] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[5] );
-        ProSHADE_internal_misc::addToDoubleVector     ( &nextSym, CSyms->at(cIt)[6] );
-        ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, nextSym );
-        
-        //============================================ Copy the vector to output variable and if different, then also to settings object
-        if ( ( cIt == 0 ) && ( settings->allDetectedCAxes.size() == 0 ) ) { isArgSameAsSettings = false; }
-        if ( !isArgSameAsSettings ) { ProSHADE_internal_misc::addToDoubleVectorVector ( &settings->allDetectedCAxes, nextSym ); }
-        
-        //============================================ Release memory
-        nextSym.clear                                 ( );
-        delete[] CSyms->at(cIt);
-    }
     
     //================================================ Done
     return ;
@@ -2561,12 +2485,7 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     no symmetry will be returned as detected.
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
-    \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
-    \param[in] TSym A vector of pointers to double arrays, all of which together form the axes of tetrahedral symmetry.
-    \param[in] OSym A vector of pointers to double arrays, all of which together form the axes of octahedral symmetry.
-    \param[in] ISym A vector of pointers to double arrays, all of which together form the axes of icosahedral symmetry.
-    \param[in] axes A vector to which all the axes of the recommended symmetry (if any) will be saved.
+    \param[in] threshold The FSC threshold to which all axes need to be in order to be included in cosideration for the recommended symmetry.
     \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
     \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
     \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
@@ -2577,40 +2496,59 @@ proshade_double ProSHADE_internal_data::ProSHADE_data::computeFSC ( ProSHADE_set
     \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
  */
-void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym, std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+void ProSHADE_internal_data::ProSHADE_data::determineRecommendedSymmetry ( ProSHADE_settings* settings, proshade_double threshold, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed cutXDim, proshade_signed cutYDim, proshade_signed cutZDim )
 {
     //================================================ Report progress
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 1, "Starting recommended symmetry decision procedure.", settings->messageShift );
     
     //================================================ If no C symmetries, nothing to save...
-    if ( CSym->size() == 0 )
+    if ( this->cyclicSymmetries.size() == 0 )
     {
-        settings->setRecommendedSymmetry              ( "" );
-        settings->setRecommendedFold                  ( 0 );
+        this->recommendedSymmetryType                 = "C";
+        this->recommendedSymmetryFold                 = 1;
         return;
     }
     
+    //================================================ Are we in default mode?
+    if ( threshold < -1.0 )                           { threshold = settings->fscThreshold; }
+    
+    //================================================ Empty detected values in case this is not the first call to the function
+    this->recommendedSymmetryType                     = "C";
+    this->recommendedSymmetryFold                     = 1;
+    for ( size_t it = 0; it < this->recommendedSymmetryValues.size(); it++ ) { if ( this->recommendedSymmetryValues.at(it) != nullptr ) { delete[] this->recommendedSymmetryValues.at(it); this->recommendedSymmetryValues.at(it) = nullptr; } }
+    this->recommendedSymmetryValues.clear             ( );
+    
+    //================================================ Apply threshold to new C axes
+    std::vector< proshade_double* > thresholdedCs;
+    for ( size_t axIt = 0; axIt < this->cyclicSymmetries.size(); axIt++ ) { if ( this->cyclicSymmetries.at(axIt)[6] >= threshold ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &thresholdedCs, &this->cyclicSymmetries.at(axIt)[0] ); } }
+    
+    //================================================ Run the symmetry detection functions for C, D, T, O and I symmetries
+    this->getDihedralSymmetriesList                   ( settings, &thresholdedCs );
+    this->getPredictedTetrahedralSymmetriesList       ( settings, &thresholdedCs, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    this->getPredictedOctahedralSymmetriesList        ( settings, &thresholdedCs, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    this->getPredictedIcosahedralSymmetriesList       ( settings, &thresholdedCs, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    
     //================================================ Initialise local variables
     proshade_double step                              = 0.01;
-    proshade_double sigma                             = 0.1;
+    proshade_double sigma                             = 0.3;
     proshade_signed windowSize                        = 9;
     proshade_double IFSCAverage = 0.0, OFSCAverage = 0.0, TFSCAverage = 0.0;
     bool IIsBest = false, OIsBest = false, TIsBest = false;
     
     //================================================ Find the top group minimum threshold using smoothened histogram
-    proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 5, step, sigma, windowSize );
+    proshade_double bestHistPeakStart                 = ProSHADE_internal_maths::findTopGroupSmooth ( &thresholdedCs, 5, step, sigma, windowSize );
     if ( bestHistPeakStart > settings->peakThresholdMin ) { bestHistPeakStart = settings->peakThresholdMin; }
     
     //================================================ Report progress
-    proshade_unsign noPassed = 0; for ( size_t cIt = 0; cIt < CSym->size(); cIt++ ) { if ( CSym->at(cIt)[5] > bestHistPeakStart ) { noPassed += 1; } }
+    proshade_unsign noPassed = 0; for ( size_t cIt = 0; cIt < thresholdedCs.size(); cIt++ ) { if ( thresholdedCs.at(cIt)[5] > bestHistPeakStart ) { noPassed += 1; } }
     std::stringstream ss;
     ss << "Smoothening has resolved in " << noPassed << " C symmetries.";
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, ss.str(), settings->messageShift );
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 2, "Starting FSC computation to confirm the C symmetries existence.", settings->messageShift );
-
+    
     //================================================ Decide if I is the answer
     bool alreadyDecided                               = false;
-    if ( ISym->size() == 31 )
+    if ( this->icosahedralSymmetries.size() == 31 )
     {
         //============================================ Initialise decision vars
         proshade_double fscVal                        = 0.0;
@@ -2618,14 +2556,14 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_unsign lowFSC                        = 0;
         
         //============================================ Find FSCs and their average
-        for ( size_t iIt = 0; iIt < 31; iIt++ ) { if ( !std::isinf ( ISym->at(iIt)[6] ) ) { fscVal = ISym->at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedIAxes.at(iIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { lowFSC++; } }
+        for ( size_t iIt = 0; iIt < this->icosahedralSymmetries.size(); iIt++ ) { if ( !std::isinf ( this->icosahedralSymmetries.at(iIt)[6] ) ) { fscVal = this->icosahedralSymmetries.at(iIt)[6]; } else { fscVal = this->computeFSC ( settings, &this->icosahedralSymmetries.at(iIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); } fscValAvg += fscVal; if ( fscVal < threshold ) { lowFSC++; } }
         fscValAvg                                    /= 31.0;
         IFSCAverage                                   = fscValAvg;
-        if ( ( IFSCAverage < settings->fscThreshold ) || ( lowFSC > 10 ) ) { IFSCAverage = 0.0; }
+        if ( ( IFSCAverage < threshold ) || ( lowFSC > 10 ) ) { IFSCAverage = 0.0; }
     }
     
     //================================================ Decide if O is the answer
-    if ( ( OSym->size() == 13 ) && !alreadyDecided )
+    if ( ( this->octahedralSymmetries.size() == 13 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
         proshade_double fscVal                        = 0.0;
@@ -2633,14 +2571,14 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_unsign lowFSC                        = 0;
         
         //============================================ Find FSCs and their average
-        for ( size_t oIt = 0; oIt < 13; oIt++ ) { if ( !std::isinf ( OSym->at(oIt)[6] ) ) { fscVal = OSym->at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedOAxes.at(oIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { lowFSC++; } }
+        for ( size_t oIt = 0; oIt < this->octahedralSymmetries.size(); oIt++ ) { if ( !std::isinf ( this->octahedralSymmetries.at(oIt)[6] ) ) { fscVal = this->octahedralSymmetries.at(oIt)[6]; } else { fscVal = this->computeFSC ( settings, &this->octahedralSymmetries.at(oIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); } fscValAvg += fscVal; if ( fscVal < threshold ) { lowFSC++; } }
         fscValAvg                                    /= 13.0;
         OFSCAverage                                   = fscValAvg;
-        if ( ( OFSCAverage < settings->fscThreshold ) || ( lowFSC > 5 ) ) { OFSCAverage = 0.0; }
+        if ( ( OFSCAverage < threshold ) || ( lowFSC > 5 ) ) { OFSCAverage = 0.0; }
     }
     
     //================================================ Decide if T is the answer
-    if ( ( TSym->size() == 7 ) && !alreadyDecided )
+    if ( ( this->tetrahedralSymmetries.size() == 7 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
         proshade_double fscVal                        = 0.0;
@@ -2648,20 +2586,20 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_unsign lowFSC                        = 0;
         
         //============================================ Find FSCs and their average
-        for ( size_t tIt = 0; tIt < 7; tIt++ )  { if ( !std::isinf ( TSym->at(tIt)[6] ) ) { fscVal = TSym->at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, CSym, settings->allDetectedTAxes.at(tIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); } fscValAvg += fscVal; if ( fscVal < settings->fscThreshold ) { lowFSC++; } }
+        for ( size_t tIt = 0; tIt < this->tetrahedralSymmetries.size(); tIt++ )  { if ( !std::isinf ( this->tetrahedralSymmetries.at(tIt)[6] ) ) { fscVal = this->tetrahedralSymmetries.at(tIt)[6]; } else { fscVal = this->computeFSC ( settings, &this->tetrahedralSymmetries.at(tIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); } fscValAvg += fscVal; if ( fscVal < threshold ) { lowFSC++; } }
         fscValAvg                                    /= 7.0;
         TFSCAverage                                   = fscValAvg;
-        if ( ( TFSCAverage < settings->fscThreshold ) || ( lowFSC > 2 ) ) { TFSCAverage = 0.0; }
+        if ( ( TFSCAverage < threshold ) || ( lowFSC > 2 ) ) { TFSCAverage = 0.0; }
     }
     
     //================================================ If we are using phaseless detection, different threshold needs to be used due to large number of false positives
-    proshade_double newThres                          = settings->fscThreshold;
+    proshade_double newThres                          = threshold;
     if ( !settings->usePhase )
     { 
         proshade_double phaselessStep                 = 0.01;
         proshade_double phaselessSigma                = 0.005;
         proshade_signed phaselessWSize                = 5;
-        newThres =                                    ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, phaselessStep, phaselessSigma, phaselessWSize );
+        newThres =                                    ProSHADE_internal_maths::findTopGroupSmooth ( &thresholdedCs, 6, phaselessStep, phaselessSigma, phaselessWSize );
     }
     
     //================================================ Decide between polyhedral
@@ -2680,10 +2618,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( IIsBest )
     {
         //============================================ The decision is I
-        settings->setRecommendedSymmetry              ( "I" );
-        settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedIAxes.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(settings->allDetectedIAxes.at(it)) ); }
-        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedIAxes.size() ); it++ ) { settings->setDetectedSymmetry ( CSym->at(settings->allDetectedIAxes.at(it)) ); } }
+        this->recommendedSymmetryType                 = "I";
+        this->recommendedSymmetryFold                 = 0;
+        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->icosahedralSymmetries.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues , &this->icosahedralSymmetries.at(it)[0] ); }
         
         //============================================ Done
         alreadyDecided                                = true;
@@ -2693,10 +2630,9 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     if ( OIsBest && !alreadyDecided )
     {
         //============================================ The decision is O
-        settings->setRecommendedSymmetry              ( "O" );
-        settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedOAxes.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(settings->allDetectedOAxes.at(it)) ); }
-        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedOAxes.size() ); it++ ) { settings->setDetectedSymmetry ( CSym->at(settings->allDetectedOAxes.at(it)) ); } }
+        this->recommendedSymmetryType                 = "O";
+        this->recommendedSymmetryFold                 = 0;
+        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->octahedralSymmetries.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->octahedralSymmetries.at(it)[0] ); }
         
         //============================================ Done
         alreadyDecided                                = true;
@@ -2705,18 +2641,18 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
     //================================================ Now we know T is best polyhedral and conforms to threshold
     if ( TIsBest && !alreadyDecided )
     {
-        settings->setRecommendedSymmetry              ( "T" );
-        settings->setRecommendedFold                  ( 0 );
-        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedTAxes.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(settings->allDetectedTAxes.at(it)) ); }
-        if ( settings->detectedSymmetry.size() == 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( settings->allDetectedTAxes.size() ); it++ ) { settings->setDetectedSymmetry ( CSym->at(settings->allDetectedTAxes.at(it)) ); } }
+        //============================================ The decision is T
+        this->recommendedSymmetryType                 = "T";
+        this->recommendedSymmetryFold                 = 0;
+        for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->tetrahedralSymmetries.size() ); it++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->tetrahedralSymmetries.at(it)[0] ); }
         
         //============================================ Done
         alreadyDecided                                = true;
     }
-
+    
     //================================================ Decide if D is the answer
     proshade_signed bestD                             = -1;
-    if ( ( settings->allDetectedDAxes.size() > 0 ) && ( DSym->size() > 0 ) && !alreadyDecided )
+    if ( ( this->dihedralSymmetries.size() > 0 ) && !alreadyDecided )
     {
         //============================================ Initialise local variables
         proshade_unsign bestFold                      = 0;
@@ -2724,29 +2660,33 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_double bestValPeak                   = -std::numeric_limits < proshade_double >::infinity();
         
         //============================================ Find FSCs
-        for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
+        for ( size_t dIt = 0; dIt < this->dihedralSymmetries.size(); dIt++ )
         {
             //======================================== Check the peak heights
-            const FloatingPoint< proshade_double > lhs999a ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] ), lhs999b ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
-            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) && !( lhs999a.AlmostEquals( rhs999 ) ) ) { continue; }
-            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
+            const FloatingPoint< proshade_double > lhs999a ( this->dihedralSymmetries.at(dIt).at(0)[5] ), lhs999b ( this->dihedralSymmetries.at(dIt).at(1)[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+            if ( ( this->dihedralSymmetries.at(dIt).at(0)[5] < bestHistPeakStart ) && !( lhs999a.AlmostEquals( rhs999 ) ) ) { continue; }
+            if ( ( this->dihedralSymmetries.at(dIt).at(1)[5] < bestHistPeakStart ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
             
             //======================================== Find FSCs
-            if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(0), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
-            if ( std::isinf ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) ) { this->computeFSC ( settings, CSym, settings->allDetectedDAxes.at(dIt).at(1), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
+            if ( std::isinf ( this->dihedralSymmetries.at(dIt).at(0)[6] ) ) { this->computeFSC ( settings, &this->dihedralSymmetries.at(dIt).at(0)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); }
+            if ( std::isinf ( this->dihedralSymmetries.at(dIt).at(1)[6] ) ) { this->computeFSC ( settings, &this->dihedralSymmetries.at(dIt).at(1)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); }
         }
         
         //============================================ Prepare vector to get the smoothened threshold for D's only
         std::vector< proshade_double* > smootheningHlp;
-        for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
+        for ( size_t dIt = 0; dIt < this->dihedralSymmetries.size(); dIt++ )
         {
+            //======================================== Apply thresholding
+            if ( this->dihedralSymmetries.at(dIt).at(0)[6] < threshold ) { continue; }
+            if ( this->dihedralSymmetries.at(dIt).at(1)[6] < threshold ) { continue; }
+            
             //======================================== Create helper axis
             proshade_double* sym                      = new proshade_double[7];
             ProSHADE_internal_misc::checkMemoryAllocation ( sym, __FILE__, __LINE__, __func__ );
             
             sym[0] = 0.0; sym[1] = 0.0; sym[2] = 0.0; sym[3] = 0.0; sym[4] = 0.0;
-            sym[5] = ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ) / 2.0;;
-            sym[6] = ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0;
+            sym[5] = ( this->dihedralSymmetries.at(dIt).at(0)[5] + this->dihedralSymmetries.at(dIt).at(1)[5] ) / 2.0;
+            sym[6] = ( this->dihedralSymmetries.at(dIt).at(0)[6] + this->dihedralSymmetries.at(dIt).at(1)[6] ) / 2.0;
             
             //======================================== Deep copy to a vector
             ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &smootheningHlp, sym );
@@ -2760,43 +2700,47 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         proshade_double onlyDFSCThreshold             = ProSHADE_internal_maths::findTopGroupSmooth ( &smootheningHlp, 6, step, sigma, windowSize );
         
         //============================================ Release the helper memory
-        for ( size_t axIt = 0; axIt < smootheningHlp.size(); axIt++ ) { delete[] smootheningHlp.at(axIt); }
+        for ( size_t axIt = 0; axIt < smootheningHlp.size(); axIt++ ) { if ( smootheningHlp.at(axIt) != nullptr ) { delete[] smootheningHlp.at(axIt); } }
         
         //============================================ Check if both C symmetries are reliable
-        for ( size_t dIt = 0; dIt < settings->allDetectedDAxes.size(); dIt++ )
+        for ( size_t dIt = 0; dIt < this->dihedralSymmetries.size(); dIt++ )
         {
+            //======================================== Apply thresholding
+            if ( this->dihedralSymmetries.at(dIt).at(0)[6] < threshold ) { continue; }
+            if ( this->dihedralSymmetries.at(dIt).at(1)[6] < threshold ) { continue; }
+            
             //======================================== Check the peak heights
-            const FloatingPoint< proshade_double > lhs999a2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] ), lhs999b2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
-            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] < bestHistPeakStart ) && !( lhs999a2.AlmostEquals( rhs999 ) ) ) { continue; }
-            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] < bestHistPeakStart ) && !( lhs999b2.AlmostEquals( rhs999 ) ) ) { continue; }
-            if ( std::min ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ) < ( std::max ( settings->peakThresholdMin, onlyDPeakThreshold ) * 0.90 ) ) { continue; }
+            const FloatingPoint< proshade_double > lhs999a2 ( this->dihedralSymmetries.at(dIt).at(0)[5] ), lhs999b2 ( this->dihedralSymmetries.at(dIt).at(1)[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+            if ( ( this->dihedralSymmetries.at(dIt).at(0)[5] < bestHistPeakStart ) && !( lhs999a2.AlmostEquals( rhs999 ) ) ) { continue; }
+            if ( ( this->dihedralSymmetries.at(dIt).at(1)[5] < bestHistPeakStart ) && !( lhs999b2.AlmostEquals( rhs999 ) ) ) { continue; }
+            if ( std::min ( this->dihedralSymmetries.at(dIt).at(0)[5], this->dihedralSymmetries.at(dIt).at(1)[5] ) < ( std::max ( settings->peakThresholdMin, onlyDPeakThreshold ) * 0.90 ) ) { continue; }
             
             //======================================== Does this improve the best fold?
-            if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] > static_cast< proshade_double > ( bestFold ) ) ||
-                 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] > static_cast< proshade_double > ( bestFold ) ) )
+            if ( ( this->dihedralSymmetries.at(dIt).at(0)[0] > static_cast< proshade_double > ( bestFold ) ) ||
+                 ( this->dihedralSymmetries.at(dIt).at(1)[0] > static_cast< proshade_double > ( bestFold ) ) )
             {
                 //==================================== Check the FSC vals
-                if ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] < std::max ( settings->fscThreshold, onlyDFSCThreshold ) ) &&
-                     ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] < std::max ( settings->fscThreshold, onlyDFSCThreshold ) ) ) { continue; }
-                if ( std::min ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) < ( std::max ( settings->fscThreshold, onlyDFSCThreshold ) * 0.70 ) ) { continue; }
+                if ( ( this->dihedralSymmetries.at(dIt).at(0)[6] < std::max ( threshold, onlyDFSCThreshold ) ) &&
+                     ( this->dihedralSymmetries.at(dIt).at(1)[6] < std::max ( threshold, onlyDFSCThreshold ) ) ) { continue; }
+                if ( std::min ( this->dihedralSymmetries.at(dIt).at(0)[6], this->dihedralSymmetries.at(dIt).at(1)[6] ) < ( std::max ( threshold, onlyDFSCThreshold ) * 0.70 ) ) { continue; }
                 
                 //==================================== All good!
-                bestValPeak                           = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ) / 2.0 );
-                bestValFSC                            = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
-                bestFold                              = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
+                bestValPeak                           = ( ( this->dihedralSymmetries.at(dIt).at(0)[5] + this->dihedralSymmetries.at(dIt).at(1)[5] ) / 2.0 );
+                bestValFSC                            = ( ( this->dihedralSymmetries.at(dIt).at(0)[6] + this->dihedralSymmetries.at(dIt).at(1)[6] ) / 2.0 );
+                bestFold                              = static_cast< proshade_unsign > ( std::max ( this->dihedralSymmetries.at(dIt).at(0)[0], this->dihedralSymmetries.at(dIt).at(1)[0] ) );
                 bestD                                 = static_cast< proshade_signed > ( dIt );
             }
             else
             {
                 //==================================== If not, is the FSC sum better?
-                const FloatingPoint< proshade_double > lhs1 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0] ), lhs2 ( CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ), rhs ( static_cast< proshade_double > ( bestFold ) );
-                if ( ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 ) > ( bestValFSC  * 1.00 ) ) &&
-                     ( ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ) / 2.0 ) > ( bestValPeak * 0.95 ) ) &&
+                const FloatingPoint< proshade_double > lhs1 ( this->dihedralSymmetries.at(dIt).at(0)[0] ), lhs2 ( this->dihedralSymmetries.at(dIt).at(1)[0] ), rhs ( static_cast< proshade_double > ( bestFold ) );
+                if ( ( ( ( this->dihedralSymmetries.at(dIt).at(0)[6] + this->dihedralSymmetries.at(dIt).at(1)[6] ) / 2.0 ) > ( bestValFSC  * 1.00 ) ) &&
+                     ( ( ( this->dihedralSymmetries.at(dIt).at(0)[5] + this->dihedralSymmetries.at(dIt).at(1)[5] ) / 2.0 ) > ( bestValPeak * 0.95 ) ) &&
                        ( ( lhs1.AlmostEquals ( rhs ) ) || ( lhs2.AlmostEquals ( rhs ) ) ) )
                 {
-                    bestValPeak                       = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[5] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[5] ) / 2.0 );
-                    bestValFSC                        = ( ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[6] + CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[6] ) / 2.0 );
-                    bestFold                          = static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at(dIt).at(0))[0], CSym->at(settings->allDetectedDAxes.at(dIt).at(1))[0] ) );
+                    bestValPeak                       = ( ( this->dihedralSymmetries.at(dIt).at(0)[5] + this->dihedralSymmetries.at(dIt).at(1)[5] ) / 2.0 );
+                    bestValFSC                        = ( ( this->dihedralSymmetries.at(dIt).at(0)[6] + this->dihedralSymmetries.at(dIt).at(1)[6] ) / 2.0 );
+                    bestFold                          = static_cast< proshade_unsign > ( std::max ( this->dihedralSymmetries.at(dIt).at(0)[0], this->dihedralSymmetries.at(dIt).at(1)[0] ) );
                     bestD                             = static_cast< proshade_signed > ( dIt );
                 }
             }
@@ -2806,131 +2750,79 @@ void ProSHADE_internal_data::ProSHADE_data::saveRecommendedSymmetry ( ProSHADE_s
         if ( bestD != -1 )
         {
             //======================================== The decision is D
-            settings->setRecommendedSymmetry          ( "D" );
-            settings->setRecommendedFold              ( static_cast< proshade_unsign > ( std::max ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[0], CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[0] ) ) );
-            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0)) );
-            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1)) );
-            if ( settings->detectedSymmetry.size() == 0 )
-            {
-                settings->setDetectedSymmetry         ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0)) );
-                settings->setDetectedSymmetry         ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1)) );
-            }
+            this->recommendedSymmetryType             = "D";
+            this->recommendedSymmetryFold             = static_cast< proshade_unsign > ( std::max ( this->dihedralSymmetries.at( static_cast< size_t> ( bestD ) ).at(0)[0], this->dihedralSymmetries.at( static_cast< size_t> ( bestD ) ).at(0)[1] ) );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->dihedralSymmetries.at( static_cast< size_t> ( bestD ) ).at(0)[0] );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->dihedralSymmetries.at( static_cast< size_t> ( bestD ) ).at(1)[0] );
         }
     }
     
     //================================================ Decide if C is the answer
-    if ( ( CSym->size() > 0 ) && !alreadyDecided )
+    if ( ( this->cyclicSymmetries.size() > 0 ) && !alreadyDecided )
     {
         //============================================ Initialise decision vars
         proshade_signed bestC                         = -1;
         proshade_unsign bestFold                      = 0;
         
         //============================================ Find FSCs for C syms
-        for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
+        for ( size_t cIt = 0; cIt < this->cyclicSymmetries.size(); cIt++ )
         {
             //======================================== Do not consider more than top 20, takes time and is unlikely to produce anything...
-            if ( ( cIt > 20 ) && ( CSym->at(cIt)[5] < 0.95 ) ) { break; }
+            if ( ( cIt > 20 ) && ( this->cyclicSymmetries.at(cIt)[5] < 0.95 ) ) { break; }
             
             //======================================== Check the peak height
-            if ( CSym->at(cIt)[5]  < bestHistPeakStart ) { continue; }
+            if ( this->cyclicSymmetries.at(cIt)[5] < bestHistPeakStart ) { continue; }
             
             //======================================== Compute FSC
-            if ( std::isinf ( CSym->at(cIt)[6] ) ) { this->computeFSC ( settings, CSym, cIt, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim ); }
+            if ( std::isinf ( this->cyclicSymmetries.at(cIt)[6] ) ) { this->computeFSC ( settings, &this->cyclicSymmetries.at(cIt)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim ); }
         }
         
         //============================================ Find FSC top group threshold
-        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( CSym, 6, step, sigma, windowSize );
+        proshade_double bestHistFSCStart              = ProSHADE_internal_maths::findTopGroupSmooth ( &this->cyclicSymmetries, 6, step, sigma, windowSize );
+        if ( static_cast< proshade_signed > ( threshold * 100.0 ) > static_cast< proshade_signed > ( settings->fscThreshold * 100.0 ) ) { bestHistFSCStart = threshold; }
         
         //============================================ Find reliable C syms (this makes the assumption that the input C axes list is FSC sorted!)
-        for ( size_t cIt = 0; cIt < CSym->size(); cIt++ )
+        for ( size_t cIt = 0; cIt < this->cyclicSymmetries.size(); cIt++ )
         {
             //======================================== Check if this improves the best already found fold
-            if ( CSym->at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
+            if ( this->cyclicSymmetries.at(cIt)[0] > static_cast< proshade_double > ( bestFold ) )
             {
                 //==================================== If FSC passes
-                if ( CSym->at(cIt)[6] > std::max ( bestHistFSCStart, settings->fscThreshold ) )
+                if ( this->cyclicSymmetries.at(cIt)[6] > std::max ( bestHistFSCStart, threshold ) )
                 {
-                    bestFold                          = static_cast< proshade_unsign > ( CSym->at(cIt)[0] );
+                    bestFold                          = static_cast< proshade_unsign > ( this->cyclicSymmetries.at(cIt)[0] );
                     bestC                             = static_cast< proshade_signed > ( cIt );
                 }
             }
         }
         
         //============================================ Anything?
-        if ( ( bestC != -1 ) && ( settings->recommendedSymmetryType == "D" ) )
+        if ( ( bestC != -1 ) && ( this->recommendedSymmetryType == "D" ) )
         {
             //======================================== Decide if C or D is more appropriate
-            if ( ( ( CSym->at( static_cast< size_t > ( bestC ) )[6] * 0.80 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[6] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[6] ) / 2.0 ) ) &&
-                 ( ( CSym->at( static_cast< size_t > ( bestC ) )[5] * 0.95 ) > ( ( CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(0))[5] + CSym->at(settings->allDetectedDAxes.at( static_cast< size_t > ( bestD ) ).at(1))[5] ) / 2.0 ) ) )
+            if ( ( ( this->cyclicSymmetries.at( static_cast< size_t > ( bestC ) )[6] * 0.80 ) > std::min ( this->dihedralSymmetries.at( static_cast< size_t > ( bestD ) ).at(0)[6], this->dihedralSymmetries.at( static_cast< size_t > ( bestD ) ).at(1)[6] ) ) &&
+                 ( ( this->cyclicSymmetries.at( static_cast< size_t > ( bestC ) )[5] * 0.95 ) > std::min ( this->dihedralSymmetries.at( static_cast< size_t > ( bestD ) ).at(0)[5], this->dihedralSymmetries.at( static_cast< size_t > ( bestD ) ).at(1)[5] ) ) )
             {
-                settings->cleanDetectedSymmetry       ( );
-                settings->recommendedSymmetryType     = "";
+                this->recommendedSymmetryType         = "C";
+                this->recommendedSymmetryFold         = 1;
+                for ( size_t iter = 0; iter < this->recommendedSymmetryValues.size(); iter++ ) { if ( this->recommendedSymmetryValues.at(iter) != nullptr ) { delete[] this->recommendedSymmetryValues.at(iter); this->recommendedSymmetryValues.at(iter) = nullptr; } }
+                this->recommendedSymmetryValues.clear ( );
             }
         }
-        if ( ( bestC != -1 ) && ( settings->recommendedSymmetryType != "D" ) )
+        if ( ( bestC != -1 ) && ( this->recommendedSymmetryType != "D" ) )
         {
             //======================================== The decision is C
-            settings->setRecommendedSymmetry              ( "C" );
-            settings->setRecommendedFold                  ( static_cast< proshade_unsign > ( CSym->at( static_cast< size_t > ( bestC ) )[0] ) );
-            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at( static_cast< size_t > ( bestC ) ) );
-            if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at( static_cast< size_t > ( bestC ) ) ); }
+            this->recommendedSymmetryType             = "C";
+            this->recommendedSymmetryFold             = static_cast< proshade_unsign > ( this->cyclicSymmetries.at( static_cast< size_t > ( bestC ) )[0] );
+            ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->cyclicSymmetries.at( static_cast< size_t > ( bestC ) )[0] );
             
             //======================================== Done
             alreadyDecided                            = true;
         }
     }
     
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief This function takes the C symmetries and searched for the requested symmetry.
- 
-    This is a simple search function, which searches the symmetry results for the requested symmetry fold, and if more such
-    symmetries are found, takes the one with the highest average peak height. If the requested fold was found, it will save
-    it to the settings object, while it will set the object to fold 0 if the requested symmetry was not found (although there
-    may be other symmetries present).
- 
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] CSym A vector of pointers to double arrays, each array being a single Cyclic symmetry entry.
-    \param[in] axes A vector to which all the axes of the requested symmetry (if any) will be saved.
- */
-void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes )
-{
-    //================================================ Initialise variables
-    proshade_unsign bestIndex                         = 0;
-    proshade_double highestSym                        = 0.0;
-    
-    //================================================ Search for best fold
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( CSym->size() ); iter++ )
-    {
-        //============================================ Check if it is tbe correct fold
-        const FloatingPoint< proshade_double > lhs1 ( CSym->at(iter)[0] ), rhs1 ( static_cast< proshade_double > ( settings->requestedSymmetryFold ) );
-        if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
-        
-        //============================================ If correct, is it the highest found?
-        if ( CSym->at(iter)[5] > highestSym )
-        {
-            highestSym                                = CSym->at(iter)[5];
-            bestIndex                                 = iter;
-        }
-    }
-    
-    //================================================ Found?
-    if ( highestSym  > 0.0 )
-    {
-        settings->setRecommendedSymmetry              ( "C" );
-        settings->setRecommendedFold                  ( static_cast< proshade_unsign > ( CSym->at(bestIndex)[0] ) );
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, CSym->at(bestIndex) );
-        
-        if ( settings->detectedSymmetry.size() == 0 ) { settings->setDetectedSymmetry ( CSym->at(bestIndex) ); }
-    }
-    else
-    {
-        settings->setRecommendedSymmetry              ( "" );
-        settings->setRecommendedFold                  ( 0 );
-    }
+    //================================================ Release memory
+    for ( size_t iter = 0; iter < thresholdedCs.size(); iter++ ) { if ( thresholdedCs.at(iter) != nullptr ) { delete[] thresholdedCs.at(iter); } }
     
     //================================================ Done
     return ;
@@ -2945,8 +2837,6 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
     there may be other symmetries present).
  
     \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
-    \param[in] DSym A vector of pointers to double arrays, each array being a single Dihedral symmetry entry.
-    \param[in] axes A vector to which all the axes of the requested symmetry (if any) will be saved.
     \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
     \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
     \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
@@ -2957,32 +2847,32 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryC ( ProSHADE_se
     \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
     \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
  */
-void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
+void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_settings* settings, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim )
 {
     //================================================ Initialise variables
     proshade_unsign bestIndex                         = 0;
     proshade_double highestSym                        = 0.0;
     
     //================================================ Search for best fold
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( DSym->size() ); iter++ )
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->dihedralSymmetries.size() ); iter++ )
     {
         //============================================ Check if it is tbe correct fold
-        const FloatingPoint< proshade_double > lhs1 ( std::max ( DSym->at(iter)[0], DSym->at(iter)[7] ) ), rhs1 ( static_cast< proshade_double > ( settings->requestedSymmetryFold ) );
+        const FloatingPoint< proshade_double > lhs1 ( std::max ( this->dihedralSymmetries.at(iter).at(0)[0], this->dihedralSymmetries.at(iter).at(1)[0] ) ), rhs1 ( static_cast< proshade_double > ( settings->requestedSymmetryFold ) );
         if ( !lhs1.AlmostEquals ( rhs1 ) ) { continue; }
 
         //============================================ Check if peak height is decent
-        const FloatingPoint< proshade_double > lhs999a ( DSym->at(iter)[5] ), lhs999b ( DSym->at(iter)[12] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
-        if ( ( DSym->at(iter)[5]  < settings->peakThresholdMin ) && !( lhs999a.AlmostEquals( rhs999 ) ) ) { continue; }
-        if ( ( DSym->at(iter)[12] < settings->peakThresholdMin ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
+        const FloatingPoint< proshade_double > lhs999a ( this->dihedralSymmetries.at(iter).at(0)[5] ), lhs999b ( this->dihedralSymmetries.at(iter).at(1)[5] ), rhs999 ( static_cast< proshade_double > ( -999.9 ) );
+        if ( ( this->dihedralSymmetries.at(iter).at(0)[5] < settings->peakThresholdMin ) && !( lhs999a.AlmostEquals( rhs999 ) ) ) { continue; }
+        if ( ( this->dihedralSymmetries.at(iter).at(1)[5] < settings->peakThresholdMin ) && !( lhs999b.AlmostEquals( rhs999 ) ) ) { continue; }
         
         //============================================ If correct, compute FSC
-        this->computeFSC                              ( settings, &DSym->at(iter)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim );
-        this->computeFSC                              ( settings, &DSym->at(iter)[7], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim );
+        this->computeFSC                              ( settings, &this->dihedralSymmetries.at(iter).at(0)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim );
+        this->computeFSC                              ( settings, &this->dihedralSymmetries.at(iter).at(1)[0], cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, xDim, yDim, zDim );
         
         //============================================ If best, store it
-        if ( ( DSym->at(iter)[6] + DSym->at(iter)[13] ) > highestSym )
+        if ( ( this->dihedralSymmetries.at(iter).at(0)[6] + this->dihedralSymmetries.at(iter).at(1)[6] ) > highestSym )
         {
-            highestSym                                = ( DSym->at(iter)[6] + DSym->at(iter)[13] );
+            highestSym                                = ( this->dihedralSymmetries.at(iter).at(0)[6] + this->dihedralSymmetries.at(iter).at(1)[6] );
             bestIndex                                 = iter;
         }
     }
@@ -2990,21 +2880,16 @@ void ProSHADE_internal_data::ProSHADE_data::saveRequestedSymmetryD ( ProSHADE_se
     //================================================ Found?
     if ( highestSym  > 0.0 )
     {
-        settings->setRecommendedSymmetry              ( "D" );
-        settings->setRecommendedFold                  ( static_cast< proshade_unsign > ( std::max ( DSym->at(bestIndex)[0], DSym->at(bestIndex)[7] ) ) );
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestIndex)[0] );
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( axes, &DSym->at(bestIndex)[7] );
-        
-        if ( settings->detectedSymmetry.size() == 0 )
-        {
-            settings->setDetectedSymmetry             ( &DSym->at(bestIndex)[0] );
-            settings->setDetectedSymmetry             ( &DSym->at(bestIndex)[7] );
-        }
+        this->recommendedSymmetryType                 = "D";
+        this->recommendedSymmetryFold                 = static_cast< proshade_unsign > ( std::max ( this->dihedralSymmetries.at(bestIndex).at(0)[0], this->dihedralSymmetries.at(bestIndex).at(1)[0] ) );
+
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->dihedralSymmetries.at(bestIndex).at(0)[0] );
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->recommendedSymmetryValues, &this->dihedralSymmetries.at(bestIndex).at(1)[0] );
     }
     else
     {
-        settings->setRecommendedSymmetry              ( "" );
-        settings->setRecommendedFold                  ( 0 );
+        this->recommendedSymmetryType                 = "C";
+        this->recommendedSymmetryFold                 = 1;
     }
     
     //================================================ Done
@@ -3226,16 +3111,28 @@ std::vector<std::vector< proshade_double > > ProSHADE_internal_data::joinElement
     This function is essentially a wrapper for the overloaded version of this function. The purpose of this function is allow getting point group elements for axes
     detected in a particular structure.
  
-    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection.
     \param[in] axesList A vector of ints specifying which C axes from the full list are members of the group.
     \param[in] groupType An optional string specifying for which symmetry type the group elements are to be computed. Leave empty if you want to use the supplied axes without any questions being asked.
     \param[in] matrixTolerance The maximum allowed trace difference for two matrices to still be considered the same.
     \param[out] val A vector containing a vector of 9 doubles (rotation matrix) for each group element for the requested group.
  */
-std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType, proshade_double matrixTolerance )
+std::vector<std::vector< proshade_double > > ProSHADE_internal_data::ProSHADE_data::getAllGroupElements ( std::vector< proshade_unsign > axesList, std::string groupType, proshade_double matrixTolerance )
 {
     //================================================ Initialise variables
-    std::vector<std::vector< proshade_double > > ret  = this->getAllGroupElements ( &settings->allDetectedCAxes, axesList, groupType, matrixTolerance );
+    std::vector< std::vector< proshade_double > > hlpVec;
+    std::vector< proshade_double > hlpVec2;
+    for ( size_t it1 = 0; it1 < this->cyclicSymmetries.size(); it1++ )
+    {
+        hlpVec2.clear                                 ( );
+        for ( size_t it2 = 0; it2 < 7; it2++ )
+        {
+            ProSHADE_internal_misc::addToDoubleVector ( &hlpVec2, this->cyclicSymmetries.at(it1)[it2] );
+        }
+        ProSHADE_internal_misc::addToDoubleVectorVector ( &hlpVec, hlpVec2 );
+    }
+    
+    //================================================ Get group elements
+    std::vector< std::vector< proshade_double > > ret = this->getAllGroupElements ( &hlpVec, axesList, groupType, matrixTolerance );
     
     //================================================ Done
     return                                            ( ret );
@@ -3554,7 +3451,7 @@ void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& save
     
 }
 
-/*! \brief This function takes prints the report for symmetry detection.
+/*! \brief This function prints the report for symmetry detection.
  
     This is a very simple function which provides the basic textual output for the symmetry detection task.
  
@@ -3563,7 +3460,7 @@ void ProSHADE_internal_data::ProSHADE_data::deepCopyMap ( proshade_double*& save
 void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_settings* settings )
 {
     //================================================ Improve this!
-    if ( settings->recommendedSymmetryType == "" )
+    if ( this->recommendedSymmetryType == "" || ( this->recommendedSymmetryType == "C" && this->recommendedSymmetryFold == 1 ) )
     {
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "", settings->messageShift );
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, "Cannot predict any symmetry! There may still be symmetries detected, but ProSHADE algorithm does not consider them reliable.", settings->messageShift );
@@ -3572,19 +3469,19 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     {
         std::stringstream ssHlp;
         std::vector< proshade_double > comMove        = this->getMapCOMProcessChange ( );
-        ssHlp << std::endl << "Detected " << settings->recommendedSymmetryType << " symmetry with fold " << settings->recommendedSymmetryFold << " about point [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "] away from centre of mass .";
+        ssHlp << std::endl << "Detected " << this->recommendedSymmetryType << " symmetry with fold " << this->recommendedSymmetryFold << " about point [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "] away from centre of mass .";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         
-        if ( settings->detectedSymmetry.size() > 0 )
+        if ( this->recommendedSymmetryValues.size() > 0 )
         {
             ssHlp.clear(); ssHlp.str ( "" );
             ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
-        for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); symIt++ )
+        for ( size_t symIt = 0; symIt < this->recommendedSymmetryValues.size(); symIt++ )
         {
             ssHlp.clear(); ssHlp.str ( "" );
-            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->detectedSymmetry.at(symIt)[0] << std::setprecision(5) << "     " << settings->detectedSymmetry.at(symIt)[1] << "   " << settings->detectedSymmetry.at(symIt)[2] << "   " << settings->detectedSymmetry.at(symIt)[3] << "     " << settings->detectedSymmetry.at(symIt)[4] << "      " << settings->detectedSymmetry.at(symIt)[5] << "      " << settings->detectedSymmetry.at(symIt)[6];
+            ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << this->recommendedSymmetryValues.at(symIt)[0] << std::setprecision(5) << "     " << this->recommendedSymmetryValues.at(symIt)[1] << "   " << this->recommendedSymmetryValues.at(symIt)[2] << "   " << this->recommendedSymmetryValues.at(symIt)[3] << "     " << this->recommendedSymmetryValues.at(symIt)[4] << "      " << this->recommendedSymmetryValues.at(symIt)[5] << "      " << this->recommendedSymmetryValues.at(symIt)[6];
             ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
         }
     }
@@ -3594,22 +3491,176 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
     hlpSS3 << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, hlpSS3.str(), settings->messageShift );
     
-    if ( settings->allDetectedCAxes.size() > 0 )
+    if ( this->cyclicSymmetries.size() > 0 )
     {
         ssHlp.clear(); ssHlp.str ( "" );
         ssHlp << "  Fold       X           Y          Z           Angle        Height      Average FSC";
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
     }
-    for ( proshade_unsign symIt = 0; symIt < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); symIt++ )
+    for ( size_t symIt = 0; symIt < this->cyclicSymmetries.size(); symIt++ )
     {
         ssHlp.clear(); ssHlp.str ( "" );
-        ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << settings->allDetectedCAxes.at(symIt)[0] << std::setprecision(5) << "     " << settings->allDetectedCAxes.at(symIt)[1] << "   " << settings->allDetectedCAxes.at(symIt)[2] << "   " << settings->allDetectedCAxes.at(symIt)[3] << "     " << settings->allDetectedCAxes.at(symIt)[4] << "      " << settings->allDetectedCAxes.at(symIt)[5] << "      " << settings->allDetectedCAxes.at(symIt)[6];
+        ssHlp << std::showpos << std::fixed << std::setprecision(0) << "   " << this->cyclicSymmetries.at(symIt)[0] << std::setprecision(5) << "     " << this->cyclicSymmetries.at(symIt)[1] << "   " << this->cyclicSymmetries.at(symIt)[2] << "   " << this->cyclicSymmetries.at(symIt)[3] << "     " << this->cyclicSymmetries.at(symIt)[4] << "      " << this->cyclicSymmetries.at(symIt)[5] << "      " << this->cyclicSymmetries.at(symIt)[6];
         ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
     }
     
     //================================================ Done
     return ;
     
+}
+
+/*! \brief This function prints a single line of the symmetry detection results for a particular threshold.
+ 
+    This is a very simple function which provides the advanced textual output for the symmetry detection task.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection reporting.
+    \param[in] threshold The threshold to which the results are to be determined.
+    \param[in] cutIndices Map of each coefficient index to its correct bin cut to resolution.
+    \param[in] fCoeffsCut The original map Fourier coefficients cut to resolution.
+    \param[in] noBins Number of bins to be used (only up to the cut-off resolution).
+    \param[in] bindata Pre-allocated array of dimensions noBins x 12 serving as workspace for the bin summation and FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[in] binCounts Pre-allocated array of dimension noBins serving to store the bin sizes for FSC computation. This array is modified by the function in case the caller would be interested in these results.
+    \param[in] fscByBin This array will hold FSC values for each bin. This is useful in further computations, but could be internal for FSC only computation.
+    \param[in] xDim The number of indices along the x-axis of the of the array to be rotated.
+    \param[in] yDim The number of indices along the y-axis of the of the array to be rotated.
+    \param[in] zDim The number of indices along the z-axis of the of the array to be rotated.
+ */
+void ProSHADE_internal_data::ProSHADE_data::reportCurrentSymmetryResults ( ProSHADE_settings* settings, proshade_double threshold, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed cutXDim, proshade_signed cutYDim, proshade_signed cutZDim )
+{
+    //================================================ Find results for the given threshold
+    this->determineRecommendedSymmetry                ( settings, threshold, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    
+    //================================================ Improve this!
+    if ( this->recommendedSymmetryType == "" || ( this->recommendedSymmetryType == "C" && this->recommendedSymmetryFold == 1 ) )
+    {
+        std::stringstream ssHlp;
+        ssHlp << std::showpos << std::fixed << std::setprecision(2) << "     " << threshold << "       C        +1     +0.00000   +0.00000   +0.00000     +0.00000      +1.00000      +1.00000" << std::endl << "===========================================================================================================";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    else
+    {
+        for ( size_t symIt = 0; symIt < this->recommendedSymmetryValues.size(); symIt++ )
+        {
+            std::stringstream ssHlp;
+            ssHlp << std::showpos << std::fixed << std::setprecision(2) << "     " << threshold << "       " << this->recommendedSymmetryType << "     " << std::showpos << std::fixed << std::setprecision(0) << "   " << this->recommendedSymmetryValues.at(symIt)[0] << std::setprecision(5) << "     " << this->recommendedSymmetryValues.at(symIt)[1] << "   " << this->recommendedSymmetryValues.at(symIt)[2] << "   " << this->recommendedSymmetryValues.at(symIt)[3] << "     " << this->recommendedSymmetryValues.at(symIt)[4] << "      " << this->recommendedSymmetryValues.at(symIt)[5] << "      " << this->recommendedSymmetryValues.at(symIt)[6];
+            ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+        }
+        std::stringstream ssHlp;
+        ssHlp << "===========================================================================================================";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    
+    //================================================ Done
+    return ;
+}
+
+/*! \brief This function takes prints the report for symmetry detection using multiple thresholds..
+ 
+    This is a very simple function which provides the advanced textual output for the symmetry detection task.
+ 
+    \param[in] settings A pointer to settings class containing all the information required for map symmetry detection reporting.
+ */
+void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResultsList ( ProSHADE_settings* settings )
+{
+    //================================================ Initialise variables
+    std::stringstream ssHlp;
+    std::vector< proshade_double > thrLevels;
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.95 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.90 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.80 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.70 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.60 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.50 );
+    ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.40 );
+    
+    //================================================ Silence the search
+    proshade_signed origVerbose                       = settings->verbose;
+    settings->verbose                                 = 0;
+    
+    //================================================ Prepare FSC computation memory and variables
+    fftw_complex* fCoeffsCut;
+    proshade_double **bindata, *fscByBin;
+    proshade_signed *cutIndices, *binCounts, noBins, cutXDim, cutYDim, cutZDim;
+    this->prepareFSCFourierMemory                     ( cutIndices, fCoeffsCut, &noBins, bindata, binCounts, fscByBin, settings->requestedResolution, &cutXDim, &cutYDim, &cutZDim );
+    
+    //================================================ Print intro to symmetry detection
+    ssHlp.clear(); ssHlp.str ( "" );
+    std::vector< proshade_double > comMove            = this->getMapCOMProcessChange ( );
+    ssHlp << std::endl << "Detecting symmetries about point [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "] away from centre of mass .";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    
+    //================================================ Run default detection
+    this->determineRecommendedSymmetry                ( settings, settings->fscThreshold, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    
+    //================================================ Print intro to proshade default
+    ssHlp.clear(); ssHlp.str ( "" );
+    ssHlp << std::endl << "ProSHADE default symmetry detection algorithm claims the symmetry to be " << this->recommendedSymmetryType << "-" << this->recommendedSymmetryFold << " with axes:" << std::endl << "======================================================================================";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    
+    if ( this->recommendedSymmetryValues.size() > 0 )
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << "   Type     Fold       X           Y          Z           Angle        Height      Average FSC";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    else
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << "   Type     Fold       X           Y          Z           Angle        Height      Average FSC" << std::endl << "     C       +1      +0.00000   +0.00000   +0.00000     +0.00000      +1.00000      +1.00000";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    for ( size_t symIt = 0; symIt < this->recommendedSymmetryValues.size(); symIt++ )
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << "     " << this->recommendedSymmetryType << "     " << std::showpos << std::fixed << std::setprecision(0) << "  " << this->recommendedSymmetryValues.at(symIt)[0] << std::setprecision(5) << "      " << this->recommendedSymmetryValues.at(symIt)[1] << "   " << this->recommendedSymmetryValues.at(symIt)[2] << "   " << this->recommendedSymmetryValues.at(symIt)[3] << "     " << this->recommendedSymmetryValues.at(symIt)[4] << "      " << this->recommendedSymmetryValues.at(symIt)[5] << "      " << this->recommendedSymmetryValues.at(symIt)[6];
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    
+    //================================================ Print intro to table
+    ssHlp.clear(); ssHlp.str ( "" );
+    ssHlp << std::endl << std::endl << "Symmetry detection results per FSC threshold levels:" << std::endl << "====================================================";;
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    
+    ssHlp.clear(); ssHlp.str ( "" );
+    ssHlp << std::endl << "   Threshold    Type     Fold       X           Y          Z          Angle        Height      Average FSC" << std::endl << "===========================================================================================================";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    
+    //================================================ For each requested level, get the results
+    for ( size_t lIt = 0; lIt < thrLevels.size(); lIt++ )
+    {
+        this->reportCurrentSymmetryResults            ( settings, thrLevels.at(lIt), cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    }
+    
+    //================================================ Release FSC computation memory
+    for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
+    delete[] bindata;
+    delete[] binCounts;
+    delete[] cutIndices;
+    fftw_free                                         ( fCoeffsCut );
+    
+    //================================================ Set verbosity back
+    settings->verbose                                 = origVerbose;
+    
+    //================================================ Print all axes
+    ssHlp.clear(); ssHlp.str ( "" );
+    ssHlp << std::endl << std::endl << "To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:";
+    ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    
+    if ( this->cyclicSymmetries.size() > 0 )
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << "   Type     Fold       X           Y          Z           Angle        Height      Average FSC";
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    for ( size_t symIt = 0; symIt < this->cyclicSymmetries.size(); symIt++ )
+    {
+        ssHlp.clear(); ssHlp.str ( "" );
+        ssHlp << "     C     " << std::showpos << std::fixed << std::setprecision(0) << "  " << this->cyclicSymmetries.at(symIt)[0] << std::setprecision(5) << "      " << this->cyclicSymmetries.at(symIt)[1] << "   " << this->cyclicSymmetries.at(symIt)[2] << "   " << this->cyclicSymmetries.at(symIt)[3] << "     " << this->cyclicSymmetries.at(symIt)[4] << "      " << this->cyclicSymmetries.at(symIt)[5] << "      " << this->cyclicSymmetries.at(symIt)[6];
+        ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
+    }
+    
+    //================================================ Done
+    return ;
 }
 
 /*! \brief This function finds the centre of mass of the internal map representation.
@@ -4102,6 +4153,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZToPtr ( )
 {
     //================================================ Return the requested value
     return                                            ( &this->zTo );
+    
 }
 
 /*! \brief This function allows access to the map X axis origin value.
@@ -4112,6 +4164,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getXAxisOrigin ( )
 {
     //================================================ Return the requested value
     return                                            ( &this->xAxisOrigin );
+    
 }
 
 /*! \brief This function allows access to the map Y axis origin value.
@@ -4122,6 +4175,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getYAxisOrigin ( )
 {
     //================================================ Return the requested value
     return                                            ( &this->yAxisOrigin );
+    
 }
 
 /*! \brief This function allows access to the map Z axis origin value.
@@ -4132,6 +4186,7 @@ proshade_signed* ProSHADE_internal_data::ProSHADE_data::getZAxisOrigin ( )
 {
     //================================================ Return the requested value
     return                                            ( &this->zAxisOrigin );
+    
 }
 
 /*! \brief This function allows access to the first map array value address.
@@ -4142,6 +4197,7 @@ proshade_double*& ProSHADE_internal_data::ProSHADE_data::getInternalMap ( )
 {
     //================================================ Return the requested value
     return                                            ( this->internalMap );
+    
 }
 
 /*! \brief This function allows access to the translation function through a pointer.
@@ -4152,6 +4208,7 @@ proshade_complex* ProSHADE_internal_data::ProSHADE_data::getTranslationFnPointer
 {
     //================================================ Return the requested value
     return                                            ( this->translationMap );
+    
 }
 
 /*! \brief This function allows access to the translation caused by structure processing.
@@ -4170,6 +4227,29 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::getMapCOMP
     
     //================================================ Return the requested value
     return                                            ( ret );
+    
+}
+
+/*! \brief This function allows access to the list of detected cyclic axes.
+
+    \param[out] cyclicSymmetries Vector of the cyclic axes detected in the structure.
+*/
+std::vector< proshade_double* >* ProSHADE_internal_data::ProSHADE_data::getCyclicAxes ( void )
+{
+    //================================================ Return the requested value
+    return                                            ( &this->cyclicSymmetries );
+    
+}
+
+/*! \brief This function allows access to the list of detected dihedral axes.
+
+    \param[out] dihedralSymmetries Vector of vectors containing the list of detected dihedral symmetries.
+*/
+std::vector< std::vector< proshade_double* > >* ProSHADE_internal_data::ProSHADE_data::getDihedralAxes ( void )
+{
+    //================================================ Return the requested value
+    return                                            ( &this->dihedralSymmetries );
+    
 }
 
 /*! \brief This function allows setting the integration weight for the object.
@@ -4470,36 +4550,31 @@ void ProSHADE_internal_data::ProSHADE_data::getRotMatrixFromRotFunInds ( proshad
 }
 
 /*! \brief This function simply returns the detected recommended symmetry type.
-
-    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
 */
-std::string ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType ( ProSHADE_settings* settings )
+std::string ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType ( )
 {
     //================================================ Return the value
-    return                                            ( settings->recommendedSymmetryType );
+    return                                            ( this->recommendedSymmetryType );
     
 }
 
 /*! \brief This function simply returns the detected recommended symmetry fold.
-
-    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
 */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold ( ProSHADE_settings* settings )
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold ( )
 {
     //================================================ Return the value
-    return                                            ( settings->recommendedSymmetryFold );
+    return                                            ( this->recommendedSymmetryFold );
     
 }
 
 /*! \brief This function returns the number of detected recommended symmetry axes.
 
-    \param[in] settings A pointer to settings class containing all the information required for map manipulation.
     \param[out] val The length of the recommended symmetry axes vector.
 */
-proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryAxes ( ProSHADE_settings* settings )
+proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryAxes ( )
 {
     //================================================ Return the value
-    return                                            ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) );
+    return                                            ( static_cast< proshade_unsign > ( this->recommendedSymmetryValues.size() ) );
 }
 
 /*! \brief This function returns a single symmetry axis as a vector of strings from the recommended symmetry axes list.
@@ -4511,7 +4586,7 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getNoRecommendedSymmetryA
 std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxis ( ProSHADE_settings* settings, proshade_unsign axisNo )
 {
     //================================================ Sanity checks
-    if ( static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ) <= axisNo )
+    if ( static_cast<proshade_unsign> ( this->recommendedSymmetryValues.size() ) <= axisNo )
     {
         ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested symmetry index does not exist. Returning empty vector.", "WS00039" );
         return                                        ( std::vector< std::string > ( ) );
@@ -4522,31 +4597,31 @@ std::vector< std::string > ProSHADE_internal_data::ProSHADE_data::getSymmetryAxi
     
     //================================================ Input the axis data as strings
     std::stringstream ssHlp;
-    ssHlp << settings->detectedSymmetry.at(axisNo)[0];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[0];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
-    ssHlp << settings->detectedSymmetry.at(axisNo)[1];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[1];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
-    ssHlp << settings->detectedSymmetry.at(axisNo)[2];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[2];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
-    ssHlp << settings->detectedSymmetry.at(axisNo)[3];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[3];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
-    ssHlp << settings->detectedSymmetry.at(axisNo)[4];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[4];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
-    ssHlp << settings->detectedSymmetry.at(axisNo)[5];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[5];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     
-    ssHlp << settings->detectedSymmetry.at(axisNo)[6];
+    ssHlp << this->recommendedSymmetryValues.at(axisNo)[6];
     ProSHADE_internal_misc::addToStringVector         ( &ret, ssHlp.str() );
     ssHlp.str                                         ( "" );
     

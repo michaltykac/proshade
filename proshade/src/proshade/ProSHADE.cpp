@@ -18,8 +18,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -50,7 +50,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->requestedResolution                         = -1.0;
     this->changeMapResolution                         = false;
     this->changeMapResolutionTriLinear                = false;
-    this->resolutionOversampling                      = 0.75;
+    this->resolutionOversampling                      = 0.5;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = -1.0;
@@ -142,11 +142,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( )
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.5;
-    this->recommendedSymmetryType                     = "";
-    this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
     this->requestedSymmetryFold                       = 0;
-    this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding centre of map
     ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
@@ -284,18 +281,9 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_settings* 
     this->axisErrTolerance                            = settings->axisErrTolerance;
     this->axisErrToleranceDefault                     = settings->axisErrToleranceDefault;
     this->minSymPeak                                  = settings->minSymPeak;
-    this->recommendedSymmetryType                     = settings->recommendedSymmetryType;
-    this->recommendedSymmetryFold                     = settings->recommendedSymmetryFold;
     this->requestedSymmetryType                       = settings->requestedSymmetryType;
     this->requestedSymmetryFold                       = settings->requestedSymmetryFold;
-    
-    
-    this->detectedSymmetry.clear                      ( );
-    for ( size_t dsIt = 0; dsIt < settings->detectedSymmetry.size(); dsIt++ )
-    {
-        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, settings->detectedSymmetry.at(dsIt) );
-    }
-    
+
     //================================================ Settings regarding centre of map
     this->centrePosition.clear                        ( );
     for ( size_t cpIt = 0; cpIt < settings->centrePosition.size(); cpIt++ )
@@ -339,7 +327,7 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->requestedResolution                         = -1.0;
     this->changeMapResolution                         = false;
     this->changeMapResolutionTriLinear                = false;
-    this->resolutionOversampling                      = 0.75;
+    this->resolutionOversampling                      = 0.5;
     
     //================================================ Settings regarding the PDB B-factor change
     this->pdbBFactorNewVal                            = -1.0;
@@ -430,11 +418,8 @@ __declspec(dllexport) ProSHADE_settings::ProSHADE_settings ( ProSHADE_Task taskT
     this->axisErrTolerance                            = 0.01;
     this->axisErrToleranceDefault                     = true;
     this->minSymPeak                                  = 0.5;
-    this->recommendedSymmetryType                     = "";
-    this->recommendedSymmetryFold                     = 0;
     this->requestedSymmetryType                       = "";
     this->requestedSymmetryFold                       = 0;
-    this->detectedSymmetry.clear                      ( );
     
     //================================================ Settings regarding centre of map
     ProSHADE_internal_misc::addToDoubleVector         ( &this->centrePosition, std::numeric_limits< proshade_double >::infinity() );
@@ -511,9 +496,6 @@ __declspec(dllexport) ProSHADE_settings::~ProSHADE_settings ( void )
 {
     //================================================ Release boundaries variable
     delete[] this->forceBounds;
-    
-    //================================================ Release symmetry axes
-    if ( this->detectedSymmetry.size() > 0 ) { for ( proshade_unsign it = 0; it < static_cast<proshade_unsign> ( this->detectedSymmetry.size() ); it++ ) { if ( this->detectedSymmetry.at(it) != nullptr ) { delete[] this->detectedSymmetry.at(it); } } }
     
     //================================================ Done
     
@@ -1514,51 +1496,6 @@ void                       ProSHADE_settings::setMinimumPeakForAxis ( proshade_d
     
 }
 
-/*! \brief Sets the ProSHADE detected symmetry type.
- 
-    When symmetry detection is done, the resulting recommended symmetry type will be saved in the settings object by this function.
- 
-    \param[in] val The recommended symmetry type for the structure.
- 
-    \warning This is an internal function and it should not be used by the user.
- */
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::setRecommendedSymmetry ( std::string val )
-#else
-void                       ProSHADE_settings::setRecommendedSymmetry ( std::string val )
-#endif
-{
-    //================================================ Set the value
-    this->recommendedSymmetryType                     = val;
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Sets the ProSHADE detected symmetry fold.
- 
-    When symmetry detection is done, the resulting recommended symmetry fold  (valid only for C and D symmetry types) will be saved in the
-    settings object by this function.
- 
-    \param[in] val The recommended symmetry fold for the structure.
- 
-    \warning This is an internal function and it should not be used by the user.
- */
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
-#else
-void                       ProSHADE_settings::setRecommendedFold ( proshade_unsign val )
-#endif
-{
-    //================================================ Set the value
-    this->recommendedSymmetryFold                     = val;
-    
-    //================================================ Done
-    return ;
-    
-}
-
 /*! \brief Sets the user requested symmetry type.
  
     When symmetry detection is started, this symmetry type will be exclusively sought.
@@ -1593,65 +1530,6 @@ void                       ProSHADE_settings::setRequestedFold ( proshade_unsign
 {
     //================================================ Set the value
     this->requestedSymmetryFold                       = val;
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Sets the final detected symmetry axes information.
-    
-    This function copies (deep copy) the detected and recommended (or requested) symmetry axis information into the settings
-    object variable for further processing. For multiple axes, call this function multiple times - the addition is cumulative.
- 
-    \param[in] sym A pointer to single symmetry axis constituting the detected symmetry.
- */
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
-#else
-void                       ProSHADE_settings::setDetectedSymmetry ( proshade_double* sym )
-#endif
-{
-    //================================================ Allocate memory
-    proshade_double* hlpAxis                          = new proshade_double [7];
-    ProSHADE_internal_misc::checkMemoryAllocation     ( hlpAxis, __FILE__, __LINE__, __func__ );
-    
-    //================================================ Copy (deep) data
-    hlpAxis[0]                                        = sym[0];
-    hlpAxis[1]                                        = sym[1];
-    hlpAxis[2]                                        = sym[2];
-    hlpAxis[3]                                        = sym[3];
-    hlpAxis[4]                                        = sym[4];
-    hlpAxis[5]                                        = sym[5];
-    hlpAxis[6]                                        = sym[6];
-    
-    //================================================ Save
-    ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->detectedSymmetry, hlpAxis );
-    
-    //================================================ Release memory
-    delete[] hlpAxis;
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief If the detected symmetry vector needs to be cleared, this is where it is done.
- */
-#if defined ( _WIN64 ) || defined ( _WIN32 )
-void __declspec(dllexport) ProSHADE_settings::cleanDetectedSymmetry ( )
-#else
-void                       ProSHADE_settings::cleanDetectedSymmetry ( )
-#endif
-{
-    //================================================ Release the detected symmetry vector memory
-    for ( size_t it = 0; it < this->detectedSymmetry.size(); it++ )
-    {
-        delete[] this->detectedSymmetry.at( it );
-    }
-    
-    //================================================ Empty the vector
-    this->detectedSymmetry.clear                      ( );
     
     //================================================ Done
     return ;
@@ -2039,8 +1917,7 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Distances, Symmetry,\n                    : OverlayMap or MapManip." );
                 
             case Symmetry:
-                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->RecomSymAxes, &this->allCSymAxes, &this->mapCOMShift );
-                this->setSymmetryResults              ( settings );
+                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->mapCOMShift );
                 break;
                 
             case Distances:
@@ -2217,24 +2094,6 @@ void ProSHADE_run::setRecommendedAxis ( proshade_double* sym )
 {
     //================================================ Set the value
     ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &this->RecomSymAxes, sym );
-    
-    //================================================ Done
-    return ;
-    
-}
-
-/*! \brief Sets the ProSHADE detected symmetry information for easy programmatical output.
- 
-    When symmetry detection is done, the resulting recommended symmetry information will be saved in the
-    ProSHADE object by this function.
- 
-    \param[in] settings ProSHADE_settings object where the results are passed through.
- */
-void ProSHADE_run::setSymmetryResults ( ProSHADE_settings* settings )
-{
-    //================================================ Save type and fold
-    this->setRecommendedSymmetry                      ( settings->recommendedSymmetryType );
-    this->setRecommendedFold                          ( settings->recommendedSymmetryFold );
     
     //================================================ Done
     return ;
@@ -3102,10 +2961,6 @@ void                       ProSHADE_settings::printSettings ( )
     strstr.str(std::string());
     strstr << this->minSymPeak;
     printf ( "Min. sym. peak size : %37s\n", strstr.str().c_str() );
-    
-    strstr.str(std::string());
-    strstr << this->recommendedSymmetryType << "-" << this->recommendedSymmetryFold;
-    printf ( "Recommended symm.   : %37s\n", strstr.str().c_str() );
     
     strstr.str(std::string());
     strstr << this->requestedSymmetryType << "-" << this->requestedSymmetryFold;

@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -304,7 +304,7 @@ void ProSHADE_internal_io::applyMask ( proshade_double*& map, std::string maskFi
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Reading mask " << maskFile;
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str(), messageShift );
     
     //================================================ Are we reading from array or from file?
     if ( ( maskArray != nullptr ) && ( maXInds != 0 ) && ( maYInds != 0 ) && ( maZInds != 0 ) )
@@ -590,7 +590,7 @@ void ProSHADE_internal_io::applyWeights ( proshade_double*& map, std::string wei
     //================================================ Report progress
     std::stringstream hlpSS;
     hlpSS << "Reading weights " << weightsFile;
-    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str() );
+    ProSHADE_internal_messages::printProgressMessage  ( verbose, 2, hlpSS.str(), messageShift );
     
     //================================================ Are we reading from file, or from array?
     if ( ( weightsArray != nullptr ) && ( waXInds != 0 ) && ( waYInds != 0 ) && ( waZInds != 0 ) )
