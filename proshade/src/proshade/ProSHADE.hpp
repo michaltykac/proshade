@@ -47,10 +47,6 @@ private:
     std::vector < proshade_double > trSigm;           //!< Vector holding trace sigma distances from the first to all other supplied structures.
     std::vector < proshade_double > rotFun;           //!< Vector holding full rotation function distances from the first to all other supplied structures.
     
-    //================================================ Variables regarding symmetry detection
-    std::vector< proshade_double* > RecomSymAxes;     //!< Vector holding the recommended symmetry axes information.
-    std::vector < std::vector< proshade_double > > allCSymAxes; //!< Vector holding all detected cyclic symmetry axes information.
-    
     //================================================ Variables regarding re-boxing task
     std::vector < proshade_signed* > originalBounds;  //!< Original boundaries of the map.
     std::vector < proshade_signed* > reboxedBounds;   //!< Re-boxed boundaries of the map.
@@ -64,6 +60,8 @@ private:
     //================================================ Variables regarding symmetry detection
     std::string symRecommType;                        //!< The resulting recommended symmetry type for the symmetry detection task.
     proshade_unsign symRecommFold;                    //!< The resulting recommended symmetry fold foe the symmetry detection task.
+    std::vector< proshade_double* > RecomSymAxes;     //!< Vector holding the recommended symmetry axes information.
+    std::vector < std::vector< proshade_double > > allCSymAxes; //!< Vector holding all detected cyclic symmetry axes information.
     std::vector< proshade_double > mapCOMShift;       //!< Vector containing the shift applied to get the COM of the internal map to the centre of the box.
     
 private:

@@ -95,7 +95,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 20
+startFrom                                             = 359
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0

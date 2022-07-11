@@ -22,8 +22,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.5
-#   \date      JUN 2022
+#   \version   0.7.6.6
+#   \date      JUL 2022
 ######################################################
 ######################################################
 
@@ -126,10 +126,10 @@ pStruct.detectSymmetryInStructure                     ( pSet )
     
 ######################################################
 ### Retrieve results
-recSymmetryType                                       = pStruct.getRecommendedSymmetryType ( pSet )
-recSymmetryFold                                       = pStruct.getRecommendedSymmetryFold ( pSet )
-recSymmetryAxes                                       = pStruct.getRecommendedSymmetryAxes ( pSet )
-allCAxes                                              = pStruct.getAllCSyms ( pSet )
+recSymmetryType                                       = pStruct.getRecommendedSymmetryType ( )
+recSymmetryFold                                       = pStruct.getRecommendedSymmetryFold ( )
+recSymmetryAxes                                       = pStruct.getRecommendedSymmetryAxes ( )
+allCAxes                                              = pStruct.getAllCSyms ( )
 
 ######################################################
 ### Print results
@@ -146,16 +146,16 @@ for i in range( 0, len( allCAxes ) ):
 
 ### EXPECTED OUTPUT: Recommended symmetry:
 ### EXPECTED OUTPUT: D3
-### EXPECTED OUTPUT:
+### EXPECTED OUTPUT: 
 ### EXPECTED OUTPUT: Recommended axes:
-### EXPECTED OUTPUT: 3.0 | 0.9999329 x -0.011586841 x -6.123234e-17 || 0.9128239
-### EXPECTED OUTPUT: 2.0 | 0.0008414974 x -9.441583e-07 x 0.99999964 || 0.9980464
-### EXPECTED OUTPUT:
+### EXPECTED OUTPUT: 3.0 | 0.9999328 x -0.011591071 x -6.123234e-17 || 0.9127528
+### EXPECTED OUTPUT: 2.0 | 0.0007012483 x 0.0 x 0.99999976 || 0.998042
+### EXPECTED OUTPUT: 
 ### EXPECTED OUTPUT: All axes:
-### EXPECTED OUTPUT: 2.0 | 0.0008414974 x -9.441583e-07 x 0.99999964 || 0.9980464
-### EXPECTED OUTPUT: 3.0 | 0.9999329 x -0.011586841 x -6.123234e-17 || 0.9128239
-### EXPECTED OUTPUT: 2.0 | 0.00974076 x 0.8641076 x 0.50321287 || 0.9079414
-### EXPECTED OUTPUT: 2.0 | 0.009739787 x 0.8641073 x -0.50321335 || 0.9079347
+### EXPECTED OUTPUT: 2.0 | 0.0007012483 x 0.0 x 0.99999976 || 0.998042
+### EXPECTED OUTPUT: 3.0 | 0.9999328 x -0.011591071 x -6.123234e-17 || 0.9127528
+### EXPECTED OUTPUT: 2.0 | 0.009986875 x 0.8641762 x -0.5030902 || 0.90472996
+### EXPECTED OUTPUT: 2.0 | 0.009988657 x 0.8641767 x 0.5030893 || 0.9047275
 
 ######################################################
 ### Release ProSHADE memory

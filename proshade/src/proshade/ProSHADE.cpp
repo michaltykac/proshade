@@ -1917,7 +1917,8 @@ __declspec(dllexport) ProSHADE_run::ProSHADE_run ( ProSHADE_settings* settings )
                 throw ProSHADE_exception ( "No task has been specified.", "E000001", __FILE__, __LINE__, __func__, "ProSHADE requires to be told which particular functiona-\n                    : lity (task) is requested from it. In order to do so, the\n                    : command line arguments specifying task need to be used\n                    : (if used from command line), or the ProSHADE_settings\n                    : object needs to have the member variable \'Task\' set to\n                    : one of the following values: Distances, Symmetry,\n                    : OverlayMap or MapManip." );
                 
             case Symmetry:
-                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->mapCOMShift );
+                ProSHADE_internal_tasks::SymmetryDetectionTask ( settings, &this->mapCOMShift, &this->symRecommType, &this->symRecommFold, &this->RecomSymAxes, &this->allCSymAxes );
+                
                 break;
                 
             case Distances:
@@ -2010,7 +2011,7 @@ __declspec(dllexport) ProSHADE_run::~ProSHADE_run ( )
     //================================================ Delete symmetry axes memory
     if ( this->RecomSymAxes.size() > 0 )
     {
-        for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( this->RecomSymAxes.size() ); iter++ )
+        for ( size_t iter = 0; iter < this->RecomSymAxes.size(); iter++ )
         {
             delete[] this->RecomSymAxes.at(iter);
         }

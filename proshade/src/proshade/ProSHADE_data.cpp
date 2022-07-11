@@ -178,6 +178,9 @@ ProSHADE_internal_data::ProSHADE_data::ProSHADE_data ( )
     this->maxEMatDim                                  = 0;
     this->translationMap                              = nullptr;
     
+    // ... Symmetry detectino
+    this->recommendedSymmetryFold                     = 1;
+    this->recommendedSymmetryType                     = 'C';
     
     // ... Control variables
     this->isEmpty                                     = true;
@@ -3528,7 +3531,10 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResults ( ProSHADE_set
 void ProSHADE_internal_data::ProSHADE_data::reportCurrentSymmetryResults ( ProSHADE_settings* settings, proshade_double threshold, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed cutXDim, proshade_signed cutYDim, proshade_signed cutZDim )
 {
     //================================================ Find results for the given threshold
+    proshade_signed origVerbose                       = settings->verbose;
+    settings->verbose                                 = -999;
     this->determineRecommendedSymmetry                ( settings, threshold, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    settings->verbose                                 = origVerbose;
     
     //================================================ Improve this!
     if ( this->recommendedSymmetryType == "" || ( this->recommendedSymmetryType == "C" && this->recommendedSymmetryFold == 1 ) )
@@ -3572,11 +3578,7 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResultsList ( ProSHADE
     ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.60 );
     ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.50 );
     ProSHADE_internal_misc::addToDoubleVector         ( &thrLevels, 0.40 );
-    
-    //================================================ Silence the search
-    proshade_signed origVerbose                       = settings->verbose;
-    settings->verbose                                 = 0;
-    
+        
     //================================================ Prepare FSC computation memory and variables
     fftw_complex* fCoeffsCut;
     proshade_double **bindata, *fscByBin;
@@ -3589,8 +3591,11 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResultsList ( ProSHADE
     ssHlp << std::endl << "Detecting symmetries about point [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "] away from centre of mass .";
     ProSHADE_internal_messages::printProgressMessage ( settings->verbose, 0, ssHlp.str(), settings->messageShift );
     
-    //================================================ Run default detection
+    //================================================ Run default detection in silence
+    proshade_signed origVerbose                       = settings->verbose;
+    settings->verbose                                 = -999;
     this->determineRecommendedSymmetry                ( settings, settings->fscThreshold, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+    settings->verbose                                 = origVerbose;
     
     //================================================ Print intro to proshade default
     ssHlp.clear(); ssHlp.str ( "" );
@@ -3637,9 +3642,6 @@ void ProSHADE_internal_data::ProSHADE_data::reportSymmetryResultsList ( ProSHADE
     delete[] binCounts;
     delete[] cutIndices;
     fftw_free                                         ( fCoeffsCut );
-    
-    //================================================ Set verbosity back
-    settings->verbose                                 = origVerbose;
     
     //================================================ Print all axes
     ssHlp.clear(); ssHlp.str ( "" );
@@ -4241,6 +4243,27 @@ std::vector< proshade_double* >* ProSHADE_internal_data::ProSHADE_data::getCycli
     
 }
 
+
+/*! \brief This function allows access to the list of detected cyclic axes in non-overwrite fashion.
+
+    \param[out] cyclicSymmetries Vector of the cyclic axes detected in the structure.
+*/
+std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getCyclicAxesCopy ( void )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_double* > ret;
+    
+    //================================================ Copy values
+    for ( size_t aIt = 0; aIt < this->cyclicSymmetries.size(); aIt++ )
+    {
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, &this->cyclicSymmetries.at( aIt )[0] );
+    }
+    
+    //================================================ Return the requested value
+    return                                            ( ret );
+    
+}
+
 /*! \brief This function allows access to the list of detected dihedral axes.
 
     \param[out] dihedralSymmetries Vector of vectors containing the list of detected dihedral symmetries.
@@ -4249,6 +4272,29 @@ std::vector< std::vector< proshade_double* > >* ProSHADE_internal_data::ProSHADE
 {
     //================================================ Return the requested value
     return                                            ( &this->dihedralSymmetries );
+    
+}
+
+/*! \brief This function allows access to the list of detected dihedral axes in a non-over-write fashion.
+
+    \param[out] dihedralSymmetries Vector of vectors containing the list of detected dihedral symmetries.
+*/
+std::vector< std::vector< proshade_double* > > ProSHADE_internal_data::ProSHADE_data::getDihedralAxesCopy ( void )
+{
+    //================================================ Initialise variables
+    std::vector< std::vector< proshade_double* > > ret;
+    
+    //================================================ Copy values
+    for ( size_t aIt = 0; aIt < this->dihedralSymmetries.size(); aIt++ )
+    {
+        std::vector< proshade_double* > hlpVec;
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &hlpVec, &this->dihedralSymmetries.at( aIt ).at(0)[0] );
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &hlpVec, &this->dihedralSymmetries.at( aIt ).at(1)[0] );
+        ProSHADE_internal_misc::addToDblPtrVectorVector    ( &ret,    hlpVec );
+    }
+    
+    //================================================ Return the requested value
+    return                                            ( ret );
     
 }
 
@@ -4564,6 +4610,24 @@ proshade_unsign ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFol
 {
     //================================================ Return the value
     return                                            ( this->recommendedSymmetryFold );
+    
+}
+
+/*! \brief This function simply returns the detected recommended symmetry axes.
+*/
+std::vector< proshade_double* > ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryValues ( )
+{
+    //================================================ Initialise variables
+    std::vector< proshade_double* > ret;
+    
+    //================================================ Copy results
+    for ( size_t aIt = 0; aIt < this->recommendedSymmetryValues.size(); aIt++ )
+    {
+        ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( &ret, &this->recommendedSymmetryValues.at( aIt )[0] );
+    }
+    
+    //================================================ Return the value
+    return                                            ( ret );
     
 }
 

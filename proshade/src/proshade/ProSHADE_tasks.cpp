@@ -281,11 +281,13 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     the settings object passed as the first argument.
  
     \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
-    \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
-    \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
     \param[in] mapCOMShift A pointer to a vector containing the distance from the centre of the map to the point about which the symmetry detection was done.
+    \param[in] symT Pointer to string that will hold the determined symmetry type.
+    \param[in] symF Pointer to unsigned int that will hold the determined symmetry fold.
+    \param[in] symA Pointer to a vector of doubles that will hold the determined symmetry axes in the proshade format.
+    \param[in] allCs A pointer to a vector of vectors containing all the detected C axes.
  */
-void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double >* mapCOMShift )
+void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double >* mapCOMShift, std::string* symT, proshade_unsign* symF, std::vector< proshade_double* >* symA, std::vector < std::vector< proshade_double > >* allCs )
 {
     //================================================ Check the settings are complete and meaningful
     checkSymmetrySettings                             ( settings );
@@ -341,7 +343,13 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         //============================================ Report results
         symmetryStructure->reportSymmetryResultsList  ( settings );
         
-        //============================================ Save internal map shift to run object,
+        //============================================ Save symmetry results
+       *symT                                          = symmetryStructure->getRecommendedSymmetryType ( );
+       *symF                                          = symmetryStructure->getRecommendedSymmetryFold ( );
+        for ( size_t aIt = 0; aIt < symmetryStructure->recommendedSymmetryValues.size(); aIt++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( symA, &symmetryStructure->recommendedSymmetryValues.at( aIt )[0] ); }
+        for ( size_t aIt = 0; aIt < symmetryStructure->cyclicSymmetries.size(); aIt++ ) { std::vector< proshade_double > hlpVec; for ( size_t vIt = 0; vIt < 7; vIt++ ) { ProSHADE_internal_misc::addToDoubleVector ( &hlpVec, symmetryStructure->cyclicSymmetries.at(aIt)[vIt] ); } ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, hlpVec ); }
+        
+        //============================================ Save internal map shift to run object
         ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeX );
         ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeY );
         ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeZ );

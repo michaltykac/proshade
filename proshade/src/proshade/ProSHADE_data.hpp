@@ -238,6 +238,7 @@ namespace ProSHADE_internal_data
         std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );
         std::string     getRecommendedSymmetryType    ( void );
         proshade_unsign getRecommendedSymmetryFold    ( void );
+        std::vector< proshade_double* > getRecommendedSymmetryValues ( void );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
         proshade_unsign getNoRecommendedSymmetryAxes  ( void );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
@@ -323,7 +324,9 @@ namespace ProSHADE_internal_data
         proshade_complex* getTranslationFnPointer     ( void );
         std::vector< proshade_double > getMapCOMProcessChange ( void );
         std::vector< proshade_double* >* getCyclicAxes ( void );
+        std::vector< proshade_double* >  getCyclicAxesCopy ( void );
         std::vector< std::vector< proshade_double* > >* getDihedralAxes ( void );
+        std::vector< std::vector< proshade_double* > >  getDihedralAxesCopy ( void );
         
         //============================================ Mutator functions
         void setIntegrationWeight                     ( proshade_double intW );
