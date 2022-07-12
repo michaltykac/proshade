@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== Include PyBind11 header
@@ -278,25 +278,44 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                         [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings )
                                                         {
                                                             //== Call the appropriate C++ function
-                                                            self.detectSymmetryFromAngleAxisSpace ( settings, &settings->detectedSymmetry, &settings->allDetectedCAxes );
+                                                            self.detectSymmetryFromAngleAxisSpace ( settings );
                                                         }, "This function runs the symmetry detection algorithms on this structure and saves the results in the settings object.", pybind11::arg ( "settings" ) )
-        .def                                          ( "getRecommendedSymmetryType", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType, "This function simply returns the detected recommended symmetry type.", pybind11::arg ( "settings" ) )
-        .def                                          ( "getRecommendedSymmetryFold", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold, "This function simply returns the detected recommended symmetry fold.", pybind11::arg ( "settings" ) )
+        .def                                          ( "reRunSymmetryDetectionThreshold",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings, proshade_double threshold )
+                                                        {
+                                                            //== Prepare FSC computation memory and variables
+                                                            fftw_complex* fCoeffsCut;
+                                                            proshade_double **bindata, *fscByBin;
+                                                            proshade_signed *cutIndices, *binCounts, noBins, cutXDim, cutYDim, cutZDim;
+                                                            self.prepareFSCFourierMemory ( cutIndices, fCoeffsCut, &noBins, bindata, binCounts, fscByBin, settings->requestedResolution, &cutXDim, &cutYDim, &cutZDim );
+                                                            
+                                                            //== Run detection with threshold
+                                                            self.determineRecommendedSymmetry ( settings, threshold, cutIndices, fCoeffsCut, noBins, bindata, binCounts, fscByBin, cutXDim, cutYDim, cutZDim );
+                                                            
+                                                            //== Release FSC computation memory
+                                                            for (size_t binIt = 0; binIt < static_cast< size_t > ( noBins ); binIt++ ) { delete[] bindata[binIt]; }
+                                                            delete[] bindata;
+                                                            delete[] binCounts;
+                                                            delete[] cutIndices;
+                                                            fftw_free                                         ( fCoeffsCut );
+                                                        }, "This function runs the symmetry detection algorithms on this structure and saves the results in the settings object.", pybind11::arg ( "settings" ), pybind11::arg ( "threshold" ) )
+        .def                                          ( "getRecommendedSymmetryType", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryType, "This function simply returns the detected recommended symmetry type."                               )
+        .def                                          ( "getRecommendedSymmetryFold", &ProSHADE_internal_data::ProSHADE_data::getRecommendedSymmetryFold, "This function simply returns the detected recommended symmetry fold."                               )
         .def                                          ( "getRecommendedSymmetryAxes",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
-                                                            float* npVals = new float[static_cast<unsigned int> ( settings->detectedSymmetry.size() * 7 )];
+                                                            float* npVals = new float[static_cast<unsigned int> ( self.recommendedSymmetryValues.size() * 7 )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
     
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->detectedSymmetry.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 7; it++ ) { npVals[(iter*7)+it] = static_cast< float > ( settings->detectedSymmetry.at(iter)[it] ); } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( self.recommendedSymmetryValues.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 7; it++ ) { npVals[(iter*7)+it] = static_cast< float > ( self.recommendedSymmetryValues.at(iter)[it] ); } }
     
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleStrRecSym ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
 
                                                             //== Copy the value
-                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( settings->detectedSymmetry.size() ), static_cast<int> ( 7 ) },  // Shape
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( self.recommendedSymmetryValues.size() ), static_cast<int> ( 7 ) },  // Shape
                                                                                                                             { 7 * sizeof(float), sizeof(float) },                          // C-stype strides
                                                                                                                             npVals,                                                        // Data
                                                                                                                             pyCapsuleStrRecSym );                                          // Capsule
@@ -305,20 +324,20 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns the recommended symmetry axes as a 2D numpy array." )
         .def                                          ( "getAllCSyms",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::array_t < float >
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < float >
                                                         {
                                                             //== Allocate memory for the numpy values
-                                                            float* npVals = new float[static_cast<unsigned int> ( settings->allDetectedCAxes.size() * 7 )];
+                                                            float* npVals = new float[static_cast<unsigned int> ( self.cyclicSymmetries.size() * 7 )];
                                                             ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
         
                                                             //== Copy values
-                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( settings->allDetectedCAxes.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 7; it++ ) { npVals[(iter*7)+it] = static_cast< float > ( settings->allDetectedCAxes.at(iter).at(it) ); } }
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( self.cyclicSymmetries.size() ); iter++ ) { for ( proshade_unsign it = 0; it < 7; it++ ) { npVals[(iter*7)+it] = static_cast< float > ( self.cyclicSymmetries.at(iter)[it] ); } }
         
                                                             //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
                                                             pybind11::capsule pyCapsuleStrSymList ( npVals, []( void *f ) { float* foo = reinterpret_cast< float* > ( f ); delete foo; } );
 
                                                             //== Copy the value
-                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( settings->allDetectedCAxes.size() ), 7 },  // Shape
+                                                            pybind11::array_t < float > retArr = pybind11::array_t<float> ( { static_cast<int> ( self.cyclicSymmetries.size() ), 7 },       // Shape
                                                                                                                             { 7 * sizeof(float), sizeof(float) },                           // C-stype strides
                                                                                                                             npVals,                                                         // Data
                                                                                                                             pyCapsuleStrSymList );                                          // Capsule
@@ -327,41 +346,49 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retArr );
                                                         }, "This function returns all symmetry axes as a 2D numpy array." )
         .def                                          ( "getNonCSymmetryAxesIndices",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings ) -> pybind11::dict
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::dict
                                                         {
                                                             //== Initialise local variables
                                                             pybind11::dict retDict;
                                                             pybind11::list dList, tList, oList, iList;
-            
+
                                                             //== Fill in the D list
-                                                            for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( settings->allDetectedDAxes.size() ); dIt++ )
+                                                            for ( proshade_unsign dIt = 0; dIt < static_cast<proshade_unsign> ( self.dihedralSymmetries.size() ); dIt++ )
                                                             {
                                                                 pybind11::list memList;
-                                                                for ( proshade_unsign memIt = 0; memIt < static_cast<proshade_unsign> ( settings->allDetectedDAxes.at(dIt).size() ); memIt++ )
+                                                                for ( proshade_unsign memIt = 0; memIt < static_cast<proshade_unsign> ( self.dihedralSymmetries.at(dIt).size() ); memIt++ )
                                                                 {
-                                                                    memList.append ( settings->allDetectedDAxes.at(dIt).at(memIt) );
+                                                                    pybind11::list axList;
+                                                                    for ( size_t vIt = 0; vIt < 7; vIt++ ) { axList.append ( self.dihedralSymmetries.at(dIt).at(memIt)[vIt] ); }
+                                                                    memList.append ( axList );
                                                                 }
                                                                 dList.append ( memList );
                                                             }
-            
+
                                                             //== Fill in the T list
-                                                            for ( proshade_unsign tIt = 0; tIt < static_cast<proshade_unsign> ( settings->allDetectedTAxes.size() ); tIt++ )
+                                                            for ( proshade_unsign tIt = 0; tIt < static_cast<proshade_unsign> ( self.tetrahedralSymmetries.size() ); tIt++ )
                                                             {
-                                                                tList.append ( settings->allDetectedTAxes.at ( tIt ) );
+                                                                pybind11::list axList;
+                                                                for ( size_t vIt = 0; vIt < 7; vIt++ ) { axList.append ( self.tetrahedralSymmetries.at(tIt)[vIt] ); }
+                                                                tList.append ( axList );
                                                             }
-            
+
                                                             //== Fill in the O list
-                                                            for ( proshade_unsign oIt = 0; oIt < static_cast<proshade_unsign> ( settings->allDetectedOAxes.size() ); oIt++ )
+                                                            for ( proshade_unsign oIt = 0; oIt < static_cast<proshade_unsign> ( self.octahedralSymmetries.size() ); oIt++ )
                                                             {
-                                                                oList.append ( settings->allDetectedOAxes.at ( oIt ) );
+                                                                pybind11::list axList;
+                                                                for ( size_t vIt = 0; vIt < 7; vIt++ ) { axList.append ( self.octahedralSymmetries.at(oIt)[vIt] ); }
+                                                                oList.append ( axList );
                                                             }
-            
+
                                                             //== Fill in the T list
-                                                            for ( proshade_unsign iIt = 0; iIt < static_cast<proshade_unsign> ( settings->allDetectedIAxes.size() ); iIt++ )
+                                                            for ( proshade_unsign iIt = 0; iIt < static_cast<proshade_unsign> ( self.icosahedralSymmetries.size() ); iIt++ )
                                                             {
-                                                                iList.append ( settings->allDetectedIAxes.at ( iIt ) );
+                                                                pybind11::list axList;
+                                                                for ( size_t vIt = 0; vIt < 7; vIt++ ) { axList.append ( self.icosahedralSymmetries.at(iIt)[vIt] ); }
+                                                                iList.append ( axList );
                                                             }
-            
+
                                                             //== Save the lists to the dict
                                                             retDict[ pybind11::handle ( pybind11::str ( "D" ).ptr ( ) ) ] = dList;
                                                             retDict[ pybind11::handle ( pybind11::str ( "T" ).ptr ( ) ) ] = tList;
@@ -372,7 +399,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             return ( retDict );
                                                         }, "This function returns array of non-C axes indices." )
         .def                                          ( "getAllGroupElements",
-                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, ProSHADE_settings* settings, pybind11::array_t < int > axList, std::string groupType, proshade_double matrixTolerance ) -> pybind11::list
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, pybind11::array_t < int > axList, std::string groupType, proshade_double matrixTolerance ) -> pybind11::list
                                                         {
                                                             //== Sanity check
                                                             pybind11::buffer_info buf = axList.request();
@@ -383,7 +410,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( axList.size() ); iter++ ) { ProSHADE_internal_misc::addToUnsignVector ( &axesList, static_cast< proshade_unsign > ( axList.at(iter) ) ); }
             
                                                             //== Get the results
-                                                            std::vector < std::vector< proshade_double > > vals = self.getAllGroupElements ( settings, axesList, groupType, matrixTolerance );
+                                                            std::vector < std::vector< proshade_double > > vals = self.getAllGroupElements ( axesList, groupType, matrixTolerance );
     
                                                             //== Initialise return variable
                                                             pybind11::list retList;
@@ -413,7 +440,7 @@ void add_dataClass ( pybind11::module& pyProSHADE )
 
                                                             //== Done
                                                             return ( retList );
-                                                        }, "This function returns the group elements as rotation matrices of any point group described by the detected axes.", pybind11::arg ( "settings" ), pybind11::arg ( "axList" ), pybind11::arg ( "groupType" ) = "", pybind11::arg( "matrixTolerance" ) = 0.05 )
+                                                        }, "This function returns the group elements as rotation matrices of any point group described by the detected axes.", pybind11::arg ( "axList" ), pybind11::arg ( "groupType" ) = "", pybind11::arg( "matrixTolerance" ) = 0.05 )
     
         .def                                          ( "getMapCOMProcessChange",
                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self ) -> pybind11::array_t < float >

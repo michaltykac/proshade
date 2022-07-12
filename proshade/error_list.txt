@@ -4,7 +4,7 @@
 ====================================
 ====================================
 
-== NEXT FREE MESSAGE NUMBER: 00075 ==
+== NEXT FREE MESSAGE NUMBER: 00076 ==
 
 ========
 GENERAL:
@@ -185,6 +185,8 @@ WS00071		Failed to find symmetry in Patterson map. Map rotation centre detection
 			vector with [Inf, Inf, Inf].
 WS00072		Failed to find eigenvalue with value 1 for this rotation matrix. Is this a rotation matrix?								This warning occurs when eigenvalue with value 1 is not found be LAPACK in the supplied rotation matrix. This should not happen, as all rotation matrices must have at least one eigenvalue with value 1, so this suggests the supplied matrix is not a rotation matrix.
 WS00073		Requested both symmetry centre detection and COM centering. COM centering turned off.									This warning means that symmetry centre detection was done (or at least symmetry centre position was supplied) and still centering on COM was requested - this makes no sense as the COM centering would over-write the previous centre of symmetry search and therefore the COM centering is turned off.
+WS00075		Will not search for fold >>X<< as the map sampling does not support its reliable detection. Increase 					The bandwidth determines the dimensions of rotation function. Thus, if we want to search for fold X, then the bandwidth is required to be at least X/2.
+			resolution/bandwidth if you suspect this fold could be present in the structure.
 																																	
 ========
 OVERLAY:
@@ -209,3 +211,7 @@ WP00038		The rotation function distances are not available, yet already requeste
             getRotationFunctionDescrNumpy() function is called.  																	was already called. If this was not the case, please let me know!
 WP00043		Attempted to access shell index outside of the shell range.																This warning occurs when you call the getSphericalHarmonicsForShell() function with shell number argument larger than the largest available shell (or alternatively with negative number).
 
+
+========
+GENERAL:
+========

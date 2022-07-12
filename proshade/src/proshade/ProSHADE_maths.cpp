@@ -16,8 +16,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -4150,7 +4150,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< prosh
     //================================================ Determine threshold from the peaks
     size_t bestHistPos;
     if ( peaks.size() > 0 )                           { bestHistPos = hist.size() - ( ( smoothened.size() - static_cast< size_t > ( peaks.at(peaks.size()-1) ) ) + ( ( static_cast< size_t > ( windowSize ) + 1 ) / 2 ) ); }
-    else                                              { bestHistPos = 0.0; }
+    else                                              { bestHistPos = 0; }
     threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
     
     //================================================ Check that the threshold is not higher than the highest value
@@ -4217,7 +4217,7 @@ proshade_double ProSHADE_internal_maths::findTopGroupSmooth ( std::vector< std::
     //================================================ Determine threshold from the peaks
     size_t bestHistPos;
     if ( peaks.size() > 0 )                           { bestHistPos = hist.size() - ( ( smoothened.size() - static_cast< size_t > ( peaks.at(peaks.size()-1) ) ) + ( ( static_cast< size_t > ( windowSize ) + 1 ) / 2 ) ); }
-    else                                              { bestHistPos = 0.0; }
+    else                                              { bestHistPos = 0; }
     threshold                                         = ( static_cast< proshade_double > ( bestHistPos ) * step );
     
     //================================================ Check that the threshold is not higher than the highest value

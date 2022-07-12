@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== Include PyBind11 header
@@ -27,31 +27,31 @@
 //==================================================== Add the ProSHADE_settings and ProSHADE_run classes to the PyBind11 module
 void add_symmetryNamespace ( pybind11::module& pyProSHADE )
 {
-    pyProSHADE.def                                    ( "findReliableUnphasedSymmetries",
-    [] ( ProSHADE_settings* settings, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance ) -> pybind11::array_t < proshade_unsign >
-    {
-        //== Run the detection
-        std::vector< proshade_unsign > rels           = ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( &settings->allDetectedCAxes, verbose, messageShift, tolerance );
-        
-        //== Allocate memory for the numpy values
-        proshade_unsign* npVals                       = new proshade_unsign[static_cast<unsigned int> ( rels.size() )];
-        ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
-
-        //== Copy values
-        for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( rels.size() ); iter++ ) { npVals[iter] = static_cast< proshade_unsign > ( rels.at(iter) ); }
-
-        //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
-        pybind11::capsule pyCapsuleRelSyms ( npVals, []( void *f ) { proshade_unsign* foo = reinterpret_cast< proshade_unsign* > ( f ); delete foo; } );
-
-        //== Copy the value
-        pybind11::array_t < proshade_unsign > retArr = pybind11::array_t< proshade_unsign > ( { static_cast<int> ( rels.size() ) },                          // Shape
-                                                                                              { sizeof(proshade_unsign) },                                   // C-stype strides
-                                                                                              npVals,                                                        // Data
-                                                                                              pyCapsuleRelSyms );                                            // Capsule
-
-        //== Done
-        return ( retArr );
-    }, "This function checks the list of detected axes (presumably from phaseless symmetry detection) and returns the best dihedral (or cyclic, if no dihedral is found) point group, or empty vector if nothing is found.", pybind11::arg ( "settings" ), pybind11::arg ( "verbose" ), pybind11::arg ( "messageShift" ) = 1, pybind11::arg ( "tolerance" ) = 0.1 );
+//    pyProSHADE.def                                    ( "findReliableUnphasedSymmetries",
+//    [] ( ProSHADE_settings* settings, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance ) -> pybind11::array_t < proshade_unsign >
+//    {
+//        //== Run the detection
+//        std::vector< proshade_unsign > rels           = ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( &settings->allDetectedCAxes, verbose, messageShift, tolerance );
+//        
+//        //== Allocate memory for the numpy values
+//        proshade_unsign* npVals                       = new proshade_unsign[static_cast<unsigned int> ( rels.size() )];
+//        ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+//
+//        //== Copy values
+//        for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( rels.size() ); iter++ ) { npVals[iter] = static_cast< proshade_unsign > ( rels.at(iter) ); }
+//
+//        //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+//        pybind11::capsule pyCapsuleRelSyms ( npVals, []( void *f ) { proshade_unsign* foo = reinterpret_cast< proshade_unsign* > ( f ); delete foo; } );
+//
+//        //== Copy the value
+//        pybind11::array_t < proshade_unsign > retArr = pybind11::array_t< proshade_unsign > ( { static_cast<int> ( rels.size() ) },                          // Shape
+//                                                                                              { sizeof(proshade_unsign) },                                   // C-stype strides
+//                                                                                              npVals,                                                        // Data
+//                                                                                              pyCapsuleRelSyms );                                            // Capsule
+//
+//        //== Done
+//        return ( retArr );
+//    }, "This function checks the list of detected axes (presumably from phaseless symmetry detection) and returns the best dihedral (or cyclic, if no dihedral is found) point group, or empty vector if nothing is found.", pybind11::arg ( "settings" ), pybind11::arg ( "verbose" ), pybind11::arg ( "messageShift" ) = 1, pybind11::arg ( "tolerance" ) = 0.1 );
     
     pyProSHADE.def                                    ( "optimiseDGroupAngleFromAxesHeights",
     [] ( pybind11::array_t < proshade_unsign > selection, ProSHADE_internal_data::ProSHADE_data* dataObj, ProSHADE_settings* settings )
@@ -67,8 +67,18 @@ void add_symmetryNamespace ( pybind11::module& pyProSHADE )
         ProSHADE_internal_misc::addToUnsignVector     ( &sel, arrStart[0] );
         ProSHADE_internal_misc::addToUnsignVector     ( &sel, arrStart[1] );
         
+        //== Convert data type
+        std::vector< std::vector< proshade_double > > allCs;
+        std::vector< proshade_double > hlpVec;
+        for ( size_t it1 = 0; it1 < dataObj->getCyclicAxes()->size(); it1++ )
+        {
+            hlpVec.clear                                  ( );
+            for ( size_t it2 = 0; it2 < 7; it2++ ) { ProSHADE_internal_misc::addToDoubleVector ( &hlpVec, dataObj->getCyclicAxes()->at(it1)[it2] ); }
+            ProSHADE_internal_misc::addToDoubleVectorVector ( &allCs, hlpVec );
+        }
+        
         //== Call the C++ function
-        ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( &settings->allDetectedCAxes, sel, dataObj, settings );
+        ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( &allCs, sel, dataObj, settings );
         
         //== Done (all changes are in the data object, so nothing needs to be passed to Python)
         return ;

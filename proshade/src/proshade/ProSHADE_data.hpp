@@ -17,8 +17,8 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
 */
 
 //==================================================== ProSHADE
@@ -139,6 +139,17 @@ namespace ProSHADE_internal_data
         bool isEmpty;                                 //!< This variable stated whether the class contains any information.
         proshade_unsign inputOrder;                   //!< This value is the input order - it is useful to know for writing out files, so that they would not overwrite the same name multiple times.
         
+    public:
+        //============================================ Symmetry results holding vactors
+        std::vector< proshade_double* > cyclicSymmetries;                       //!< This is where the detected cyclic ("C") symmetries will be kept.
+        std::vector< std::vector< proshade_double* > > dihedralSymmetries;      //!< This is where the detected dihedral ("D") symmetries will be kept.
+        std::vector< proshade_double* > tetrahedralSymmetries;                  //!< This is where the detected tetrahedral ("T") symmetries will be kept.
+        std::vector< proshade_double* > octahedralSymmetries;                   //!< This is where the detected octahedral ("O") symmetries will be kept.
+        std::vector< proshade_double* > icosahedralSymmetries;                  //!< This is where the detected icosahedral ("I") symmetries will be kept.
+        std::vector< proshade_double* > recommendedSymmetryValues;              //!< The axes and other info of the recommended symmetry for the structure.
+        std::string recommendedSymmetryType;                                    //!< The symmetry type that ProSHADE finds the best fitting for the structure. Possible values are "" for none, "C" for cyclic, "D" for Dihedral, "T" for Tetrahedral, "O" for Octahedral and "I" for Icosahedral. C and D types also have fold value associated.
+        proshade_unsign recommendedSymmetryFold;                                //!< The fold of the recommended symmetry C or D type, 0 otherwise.
+        
     protected:
         void figureIndexStartStop                     ( void );
         void setPDBMapValues                          ( void );
@@ -210,25 +221,26 @@ namespace ProSHADE_internal_data
         void getRealTranslationFunction               ( double *trsFunReal, int len );
         void getImagTranslationFunction               ( double *trsFunImag, int len );
         void getRotMatrixFromRotFunInds               ( proshade_signed aI, proshade_signed bI, proshade_signed gI, double *rotMat, int len );
-        int so3CoeffsArrayIndex                       ( proshade_signed order1, proshade_signed order2, proshade_signed band );
-        std::vector< proshade_double* > getDihedralSymmetriesList    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< proshade_double* > getIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
+        int  so3CoeffsArrayIndex                      ( proshade_signed order1, proshade_signed order2, proshade_signed band );
+        void getDihedralSymmetriesList                ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
         std::vector< proshade_double* > decidePolyFromList           ( ProSHADE_settings* settings, std::vector < std::vector< proshade_double* > >* polyList, size_t fullGroupSize,
                                                                        std::vector< proshade_double* >* CSyms, proshade_double tolerance, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut,
                                                                        proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin,
                                                                        proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
-        std::vector< std::vector< proshade_double* > > getPredictedIcosahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< std::vector< proshade_double* > > getPredictedOctahedralSymmetriesList  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        std::vector< std::vector< proshade_double* > > getPredictedTetrahedralSymmetriesList ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList );
-        void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs );
+        void getPredictedIcosahedralSymmetriesList    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+        void getPredictedOctahedralSymmetriesList     ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+        void getPredictedTetrahedralSymmetriesList    ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSymList, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata,
+                                                        proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
+        void detectSymmetryFromAngleAxisSpace         ( ProSHADE_settings* settings );
         std::vector< proshade_double* > getCyclicSymmetriesListFromAngleAxis ( ProSHADE_settings* settings );
         std::vector< proshade_double* > findRequestedCSymmetryFromAngleAxis  ( ProSHADE_settings* settings, proshade_unsign fold, proshade_double* peakThres );
-        void saveDetectedSymmetries                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSyms, std::vector < std::vector< proshade_double > >* allCs );
-        std::string     getRecommendedSymmetryType    ( ProSHADE_settings* settings );
-        proshade_unsign getRecommendedSymmetryFold    ( ProSHADE_settings* settings );
+        std::string     getRecommendedSymmetryType    ( void );
+        proshade_unsign getRecommendedSymmetryFold    ( void );
+        std::vector< proshade_double* > getRecommendedSymmetryValues ( void );
         proshade_unsign getNoRecommendedSymmetryAxes  ( ProSHADE_settings* settings );
+        proshade_unsign getNoRecommendedSymmetryAxes  ( void );
         std::vector< std::string > getSymmetryAxis    ( ProSHADE_settings* settings, proshade_unsign axisNo );
         void prepareFSCFourierMemory                  ( proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed* noBins, proshade_double**& bindata,
                                                         proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_single resolution,
@@ -239,18 +251,17 @@ namespace ProSHADE_internal_data
         proshade_double computeFSC                    ( ProSHADE_settings* settings, proshade_double* sym, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins,
                                                         proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin,
                                                         proshade_signed xDim, proshade_signed yDim, proshade_signed zDim, proshade_unsign rotNumber = 1 );
-        void saveRecommendedSymmetry                  ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* DSym,
-                                                        std::vector< proshade_double* >* TSym, std::vector< proshade_double* >* OSym,
-                                                        std::vector< proshade_double* >* ISym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices,
-                                                        fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata,
+        void determineRecommendedSymmetry             ( ProSHADE_settings* settings, proshade_double threshold, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata,
                                                         proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
-        void saveRequestedSymmetryC                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* CSym, std::vector< proshade_double* >* axes );
-        void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, std::vector< proshade_double* >* DSym, std::vector< proshade_double* >* axes, proshade_signed*& cutIndices,
-                                                        fftw_complex*& fCoeffsCut, proshade_signed noBins, proshade_double**& bindata, proshade_signed*& binCounts,
-                                                        proshade_double*& fscByBin, proshade_signed xDim, proshade_signed yDim, proshade_signed zDim );
-        std::vector<std::vector< proshade_double > > getAllGroupElements ( ProSHADE_settings* settings, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
+        void saveRequestedSymmetryD                   ( ProSHADE_settings* settings, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins,
+                                                        proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed cutXDim, proshade_signed cutYDim, proshade_signed cutZDim );
+        std::vector<std::vector< proshade_double > > getAllGroupElements ( std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         std::vector<std::vector< proshade_double > > getAllGroupElements ( std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_unsign > axesList, std::string groupType = "", proshade_double matrixTolerance = 0.05 );
         void reportSymmetryResults                    ( ProSHADE_settings* settings );
+        void reportCurrentSymmetryResults             ( ProSHADE_settings* settings, proshade_double threshold, proshade_signed*& cutIndices, fftw_complex*& fCoeffsCut, proshade_signed noBins,
+                                                        proshade_double**& bindata, proshade_signed*& binCounts, proshade_double*& fscByBin, proshade_signed cutXDim,
+                                                        proshade_signed cutYDim, proshade_signed cutZDim );
+        void reportSymmetryResultsList                ( ProSHADE_settings* settings );
         
         //============================================ Map overlay functions
         void getOverlayRotationFunction               ( ProSHADE_settings* settings, ProSHADE_internal_data::ProSHADE_data* obj2 );
@@ -312,6 +323,10 @@ namespace ProSHADE_internal_data
         proshade_double*& getInternalMap              ( void );
         proshade_complex* getTranslationFnPointer     ( void );
         std::vector< proshade_double > getMapCOMProcessChange ( void );
+        std::vector< proshade_double* >* getCyclicAxes ( void );
+        std::vector< proshade_double* >  getCyclicAxesCopy ( void );
+        std::vector< std::vector< proshade_double* > >* getDihedralAxes ( void );
+        std::vector< std::vector< proshade_double* > >  getDihedralAxesCopy ( void );
         
         //============================================ Mutator functions
         void setIntegrationWeight                     ( proshade_double intW );

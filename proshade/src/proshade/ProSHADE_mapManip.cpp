@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -1454,12 +1454,9 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     if ( newZDim % 2 != 0 ) { newZDim += 1; }
  
     proshade_signed preXChange, preYChange, preZChange;
-    if ( ( xDimS % 2 ) == 0 ) { preXChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2 ) ); }
-    else                      { preXChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( xDimS ) - static_cast<proshade_signed> ( newXDim ) ) / 2 ) ); }
-    if ( ( yDimS % 2 ) == 0 ) { preYChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2 ) ); }
-    else                      { preYChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( yDimS ) - static_cast<proshade_signed> ( newYDim ) ) / 2 ) ); }
-    if ( ( zDimS % 2 ) == 0 ) { preZChange = static_cast< proshade_signed  > ( std::ceil  ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2 ) ); }
-    else                      { preZChange = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_signed> ( zDimS ) - static_cast<proshade_signed> ( newZDim ) ) / 2 ) ); }
+    preXChange                                        = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_single> ( xDimS ) - static_cast<proshade_single> ( newXDim ) ) / 2.0f ) );
+    preYChange                                        = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_single> ( yDimS ) - static_cast<proshade_single> ( newYDim ) ) / 2.0f ) );
+    preZChange                                        = static_cast< proshade_signed  > ( std::floor ( ( static_cast<proshade_single> ( zDimS ) - static_cast<proshade_single> ( newZDim ) ) / 2.0f ) );
     
     proshade_signed postXChange                       = static_cast<proshade_signed> ( xDimS ) - ( preXChange + static_cast<proshade_signed> ( newXDim ) );
     proshade_signed postYChange                       = static_cast<proshade_signed> ( yDimS ) - ( preYChange + static_cast<proshade_signed> ( newYDim ) );
@@ -1467,17 +1464,17 @@ void ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( proshade_doubl
     
     proshade_unsign origSizeArr = 0, newSizeArr = 0;
     proshade_double normFactor                        = static_cast<proshade_double> ( xDimS * yDimS * zDimS );
-    
+
     //================================================ Manage memory
     fftw_complex *origMap, *fCoeffs, *newFCoeffs, *newMap;
     fftw_plan planForwardFourier, planBackwardRescaledFourier;
     allocateResolutionFourierMemory                   ( origMap, fCoeffs, newFCoeffs, newMap, planForwardFourier, planBackwardRescaledFourier,
                                                         xDimS, yDimS, zDimS, newXDim, newYDim, newZDim );
-    
+
     //================================================ Fill maps with data and zeroes
-    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( xDimS * yDimS * zDimS ); iter++ ) { origMap[iter][0] = map[iter]; origMap[iter][1] = 0.0; }
+    for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( normFactor ); iter++ ) { origMap[iter][0] = map[iter]; origMap[iter][1] = 0.0; }
     for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( newXDim * newYDim * newZDim ); iter++ ) { newFCoeffs[iter][0] = 0.0; newFCoeffs[iter][1] = 0.0; }
-    
+
     //================================================ Get the Fourier coeffs
     fftw_execute                                      ( planForwardFourier );
     
