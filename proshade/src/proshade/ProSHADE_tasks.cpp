@@ -453,7 +453,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     ProSHADE_internal_symmetry::allocateCentreOfMapFourierTransforms ( symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), origMap, origCoeffs, rotMapComplex, rotCoeffs, trFunc, trFuncCoeffs, &planForwardFourier, &planForwardFourierRot, &planReverseFourierComb );
 
     //================================================ Compute Fourier for the original map
-    for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { origMap[it][0] = symStr->getMapValue( it ); origMap[it][1] = 0.0; }
+    for ( proshade_unsign it = 0; it < static_cast< proshade_unsign > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { origMap[it][0] = symStr->getMapValue( it ); origMap[it][1] = 0.0; }
     fftw_execute                                      ( planForwardFourier );
         
     //================================================ If single C was found

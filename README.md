@@ -3,7 +3,7 @@
 ProSHADE
 ========
 
-Protein Shape Description and Symmetry Detection version 0.7.6.5 (JUN 2022)
+Protein Shape Description and Symmetry Detection version 0.7.6.6 (JUL 2022)
 
 # Introduction
 
@@ -185,21 +185,21 @@ As mentioned above, ProSHADE currently only supports Windows10 64-bit systems an
 
 ### Installing CMake
 
-CMake can be installed on Windows using the 64-bit MSI installer available from https://cmake.org/download . During the installation, please make sure that the option to *Add CMake to the system PATH* is selected (it does not matter to ProSHADE if it is for all users or just for the current user). 
+CMake can be installed on Windows using the 64-bit MSI installer (binary distribution) available from https://cmake.org/download . During the installation, please make sure that the option to *Add CMake to the system PATH* is selected (it does not matter to ProSHADE if it is for all users or just for the current user). 
 
 ### Installing git
 
-Git can be installed on Windows by downloading the 64-bit Windows Setup installer from https://git-scm.com/download/win . The installer asks for many options, the only important one for ProSHADE installation is that in the section "Adjusting you PATH environment" it is required that the option *Use Git from Git Bash only* is **NOT** selected. This makes sure that the git executable is in the system PATH.
+Git can be installed on Windows by downloading the 64-bit Windows Setup installer from https://git-scm.com/download/win . The installer asks for many options, the only important one for ProSHADE installation is that in the section "Adjusting your PATH environment" it is required that the option *Use Git from Git Bash only* is **NOT** selected. This makes sure that the git executable is in the system PATH.
 
 ### Installing Build Tools for Visual Studio
 
-Sadly, the Authors are not aware of any simple way of installing the Microsoft C and C++ compilers and linker controlling tool - **cl.exe** except for installing the full Visual Studio or the Build Tools for Visual Studio. This will require well over 6GB of space on your hard-drive and the download is well over 1.5GB. Nonetheless, it is the main Windows compiler and linker and therefore ProSHADE cannot be installed on Windows without it. 
+Sadly, the Authors are not aware of any simple way of installing the Microsoft C and C++ compilers and linker controlling tool - **cl.exe** except for installing the full Visual Studio or the Build Tools for Visual Studio. This will require well over 7.5GB of space on your hard-drive and the download is well over 1.5GB. Nonetheless, it is the main Windows compiler and linker and therefore ProSHADE cannot be installed on Windows without it. 
 
-To install the Build Tools for Visual Studio, please download the installer from Microsoft at https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019 and in the Workload selection screen select the *C++ Build Tools* option. The rest of the installtion should be automatic.
+To install the Build Tools for Visual Studio, please download the installer from Microsoft at https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022 and in the Workload selection screen select the *Desktop development with C++* option. The rest of the installtion should be automatic.
 
 ### Installing ProSHADE
 
-Once all of the above dependencies are installed, the ProSHADE python module can now be installed using the pip installation as described in the [Installing using pip ](#installing-using-pip) section. Should the user require installation from the Command Prompt, they will need to open the *Developer Command Prompt for VS 2019* (or the appropriate version the MS Visual Studio they have installed) and type the following commands (replacing the \path\to\proshade with the appropriate path on their machine to the location where they want ProSHADE codes to be stored). Please note that you may need to run the command prompt as an administrator in order to be able to install into the system folders (i.e. C:\Program Files). Also, the same CMake options apply as discussed in section [CMake options](#cmake-options):
+Once all of the above dependencies are installed, the ProSHADE python module can now be installed using the pip installation as described in the [Installing using pip ](#installing-using-pip) section. Should the user require installation from the Command Prompt, they will need to open the *Developer Command Prompt for VS 2022* (or the appropriate version the MS Visual Studio they have installed) and type the following commands (replacing the \path\to\proshade with the appropriate path on their machine to the location where they want ProSHADE codes to be stored). Please note that you may need to run the command prompt as an administrator in order to be able to install into the system folders (i.e. C:\Program Files). Also, the same CMake options apply as discussed in section [CMake options](#cmake-options):
 
 ```
     cd \path\to\proshade
@@ -313,17 +313,17 @@ In order to detect symmetry in either a co-ordinate input file or in a map input
 
 One particular option regarding the symmetry detection mode should be noted; the **--reqSym** (or **-u**) option, which allows the user to state which symmetry they believe to exist in the structure. The allowed values for this command line argument are "Cx", "Dx", "T", "O" and "I", where the *x* should be an integer number specifying the fold of the requested symmetry. When this option is used, it removes the default behaviour of returning the "best" detected symmetry and instead the symmetry requested by the user is returned, if it can be found in the structure.
 
-Another noteworthy option is the **--center** or **-c** option, which  tells ProSHADE **NOT** to center the internal map representation over the centre of density before running any processing of the map (default is centering and adding this option will turn centering off). This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate/box centre. Alternatively, ProSHADE can attempt a procedure for finding the symmetry centre itself - to enable this procedure, please supply the **--symCentre** or **-I** option. This procedure will firstly remove phase from the internal density map and attempt symmetry detection over the Patterson map. Then, by applying the symmetry that is known from the Patterson map to be there, the symmetry centre can be found; however, please note that this will consume considerable extra computation time (approximately 3-4 times slower than when the procedure is disabled).
+Another noteworthy option is the **--center** or **-c** option, which  tells ProSHADE **NOT** to center the internal map representation over the centre of density before running any processing of the map (default is centering and adding this option will turn centering off). This may be important as ProSHADE detects symmetries over the centre of the co-ordinates and therefore a non-centered map (map which does not have the centre of mass at the centre of box) will be found to have no symmetries even if these are present, just not over the co-ordinate/box centre. Alternatively, ProSHADE can attempt a procedure for finding the symmetry centre itself - to enable this procedure, please supply the **--symCentre** or **-I** option. This procedure will firstly remove phase from the internal density map and attempt symmetry detection over the Patterson map. Then, by applying the symmetry that is found in the Patterson map (if any), the symmetry centre can be found; however, please note that this will consume considerable extra computation time (approximately 3-4 times slower than when the procedure is disabled).
 
 It is also worth noting that there are several extra functionalities available for the symmetry detection mode when accessed programmatically (**i.e.** either through the dynamic C++ library or through the Python language module). These extra functionalities include direct access to a vector/list of all detected cyclic symmetries, list/vector of all other symmetry type detections (meaning a list of all detected dihedral, tetrahedral, ... symmetries and the cyclic axes forming them) and also the ability to compute all point group elements for any point group formed by a combination of ProSHADE detected cyclic point groups. For more details on these functinoalities, the users are invited to consult the *advancedAccess_symmetry.cpp/py* example files in the **examples** folder.
 
-To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the *C12* symmetry. The visualisation of the structure is shown in the following figure, while the output of the ProSHADE tool follows:
+To demonstrate how the tool can be run and the standard output for the symmetry mode of operation, the current version of the ProSHADE executable was used to detect the symmetry of a density map of the bacteriophage T4 portal protein with the PDB accession code 3JA7 (EMDB accession code 6324), which has the *C12* symmetry. The visualisation of the structure is shown in the following figure, while the output of the ProSHADE tool follows. It is also worth noting that ProSHADE will output its prediction as well as table showing how different FSC average threshold values would change its prediction. This table can be used by the user to manually decide if they agree with the ProSHADE prediction or if thay suspect a different symmetry may indeed be real. Finally, ProSHADE will also output the list of all detected symmetries, so that experienced user could manually check for any particuar symmetry they are interested in and also check for how much they trust the ProSHADE prediction overall.
 
 ![T4 Portal Protein](https://github.com/michaltykac/proshade/blob/experimental/proshade/documentation/ProSHADE_3JA7.jpg)
 
 ```
 $: ./proshade -S -f ./emd_6324.map
-ProSHADE 0.7.6.5 (JUN 2022):
+ProSHADE 0.7.6.6 (JUL 2022):
 ============================
 
  ... Starting to read the structure: ./emd_6324.map
@@ -340,40 +340,65 @@ ProSHADE 0.7.6.5 (JUN 2022):
  ... Starting spherical harmonics decomposition.
  ... Starting self-rotation function computation.
  ... Starting C symmetry detection.
+ ... Starting recommended symmetry decision procedure.
  ... Starting D symmetry detection.
  ... Starting T symmetry prediction.
  ... Starting O symmetry prediction.
  ... Starting I symmetry prediction.
- ... Starting recommended symmetry decision procedure.
 
-Detected C symmetry with fold 12 about point [-0.00969196 , -0.008841 , 12.1956] away from centre of mass .
-  Fold       X           Y          Z           Angle        Height      Average FSC
-   +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99810      +0.99447
+Detecting symmetries about point [-0.00105446 , -0.00106463 , 11.3385] away from centre of mass .
+
+ProSHADE default symmetry detection algorithm claims the symmetry to be C-12 with axes:
+======================================================================================
+   Type     Fold       X           Y          Z           Angle        Height      Average FSC
+     C       +12      +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+
+
+Symmetry detection results per FSC threshold levels:
+====================================================
+
+   Threshold    Type     Fold       X           Y          Z          Angle        Height      Average FSC
+===========================================================================================================
+     +0.95       C        +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+===========================================================================================================
+     +0.90       C        +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+===========================================================================================================
+     +0.80       C        +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+===========================================================================================================
+     +0.70       C        +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+===========================================================================================================
+     +0.60       C        +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+===========================================================================================================
+     +0.50       C        +24     +0.00000   +0.00000   +1.00000     +0.26180      +0.92159      +0.50824
+===========================================================================================================
+     +0.40       C        +24     +0.00000   +0.00000   +1.00000     +0.26180      +0.92159      +0.50824
+===========================================================================================================
+
 
 To facilitate manual checking for symmetries, the following is a list of all detected C symmetries:
-  Fold       X           Y          Z           Angle        Height      Average FSC
-   +4     +0.00000   +0.00000   +1.00000     +1.57080      +0.99981      +0.99915
-   +2     +0.00080   -0.00000   +1.00000     +3.14159      +0.99984      +0.99843
-   +12     +0.00000   +0.00000   +1.00000     +0.52360      +0.99810      +0.99447
-   +6     +0.00000   +0.00000   +1.00000     +1.04720      +0.99793      +0.99440
-   +3     +0.00000   +0.00000   +1.00000     +2.09440      +0.99746      +0.99380
-   +13     +0.00000   +0.00000   +1.00000     +0.48332      +0.94064      +0.82881
-   +11     +0.00000   +0.00000   +1.00000     +0.57120      +0.93974      +0.77292
-   +29     +0.00000   +0.00000   +1.00000     +0.21666      +0.94337      +0.34082
-   +23     +0.00000   +0.00000   +1.00000     +0.27318      +0.94269      +0.33481
-   +19     +0.00000   +0.00000   +1.00000     +0.33069      +0.94215      +0.32833
-   +7     +0.00000   +0.00000   +1.00000     +0.89760      +0.93615      +0.15763
-   +17     +0.00000   +0.00000   +1.00000     +0.36960      +0.94179      +0.14640
-   +9     +0.00000   +0.00000   +1.00000     +0.69813      +0.93840      +0.10686
-   +36     +0.00000   +0.00000   +1.00000     +0.17453      +0.94366      +0.10686
-   +18     +0.00000   +0.00000   +1.00000     +0.34907      +0.94201      +0.10616
-   +5     +0.00000   +0.00000   +1.00000     +1.25664      +0.93167      +0.07275
-   +8     +0.00000   +0.00000   +1.00000     +0.78540      +0.93923      +0.06234
-   +24     +0.00000   +0.00000   +1.00000     +0.26180      +0.94370      +0.06234
+   Type     Fold       X           Y          Z           Angle        Height      Average FSC
+     C       +4      +0.00080   +0.00000   +1.00000     +1.57080      +0.99941      +0.99878
+     C       +2      +0.00080   +0.00000   +1.00000     +3.14159      +0.99990      +0.99846
+     C       +12      +0.00000   +0.00000   +1.00000     +0.52360      +0.99912      +0.99533
+     C       +6      +0.00000   +0.00000   +1.00000     +1.04720      +0.99945      +0.99494
+     C       +3      +0.00000   +0.00000   +1.00000     +2.09440      +0.99934      +0.99384
+     C       +24      +0.00000   +0.00000   +1.00000     +0.26180      +0.92159      +0.50824
+     C       +36      +0.00000   +0.00000   +1.00000     +0.17453      +0.92093      +0.38773
+     C       +29      +0.00000   +0.00000   +1.00000     +0.21666      +0.92031      +0.34380
+     C       +23      +0.00000   +0.00000   +1.00000     +0.27318      +0.91955      +0.33786
+     C       +19      +0.00000   +0.00000   +1.00000     +0.33069      +0.91877      +0.33139
+     C       +13      +0.00000   +0.00000   +1.00000     +0.48332      +0.91664      +0.31361
+     C       +11      +0.00000   +0.00000   +1.00000     +0.57120      +0.91537      +0.30339
+     C       +7      +0.01187   +0.00273   +0.99993     -0.89760      +0.91028      +0.16016
+     C       +17      +0.00000   +0.00000   +1.00000     +0.36960      +0.91836      +0.14969
+     C       +9      +0.00000   +0.00000   +1.00000     +0.69813      +0.91369      +0.10910
+     C       +18      +0.00000   +0.00000   +1.00000     +0.34907      +0.91876      +0.10859
+     C       +5      +0.01370   -0.00450   +0.99990     -1.25664      +0.90434      +0.07497
+     C       +8      +0.00000   +0.00000   +1.00000     +0.78540      +0.91432      +0.06175
 
 ======================
 ProSHADE run complete.
-Time taken: 120 seconds.
+Time taken: 210 seconds.
 ======================
 ```
 
@@ -389,7 +414,7 @@ Time taken: 120 seconds.
 
 ```
   $: ./proshade -D -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -f ./3IGU_A_dom_1.pdb -r 6
-  ProSHADE 0.7.6.5 (JUN 2022):
+  ProSHADE 0.7.6.6 (JUL 2022):
   ============================
 
    ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -422,7 +447,7 @@ Time taken: 120 seconds.
   Distances between ./1BFO_A_dom_1.pdb and ./1H8N_A_dom_1.pdb
   Energy levels distance    : 0.851642
   Trace sigma distance      : 0.910876
-  Rotation function distance: 0.616275
+  Rotation function distance: 0.619839
    ... Starting to read the structure: ./3IGU_A_dom_1.pdb
    ... Map left at original position.
    ... Map rotation centre not shifted.
@@ -445,7 +470,7 @@ Time taken: 120 seconds.
 
   ======================
   ProSHADE run complete.
-  Time taken: 0 seconds.
+  Time taken: 2 seconds.
   ======================
 ```
  
@@ -463,7 +488,7 @@ Time taken: 120 seconds.
  
 ```
 $ ./proshade -RMf ./emd_5762.map.gz                                                   
-ProSHADE 0.7.6.5 (JUN 2022):
+ProSHADE 0.7.6.6 (JUL 2022):
 ============================
 
  ... Starting to read the structure: ./emd_5762.map.gz
@@ -481,7 +506,7 @@ ProSHADE 0.7.6.5 (JUN 2022):
 
 ======================
 ProSHADE run complete.
-Time taken: 9 seconds.
+Time taken: 14 seconds.
 ======================
 ```
 
@@ -507,7 +532,7 @@ Time taken: 9 seconds.
  
 ```
  $ ./proshade -O -f ./1BFO_A_dom_1.pdb -f ./1H8N_A_dom_1.pdb -r 1 
- ProSHADE 0.7.6.5 (JUN 2022):
+ ProSHADE 0.7.6.6 (JUL 2022):
  ============================
 
   ... Starting to read the structure: ./1BFO_A_dom_1.pdb
@@ -558,15 +583,15 @@ Time taken: 9 seconds.
   ... Adding extra 10 angstroms.
   ... Starting translation function computation.
 
- The rotation centre to origin translation vector is:  -18.4     -21.4     -22.9
- The rotation matrix about origin is                 : -0.852     +0.205     -0.481
-                                                     : +0.0745     -0.863     -0.499
-                                                     : -0.517     -0.462     +0.721
- The rotation centre to overlay translation vector is: +3     +4.5     -4.5
+ The rotation centre to origin translation vector is:  -18.3     -21.3     -23.3
+ The rotation matrix about origin is                 : -0.854     +0.192     -0.484
+                                                     : +0.0836     -0.867     -0.492
+                                                     : -0.514     -0.46     +0.724
+ The rotation centre to overlay translation vector is: +3     +5     -5
 
  ======================
  ProSHADE run complete.
- Time taken: 17 seconds.
+ Time taken: 34 seconds.
  ======================
 ```
 # Using the ProSHADE library
@@ -623,7 +648,7 @@ $ cl.exe     /I "\path\to\proshade\extern\gemmi\include"
              "\path\to\proshade\install\lib\proshade.lib" 
         
 !!! NOTE: The x64 Native version of cl.exe (or Visual Studio Command Prompt) needs to be used for this to work. 32-bit version of ProSHADE library is not available currently. 
-!!!       To do this, use the "x64 Native Tools Command Prompt for VS2019"   
+!!!       To do this, use the "x64 Native Tools Command Prompt for VS2022"   
 ```
 
 ## Examples of ProSHADE library usage

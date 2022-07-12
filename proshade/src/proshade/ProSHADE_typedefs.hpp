@@ -58,9 +58,11 @@
     #pragma clang diagnostic ignored "-Weverything"
 #endif
 
-//==================================================== Remove MSVC C4996 Warnings caused by Gemmi code
+//==================================================== Remove MSVC C4127, C4244, C4996 Warnings caused by Gemmi code
 #if defined ( _MSC_VER )
-    #pragma warning ( disable:4996 )
+    #pragma warning ( disable : 4127 )
+    #pragma warning ( disable : 4244 )
+    #pragma warning ( disable : 4996 )
 #endif
 
 //==================================================== Gemmi
@@ -74,9 +76,11 @@
     #include <gemmi/gz.hpp>
 #endif
 
-//==================================================== Enable MSVC C4996 Warnings for the rest of the code
+//==================================================== Enable MSVC C4127, C4244, C4996 Warnings for the rest of the code
 #if defined ( _MSC_VER )
-    #pragma warning ( default:4996 )
+    #pragma warning ( default : 4127 )
+    #pragma warning ( default : 4244 )
+    #pragma warning ( default : 4996 )
 #endif
 
 //==================================================== FFTW3
