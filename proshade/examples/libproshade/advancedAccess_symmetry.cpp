@@ -202,9 +202,9 @@ int main ( int argc, char **argv )
     //        requested point group. This is relatively simple for T, O and I symmetries, as such list is already produced by
     //        ProSHADE - see the following examples:
     //
-    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedTAxes, "T" );
-    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedOAxes, "O" );
-    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedIAxes, "I" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings->allDetectedTAxes, "T" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings->allDetectedOAxes, "O" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings->allDetectedIAxes, "I" );
     //
     //        For C point groups, this is also simple, as one can select the required >index< from the allCs variable and use
     //

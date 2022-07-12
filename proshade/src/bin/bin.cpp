@@ -27,7 +27,7 @@
 
 /*! \mainpage ProSHADE Documentation
  *
- * Protein Shape Description and Symmetry Detection version 0.7.6.5 (JUN 2022)
+ * Protein Shape Description and Symmetry Detection version 0.7.6.6 (JUL 2022)
  *
  * \section intro Introduction
  *
@@ -301,7 +301,7 @@
  * - This option is used to supply the path to the libfftw3.a/so/dylib in the case where ProSHADE CMake installation fails to detect the FFTW3 dependency. This is typically the case when FFTW3 is installed outside of the
  * standard FFTW3 installation locations.
  *
- * \b -CUSTOM_FFTW3_INC_PATH=/path
+ * \b -DCUSTOM_FFTW3_INC_PATH=/path
  * - This option is used to supply the path to the fftw3.h file in the case where ProSHADE CMake installation fails to detect the FFTW3 dependency. This is typically the case when FFTW3 is installed outside of the
  * standard FFTW3 installation locations.
  *
@@ -856,11 +856,10 @@
      simpleSym->computeRotationFunction                ( settings );
 
      //================================================ Detect the recommended symmetry
-     std::vector< proshade_double* > symAxes;
-     std::vector< std::vector< proshade_double > > allCsFromSettings;
-     simpleSym->detectSymmetryInStructure              ( settings, &symAxes, &allCsFromSettings );
-     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( );
-     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( );
+     simpleSym->detectSymmetryFromAngleAxisSpace       ( settings );
+     std::string symmetryType                          = simpleSym->getRecommendedSymmetryType   ( ); 
+     proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold   ( ); 
+     std::vector< proshade_double* > symAxes           = simpleSym->getRecommendedSymmetryValues ( );
 
      //================================================ Write out the symmetry detection results
      std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
@@ -871,22 +870,25 @@
         std::cout << " ... XYZ:             " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << std::endl;
         std::cout << " ... Angle (radians): " << symAxes.at(axIt)[4] << std::endl;
         std::cout << " ... Axis peak:       " << symAxes.at(axIt)[5] << std::endl;
+        std::cout << " ... Averaged FSC:    " << symAxes.at(axIt)[6] << std::endl;
      }
      
      //================================================ Find all C axes
-     std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
+     std::vector< proshade_double* > allCs             = simpleSym->getCyclicAxesCopy ( );
      std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
      
      //================================================ Get group elements for the first axis (or any other axis)
      std::vector< proshade_unsign > axesList;
      axesList.emplace_back ( 0 );
      std::vector<std::vector< proshade_double > > groupElementsGrp0 = simpleSym->getAllGroupElements ( axesList, "C" );
-     std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (including the identity one), the second being the rotation matrix:" << std::endl;
-     std::cout << groupElementsGrp0.at(1).at(0) << " x " << groupElementsGrp0.at(1).at(1) << " x " << groupElementsGrp0.at(1).at(2) << std::endl;
-     std::cout << groupElementsGrp0.at(1).at(3) << " x " << groupElementsGrp0.at(1).at(4) << " x " << groupElementsGrp0.at(1).at(5) << std::endl;
-     std::cout << groupElementsGrp0.at(1).at(6) << " x " << groupElementsGrp0.at(1).at(7) << " x " << groupElementsGrp0.at(1).at(8) << std::endl;
+     std::cout << "Group 0 has fold of " << allCs.at(0)[0] << " and ProShade computed " << groupElementsGrp0.size() << " group element (including the identity one), the first being the rotation matrix:" << std::endl;
+     std::cout << groupElementsGrp0.at(0).at(0) << " x " << groupElementsGrp0.at(0).at(1) << " x " << groupElementsGrp0.at(0).at(2) << std::endl;
+     std::cout << groupElementsGrp0.at(0).at(3) << " x " << groupElementsGrp0.at(0).at(4) << " x " << groupElementsGrp0.at(0).at(5) << std::endl;
+     std::cout << groupElementsGrp0.at(0).at(6) << " x " << groupElementsGrp0.at(0).at(7) << " x " << groupElementsGrp0.at(0).at(8) << std::endl;
 
      //================================================ Release the memory
+     for ( size_t aIt = 0; aIt < symAxes.size(); aIt++ ) { if ( symAxes.at( aIt ) != nullptr ) { delete[] symAxes.at( aIt ); symAxes.at( aIt ) = nullptr; } }
+     for ( size_t aIt = 0; aIt < allCs.size(); aIt++ )   { if ( allCs.at( aIt )   != nullptr ) { delete[] allCs.at( aIt );   allCs.at( aIt )   = nullptr; } }
      delete simpleSym;
      delete settings;
 
