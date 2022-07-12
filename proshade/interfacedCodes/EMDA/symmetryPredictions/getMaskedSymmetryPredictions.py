@@ -30,8 +30,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.5
-#   \date      JUN 2022
+#   \version   0.7.6.6
+#   \date      JUL 2022
 ######################################################
 ######################################################
 
@@ -80,7 +80,7 @@ symmetryCentering                                     = False
 comCentering                                          = True
 verbosity                                             = -1
 inputFileName                                         = "emdb_spa_210329.dat"
-outputFileName                                        = "V23_results_allKnownEMDB_COM_resol-"
+outputFileName                                        = "V29_results_allKnownEMDB_COM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
 unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
 tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768", "EMD-10926", "EMD-1610", "EMD-23042" ]
@@ -95,7 +95,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 0
+startFrom                                             = 382
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0
@@ -410,18 +410,43 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
     pStruct.computeRotationFunction                   ( pSet )
     pStruct.detectSymmetryInStructure                 ( pSet )
 
-    ### Retrieve results
-    recSymmetryType                                   = pStruct.getRecommendedSymmetryType ( pSet )
-    recSymmetryFold                                   = pStruct.getRecommendedSymmetryFold ( pSet )
-    recSymmetryAxes                                   = pStruct.getRecommendedSymmetryAxes ( pSet )
-    allCAxes                                          = pStruct.getAllCSyms ( pSet )
+    ### Retrieve results for default ProSHADE
+    recSymmetryType                                   = pStruct.getRecommendedSymmetryType ( )
+    recSymmetryFold                                   = pStruct.getRecommendedSymmetryFold ( )
+    recSymmetryAxes                                   = pStruct.getRecommendedSymmetryAxes ( )
+    allCAxes                                          = pStruct.getAllCSyms ( )
     
-    ### Convert results for return
     retList                                           = []
-    retList.append                                    ( recSymmetryType )
-    retList.append                                    ( recSymmetryFold )
-    retList.append                                    ( allCAxes )
-    retList.append                                    ( recSymmetryAxes )
+    retListOrig                                       = []
+    retListOrig.append                                ( recSymmetryType )
+    retListOrig.append                                ( recSymmetryFold )
+    retListOrig.append                                ( allCAxes )
+    retListOrig.append                                ( recSymmetryAxes )
+    retList.append                                    ( retListOrig )
+    
+    ### Re-compute with different thresholds
+    thresList                                         = []
+    thresList.append ( 0.95 )
+    thresList.append ( 0.90 )
+    thresList.append ( 0.80 )
+    thresList.append ( 0.70 )
+    thresList.append ( 0.60 )
+    thresList.append ( 0.50 )
+    thresList.append ( 0.40 )
+    
+    for thr in thresList:
+        pStruct.reRunSymmetryDetectionThreshold       ( pSet, thr )
+        recSymmetryType                               = pStruct.getRecommendedSymmetryType ( )
+        recSymmetryFold                               = pStruct.getRecommendedSymmetryFold ( )
+        recSymmetryAxes                               = pStruct.getRecommendedSymmetryAxes ( )
+        allCAxes                                      = pStruct.getAllCSyms ( )
+        
+        retListThres                                  = []
+        retListThres.append                           ( recSymmetryType )
+        retListThres.append                           ( recSymmetryFold )
+        retListThres.append                           ( allCAxes )
+        retListThres.append                           ( recSymmetryAxes )
+        retList.append                                ( retListThres )
     
     ### Release memory
     del pStruct
@@ -502,7 +527,7 @@ for entry in symIDs:
 
     ### Run symmetry detection
     symRes                                            = runProSHADESymmetry ( mapPath, maskPath, compResolution, mapReSampling, comCentering, symmetryCentering, verbosity )
-
+    
     ### Stop timer
     stopTime                                          = time.time ( )
 
@@ -513,27 +538,36 @@ for entry in symIDs:
     ( outResRecom, outResCondensed, outResAxes )      = openOutputFiles ( counter )
 
     ### Write results
-    if ( symRes[0] == "I" ) or ( symRes[0] == "O" ) or ( symRes[0] == "T" ):
-        outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + "\t" + str( stopTime - startTime ) + "\n" )
-    else:
-        outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + str( symRes[1] ) + "\t" + str( stopTime - startTime ) + "\n" )
-        
+    outResCondensed.write                             ( str( id ) + "\t" + str( declaredSym ) + "\t" )
     outResAxes.write                                  ( str( id ) + " :\n==========\n" )
-    for ax in range ( 0, len ( symRes[2] ) ):
-        outResAxes.write                              ( str ( symRes[2][ax][0] ) + "\t" + str ( symRes[2][ax][1] ) + "\t" + str( symRes[2][ax][2] ) + "\t" + str( symRes[2][ax][3] ) + "\t" + str( symRes[2][ax][4] ) + "\t" + str( symRes[2][ax][5] ) + "\t" + str( symRes[2][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str( compResolution ) + "\n" )
-    outResAxes.write                                  ( "\n" )
-    
     outResRecom.write                                 ( str( id ) + " :\n==========\n" )
-    for ax in range ( 0, len ( symRes[3] ) ):
-        outResRecom.write                             ( str ( symRes[3][ax][0] ) + "\t" + str ( symRes[3][ax][1] ) + "\t" + str( symRes[3][ax][2] ) + "\t" + str( symRes[3][ax][3] ) + "\t" + str( symRes[3][ax][4] ) + "\t" + str( symRes[3][ax][5] ) + "\t" + str( symRes[3][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str( compResolution ) + "\n" )
-    outResRecom.write                                  ( "\n" )
+    
+    for thr in range ( 0, len( symRes ) ):
+        if ( symRes[thr][0] == "I" ) or ( symRes[thr][0] == "O" ) or ( symRes[thr][0] == "T" ):
+            outResCondensed.write                     ( str( symRes[thr][0]  ) + "\t" )
+        else:
+            outResCondensed.write                     ( str( symRes[thr][0]  ) + str( symRes[thr][1] ) + "\t" )
+        
+
+        outResRecom.write                             ( str( thr ) + " :\n~~~~~~~~~\n" )
+        for ax in range ( 0, len ( symRes[thr][3] ) ):
+            outResRecom.write                         ( str ( symRes[thr][3][ax][0] ) + "\t" + str ( symRes[thr][3][ax][1] ) + "\t" + str( symRes[thr][3][ax][2] ) + "\t" + str(   symRes[thr][3][ax][3] ) + "\t" + str( symRes[thr][3][ax][4] ) + "\t" + str( symRes[thr][3][ax][5] ) + "\t" + str( symRes[thr][3][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str(   compResolution ) + "\n" )
+        outResRecom.write                             ( "\n" )
+    
+        outResAxes.write                             ( str( thr ) + " :\n~~~~~~~~~\n" )
+        for ax in range ( 0, len ( symRes[thr][2] ) ):
+            outResAxes.write                          ( str ( symRes[thr][2][ax][0] ) + "\t" + str ( symRes[thr][2][ax][1] ) + "\t" + str( symRes[thr][2][ax][2] ) + "\t" + str(   symRes[thr][2][ax][3] ) + "\t" + str( symRes[thr][2][ax][4] ) + "\t" + str( symRes[thr][2][ax][5] ) + "\t" + str( symRes[thr][2][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str(   compResolution ) + "\n" )
+        outResAxes.write                              ( "\n" )
+    
+    
+    outResCondensed.write                             ( str( stopTime - startTime ) + "\n" )
     
     ### Close output files
     closeOutputFiles                                  ( outResRecom, outResCondensed, outResAxes )
     
     ### Move counter
     counter                                           = counter + 1
-
+    
     ### End of symmetry detection for this structure
 
 ### Done

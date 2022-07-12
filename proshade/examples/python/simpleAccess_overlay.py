@@ -20,8 +20,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.5
-#   \date      JUN 2022
+#   \version   0.7.6.6
+#   \date      JUL 2022
 ######################################################
 ######################################################
 
@@ -121,12 +121,12 @@ print                                                 ( "Translation to overlay 
 
 ######################################################
 ### Expected outuput
-#   Optimal rotation Euler angles : 3.8903248    0.7479983    5.4608274
-#   Optimal rotation matrix       : -0.8642176    0.19721524    -0.46285436
-#                                 : 0.06973293    -0.86413914    -0.4983983
-#                                 : -0.4982623    -0.46300077    0.73305184
-#   Translation to origin         : -18.857141    -18.782608    -21.839998
-#   Translation to overlay        : 3.0    12.0    -3.0
+#   Optimal rotation Euler angles : 3.9270046    0.75265783    5.432715
+#   Optimal rotation matrix       : -0.871892    0.19100872    -0.4509103
+#                                 : 0.07854472    -0.85432297    -0.51377326
+#                                 : -0.4833582    -0.4833714    0.7298746
+#   Translation to origin         : -18.545456    -20.54054    -20.512821
+#   Translation to overlay        : 2.0    8.0    -4.0
 
 ######################################################
 ### Release memory

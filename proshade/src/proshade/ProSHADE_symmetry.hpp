@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -36,8 +36,6 @@ namespace ProSHADE_internal_symmetry
 {
     bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos );
     bool isSymmetrySame                               ( std::vector< proshade_double* >* ret, proshade_double* sym, proshade_double simThres, proshade_signed* matchedPos, proshade_double fscVal );
-    void saveDSymmetry                                ( std::vector< proshade_double* >* ret, std::vector< proshade_double* >* CSymList,
-                                                        proshade_unsign axisOne, proshade_unsign axisTwo );
     bool detectTetrahedralSymmetry                    ( std::vector< proshade_double* >* CSymList, proshade_double axErr, proshade_double minPeakHeight );
     void findTetra4C3s                                ( std::vector< proshade_double* >* CSymList, std::vector< proshade_double* >* ret,
                                                         proshade_double axErr, ProSHADE_internal_data::ProSHADE_data* dataObj,
@@ -120,7 +118,7 @@ namespace ProSHADE_internal_symmetry
     void predictIcosAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictOctaAxes                              ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
     void predictTetraAxes                             ( std::vector< proshade_double* >* CSymList, std::vector< std::vector< proshade_double* > >* ret, proshade_double axErr, proshade_double minPeakHeight );
-    std::vector< proshade_unsign > findReliableUnphasedSymmetries ( std::vector < std::vector< proshade_double > >* allCs, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance );
+    std::vector< proshade_unsign > findReliableUnphasedSymmetries ( std::vector < proshade_double* >* allCs, std::vector < std::vector < proshade_double* > >* allDs, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance );
     void allocateCentreOfMapFourierTransforms         ( proshade_unsign xDim, proshade_unsign yDim, proshade_unsign zDim, fftw_complex *&origMap, fftw_complex *&origCoeffs, fftw_complex *&rotMapComplex,
                                                         fftw_complex *&rotCoeffs, fftw_complex *&trFunc, fftw_complex *&trFuncCoeffs, fftw_plan *planForwardFourier, fftw_plan *planForwardFourierRot,
                                                         fftw_plan *planReverseFourierComb );

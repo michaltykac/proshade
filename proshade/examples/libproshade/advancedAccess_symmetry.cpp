@@ -19,8 +19,8 @@
 
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
 */
 
 //==================================================== ProSHADE
@@ -116,31 +116,28 @@ int main ( int argc, char **argv )
     //================================================ Compute self-rotation function
     simpleSym->computeRotationFunction                ( settings ); // This function computes the self-rotation function for the structure calling it.
     
-    //================================================ Prepare variables for results
-    std::vector< proshade_double* > recomSymAxes;
-    std::vector< std::vector< proshade_double > > allCSymAxes;
-    
     //================================================ Detect point groups in the angle-axis space
-    simpleSym->detectSymmetryFromAngleAxisSpace       ( settings, &recomSymAxes, &allCSymAxes );
+    simpleSym->detectSymmetryFromAngleAxisSpace       ( settings );
     
     //================================================ Access symmetry detection results
-    std::string symmetryType                          = simpleSym->getRecommendedSymmetryType ( settings ); // This is how the recommended symmetry type can be obtained.
-    proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold ( settings ); // This is how the recommended symmetry fold can be obtained.
+    std::string symmetryType                          = simpleSym->getRecommendedSymmetryType   ( ); // This is how the recommended symmetry type can be obtained.
+    proshade_unsign symmetryFold                      = simpleSym->getRecommendedSymmetryFold   ( ); // This is how the recommended symmetry fold can be obtained.
+    std::vector< proshade_double* > symAxes           = simpleSym->getRecommendedSymmetryValues ( ); // This is how the recommended symmetry axes can be obtained. YOU ARE RESPONSIBLE FOR RELEASING THIS MEMORY, PROSHADE WILL NOT DO THIS FOR YOU.
     
     //================================================ Write out the symmetry detection results
     std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " with axes:" << std::endl;
-    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( recomSymAxes.size() ); axIt++ )
+    for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( symAxes.size() ); axIt++ )
     {
-        std::cout << "Symmetry axis number " << axIt << ": Fold " << recomSymAxes.at(axIt)[0] << " XYZ: " << recomSymAxes.at(axIt)[1] << " ; " << recomSymAxes.at(axIt)[2] << " ; " << recomSymAxes.at(axIt)[3] << " Angle (radians): " << recomSymAxes.at(axIt)[4] << " , axis peak: " << recomSymAxes.at(axIt)[5] << " and averaged FSC of " <<  recomSymAxes.at(axIt)[6] << std::endl;
+        std::cout << "Symmetry axis number " << axIt << ": Fold " << symAxes.at(axIt)[0] << " XYZ: " << symAxes.at(axIt)[1] << " ; " << symAxes.at(axIt)[2] << " ; " << symAxes.at(axIt)[3] << " Angle (radians): " << symAxes.at(axIt)[4] << " , axis peak: " << symAxes.at(axIt)[5] << " and averaged FSC of " <<  symAxes.at(axIt)[6] << std::endl;
     }
     
     //================================================ Expected output
 //  Detected symmetry: D-6 with axes:
-//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.991699 and averaged FSC of 0.972365
-//  Symmetry axis number 1: Fold 2 XYZ: 0.00688279 ; 0.999976 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 1 and averaged FSC of 0.921126
+//  Symmetry axis number 0: Fold 6 XYZ: 0 ; 0 ; 1 Angle (radians): 1.0472 , axis peak: 0.989191 and averaged FSC of 0.977248
+//  Symmetry axis number 1: Fold 2 XYZ: 0.00602995 ; 0.999982 ; 6.12323e-17 Angle (radians): 3.14159 , axis peak: 0.995933 and averaged FSC of 0.941248
     
     //================================================ Find all C axes
-    std::vector < std::vector< proshade_double > > allCs = settings->allDetectedCAxes;
+    std::vector< proshade_double* > allCs             = simpleSym->getCyclicAxesCopy ( ); // This is how all the detected cyclic axes can be accessed. YOU ARE RESPONSIBLE FOR RELEASING THIS MEMORY, PROSHADE WILL NOT DO THIS FOR YOU.
     std::cout << "Found total of " << allCs.size() << " cyclic symmetry axes." << std::endl;
     
     //================================================ Expected output
@@ -151,7 +148,11 @@ int main ( int argc, char **argv )
     std::cout << "Internal map processing shifted the map COM by: [" << comMove.at(0) << " , " << comMove.at(1) << " , " << comMove.at(2) << "]." << std::endl;
     
     //================================================ Expected output
-//  Internal map processing shifted the map COM by: [4.40036 , 4.40876 , 2.70331].
+//  Internal map processing shifted the map COM by: [2.50868 , 2.50839 , 0.801306].
+    
+    //================================================ Release the symmetry memory
+    for ( size_t aIt = 0; aIt < allCs.size(); aIt++ )   { if ( allCs.at( aIt )   != nullptr ) { delete[] allCs.at( aIt );   allCs.at( aIt )   = nullptr; } }
+    for ( size_t aIt = 0; aIt < symAxes.size(); aIt++ ) { if ( symAxes.at( aIt ) != nullptr ) { delete[] symAxes.at( aIt ); symAxes.at( aIt ) = nullptr; } }
     
     //================================================ Release the object
     delete simpleSym;
@@ -167,15 +168,15 @@ int main ( int argc, char **argv )
     requestSym->computeRotationFunction               ( settings );
     
     //================================================ Prepare variables for results
-    std::vector< proshade_double* > reqSymAxes;
-    allCSymAxes.clear();
+    allCs.clear();
     
     //================================================ Detect point groups in the angle-axis space
-    requestSym->detectSymmetryFromAngleAxisSpace      ( settings, &reqSymAxes, &allCSymAxes );
+    requestSym->detectSymmetryFromAngleAxisSpace      ( settings );
     
     //================================================ Save results
-    symmetryType                                      = requestSym->getRecommendedSymmetryType ( settings );
-    symmetryFold                                      = requestSym->getRecommendedSymmetryFold ( settings );
+    symmetryType                                      = requestSym->getRecommendedSymmetryType   ( );
+    symmetryFold                                      = requestSym->getRecommendedSymmetryFold   ( );
+    std::vector< proshade_double* > reqSymAxes        = requestSym->getRecommendedSymmetryValues ( ); // YOU ARE RESPONSIBLE FOR RELEASING THIS MEMORY, PROSHADE WILL NOT DO THIS FOR YOU.
     
     //================================================ Report the results for the requested symmetry
     if ( ( symmetryType == settings->requestedSymmetryType ) && ( symmetryFold == settings->requestedSymmetryFold ) )
@@ -183,7 +184,7 @@ int main ( int argc, char **argv )
         std::cout << "Detected symmetry: " << symmetryType << "-" << symmetryFold << " as requested. The axes are:" << std::endl;
         for ( proshade_unsign axIt = 0; axIt < static_cast<proshade_unsign> ( reqSymAxes.size() ); axIt++ )
         {
-            std::cout << "Symmetry axis number " << axIt << ": Fold " << reqSymAxes.at(axIt)[0] << " XYZ: " << reqSymAxes.at(axIt)[1] << " ; " << reqSymAxes.at(axIt)[2] << " ; " << reqSymAxes.at(axIt)[3] << " Angle (radians): " << reqSymAxes.at(axIt)[4] << " and axis peak: " << reqSymAxes.at(axIt)[5] << std::endl;
+            std::cout << "Symmetry axis number " << axIt << ": Fold " << reqSymAxes.at(axIt)[0] << " XYZ: " << reqSymAxes.at(axIt)[1] << " ; " << reqSymAxes.at(axIt)[2] << " ; " << reqSymAxes.at(axIt)[3] << " Angle (radians): " << reqSymAxes.at(axIt)[4] << ", axis peak: " << reqSymAxes.at(axIt)[5] << " and averaged FSC of " << reqSymAxes.at(axIt)[6] << std::endl;
         }
     }
     else
@@ -193,17 +194,17 @@ int main ( int argc, char **argv )
     
     //================================================ Expected output
 //  Detected symmetry: D-3 as requested. The axes are:
-//  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944 and axis peak: 0.991521
-//  Symmetry axis number 1: Fold 2 XYZ: 0.00688279 ; 0.999976 ; 6.12323e-17 Angle (radians): 3.14159 and axis peak: 1
+//  Symmetry axis number 0: Fold 3 XYZ: 0 ; 0 ; 1 Angle (radians): 2.0944, axis peak: 0.989019 and averaged FSC of 0.971794
+//  Symmetry axis number 1: Fold 2 XYZ: 0.00602995 ; 0.999982 ; 6.12323e-17 Angle (radians): 3.14159, axis peak: 0.995933 and averaged FSC of 0.941248
     
     
     //  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
     //        requested point group. This is relatively simple for T, O and I symmetries, as such list is already produced by
     //        ProSHADE - see the following examples:
     //
-    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedTAxes, "T" );
-    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedOAxes, "O" );
-    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings, settings->allDetectedIAxes, "I" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings->allDetectedTAxes, "T" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings->allDetectedOAxes, "O" );
+    //        std::vector<std::vector< proshade_double > > groupElements = symmetryStructure->getAllGroupElements ( settings->allDetectedIAxes, "I" );
     //
     //        For C point groups, this is also simple, as one can select the required >index< from the allCs variable and use
     //
@@ -214,23 +215,31 @@ int main ( int argc, char **argv )
     //        The only problem comes when D is to be used, as ProSHADE gives a vector of all combinations (also as vector) of cyclic point groups which form
     //        D point groups. Therefore, to select the recommended D point group from this list, a search needs to be done. This is shown in the following code.
         
+    //================================================ Get a list of all detected C and D symmetries
+    allCs                                             = requestSym->getCyclicAxesCopy ( ); // This is how all the detected cyclic axes can be accessed. YOU ARE RESPONSIBLE FOR RELEASING THIS MEMORY, PROSHADE WILL NOT DO THIS FOR YOU.
+    std::vector< std::vector< proshade_double* > > DSyms = requestSym->getDihedralAxesCopy ( ); // YOU ARE RESPONSIBLE FOR RELEASING THIS MEMORY, PROSHADE WILL NOT DO THIS FOR YOU.
+    
     //================================================ Find which D axes combination was reported as best
     std::vector< proshade_unsign > bestDAxesList;
+    size_t firstReq = 0, secondReq = 0;
     bool firstMatch = false; bool secondMatch = false;
-    for ( int dIt = 0; dIt < static_cast<int> ( settings->allDetectedDAxes.size() ); dIt++ )
+    for ( size_t dIt = 0; dIt < DSyms.size(); dIt++ )
     {
         firstMatch                                    = false;
         secondMatch                                   = false;
 
         for ( proshade_unsign recIt = 0; recIt < static_cast<proshade_unsign> ( reqSymAxes.size() ); recIt++ )
         {
-            if ( ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[1], reqSymAxes.at(recIt)[1] ) ) &&
-                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[2], reqSymAxes.at(recIt)[2] ) ) &&
-                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[3], reqSymAxes.at(recIt)[3] ) ) &&
-                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[4], reqSymAxes.at(recIt)[4] ) ) &&
-                 ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(0))[5], reqSymAxes.at(recIt)[5] ) ) )
+            if ( ( approxEqual ( DSyms.at(dIt).at(0)[0], reqSymAxes.at(recIt)[0] ) ) &&
+                 ( approxEqual ( DSyms.at(dIt).at(0)[1], reqSymAxes.at(recIt)[1] ) ) &&
+                 ( approxEqual ( DSyms.at(dIt).at(0)[2], reqSymAxes.at(recIt)[2] ) ) &&
+                 ( approxEqual ( DSyms.at(dIt).at(0)[3], reqSymAxes.at(recIt)[3] ) ) &&
+                 ( approxEqual ( DSyms.at(dIt).at(0)[4], reqSymAxes.at(recIt)[4] ) ) &&
+                 ( approxEqual ( DSyms.at(dIt).at(0)[5], reqSymAxes.at(recIt)[5] ) ) &&
+                 ( approxEqual ( DSyms.at(dIt).at(0)[6], reqSymAxes.at(recIt)[6] ) ) )
             {
                 firstMatch                            = true;
+                firstReq                              = recIt;
             }
         }
 
@@ -238,28 +247,56 @@ int main ( int argc, char **argv )
         {
             for ( proshade_unsign recIt = 0; recIt < static_cast<proshade_unsign> ( reqSymAxes.size() ); recIt++ )
             {
-                if ( ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[1], reqSymAxes.at(recIt)[1] ) ) &&
-                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[2], reqSymAxes.at(recIt)[2] ) ) &&
-                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[3], reqSymAxes.at(recIt)[3] ) ) &&
-                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[4], reqSymAxes.at(recIt)[4] ) ) &&
-                     ( approxEqual ( allCSymAxes.at(settings->allDetectedDAxes.at(dIt).at(1))[5], reqSymAxes.at(recIt)[5] ) ) )
+                if ( ( approxEqual ( DSyms.at(dIt).at(1)[0], reqSymAxes.at(recIt)[0] ) ) &&
+                     ( approxEqual ( DSyms.at(dIt).at(1)[1], reqSymAxes.at(recIt)[1] ) ) &&
+                     ( approxEqual ( DSyms.at(dIt).at(1)[2], reqSymAxes.at(recIt)[2] ) ) &&
+                     ( approxEqual ( DSyms.at(dIt).at(1)[3], reqSymAxes.at(recIt)[3] ) ) &&
+                     ( approxEqual ( DSyms.at(dIt).at(1)[4], reqSymAxes.at(recIt)[4] ) ) &&
+                     ( approxEqual ( DSyms.at(dIt).at(1)[5], reqSymAxes.at(recIt)[5] ) ) &&
+                     ( approxEqual ( DSyms.at(dIt).at(1)[6], reqSymAxes.at(recIt)[6] ) ) )
                 {
-                    secondMatch                           = true;
+                    secondMatch                       = true;
+                    secondReq                         = recIt;
                 }
             }
         }
 
         if ( ( firstMatch && secondMatch ) && ( bestDAxesList.size() == 0 ) )
         {
-            bestDAxesList.emplace_back                ( settings->allDetectedDAxes.at(dIt).at(0) );
-            bestDAxesList.emplace_back                ( settings->allDetectedDAxes.at(dIt).at(1) );
+            for ( size_t aIt = 0; aIt < allCs.size(); aIt++ )
+            {
+                if ( ( approxEqual ( allCs.at(aIt)[0], reqSymAxes.at(firstReq)[0] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[1], reqSymAxes.at(firstReq)[1] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[2], reqSymAxes.at(firstReq)[2] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[3], reqSymAxes.at(firstReq)[3] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[4], reqSymAxes.at(firstReq)[4] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[5], reqSymAxes.at(firstReq)[5] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[6], reqSymAxes.at(firstReq)[6] ) ) )
+                {
+                    bestDAxesList.emplace_back        ( aIt );
+                }
+                
+                if ( ( approxEqual ( allCs.at(aIt)[0], reqSymAxes.at(secondReq)[0] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[1], reqSymAxes.at(secondReq)[1] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[2], reqSymAxes.at(secondReq)[2] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[3], reqSymAxes.at(secondReq)[3] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[4], reqSymAxes.at(secondReq)[4] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[5], reqSymAxes.at(secondReq)[5] ) ) &&
+                     ( approxEqual ( allCs.at(aIt)[6], reqSymAxes.at(secondReq)[6] ) ) )
+                {
+                    bestDAxesList.emplace_back        ( aIt );
+                }
+            }
         }
     }
-
+    
+    //================================================ Release the pointers
+    for ( size_t axIt = 0; axIt < DSyms.size(); axIt++ ) { if ( DSyms.at( axIt ).at(0) != nullptr ) { delete[] DSyms.at( axIt ).at(0); DSyms.at( axIt ).at(0) = nullptr; } if ( DSyms.at( axIt ).at(1) != nullptr ) { delete[] DSyms.at( axIt ).at(1); DSyms.at( axIt ).at(1) = nullptr; } }
+    
     //================================================ Get point group elements for the best D point group
-    std::vector<std::vector< proshade_double > > groupElements = simpleSym->getAllGroupElements ( settings, bestDAxesList, "D" );
+    std::vector<std::vector< proshade_double > > groupElements = requestSym->getAllGroupElements ( bestDAxesList, "D" );
     std::cout << "Found a total of " << groupElements.size() << " group elements." << std::endl;
-  
+    
     //================================================ Expected output
 //  Found a total of 6 group elements.
     
@@ -274,7 +311,11 @@ int main ( int argc, char **argv )
 //  -0.50 | +0.87 | +0.00
 //  -0.87 | -0.50 | +0.00
 //  +0.00 | +0.00 | +1.00
- 
+     
+    //================================================ Release the symmetry memory
+    for ( size_t aIt = 0; aIt < reqSymAxes.size(); aIt++ ) { if ( reqSymAxes.at( aIt ) != nullptr ) { delete[] reqSymAxes.at( aIt ); reqSymAxes.at( aIt ) = nullptr; } }
+    for ( size_t aIt = 0; aIt < allCs.size(); aIt++ )   { if ( allCs.at( aIt )   != nullptr ) { delete[] allCs.at( aIt );   allCs.at( aIt )   = nullptr; } }
+    
     //================================================ Release the settings and runProshade objects
     delete requestSym;
     delete settings;

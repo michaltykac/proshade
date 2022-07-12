@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== ProSHADE
@@ -281,11 +281,13 @@ void ProSHADE_internal_tasks::checkDistancesSettings ( ProSHADE_settings* settin
     the settings object passed as the first argument.
  
     \param[in] settings ProSHADE_settings object specifying the details of how distances computation should be done.
-    \param[in] axes A pointer to a vector to which all the axes of the recommended symmetry (if any) will be saved.
-    \param[in] allCs A pointer to a vector to which all the detected cyclic symmetries will be saved into.
     \param[in] mapCOMShift A pointer to a vector containing the distance from the centre of the map to the point about which the symmetry detection was done.
+    \param[in] symT Pointer to string that will hold the determined symmetry type.
+    \param[in] symF Pointer to unsigned int that will hold the determined symmetry fold.
+    \param[in] symA Pointer to a vector of doubles that will hold the determined symmetry axes in the proshade format.
+    \param[in] allCs A pointer to a vector of vectors containing all the detected C axes.
  */
-void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double* >* axes, std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_double >* mapCOMShift )
+void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* settings, std::vector< proshade_double >* mapCOMShift, std::string* symT, proshade_unsign* symF, std::vector< proshade_double* >* symA, std::vector < std::vector< proshade_double > >* allCs )
 {
     //================================================ Check the settings are complete and meaningful
     checkSymmetrySettings                             ( settings );
@@ -310,7 +312,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
             rotCenSettings->messageShift              = 1;
             
             //======================================== Run the detection
-            SymmetryCentreDetectionTask               ( rotCenSettings, allCs, axes, iter );
+            SymmetryCentreDetectionTask               ( rotCenSettings, iter );
             
             //======================================== Save the results
             settings->centrePosition.at(0)            = rotCenSettings->centrePosition.at(0);
@@ -319,7 +321,7 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
             
             //======================================== Report progress
             std::stringstream ss;
-            ss << "Detected symmetry centre at " << settings->centrePosition.at(0) << " ; " << settings->centrePosition.at(1) << " ; " << settings->centrePosition.at(2) << std::endl;
+            ss << "Detected symmetry centre at " << settings->centrePosition.at(0) << " ; " << settings->centrePosition.at(1) << " ; " << settings->centrePosition.at(2);
             ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ss.str(), settings->messageShift );
         }
         
@@ -336,12 +338,18 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
         symmetryStructure->computeRotationFunction    ( settings );
         
         //======================================== Detect point groups in the angle-axis space
-        symmetryStructure->detectSymmetryFromAngleAxisSpace ( settings, axes, allCs );
+        symmetryStructure->detectSymmetryFromAngleAxisSpace ( settings );
         
         //============================================ Report results
-        symmetryStructure->reportSymmetryResults      ( settings );
+        symmetryStructure->reportSymmetryResultsList  ( settings );
         
-        //============================================ Save internal map shift to run object,
+        //============================================ Save symmetry results
+       *symT                                          = symmetryStructure->getRecommendedSymmetryType ( );
+       *symF                                          = symmetryStructure->getRecommendedSymmetryFold ( );
+        for ( size_t aIt = 0; aIt < symmetryStructure->recommendedSymmetryValues.size(); aIt++ ) { ProSHADE_internal_misc::deepCopyAxisToDblPtrVector ( symA, &symmetryStructure->recommendedSymmetryValues.at( aIt )[0] ); }
+        for ( size_t aIt = 0; aIt < symmetryStructure->cyclicSymmetries.size(); aIt++ ) { std::vector< proshade_double > hlpVec; for ( size_t vIt = 0; vIt < 7; vIt++ ) { ProSHADE_internal_misc::addToDoubleVector ( &hlpVec, symmetryStructure->cyclicSymmetries.at(aIt)[vIt] ); } ProSHADE_internal_misc::addToDoubleVectorVector ( allCs, hlpVec ); }
+        
+        //============================================ Save internal map shift to run object
         ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeX );
         ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeY );
         ProSHADE_internal_misc::addToDoubleVector     ( mapCOMShift, symmetryStructure->mapCOMProcessChangeZ );
@@ -363,14 +371,14 @@ void ProSHADE_internal_tasks::SymmetryDetectionTask ( ProSHADE_settings* setting
     \param[in] settings ProSHADE_settings object specifying the details of how symmetry centre detection should be done.
     \param[in] strIndex The index of the structure to be read from the structure list available in the settings object.
  */
-void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* settings, std::vector < std::vector< proshade_double > >* allCs, std::vector< proshade_double* >* axes, proshade_unsign strIndex )
+void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* settings, proshade_unsign strIndex )
 {
     //================================================ Keep original settings for the phased reading
     ProSHADE_settings* tmpSettings                    = new ProSHADE_settings ( settings );
     
     //================================================ Enforce the necessary settings
     tmpSettings->usePhase                             = false;
-    tmpSettings->requestedSymmetryType                = "onlyC";
+    tmpSettings->requestedSymmetryType                = "onlyCandD";
     tmpSettings->moveToCOM                            = false;
     tmpSettings->addExtraSpace                        = tmpSettings->addExtraSpace * 5.0f;
     settings->moveToCOM                               = false;
@@ -382,11 +390,19 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     symStr->mapToSpheres                              ( tmpSettings );
     symStr->computeSphericalHarmonics                 ( tmpSettings );
     symStr->computeRotationFunction                   ( tmpSettings );
-    symStr->detectSymmetryFromAngleAxisSpace          ( tmpSettings, axes, allCs );
+    symStr->detectSymmetryFromAngleAxisSpace          ( tmpSettings );
     
     //================================================ Find reliable symmetries in the Patterson map
-    std::vector< proshade_unsign > relSym             = ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( allCs, tmpSettings->verbose, settings->messageShift, tmpSettings->axisErrTolerance );
-
+    std::vector< proshade_unsign > relSym             = ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( symStr->getCyclicAxes(), symStr->getDihedralAxes(), tmpSettings->verbose, settings->messageShift, tmpSettings->axisErrTolerance );
+    std::vector< std::vector< proshade_double > > allCs;
+    std::vector< proshade_double > hlpVec;
+    for ( size_t it1 = 0; it1 < symStr->getCyclicAxes()->size(); it1++ )
+    {
+        hlpVec.clear                                  ( );
+        for ( size_t it2 = 0; it2 < 7; it2++ ) { ProSHADE_internal_misc::addToDoubleVector ( &hlpVec, symStr->getCyclicAxes()->at(it1)[it2] ); }
+        ProSHADE_internal_misc::addToDoubleVectorVector ( &allCs, hlpVec );
+    }
+    
     //================================================ If no symmetries are found, inform the user
     if ( relSym.size() == 0 )
     {
@@ -402,23 +418,27 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         std::stringstream ssHlp2;
         if ( relSym.size() == 1 )
         {
-            ssHlp << "Decided that there is one reliable axis forming C" << allCs->at(relSym.at(0))[0];
-            ssHlp2 << "The axis is: [" << allCs->at(relSym.at(0))[1] << " , " << allCs->at(relSym.at(0))[2] << " , " << allCs->at(relSym.at(0))[3] << "] with angle " << allCs->at(relSym.at(0))[4] << " peak height " << allCs->at(relSym.at(0))[5] << " and average FSC of " << allCs->at(relSym.at(0))[6] << std::endl;
+            ssHlp << "Decided that there is one reliable axis forming C" << allCs.at(relSym.at(0))[0];
+            ssHlp2 << "The axis is: [" << allCs.at(relSym.at(0))[1] << " , " << allCs.at(relSym.at(0))[2] << " , " << allCs.at(relSym.at(0))[3] << "] with angle " << allCs.at(relSym.at(0))[4] << " peak height " << allCs.at(relSym.at(0))[5] << " and average FSC of " << allCs.at(relSym.at(0))[6];
         }
         else
         {
-            ssHlp << "Decided that there are two reliable axes forming D" << std::max ( allCs->at(relSym.at(0))[0], allCs->at(relSym.at(1))[0] );
-            ssHlp2 << "The first axis is:         [" << allCs->at(relSym.at(0))[1] << " , " << allCs->at(relSym.at(0))[2] << " , " << allCs->at(relSym.at(0))[3] << "] with angle " << allCs->at(relSym.at(0))[4] << " peak height " << allCs->at(relSym.at(0))[5] << " and average FSC of " << allCs->at(relSym.at(0))[6] << std::endl;
-            ssHlp2 << "   and the second axis is: [" << allCs->at(relSym.at(1))[1] << " , " << allCs->at(relSym.at(1))[2] << " , " << allCs->at(relSym.at(1))[3] << "] with angle " << allCs->at(relSym.at(1))[4] << " peak height " << allCs->at(relSym.at(1))[5] << " and average FSC of " << allCs->at(relSym.at(1))[6] << std::endl;
+            ssHlp << "Decided that there are two reliable axes forming D" << std::max ( allCs.at(relSym.at(0))[0], allCs.at(relSym.at(1))[0] );
+            ssHlp2 << "The first axis is:         [" << allCs.at(relSym.at(0))[1] << " , " << allCs.at(relSym.at(0))[2] << " , " << allCs.at(relSym.at(0))[3] << "] with angle " << allCs.at(relSym.at(0))[4] << " peak height " << allCs.at(relSym.at(0))[5] << " and average FSC of " << allCs.at(relSym.at(0))[6] << std::endl;
+            for ( size_t it = 0; it < static_cast< size_t > ( settings->verbose + settings->messageShift ); it++ ) { ssHlp2 << " ..."; }
+            ssHlp2 << "   and the second axis is:  [" << allCs.at(relSym.at(1))[1] << " , " << allCs.at(relSym.at(1))[2] << " , " << allCs.at(relSym.at(1))[3] << "] with angle " << allCs.at(relSym.at(1))[4] << " peak height " << allCs.at(relSym.at(1))[5] << " and average FSC of " << allCs.at(relSym.at(1))[6];
         }
         ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 2, ssHlp.str(), settings->messageShift );
+        ProSHADE_internal_messages::printProgressMessage  ( settings->verbose, 5, ssHlp2.str(), settings->messageShift );
+        
+        
     }
     
     //================================================ Optimise the orthogonal pair, if there is one
     if ( relSym.size() == 2 )
     {
         //============================================ Optimise the orthogonal pair
-        ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( allCs, relSym, symStr, tmpSettings );
+        ProSHADE_internal_symmetry::optimiseDGroupAngleFromAxesHeights ( &allCs, relSym, symStr, tmpSettings );
     }
     
     //================================================ Re-read the map, this time with phases
@@ -433,23 +453,9 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
     ProSHADE_internal_symmetry::allocateCentreOfMapFourierTransforms ( symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), origMap, origCoeffs, rotMapComplex, rotCoeffs, trFunc, trFuncCoeffs, &planForwardFourier, &planForwardFourierRot, &planReverseFourierComb );
 
     //================================================ Compute Fourier for the original map
-    for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { origMap[it][0] = symStr->getMapValue( it ); origMap[it][1] = 0.0; }
+    for ( proshade_unsign it = 0; it < static_cast< proshade_unsign > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { origMap[it][0] = symStr->getMapValue( it ); origMap[it][1] = 0.0; }
     fftw_execute                                      ( planForwardFourier );
-    
-//    //== Allocate Fourier coefficients array for the translation optimisation
-//    proshade_complex* trsOptMap                       = new proshade_complex[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-//    proshade_complex* trsOptCoeffs                    = new proshade_complex[symStr->getXDim() * symStr->getYDim() * symStr->getZDim()];
-//    ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptMap,    __FILE__, __LINE__, __func__ );
-//    ProSHADE_internal_misc::checkMemoryAllocation     ( trsOptCoeffs, __FILE__, __LINE__, __func__ );
-//    fftw_plan planForwardOptimisation                 = fftw_plan_dft_3d ( static_cast< int > ( symStr->getXDim() ), static_cast< int > ( symStr->getYDim() ), static_cast< int > ( symStr->getZDim() ), trsOptMap,       trsOptCoeffs, FFTW_FORWARD,   FFTW_ESTIMATE );
-    
-    //== Prepare FSC computation memory and variables
-//    fftw_complex *FSCmapData, *FSCorigCoeffs, *FSCfCoeffs;
-//    fftw_plan FSCplanForwardFourier;
-//    proshade_double **binDataFSC, *fscByBin;
-//    proshade_signed *binIndexing, *binCounts, noBins;
-//    symStr->prepareFSCFourierMemory                   ( FSCmapData, FSCorigCoeffs, FSCfCoeffs, binIndexing, &noBins, binDataFSC, binCounts, &FSCplanForwardFourier, fscByBin );
-    
+        
     //================================================ If single C was found
     if ( relSym.size() == 1 )
     {
@@ -460,7 +466,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         
         //============================================ Find the point
         ProSHADE_internal_misc::addToUnsignVector     ( &axLst, static_cast< proshade_unsign > ( relSym.at(0) ) );
-        symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
+        symElems                                      = symStr->getAllGroupElements ( &allCs, axLst, "C", tmpSettings->axisErrTolerance );
         std::vector< proshade_double > pointPos       = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
                                                                                                                 symElems,
                                                                                                                 origCoeffs, rotMapComplex,
@@ -477,28 +483,28 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         proshade_double zBoxCentre                    = ( ( static_cast< proshade_double > ( symStr->zTo ) - static_cast< proshade_double > ( symStr->zFrom ) ) / 2.0 ) + static_cast< proshade_double > ( symStr->zFrom );
         
         //============================================ Determine distance from COM in indices to box centre in indices
-        proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / static_cast< proshade_double > ( symStr->xDimSize ) / static_cast< proshade_double > ( symStr->xDimIndices ) );
-        proshade_double yCOMFromBoxCen                = yBoxCentre - ( yMapCOM / static_cast< proshade_double > ( symStr->yDimSize ) / static_cast< proshade_double > ( symStr->yDimIndices ) );
-        proshade_double zCOMFromBoxCen                = zBoxCentre - ( zMapCOM / static_cast< proshade_double > ( symStr->zDimSize ) / static_cast< proshade_double > ( symStr->zDimIndices ) );
+        proshade_double xCOMFromBoxCen                = xBoxCentre - ( xMapCOM / ( static_cast< proshade_double > ( symStr->xDimSize ) / static_cast< proshade_double > ( symStr->xDimIndices ) ) );
+        proshade_double yCOMFromBoxCen                = yBoxCentre - ( yMapCOM / ( static_cast< proshade_double > ( symStr->yDimSize ) / static_cast< proshade_double > ( symStr->yDimIndices ) ) );
+        proshade_double zCOMFromBoxCen                = zBoxCentre - ( zMapCOM / ( static_cast< proshade_double > ( symStr->zDimSize ) / static_cast< proshade_double > ( symStr->zDimIndices ) ) );
         
         //============================================ Determine the coefficient of mapping of the COM point to the line
         proshade_double alpha1                        = ProSHADE_internal_maths::computeDotProduct ( pointPos.at(0) - xCOMFromBoxCen,
                                                                                                      pointPos.at(1) - yCOMFromBoxCen,
                                                                                                      pointPos.at(2) - zCOMFromBoxCen,
-                                                                                                     allCs->at(relSym.at(0))[1],
-                                                                                                     allCs->at(relSym.at(0))[2],
-                                                                                                     allCs->at(relSym.at(0))[3] ) /
-                                                        ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1],
-                                                                                                     allCs->at(relSym.at(0))[2],
-                                                                                                     allCs->at(relSym.at(0))[3],
-                                                                                                     allCs->at(relSym.at(0))[1],
-                                                                                                     allCs->at(relSym.at(0))[2],
-                                                                                                     allCs->at(relSym.at(0))[3] );
+                                                                                                     allCs.at(relSym.at(0))[1],
+                                                                                                     allCs.at(relSym.at(0))[2],
+                                                                                                     allCs.at(relSym.at(0))[3] ) /
+                                                        ProSHADE_internal_maths::computeDotProduct ( allCs.at(relSym.at(0))[1],
+                                                                                                     allCs.at(relSym.at(0))[2],
+                                                                                                     allCs.at(relSym.at(0))[3],
+                                                                                                     allCs.at(relSym.at(0))[1],
+                                                                                                     allCs.at(relSym.at(0))[2],
+                                                                                                     allCs.at(relSym.at(0))[3] );
         
         //============================================ Determine point on the axis closest to COM
-        settings->centrePosition.at(0)                = pointPos.at(0) + ( alpha1 * allCs->at(relSym.at(0))[1] );
-        settings->centrePosition.at(1)                = pointPos.at(1) + ( alpha1 * allCs->at(relSym.at(0))[2] );
-        settings->centrePosition.at(2)                = pointPos.at(2) + ( alpha1 * allCs->at(relSym.at(0))[3] );
+        settings->centrePosition.at(0)                = pointPos.at(0) + ( alpha1 * allCs.at(relSym.at(0))[1] );
+        settings->centrePosition.at(1)                = pointPos.at(1) + ( alpha1 * allCs.at(relSym.at(0))[2] );
+        settings->centrePosition.at(2)                = pointPos.at(2) + ( alpha1 * allCs.at(relSym.at(0))[3] );
     }
     //================================================ If D was found
     else
@@ -509,7 +515,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         
         //============================================ Find the first point
         ProSHADE_internal_misc::addToUnsignVector     ( &axLst, static_cast< proshade_unsign > ( relSym.at(0) ) );
-        symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
+        symElems                                      = symStr->getAllGroupElements ( &allCs, axLst, "C", tmpSettings->axisErrTolerance );
         std::vector< proshade_double > point1Pos      = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
                                                                                                                 symElems,
                                                                                                                 origCoeffs, rotMapComplex,
@@ -519,7 +525,7 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
         
         //============================================ Find the second point
         axLst.at(0)                                   = static_cast< proshade_unsign > ( relSym.at(1) );
-        symElems                                      = symStr->getAllGroupElements ( allCs, axLst, "C", tmpSettings->axisErrTolerance );
+        symElems                                      = symStr->getAllGroupElements ( &allCs, axLst, "C", tmpSettings->axisErrTolerance );
         std::vector< proshade_double > point2Pos      = ProSHADE_internal_symmetry::findPointFromTranslations ( symStr,
                                                                                                                 symElems,
                                                                                                                 origCoeffs, rotMapComplex,
@@ -528,13 +534,13 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                                 planReverseFourierComb );
         
         //============================================ Compute the tangents
-        proshade_double* tangentToAxes                = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
-                                                                                                       allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3] );
+        proshade_double* tangentToAxes                = ProSHADE_internal_maths::computeCrossProduct ( allCs.at(relSym.at(0))[1], allCs.at(relSym.at(0))[2], allCs.at(relSym.at(0))[3],
+                                                                                                       allCs.at(relSym.at(1))[1], allCs.at(relSym.at(1))[2], allCs.at(relSym.at(1))[3] );
         
-        proshade_double* correctedSecondAxis          = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
+        proshade_double* correctedSecondAxis          = ProSHADE_internal_maths::computeCrossProduct ( allCs.at(relSym.at(0))[1], allCs.at(relSym.at(0))[2], allCs.at(relSym.at(0))[3],
                                                                                                        tangentToAxes[0], tangentToAxes[1], tangentToAxes[2] );
         
-        proshade_double* correctedFirstAxis           = ProSHADE_internal_maths::computeCrossProduct ( allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3],
+        proshade_double* correctedFirstAxis           = ProSHADE_internal_maths::computeCrossProduct ( allCs.at(relSym.at(1))[1], allCs.at(relSym.at(1))[2], allCs.at(relSym.at(1))[3],
                                                                                                        tangentToAxes[0], tangentToAxes[1], tangentToAxes[2] );
         
         //============================================ Compute mappings
@@ -542,19 +548,19 @@ void ProSHADE_internal_tasks::SymmetryCentreDetectionTask ( ProSHADE_settings* s
                                                                                                      point2Pos.at(1) - point1Pos.at(1),
                                                                                                      point2Pos.at(2) - point1Pos.at(2),
                                                                                                      correctedFirstAxis[0], correctedFirstAxis[1], correctedFirstAxis[2] ) /
-                                                        ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(0))[1], allCs->at(relSym.at(0))[2], allCs->at(relSym.at(0))[3],
+                                                        ProSHADE_internal_maths::computeDotProduct ( allCs.at(relSym.at(0))[1], allCs.at(relSym.at(0))[2], allCs.at(relSym.at(0))[3],
                                                                                                      correctedFirstAxis[0], correctedFirstAxis[1], correctedFirstAxis[2] );
         proshade_double alpha2                        = ProSHADE_internal_maths::computeDotProduct ( point1Pos.at(0) - point2Pos.at(0),
                                                                                                      point1Pos.at(1) - point2Pos.at(1),
                                                                                                      point1Pos.at(2) - point2Pos.at(2),
                                                                                                      correctedSecondAxis[0], correctedSecondAxis[1], correctedSecondAxis[2] ) /
-                                                        ProSHADE_internal_maths::computeDotProduct ( allCs->at(relSym.at(1))[1], allCs->at(relSym.at(1))[2], allCs->at(relSym.at(1))[3],
+                                                        ProSHADE_internal_maths::computeDotProduct ( allCs.at(relSym.at(1))[1], allCs.at(relSym.at(1))[2], allCs.at(relSym.at(1))[3],
                                                                                                      correctedSecondAxis[0], correctedSecondAxis[1], correctedSecondAxis[2] );
         
         //============================================ Find the intersect point (averaged)
-        settings->centrePosition.at(0)                = ( ( point1Pos.at(0) + ( alpha1 * allCs->at(relSym.at(0))[1] ) ) + ( point2Pos.at(0) + ( alpha2 * allCs->at(relSym.at(1))[1] ) ) ) / 2.0;
-        settings->centrePosition.at(1)                = ( ( point1Pos.at(1) + ( alpha1 * allCs->at(relSym.at(0))[2] ) ) + ( point2Pos.at(1) + ( alpha2 * allCs->at(relSym.at(1))[2] ) ) ) / 2.0;
-        settings->centrePosition.at(2)                = ( ( point1Pos.at(2) + ( alpha1 * allCs->at(relSym.at(0))[3] ) ) + ( point2Pos.at(2) + ( alpha2 * allCs->at(relSym.at(1))[3] ) ) ) / 2.0;
+        settings->centrePosition.at(0)                = ( ( point1Pos.at(0) + ( alpha1 * allCs.at(relSym.at(0))[1] ) ) + ( point2Pos.at(0) + ( alpha2 * allCs.at(relSym.at(1))[1] ) ) ) / 2.0;
+        settings->centrePosition.at(1)                = ( ( point1Pos.at(1) + ( alpha1 * allCs.at(relSym.at(0))[2] ) ) + ( point2Pos.at(1) + ( alpha2 * allCs.at(relSym.at(1))[2] ) ) ) / 2.0;
+        settings->centrePosition.at(2)                = ( ( point1Pos.at(2) + ( alpha1 * allCs.at(relSym.at(0))[3] ) ) + ( point2Pos.at(2) + ( alpha2 * allCs.at(relSym.at(1))[3] ) ) ) / 2.0;
         
         //============================================ Release memory
         delete[] tangentToAxes;

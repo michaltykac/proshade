@@ -15,8 +15,8 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.5
-    \date      JUN 2022
+    \version   0.7.6.6
+    \date      JUL 2022
  */
 
 //==================================================== Include PyBind11 header
@@ -108,8 +108,6 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def_readwrite                                ( "axisErrTolerance",                     &ProSHADE_settings::axisErrTolerance                    )
         .def_readwrite                                ( "axisErrToleranceDefault",              &ProSHADE_settings::axisErrToleranceDefault             )
         .def_readwrite                                ( "minSymPeak",                           &ProSHADE_settings::minSymPeak                          )
-        .def_readwrite                                ( "recommendedSymmetryType",              &ProSHADE_settings::recommendedSymmetryType             )
-        .def_readwrite                                ( "recommendedSymmetryFold",              &ProSHADE_settings::recommendedSymmetryFold             )
         .def_readwrite                                ( "requestedSymmetryType",                &ProSHADE_settings::requestedSymmetryType               )
         .def_readwrite                                ( "requestedSymmetryFold",                &ProSHADE_settings::requestedSymmetryFold               )
         .def_readwrite                                ( "maxSymmetryFold",                      &ProSHADE_settings::maxSymmetryFold                     )
@@ -174,11 +172,8 @@ void add_settingsClass ( pybind11::module& pyProSHADE )
         .def                                          ( "setAxisComparisonThreshold",           &ProSHADE_settings::setAxisComparisonThreshold,             "Sets the threshold for matching symmetry axes.",                                                                           pybind11::arg ( "axThres"       ) )
         .def                                          ( "setAxisComparisonThresholdBehaviour",  &ProSHADE_settings::setAxisComparisonThresholdBehaviour,    "Sets the automatic symmetry axis tolerance decreasing.",                                                                   pybind11::arg ( "behav"         ) )
         .def                                          ( "setMinimumPeakForAxis",                &ProSHADE_settings::setMinimumPeakForAxis,                  "Sets the minimum peak height for symmetry axis to be considered.",                                                         pybind11::arg ( "minSP"         ) )
-        .def                                          ( "setRecommendedSymmetry",               &ProSHADE_settings::setRecommendedSymmetry,                 "Sets the ProSHADE detected symmetry type.",                                                                                pybind11::arg ( "val"           ) )
-        .def                                          ( "setRecommendedFold",                   &ProSHADE_settings::setRecommendedFold,                     "Sets the ProSHADE detected symmetry fold.",                                                                                pybind11::arg ( "val"           ) )
         .def                                          ( "setRequestedSymmetry",                 &ProSHADE_settings::setRequestedSymmetry,                   "Sets the user requested symmetry type.",                                                                                   pybind11::arg ( "val"           ) )
         .def                                          ( "setRequestedFold",                     &ProSHADE_settings::setRequestedFold,                       "Sets the user requested symmetry fold.",                                                                                   pybind11::arg ( "val"           ) )
-        .def                                          ( "setDetectedSymmetry",                  &ProSHADE_settings::setDetectedSymmetry,                    "Sets the final detected symmetry axes information.",                                                                       pybind11::arg ( "sym"           ) )
         .def                                          ( "setOverlaySaveFile",                   &ProSHADE_settings::setOverlaySaveFile,                     "Sets the filename to which the overlay structure is to be save into.",                                                    pybind11::arg ( "filename"      ) )
         .def                                          ( "setOverlayJsonFile",                   &ProSHADE_settings::setOverlayJsonFile,                     "Sets the filename to which the overlay operations are to be save into.",                                                 pybind11::arg ( "filename"      ) )
         .def                                          ( "setBicubicInterpolationSearch",        &ProSHADE_settings::setBicubicInterpolationSearch,          "Sets the bicubic interpolation on peaks.",                                                                                 pybind11::arg ( "bicubPeaks"    ) )

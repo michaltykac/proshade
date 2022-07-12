@@ -19,8 +19,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.5
-#   \date      JUN 2022
+#   \version   0.7.6.6
+#   \date      JUL 2022
 ######################################################
 ######################################################
 
@@ -76,9 +76,9 @@ pStruct.detectSymmetryInStructure                     ( pSet )
     
 ######################################################
 ### Retrieve the results
-recSymmetryType                                       = pStruct.getRecommendedSymmetryType ( pSet )
-recSymmetryFold                                       = pStruct.getRecommendedSymmetryFold ( pSet )
-recSymmetryAxes                                       = pStruct.getRecommendedSymmetryAxes ( pSet )
+recSymmetryType                                       = pStruct.getRecommendedSymmetryType ( )
+recSymmetryFold                                       = pStruct.getRecommendedSymmetryFold ( )
+recSymmetryAxes                                       = pStruct.getRecommendedSymmetryAxes ( )
 
 ######################################################
 ### Print results
@@ -97,12 +97,12 @@ for iter in range ( 0, len( recSymmetryAxes ) ):
 ### Expected output
 #   Detected D-6 symetry.
 #   Fold              x           y         z       Angle      Height    Average FSC
-#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9795      +0.9726
-#     2.0        +0.006      +1.000    +0.000    +3.142    +1.0000      +0.9201
+#     6.0        +0.000      +0.000    +1.000    +1.047    +0.9918      +0.9776
+#     2.0        +0.005      +1.000    +0.000    +3.142    +1.0000      +0.9347
 
 ######################################################
 ### Get list of all cyclic axes detected
-allCAxes                                              = pStruct.getAllCSyms ( pSet )
+allCAxes                                              = pStruct.getAllCSyms ( )
 print                                                 ( "Found a total of " + str( len ( allCAxes ) ) + " cyclic point groups." )
 
 ######################################################
@@ -111,8 +111,8 @@ print                                                 ( "Found a total of " + st
 
 ######################################################
 ### Get indices of which C axes form any detected non-C symmetry
-allNonCAxesIndices                                    = pStruct.getNonCSymmetryAxesIndices ( pSet )
-print                                                 ( "Found a total of " + str( len ( allNonCAxesIndices["D"] ) ) + " dihedral point groups." )
+allNonCAxes                                           = pStruct.getNonCSymmetryAxesIndices ( )
+print                                                 ( "Found a total of " + str( len ( allNonCAxes["D"] ) ) + " dihedral point groups." )
 
 ######################################################
 ### Expected output
@@ -125,16 +125,16 @@ print                                                 ( "The internal map has be
 
 ######################################################
 ### Expected output
-#   The internal map has been shifted by 3.264023 , 3.2652297 , 1.5624605
+#   The internal map has been shifted by 0.24491179 , 0.2442931 , -1.4583219
 
 ######################################################
 #  NOTE: To get all the point group elements, one needs to supply the list of all cyclic point groups which comprise the
 #        requested point group. This is relatively simple for T, O and I symmetries, as such a list is already produced by
 #        ProSHADE - see the following examples:
 #
-#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxesIndices['T'], "T" )
-#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxesIndices['O'], "O" )
-#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxesIndices['I'], "I" )
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxes['T'], "T" )
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxes['O'], "O" )
+#        allGroupElements = proshade.getAllGroupElements ( pSet, pStruct, allNonCAxes['I'], "I" )
 #
 #        For cyclic point groups, this is also simple, as one can select the required >index< from the allCs variable and use
 #        NOTE: The [] around index is required, as the function expects an array (list) and not an int!
@@ -156,32 +156,51 @@ def isclose ( a, b, tol = 1e-04 ):
 ######################################################
 ### Find the indices of the best dihedral combination
 bestDCombination                                      = []
-for dIt in range ( 0, len ( allNonCAxesIndices['D'] ) ):
+bestDCombinationHlp                                   = []
+for dIt in range ( 0, len ( allNonCAxes['D'] ) ):
+
     firstMatch                                        = False
     secondMatch                                       = False
+    
     for recIt in range ( 0, len( recSymmetryAxes ) ):
-        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][1], recSymmetryAxes[0][1] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][2], recSymmetryAxes[0][2] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][3], recSymmetryAxes[0][3] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][4], recSymmetryAxes[0][4] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][0]][5], recSymmetryAxes[0][5] ) ):
+        if ( isclose ( allNonCAxes['D'][dIt][0][0], recSymmetryAxes[0][0] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][0][1], recSymmetryAxes[0][1] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][0][2], recSymmetryAxes[0][2] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][0][3], recSymmetryAxes[0][3] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][0][4], recSymmetryAxes[0][4] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][0][5], recSymmetryAxes[0][5] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][0][6], recSymmetryAxes[0][6] ) ):
             firstMatch                                = True
-
-        if ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][1], recSymmetryAxes[1][1] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][2], recSymmetryAxes[1][2] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][3], recSymmetryAxes[1][3] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][4], recSymmetryAxes[1][4] ) ) and \
-           ( isclose ( allCAxes[allNonCAxesIndices['D'][dIt][1]][5], recSymmetryAxes[1][5] ) ):
+            
+        if ( isclose ( allNonCAxes['D'][dIt][1][0], recSymmetryAxes[1][0] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][1][1], recSymmetryAxes[1][1] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][1][2], recSymmetryAxes[1][2] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][1][3], recSymmetryAxes[1][3] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][1][4], recSymmetryAxes[1][4] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][1][5], recSymmetryAxes[1][5] ) ) and \
+           ( isclose ( allNonCAxes['D'][dIt][1][6], recSymmetryAxes[1][6] ) ):
             secondMatch                               = True
-
+            
     if (firstMatch and secondMatch) and (len(bestDCombination)==0):
-        bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][0] )
-        bestDCombination.append                       ( allNonCAxesIndices['D'][dIt][1] )
+        bestDCombinationHlp.append                    ( allNonCAxes['D'][dIt][0] )
+        bestDCombinationHlp.append                    ( allNonCAxes['D'][dIt][1] )
+
+for DSwitch in range ( 0, 2 ):
+    for cIt in range ( 0, len ( allCAxes ) ):
+        if ( isclose ( bestDCombinationHlp[DSwitch][0], allCAxes[cIt][0] ) ) and \
+           ( isclose ( bestDCombinationHlp[DSwitch][1], allCAxes[cIt][1] ) ) and \
+           ( isclose ( bestDCombinationHlp[DSwitch][2], allCAxes[cIt][2] ) ) and \
+           ( isclose ( bestDCombinationHlp[DSwitch][3], allCAxes[cIt][3] ) ) and \
+           ( isclose ( bestDCombinationHlp[DSwitch][4], allCAxes[cIt][4] ) ) and \
+           ( isclose ( bestDCombinationHlp[DSwitch][5], allCAxes[cIt][5] ) ) and \
+           ( isclose ( bestDCombinationHlp[DSwitch][6], allCAxes[cIt][6] ) ):
+            bestDCombination.append                   ( cIt )
+            
 
 
 ######################################################
 ### Get the group elements for the best dihedral group
-allGroupElements                                      = pStruct.getAllGroupElements ( pSet, bestDCombination, "D" )
+allGroupElements                                      = pStruct.getAllGroupElements ( bestDCombination, "D" )
 
 ######################################################
 ### Print the first non-identity element
@@ -195,9 +214,9 @@ print                                                 ( "  %+1.3f    %+1.3f    %
 ### Expected output
 #   Found a total of 12 group [1, 3] elements.
 #   The first non-identity element is:
-#     +0.500    +0.866    +0.000 
-#     -0.866    +0.500    +0.000 
-#     +0.000    +0.000    +1.000 
+#     +0.500    +0.866    +0.000
+#     -0.866    +0.500    +0.000
+#     +0.000    +0.000    +1.000
 
 ######################################################
 ### Assuming you have modifiex / created your own C groups
