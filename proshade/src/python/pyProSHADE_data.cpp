@@ -986,4 +986,29 @@ void add_dataClass ( pybind11::module& pyProSHADE )
                                                             //== Done
                                                             return ( retArr );
                                                         }, "This function allows access to the (self-)rotation function mapping to spheres with the angle being the radius and the longitude/latitude angles being the axis of the rotation for a particular fold (i.e. for all angles required by the fold except for the angle 0)." );
+    pyProSHADE.def                                    ( "findReliableUnphasedSymmetries",
+                                                        [] ( ProSHADE_internal_data::ProSHADE_data &self, proshade_signed verbose, proshade_signed messageShift, proshade_double tolerance ) -> pybind11::array_t < proshade_unsign >
+                                                        {
+                                                            //== Run the detection
+                                                            std::vector< proshade_unsign > rels           = ProSHADE_internal_symmetry::findReliableUnphasedSymmetries ( self.getCyclicAxes(), self.getDihedralAxes(), verbose, messageShift, tolerance );
+                                                            
+                                                            //== Allocate memory for the numpy values
+                                                            proshade_unsign* npVals                       = new proshade_unsign[static_cast<unsigned int> ( rels.size() )];
+                                                            ProSHADE_internal_misc::checkMemoryAllocation ( npVals, __FILE__, __LINE__, __func__ );
+                                                            
+                                                            //== Copy values
+                                                            for ( proshade_unsign iter = 0; iter < static_cast<proshade_unsign> ( rels.size() ); iter++ ) { npVals[iter] = static_cast< proshade_unsign > ( rels.at(iter) ); }
+                                                            
+                                                            //== Create capsules to make sure memory is released properly from the allocating language (C++ in this case)
+                                                            pybind11::capsule pyCapsuleRelSyms ( npVals, []( void *f ) { proshade_unsign* foo = reinterpret_cast< proshade_unsign* > ( f ); delete foo; } );
+                                                            
+                                                            //== Copy the value
+                                                            pybind11::array_t < proshade_unsign > retArr = pybind11::array_t< proshade_unsign > ( { static_cast<int> ( rels.size() ) },                          // Shape
+                                                                                                                                                  { sizeof(proshade_unsign) },                                   // C-stype strides
+                                                                                                                                                  npVals,                                                        // Data
+                                                                                                                                                  pyCapsuleRelSyms );                                            // Capsule
+                                                            
+                                                            //== Done
+                                                            return ( retArr );
+        }, "This function checks the list of detected axes (presumably from phaseless symmetry detection) and returns the best dihedral (or cyclic, if no dihedral is found) point group, or empty vector if nothing is found.", pybind11::arg ( "structureObject" ), pybind11::arg ( "verbose" ), pybind11::arg ( "messageShift" ) = 1, pybind11::arg ( "tolerance" ) = 0.1 );
 }
