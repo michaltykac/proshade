@@ -786,7 +786,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
             }
         }
     }
-    std::cerr << " INTERPOLATION IS OKI!" << std::endl;
+    
     //================================================ Release memory
     delete[] mins;
     delete[] maxs;

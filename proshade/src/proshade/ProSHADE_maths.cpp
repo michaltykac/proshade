@@ -1269,14 +1269,9 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_sin
     proshade_double angleTolerance                    = 0.01;
     proshade_double closeToZero                       = 0.0000001;
     
-    std::cerr << "rotMat size: " << rotMat->size() << std::endl;
-    std::cerr << "rotMat vals: " << rotMat->at(0) << " x " << rotMat->at(1) << " x " << rotMat->at(2) << std::endl;
-    std::cerr << "           : " << rotMat->at(3) << " x " << rotMat->at(4) << " x " << rotMat->at(5) << std::endl;
-    std::cerr << "           : " << rotMat->at(6) << " x " << rotMat->at(7) << " x " << rotMat->at(8) << std::endl;
-    
     //================================================ Find the angle
    *ang                                               = std::acos ( ( std::max ( -1.0, std::min ( 3.0, rotMat->at(0) + rotMat->at(4) + rotMat->at(8) ) ) - 1.0 ) / 2.0 );
-    std::cerr << "ANG IS     : " << *ang << std::endl;
+    
     //================================================ Any singularity?
     if ( std::abs ( std::sin ( *ang ) ) < angleTolerance )
     {
