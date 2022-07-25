@@ -19,7 +19,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.6
+    \version   0.7.6.7
     \date      JUL 2022
  */
 
@@ -27,7 +27,7 @@
 
 /*! \mainpage ProSHADE Documentation
  *
- * Protein Shape Description and Symmetry Detection version 0.7.6.6 (JUL 2022)
+ * Protein Shape Description and Symmetry Detection version 0.7.6.7 (JUL 2022)
  *
  * \section intro Introduction
  *

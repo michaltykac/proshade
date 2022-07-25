@@ -3,7 +3,7 @@
 ProSHADE
 ========
 
-Protein Shape Description and Symmetry Detection version 0.7.6.6 (JUL 2022)
+Protein Shape Description and Symmetry Detection version 0.7.6.7 (JUL 2022)
 
 # Introduction
 

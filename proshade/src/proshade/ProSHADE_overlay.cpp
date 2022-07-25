@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.6
+    \version   0.7.6.7
     \date      JUL 2022
  */
 
@@ -635,6 +635,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
     bool withinBounds                                 = true;
     proshade_double c000, c001, c010, c011, c100, c101, c110, c111, c00, c01, c10, c11, c0, c1;
     size_t arrPos                                     = 0;
+    size_t maxArr                                     = static_cast< size_t > ( this->xDimIndices * this->yDimIndices * this->zDimIndices );
     proshade_double xCOM, yCOM, zCOM;
     std::vector< proshade_double > ret;
     
@@ -737,27 +738,35 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
                 
                 //==================================== Find the surrounding points values from their indices
                 arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c000                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c001                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c010                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMins[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c011                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c100                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMins[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c101                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMins[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c110                                  = this->internalMap[arrPos];
                 
                 arrPos                                = static_cast< size_t > ( ( interpMaxs[2] - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( interpMaxs[1] - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( interpMaxs[0] - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 c111                                  = this->internalMap[arrPos];
 
                 //==================================== Interpolate along x-axis
@@ -772,6 +781,7 @@ std::vector< proshade_double > ProSHADE_internal_data::ProSHADE_data::rotateMapR
 
                 //==================================== Interpolate along z-axis
                 arrPos                                = static_cast< size_t > ( ( zIt - mins[2] ) + static_cast< proshade_single > ( this->zDimIndices ) * ( ( yIt - mins[1] ) + static_cast< proshade_single > ( this->yDimIndices ) * ( xIt - mins[0] ) ) );
+                if ( arrPos >= maxArr )               { continue; }
                 map[arrPos]                           = ( c0   * ( 1.0 - static_cast< proshade_double > ( interpDiff[2] ) ) ) + ( c1   * static_cast< proshade_double > ( interpDiff[2] ) );
             }
         }
