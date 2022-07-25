@@ -729,7 +729,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     {
         settings->setResolution                       ( 8.0 );
     }
-    
+
     //================================================ Open PDB file for reading
     gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
