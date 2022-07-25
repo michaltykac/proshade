@@ -16,7 +16,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.6
+    \version   0.7.6.7
     \date      JUL 2022
  */
 
@@ -1308,7 +1308,6 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_sin
         //============================================ Run LAPACK ZGESDD
         dgeev_                                        ( &jobLeftEigs, &jobRightEigs, &dim, matrixToDecompose, &dim, eigValReal, eigValImag, leftEigVectors, &dim,
                                                         rightEigVectors, &dim, work, &workSize, &returnValue );
-        
         //============================================ Check for errors
         if ( returnValue != 0 )
         {
@@ -1402,7 +1401,7 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_sin
             *z                                       *= -1.0;
             *ang                                     *= -1.0;
         }
-
+        
         //================================================ Free memory
         delete[] eigValReal;
         delete[] eigValImag;
@@ -1441,7 +1440,7 @@ void ProSHADE_internal_maths::getRotationMatrixFromEulerZYZAngles ( proshade_sin
     
     //================================================ Standardise angle to range 0 to 2pi
     if ( *ang < 0.0 ) { *ang = ( 2.0 * M_PI ) + *ang; }
-
+    
     //================================================ Done
     return ;
     

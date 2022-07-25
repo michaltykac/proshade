@@ -47,7 +47,7 @@ endif   ( ${PRODUCE_PYTHON_BINDINGS} MATCHES 1 )
 
 ##########################################################################################
 ################################### Set project name
-project ( proshade VERSION 0.7.6.6 LANGUAGES CXX C                                        )     
+project ( proshade VERSION 0.7.6.7 LANGUAGES CXX C                                        )     
 
 ##########################################################################################
 ################################### Force C++11
@@ -270,10 +270,18 @@ if    ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
    		COMMAND type nul > ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
    	)
-else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  ) 
+else  ( "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows"  )
+    SET ( CHIPSET_ARCHITECTURE_SOFT_COMMAND      "uname"                                  )
+    SET ( CHIPSET_ARCHITECTURE_SOFT_COMMAND_ARGS "-m"                                     )
+    execute_process ( COMMAND ${CHIPSET_ARCHITECTURE_SOFT_COMMAND} ${CHIPSET_ARCHITECTURE_SOFT_COMMAND_ARGS}
+                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                      RESULT_VARIABLE SOFT_ARCH_BUILD_RESULT
+                      OUTPUT_VARIABLE SOFT_ARCH_BUILD 
+                      OUTPUT_STRIP_TRAILING_WHITESPACE )
+    message ( STATUS "SOFT library architecture    : " ${SOFT_ARCH_BUILD}                 )
 	add_custom_command (
         OUTPUT ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
-   		COMMAND make lib FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
+   		COMMAND make lib SOFTLIBARCH=${SOFT_ARCH_BUILD} FFTWINC=-I${FFTW3_INC_PATH} FFTWLIB1=-L${FFTW3_LIB_PATH} FFTWLIB2=-lfftw3 > ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.log.txt 2> ${CMAKE_SOURCE_DIR}/extern/soft-2.0/install.err.txt
    		COMMAND touch ${PROJECT_SOURCE_DIR}/extern/buildSOFT2
    		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/soft-2.0
    	)

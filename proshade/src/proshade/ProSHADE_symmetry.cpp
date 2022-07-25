@@ -15,7 +15,7 @@
  
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.6
+    \version   0.7.6.7
     \date      JUL 2022
  */
 
@@ -3930,13 +3930,13 @@ std::vector< proshade_double > ProSHADE_internal_symmetry::findTranslationBetwee
     //================================================ Convert rotated map to Fourier space
     for ( size_t it = 0; it < static_cast< size_t > ( symStr->getXDim() * symStr->getYDim() * symStr->getZDim() ); it++ ) { rotMapComplex[it][0] = rotMap[it]; rotMapComplex[it][1] = 0.0; }
     fftw_execute                                      ( planForwardFourierRot );
-
+    
     //================================================ Combine coeffs for translation function
     ProSHADE_internal_maths::combineFourierForTranslation ( origCoeffs, rotCoeffs, trFuncCoeffs, symStr->getXDim(), symStr->getYDim(), symStr->getZDim() );
-
+    
     //================================================ Compute translation function
     fftw_execute                                      ( planReverseFourierComb );
-
+    
     //================================================ Find peak
     mapPeak                                           = 0.0;
     ProSHADE_internal_maths::findHighestValueInMap    ( trFunc, symStr->getXDim(), symStr->getYDim(), symStr->getZDim(), &trsX, &trsY, &trsZ, &mapPeak );

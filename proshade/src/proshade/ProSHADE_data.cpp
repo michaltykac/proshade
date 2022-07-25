@@ -17,7 +17,7 @@
      
     \author    Michal Tykac
     \author    Garib N. Murshudov
-    \version   0.7.6.6
+    \version   0.7.6.7
     \date      JUL 2022
  */
 
@@ -667,7 +667,8 @@ void ProSHADE_internal_data::ProSHADE_data::readInMAP ( ProSHADE_settings* setti
     }
     
     //================================================ Apply Fourier weights
-    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName, this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift,
+    ProSHADE_internal_io::applyWeights                ( this->internalMap, settings->fourierWeightsFileName,
+                                                        this->xDimIndices, this->yDimIndices, this->zDimIndices, settings->verbose, settings->messageShift,
                                                         weightsArr, weigXDim, weigYDim, weigZDim );
     
     //================================================ Remove negative values if so required
@@ -728,7 +729,7 @@ void ProSHADE_internal_data::ProSHADE_data::readInPDB ( ProSHADE_settings* setti
     {
         settings->setResolution                       ( 8.0 );
     }
-    
+
     //================================================ Open PDB file for reading
     gemmi::Structure pdbFile                          = gemmi::read_structure ( gemmi::MaybeGzipped ( this->fileName ) );
     
@@ -1488,7 +1489,8 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     //================================================ Now re-sample the map
     if ( settings->changeMapResolution )
     {
-        ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( this->internalMap, settings->requestedResolution * settings->resolutionOversampling, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+        ProSHADE_internal_mapManip::reSampleMapToResolutionFourier ( this->internalMap, settings->requestedResolution * settings->resolutionOversampling,
+                                                                     this->xDimIndices, this->yDimIndices, this->zDimIndices,
                                                                      this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
         
         if ( settings->changeMapResolutionTriLinear )
@@ -1496,25 +1498,27 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
             ProSHADE_internal_messages::printWarningMessage ( settings->verbose, "!!! ProSHADE WARNING !!! Requested both Fourier-space and real-space map re-sampling. Defaulting to only Fourier space re-samplling.", "WM00049" );
         }
     }
+    
     if ( settings->changeMapResolutionTriLinear && !settings->changeMapResolution )
     {
-        ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution * settings->resolutionOversampling, this->xDimIndices, this->yDimIndices, this->zDimIndices,
+        ProSHADE_internal_mapManip::reSampleMapToResolutionTrilinear ( this->internalMap, settings->requestedResolution * settings->resolutionOversampling,
+                                                                       this->xDimIndices, this->yDimIndices, this->zDimIndices,
                                                                        this->xDimSize, this->yDimSize, this->zDimSize, changeVals );
 
     }
     
     //================================================ Set the internal values to reflect the new map size
-    this->xDimIndices                                += static_cast<proshade_unsign>  ( changeVals[0] );
-    this->yDimIndices                                += static_cast<proshade_unsign>  ( changeVals[1] );
-    this->zDimIndices                                += static_cast<proshade_unsign>  ( changeVals[2] );
+    this->xDimIndices                                 = static_cast< proshade_unsign > ( static_cast< proshade_signed > ( this->xDimIndices ) + static_cast< proshade_signed >  ( changeVals[0] ) );
+    this->yDimIndices                                 = static_cast< proshade_unsign > ( static_cast< proshade_signed > ( this->yDimIndices ) + static_cast< proshade_signed >  ( changeVals[1] ) );
+    this->zDimIndices                                 = static_cast< proshade_unsign > ( static_cast< proshade_signed > ( this->zDimIndices ) + static_cast< proshade_signed >  ( changeVals[2] ) );
             
     this->xGridIndices                                = this->xDimIndices;
     this->yGridIndices                                = this->yDimIndices;
     this->zGridIndices                                = this->zDimIndices;
             
-    this->xTo                                        += static_cast<proshade_unsign>  ( changeVals[0] );
-    this->yTo                                        += static_cast<proshade_unsign>  ( changeVals[1] );
-    this->zTo                                        += static_cast<proshade_unsign>  ( changeVals[2] );
+    this->xTo                                        += static_cast< proshade_signed >  ( changeVals[0] );
+    this->yTo                                        += static_cast< proshade_signed >  ( changeVals[1] );
+    this->zTo                                        += static_cast< proshade_signed >  ( changeVals[2] );
             
     this->xDimSize                                    = changeVals[3];
     this->yDimSize                                    = changeVals[4];
@@ -1532,7 +1536,6 @@ void ProSHADE_internal_data::ProSHADE_data::reSampleMap ( ProSHADE_settings* set
     //================================================ Move by indices (this should be sufficient)
     ProSHADE_internal_mapManip::moveMapByIndices      ( &xMov, &yMov, &zMov, this->xDimSize, this->yDimSize, this->zDimSize, &this->xFrom, &this->xTo,
                                                         &this->yFrom, &this->yTo, &this->zFrom, &this->zTo, &this->xAxisOrigin, &this->yAxisOrigin, &this->zAxisOrigin );
-    
     ProSHADE_internal_mapManip::moveMapByFourier      ( this->internalMap, xMov, yMov, zMov, this->xDimSize, this->yDimSize, this->zDimSize,
                                                         static_cast< proshade_signed > ( this->xDimIndices ), static_cast< proshade_signed > ( this->yDimIndices ), static_cast< proshade_signed > ( this->zDimIndices ) );
     

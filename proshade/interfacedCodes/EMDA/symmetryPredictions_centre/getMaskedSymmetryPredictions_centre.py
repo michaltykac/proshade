@@ -30,8 +30,8 @@
 #
 #   \author    Michal Tykac
 #   \author    Garib N. Murshudov
-#   \version   0.7.6.2
-#   \date      DEC 2021
+#   \version   0.7.6.6
+#   \date      JUL 2022
 ######################################################
 ######################################################
 
@@ -61,7 +61,9 @@ import proshade
 import mrcfile
 
 ### Import EMDA
-import emda.emda_methods as emda_methods
+import emda2.emda_methods2 as em
+from emda2.core import iotools
+from emda2.ext import mapmask
 
 
 ######################################################
@@ -78,10 +80,10 @@ symmetryCentering                                     = True
 comCentering                                          = False
 verbosity                                             = -1
 inputFileName                                         = "../symmetryPredictions/emdb_spa_210329.dat"
-outputFileName                                        = "results_allKnownEMDB_SYM_resol-"
+outputFileName                                        = "V2_results_allKnownEMDB_COM_resol-"
 EMDBDataPath                                          = "/Users/mysak/BioCEV/proshade/xx_EMDBSymmetry"
-unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145" ]
-tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618" ]
+unreleasedIDsList                                     = [ "EMD-10163", "EMD-10165", "EMD-10166", "EMD-10168", "EMD-10169", "EMD-10170", "EMD-10174", "EMD-21320", "EMD-4320", "EMD-4522", "EMD-4523", "EMD-4524", "EMD-4606", "EMD-4607", "EMD-4718", "EMD-5039", "EMD-6758", "EMD-8144", "EMD-8145", "EMD-1300" ]
+tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111", "EMD-20091", "EMD-21648", "EMD-0880", "EMD-11008", "EMD-0436", "EMD-11040", "EMD-0618", "EMD-10768", "EMD-10926", "EMD-1610", "EMD-23042" ]
 
 ######################################################
 ### Local settings
@@ -91,7 +93,7 @@ tooLargeIDsList                                       = [ "EMD-0174", "EMD-11111
 ### no user manipulation is required.
 ###
 
-startFrom                                             = 0
+startFrom                                             = 222
 resolutionFilename                                    = resolution
 outResCondensed                                       = 0
 outResAxes                                            = 0
@@ -111,25 +113,29 @@ for writing, otherwise for appending.
 """
 def openOutputFiles ( cntr ):
     ### Declare local variables
+    outResRecom                                       = ""
     outResCondensed                                   = ""
     outResAxes                                        = ""
 
     ### Open files for output
     if cntr == 0:
         outResCondensed                               = open ( outputFileName + str ( resolutionFilename ) + "_condensed.txt", "w")
+        outResRecom                                   = open ( outputFileName + str ( resolutionFilename ) + "_recommended.txt", "w")
         outResAxes                                    = open ( outputFileName + str ( resolutionFilename ) + ".txt", "w")
     else:
         outResCondensed                               = open ( outputFileName + str ( resolutionFilename ) + "_condensed.txt", "a")
+        outResRecom                                   = open ( outputFileName + str ( resolutionFilename ) + "_recommended.txt", "a")
         outResAxes                                    = open ( outputFileName + str ( resolutionFilename ) + ".txt", "a")
         
-    return                                            ( outResCondensed, outResAxes )
+    return                                            ( outResRecom, outResCondensed, outResAxes )
 
 """
 This function closes the output files. This is done after each symmetry prediction
 to make sure results are written out after each step.
 """
-def closeOutputFiles ( outResCondensed, outResAxes ):
+def closeOutputFiles ( outResRecom, outResCondensed, outResAxes ):
     ## Close output files
+    outResRecom.close                                 ( )
     outResCondensed.close                             ( )
     outResAxes.close                                  ( )
 
@@ -223,6 +229,7 @@ def checkMapResolution ( mapFile, declRes ):
     locRes                                            = resolution
 
     ### Read in map using mrc file
+    print ( mapFile )
     mrc                                               = mrcfile.open ( mapFile, mode = "r+" )
 
     ### Find dims in Angstroms
@@ -237,7 +244,7 @@ def checkMapResolution ( mapFile, declRes ):
     
     ### If map resolution below decent resolution, report
     if mapResol > minimalAllowedResolution:
-        return                                        ( -1.0 )
+        return                                        ( -1.0, -1.0 )
         
     ### Check map resolution against the minimal required resolution
     if ( locRes < float ( mapResol ) ):
@@ -254,24 +261,24 @@ def checkMapResolution ( mapFile, declRes ):
 This function reads in the density map data from the file and proceeds to use
 EMDA to compute the density mask, saving it into file "mapmask.mrc".
 """
-def maskMapUsingEMDA ( mapFile, locRes ):
-    ### Read in the data using mrcfile
-    mrc                                               = mrcfile.open ( mapFile, mode = "r+" )
-    
-    ### Parse out data from the mrcfile object
-    cell                                              = numpy.zeros ( 6, dtype="float" )
-    uc                                                = numpy.array(mrc.header.cella)
-    uc                                                = mrc.header.cella[ [ "x", "y", "z" ] ]
-    cell[:3]                                          = uc.view( ( "f4", 3 ) )
-    cell[3:]                                          = float ( 90.0 )
-    origin                                            = [mrc.header.nxstart, mrc.header.nystart, mrc.header.nzstart]
-    arr                                               = mrc.data
-    
-    ### Close the file to stop changes from being written onto the disc
-    mrc.close                                         ( )
-    
-    ### Compute mask
-    mapmask                                           = emda_methods.mask_from_map ( uc=cell, arr=arr, kern=4, resol=locRes, filter='butterworth', prob=0.99, itr=3, orig=origin )
+def maskMapUsingEMDA ( mapFile, resolution ):
+    m1 = iotools.Map ( name = mapFile )
+    m1.read()
+   
+    _, lwp = em.lowpass_map(uc=m1.workcell, arr1=m1.workarr, resol = resolution, filter="butterworth")
+    lwp = (lwp - numpy.mean(lwp)) / numpy.std(lwp)
+    binary_threshold = numpy.amax(lwp) / 100
+
+    mask = em.mask_from_map_connectedpixels(m1, binthresh=binary_threshold)
+
+    mout = iotools.Map(name='mapmask.mrc')
+    mout.arr = mask
+    mout.cell = m1.workcell
+    mout.origin = m1.origin
+    mout.write()
+
+    ### Now all work is done in this function
+    #    mapmask.main ( imap = mapFile, imask = 'mapmask2.mrc' )
     
 """
 This function runs ProSHADE symmetry detection and returns the recommented symmetry type,
@@ -307,7 +314,7 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
         rotCenSettingsPhased.messageShift             = 1;
         rotCenSettingsPhased.moveToCOM                = False;
         rotCenSettingsUnphased.usePhase               = False;
-        rotCenSettingsUnphased.requestedSymmetryType  = "onlyC";
+        rotCenSettingsUnphased.requestedSymmetryType  = "onlyCandD";
         rotCenSettingsUnphased.moveToCOM              = False;
         rotCenSettingsUnphased.addExtraSpace          = pSet.addExtraSpace * 5.0;
             
@@ -321,7 +328,7 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
         symStr.detectSymmetryInStructure              ( rotCenSettingsUnphased )
     
         ### Find reliable symmetries in the Patterson map
-        relSym                                        = proshade.findReliableUnphasedSymmetries ( rotCenSettingsUnphased, rotCenSettingsUnphased.verbose, rotCenSettingsUnphased.messageShift, rotCenSettingsUnphased.axisErrTolerance );
+        relSym                                        = proshade.findReliableUnphasedSymmetries ( symStr, rotCenSettingsUnphased.verbose, rotCenSettingsUnphased.messageShift, rotCenSettingsUnphased.axisErrTolerance );
         
         ### Are there any reasonable symmetries?
         if len ( relSym ) != 0:
@@ -331,7 +338,7 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
                 proshade.optimiseDGroupAngleFromAxesHeights ( relSym, symStr, rotCenSettingsUnphased )
                 
             ### Get all axes
-            allCAxes                                  = symStr.getAllCSyms ( rotCenSettingsUnphased )
+            allCAxes                                  = symStr.getAllCSyms ( )
                 
             ### Read in with phases
             del symStr
@@ -345,7 +352,7 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
                 ### Find the line and point on it closest to COM
                 point1                                = proshade.findPointFromTranslations ( rotCenSettingsPhased, symStr, allCAxes, relSym[0] )
                 axis1                                 = numpy.array( [ allCAxes[relSym[0]][1], allCAxes[relSym[0]][2], allCAxes[relSym[0]][3]] )
-                COM                                   = proshade.findMAPCOMValues ( symStr )
+                COM                                   = proshade.findMAPCOMValues ( symStr, rotCenSettingsPhased )
                 
                 xBoxCentre                            = ( ( symStr.xTo - symStr.xFrom ) / 2 ) + symStr.xFrom
                 yBoxCentre                            = ( ( symStr.yTo - symStr.yFrom ) / 2 ) + symStr.yFrom
@@ -401,16 +408,43 @@ def runProSHADESymmetry ( mapFile, maskFile, resol, chngSampl, cntrMap, symCenMa
     pStruct.computeRotationFunction                   ( pSet )
     pStruct.detectSymmetryInStructure                 ( pSet )
 
-    ### Retrieve results
-    recSymmetryType                                   = pStruct.getRecommendedSymmetryType ( pSet )
-    recSymmetryFold                                   = pStruct.getRecommendedSymmetryFold ( pSet )
-    allCAxes                                          = pStruct.getAllCSyms ( pSet )
+    ### Retrieve results for default ProSHADE
+    recSymmetryType                                   = pStruct.getRecommendedSymmetryType ( )
+    recSymmetryFold                                   = pStruct.getRecommendedSymmetryFold ( )
+    recSymmetryAxes                                   = pStruct.getRecommendedSymmetryAxes ( )
+    allCAxes                                          = pStruct.getAllCSyms ( )
     
-    ### Convert results for return
     retList                                           = []
-    retList.append                                    ( recSymmetryType )
-    retList.append                                    ( recSymmetryFold )
-    retList.append                                    ( allCAxes )
+    retListOrig                                       = []
+    retListOrig.append                                ( recSymmetryType )
+    retListOrig.append                                ( recSymmetryFold )
+    retListOrig.append                                ( allCAxes )
+    retListOrig.append                                ( recSymmetryAxes )
+    retList.append                                    ( retListOrig )
+    
+    ### Re-compute with different thresholds
+    thresList                                         = []
+    thresList.append ( 0.95 )
+    thresList.append ( 0.90 )
+    thresList.append ( 0.80 )
+    thresList.append ( 0.70 )
+    thresList.append ( 0.60 )
+    thresList.append ( 0.50 )
+    thresList.append ( 0.40 )
+    
+    for thr in thresList:
+        pStruct.reRunSymmetryDetectionThreshold       ( pSet, thr )
+        recSymmetryType                               = pStruct.getRecommendedSymmetryType ( )
+        recSymmetryFold                               = pStruct.getRecommendedSymmetryFold ( )
+        recSymmetryAxes                               = pStruct.getRecommendedSymmetryAxes ( )
+        allCAxes                                      = pStruct.getAllCSyms ( )
+        
+        retListThres                                  = []
+        retListThres.append                           ( recSymmetryType )
+        retListThres.append                           ( recSymmetryFold )
+        retListThres.append                           ( allCAxes )
+        retListThres.append                           ( recSymmetryAxes )
+        retList.append                                ( retListThres )
     
     ### Release memory
     del pStruct
@@ -491,7 +525,7 @@ for entry in symIDs:
 
     ### Run symmetry detection
     symRes                                            = runProSHADESymmetry ( mapPath, maskPath, compResolution, mapReSampling, comCentering, symmetryCentering, verbosity )
-
+    
     ### Stop timer
     stopTime                                          = time.time ( )
 
@@ -499,24 +533,39 @@ for entry in symIDs:
     print                                             ( " ... Symmetry detection complete ( time taken: " + str( stopTime - startTime ) + " )." )
 
     ### Open files for output
-    ( outResCondensed, outResAxes )                   = openOutputFiles ( counter )
+    ( outResRecom, outResCondensed, outResAxes )      = openOutputFiles ( counter )
 
     ### Write results
-    if ( symRes[0] == "I" ) or ( symRes[0] == "O" ) or ( symRes[0] == "T" ):
-        outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + "\t" + str( stopTime - startTime ) + "\n" )
-    else:
-        outResCondensed.write                         ( str( id ) + "\t" + str( declaredSym ) + "\t" + str( symRes[0]  ) + str( symRes[1] ) + "\t" + str( stopTime - startTime ) + "\n" )
+    outResCondensed.write                             ( str( id ) + "\t" + str( declaredSym ) + "\t" )
     outResAxes.write                                  ( str( id ) + " :\n==========\n" )
-    for ax in range ( 0, len ( symRes[2] ) ):
-        outResAxes.write                              ( str ( symRes[2][ax][0] ) + "\t" + str ( symRes[2][ax][1] ) + "\t" + str( symRes[2][ax][2] ) + "\t" + str( symRes[2][ax][3] ) + "\t" + str( symRes[2][ax][4] ) + "\t" + str( symRes[2][ax][5] ) + "\t" + str( symRes[2][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str( compResolution ) + "\n" )
-    outResAxes.write                                  ( "\n" )
+    outResRecom.write                                 ( str( id ) + " :\n==========\n" )
+    
+    for thr in range ( 0, len( symRes ) ):
+        if ( symRes[thr][0] == "I" ) or ( symRes[thr][0] == "O" ) or ( symRes[thr][0] == "T" ):
+            outResCondensed.write                     ( str( symRes[thr][0]  ) + "\t" )
+        else:
+            outResCondensed.write                     ( str( symRes[thr][0]  ) + str( symRes[thr][1] ) + "\t" )
+        
+
+        outResRecom.write                             ( str( thr ) + " :\n~~~~~~~~~\n" )
+        for ax in range ( 0, len ( symRes[thr][3] ) ):
+            outResRecom.write                         ( str ( symRes[thr][3][ax][0] ) + "\t" + str ( symRes[thr][3][ax][1] ) + "\t" + str( symRes[thr][3][ax][2] ) + "\t" + str(   symRes[thr][3][ax][3] ) + "\t" + str( symRes[thr][3][ax][4] ) + "\t" + str( symRes[thr][3][ax][5] ) + "\t" + str( symRes[thr][3][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str(   compResolution ) + "\n" )
+        outResRecom.write                             ( "\n" )
+    
+        outResAxes.write                             ( str( thr ) + " :\n~~~~~~~~~\n" )
+        for ax in range ( 0, len ( symRes[thr][2] ) ):
+            outResAxes.write                          ( str ( symRes[thr][2][ax][0] ) + "\t" + str ( symRes[thr][2][ax][1] ) + "\t" + str( symRes[thr][2][ax][2] ) + "\t" + str(   symRes[thr][2][ax][3] ) + "\t" + str( symRes[thr][2][ax][4] ) + "\t" + str( symRes[thr][2][ax][5] ) + "\t" + str( symRes[thr][2][ax][6] ) + "\t" + str( mapVolumeInds ) + "\t" + str(   compResolution ) + "\n" )
+        outResAxes.write                              ( "\n" )
+    
+    
+    outResCondensed.write                             ( str( stopTime - startTime ) + "\n" )
     
     ### Close output files
-    closeOutputFiles                                  ( outResCondensed, outResAxes )
+    closeOutputFiles                                  ( outResRecom, outResCondensed, outResAxes )
     
     ### Move counter
     counter                                           = counter + 1
-
+    
     ### End of symmetry detection for this structure
 
 ### Done
