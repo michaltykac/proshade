@@ -33,7 +33,7 @@
 ## CFLAGS = -O3 -pg
 ## CFLAGS = -O3
 ## CFLAGS = -Wall -g -I./include $(FFTWINC)
-CFLAGS = -Wall -O3 -g -I./include $(FFTWINC) -fPIC -std=c99 -arch $(SOFTLIBARCH)
+CFLAGS = -Wall -O3 -g -I./include $(FFTWINC) -fPIC -std=c99 $(SOFTLIBARCH)
 
 FFTWLIB := $(FFTWLIB1) $(FFTWLIB2)
 
